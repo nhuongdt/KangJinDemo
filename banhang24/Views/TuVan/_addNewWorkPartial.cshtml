@@ -1,0 +1,367 @@
+﻿@using Model
+@using banhang24.Hellper
+<style>
+    .modal-cong-viec .input-group {
+        width: calc(100% - 130px);
+    }
+</style>
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title">
+            Công việc
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="col-md-12 modal-cong-viec">
+            <div class="row">
+                <div class="col-md-12 nopadding">
+                    <div class="form-group floatleft">
+                        <label>Đối tượng</label>
+                        <div class="input-group">
+                            <p class="nopadding no-magrin">
+                                <label><input type="radio" name="ko_unique" data-bind="checked: checkDoiTuong, checkedValue: '1'" value="true"> Khách hàng</label>
+                                <label><input type="radio" name="ko_unique" data-bind="checked: checkDoiTuong, checkedValue: '2'" value="false"> Nhà cung cấp</label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 nopading-left">
+                    <div class="form-group floatleft" id="formKhachHang">
+                        <label>Khách hàng</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtKhachHang" style="cursor:pointer">--- Chọn khách hàng ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterKhachHang, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstKhachHang" class="group-parent">
+                                        <li data-bind="click : clickFistChonKhachHang" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn khách hàng ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterKhachHang">
+                                            <div class="group-p1" data-bind="click : $root.selectedChooseKhachHang">
+                                                <a  data-bind="text: MaDoiTuong"></a> -
+                                                <a  data-bind="text: TenDoiTuong, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckKhachHang_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default op-js-themmoi" data-bind="click: showPopupAddKH">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="formNhaCungCap">
+                        <label>Nhà cung cấp</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtNhaCungCap" style="cursor:pointer">--- Chọn nhà cung cấp ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterNhaCungCap, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstNhaCungCap" class="group-parent">
+                                        <li data-bind="click : clickFistChonNhaCungCap" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn nhà cung cấp ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterNhaCungCap">
+                                            <div class="group-p1" data-bind="click : $root.selectedChooseNhaCungCap">
+                                                <a  data-bind="text: MaDoiTuong"></a> -
+                                                <a  data-bind="text: TenDoiTuong, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckNhaCungCap_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default op-js-themmoi" data-bind="click: showPopupNCC">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="dlltrangthaikh">
+                        <label>Trạng thái khách</label>
+                        <div class="input-group">
+                            <select class="form-control border-radius" id="SL_TrangThaiKH">
+                                <option value="">-- Trạng thái khách hàng --</option>
+                                <!--ko foreach: TrangThaiKhachHang -->
+                                <option data-bind="value:ID,text:Name"></option>
+                                <!--/ko-->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="formLienHeKhachHang">
+                        <label>Liên hệ</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtLienHe" style="cursor:pointer">--- Chọn liên hệ ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterLienHe, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstLienHe" class="group-parent">
+                                        <li data-bind="click : clickFistChonLienHe" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn liên hệ ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterLienHe">
+                                            <div class="group-p1" data-bind="click : $root.selectedChooseLienHe">
+                                                <a  data-bind="text: MaLienHe"></a> -
+                                                <a  data-bind="text: TenLienHe, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckLienHe_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default op-js-themmoi" data-bind="click: showPopupAddNguoiLienHe">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="formLienHeNhaCungCap">
+                        <label>Liên hệ</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtLienHeNCC" style="cursor:pointer">--- Chọn liên hệ ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterLienHeNCC, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstLienHeNCC" class="group-parent">
+                                        <li data-bind="click : clickFistChonLienHeNCC" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn liên hệ ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterLienHeNCC">
+                                            <div class="group-p1" data-bind="click : $root.selectedChooseLienHeNCC">
+                                                <a  data-bind="text: MaLienHe"></a> -
+                                                <a  data-bind="text: TenLienHe, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckLienHeNCC_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default op-js-themmoi" data-bind="click: showPopupAddNguoiLienHeNCC">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Loại công việc</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtLoaiCongViec" style="cursor:pointer">--- Chọn loại công việc ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterLoaiCongViec, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstLoaiCongViec" class="group-parent">
+                                        <li data-bind="click : clickFistChonLoaiCV" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn loại công việc ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterLoaiCongViec">
+                                            <div class="group-p1" data-bind="click : $root.selectedChooseLoaiCV">
+                                                <a  data-bind="text: LoaiCongViec, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckLoaiCongViec_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="input-group-btn">
+                                <a class="btn btn-default op-js-themmoinhomhang pencel-add" data-bind="click: showaddLoaiCV" ><i class="fa fa-plus"></i></a>
+                                <a class="btn btn-default pencel-edit a-edit" data-bind="click: editLoaiCV" ><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nhân viên chia sẻ</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtNhanVienChiaSe" style="cursor:pointer;border-radius:4px;">--- Chọn nhân viên ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterNhanVien, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstNhanVien" class="group-parent">
+                                        <li data-bind="click : clickFistChonNhanVien" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn nhân viên---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterNhanVien">
+                                            <div class="group-p1" data-bind="click : $root.selectedChooseNhanVien">
+                                                <a  data-bind="text: MaNhanVien"></a> -
+                                                <a  data-bind="text: TenNhanVien, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckNhanVien_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 nopading">
+                    <div class="col-md-12 nopadding">
+                        <div class="col-xs-6 col-sm-6 col-md-7">
+                            <div class="form-group floatleft form-work">
+                                    <label>Thời gian từ</label>
+                                <div class="form-news">
+                                    <input type="text" class="form-control datetimepicker4" id="txtThoiGianTu" data-bind="datepicker: newCongViec().ThoiGianTu">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 nopadding">
+                            <div class="form-group floatleft form-work">
+                                    <label class="label-small">Đến</label>
+                                <div class="form-news-small">
+                                    <input type="text" class="form-control datetimepicker4" id="txtThoiGianDen" data-bind="datepicker: newCongViec().ThoiGianDen">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-7" data-bind="with: newCongViec">
+                            <div class="form-group floatleft form-work">
+                                    <label>Nhắc trước</label>
+                                <div class="form-news">
+                                    <select class="form-control" id="ddlNhacTruoc">
+                                        @foreach (var item in commonEnum.TypeTimeRemind)
+                                        {
+                                            <option value="@item.Key">@item.Value</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 nopadding">
+                    <div class="form-group floatleft" data-bind="with: newCongViec">
+                        <label class="label-texarea nopadding">Nội dung công việc</label>
+                        <div class="input-group">
+                            <textarea style="width:100%" rows="5" type="text" data-bind="value: NoiDung" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 nopadding" id="notifyKetQua">
+                    <div class="form-group floatleft" data-bind="with: newCongViec">
+                        <label class="label-texarea nopadding">Kết quả công việc</label>
+                        <div class="input-group">
+                            <textarea style="width:100%" rows="4" id="txtKetQuaCongViec" type="text" data-bind="value: KetQuaCongViec" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 nopading-left" data-bind="visible:IsUpdate">
+                    <div class="form-group">
+                        <label>Trạng thái công việc</label>
+                        <div class="input-group">
+                            <select class="form-control border-radius" id="typeTrangThaiCV">
+                                @foreach (var item in commonEnumHellper.ListCongViec)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-bind="visible:checkLienHeLai">
+                    <div class="form-group floatleft checked-content">
+                        <input type="checkbox" id="checkLienHeLai">
+                        <label class="form-label  control-label ">
+                            Có liên hệ lại không?
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6 nopading-left" data-bind="visible:CheckHienLienHeLai">
+                    <div class="form-group floatleft">
+                        <label>Thời gian liên hệ lại</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control datetimepicker4" id="txtThoiGianLienHeLai" data-bind="datepicker: newCongViec().ThoiGianLienHeLai">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-bind="visible:CheckHienLienHeLai">
+                    <div class="col-md-12 nopadding">
+                        <div class="col-xs-12 col-sm-12 col-md-7 nopadding">
+                            <div class="form-group floatleft">
+                                <div class="col-md-5 nopadding">
+                                    <label>Nhắc trước</label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-7  nopadding">
+                                    <select class="form-control" id="ddlNhacTruocLienHeLai">
+                                        @foreach (var item in commonEnum.TypeTimeRemind)
+                                        {
+                                            <option value="@item.Key">@item.Value</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 nopadding" data-bind="visible:CheckHienLienHeLai">
+                    <div class="form-group floatleft" data-bind="with: newCongViec">
+                        <label class="label-texarea nopadding">Lý do hẹn lại</label>
+                        <div class="input-group">
+                            <textarea style="width:100%" rows="4" type="text" data-bind="value: LyDoHenLai" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+            <button type="button" class="btn btn-save" id="btnLuuCongViec" data-bind="click: addCongViec">
+                <i class="fa fa-save"></i>&nbsp; Lưu
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    function keypressNumber_limitNumber(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode != 46 || $(obj).val().indexOf('.') != -1) && (keyCode < 48 || keyCode > 57)) {
+            if ((event.which != 46 || $this.indexOf('.') != -1)) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        if ($this.indexOf(".") > -1 && ($this.split('.')[1].length > 2)) {
+            event.preventDefault();
+        }
+    }
+</script>

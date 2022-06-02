@@ -1,0 +1,363 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Open24.vn - Tư vấn";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/AppDanhMuc/TuVanList")
+    <script>
+        var height_table = $("#td").height();
+        var width_table = $(".table-hover").width();
+        if (height_table > 500) {
+            $(".table-reponsive").addClass("table_h");
+        }
+        if (width_table > 850) {
+            $(".table-reponsive").addClass("table_h");
+        }
+    </script>
+}
+<style>
+    ul.ui-autocomplete {
+        z-index: 999999999999;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class=" op-filter">
+                    <section class="op-filter-body">
+                        <article class="boxLeft sortTime">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/seach1.png" />  Tìm kiếm
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <input type="tel" placeholder="Theo mã phiếu, theo KH" class="form-control"
+                                           data-bind="value: filter, valueUpdate: 'afterkeydown'">
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Ngày tạo
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu"><input type="radio" name="rdTonKho" value="2"></div>
+                                        <div class="conten-choose">
+                                            <div class=" choose-date ">
+                                                <div data-toggle="dropdown" aria-expanded="true">
+                                                    <input type="text" class="dropdown form-control choose-date-show" placeholder="Quý trước">
+                                                </div>
+                                                <div class="dropdown-menu">
+                                                    <div class="col-md-4 col-sm-4">
+                                                        <h3>Theo ngày và tuần</h3>
+                                                        <ul>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Hôm nay</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Hôm qua</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Tuần này</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Tuần trước</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">7 ngày qua</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-4">
+                                                        <h3>Theo tháng và quý</h3>
+                                                        <ul>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Tháng này</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Tháng trước</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Tháng này (Âm lịch)</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Tháng trước (Âm lịch)</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">30 ngày qua</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Quý này</a></li>
+                                                            <li><a href="javascript:void(0);" class="ng-binding">Quý trước</a></li>
+                                                        </ul>
+                                                    </div><div class="col-md-4 col-sm-4">
+                                                        <h3>Theo năm</h3>
+                                                        <ul>
+                                                            <li class="ng-scope"><a href="javascript:void(0);" class="ng-binding">Năm này</a></li>
+                                                            <li class="ng-scope"><a href="javascript:void(0);" class="ng-binding">Năm trước</a></li>
+                                                            <li class="ng-scope"><a href="javascript:void(0);" class="ng-binding">Năm này (Âm lịch)</a></li>
+                                                            <li class="ng-scope"><a href="javascript:void(0);" class="ng-binding">Năm trước (Âm lịch)</a></li>
+                                                            <li class="ng-scope"><a href="javascript:void(0);" class="ng-binding">Toàn thời gian</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu"><input type="radio" name="rdTonKho" value="2"></div>
+                                        <div class="conten-choose">
+                                            <div class="floatleft form-wrap ">
+                                                <input type="text" class="form-control datetimepicker" placeholder="12/07/2017">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/loaituvan.png" />
+                                Loại tư vấn
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container">
+                                <ul id="tatcanhh" class="treename" data-bind="click: getAllPhieuTuVans">
+                                    Tất cả
+                                </ul>
+                                <ul class="treeview" id="treeviewnhomhang" data-bind="foreach: LoaiTuVanLichHens">
+                                    <li class="ss-li" data-bind="click: $parent.changeddlLoaiTuVan, attr:{id: ID}">
+                                        <span class="treename" data-bind="text: TenLoaiTuVanLichHen"></span>
+                                    </li>
+                                </ul>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/trangthai (1).png" />              Trạng thái
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group">
+                                        <label><input type="checkbox" data-bind="checked: ckThamKhao"> Tham khảo</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><input type="checkbox" data-bind="checked: ckTiemNang"> Tiềm năng</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><input type="checkbox" data-bind="checked: ckHuy"> Hủy</label>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/Iconbanhanggg-05.png" />
+                                Lựa chọn hiển thị
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container menuRadio">
+                                <div class="last">
+                                    <label>Số bản ghi:</label>
+                                    <select class="form-control" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                                </div>
+                            </aside>
+                        </article>
+                    </section>
+                    <div class="op-filter-footer">
+                        <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                        <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                            <span>Thu gọn</span>
+                        </button>
+                        <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                            <span>Mở rộng</span>
+                        </button>
+                        <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                    </div>
+                </div>
+                <div class="content-table ">
+                    <h2 class="pull-left title">Phiếu tư vấn</h2>
+                    <div class="btnMenu pull-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-main dropdown-toggle" data-bind="click: themmoituvan" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-plus"></i><font>Thêm mới</font>
+                            </button>
+                        </div>
+                        <input type="file" id="fileLoader" name="fileLoader" title="Load File" style="display:none" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                        <button class="btn btn-main" id="btnExport" name="btnExport"><span class="glyphicon glyphicon-export"></span>Xuất file</button>
+                    </div>
+                    <div class="table-reponsive">
+                        <table class=" table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="maphieu">Mã phiếu</th>
+                                    <th class="ngaygio">Ngày giờ</th>
+                                    <th class="khachhang">Khách hàng</th>
+                                    <th class="khachhang">Loại tư vấn</th>
+                                    <th class="trangthai">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: filteredTuVan">
+                                <tr class="prev-tr-hide" data-bind="css:{bggray : $index()%2 == 1}">
+                                    <td class="maphieu" data-bind="text: Ma_TieuDe"></td>
+                                    <td class="ngaygio" data-bind="text:  moment(NgayGio).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(NgayGio).format('DD/MM/YYYY hh:mm'):''"></td>
+                                    <td class="khachhang" data-bind="text: TenKhachHang"></td>
+                                    <td class="phanloai" data-bind="text: TenLoaiTV"></td>
+                                    <td class="trangthai" data-bind="text: TrangThai"></td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td colspan="5">
+                                        <div class="op-object-detail " style="width:100%">
+                                            <ul class="nav nav-tabs" style="width:100%">
+                                                <li class="active"><a href="javascript:void(0)">Thông tin</a></li>
+                                            </ul>
+                                            <div class="tab-content tab-content-next">
+                                                <div class="tab-pane active">
+                                                    <div class="col-xs-12 col-sm-6 col-lg-6">
+                                                        <div class="detail-content floatleft">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label ">Mã phiếu:</label>
+                                                                <div class="css-form-detail" data-bind="text: Ma_TieuDe"></div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label ">Ngày giờ:</label>
+                                                                <div class="css-form-detail" data-bind="text: moment(NgayGio).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(NgayGio).format('DD/MM/YYYY hh:mm'):''"></div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label ">Khách hàng:</label>
+                                                                <div class="css-form-detail" data-bind="text: TenKhachHang"></div>
+                                                            </div>
+                                                            <div class="form-group floatleft border-end">
+                                                                <label class="css-form-label ">Loại tư vấn:</label>
+                                                                <div class="css-form-detail" data-bind="text: TenLoaiTV"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-6 col-lg-6">
+                                                        <div class="detail-content floatleft">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label ">Trạng thái:</label>
+                                                                <div class="css-form-detail" data-bind="text: TrangThai"></div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label ">Nội dung tư vấn:</label>
+                                                                <div class="css-form-detail">
+                                                                    <div class="css-form-detail" data-bind="text: NoiDung"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft border-end">
+                                                                <label class="css-form-label">Phản hồi KH:</label>
+                                                                <div class="css-form-detail">
+                                                                    <div class="css-form-detail" data-bind="text: TraLoi"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft border-end">
+                                                                <label class="css-form-label">Nhân viên:</label>
+                                                                <div class="css-form-detail">
+                                                                    <div class="css-form-detail" data-bind="text: TenNV"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="group-btn floatleft text-right">
+                                                            <a  class="btn btn-main" data-bind="click: $parent.editTuVan">
+                                                                <i class="fa fa-check-square"></i> Cập nhật
+                                                            </a>
+                                                            <a  class="btn btn-cancel" data-bind="click: $parent.modalDelete">
+                                                                <i class="fa fa-trash"></i> Xóa
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="page">
+                        <div class="flex flex-end">
+                            <ul data-bind="foreach: PageList">
+                                <li>
+                                    <a href="javascript:void(0)" data-bind="text: $data+1, click: $root.GoToPage, css: $root.GetClass($data)"></a>
+                                </li>
+                            </ul>
+                            <div class="total-recos">Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số <span data-bind="text: $root.TuVans() !==null? $root.TuVans().length: 0"></span> phiếu tư vấn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        @*Xóa*@
+    </div>
+</div>
+<div class="modal fade" id="myModaltuvan">
+    <div id="modalContainerlg_TuVan" class="modal-dialog draggable modal-lg">
+        @Html.Action("_themmoituvan", new { area = "", Controller = "TuVan" })
+    </div>
+</div>
+<div class="modal fade " id="myModalphanloai">
+    <div class="modal-dialog draggable modal-dialog-pb">
+        <div class="modal-sm">
+            @Html.Action("_themmoi_loaituvan", new { area = "", Controller = "TuVan" })
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_deleteTuVan">
+    <div id="modalContainer_delete" class="modal-dialog draggable ">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa phiếu tư vấn <span style="font-weight:bold" data-bind="text: deletePhieuTuVan"></span> khỏi danh sách.
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-success" data-dismiss="modal" data-bind="click: xoaTuVan">Đồng ý</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Modal xóa loai tu van*@
+<div class="modal fade" id="modalpopup_deleteLoaiTuVan">
+    <div id="modalContainer_delete" class="modal-dialog draggable ">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa loại tư vấn <span style="font-weight:bold" data-bind="text: deleteTenLoaiTuVan"></span> khỏi danh sách.
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaLoaiTuVan"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).on('click', '.classification select', function () {
+        var t = $(this).val();
+        if (t == "") {
+            $(".pencel-edit").css("display", "none");
+            $(".pencel-add").css("display", "block");
+        }
+        else {
+            $(".pencel-edit").css("display", "block");
+            $(".pencel-add").css("display", "none");
+        }
+    });
+    $(document).on('click', '.prev-tr-hide', function () {
+        $(this).parents(".table-reponsive").toggleClass("table_re");
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        if (t == "none") {
+            $(".op-js-tr-hide").removeClass("ac");
+            $(".op-js-tr-hide").removeClass("l");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+        }
+        else if (t == "block") {
+            $(this).next(".op-js-tr-hide").removeClass("ac");
+        }
+        else {
+            $(".op-js-tr-hide").removeClass("ac");
+        }
+    });
+    var t = $(".table-reponsive").width();
+    $(".op-object-detail .tab-content").width(t - 20);
+</script>

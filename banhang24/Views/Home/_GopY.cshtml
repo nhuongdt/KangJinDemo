@@ -1,0 +1,147 @@
+﻿<div id="VueGopY" class="modal fade" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" >
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{ModalTitle}}
+                </h4>
+            </div>
+            <div class="modal-body" v-if="!Success">
+                <div class="form-group">
+                    <label class="col-sm-3" for="gopyHoVaTen">Họ và tên</label>
+                    <div class="col-sm-9">
+                        <input class="form-control" placeholder="Họ và tên" id="gopyHoVaTen" v-model="HoVaTen" v-bind:class="[CheckHoTen ? 'inputError' : '']" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3" for="gopySoDienThoai">Số điện thoại</label>
+                    <div class="col-sm-9">
+                        <input class="form-control" placeholder="Số điện thoại" id="gopySoDienThoai" v-model="SoDienThoai" v-bind:class="[CheckDienThoai ? 'inputError' : '']" />
+                    </div>
+                </div>
+                <div class="form-group" v-if="ModalType !== 1">
+                    <label class="col-sm-3" for="gopyNoiDung">Email</label>
+                    <div class="col-sm-9">
+                        <input class="form-control" placeholder="Email" id="gopyEmail" v-model="Email" />
+                    </div>
+                </div>
+                <div class="form-group" v-if="ModalType === 1">
+                    <label class="col-sm-3" for="gopyNoiDung">Nội dung góp ý</label>
+                    <div class="col-sm-9">
+                        <textarea rows="3" placeholder="Nội dung góp ý" style="resize: none" id="gopyNoiDung" v-model="NoiDungGopY" v-bind:class="[CheckNoiDung ? 'inputError' : '']"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" v-if="Success" >
+                <div style="font-size: 16px; text-align: center;">
+                    <span >
+                        Cảm ơn quý khách đã {{ ModalType === 1 ? "góp ý" : ModalType === 2 ? "đặt mua" : "yêu cầu gia hạn" }}, chúng tôi đã tiếp nhận thông tin và có phản hồi tới quý khách ngay trong giờ làm việc!
+                    </span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel w100" data-dismiss="modal" >Đóng</button>
+                <button type="button" class="btn btn-primary w100" v-on:click="GuiGopY" v-if="!Success">Gửi {{ ModalType === 1 ? "góp ý" : "yêu cầu" }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .inputError {
+        border-color: red;
+        outline: 0;
+    }
+</style>
+<script>
+    var VGopY = new Vue({
+        el: '#VueGopY',
+        data: {
+            SoDienThoai: '',
+            HoVaTen: '',
+            NoiDungGopY: '',
+            Email: '',
+            CheckHoTen: false,
+            CheckDienThoai: false,
+            CheckNoiDung: false,
+            urlHTApi: '/api/DanhMuc/HT_API/',
+            Success: false,
+            ModalType: 1, /* 1 - Góp ý, 2 - Đặt mua, 3 - Gia hạn */
+            ModalTitle: ''
+        },
+        methods: {
+            ShowModal: function (type) {
+                let self = this;
+                self.ModalType = type;
+                self.InitModalGopY();
+                $('#VueGopY').modal('show');
+            },
+            HideModal: function () {
+                $('#VueGopY').modal('hide');
+            },
+            GuiGopY: function () {
+                let self = this;
+                if (!self.CheckInput()) {
+                    let myData = {};
+                    myData.HoVaTen = self.HoVaTen;
+                    myData.SoDienThoai = self.SoDienThoai;
+                    myData.NoiDung = self.NoiDungGopY;
+                    myData.Subdomain = VHeader.SubDomain;
+                    myData.ModalType = self.ModalType;
+                    myData.Email = self.Email;
+                    $.ajax({
+                        url: self.urlHTApi + "GuiGopY",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.Success = true;
+                        }
+                    });
+                }
+            },
+            InitModalGopY: function () {
+                let self = this;
+                if (self.ModalType === 1) {
+                    self.ModalTitle = "Góp ý sản phẩm và chất lượng dịch vụ";
+                }
+                else if (self.ModalType === 2) {
+                    self.ModalTitle = "Yêu cầu đặt mua";
+                } else if (self.ModalType === 3) {
+                    self.ModalTitle = "Yêu cầu gia hạn";
+                }
+                self.SoDienThoai = '';
+                self.HoVaTen = '';
+                self.NoiDungGopY = '';
+                self.Email = '';
+                self.Success = false;
+                self.CheckHoTen = false;
+                self.CheckDienThoai = false;
+                self.CheckNoiDung = false;
+            },
+            CheckInput: function () {
+                let self = this;
+                if (self.HoVaTen === "")
+                    self.CheckHoTen = true;
+                else
+                    self.CheckHoTen = false;
+                if (self.SoDienThoai === "")
+                    self.CheckDienThoai = true;
+                else
+                    self.CheckDienThoai = false;
+                if (self.NoiDungGopY === "")
+                    self.CheckNoiDung = true;
+                else
+                    self.CheckNoiDung = false;
+                if (self.CheckHoTen || self.CheckDienThoai || self.CheckNoiDung)
+                    return true;
+                else
+                    return false;
+            }
+        }
+    })
+    
+</script>

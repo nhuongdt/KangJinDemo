@@ -1,0 +1,105 @@
+﻿<div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title">Phiếu điều chỉnh giá vốn</h4>
+    </div>
+    <div class="modal-body">
+        <div class="floatleft">
+            <div class="col-xs-12 col-md-4">
+                <div class="detail-content floatleft">
+                    <div class="form-group floatleft" data-bind="with :newHoaDon">
+                        <label class="css-form-label ">Mã điều chỉnh:</label>
+                        <div class="css-form-detail" data-bind="text: MaHoaDon">MN001</div>
+                    </div>
+                    <div class="form-group floatleft" data-bind="with :newHoaDon">
+                        <label class="css-form-label ">Thời gian:</label>
+                        <div class="css-form-detail" data-bind="text: NgayLapHoaDon">12/01/2017</div>
+                    </div>
+                    <div class="form-group floatleft" data-bind="with :newHoaDon">
+                        <label class="css-form-label ">Người điều chỉnh:</label>
+                        <div class="css-form-detail" data-bind="text: TenNhanVien">Bùi Thị Thu</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <div class="detail-content">
+                    <div class="form-group floatleft" data-bind="with :newHoaDon">
+                        <label class="css-form-label ">Trạng thái:</label>
+                        <div class="css-form-detail" data-bind="text :(ChoThanhToan === true? 'Phiếu tạm' :'Đã điều chỉnh')">Đã hoàn thành</div>
+                    </div>
+                    <div class="form-group floatleft" data-bind="with :newHoaDon">
+                        <label class="css-form-label "> Chi nhánh:</label>
+                        <div class="css-form-detail" data-bind="text: TenDonVi">Chi nhánh trung tâm</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <div class="detail-content">
+                    <div class="form-group floatleft border-end">
+                        <label class="css-form-label ">Ghi chú:</label>
+                        <div class="css-form-detail" data-bind="text: newHoaDon().DienGiai"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-reponsive">
+                <div class="table-res">
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th>Mã hàng hóa</th>
+                                <th>Tên hàng</th>
+                                <th>Giá vốn hiện tại</th>
+                                <th>Giá vốn mới</th>
+                                <th class="text-right">Chênh lệch</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: $root.BH_HoaDonChiTiets">
+                            <tr>
+                                <td>
+                                    <a data-bind="text: MaHangHoa, click: function(){ $root.gotoPage (0, MaHangHoa ) }">
+                                    </a>
+                                </td>
+                                <td>
+                                    <span data-bind="text: TenHangHoa"></span>
+                                    <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                    <span style="color: #8abb0f" data-bind="visible: TenDonViTinh">
+                                        (<span data-bind="text: TenDonViTinh"></span>)
+                                    </span><br />
+                                    <span data-bind="visible: MaLoHang">
+                                        <span data-bind="text: '(Lô: '+ MaLoHang +')'" style="color:palevioletred"></span>
+                                    </span>
+                                </td>
+                                <td data-bind="text: formatNumber(DonGia)"></td>
+                                <td data-bind="text: formatNumber3Digit(GiaVon,2)"></td>
+                                <td class="text-right" data-bind="text: formatNumber3Digit(DonGia - GiaVon,2)"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!--ko if: $root.TotalRecordCTNH() > 10-->
+                    <div class="page">
+                        <div class="flex flex-end">
+                            <a href="#" data-bind="click: $root.StartPageCTNH, visible: $root.VisibleStartPageCTNH"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                            <a href="#" data-bind="click: $root.BackPageCTNH, visible: $root.VisibleStartPageCTNH "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                            <ul data-bind="foreach: $root.PageListCTNH">
+                                <li>
+                                    <a href="javascript:void(0)" data-bind="text: pageNumberCTN, click: $root.GoToPageCTNH, css: $root.GetClassCTNH($data)"></a>
+                                </li>
+                            </ul>
+                            <a href="#" data-bind="click: $root.GoToNextPageCTNH, visible: $root.VisibleEndPageCTNH "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                            <a href="#" data-bind="click: $root.EndPageCTNH, visible: $root.VisibleEndPageCTNH "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                            <div class="total-recos">Hiển thị <span data-bind="text: $root.fromitemCTNH"></span> - <span data-bind="text: $root.toitemCTNH"></span> trên tổng số <span data-bind="text: $root.TotalRecordCTNH()"></span> mã hàng.</div>
+                        </div>
+                    </div>
+                    <!--/ko-->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="group-btn pull-right">
+                    <a  class="btn btn-main" data-bind="click: linkphieu">
+                        <i class="fa fa-share"></i> Mở phiếu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

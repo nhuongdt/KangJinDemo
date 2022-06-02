@@ -1,0 +1,1192 @@
+﻿@{
+    Layout = null;
+}@using banhang24.Hellper
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .gara-tab-detail .form-group label {
+            font-weight: 400;
+        }
+
+        .gara-tab-detail .form-group {
+            border-bottom: none
+        }
+    </style>
+</head>
+<body>
+    <div class="op-container" id="vDanhSachDatLich">
+        <div class="col-left">
+            <div class=" op-filter">
+
+                <section class="op-filter-body ">
+                    <article class="boxLeft ">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="listChiNhanh" v-on:callfunctionloaddata="LoadData"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/ngaytao.png" />
+                            Thời gian đặt lịch
+                        </h3>
+                        <filter-datetime radioname="rdNgayTiepNhan" v-bind:typetime="ThoiGianTypeTime"
+                                         v-on:callfunction="onCallThoiGian"
+                                         v-bind:selectvalue="defaultThoiGianFilterValue"></filter-datetime>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/ngaytao.png" />
+                            Trạng thái
+                        </h3>
+                        <filter-checkbox v-bind:listitem="ListTrangThai" v-on:callfunctionloaddata="oncallTrangThaiSelect"></filter-checkbox>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">Danh sách khách hàng đặt lịch</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <button class="btn btn-main" v-on:click="VThemMoiDatLich.showModal()">
+                                <i class="far fa-plus"></i><span>Thêm mới</span>
+                            </button>
+                            <div class="dropdown" style="display:inline-block">
+                                <button type="button" class="btn btn-main addHHH  btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <font>Cài đặt</font> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu " style="width:230px">
+                                    <li><a href="javascript:void(0);" v-on:click="CaiDatHangHoa">Hàng hóa</a></li>
+                                    <li><a href="javascript:void(0);">Nhân viên</a></li>
+                                </ul>
+                            </div>
+                            <div class="btn-dropdown" id="button-filter">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)">
+                                    <i class="far fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list dropdown-menu filter-list-2">
+                                    <ul>
+                                        <li v-for="item in ListHeader">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                    <span></span>{{item.colText}}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" v-model="TextSearch" placeholder="Theo tên, điện thoại, địa chỉ, ..." v-on:keyup="TextSearchEnterKeyup">
+                            <button type="button" class="op-search-button" v-on:click="LoadData()">
+                                <i class="far fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="op-filter-toggle btn btn-main" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table ">
+                <div class="table-frame" style="transition: all 0.4s ease;" v-bind:style="{'height': ((dataDanhSachDatLich.data.length <= 0 ? 1 : dataDanhSachDatLich.data.length) * 33 + 44) + 'px'}">
+                    <table class="table-res" v-bind:style="{filter: isLoading === true ? 'blur(3px)' : ''}">
+                        <thead>
+                            <tr>
+                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(item, index) in dataDanhSachDatLich.data">
+                                <tr class="tr-prev-hide" onclick="addfocus(this)" v-on:click="RowSelected(item)" v-bind:class="[index%2 === 1? 'bggray' : '']">
+                                    <td v-if="ListHeader.find(p => p.colName === 'colThoiGian').colShow">
+                                        {{moment(item.ThoiGian).format('DD/MM/YYYY HH:mm')}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colSoDienThoai').colShow">{{item.SoDienThoai}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colTenKhachHang').colShow">{{item.TenKhachHang}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colNgaySinh').colShow">{{item.NgaySinh !== null? moment(item.NgaySinh).format('DD/MM/YYYY') : ""}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colDiaChi').colShow">{{item.DiaChi}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colBienSo').colShow">{{item.BienSo}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colLoaiXe').colShow">{{item.MauXe}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colTrangThai').colShow">{{ListTrangThai.find(p=>p.Value === item.TrangThai).Text}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colChiNhanh').colShow">{{item.TenChiNhanh}}</td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length" style="padding:0">
+                                        <div class="gara-tab">
+                                            <div class="gara-tab-title">
+                                                <a class="enable-detail active" onclick="toggleTab(this,1)">Thông tin</a>
+                                            </div>
+                                            <div class="active gara-tab-content gara-tab-thongtin" hidden>
+                                                @* class gara-tab-detail *@
+                                                <div>
+                                                    <div class="gara-detail-sections">
+                                                        <label class="control-label">Thông tin đặt lịch</label>
+                                                        <div class="row container-fluid">
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Thời gian:</label>
+                                                                    <div class="css-form-detail">{{moment(item.ThoiGian).format('DD/MM/YYYY HH:mm')}}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Trạng thái:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <div class="dropdown">
+                                                                            <a class="btn btn-link nopadding" data-toggle="dropdown">
+                                                                                <span>{{ListTrangThai.find(p=>p.Value === item.TrangThai).Text}}</span>
+                                                                                <i class="far fa-angle-down"></i>
+                                                                            </a>
+                                                                            <ul class="dropdown-menu">
+                                                                                <li v-for="(tt, index) in ListTrangThai.filter(x=>x.Value!=3)"
+                                                                                    v-on:click="UpdateTrangThaiDatLich(tt,item)">
+                                                                                    <a href="javascript:void(0)">
+                                                                                        <span>{{tt.Text}}</span>
+                                                                                        <span class="far fa-check" style="float:right"
+                                                                                              v-if="tt.Value== item.TrangThai"></span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="gara-detail-sections">
+                                                        <label class="control-label">Thông tin khách hàng</label>
+                                                        <div class="row container-fluid">
+                                                            <div class="col-md-4 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Tên khách hàng:</label>
+                                                                    <div class="css-form-detail"><span>{{item.MaKhachHang !== "" && item.MaKhachHang !== null ? item.MaKhachHang + " - ": ""}}{{item.TenKhachHang}}</span></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Số điện thoại:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <a href="javascript:void(0);" v-on:click="CheckSoDienThoai(item)" v-if="item.MaKhachHang === ''"><span>{{item.SoDienThoai}} <i class="fal fa-clipboard-list-check" style="font-size:16px;color:var(--color-main)"></i></span></a>
+                                                                        <span v-else>{{item.SoDienThoai}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Ngày sinh:</label>
+                                                                    <div class="css-form-detail"><span>{{item.NgaySinh !== null? moment(item.NgaySinh).format('DD/MM/YYYY') : ""}}</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Địa chỉ:</label>
+                                                                    <div class="css-form-detail"><span>{{item.DiaChi}}</span></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="gara-detail-sections">
+                                                        <label class="control-label">Thông tin xe</label>
+                                                        <div class="row container-fluid">
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Biển số:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <a href="javascript:void(0)" v-on:click="showModalNewCar(item)" v-if="!BienSoExist">{{item.BienSo}} <i class="fal fa-clipboard-list-check" style="font-size:16px;color:var(--color-main)"></i></a>
+                                                                        <span v-else>{{item.BienSo}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">  Mẫu xe:</label>
+                                                                    <div class="css-form-detail"><span>{{item.MauXe}}</span></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="gara-detail-sections">
+                                                        <label class="control-label">Danh sách hàng hóa dịch vụ đã chọn</label>
+                                                        <div class="row container-fluid">
+                                                            <div class="table-frame" style="width:100%">
+                                                                <table class='table'>
+                                                                    <thead>
+                                                                        <tr style="background:#ccc">
+                                                                            <th>Mã hàng hóa</th>
+                                                                            <th>Tên hàng hóa</th>
+                                                                            <th>Loại hàng hóa</th>
+                                                                            <th>Đơn giá</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr v-if="idDatLichRowSelected == item.Id" v-for="itemHangHoa in ListHangHoa">
+                                                                            <td>{{itemHangHoa.MaHangHoa}}</td>
+                                                                            <td>{{itemHangHoa.TenHangHoa}}</td>
+                                                                            <td>{{itemHangHoa.LoaiHangHoa === 1 ? 'Hàng hóa' : 'Dịch vụ'}}</td>
+                                                                            <td>{{commonStatisJs.FormatNumber3Digit(itemHangHoa.DonGia)}}</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                    <tfoot v-show="ListHangHoa.length<=0">
+                                                                        <tr>
+                                                                            <td class="text-center" v-bind:colspan="3"><i>Không có dữ liệu</i></td>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div style="display:inline-block; text-align:right; margin-top:10px;">
+                                                    <button class="btn btn-main" v-on:click="SuaDoiDatLich(item)" >
+                                                        <i class="fal fa-edit"></i>
+                                                        Sửa đổi
+                                                    </button>
+                                                    <button class="btn btn-cancel" v-on:click="UpdateTrangThaiDatLich({Value: 0}, item)" v-if="item.TrangThai !== 0">
+                                                        <i class="fal fa-trash-alt"></i>
+                                                        Hủy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                        <tfoot v-show="dataDanhSachDatLich.data.length<=0 || isLoading">
+                            <tr>
+                                <td v-show="!isLoading" class="  text-center" v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div v-show="isLoading" class="table-loading">
+                        <div class="loading">
+                        </div>
+                        <div style="text-align: center;">
+                            Đang tải dữ liệu, vui lòng chờ ...
+                        </div>
+                    </div>
+                </div>
+                <page-list v-bind:pagesize="PageSize"
+                           v-bind:listpage="dataDanhSachDatLich.ListPage" v-bind:currentpage="currentPage" v-bind:pageview="dataDanhSachDatLich.PageView"
+                           v-bind:numberofpage="dataDanhSachDatLich.NumberOfPage"
+                           v-on:pageselected="PageChange"></page-list>
+            </div>
+        </div>
+        <div class="modal fade" id="modalCheckSoDienThoai">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="titleTypeWork">
+                            {{objDoiTuongSelect.SoDienThoai}}
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="css-form-label">Số điện thoại:</label>
+                                        <div class="css-form-detail">
+                                            {{objDoiTuongSelect.SoDienThoai}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="css-form-label">Tên khách hàng:</label>
+                                        <div class="css-form-detail">
+                                            {{objDoiTuongSelect.TenKhachHang}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="css-form-label">Địa chỉ:</label>
+                                        <div class="css-form-detail">
+                                            {{objDoiTuongSelect.DiaChi}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="css-form-label">Ngày sinh:</label>
+                                        <div class="css-form-detail">
+                                            {{objDoiTuongSelect.NgaySinh !== null ? moment(objDoiTuongSelect.NgaySinh).format('DD/MM/YYYY') : ""}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div v-if="objDoiTuongExist.Id !== ''">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="css-form-label">Số điện thoại:</label>
+                                            <div class="css-form-detail">
+                                                {{objDoiTuongExist.SoDienThoai}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="css-form-label">Tên khách hàng:</label>
+                                            <div class="css-form-detail">
+                                                {{objDoiTuongExist.MaKhachHang}} - {{objDoiTuongExist.TenKhachHang}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="css-form-label">Địa chỉ:</label>
+                                            <div class="css-form-detail">
+                                                {{objDoiTuongExist.DiaChi}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="css-form-label">Ngày sinh:</label>
+                                            <div class="css-form-detail">
+                                                {{moment(objDoiTuongExist.NgaySinh).format('DD/MM/YYYY')}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-align-centet">
+                                    <button type="button" class="btn btn-save" data-dismiss="modal" v-if="objDoiTuongExist.Id !== ''" v-on:click="UpdateIdDoiTuong(objDoiTuongExist.Id)">
+                                        <i class="far fa-check"></i>Chọn
+                                    </button>
+                                    <button type="button" class="btn btn-save" v-if="Role.KhachHangThemMoi" v-on:click="showModalCustomer">
+                                        <i class="far fa-plus"></i>
+                                        Thêm mới
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="modal-footer ">
+
+                        </div>*@
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalCaiDatHangHoa">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="titleTypeWork">
+                            Cài đặt hàng hóa hiển thị đặt lịch
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid  flex flex-between " style="padding:0 0 15px 0">
+                            <div class="col-md-6 col-xs-12 nopadding">
+                                <products :con-ton-kho="0"
+                                          :show-gia-von="false"
+                                          :show-image="false"
+                                          :show-ton-kho="false"
+                                          :loai-hang-hoa="typeSearchProduct"
+                                          :id-chi-nhanh="inforLogin.ID_DonVi"
+                                          v-on:chose-product="ChoseItemCombo">
+                                </products>
+                            </div>
+                        </div>
+                        <div class="container-fluid row">
+                            <div class="table-frame">
+                                <table class=" table-hover table table-striped  ">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                STT
+                                            </th>
+                                            <th>
+                                                Mã hàng hóa
+                                            </th>
+                                            <th>
+                                                Tên hàng hóa
+                                            </th>
+                                            <th>
+                                                Đơn giá
+                                            </th>
+                                            <th>
+                                                Ghi chú
+                                            </th>
+                                            <th style="width:30px" class="text-center">
+                                                #
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in ListHangHoaCaiDat">
+                                            <td class="text-center">{{index + 1}}</td>
+                                            <td>{{item.MaHangHoa}}</td>
+                                            <td>{{item.TenHangHoa}}</td>
+                                            <td class="text-right">{{formatNumber3Digit(item.DonGia)}}</td>
+                                            <td>{{item.GhiChu}}</td>
+                                            <td>
+                                                <button class="btn btn-link height-24" v-on:click="DeleteHangHoaDatLich(item.ID)">
+                                                    <i class="fa fa-times text-danger"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                    @*<div class="modal-footer ">
+
+                        </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- use the latest vue-select release -->
+    @*<script src="https://unpkg.com/vue-select@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">*@
+    <script src="~/Content/Framework/vue-select-3.16.0/vue-select.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="~/Content/Framework/vue-select-3.16.0/vue-select.css" />
+
+    <script src="@Url.ContentVersioned("~/Scripts/Components/NhanVien_KhachHang.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/Input.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-datetime.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-chinhanh.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-checkbox.js")"></script>
+    <script src="@Url.ContentVersioned("~/Content/js/Common.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_TiepNhanXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiHangXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiLoaiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiMauXe.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_ThemMoiKhachHang.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_ThemNhomKhachHang.cshtml")
+    @Html.Partial("~/Views/Marketing/_ThemMoiDatLich.cshtml")
+
+    <script>
+        $(function () {
+            $('.daterange').daterangepicker({
+                "opens": "right",
+                "drop": "auto",
+                locale: {
+                    "format": 'DD/MM/YYYY',
+                    "separator": " - ",
+                    "applyLabel": "Tìm kiếm",
+                    "cancelLabel": "Hủy",
+                    "fromLabel": "Từ",
+                    "toLabel": "Đến",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "CN",
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7"
+                    ],
+                    "monthNames": [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ],
+                    "firstDay": 1
+                }
+            });
+        });
+        var urlApiChiNhanh = '/api/DanhMuc/DM_DonViAPI/';
+        var urlApiCSKH = '/api/ChamSocKhachHangAPI/';
+        var urlApiDoiTuong = '/api/DM_DoiTuongAPI/';
+        var urlApiGara = '/api/GaraAPI/';
+        var urlApiHangHoa = '/api/DM_HangHoaAPI/';
+        var VueDanhSachDatLich = new Vue({
+            el: '#vDanhSachDatLich',
+            components: {
+                'products': cmpChoseProduct
+            },
+            data: {
+                ListTrangThai: [{ Text: 'Chưa xử lý', Value: 1, Checked: true },
+                { Text: 'Đã liên hệ', Value: 2, Checked: true },
+                { Text: 'Hoàn thành', Value: 3, Checked: true },
+                { Text: 'Hủy', Value: 0, Checked: false }],
+                ListHeader: [],
+                defaultThoiGianFilterValue: 5,
+                listChiNhanh: [],
+                ThoiGianTypeTime: 0,
+                ThoiGianFrom: '',
+                ThoiGianTo: '',
+                onRefresh: true,
+                currentPage: 1,
+                PageSize: 10,
+                TextSearch: '',
+                dataDanhSachDatLich: {
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1
+                },
+                ListHangHoa: [],
+                ListHangHoaCaiDat: [],
+                ListNhanVien: [],
+                ListNhanVienCaiDat: [],
+                isLoading: true,
+                idDatLichRowSelected: '',
+                isPageSelect: false,
+                objDoiTuongSelect: {
+                    SoDienThoai: "",
+                    TenKhachHang: "",
+                    MaKhachHang: "",
+                    Id: "",
+                    NgaySinh: "",
+                    DiaChi: ""
+                },
+                objDoiTuongExist: {
+                    SoDienThoai: "",
+                    TenKhachHang: "",
+                    MaKhachHang: "",
+                    Id: "",
+                    NgaySinh: "",
+                    DiaChi: ""
+                },
+                inforLogin: {
+                    ID_NhanVien: null,
+                    ID_User: null,
+                    UserLogin: null,
+                    ID_DonVi: null,
+                    TenNhanVien: '',
+                },
+                Role: {
+                    KhachHangThemMoi: false,
+                    XeThemMoi: false
+                },
+                BienSoExist: false,
+                typeSearchProduct: '%1%'
+            },
+            methods: {
+                oncallTrangThaiSelect: function () {
+                    this.LoadData();
+                },
+                onCallThoiGian: function (value) {
+                    let self = this;
+                    if (value.fromdate !== '2016-01-01') {
+                        self.ThoiGianFrom = value.fromdate;
+                        self.ThoiGianTo = value.todate;
+                    }
+                    else {
+                        self.ThoiGianFrom = '';
+                        self.ThoiGianTo = '';
+                    }
+                    if (self.onRefresh === false) {
+                        self.isLoading = true;
+                        self.LoadData();
+                    }
+                    self.ThoiGianTypeTime = value.radioselect;
+                },
+                PageChange: function (value) {
+                    if (this.currentPage !== value.currentPage) {
+                        this.currentPage = value.currentPage;
+                        this.isPageSelect = true;
+                        this.LoadData();
+                    } else if (this.PageSize !== value.pageSize) {
+                        this.PageSize = value.pageSize;
+                        this.LoadData();
+                    }
+                },
+                LoadChiNhanh: function () {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiChiNhanh + "GetListDonVi_User",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data !== null) {
+                                data.map(function (item) {
+                                    if (item['ID'] === $('#hd_IDdDonVi').val()) {
+                                        item['CNChecked'] = true;
+                                    }
+                                    else {
+                                        item['CNChecked'] = false;
+                                    }
+                                });
+                                self.listChiNhanh = data;
+                                self.LoadData();
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                LoadData: function () {
+                    CloseRow();
+                    let self = this;
+                    //console.log(self.ThoiGianFrom);
+                    self.isLoading = true;
+                    if (!this.isPageSelect) {
+                        self.currentPage = 1;
+                    }
+                    else {
+                        this.isPageSelect = false;
+                    }
+                    let myData = {};
+                    myData.IdChiNhanhs = [""];
+                    this.listChiNhanh.filter(p => p.CNChecked === true).forEach(p => myData.IdChiNhanhs.push(p.ID));
+                    myData.IdChiNhanhs.shift();
+                    myData.ThoiGianFrom = self.ThoiGianFrom;
+                    myData.ThoiGianTo = self.ThoiGianTo;
+                    myData.CurrentPage = self.currentPage;
+                    myData.TrangThais = [""];
+                    myData.TextSearch = self.TextSearch;
+                    this.ListTrangThai.filter(p => p.Checked === true).forEach(p => myData.TrangThais.push(p.Value));
+                    myData.TrangThais.shift();
+                    myData.PageSize = self.PageSize;
+                    $.ajax({
+                        url: urlApiCSKH + "GetListDatLich",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.dataDanhSachDatLich = data.dataSoure;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                    self.onRefresh = false;
+                    self.isLoading = false;
+                },
+                RowSelected: function (item) {
+                    let self = this;
+                    if (item.Id !== self.idDatLichRowSelected) {
+                        self.idDatLichRowSelected = item.Id;
+                        if (item.IdXe === null) {
+                            self.CheckBienSo(item.BienSo);
+                        }
+                        else {
+                            self.BienSoExist = true;
+                        }
+                        self.GetChiTietDatLich();
+                    }
+                },
+                TextSearchEnterKeyup: function (e) {
+                    if (e.keyCode === 13) {
+                        this.LoadData();
+                    }
+                },
+                InitListHeader: function () {
+                    return [{ colName: 'colThoiGian', colText: 'Thời gian', colShow: true, index: 0 },
+                    { colName: 'colSoDienThoai', colText: 'Số điện thoại', colShow: true, index: 1 },
+                    { colName: 'colTenKhachHang', colText: 'Tên khách hàng', colShow: true, index: 2 },
+                    { colName: 'colNgaySinh', colText: 'Ngày sinh', colShow: true, index: 3 },
+                    { colName: 'colDiaChi', colText: 'Địa chỉ', colShow: true, index: 4 },
+                    { colName: 'colBienSo', colText: 'Biển số', colShow: false, index: 5 },
+                    { colName: 'colLoaiXe', colText: 'Loại xe', colShow: false, index: 6 },
+                    { colName: 'colTrangThai', colText: 'Trạng thái', colShow: false, index: 7 },
+                    { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: false, index: 8 }]
+                },
+                CheckSoDienThoai: function (item) {
+                    let self = this;
+                    self.InitDoiTuongSelect();
+                    self.InitDoiTuongExist();
+                    self.objDoiTuongSelect.SoDienThoai = item.SoDienThoai;
+                    self.objDoiTuongSelect.TenKhachHang = item.TenKhachHang;
+                    self.objDoiTuongSelect.NgaySinh = item.NgaySinh;
+                    self.objDoiTuongSelect.DiaChi = item.DiaChi;
+                    $.ajax({
+                        /*url: urlApiDoiTuong + "GetDM_DoiTuongByPhone?id=" + "0632566633",*/
+                        url: urlApiDoiTuong + "GetDM_DoiTuongByPhone?id=" + item.SoDienThoai,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                if (data.dataSoure === null) {
+                                    //Thêm mới kh
+                                }
+                                else {
+                                    //Khách hàng đã tồn tại
+                                    self.objDoiTuongExist.Id = data.dataSoure.ID;
+                                    self.objDoiTuongExist.SoDienThoai = data.dataSoure.DienThoai;
+                                    self.objDoiTuongExist.MaKhachHang = data.dataSoure.MaDoiTuong;
+                                    self.objDoiTuongExist.TenKhachHang = data.dataSoure.TenDoiTuong;
+                                    self.objDoiTuongExist.NgaySinh = data.dataSoure.NgaySinh_NgayTLap;
+                                    self.objDoiTuongExist.DiaChi = data.dataSoure.DiaChi;
+                                }
+                                $("#modalCheckSoDienThoai").modal('show');
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                InitDoiTuongSelect: function () {
+                    let self = this;
+                    self.objDoiTuongSelect.SoDienThoai = "";
+                    self.objDoiTuongSelect.TenKhachHang = "";
+                    self.objDoiTuongSelect.MaKhachHang = "";
+                    self.objDoiTuongSelect.Id = "";
+                    self.objDoiTuongSelect.NgaySinh = "";
+                    self.objDoiTuongSelect.DiaChi = "";
+                },
+                InitDoiTuongExist: function () {
+                    let self = this;
+                    self.objDoiTuongExist.SoDienThoai = "";
+                    self.objDoiTuongExist.TenKhachHang = "";
+                    self.objDoiTuongExist.MaKhachHang = "";
+                    self.objDoiTuongExist.Id = "";
+                    self.objDoiTuongExist.NgaySinh = "";
+                    self.objDoiTuongExist.DiaChi = "";
+                },
+                showModalCustomer: function () {
+                    var self = this;
+                    vmThemMoiKhach.inforLogin = self.inforLogin;
+                    vmThemMoiKhach.showModalAdd();
+                    if (self.objDoiTuongSelect.NgaySinh !== null) {
+                        vmThemMoiKhach.newCustomer.NgaySinh_NgayTLap = moment(self.objDoiTuongSelect.NgaySinh).format('DD/MM/YYYY');
+                    }
+                    vmThemMoiKhach.newCustomer.TenDoiTuong = self.objDoiTuongSelect.TenKhachHang;
+                    vmThemMoiKhach.newCustomer.DienThoai = self.objDoiTuongSelect.SoDienThoai;
+                    vmThemMoiKhach.newCustomer.DiaChi = self.objDoiTuongSelect.DiaChi;
+                },
+                showModalNewCar: function (item) {
+                    let self = this;
+                    vmThemMoiXe.inforLogin = self.inforLogin;
+                    vmThemMoiXe.ShowModalNewCar();
+                    vmThemMoiXe.newCar.BienSo = item.BienSo;
+                },
+                CheckBienSo: function (bienso) {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiGara + "CheckBienSoXe?id=" + bienso,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                if (data.dataSoure != null) {
+                                    self.BienSoExist = true;
+                                    self.UpdateIdXe(data.dataSoure.ID);
+                                }
+                                else {
+                                    self.BienSoExist = false;
+                                }
+                            }
+                            else {
+                                self.BienSoExist = false;
+                                //commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                UpdateTrangThaiDatLich: function (itemStatus, itemdatlich) {
+
+                    if (itemdatlich.TrangThai === itemStatus.Value) {
+                        return;
+                    }
+                    let self = this;
+                    let myData = {};
+                    myData.Id = itemdatlich.Id;
+                    myData.TrangThai = itemStatus.Value;
+                    myData.IdNhanVien = self.inforLogin.ID_NhanVien;
+                    myData.IdDonVi = self.inforLogin.ID_DonVi;
+                    $.ajax({
+                        /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                        url: urlApiCSKH + "UpdateTrangThaiDatLich",
+                        type: 'POST',
+                        data: myData,
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.dataDanhSachDatLich.data.filter(p => p.Id === self.idDatLichRowSelected).map(function (item) {
+                                    item.TrangThai = itemStatus.Value;
+                                });
+                                commonStatisJs.ShowMessageSuccess("Cập nhật trạng thái thành công.");
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình cập nhật. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                UpdateIdDoiTuong: function (iddoituong) {
+                    let self = this;
+                    let myData = {};
+                    myData.Id = self.idDatLichRowSelected;
+                    myData.IdDoiTuong = iddoituong;
+                    $.ajax({
+                        /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                        url: urlApiCSKH + "UpdateIdDoiTuong",
+                        type: 'POST',
+                        data: myData,
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            $("#modalCheckSoDienThoai").modal('hide');
+
+                            //if (self.objDoiTuongExist.MaKhachHang !== "") {
+                            //    self.dataDanhSachDatLich.data.filter(p => p.Id === self.idDatLichRowSelected).map(function (item) {
+                            //        item.MaKhachHang = self.objDoiTuongExist.MaKhachHang;
+                            //    });
+                            //}
+                            let index = self.dataDanhSachDatLich.data.findIndex(p => p.Id = self.idDatLichRowSelected);
+                            if (self.dataDanhSachDatLich.data[index].MaKhachHang === "") {
+                                self.dataDanhSachDatLich.data[index].MaKhachHang = self.objDoiTuongExist.MaKhachHang;
+                            }
+                            //if (data.res === true) {
+                            //    commonStatisJs.ShowMessageSuccess("Cập nhật trạng thái thành công.");
+                            //}
+                            //else {
+                            //    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình cập nhật. Vui lòng kiểm tra lại.");
+                            //}
+                        }
+                    });
+                },
+                UpdateIdXe: function (idxe) {
+                    let self = this;
+                    let myData = {};
+                    myData.Id = self.idDatLichRowSelected;
+                    myData.IdXe = idxe;
+                    $.ajax({
+                        /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                        url: urlApiCSKH + "UpdateIdXe",
+                        type: 'POST',
+                        data: myData,
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BienSoExist = true;
+                        }
+                    });
+                },
+                GetChiTietDatLich: function () {
+                    let self = this;
+                    $.ajax({
+                        /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                        url: urlApiCSKH + "GetChiTietDatLich?id=" + self.idDatLichRowSelected,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.ListHangHoa = data.dataSoure.HangHoa;
+                                self.ListNhanVien = data.dataSoure.NhanVien;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                CaiDatHangHoa: function () {
+                    let self = this;
+                    self.GetListHangHoaCaiDat();
+                    $("#modalCaiDatHangHoa").modal('show');
+                },
+                GetListHangHoaCaiDat: function () {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiHangHoa + "GetHangHoa?id=" + VHeader.SubDomain,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.ListHangHoaCaiDat = data.dataSoure;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+
+                },
+                ChoseItemCombo: function (item) {
+                    var self = this;
+                    if (!item.LaDonViChuan) {
+                        commonStatisJs.ShowMessageDanger("Chỉ chọn được mã hàng là đơn vị chuẩn, vui lòng kiểm tra lại.");
+                        return;
+                    }
+                    if (self.ListHangHoaCaiDat.length === 10) {
+                        commonStatisJs.ShowMessageDanger("Số lượng hàng vượt quá số lượng cho phép.");
+                        return;
+                    }
+
+                    self.UpdateHienThiDatLich(item.ID, '1');
+                    // get tpdinhluong
+                    //var itemEx = $.grep(self.ListCombo, function (x) {
+                    //    return x.ID_DonViQuiDoi === item.ID_DonViQuiDoi && x.ID_LoHang === item.ID_LoHang;
+                    //})
+                    //if (itemEx.length > 0) {
+                    //    for (let i = 0; i < self.ListCombo.length; i++) {
+                    //        let itFor = self.ListCombo[i];
+                    //        if (itFor.ID_DonViQuiDoi === item.ID_DonViQuiDoi
+                    //            && itFor.ID_LoHang === item.ID_LoHang) {
+                    //            let sluong = formatNumberToFloat(itFor.SoLuong) + 1;
+                    //            let gban = formatNumberToFloat(itFor.GiaBan);
+                    //            self.ListCombo[i].SoLuong = sluong;
+                    //            self.ListCombo[i].ThanhTien = formatNumber(sluong * (gban - itFor.TienChietKhau));
+                    //            self.ListCombo[i].ThanhToan = formatNumber(sluong * (gban - itFor.TienChietKhau + itFor.TienThue));
+                    //            break;
+                    //        }
+                    //    }
+                    //    self.ListCombo = $.extend(true, [], self.ListCombo);
+                    //}
+                    //else {
+                    //    var len = self.ListCombo.length;
+                    //    var obj = self.SetDefaultProprties(item);
+                    //    obj.SoThuTu = len + 1;
+                    //    obj.SoLuong = 1;
+                    //    obj.SoLuongQuyCach = obj.QuyCach;
+                    //    obj.DonGia = item.GiaBan;
+                    //    obj.GiaBan = formatNumber(item.GiaBan);
+                    //    obj.ThanhTien = obj.GiaBan;
+                    //    obj.ThanhToan = obj.GiaBan;
+                    //    obj.TenHangHoaThayThe = obj.TenHangHoa;
+                    //    obj.ThanhPhan_DinhLuong = [];// set tpdinhluong when show popup dinhluong
+                    //    self.ListCombo.push(obj);
+                    //}
+                },
+                UpdateHienThiDatLich: function (id, v) {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiHangHoa + "UpdateHienThiDatLich?id=" + id + "&v=" + v,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.GetListHangHoaCaiDat();
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình cập nhật. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                DeleteHangHoaDatLich: function (id) {
+                    let self = this;
+                    self.UpdateHienThiDatLich(id, '0');
+                },
+                SuaDoiDatLich: function (item) {
+                    let self = this;
+                    VThemMoiDatLich.objDatLich.ID = item.Id;
+                    VThemMoiDatLich.objDatLich.ID_Xe = item.IdXe;
+                    VThemMoiDatLich.objDatLich.ID_KhachHang = item.IdKhachHang;
+                    VThemMoiDatLich.objDatLich.ID_DonVi = item.IdDonVi;
+                    VThemMoiDatLich.objDatLich.HangHoaDichVu = self.ListHangHoa;
+                    VThemMoiDatLich.objDatLich.ListIdHangHoa = self.ListHangHoa.map(p => p.ID);
+                    VThemMoiDatLich.objDatLich.ThoiGianDatLich = item.ThoiGian;
+                    if (item.IdKhachHang !== null) {
+                        self.GetThongTinKhachHang(item);
+                    }
+                    VThemMoiDatLich.showModal();
+                },
+                GetThongTinKhachHang: function (item) {
+                    let self = this;
+                    $.ajax({
+                        /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                        url: urlApiDoiTuong + "GetDM_DoiTuong?id=" + item.IdKhachHang,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            VThemMoiDatLich.customerChosing = data;
+                            //if (data.res === true) {
+
+                            //}
+                            //else {
+                            //    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá tải dữ liệu. Vui lòng kiểm tra lại.");
+                            //}
+                        }
+                    });
+                },
+            },
+            created: function () {
+                let self = this;
+                if (localStorage.getItem('DSDatLich') === null) {
+                    this.ListHeader = this.InitListHeader();
+                }
+                else {
+                    var localHeader = JSON.parse(localStorage.getItem('DSDatLich'));
+                    var initHeader = this.InitListHeader();
+                    if (initHeader.length !== localHeader.length) {
+                        this.ListHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            this.ListHeader = initHeader;
+                        }
+                        else {
+                            this.ListHeader = JSON.parse(localStorage.getItem('DSDatLich'));
+                        }
+                    }
+                }
+                self.inforLogin = {
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    ID_User: VHeader.IdNguoiDung,
+                    UserLogin: VHeader.UserLogin,
+                    ID_DonVi: VHeader.IdDonVi,
+                    TenNhanVien: VHeader.TenNhanVien,
+                };
+                self.Role.KhachHangThemMoi = VHeader.Quyen.indexOf("KhachHang_ThemMoi") > -1;
+                self.Role.XeThemMoi = VHeader.Quyen.indexOf("DanhMucXe_ThemMoi") > -1;
+                vmThemMoiKhach.role.KhachHang.ThemMoi = self.Role.KhachHangThemMoi;
+            },
+            watch: {
+                ListHeader: {
+                    handler: function () {
+                        localStorage.setItem('DSDatLich', JSON.stringify(this.ListHeader));
+                    },
+                    deep: true
+                }
+            }
+        });
+        VueDanhSachDatLich.LoadChiNhanh();
+        function addfocus(ele) {
+            $(ele).siblings().removeClass('active');
+            if ($(ele).hasClass('active')) {
+                $(ele).removeClass("active");
+                $(ele).next().removeClass("active");
+                document.getElementsByClassName('table-frame')[0].classList.remove('table-active');
+            }
+            else {
+                $(ele).addClass("active");
+                $(ele).next().addClass("active");
+                document.getElementsByClassName('table-frame')[0].classList.add('table-active');
+            }
+        }
+
+        function toggleTab(ele, options) {
+            var menu = $(ele).parent();
+            $(ele).siblings().removeClass("active")
+            $(ele).addClass("active")
+            menu.siblings().removeClass("active")
+            switch (options) {
+                case 1:
+                    menu.siblings(".gara-tab-thongtin").addClass("active");
+                    break;
+                case 2:
+                    menu.siblings(".gara-tab-baogia").addClass("active");
+                    break;
+                case 3:
+                    menu.siblings(".gara-tab-bill").addClass("active");
+                    break;
+                case 4:
+                    menu.siblings(".gara-tab-tinhtrangxe").addClass("active");
+                    break;
+                case 5:
+                    menu.siblings(".gara-tab-phieuxuatkho").addClass("active");
+                    break;
+            }
+        }
+        var btn = document.querySelector('.btn.btn-main')
+        var list = document.querySelector('.dropdown-list')
+        btn.addEventListener('click', (e) => {
+            list.classList.toggle('open')
+        });
+        window.addEventListener('click', (e) => {
+            if (list.contains(e.target)) {
+                list.classList.add('open')
+            }
+            else {
+                list.classList.remove('open')
+            }
+        });
+        $(".gara-search-HH").click(
+            function () {
+                $(this).siblings(".gara-search-dropbox").show();
+                $(this).select().focus();
+            });
+        $(document).mouseup(function (e) {
+            var container = $(".gara-search-dropbox");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.hide();
+            }
+        });
+        function CloseRow() {
+            $(".table-frame").find("tr").removeClass("active");
+            $(".table-frame").removeClass("table-active");
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.modal-dialog').draggable({
+                handle: ".modal-header"
+            });
+        })
+
+        $(function () {
+            $('#ThemMoiXemModal').on('hidden.bs.modal', function () {
+                if (vmThemMoiXe.saveOK) {
+                    //vmTiepNhanXe.newPhieuTiepNhan.ID_Xe = vmThemMoiXe.newCar.ID;
+                    //vmTiepNhanXe.carChosing = vmThemMoiXe.newCar;
+                    VueDanhSachDatLich.UpdateIdXe(vmThemMoiXe.newCar.ID);
+                }
+            })
+
+            $('#modalDatLich').on('hidden.bs.modal', function () {
+                if (VThemMoiDatLich.isSaved) {
+                    //vmTiepNhanXe.newPhieuTiepNhan.ID_Xe = vmThemMoiXe.newCar.ID;
+                    //vmTiepNhanXe.carChosing = vmThemMoiXe.newCar;
+                    VueDanhSachDatLich.LoadData();
+                }
+            })
+
+            $('#ThemMoiKhachHang').on('hidden.bs.modal', function () {
+                // check if isShowing modal themmoixe
+                if (!$('#ThemMoiXemModal').hasClass('in')) {
+                    if (vmThemMoiKhach.saveOK) {
+                        VueDanhSachDatLich.UpdateIdDoiTuong(vmThemMoiKhach.customerDoing.ID);
+                        VueDanhSachDatLich.dataDanhSachDatLich.data.filter(p => p.Id === VueDanhSachDatLich.idDatLichRowSelected).map(function (item) {
+                            item.MaKhachHang = vmThemMoiKhach.customerDoing.MaDoiTuong;
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+
+
+</body>
+</html>

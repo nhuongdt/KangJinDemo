@@ -1,0 +1,296 @@
+﻿<div class="modal fade" id="vmTaiKhoanNganHang">
+    <div class="modal-dialog draggable modal-md" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới':'Cập nhật'}} tài khoản ngân hàng
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <div class="form-group floatleft">
+                    <label>Ngân hàng</label>
+                    <div class="form-news">
+                        <banks placeholder="Chọn ngân hàng"
+                               :text-search="newAccountBank.TenNganHang"
+                               :list-all="ListBanks"
+                               :list-search="ListBanks"
+                               :id-chosing="newAccountBank.ID_NganHang"
+                               v-on:on-select-item="ChoseNganHang">
+                        </banks>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Tên chủ thẻ</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" autocomplete="off"
+                               v-model="newAccountBank.TenChuThe" />
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Số tài Khoản</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" autocomplete="off"
+                               v-model="newAccountBank.SoTaiKhoan" />
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Ghi chú</label>
+                    <div class="form-news">
+                        <textarea rows="2" type="text" autocomplete="off"
+                                  placeholder="Mã tự động"
+                                  v-model="newAccountBank.GhiChu" />
+                    </div>
+                </div>
+
+                <div class="form-group floatleft">
+                    <label>&nbsp;</label>
+                    <div class="form-news">
+                        <label class="floatleft">
+                            <input type="checkbox" v-model="newAccountBank.TaiKhoanPOS" /> Tài khoản thanh toán POS
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" v-on:click="Delete">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!isLoading" v-on:click="Save">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmTaiKhoanNganHang = new Vue({
+        el: '#vmTaiKhoanNganHang',
+        components: {
+            'banks': cmpDropdown1Item,
+        },
+        created: function () {
+            let self = this;
+            self.UrlQuyHoaDonAPI = '/api/DanhMuc/Quy_HoaDonAPI/';
+            self.inforLogin.ID_DonVi = $('#txtDonVi').val();
+            self.inforLogin.UserLogin = $('#txtUserLogin').val();
+            self.inforLogin.ID_NhanVien = $('#txtIDNhanVien').val();
+
+            if (commonStatisJs.CheckNull(self.inforLogin.ID_DonVi)) {
+                self.inforLogin.ID_DonVi = VHeader.IdDonVi;
+                self.inforLogin.UserLogin = VHeader.UserLogin;
+                self.inforLogin.ID_NhanVien = VHeader.IdNhanVien;
+            }
+
+            $.getJSON(self.UrlQuyHoaDonAPI + 'GetAllNganHang').done(function (data) {
+                data = data.map(function (o) {
+                    return {
+                        ID: o.ID,
+                        Text1: o.MaNganHang,
+                        Text2: o.TenNganHang,
+                    }
+                })
+                self.ListBanks = data;
+            })
+        },
+        data: {
+            saveOK: false,
+            typeUpdate: 1,//1.themmoi, 2.update, 0.delete
+            isLoading: false,
+            error: '',
+            itemOld: {},
+            inforLogin: {},
+            ListBanks: [],
+            role: {
+                Update: false,
+                Delete: true,
+            },
+            newAccountBank: {
+                ID: '00000000-0000-0000-0000-000000000000',
+                ID_DonVi: null,
+                ID_NganHang: null,
+                TenChuThe: '',
+                SoTaiKhoan: '',
+                TaiKhoanPOS: true,
+                GhiChu: '',
+                TrangThai:1,
+            }
+        },
+
+        methods: {
+            showModalAdd: function () {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 1;
+                self.isLoading = false;
+
+                self.newAccountBank = {
+                    ID: '00000000-0000-0000-0000-000000000000',
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    ID_NganHang: null,
+                    TenChuThe: '',
+                    SoTaiKhoan: '',
+                    TaiKhoanPOS: true,
+                    TenNganHang: '',
+                    TrangThai: 1,
+                };
+                $('#vmTaiKhoanNganHang').modal('show');
+            },
+            showModalUpdate: function (item) {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 2;
+                self.newAccountBank = item;
+                self.itemOld = $.extend({}, item);
+                $('#vmTaiKhoanNganHang').modal('show');
+            },
+            ChoseNganHang: function (item) {
+                let self = this;
+                self.newAccountBank.ID_NganHang = item.ID;
+                self.newAccountBank.TenNganHang = item.Text2;
+            },
+            ResetNganHang: function () {
+                let self = this;
+                self.newAccountBank.ID_NganHang = null;
+                self.newAccountBank.TenNganHang = '';
+            },
+            CheckSave: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.newAccountBank.ID_NganHang)) {
+                    ShowMessage_Danger("Vui lòng chọn ngân hàng trước khi lưu");
+                    return false;
+                }
+
+                if (commonStatisJs.CheckNull(self.newAccountBank.TenChuThe)) {
+                    ShowMessage_Danger("Vui lòng nhập tên chủ thẻ");
+                    return false;
+                }
+
+                if (commonStatisJs.CheckNull(self.newAccountBank.SoTaiKhoan)) {
+                    ShowMessage_Danger("Vui lòng nhập số tài khoản");
+                    return false;
+                }
+                return true;
+            },
+
+            Save: function () {
+                let self = this;
+
+                let check = self.CheckSave();
+                if (!check) {
+                    return;
+                }
+
+                let obj = {
+                    ID: self.newAccountBank.ID,
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    ID_NganHang: self.newAccountBank.ID_NganHang,
+                    TenChuThe: self.newAccountBank.TenChuThe,
+                    SoTaiKhoan: self.newAccountBank.SoTaiKhoan,
+                    GhiChu: self.newAccountBank.GhiChu,
+                    TaiKhoanPOS: self.newAccountBank.TaiKhoanPOS,
+                    TrangThai: 1,
+                };
+                let myData = {
+                    objTaiKhoan: obj
+                }
+
+                self.isLoading = true;
+
+                let sNKy = '<br /> - Tên ngân hàng: '.concat(self.newAccountBank.TenNganHang,
+                    '<br /> - Tên chủ thẻ: ', self.newAccountBank.TenChuThe,
+                    '<br /> - Số tài khoản: ', self.newAccountBank.SoTaiKhoan
+                );
+
+                if (self.typeUpdate === 1) {
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "PostTaiKhoan_NganHang", 'POST', myData).done(function (data) {
+                        self.saveOK = true;
+                        self.isLoading = false;
+                        self.newAccountBank.ID = data.ID;
+
+                        ShowMessage_Success("Thêm mới tài khoản thành công");
+                        $('#vmTaiKhoanNganHang').modal('hide');
+
+                        let diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: 1,
+                            ChucNang: 'Tài khoản ngân hàng',
+                            NoiDung: 'Thêm mới tài khoản ngân hàng '.concat(self.newAccountBank.TenChuThe, ' - ', self.newAccountBank.SoTaiKhoan),
+                            NoiDungChiTiet: 'Thêm mới tài khoản ngân hàng. <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
+                                '<br /> <b> Người tạo: </b>', self.inforLogin.UserLogin),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    });
+                }
+                else {
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "Put_TaiKhoanNganHang", 'POST', myData).done(function (data) {
+                        self.saveOK = true;
+                        self.isLoading = false;
+                        ShowMessage_Success("Cập nhật tài khoản thành công");
+                        $('#vmTaiKhoanNganHang').modal('hide');
+
+                        let diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: 2,
+                            ChucNang: 'Tài khoản ngân hàng',
+                            NoiDung: 'Cập nhật tài khoản ngân hàng '.concat(self.newAccountBank.TenChuThe, ' - ', self.newAccountBank.SoTaiKhoan),
+                            NoiDungChiTiet: 'Cập nhật tài khoản ngân hàng. <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
+                                '<br /> <b> Thông tin cũ: </b>',
+                                '<br /> - Tên ngân hàng: ', self.itemOld.TenNganHang,
+                                '<br /> - Tên chủ thẻ: ', self.itemOld.TenChuThe,
+                                '<br /> - Số tài khoản: ', self.itemOld.SoTaiKhoan,
+                                '<br /><b> Người sửa: </b> ', self.inforLogin.UserLogin
+                            ),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    });
+                }
+            },
+            Delete: function () {
+                let self = this;
+                let myData =
+                {
+                    ID: self.newAccountBank.ID
+                };
+                commonStatisJs.ConfirmDialog_OKCancel('Xác nhận xóa',
+                    'Bạn có chắc chắn muốn xóa tài khoản <b> ' + self.newAccountBank.TenChuThe
+                    + ' - ' + self.newAccountBank.SoTaiKhoan + '</b>',
+                    function () {
+                        ajaxHelper(self.UrlQuyHoaDonAPI + "DeleteTaiKhoanNganHang", 'POST', myData).done(function (data) {
+                            ShowMessage_Success("Xóa tài khoản thành công");
+                            $('#vmTaiKhoanNganHang').modal('hide');
+
+                            let diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: 3,
+                                ChucNang: 'Tài khoản ngân hàng',
+                                NoiDung: 'Xóa tài khoản ngân hàng '.concat(self.newAccountBank.TenChuThe, ' - ', self.newAccountBank.SoTaiKhoan),
+                                NoiDungChiTiet: 'Xóa tài khoản ngân hàng '.concat(self.newAccountBank.TenChuThe, ' - ', self.newAccountBank.SoTaiKhoan,
+                                    '<br /> Người xóa: ', self.inforLogin.UserLogin
+                                ),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }).fail(function () {
+                            ShowMessage_Danger("Xóa tài khoản thất bại");
+                        });
+                    })
+            }
+        }
+    })
+</script>
+

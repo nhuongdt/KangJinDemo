@@ -1,0 +1,720 @@
+﻿@using Model
+<style>
+    .fa-times {
+        color: red
+    }
+
+    .table-res table tfoot {
+        background: #e9eaf2
+    }
+
+    ._form-dinh-muc label {
+        width: 150px !important;
+    }
+
+    ._form-dinh-muc .form-news {
+        width: calc(100% - 150px) !important;
+        position: relative
+    }
+
+        ._form-dinh-muc .form-news input {
+            width: calc(100% - 15px) !important;
+        }
+
+        ._form-dinh-muc .form-news .commodity-note {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+
+    ._dinh-muc {
+        background: var(--color-table);
+        padding: 10px;
+        font-size: 13px;
+    }
+
+        ._dinh-muc span {
+            margin-left: 10px;
+        }
+
+    .ip-phi-dich-vu .Ptram {
+        float: left;
+    }
+
+    .tpdl-ok {
+        border-radius: 3px;
+        padding: 6px 10px;
+        border: 1px solid
+    }
+</style>
+<div class="container-fluid nopadding staff-add-new">
+    <div class=" flex flex-between  header-add-new">
+        <h4>
+            <span data-bind="text: $root.booleanAdd()?'Thêm mới ':'Cập nhật '">
+            </span>
+            <span data-bind="text: $root.newHangHoa().LoaiHangHoa()===3?'combo':'dịch vụ'"></span>
+        </h4>
+        <div>
+            <button type="button" class="btn btn-cancel" data-dismiss="modal" data-bind="click: $root.backCurrentDV"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+            <button type="button" class="btn btn-save btnLuuDichVu" data-bind="click: $root.DichVu_ADD">
+                <i class="fa fa-save"></i>
+                <span>Lưu</span>
+            </button>
+        </div>
+    </div>
+    <div class="container-fluid nopadding ">
+        <div class=" container-fluid nopadding ">
+            <ul class="nav nav-tabs ">
+                <li data-bind="click: function(){$root.ChangeTab_HangHoa(0)}" class="active"><a data-toggle="tab" href="#thongtin_DV" aria-expanded="true">Thông tin</a></li>
+                <li data-bind="click: function(){$root.ChangeTab_HangHoa(2)}"><a data-toggle="tab" href="#thanhphan_DV" aria-expanded="false">Thành phần</a></li>
+                <li data-bind="click: function(){$root.ChangeTab_HangHoa(5)},
+                    visible: $root.QuanLyBaoDuong">
+                    <a data-toggle="tab" href="#baoduong_DV" aria-expanded="false">Quản lý Bảo dưỡng</a>
+                </li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div id="thongtin_DV" class="tab-pane in active">
+                <div class="col-xs-12 col-sm-12 col-md-6">
+                    <div>
+                        <div class="form-group" data-bind="visible: $root.Role_HoatDongXe()">
+                            <label>
+                                <input type="checkbox" data-bind="checked: $root.HangHoa_LaXe " /> Hàng hóa là xe
+                            </label>
+                        </div>
+                        <div class="form-group" data-bind="visible: $root.HangHoa_LaXe() && $root.Role_HoatDongXe()">
+                            <label class="css-form-label">Biển số xe </label>
+                            <div class="css-form-detail">
+                                <jqauto-car params="
+                                        form:1,
+                                        choseItem: ChoseCar,
+                                        addItem: ShowForm_NewCar,
+                                        updateItem: ShowForm_UpdateCar,
+                                "></jqauto-car>
+                            </div>
+                        </div>
+                        <div data-bind="with: newHangHoa" class="form-group">
+                            <label class="css-form-label">Mã dịch vụ</label>
+                            <div class="css-form-detail">
+                                <input class="form-control" autocomplete="off" type="text" id="txtMaHangHoa" name="txtMaHangHoa" data-bind="value: MaHangHoa" placeholder="Mã tự động" />
+                            </div>
+                            <span class="commodity-note">
+                                <i class="fa fa-info-circle"></i>
+                                <span href="javascript:void(0)" class="materiall">Mã hàng hóa là thông tin duy nhất</span>
+                            </span>
+                        </div>
+
+                        <div class="form-group" data-bind="with: newHangHoa">
+                            <label class="css-form-label">Tên dịch vụ <span style="color:red">(*)</span></label>
+                            <div class="css-form-detail">
+                                <input class="form-control" autocomplete="off" type="text" id="txtTenHangHoa" name="txtTenHangHoa" data-bind="value: TenHangHoa" />
+                            </div>
+                            <span class="commodity-note">
+                                <i class="fa fa-info-circle"></i>
+                                <span href="javascript:void(0)" class="materiall">Tên hàng hóa sản phẩm</span>
+                            </span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="css-form-label">Nhóm dịch vụ</label>
+                            <div class="css-form-detail">
+                                <div class="input-group">
+                                    <div class="outselect">
+                                        <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                            <div class="form-control" id="choose_TenNHHAddDV" style="cursor:pointer">---Chọn nhóm---</div>
+                                        </div>
+                                        <div class="selec-person dropdown-menu floatleft ">
+                                            <div class="seach-nhomhang">
+                                                <input autocomplete="off" type="text" id="txtSearchNhomHangHoaFalse" class="seach-nhomhang" data-bind="event: {keyup: $root.SearchNhomHangHoaFalse}">
+                                                <i class="fa fa-search"></i>
+                                            </div>
+                                            <ul id="lstNhomHangAddDV" class="group-parent">
+                                                <li data-bind="click : clickFistChonAddDV" class="p-left10">
+                                                    <a href="javascript:void(0)">---Chọn nhóm---</a>
+                                                </li>
+                                                <li data-bind="foreach : NhomHH_Add">
+                                                    <div class="group-p1" data-bind="click : $root.selectIDNHHAddDV">
+                                                        <a data-bind="text: TenNhomHangHoa, attr:{id: ID}"></a>
+                                                        <span data-bind="attr:{id: 'spanCheckNhomAddDV_'+ ID}" class="pull-right"></span>
+                                                    </div>
+                                                    <ul class="floatleft" data-bind="foreach: Childs">
+                                                        <li>
+                                                            <div class="group-p2" data-bind="click : $root.selectIDNHHAddDV">
+                                                                <a href="javascript:void(0)" data-bind="text: TenNhomHangHoa, attr:{id: ID}"></a>
+                                                                <span data-bind="attr:{id: 'spanCheckNhomAddDV_'+ ID}" class="pull-right"></span>
+                                                            </div>
+                                                            <ul class="floatleft" data-bind="foreach: Child2s">
+                                                                <li>
+                                                                    <div class="group-p3" data-bind="click : $root.selectIDNHHAddDV">
+                                                                        <a href="javascript:void(0)" data-bind="text: TenNhomHangHoa, attr:{id: ID}"></a>
+                                                                        <span data-bind="attr:{id: 'spanCheckNhomAddDV_'+ ID}" class="pull-right"></span>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-default op-js-themmoi"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" data-bind="with: newHangHoa">
+                            <label class="css-form-label">Giá bán</label>
+                            <!-- ko if: $root.booleanAdd() === true-->
+                            <div class="css-form-detail">
+                                <input class="form-control" autocomplete="off"
+                                       type="text"
+                                       data-bind="value: GiaBan, valueUpdate: 'afterkeydown'" onkeyup="return formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                            </div>
+                            <!-- /ko-->
+                            <!-- ko if: $root.booleanAdd() === false-->
+                            <div class="css-form-detail">
+                                <input class="form-control" autocomplete="off" type="text"
+                                       data-bind="value: GiaBan,valueUpdate: 'afterkeydown', enable: $root.HangHoa_GiaBan()==='HangHoa_GiaBan'"
+                                       onkeyup="return formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                            </div>
+                            <!-- /ko-->
+                        </div>
+                        <div class="form-group " data-bind="visible: $root.newHangHoa().LoaiHangHoa() !== 3">
+                            <label class="css-form-label">Phí dịch vụ</label>
+                            <div class="css-form-detail ip-phi-dich-vu" data-bind="with: newHangHoa">
+                                <div class="flex floatleft">
+                                    <div style="position:relative; width:calc(100% - 70px)">
+                                        <input class="form-control" autocomplete="off"
+                                               type="text"
+                                               data-bind="value: ChiPhiThucHien, valueUpdate:'afterkeydown',
+                                               event: {keyup: $root.checkVNDandPT}"
+                                               onkeypress="return keypressNumber_limitNumber(event,this)" />
+                                        <span class="commodity-note">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span href="javascript:void(0)" class="materiall">Phí dịch vụ phục vụ việc tính hoa hồng nhân viên khi thực hiện dịch vụ. Phí dịch vụ trừ theo giá bán dịch vụ</span>
+                                        </span>
+                                    </div>
+                                    <div class="toogle toogle-report"
+                                         data-bind="css: ChiPhiTinhTheoPT()?'active-re':'',
+                                         click: $root.PhiDV_ClickPtramVND">
+                                        <span class="poison">VNĐ</span>
+                                        <span class="transverse">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group ">
+                                <label class="css-form-label">Bảo hành</label>
+                                <div class="css-form-detail bao-hanh" data-bind="with: newHangHoa">
+                                    <input type="text" autocomplete="off" class="dropdown input-add-select form-control" data-bind="value: ThoiGianBaoHanh" onkeypress="return keypressNumber_limitNumberBH(event,this)" onkeyup="return formatNumberObj(this)">
+                                    <select class="form-control select-add-input" id="dllLoaiThoiGianBHDV" data-bind="options: $root.LoaiThoiGianBaoHanhs, optionsValue: 'value',
+                                    optionsText: 'TenLoai', value: $root.selectedLoaiThoiGianBH"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ko if: $root.ID_NganhKinhDoanh() !== 'C1D14B5A-6E81-4893-9F73-E11C63C8E6BC' -->
+                        <div class="form-group "
+                             data-bind="visible: $root.newHangHoa().LoaiHangHoa() !== 3">
+                            <label class="css-form-label" style="letter-spacing:-1px">Số phút thực hiện</label>
+                            <div class="css-form-detail">
+                                <input class="form-control" autocomplete="off" type="text"
+                                       data-bind="value: $root.newHangHoa().SoPhutThucHien" onkeyup="return formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                            </div>
+                        </div>
+                        <!--/ko-->
+                        <div class="form-group" data-bind="with: newHangHoa">
+                            <label class="css-form-label">Ghi chú</label>
+                            <div class="css-form-detail">
+                                <textarea autocomplete="off" type="text" id="txtGhiChuDV" name="txtGhiChuDV" data-bind="value: GhiChu" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6" data-bind="with: newHangHoa" id="_check-don-vi">
+                    <div class=" floatleft">
+                        <div class="img-commodity img-commodity-hang-hoa col-md-6 col-lg-6 col-xs-12 col-sm-12 nopadding">
+                            <div class="img-customer">
+                                <!-- ko foreach: $root.DM_HangHoa_Anh-->
+                                <!-- ko if: $index() == 0-->
+                                <img id="blahHH" alt="" data-bind="attr: {src: Open24FileManager.hostUrl + URLAnh , 'title': name}" />
+                                <a href="javascript:void(0)" data-bind="click: $root.modalDeleteAnh">
+                                    <i class="fa fa-close red"></i>
+                                </a>
+                                <!-- /ko -->
+                                <!-- /ko -->
+                                <!-- ko if: $root.loadavt()==false-->
+                                <!-- ko foreach: $root.files-->
+                                <!-- ko if: $index() == 0-->
+                                <img id="blahHH" alt="" data-bind="attr: {src: URLAnh , 'title': name}" />
+                                <a href="javascript:void(0)" data-bind="click: $root.modalDeleteAnh">
+                                    <i class="fa fa-close red"></i>
+                                </a>
+                                <!-- /ko -->
+                                <!-- /ko -->
+                                <!-- /ko -->
+                            </div>
+                            <div class="choose-img floatleft">
+                                <span class="btn  btn-file form-control">
+                                    Chọn ảnh <input type='file' multiple id="imageUpHHForm" name="files[]" data-bind="event:{change: $root.fileSelect}" />
+                                    <output id="list"></output>
+                                </span>
+                            </div>
+                        </div>
+                        <ul class="img-list-c  col-md-6 col-lg-6 col-xs-12 col-sm-12">
+                            <!-- ko foreach: $root.DM_HangHoa_Anh-->
+                            <li data-bind="if: $index() != 0, attr: {id : $index}">
+                                <div class="img-item">
+                                    <img class="thumb" data-bind="attr: {'src': Open24FileManager.hostUrl + URLAnh, 'title': name}" />
+                                </div>
+                                <a data-bind="click: $root.modalDeleteAnh">
+                                    <i class="fa fa-close red"></i>
+                                </a>
+                            </li>
+                            <!-- /ko -->
+                            <!-- ko if: $root.loadavt()==true-->
+                            <!-- ko foreach: $root.files-->
+                            <li data-bind="attr: {id : $index}">
+                                <div class="img-item">
+                                    <img data-bind="attr: {'src': URLAnh, 'title': name}" />
+                                </div>
+                                <a data-bind="click: $root.modalDeleteAnh">
+                                    <i class="fa fa-close red"></i>
+                                </a>
+                            </li>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                            <!-- ko if: $root.loadavt()==false-->
+                            <!-- ko foreach: $root.files-->
+                            <!-- ko if: $index() != 0-->
+                            <li>
+                                <div class="img-item">
+                                    <img data-bind="attr: {'src': URLAnh, 'title': name}" />
+                                </div>
+                                <a data-bind="click: $root.modalDeleteAnh">
+                                    <i class="fa fa-close red"></i>
+                                </a>
+                            </li>
+                            <!-- /ko -->
+                            <!-- /ko -->
+                            <!-- /ko -->
+                            <li>
+                                <div class="img-item">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="img-item">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="img-item">
+                                </div>
+                            </li>
+                            <li>
+                                <div class="img-item">
+                                </div>
+                            </li>
+                        </ul>
+                        <p id="errorAnh" class="errorAnh" style="color:red"></p>
+                    </div>
+                    <div class=" col-xs-12 col-sm-6 col-md-12 col-lg-12 nopadding">
+                        <div class="floatleft ">
+                            <label class="op-form-checkbox">
+                                <input type="checkbox" data-bind="checked: DuocBanTrucTiep, checkedValue: true">
+                                <span>Được bán trực tiếp</span>
+                            </label>
+                        </div>
+                        <div class="floatleft ">
+                            <input type="checkbox" name="name" class="input-label"
+                                   data-bind="checked: DuocTichDiem, checkedValue: 1" />
+                            <label class="text-underline" data-bind="click: function(){ $root.SetUp_byGroup(2)}">
+                                Được tích điểm
+                            </label>
+                        </div>
+                        <div class="floatleft">
+                            <label class="op-form-checkbox">
+                                <input type="checkbox" class="_check-don-vi" value="checked" id="checkmanageDVTDV" data-bind="click :$root.CheckQuanLyDVTDV">
+                                <span> Quản lý đơn vị tính</span>
+                            </label>
+                        </div>
+                        <!-- ko if: $root.ID_NganhKinhDoanh() === 'C1D14B5A-6E81-4893-9F73-E11C63C8E6BC' -->
+                        <div class="floatleft " data-bind="visible: $root.newHangHoa().LoaiHangHoa() !== 3">
+                            <label class="op-form-checkbox">
+                                <input type="checkbox" data-bind="checked: $root.newHangHoa().DichVuTheoGio, checkedValue: 1">
+                                <span>
+                                    Số lượng tính theo thời gian sử dụng
+                                    &nbsp; &nbsp;
+                                    <i class="fa fa-info-circle"
+                                       title="Dành cho các hàng hóa tính thời gian sử dụng như giờ thuê phòng, giờ hát karaoke,..(khi được đưa vào đơn hàng, thời gian sử dụng sẽ được tính tự động). Mặc định giá bán sẽ tính trên mỗi giờ sử dụng."></i>
+                                </span>
+                            </label>
+                        </div>
+                        <!--/ko-->
+
+                        <div class="floatleft " data-bind="visible: $root.IsGara() && $root.newHangHoa().LoaiHangHoa() === 2">
+                            <label class="op-form-checkbox">
+                                <input type="checkbox" name="name"
+                                       data-bind="checkedValue: true,
+                           checked: $root.QuanLyBaoDuong" /> Quản lý lịch bảo dưỡng
+                            </label>
+                        </div>
+                        <div class="floatleft ">
+                            <input type="checkbox" name="name" class="input-label"
+                                   data-bind="checkedValue: true,
+                           checked: $root.TinhHoaHongTruocCK" />
+                            <label class="text-underline" data-bind="click: function(){ $root.SetUp_byGroup(1)}">
+                                Tính hoa hồng trước chiết khấu
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12">
+                    <div class=" panel-primary floatleft  _pane-don-vi" id="hideDonViTinhDV">
+                        <div class="panel-collapse " id="panelDonViTinh" data-bind="attr:{class: newHangHoa().DonViTinh? 'in': ''}">
+                            <div class="panel-body">
+                                <div class="form-group" data-bind="with: newHangHoa" style="max-width:400px;">
+                                    <label class="css-form-label">Đơn vị cơ bản</label>
+                                    <div class="css-form-detail">
+                                        <input autocomplete="off" type="text" class="form-control" data-bind="value: DonViTinhChuan" />
+                                    </div>
+                                    <span class="commodity-note">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span href="javascript:void(0)" class="materiall">Đơn vị của hàng hóa như hộp, lốc, thùng, ...</span>
+                                    </span>
+                                </div>
+                                <div id="results"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="thanhphan_DV" class="tab-pane fade in" style="margin-top: 20px;">
+                <div class="seach-HH">
+                    <div class="form-horizontal">
+                        <div class="col-md-7 col-sm-10 col-xs-12">
+                            <div class="form-group " style="display:flex; flex-direction:row;flex-wrap:wrap">
+                                <label>Hàng hóa thành phần<span style="color:red"> (*)</span></label>
+                                <div style="position:relative;max-width:400px;min-width: 250px;margin-left: 15px;">
+                                    <input type="text" class=" form-control" id="txtHangHoaTP"
+                                           data-bind="jqAutoProduct: { source: HangHoas, value: getCTHH,
+                                                     inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',  template: 'rowChiTiet'}"
+                                           placeholder="Thêm hàng hóa thành phần" />
+                                    <script id="rowChiTiet" type="text/html">
+                                        @Html.Partial("~/Views/Component/_ko-ListSearchFullHangHoa.cshtml")
+                                    </script>
+                                    <span class="commodity-note">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span href="javascript:void(0)" class="materiall"> Chọn hàng hóa</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-res">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã hàng hóa</th>
+                                <th>Tên hàng hóa</th>
+                                <th style="width: 180px;">Số lượng quy cách</th>
+                                <th style="width: 180px;"> Số lượng</th>
+                                <th>Giá vốn</th>
+                                <th>Tiền vốn</th>
+                                <!--ko if: $root.newHangHoa().LoaiHangHoa() === 3 -->
+                                <th>
+                                    <span id="tpdl_giaban" data-bind="click: $root.TPDLuong_showDivGiaBan">Đơn giá</span>
+                                    <div class="callprice" style="width: 320px;">
+                                        <div class="flex  flex-between">
+                                            <label>
+                                                Đơn giá&nbsp;&nbsp; = &nbsp;&nbsp;
+                                            </label>
+                                            <div class="flex  _js">
+                                                <input type="text" class="form-control number-price"
+                                                       onkeypress="return keypressNumber_limitNumber(event,this)"
+                                                       data-bind="value: $root.TPDLuong_GiaTriSo,
+                                                       event:{keyup:$root.TPDLuong_editGiaTriSo}">
+                                                <div class="plus gb">%</div>
+                                            </div>
+                                            <div class="dropdown">
+                                                <div class="form-control" >Giá bán lẻ</div>
+                                            </div>
+                                        </div>
+                                        <div class="pull-right" style="padding-top:10px"
+                                             data-bind="click: $root.TPDLuong_applyGiaBan">
+                                            <a href="javascript:void(0);" class="tpdl-ok">Áp dụng</a>
+                                        </div>
+                                    </div>
+                                </th>
+                                <!--/ko-->
+                                <th style="width:40px"></th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="template:{foreach: newHangHoa().DinhLuongDichVu, afterRender: TinhLaiTienDV}">
+                            <tr>
+                                <td data-bind=" text: commonStatisJs.SubStringContent(MaHangHoa,15)"></td>
+                                <td>
+                                    <span data-bind=" text: commonStatisJs.SubStringContent(TenHangHoa,30)"></span>
+                                    <span style="color:brown" data-bind="visible: MaLoHang">
+                                        (Lô: <span data-bind="text: MaLoHang"></span>)
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="text" autocomplete="off" id="txtSoLuongQuyCach" class="form-control" onkeypress="return keypressNumber_limitNumber(event,this)" data-bind="value: SoLuongQuyCach, attr:{id: 'soluongqcdv_' + ID_DonViQuiDoi} , event:{keyup: $root.tinhsoluong}" />
+                                </td>
+                                <td>
+                                    <input autocomplete="off" class="form-control"
+                                           data-bind=" value: SoLuong, attr: {id : 'soluongdv_' + ID_DonViQuiDoi},
+                                           event:{keyup: $root.tinhsoluongquicach}"
+                                           onkeyup="thanhtiendv(this)"
+                                           onkeypress="return keypressNumber_limitNumber(event,this)" />
+                                </td>
+                                <td data-bind="text: formatNumber3Digit(GiaVon,3) ,
+                                    attr: {id : 'giavondv_' + ID_DonViQuiDoi}"></td>
+                                <td class="clThanhTiendv" data-bind="text: formatNumber3Digit(ThanhTien,3),
+                                    attr: {id : 'thanhtiendv_' + ID_DonViQuiDoi}" onkeyup="thanhtiendv(this)"></td>
+
+                                <td style="width:180px" data-bind="visible: $root.newHangHoa().LoaiHangHoa() === 3">
+                                    <input autocomplete="off"
+                                           class="form-control"
+                                           onkeypress="return keypressNumber_limitNumber(event,this)"
+                                           data-bind="value: formatNumber(DonGia),
+                                           event:{keyup: function(){ $root.TPDLuong_editGiaBan($index())}}" />
+                                </td>
+                                <td width="10%">
+                                    <a href="javascript:void(0)" data-bind="click: $root.deleteHHCT">
+                                        <img src="~/Content/images/icon/Iconthemmoi-17.png" id="xoaCTHH" />
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="pull-left floatleft _dinh-muc">
+                        <font>Tổng giá vốn thành phần:</font>
+                        <span data-bind="text: formatNumber3Digit($root.TPDL_SumTienVon())"></span>
+                    </div>
+                    <div class="pull-left floatleft" style="margin-top:15px;">
+                        <span style="color:red">(*)</span><span style="color:var(--color-main)"> Là hàng hóa thành phần tiêu hao khi sử dụng 1 dịch vụ</span>
+                    </div>
+                </div>
+            </div>
+            <div id="baoduong_DV" style="max-width: 820px; padding: 15px 72px;"
+                 data-bind="visible: $root.Tab_Active() === 5 ">
+                <div class="flex flex-between" style="margin: 2px 0 6px; display:none">
+                    <label>
+                        <input type="checkbox" name="name"
+                               data-bind="checkedValue: true,event:{change: $root.ChangeCheckQuanLyBaoDuong},
+                           checked: $root.QuanLyBaoDuong" /> Quản lý lịch bảo dưỡng
+                    </label>
+                </div>
+                <div class="flex flex-between" style="margin: 2px 0 6px;">
+                    <label>
+                        Loại bảo dưỡng
+                    </label>
+                    <div class="flex flex-row op-form-group ">
+                        <div class="dropdown" style="position: relative; width:150px">
+                            <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                <div class="form-control" style="cursor:pointer" data-bind="text: $root.BaoDuong_TypeText"></div>
+                            </div>
+                            <div class="dropdown-menu" style="width:100%; max-height:330px;">
+                                <div class=" flex flex-column ">
+                                    <ul class="group-parent floatleft">
+                                        <li data-bind="foreach :  $root.BaoDuong_ListType">
+                                            <div class="group-p1" data-bind="click :$root.BaoDuong_ChangeType">
+                                                <a data-bind="text: Text"></a>
+                                                <span class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="flex flex-between" style="margin: 2px 0 6px;">
+                    <label>
+                        <input type="checkbox" name="name"
+                               data-bind="checkedValue: true,
+                           checked: $root.BaoDuong_ApplyAllByGroup" /> Áp dụng cho tất cả hàng hóa thuộc nhóm
+                        <span data-bind="text: $data.TenNhomHangHoa"></span>
+                    </label>
+
+                </div>
+                <div style="position: relative; border: 1px solid #ccc;">
+                    <div>
+                        <table id="tablebaoduong_DV">
+                            <thead>
+                                <tr>
+                                    <th class="text-center width-100" style="border: 1px solid #ccc;">Lần</th>
+                                    <th class="text-center">Từ</th>
+                                    <th class="text-center">Lặp lại</th>
+                                    <th class="text-center">#</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: $root.BaoDuong_ListDetail">
+                                <tr>
+                                    <td class="text-center" data-bind="text: $index() + 1"></td>
+                                    <td>
+                                        <div style="position: relative;">
+                                            <input class="form-control text-center" type="text"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   data-bind="value: formatNumber(GiaTri),
+                                               event:{keyup: function(){ $root.BaoDuong_EditGiaTri($index())}}">
+                                            <select class="form-control select-add-input" data-bind="options: $root.BaoDuong_TypeDate_Filter,
+                                            optionsText: 'Text', optionsValue: 'ID',
+                                            value: $data.LoaiGiaTri,
+                                                event: {change:  $root.BaoDuong_ChangeTypeDate}"></select>
+
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                               data-bind="checkedValue: true, checked: LapDinhKy,
+                                           visible: $index() === $root.BaoDuong_ListDetail().length - 1,
+                                           event: {change: function(){ $root.ChangeCheckRepeater($index()} }" />
+                                    </td>
+                                    <td>
+                                        <div class="flex flex-center">
+                                            <button class="btn height-30" data-bind="click :$root.addLanBaoDuong">
+                                                <i class="fa fa-plus" style="display: block"></i>
+                                            </button>
+                                            <button class="btn btn-close height-30" data-bind="click: function(){$root.removeLanBaoDuong($index())}">
+                                                <i class="fa fa-close text-danger" style="display: block"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="border-top:none">
+        <button type="button" class="btn btn-cancel" data-dismiss="modal" data-bind="click: $root.backCurrentDV"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+        <button type="button" class="btn btn-save btnLuuDichVu" data-bind="click: $root.DichVu_ADD">
+            <i class=" fa fa-save"></i>
+            Lưu
+        </button>
+    </div>
+</div>
+<script>
+    function checkeddonvitinh() {
+        if ($('._check-don-vi').is(':checked')) {
+            $('._pane-don-vi').show();
+        }
+        else {
+            $('._pane-don-vi').hide();
+        }
+    }
+    //$('._check-don-vi').on('change', function () {
+    //    $('._pane-don-vi').toggle();
+    //});
+    //$('.toogle-report').on('click', function () {
+    //    if ($(this).hasClass('active-re')) {
+    //        $(this).removeClass('active-re');
+    //    }
+    //    else {
+    //        $(this).addClass('active-re');
+    //    }
+    //});
+    $("#btnDonVi").click(function () {
+        $('#txtTenDVT').focus();
+    });
+    function keyPressDecimal(e) {
+        if (e.which !== 46 && (e.which < 47 || e.which > 59)) {
+            e.preventDefault();
+            if ((e.which === 46) && ($(this).indexOf('.') !== -1)) {
+                e.preventDefault();
+            }
+        }
+    }
+    function clicktien(obj) {
+        var parent = $(obj).parent('td').prev('td').children('input');
+        if (parent.attr('disabled') !== 'disabled') {
+            var a = $('#txtGiaBanDV').val();
+            //var b = $('#txtTyLeDVT').val();
+            var b = parseInt(parent.val());
+            if (isNaN(b)) {
+                b = 0;
+            }
+            $(obj).val(a * b);
+        }
+    }
+    function thanhtiendv(obj) {
+        var rowiddv = $(obj).attr('id');
+        rowiddv = rowiddv.substr(rowiddv.lastIndexOf('_') + 1);
+        var objsoluongdv = formatNumberObj($("#soluongdv_" + rowiddv));
+        var soluongdv = formatNumberToFloat(objsoluongdv);
+        if (isNaN(soluongdv)) {
+            soluongdv = 0;
+        }
+        var oldPricedv = formatNumberToInt($("#giavondv_" + rowiddv).text());
+        var price_numberdv = oldPricedv * soluongdv;
+        var tempdv = price_numberdv;
+        if (tempdv != '0') {
+            $('#thanhtiendv_' + rowiddv).html(formatNumber(tempdv));
+        }
+        else {
+            document.getElementById("thanhtiendv_" + rowiddv).innerHTML = '0';
+        }
+        var sumdv = 0;
+        $('.clThanhTiendv').each(function () {
+            var valThisdv = $(this).text();
+            var ivalThisdv = parseFloat(formatNumberToFloat(valThisdv));
+            sumdv += ivalThisdv;
+            modelHangHoa.TPDL_SumTienVon(sumdv);
+            //$('#lblTongTiendv').html(formatNumber(sumdv));
+        });
+    };
+    function keypressNumber_limitNumber(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode !== 46 || $(obj).val().indexOf('.') !== -1) && (keyCode < 48 || keyCode > 57)) {
+            if ((event.which !== 46 || $this.indexOf('.') !== -1)) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        if ($this.indexOf(".") > -1 && ($this.split('.')[1].length > 2)) {
+            event.preventDefault();
+        }
+    }
+    function keypressNumber_limitNumberBH(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode !== 46 || $(obj).val().indexOf('.') !== -1) && (keyCode < 48 || keyCode > 57)) {
+            if ((event.which !== 46 || $this.indexOf('.') !== -1)) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        if ($this.indexOf(".") > -1 && ($this.split('.')[1].length > 0)) {
+            event.preventDefault();
+        }
+    }
+
+    //timepicker
+    $('#dateNgayApDungBaoDuongDV').datetimepicker(
+        {
+            format: "d/m/Y",
+            defaultDate: new Date(),
+            mask: true,
+            maxDate: new Date(),
+            timepicker: false,
+            scrollMonth: false,
+        }
+    );
+    $('#thanhphan_DV').on('click', '#tpdl_giaban', function () {
+        $('.callprice').mouseup(function () {
+            return false;
+        });
+    })
+</script>

@@ -1,0 +1,168 @@
+﻿@using Model_banhang24vn
+@model Model_banhang24vn.CustomView.Client.newsDetailView
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title =  Model.NewsModel.Title;
+    var tags = (IEnumerable<Tag>)ViewBag.Tags;
+    var url = System.Configuration.ConfigurationManager.AppSettings["Webhttp"] + Model.NewsModel.Url;
+}
+@section scripts{
+    <script src="~/Content/js/moment.js"></script>
+    <script src="~/Assets/js/Client/News.Detail.js"></script>
+
+    <script>
+    function ConvertTitleDateTime(config) {
+        var dt = new Date(config);
+        var y = dt.getFullYear();
+        var mo = dt.getMonth() + 1;
+        var d = dt.getDate();
+        var h = dt.getHours();
+        var mi = dt.getMinutes();
+
+        var weekday = new Array(7);
+        weekday[0] = "Chủ nhật";
+        weekday[1] = "Thứ hai";
+        weekday[2] = "Thứ ba";
+        weekday[3] = "Thứ tư";
+        weekday[4] = "Thứ năm";
+        weekday[5] = "Thứ sáu";
+        weekday[6] = "Thứ bảy";
+        var n = weekday[dt.getDay()];
+
+        var date = n + ", " + d + "/" + mo + "/" + y + " | " + h + ":" + mi + " GMT+7";
+        return date
+    }
+    $('#TitleDate').text(ConvertTitleDateTime('@Model.NewsModel.CreateDate'));
+    </script>
+}
+@section FormDangky{
+    @Html.Action("_cuahangdangky", new { area = "", controller = "home" })
+}
+<style>
+    .icon-home {
+        display: none;
+    }
+  
+</style>
+<div class="banner-news fl">
+    <div class="container">
+        @*<h3 class="title-news-home">
+            Tin tức <br />
+            <font>Open24</font>
+        </h3>*@
+    </div>
+</div>
+
+<div class="contentnews fl">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 news-recruitment">
+                <div class="date-timenews">
+
+                    <span><i class="fas fa-clock"></i></span> <span id="TitleDate" />
+                </div>
+                <div class="title-detailnews fl">
+                 <h1>   @Model.NewsModel.Title</h1>
+                </div>
+                <div class="summary-detailnews fl">
+                    @Model.NewsModel.Summary
+                </div>
+                <div class="content-detailnews fl">
+                    @Html.Raw(Model.NewsModel.Content)
+
+                </div>
+                <div class="content-detailnews fl">
+                    <span style="float:right">   @Model.CreateByUser</span>
+                </div>
+                <div class="fl text-center fiften-days">
+                    <p>
+                        <font>
+                            Phần mềm quản lý bán hàng - Open24<br />
+                        </font>
+                        Quản lý mọi lúc, mọi nơi trên mọi thiết bị. Chỉ với 89.000 đ/ tháng.
+                    </p>
+                    <div class="fl bnt-news1">
+                        <a class="trial" href="/dung-thu-mien-phi">
+                            Đăng kí dùng thử miễn phí 15 ngày
+                        </a>
+                    </div>
+                </div>
+                <div class="summary-detailnews fl">
+                    <span class="glyphicon glyphicon-tags"></span><span style="margin-left:1%">
+                        Tags:
+                        @foreach (var item in tags)
+                        {
+                            <a href="/tag/@item.ID"> @item.Name,</a>
+                        }
+                        <a href="/tin-tuc"> Tin tức Open24</a>
+                    </span>
+                </div>
+                @if (Model.ListRlatedArticles.Any())
+                {
+                    <div class="related-news fl">
+                        <div class="line"></div>
+                        <div class="title-related">
+                            Tin tức liên quan
+                        </div>
+                        <div class="related-list fl">
+                            @foreach (var item in Model.ListRlatedArticles)
+                            {
+                                <p> <i class="fa fa-chevron-right"></i><a href="@item.Url"> @item.Title</a></p>
+                            }
+                            <p>
+                                <a href="/tin-tuc/@Model.NewsModel.CategoryID" class="col-red">
+                                    Xem thêm
+                                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                }
+                <div class="related-news fl">
+                    <div class="fl carenews" style="padding-top: 1%;">
+                        <div class="fb-like" data-href='@url' data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+                    </div>
+                    <div class="fb-comments" data-href='@url' data-numposts="5" data-width="100%"></div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+
+
+                <div class="title-viewnews fl">
+                    Bài viết mới nhất
+                </div>
+                <div class="view-news fl">
+                    <!--ko foreach: LisstNewsDate -->
+                    <div class="content-viewnews fl">
+                        <div class="left-viewnews">
+                            <a data-bind="attr:{href: Url, title: Title, id:ID, src: Image}">
+                                <img src="/Content/images/m6.png" data-bind="attr:{src: Image}" alt="Ảnh">
+                            </a>
+                            <div class="detail-news">
+                                <a data-bind="attr:{href: Url, title: Title, id:ID, src: Image}">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                            </div>
+                        </div>                          <div class="content-news">
+                            <div class="title-news-right">
+                                <a class="bold" data-bind="attr: { href: Url, title: Title, id:ID }, text: Title"></a>
+                            </div>
+                            <div class="time-news">
+                                <i class="fa fa-clock-o"></i>
+                                <span data-bind="text:ConvertDate(CreatDate)" />
+
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ko-->
+                </div>
+
+
+                <div class="view-news fl">
+                    @Html.Partial("PageFacebookPartial")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

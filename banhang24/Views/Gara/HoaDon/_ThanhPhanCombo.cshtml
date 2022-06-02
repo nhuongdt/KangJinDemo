@@ -1,0 +1,591 @@
+﻿
+<style>
+
+    .list-img-user .detail-user-discount {
+        padding-left: 0;
+        min-height: 0;
+    }
+
+    .detail-user-discount p {
+        margin: 0px !important;
+        padding-top: 3px !important
+    }
+
+    .title-user {
+        font-weight: bold;
+        width: unset;
+    }
+
+    .line-space {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .list-img-user .form-group:hover {
+        background-color: #d6f1f0;
+    }
+
+    .search-img-user button {
+        position: absolute;
+        left: unset;
+        top: 0px;
+        right: 0px;
+        width: 36px;
+        float: right;
+        height: 30px;
+        background: var(--color-button);
+        border: none;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+        color: white;
+    }
+
+
+
+    .tab-discount-user li.active {
+        border-top: 1px solid var(--color-main);
+        border-left: 1px solid var(--color-main);
+        border-right: 1px solid var(--color-main);
+        border-bottom: none !important;
+    }
+
+    .tab-discount-user li a {
+        margin: 0px !important;
+        font-weight: bold;
+    }
+
+    .tab-discount-user {
+        padding-bottom: 13px !important;
+    }
+
+        .tab-discount-user .nav-tabs {
+            border-bottom: 1px solid var(--color-main);
+        }
+
+    .note-discount-money-new p span {
+        color: #f81600;
+    }
+
+    .note-discount-money-new p img {
+        margin-right: 10px;
+    }
+
+    .input-span input {
+        width: calc(100% - 15px);
+        height: 22px;
+        float: left;
+        padding-right: 0px;
+    }
+
+    .input-span label {
+        width: 15px;
+        float: right;
+        font-weight: 100;
+        color: red;
+    }
+
+    .list-img-user .img-user {
+        width: 55px;
+        height: 50px;
+        position: unset;
+        border-radius: 5px;
+        background: none;
+        object-fit: cover;
+        border: 1px dashed #ccc;
+        margin: 0 5px;
+    }
+
+    table thead th {
+        text-align: center;
+    }
+
+    #vmThanhPhanCombo table input {
+        overflow: hidden;
+        height: 29px;
+        padding: 1px 4px;
+        border: none;
+        outline: none;
+        border-bottom: 1px solid #ccc;
+    }
+</style>
+<div id="vmThanhPhanCombo" class="modal fade">
+    <div class="modal-dialog draggable modal-lg modal-lgmax ">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <h4 class="modal-title">
+                    Thành phần của gói combo
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="container-fluid  flex flex-between " style="padding:0 0 15px 0">
+                    <div class="col-md-6 col-xs-12 nopadding">
+                        <products :con-ton-kho="0"
+                                  :show-gia-von="false"
+                                  :show-image="false"
+                                  :show-ton-kho="true"
+                                  :loai-hang-hoa="typeSearchProduct"
+                                  :id-chi-nhanh="ID_DonVi"
+                                  v-on:chose-product="ChoseItemCombo">
+                        </products>
+                    </div>
+                    <div class="col-md-6 col-xs-12 nopadding" style="line-height:24px; padding:3px; text-align:left; color:red">
+                        <i class="fa fa-info-circle"></i>
+                        <span v-if="DichVu_isDoing">  {{DichVu_isDoing.TenHangHoa}}</span>
+                    </div>
+
+
+                </div>
+
+                <div class="container-fluid row">
+
+
+
+                    <div class="table-frame">
+                        <table class=" table-hover table table-striped  ">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        STT
+                                    </th>
+                                    <th>
+                                        Mã hàng hóa
+                                    </th>
+                                    <th>
+                                        Tên hàng hóa
+                                    </th>
+                                    <th style="width:80px">
+                                        Số lượng
+                                    </th>
+                                    <th>
+                                        Đơn giá
+                                    </th>
+                                    <th>
+                                        Thanh toán
+                                    </th>
+                                    <th>
+                                        Ghi chú
+                                    </th>
+                                    <th v-if="typeUpdate === 2">
+                                        NV
+                                    </th>
+                                    <th style="width:30px"
+                                        v-if="typeUpdate === 1">
+                                        #
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in ListCombo">
+                                    <td class="text-center">{{index + 1}}</td>
+                                    <td>{{item.MaHangHoa}}</td>
+                                    <td>
+                                        <span>{{item.TenHangHoa}}</span>
+                                        <span style="font-style:italic;color:cornflowerblue" v-if="item.TenDonViTinh">
+                                            ({{item.TenDonViTinh}})
+                                        </span>
+                                        <span v-if="item.MaLoHang" style="color:brown">
+                                            (Lô: {{item.MaLoHang}})
+                                        </span>
+                                        <i class="fal fa-info-circle"
+                                           v-if="typeUpdate === 2 && (DichVu_isDoing.LoaiHoaDon === 1 || DichVu_isDoing.LoaiHoaDon === 25)"
+                                           v-on:click="showChiTietXuatKho(item)"></i>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <input class="input-simple text-center" style="width: 80px" onclick="this.select()"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)"
+                                               v-model="item.SoLuong"
+                                               v-on:keyup="EditSoLuong(item, index)"
+                                               v-on:keyup.13="EnterDetail(3)" />
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <input class="input-simple text-right" style="width: 80px" onclick="this.select()"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)"
+                                               v-model="item.GiaBan"
+                                               v-on:keyup="EditDonGia(item, index)"
+                                               v-on:keyup.13="EnterDetail(4)" />
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <input class="input-simple text-right" style="width: 80px" onclick="this.select()"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)"
+                                               v-model="item.ThanhToan"
+                                               v-on:keyup="EditThanhToan(item, index)"
+                                               v-on:keyup.13="EnterDetail(5)" />
+                                    </td>
+                                    <td>
+                                        <input class="input-simple" style="width:100%" onclick="this.select()"
+                                               v-model="item.GhiChu"
+                                               v-on:keyup="EditGhiChu(index)"
+                                               v-on:keyup.13="EnterDetail(6)" />
+                                    </td>
+
+                                    <td v-if="typeUpdate === 2">
+                                        <button class="btn btn-link height-24" v-on:click="$root.showCKHangHoa(item)">
+                                            <i class="fa fa-user" title="Hoa hồng nhân viên"></i>
+                                        </button>
+                                    </td>
+                                    <td v-if="typeUpdate === 1">
+                                        <button class="btn btn-link height-24" v-on:click="Delete(index)">
+                                            <i class="fa fa-close text-danger"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"
+                            v-if="typeUpdate === 1">
+                        <i class="fa fa-ban"></i>&nbsp;Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"
+                            v-if="typeUpdate === 2 || typeUpdate == 3">
+                        <i class="fa fa-ban"></i>&nbsp;Đóng
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="typeUpdate === 1"
+                            v-on:click="Agree">
+                        <i class="fa fa-save"></i> Đồng ý
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="typeUpdate === 4"
+                            v-on:click="UpdateTPComBo">
+                        <i class="fa fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmThanhPhanCombo = new Vue({
+        el: '#vmThanhPhanCombo',
+        components: {
+            'products': cmpChoseProduct
+        },
+        data: {
+            ID_DonVi: $('#txtDonVi').val(),
+            typeSearchProduct: '%1%',
+            saveOK: false,
+            isDoiTra: false,
+            typeUpdate: 1,//1. gara, 2.ds hoadon, 3.gara_trahang
+            DichVu_isDoing: {},
+            ListCombo: [],
+            AllComBo_ofHD: [],
+            role: {
+                Update: false,
+            }
+        },
+        created: function () {
+            var self = this;
+            if (commonStatisJs.CheckNull(self.ID_DonVi)) {
+                self.ID_DonVi = VHeader.IdDonVi;
+            }
+        },
+        methods: {
+            showModalUpdate: function (ctDoing) {// used at ds hoadon
+                let self = this;
+                let combo = $.grep(self.AllComBo_ofHD, function (x) {
+                    return x.ID_ParentCombo === ctDoing.ID_ParentCombo;
+                });
+                if (commonStatisJs.CheckNull(ctDoing.LoaiHoaDon)) {
+                    ctDoing.LoaiHoaDon = 1;
+                }
+                ctDoing.ThanhPhanComBo = combo;
+                self.LoaiHoaDon = ctDoing.LoaiHoaDon;
+                self.showModal(ctDoing, 2);
+            },
+            GetAllCombo_byIDHoaDon: function (idHoaDon) {
+                let self = this;
+                if (commonStatisJs.CheckNull(idHoaDon)) {
+                    self.AllComBo_ofHD = [];
+                    return;
+                }
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListCombo_ofCTHD?idHoaDon=' + idHoaDon).done(function (x) {
+                    if (x.res) {
+                        self.AllComBo_ofHD = x.dataSoure;
+                    }
+                    else {
+                        self.AllComBo_ofHD = [];
+                    }
+                })
+            },
+            SetDefaultProprties: function (itChose) {
+                var self = this;
+                var ctDoing = self.DichVu_isDoing;
+
+                itChose.IDRandom = CreateIDRandom('combo_');
+                itChose.IDRandomHD = ctDoing.IDRandomHD;
+                itChose.MaHoaDon = ctDoing.MaHoaDon;
+                itChose.LoaiHoaDon = ctDoing.LoaiHoaDon;
+                itChose.ID_HangHoa = itChose.ID;
+                itChose.TienChietKhau = 0;
+                itChose.PTChietKhau = 0;
+                itChose.PTThue = 0;
+                itChose.TienThue = 0;
+                itChose.ThoiGian = moment(new Date()).format('YYYY-MM-DD HH:mm');
+                itChose.SoLuongDaMua = 0;
+                itChose.SoLuongConLai = 0;
+                itChose.CssWarning = false;
+                itChose.IsKhuyenMai = false;
+                itChose.IsOpeningKMai = false;
+                itChose.ID_KhuyenMai = null;
+                itChose.TenKhuyenMai = '';
+                itChose.HangHoa_KM = [];
+                itChose.DM_LoHang = [];
+                itChose.ThanhPhanComBo = [];
+                itChose.HangCungLoais = [];
+                itChose.GhiChu = itChose.GhiChuHH;
+                itChose.LotParent = false;
+                itChose.BH_NhanVienThucHien = [];
+                itChose.GhiChu_NVThucHien = '';
+                itChose.GhiChu_NVTuVan = '';
+                itChose.GhiChu_NVThucHienPrint = '';
+                itChose.GhiChu_NVTuVanPrint = '';
+                itChose.ID_ChiTietDinhLuong = null;
+                itChose.ID_ChiTietGoiDV = null;
+                itChose.ChatLieu = '';
+                itChose.ID_TangKem = null;
+                itChose.TangKem = false;
+                itChose.RoleChangePrice = ctDoing.RoleChangePrice;
+                itChose.ListDonViTinh = [];
+                itChose.DiemKhuyenMai = 0;
+                itChose.ShowEditQuyCach = ctDoing.ShowEditQuyCach;
+                itChose.ShowWarningQuyCach = false;
+                itChose.LaConCungLoai = false;
+                itChose.LoaiThoiGianBH = itChose.LoaiBaoHanh;
+                itChose.TimeStart = 0;
+                itChose.QuaThoiGian = 0;
+                itChose.TimeRemain = itChose.TimeRemain;
+                itChose.TenViTri = ctDoing.TenViTri;
+                itChose.ID_ViTri = ctDoing.ID_ViTri;
+                itChose.TenHangHoaThayThe = itChose.TenHangHoa;
+                itChose.ID_BaoDuong = null;
+                itChose.DonGiaBaoHiem = 0;
+                itChose.ID_LichBaoDuong = null;
+                itChose.ThoiGianThucHien = itChose.SoPhutThucHien;
+                itChose.TimeRemain = itChose.SoPhutThucHien;
+                return itChose;
+            },
+            showModal: function (ctDoing, type = 1, isDoiTra = false) {//1. gara, 2.ds hoadon, 3.gara_trahang
+                var self = this;
+                self.saveOK = false;
+                self.typeUpdate = type;
+                self.isDoiTra = isDoiTra;
+                self.DichVu_isDoing = ctDoing;
+                // format
+                if (!commonStatisJs.CheckNull(ctDoing.ThanhPhanComBo)) {
+                    for (let i = 0; i < ctDoing.ThanhPhanComBo.length; i++) {
+                        let itFor = ctDoing.ThanhPhanComBo[i];
+                        itFor.GiaBan = formatNumber3Digit(itFor.GiaBan);
+                        itFor.ThanhToan = formatNumber3Digit(itFor.ThanhToan);
+                    }
+                    self.ListCombo = ctDoing.ThanhPhanComBo;
+                }
+                $('#vmThanhPhanCombo').modal('show');
+            },
+            ChoseItemCombo: function (item) {
+                var self = this;
+                // get tpdinhluong
+                var itemEx = $.grep(self.ListCombo, function (x) {
+                    return x.ID_DonViQuiDoi === item.ID_DonViQuiDoi && x.ID_LoHang === item.ID_LoHang;
+                })
+                if (itemEx.length > 0) {
+                    for (let i = 0; i < self.ListCombo.length; i++) {
+                        let itFor = self.ListCombo[i];
+                        if (itFor.ID_DonViQuiDoi === item.ID_DonViQuiDoi
+                            && itFor.ID_LoHang === item.ID_LoHang) {
+                            let sluong = formatNumberToFloat(itFor.SoLuong) + 1;
+                            let gban = formatNumberToFloat(itFor.GiaBan);
+                            self.ListCombo[i].SoLuong = sluong;
+                            self.ListCombo[i].ThanhTien = formatNumber3Digit(sluong * (gban - itFor.TienChietKhau));
+                            self.ListCombo[i].ThanhToan = formatNumber3Digit(sluong * (gban - itFor.TienChietKhau + itFor.TienThue));
+                            break;
+                        }
+                    }
+                    self.ListCombo = $.extend(true, [], self.ListCombo);
+                }
+                else {
+                    var len = self.ListCombo.length;
+                    var obj = self.SetDefaultProprties(item);
+                    obj.SoThuTu = len + 1;
+                    obj.SoLuong = 1;
+                    obj.SoLuongQuyCach = obj.QuyCach;
+                    obj.DonGia = item.GiaBan;
+                    obj.GiaBan = formatNumber3Digit(item.GiaBan);
+                    obj.ThanhTien = obj.GiaBan;
+                    obj.ThanhToan = obj.GiaBan;
+                    obj.TenHangHoaThayThe = obj.TenHangHoa;
+                    obj.ThanhPhan_DinhLuong = [];// set tpdinhluong when show popup dinhluong
+                    self.ListCombo.push(obj);
+                }
+            },
+            Delete: function (index) {
+                var self = this;
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    if (i === index) {
+                        self.ListCombo.splice(i, 1);
+                    }
+                }
+                // update again STT in grid
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    self.ListCombo[i].SoThuTu = i + 1;
+                }
+            },
+            EditGhiChu: function (index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var $this = event.currentTarget;
+                // update GhiChu in grid TPDL
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    if (i === index) {
+                        self.ListCombo[i].GhiChu = $($this).val();
+                        break;
+                    }
+                }
+            },
+            EditQuyCach: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var $this = event.currentTarget;
+                formatNumberObj($this);
+                var quycach = item.QuyCach;
+                var soluongNhap = formatNumberToFloat($($this).val());
+                var soluongQuyDoi = soluongNhap / quycach;
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    let itFor = self.ListCombo[i];
+                    if (i === index) {
+                        let gban = formatNumberToFloat(itFor.GiaBan);
+                        self.ListCombo[i].SoLuongQuyCach = soluongNhap;
+                        self.ListCombo[i].SoLuong = soluongQuyDoi;
+                        self.ListCombo[i].ThanhTien = formatNumber3Digit(soluongQuyDoi * (gban - itFor.TienChietKhau));
+                        self.ListCombo[i].ThanhToan = formatNumber3Digit(soluongQuyDoi * (gban - itFor.TienChietKhau + itFor.TienThue));
+                        break;
+                    }
+                }
+                self.ListCombo = $.extend(true, [], self.ListCombo);
+            },
+            EditSoLuong: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var $this = event.currentTarget;
+                formatNumberObj($this);
+                var quycach = item.QuyCach;
+                var soluongNhap = formatNumberToFloat($($this).val());
+                var soluongQuyCach = soluongNhap * quycach;
+                // update value in grid TPDL
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    let itFor = self.ListCombo[i];
+                    if (i === index) {
+                        let gban = formatNumberToFloat(itFor.GiaBan);
+                        self.ListCombo[i].SoLuongQuyCach = soluongQuyCach;
+                        self.ListCombo[i].ThanhTien = formatNumber3Digit(soluongNhap * (gban - itFor.TienChietKhau));
+                        self.ListCombo[i].ThanhToan = formatNumber3Digit(soluongNhap * (gban - itFor.TienChietKhau + itFor.TienThue));
+                        break;
+                    }
+                }
+                self.ListCombo = $.extend(true, [], self.ListCombo);
+            },
+            EditDonGia: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var $this = event.currentTarget;
+                formatNumberObj($this);
+                var priceNew = formatNumberToFloat($($this).val());
+                // update value in grid TPDL
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    let itFor = self.ListCombo[i];
+                    if (i === index) {
+                        let sluong = formatNumberToFloat(itFor.SoLuong);
+                        self.ListCombo[i].DonGia = priceNew;
+                        self.ListCombo[i].GiaBan = formatNumber3Digit(priceNew);
+                        self.ListCombo[i].ThanhTien = formatNumber3Digit(sluong * (priceNew - itFor.TienChietKhau));
+                        self.ListCombo[i].ThanhToan = formatNumber3Digit(sluong * (priceNew - itFor.TienChietKhau + itFor.TienThue));
+                        break;
+                    }
+                }
+                self.ListCombo = $.extend(true, [], self.ListCombo);
+            },
+            EditThanhToan: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+
+                var $this = event.currentTarget;
+                formatNumberObj($this);
+                var sum = formatNumberToFloat($($this).val());
+                // reset chietkhau, thue
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    let itFor = self.ListCombo[i];
+                    if (i === index) {
+                        let sluong = formatNumberToFloat(itFor.SoLuong);
+                        if (sluong === 0) {
+                            ShowMessage_Danger('Vui lòng nhập số lượng trước');
+                            return;
+                        }
+                        self.ListCombo[i].PTChietKhau = 0;
+                        self.ListCombo[i].TienChietKhau = 0;
+                        self.ListCombo[i].PTThue = 0;
+                        self.ListCombo[i].TienThue = 0;
+                        self.ListCombo[i].ThanhTien = formatNumber3Digit(sum);
+                        self.ListCombo[i].ThanhToan = formatNumber3Digit(sum);
+                        self.ListCombo[i].DonGia = sum / sluong;// khong format (để tính chiết khấu NV at gara.js)
+                        self.ListCombo[i].GiaBan = formatNumber3Digit(sum / sluong);
+                        break;
+                    }
+                }
+                self.ListCombo = $.extend(true, [], self.ListCombo);
+            },
+            EnterDetail: function (columnEdit) {
+                var $this = $(event.currentTarget);
+                var trClosest = $($this).closest('tr');
+                var tdNext = trClosest.next().find('td');
+                $(tdNext).eq(columnEdit).find('input').focus().select();
+            },
+            Agree: function () {
+                var self = this;
+                self.saveOK = true;
+                var soluong = self.DichVu_isDoing.SoLuong;
+                // set soluongmacdinh
+                for (let i = 0; i < self.ListCombo.length; i++) {
+                    let itfor = self.ListCombo[i];
+                    itfor.SoLuongMacDinh = soluong === 0 ? 0 : itfor.SoLuong / soluong;
+                }
+                $('#vmThanhPhanCombo').modal('hide');
+            },
+            UpdateTPComBo: function () {
+                var self = this;
+                self.saveOK = true;
+            },
+            showChiTietXuatKho: function (item) {
+                vmHDSC_chitietXuat.showModal(item);
+            },
+            showCKHangHoa: function (item) {
+                vmChiTietHoaDon.showVmEditCKDichVu(item, true);
+            }
+        }
+    })
+</script>

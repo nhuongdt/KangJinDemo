@@ -1,0 +1,15 @@
+﻿@using System.Web.Configuration;
+
+@{
+	if (Request["image"].IsEmpty())
+	{
+		Response.End();
+	}
+	var imgPath = WebConfigurationManager.AppSettings["LogicalUpload.Directory"];
+	var image = Path.Combine(Server.MapPath(imgPath), Server.UrlDecode(Request["image"]));
+	var thumbWidth = 128D;
+	var buffer = LogicalCK.ImageHelper.GenerateTumbnail(image, thumbWidth);
+	Response.ContentType = string.Format("image/{0}", Path.GetExtension(image).Trim(new[] { '.' }));
+	Response.OutputStream.Write(buffer, 0, buffer.Length);
+	Response.End();
+} 

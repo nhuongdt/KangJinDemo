@@ -1,0 +1,129 @@
+﻿
+@{
+    ViewBag.Title = "Recruitment";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    <script src="~/Assets/Admin/News.js"></script>
+    <script>  
+        vmNewspaper.IsPageNews = false;
+        vmNewspaper.GetGroupCombobox();
+        vmNewspaper.GetData();
+    </script>
+}
+<div class="" id="Newspaper">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>Danh sách tuyển dụng</h3>
+        </div>
+
+        <div class="title_right">
+            <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search  btn-filter">
+                <button class="btn btn-dark pull-right" onclick="location.href='/Admin/News/EditRecruitment'"><i class="fa fa-plus" aria-hidden="true"></i>Thêm mới</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-9 col-sm-9 col-xs-11  form-combobox">
+                        <div class="form-group">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                            <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Tìm kiếm tin tuyển dụng"v-model="modelSearch.text"v-on:keyup="keySearch"> 
+                            <div class="input-group-btn">
+                                <select id="heard" class="form-control" required="">
+                                    <option value="">Chọn nhóm tuyển dụng..</option>
+                                    <option v-for="(item, index) in dataNewsGroup" v-bind:value="item.ID">{{item.TenNhomBaiViet}}</option>
+                                </select>
+                            </div>
+                            <!-- /btn-group -->
+                        </div>
+                    </div>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+
+                        </li>
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="x_content" style="display: block;">
+
+                    @*<p>Add class <code>bulk_action</code> to table for bulk actions options on row select</p>*@
+
+                    <div class="table-responsive">
+                        <table class="table table-striped jambo_table bulk_action">
+                            <thead>
+                                <tr class="headings" >
+                                    <th class="column-title" style="display: table-cell;">Thông tin tuyển dụng  </th>
+                                    <th class="column-title" style="display: table-cell;">Mức lương</th>
+                                    <th class="column-title" style="display: table-cell;">Thời gian từ</th>
+                                    <th class="column-title" style="display: table-cell;">Thời gian đến</th>
+                                    <th class="column-title" style="display: table-cell;">Nhóm</th>
+                                    <th class="column-title" style="display: table-cell;">Số lượng</th>
+                                    <th class="column-title no-link last" style="display: table-cell;">
+                                        <span class="nobr"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr class="even pointer" v-for="(item, index) in dataResults">
+                                    <td class=" ">{{item.TieuDe }}</td>
+                                    <td class=" ">{{item.MucLuong }}</td>
+                                    <td class=" ">{{localValidate.convertDate(item.TuNgay) }}</td>
+                                    <td class=" ">{{localValidate.convertDate(item.DenNgay) }}</td>
+                                    <td class=" ">{{item.TheLoai }}</td>
+                                    <td >{{item.SoLuong }}</td>
+                                    <td class=" last">
+                                        <a href="javascript:void(0)" v-on:click="ClickEditRecruitment(item.ID)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> |
+                                        <a href="javascript:void(0)" v-on:click="ClickRemoveRecruitment(item.ID)"><i class="fa fa-times" aria-hidden="true" style="color:red;"></i></a>
+                                    </td>
+                                </tr>
+                             
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="width:100%">
+                        <ul class="pagination news-paper">
+                            <li style="float: left; padding:6px 12px;">
+                                {{modelSearch.pageItem}}
+
+                            </li>
+                            <li><a href="javascript:void(0)" id="Previouspage" v-on:click="ClickPrevious">&laquo;</a></li>
+                            <li class="page-item">
+                                <div class="page-link" style="float: left;width: 50px;">
+                                    <input type="text" v-model="modelSearch.page" v-on:keyup="keySearch" class="form-control" style="height:32px" min="1">
+                                </div>
+                            </li>
+                            <li class="page-item"><span class="page-link"> /</span></li>
+                            <li class="page-item"><span class="page-link">{{modelSearch.pageCount}}</span></li>
+                            <li><a href="javascript:void(0)" id="Nextpage" v-on:click="ClickNext"> &raquo;</a></li>
+
+                        </ul>
+                        <div class="pull-right recost">
+                            <span>Số bản ghi</span>
+                            <select required="required" class="form-control" id="SelectedLimit">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+
+                            </select>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,523 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #vmLichBaoDuong table th {
+            text-align: center
+        }
+        #vmLichBaoDuong .header-button-check {
+            font-size: 11px;
+            float: left;
+            height: 30px;
+        }
+
+        .detail-content label {
+            min-width: 125px;
+        }
+
+        .css-form-detail input {
+            border: none;
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="op-container" id="vmLichBaoDuong">
+        <div class="col-left">
+            <div class=" op-filter op-filter-body">
+                <article class="boxLeft ">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                    </h3>
+                    <div class="op-filter-container">
+                        <filter-chinhanh v-bind:listchinhanh="listData.ChiNhanh"
+                                         v-on:callfunctionloaddata="LichNhac_ResetSearch"></filter-chinhanh>
+                    </div>
+                </article>
+                <article class="boxLeft">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <i class="far fa-calendar-alt"></i>
+                        Ngày bảo dưỡng dự kiến
+                    </h3>
+                    <filter-datetime radioname="rdNgayBaoDuong" v-bind:typetime="filter.NgayBaoDuongTypeTime"
+                                     v-on:callfunction="NgayBaoDuong_Change"
+                                     v-bind:selectvalue="filter.NgayBaoDuong_DefaultTypeTime"></filter-datetime>
+                </article>
+                <article class="boxLeft">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <i class="far fa-calendar-alt"></i>
+                        Thời gian nhắc
+                    </h3>
+                    <filter-datetime radioname="rdNgayNhac" v-bind:typetime="filter.NgayNhacTypeTime"
+                                     v-on:callfunction="NgayNhac_Change"
+                                     v-bind:selectvalue="filter.NgayNhac_DefaultTypeTime"></filter-datetime>
+                </article>
+                <article class="boxLeft">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <i class="fas fa-adjust"></i>
+                        Trạng thái
+                    </h3>
+                    <filter-checkbox v-bind:listitem="TrangThais"
+                                     v-on:callfunctionloaddata="TrangThai_Change"></filter-checkbox>
+                </article>
+                <article class="boxLeft">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <i class="far fa-object-group"></i>   Nhóm hàng
+                    </h3>
+                    <aside class="op-filter-container">
+                        <div class="seach-nhomhang">
+                            <i class="fa fa-search" style="display:inline-block"></i>
+                            <input type="text" class="seach-nhomhang"
+                                   placeholder="Tìm kiếm nhóm hàng"
+                                   style="display:inline-block; width: calc(100% - 15px)"
+                                   v-model="filter.txtSeachNhomHang"
+                                   v-on:keyup="TreeFilter(listData.NhomHang, commonStatisJs.convertVieToEng(filter.txtSeachNhomHang))" />
+                        </div>
+                        <div id="tatcanhh" class="treename" v-on:click="ChoseNhomHang('')">
+                            <i class="fa fa-angle-right" aria-hidden="true" style="opacity:0"></i> Tất cả
+                            <a class="op-js-themmoinhomhang" href="javascript:void(0)">
+                                <i class="fa fa-pencil-square-o"></i>
+                            </a>
+                        </div>
+                        <treeview id="treeviewnhomhang"
+                                  class="treeview floatleft"
+                                  v-bind:list="listData.NhomHangFilter"
+                                  v-bind:onselectvalue="ChoseNhomHang"></treeview>
+                    </aside>
+                </article>
+
+
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">Lịch nhắc bảo dưỡng</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <button class="btn btn-main "
+                                    v-on:click="ExportExcel">
+                                <i class="fa fa-file-excel-o"></i><span>Xuất Excel</span>
+                            </button>
+                            <div class="btn-dropdown pull-right" style="position: relative;">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        onclick="showCollumnFilter(this)">
+                                    <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list dropdown-menu filter-list-2">
+                                    <ul>
+                                        <li v-for="item in ListHeader">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                    <span></span>{{item.colText}}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="input-search-filter">
+                        <button type="button" class=" btn-search-icon" v-on:click="LichNhac_ResetSearch">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <input type="text" class="form-control" placeholder="Theo biển số xe, chủ xe, sđt"
+                               v-model="filter.txtSearch"
+                               v-on:keyup.enter="LichNhac_ResetSearch">
+                    </div>
+                </div>
+                <div class="header-button-check " v-if="dataSMS.arrIDChosed.length > 0">
+                    @*hiển thị khi tích chọn lịch nhắc*@
+                    <div class=" operation" style="display:inline-block">
+                        <button class="btn btn-main " v-on:click="showModalSMS">
+                            <i class="far fa-sms"></i><span>Gửi SMS</span>
+                        </button>
+                        <button class="btn btn-main " v-on:click="showModalEmail" style="display:none" >
+                            <i class="far fa-envelope"></i>
+                            <span>Gửi Email</span>
+                        </button>
+                        <button class="btn btn-cancel " v-on:click="DeleteLichNhac(0)">
+                            <i class="fa fa-times"></i><span>Xóa nhiều</span>
+                        </button>
+                    </div>
+                    <div style="display:inline-block; margin:8px">
+                        Có <span>
+                            <a href="javascript:void(0)">
+                                <span>{{dataSMS.arrIDChosed.length}}</span> lịch nhắc
+                            </a>
+                        </span>được chọn <span>
+                            <a href="javascript:void(0)" v-on:click="RemoveCheck">
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <i class="fa fa-times icon-del"></i>Bỏ chọn tất cả
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table">
+                <div class="table-frame">
+                    <table id="tblLichBaoDuong">
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    <input type="checkbox" v-on:click="CheckBox_Chose(0,null)"
+                                           v-model="dataSMS.isCheckAll" />
+                                </th>
+                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(item, index) in listData.LichBaoDuong">
+                                <tr class="tr-prev-hide">
+                                    <td class="td-func text-center">
+                                        <input type="checkbox" v-model="item.isCheck" v-on:click="CheckBox_Chose(1,item)"
+                                               v-bind:id="'ck_'+ item.ID" />
+                                    </td>
+                                    <td v-if="CheckColShow('BienSo')" v-on:click="RowSelected(item)">
+                                        <span>
+                                            <a href="javascript:void(0)">{{item.BienSo}}</a>
+                                        </span>
+                                    </td>
+                                    <td v-if="CheckColShow('MaDoiTuong')" v-on:click="RowSelected(item)">
+                                        <a href="javascript:void(0)">{{item.MaDoiTuong}}</a>
+                                    </td>
+                                    <td v-if="CheckColShow('TenDoiTuong')" v-on:click="RowSelected(item)">
+                                        <span>
+                                            {{item.TenDoiTuong}}
+                                        </span>
+                                    </td>
+                                    <td v-if="CheckColShow('DienThoai')" v-on:click="RowSelected(item)">{{item.DienThoai}}</td>
+                                    <td v-if="CheckColShow('Email')" v-on:click="RowSelected(item)">{{item.Email}}</td>
+                                    <td v-if="CheckColShow('TenNhomHangHoa')" v-on:click="RowSelected(item)">{{item.TenNhomHangHoa}}</td>
+                                    <td v-if="CheckColShow('MaHangHoa')" v-on:click="RowSelected(item)">
+                                        <a href="javascript:void(0)">{{item.MaHangHoa}}</a>
+                                    </td>
+                                    <td v-if="CheckColShow('TenHangHoa')" v-on:click="RowSelected(item)">{{item.TenHangHoa}}</td>
+                                    <td class="text-center" v-if="CheckColShow('LanBaoDuong')" v-on:click="RowSelected(item)">{{item.LanBaoDuong}}</td>
+                                    <td class="text-center" v-if="CheckColShow('SoKmBaoDuong')" v-on:click="RowSelected(item)">{{formatNumber(item.SoKmBaoDuong)}}</td>
+                                    <td class="text-center" v-if="CheckColShow('NgayBaoDuongDuKien')" v-on:click="RowSelected(item)">{{moment(item.NgayBaoDuongDuKien).format('DD/MM/YYYY')}}</td>
+                                    <td class="text-center" v-if="CheckColShow('NgayNhacFrom')" v-on:click="RowSelected(item)">{{item.NgayNhacBatDau!=null?moment(item.NgayNhacBatDau).format('DD/MM/YYYY'):''}}</td>
+                                    <td class="text-center" v-if="CheckColShow('NgayNhacTo')" v-on:click="RowSelected(item)">{{item.NgayNhacKetThuc!=null?moment(item.NgayNhacKetThuc).format('DD/MM/YYYY'):''}}</td>
+                                    <td v-if="CheckColShow('LanNhac')" v-on:click="RowSelected(item)">
+                                        {{item.LanNhac}}
+                                    </td>
+                                    <td v-if="CheckColShow('GhiChu')" v-on:click="RowSelected(item)">{{item.GhiChu}}</td>
+                                    <td v-if="CheckColShow('TrangThai')" v-on:click="RowSelected(item)">
+                                        {{TrangThais.find(p=>p.Value === item.TrangThai).Text}}
+                                    </td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length + 1" style="padding:0">
+                                        <div @*class="gara-tab"*@>
+                                            <div class="gara-tab-title">
+                                                <a class="enable-detail nav-link active"
+                                                   data-toggle="tab"
+                                                   v-bind:href="'#sc_'+ item.ID"
+                                                   v-on:click="ClickTab(item)">Thông tin</a>
+                                                <a class="enable-content nav-link" style="display:none"
+                                                   data-toggle="tab"
+                                                   v-on:click="ClickTab(item)"
+                                                   v-bind:href="'#bd_'+ item.ID">Nhật ký bảo dưỡng</a>
+                                            </div>
+                                            <div class="tab-content">
+                                                <div class="tab-pane gara-tab-detail active" v-bind:id="'sc_'+ item.ID"> @* class gara-tab-detail *@
+                                                    <div class="containder-fluid">
+                                                        <div class="col-xs-12 col-md-4">
+                                                            <div class="detail-content floatleft">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="form-label control-label">Biển số xe:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span><a href="javacript:void(0)">{{item.BienSo}}</a></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft">
+                                                                    <label class="form-label control-label">Chủ xe:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <div>
+                                                                            <span>
+                                                                                {{item.TenDoiTuong}}
+                                                                            </span>
+                                                                            <a v-if="item.MaDoiTuong">
+                                                                                ({{item.MaDoiTuong}})
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft">
+                                                                    <label class="form-label control-label">Ngày nhắc bắt đầu:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>{{item.NgayNhacBatDau!=null?moment(item.NgayNhacBatDau).format('DD/MM/YYYY'):''}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft">
+                                                                    <label class="form-label control-label">Ngày nhắc kết thúc:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>{{item.NgayNhacKetThuc!=null?moment(item.NgayNhacKetThuc).format('DD/MM/YYYY'):''}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft">
+                                                                    <label class="form-label control-label">Số lần đã nhắc:</label>
+                                                                    @*<div class="css-form-detail">
+            <span>{{item.LanNhac}}</span>
+        </div>*@
+                                                                    <div class="css-form-detail">
+                                                                        <div class="dropdown">
+                                                                            <a class="btn btn-link nopadding" data-toggle="dropdown">
+                                                                                <span>{{item.LanNhac}}</span>
+                                                                                <i class="fa fa-angle-down"></i>
+                                                                            </a>
+                                                                            <ul class="dropdown-menu">
+                                                                                <li v-for="(tt, index) in LanNhacs"
+                                                                                    v-on:click="ChangeSoLanNhac(item,tt)">
+                                                                                    <a href="javascript:void(0)">
+                                                                                        <span>{{tt.Text}}</span>
+                                                                                        <span class="fa fa-check" style="float:right"
+                                                                                              v-if="tt.Value== item.LanNhac"></span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xs-12 col-md-4">
+                                                            <div class="detail-content">
+                                                                <div class="form-group floatleft ">
+                                                                    <label class="form-label control-label">Mã hàng hóa:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <div>
+                                                                            <a>
+                                                                                {{item.MaHangHoa}}
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft ">
+                                                                    <label class="form-label control-label">Tên hàng hóa:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>{{item.TenHangHoa}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft ">
+                                                                    <label class="form-label control-label">Lần bảo dưỡng:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>{{item.LanBaoDuong}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft " style="align-items: baseline;padding:0">
+                                                                    <label class="form-label control-label">Ngày bảo dưỡng dự kiến:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <date-time :date-chose="moment(item.NgayBaoDuongDuKien).format('YYYY-MM-DD HH:mm')"
+                                                                                   v-on:change-date="Update_ChangeDate">
+
+                                                                        </date-time>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xs-12 col-md-4">
+                                                            <div class="detail-content">
+                                                                <div class="form-group floatleft ">
+                                                                    <label class="form-label control-label" style=" min-width: 75px;">Trạng thái:</label>
+                                                                    <div class="css-form-detail" style="width: calc(100% - 75px);">
+                                                                        <div class="dropdown">
+                                                                            <a class="btn btn-link nopadding" data-toggle="dropdown">
+                                                                                <span>{{TrangThais.find(p=>p.Value === item.TrangThai).Text}}</span>
+                                                                                <i class="fa fa-angle-down"></i>
+                                                                            </a>
+                                                                            <ul class="dropdown-menu">
+                                                                                <li v-for="(tt, index) in TrangThais"
+                                                                                    v-on:click="UpdateTrangThai(tt,item)">
+                                                                                    <a href="javascript:void(0)">
+                                                                                        <span>{{tt.Text}}</span>
+                                                                                        <span class="fa fa-check" style="float:right"
+                                                                                              v-if="tt.Value== item.TrangThai"></span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft" style="align-items:flex-start">
+                                                                    <label class="form-label control-label" style=" min-width: 75px;">Ghi chú</label>
+                                                                    <div class="css-form-detail" style="width: calc(100% - 75px);">
+                                                                        <textarea placeholder="Ghi chú.." v-model="item.GhiChu" rows="3" style="resize:none;"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <div class="group-btn pull-right">
+                                                                <button href="javascript:void(0)" class="btn btn-main" v-on:click="UpdateLichNhac(item)">
+                                                                    <i class="fa fa-save"></i> Lưu
+                                                                </button>
+                                                                <button href="javascript:void(0)" class="btn btn-cancel" v-on:click="DeleteLichNhac(1, item)">
+                                                                    <i class="fa fa-close"></i> Hủy bỏ
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane gara-tab-content" v-bind:id="'bd_'+ item.ID">
+                                                    <div class="table-frame" style="width:100%">
+                                                        <table class='table'>
+                                                            <thead>
+                                                                <tr style="background:#ccc">
+                                                                    <th>Ngày bảo dưỡng</th>
+                                                                    <th>Mã hóa đơn</th>
+                                                                    <th>Mã hàng hóa</th>
+                                                                    <th>Tên hàng hóa</th>
+                                                                    <th>Số lượng</th>
+                                                                    <th>Lần bảo dưỡng</th>
+                                                                    <th>Số Km bảo dưỡng</th>
+                                                                    <th>Ghi chú</th>
+                                                                    <th>Trạng thái</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="(nk, index2) in listData.NhatKyBaoDuong">
+                                                                    <td class="text-center">{{moment(nk.NgayLapHoaDon).format('DD/MM/YYYY')}}</td>
+                                                                    <td class="text-center"><a>{{nk.MaHoaDon}}</a></td>
+                                                                    <td class="text-center"><a>{{nk.MaHangHoa}}</a></td>
+                                                                    <td>{{nk.TenHangHoa}}</td>
+                                                                    <td class="text-right">{{nk.SoLuong}}</td>
+                                                                    <td class="text-right">{{nk.LanBaoDuong}}</td>
+                                                                    <td class="text-right">{{formatNumber(nk.SoKmBaoDuong)}}</td>
+                                                                    <td>{{nk.GhiChu}}</td>
+                                                                    <td>{{nk.sTrangThai}}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <page-list v-bind:currentpage="filter.CurrentPage + 1"
+                           v-bind:pagesize="filter.PageSize"
+                           v-bind:listpage="filter.ListPage"
+                           v-bind:pageview="filter.PageView"
+                           v-bind:numberofpage="filter.TotalPage"
+                           v-on:pageselected="ChangePage"></page-list>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(function () {
+            $('.daterange').daterangepicker({
+                "opens": "right",
+                "drop": "auto",
+                locale: {
+                    "format": 'DD/MM/YYYY',
+                    "separator": " - ",
+                    "applyLabel": "Tìm kiếm",
+                    "cancelLabel": "Hủy",
+                    "fromLabel": "Từ",
+                    "toLabel": "Đến",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "CN",
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7"
+                    ],
+                    "monthNames": [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ],
+                    "firstDay": 1
+                }
+            });
+        });
+    </script>
+
+    <div class="modal " id="modalPopuplgDelete">
+        <div class="modal-dialog draggable modal-sm">
+            @Html.Partial("~/Views/GiaoDich/_modalDelete.cshtml")
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Marketing/_SendSMS.cshtml")
+
+    <script src="~/Content/js/GaraUI.js"></script>
+    <script src="~/Scripts/Components/filter-datetime.js"></script>
+    <script src="~/Scripts/Components/filter-chinhanh.js"></script>
+    <script src="~/Scripts/Components/page-list.js"></script>
+    <script src="~/Scripts/Components/filter-checkbox.js"></script>
+    <script src="~/Scripts/Components/treeview.js"></script>
+    <script src="~/Content/js/Common.js"></script>
+    <script src="~/Scripts/BanHang/Public.js"></script>
+    <script src="~/Scripts/Gara/LichNhacBaoDuong.js"></script>
+    <script>
+        //$(document.body).on('click', '[data-toggle=dropdown]', function () {
+        //    var dropmenu = $(this).next('.dropdown-menu');
+
+        //    dropmenu.css({
+        //        visibility: "hidden",
+        //        display: "block"
+        //    });
+
+        //    // Necessary to remove class each time so we don't unwantedly use dropup's offset top
+        //    dropmenu.parent().removeClass("dropup");
+        //    dropmenu.parent().removeClass("dropleft");
+        //    console.log(dropmenu.offset().left + dropmenu.outerWidth());
+        //    if (dropmenu.offset().left + dropmenu.outerWidth() > $('.table-frame').innerWidth() + $('.table-frame').offset().left) {
+        //        dropmenu.parent().addClass("dropleft");
+        //    }
+
+        //    // Determine whether bottom of menu will be below window at current scroll position
+        //    if (dropmenu.offset().top + dropmenu.outerHeight() > $('.table-frame').innerHeight() + $('.table-frame').offset().top) {
+        //        dropmenu.parent().addClass("dropup");
+        //    }
+
+        //    // Return dropdown menu to fully hidden state
+        //    dropmenu.removeAttr("style");
+        //});
+        //$(document.body).on('click', '[data-toggle=dropdown]', function () {
+        //    var dropmenu = $(this).next('.dropdown-menu');
+        //    if (dropmenu.offset().top + dropmenu.outerHeight() > $('.table-frame').innerHeight() + $('.table-frame').offset().top) {
+        //        console.log('true');
+        //        $('.table-frame').css("overflow", "inherit");
+        //    }
+        //});
+ 
+        $('.table-frame').on('show.bs.dropdown', function () {
+            $('.table-frame').css("overflow-y", "overlay");
+        });
+
+        $('.table-frame').on('hide.bs.dropdown', function () {
+            $('.table-frame').css("overflow-y", "auto");
+        })
+    </script>
+</body>
+</html>

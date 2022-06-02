@@ -1,0 +1,871 @@
+﻿@using System.Web.Optimization
+@using banhang24.Hellper;
+@using Model;
+@model RoleChamCongModel
+@{
+    Layout = null;
+}
+@Html.Hidden("ChamCong_Insert", Model.Insert ? 1 : 0, new { @id = "ChamCong_Insert" })
+@Html.Hidden("ChamCong_Update", Model.ChamCong ? 1 : 0, new { @id = "ChamCong_Update" })
+<link href="~/Content/NhanSu.css" rel="stylesheet" />
+<style>
+    .componnet-follow {
+        width: 450px;
+        position: absolute;
+        padding: 10px;
+        border: 1px solid var(--color-main) !important;
+        background: white;
+        z-index: 2;
+        border-radius: 5px;
+        display: none;
+        box-shadow: 3px 3px 10px rgba(0,0,0,0.4)
+    }
+
+    .chamcong-chitietcongnv {
+        display: table-row;
+        vertical-align: inherit;
+        border-color: inherit;
+    }
+
+        .chamcong-chitietcongnv > div {
+            display: table-cell;
+            vertical-align: inherit;
+        }
+    /*.btn-main {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }*/
+    .bg-ngay-dis {
+        background-color: #eee;
+    }
+
+    .bg-ngay-chotluong {
+        background-color: yellow;
+    }
+
+    aside .selec-person li {
+        border-bottom: 1px solid #ccc;
+    }
+
+        aside .selec-person li:hover a {
+            background: var(--color-table) !important;
+            color: white !important;
+        }
+
+    #tableChamCong tr:first-child th {
+        position: sticky;
+        top: 0px;
+        z-index: 1;
+    }
+    #tableChamCong > table:first-child tr:nth-child(2) th {
+        position: sticky;
+        top: 39px;
+        z-index: 1;
+    }
+</style>
+<style>
+    .zui-table {
+        border: none;
+        border-right: solid 1px #DDEFEF;
+        border-collapse: separate;
+        border-spacing: 0;
+        font: normal 13px Arial, sans-serif;
+    }
+
+        .zui-table thead th {
+            background-color: #DDEFEF;
+            border: none;
+            color: #336B6B;
+            padding: 10px;
+            text-align: left;
+            text-shadow: 1px 1px 1px #fff;
+            white-space: nowrap;
+        }
+
+        .zui-table tbody td {
+            border-bottom: solid 1px #DDEFEF;
+            color: #333;
+            padding: 10px;
+            text-shadow: 1px 1px 1px #fff;
+            white-space: nowrap;
+        }
+
+    .zui-wrapper {
+        position: relative;
+    }
+
+    .zui-scroller {
+        margin-left: 141px;
+        overflow-x: scroll;
+        overflow-y: visible;
+        padding-bottom: 5px;
+        width: 300px;
+    }
+
+    .zui-table .zui-sticky-col {
+        border-left: solid 1px #DDEFEF;
+        border-right: solid 1px #DDEFEF;
+        left: 0;
+        position: absolute;
+        top: auto;
+        width: 120px;
+    }
+</style>
+<div class="op-container" id="ChamCong">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class="op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/report-loaibaocao.png">Bảng công
+                        </h3>
+                        <aside class="op-filter-container">
+                            <ul class=" chose_kieubang">
+                                @* ul-radius *@
+                                <li v-on:click="ChangeLoaiCong(1)">
+                                    <a href="javascript:void(0)">
+                                        <label><input type="radio" name="kieubang" checked> Chấm công</label>
+                                    </a>
+                                </li>
+                                <li v-on:click="ChangeLoaiCong(2)">
+                                    <a href="javascript:void(0)">
+                                        <label><input type="radio" name="kieubang"> Bảng công</label>
+                                    </a>
+                                </li>
+                            </ul>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fa fa-spinner">
+                            </i>
+                            Trạng thái nhân viên
+                        </h3>
+                        <aside class="op-filter-container">
+                            <ul class=" chose_kieubang ">
+                                @* ul-radius *@
+                                <li v-on:click="ChangeTrangThaiNV(2)">
+                                    <a href="javascript:void(0)">
+                                        <label><input type="radio" name="trangthainv" value="2" v-model="curentpage.TrangThai"> Tất cả</label>
+                                    </a>
+                                </li>
+                                <li v-on:click="ChangeTrangThaiNV(1)">
+                                    <a href="javascript:void(0)">
+                                        <label><input type="radio" name="trangthainv" value="1" v-model="curentpage.TrangThai"> Đang hoạt động</label>
+                                    </a>
+                                </li>
+                                <li v-on:click="ChangeTrangThaiNV(0)">
+                                    <a href="javascript:void(0)">
+                                        <label><input type="radio" name="trangthainv" value="0" v-model="curentpage.TrangThai"> Đã nghỉ việc</label>
+                                    </a>
+                                </li>
+                            </ul>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fa fa-clock-o"></i> Thời gian
+                        </h3>
+                        <component-search-date v-bind:textdate="curentpage.textdate"
+                                               v-bind:typetime="curentpage.typetime"
+                                               v-bind:textdaterange="curentpage.textdaterange"
+                                               v-bind:typetimeli="curentpage.typetimeold"
+                                               v-on:change-time-parent="ChangeTime"></component-search-date>
+                    </article>
+                    <article class="boxLeft showChiNhanh">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/chinhanh-black.png">    Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <select class="form-control seleted-page" v-model="curentpage.chinhanhid" v-on:change="SelectChiNhanh">
+                                <option v-for="item in listdata.ChiNhanh" :value="item.Id" :key="item.Id">
+                                    {{ item.Ten }}
+                                </option>
+                            </select>
+                        </aside>
+                    </article>
+                    <article class="boxLeft " v-show="LoaiCong===1">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/cong-ty.png" />   Ca làm việc
+                            <a class="op-filter-add">
+                                <i class="fa fa-plus" aria-hidden="true" v-if="Role.CaLamViec.Insert" v-on:click="AddNewCaLamViec"></i>
+                            </a>
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div>
+                                <div class="form-wrap" style="width:100%!important">
+                                    <div class="choose-date-yaer">
+                                        <div class="dropdown">
+                                            <div data-toggle="dropdown" style="position:relative;">
+                                                <input type='text' class="form-control" autocomplete="off" v-model="curentpage.TenCaChosing" />
+                                                <div style="position:absolute; top:0; right:5px">
+                                                    <i class="fa fa-chevron-down" aria-hidden="true" v-show="!ClickFilter.CaLamViec"></i>
+                                                    <i class="fa fa-edit" aria-hidden="true" v-if="Role.CaLamViec.Update" v-show="ClickFilter.CaLamViec" v-on:click="EditCaLamViec"></i>
+                                                </div>
+                                            </div>
+                                            <ul class="dropdown-menu ">
+                                                <li  v-on:click="ResetChoseCa">
+                                                    -- Chọn ca --
+                                                </li>
+                                                <li v-for="(ca, index) in listdata.CaLamViec"
+                                                    v-on:click="ChangeCaLamViec(ca)">
+                                                    {{ca.Ten}}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft ">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/Iconbanhanggg-02.png">  Phòng ban
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="cai-dat-hoa-hong-l">
+                                <div class=" floatleft">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" placeholder="Tìm kiếm phòng ban" autofocus="autofocus" class="form-control number-price-new" autocomplete="off" v-model="listdata.searchpb">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <div class="tatca treename yellow">
+                                        <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(event,listdata.chinhanhid, true)"> Tất cả</a>
+                                    </div>
+                                    <ul class="floatleft  tree-chiet-khau-new li-more-level">
+                                        <li v-for="(item, index) in   listdata.PhongBan">
+                                            <div class="parent-node">
+                                                <span class="icon-tree-li " v-if="item.children.length>0" v-on:click="item.active=!item.active"><i v-bind:class="['fa', item.active === true ? 'fa-caret-down' : 'fa-caret-right']" aria-hidden="true"></i></span>
+                                                <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(event,item.id)">
+                                                    <span class="treename" v-bind:class="[item.Active===true ? 'yellow' : '']">{{item.text}}</span>
+                                                </a>
+                                            </div>
+                                            <ul v-if="item.children.length>0" v-show="item.active">
+                                                <li v-for="(item1, index) in   item.children">
+                                                    <div class="parent-node">
+                                                        <span class="icon-tree-li " v-if="item1.children.length>0" v-on:click="item1.active=!item1.active"><i v-bind:class="['fa', item1.active === true ? 'fa-caret-down' : 'fa-caret-right']" aria-hidden="true"></i></span>
+                                                        <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(event,item1.id)">
+                                                            <span class="treename " v-bind:class="[item1.Active===true ? 'yellow' : '']">{{item1.text}}</span>
+                                                        </a>
+                                                    </div>
+                                                    <ul v-if="item1.children.length>0" v-show="item1.active">
+                                                        <li v-for="(item2, index) in   item1.children">
+                                                            <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(event,item2.id)">
+                                                                <span class="treename" v-bind:class="[item2.Active===true ? 'yellow' : '']">{{item2.text}}</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title"> @banhang24.Resources.ResourceTexts.Personnel / Quản lý chấm công / Chấm công </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="  header-button">
+                        <div class=" header-button-left">
+                            @if (Model.NhanSu)
+                            {
+                                <div class="pull-left">
+                                    <button type="button" class="btn btn-main"
+                                            v-on:click="AddPhieuPhanCa" v-show="LoaiCong===1">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>     <font>Thêm mới phiếu phân ca</font>
+                                    </button>
+                                </div>
+                            }
+                            @if (Model.Export)
+                            {
+                                <button class="btn btn-main " name="btnExport" v-on:click="Export" v-show="LoaiCong===1">
+                                    <i class="fa fa-file-excel-o"></i> Xuất file
+                                </button>
+                            }
+                            <div class="pull-left" style="position:relative">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown">
+                                    Dữ liệu chấm công
+                                    <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="javascript:void(0)" v-on:click="ShowModalKyHeuCong" class="btn-func"><i class="fa fa-home"></i> Danh mục ký hiệu công </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" v-on:click="ShowModalNgayNghiLe" class="btn-func"><i class="fa fa-edit"></i> Danh mục ngày nghỉ lễ</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" v-on:click="ShowModalDanhMucCa" class="btn-func"><i class="fa fa-edit"></i> Danh mục ca làm việc</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="  ">
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class=" op-search" style="position:relative">
+                            <input type="text" class="form-control " v-on:keyup="keymonitor" v-model="curentpage.text" placeholder="Nhập mã nhân viên, tên nhân viên">
+                            <button type="button" class=" op-search-button" v-on:click="GetForSearchChamCong(true)">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table content-table" style=" position:relative">
+                <div class="table-reponsive table-HH banghh " id="tableChamCong" style="position:relative;min-height:500px">
+                    <table class=" table-hover op-table " v-show="LoaiCong===1">
+                        <thead class="table-border">
+                            <tr>
+                                <th class="text-left" rowspan="3">Ca làm việc </th>
+                                <th class="text-left" rowspan="3">Tên nhân viên</th>
+                                <th class="text-left" rowspan="3">#</th>
+                                <th class="text-left " rowspan="3">Công</th>
+                                <th class="text-center " rowspan="3">
+                                    Đi muộn <br />
+                                    (phút)
+                                </th>
+                                <th class="text-center " rowspan="3">
+                                    OT <br />
+                                    (giờ)
+                                </th>
+                                <th class="text-center fixed-side" v-bind:colspan="ListThang.length" style="border-bottom:1px solid white">{{TitleThang}}</th>
+                            </tr>
+                            <tr>
+                                <template v-for="(item, index) in  ListThang">
+                                    <th rowspan="2" class="text-center" style="min-width:50px">
+                                        <span v-bind:style="{color: item.Color}"
+                                              v-bind:title="item.Title">{{item.Ngay}}</span><br />
+                                        <span>{{item.Thu}}</span>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody v-show="databind.data.length>0" v-for="(item, index) in databind.data">
+                            <tr v-if="databind.data.length>1">
+                                <td colspan="33" style="text-align:center; background:#e0e0ef">Tháng  {{item.Thang}}</td>
+                            </tr>
+                            <template v-for="(thang, key) in item.listCa">
+                                <tr>
+                                    <td v-bind:rowspan="thang.listCong.length +1">
+                                        <span>{{thang.TenCa}}</span>
+                                        <br v-if="thang.listCong.length > 1" />
+                                        <span>{{thang.GioVao}}</span> -  <span>{{thang.GioRa}}</span>
+                                    </td>
+                                </tr>
+                                <template v-for="(cong, key) in thang.listCong">
+                                    <tr>
+                                        <td class="text-left">
+                                            <span>
+                                                {{cong.TenNhanVien}}
+                                            </span>
+                                            <span v-if="cong.TrangThaiNV == 0" style="color:red">
+                                                {DEL}
+                                            </span>
+                                        </td>
+                                        <td class="fixed-side ">
+                                            <i class="fa fa-trash-o ##d1d2d9" style="float:right!important" v-on:click="RemoveCongNV(cong)"
+                                               title="Xóa công nhân viên"></i>
+                                        </td>
+                                        <td class="text-center">{{formatNumber3Digit(cong.TongCongNV)}}</td>
+                                        <td class="text-center"> {{formatNumber3Digit(cong.SoPhutDiMuon)}}</td>
+                                        <td class="text-center"> {{formatNumber3Digit(cong.SoPhutOT)}}</td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,1,cong.Ngay1,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==1).length>0"
+                                            v-bind:style="[cong.DisNgay1 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay1}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,2,cong.Ngay2,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==2).length>0"
+                                            v-bind:style="[cong.DisNgay2 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay2}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,3,cong.Ngay3,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==3).length>0"
+                                            :style="[cong.DisNgay3 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay3}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,4,cong.Ngay4,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==4).length>0"
+                                            :style="[cong.DisNgay4 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay4}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,5,cong.Ngay5,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==5).length>0"
+                                            :style="[cong.DisNgay5 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay5}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,6,cong.Ngay6,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==6).length>0"
+                                            :style="[cong.DisNgay6 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay6}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,7,cong.Ngay7,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==7).length>0"
+                                            :style="[cong.DisNgay7 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay7}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,8,cong.Ngay8,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==8).length>0"
+                                            :style="[cong.DisNgay8 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay8}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,9,cong.Ngay9,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==9).length>0"
+                                            :style="[cong.DisNgay9 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay9}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,10,cong.Ngay10,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==10).length>0"
+                                            :style="[cong.DisNgay10 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay10}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,11,cong.Ngay11,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==11).length>0"
+                                            :style="[cong.DisNgay11 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay11}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,12,cong.Ngay12,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==12).length>0"
+                                            :style="[cong.DisNgay12 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay12}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,13,cong.Ngay13,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==13).length>0"
+                                            :style="[cong.DisNgay13 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay13}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,14,cong.Ngay14,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==14).length>0"
+                                            :style="[cong.DisNgay14 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay14}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,15,cong.Ngay15,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==15).length>0"
+                                            :style="[cong.DisNgay15 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay15}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,16,cong.Ngay16,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==16).length>0"
+                                            :style="[cong.DisNgay16 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay16}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,17,cong.Ngay17,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==17).length>0"
+                                            :style="[cong.DisNgay17 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay17}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,18,cong.Ngay18,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==18).length>0"
+                                            :style="[cong.DisNgay18 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay18}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,19,cong.Ngay19,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==19).length>0"
+                                            :style="[cong.DisNgay19 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay19}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,20,cong.Ngay20,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==20).length>0"
+                                            :style="[cong.DisNgay20 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay20}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,21,cong.Ngay21,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==21).length>0"
+                                            :style="[cong.DisNgay21 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay21}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,22,cong.Ngay22,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==22).length>0"
+                                            :style="[cong.DisNgay22 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay22}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,23,cong.Ngay23,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==23).length>0"
+                                            :style="[cong.DisNgay23 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay23}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,24,cong.Ngay24,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==24).length>0"
+                                            :style="[cong.DisNgay24 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay24}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,25,cong.Ngay25,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==25).length>0"
+                                            :style="[cong.DisNgay25 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay25}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,26,cong.Ngay26,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==26).length>0"
+                                            :style="[cong.DisNgay26 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay26}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,27,cong.Ngay27,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==27).length>0"
+                                            :style="[cong.DisNgay27 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay27}}
+                                        </td>
+                                        <td class="text-center" v-on:click="CapNhatCong(cong,28,cong.Ngay28,event)"
+                                            v-if="ListThang.filter(x=>x.Ngay==28).length>0"
+                                            :style="[cong.DisNgay28 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay28}}
+                                        </td>
+                                        <td class="text-center" v-if="ListThang.filter(x=>x.Ngay==29).length>0" 
+                                            v-on:click="CapNhatCong(cong,29,cong.Ngay29,event)"
+                                            :style="[cong.DisNgay29 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay29}}
+                                        </td>
+                                        <td class="text-center" v-if="ListThang.filter(x=>x.Ngay==30).length>0" v-on:click="CapNhatCong(cong,30,cong.Ngay30,event)"
+                                            :style="[cong.DisNgay30 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay30}}
+                                        </td>
+                                        <td class="text-center" v-if="ListThang.filter(x=>x.Ngay==31).length>0" v-on:click="CapNhatCong(cong,31,cong.Ngay31,event)"
+                                            :style="[cong.DisNgay31 =='1'?{'background': '#eee'}:{'background': 'none'}]">
+                                            {{cong.Ngay31}}
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                        <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                            <tr>
+                                <td class="bg12 bhma text-center" :colspan="ListThang.length+8" style="    height: 450px;}"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <table class=" table-hover op-table " v-show="LoaiCong===2">
+                        <thead class="table-border">
+                            <tr>
+                                <th class="text-center">STT</th>
+                                <th class="text-center">Mã nhân viên</th>
+                                <th class="text-left">Tên nhân viên</th>
+                                <th class="text-center">Công hành chính</th>
+                                <th class="text-center">Công làm thêm </th>
+                                <th class="text-center">Số giờ làm<br /> thêm</th>
+                                <th class="text-center">Tổng số phút đi<br /> muộn/ về sớm</th>
+                                <th class="text-center"> # </th>
+                            </tr>
+                        </thead>
+                        <tbody v-show="databind.data.length>0" v-for="(item, index) in   databind.data">
+                            <tr class="op-tr-show">
+                                <td class="text-center" v-on:click="SelectRow(item,event)">{{index+1}}</td>
+                                <td class="text-center" v-on:click="SelectRow(item,event)">
+                                    <span>
+                                        {{item.MaNhanVien}}
+                                    </span>
+                                    <span v-if="item.TrangThaiNV ===0" style="color:red">
+                                        {DEL}
+                                    </span>
+                                </td>
+                                <td class="text-left" v-on:click="SelectRow(item,event)">{{item.TenNhanVien}}</td>
+                                <td class="text-center" v-on:click="SelectRow(item,event)">{{item.CongChinh}}</td>
+                                <td class="text-center" v-on:click="SelectRow(item,event)">{{item.CongLamThem}}</td>
+                                <td class="text-center" v-on:click="SelectRow(item,event)">{{item.SoGioOT}}</td>
+                                <td class="text-center" v-on:click="SelectRow(item,event)">{{item.SoPhutDiMuon}}</td>
+                                <td class="text-center">
+                                    @if (Model.Export)
+                                    {
+                                        <a href="javascript:void(0)" v-on:click="ExportBangCong(item)" title="Xuất file excel"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
+                                    }
+                                </td>
+                            </tr>
+                            <tr class="op-tr-hide">
+                                <td colspan="9" >
+                                    <div class=" op-object-detail">
+                                        <ul class="nav nav-tabs active">
+                                            <li value="2" class="active">
+                                                <a data-toggle="tab"
+                                                   v-on:click="ChangeTabBangCong(event,item)" v-bind:href="'#congchitiet'+index">Bảng công chi tiết</a>
+                                            </li>
+                                            <li value="3">
+                                                <a data-toggle="tab"
+                                                   v-on:click="ChangeTabBangCong(event,item)" v-bind:href="'#luongchitiet'+index">Bảng lương chi tiết</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" v-bind:id="'congchitiet'+index">
+                                                <div class="height400">
+                                                    <table class=" table-hover op-table">
+                                                        <thead class="table-border">
+                                                            <tr>
+                                                                <th class="text-center" style="width:50px;">STT</th>
+                                                                <th class="text-center">Mã ca</th>
+                                                                <th class="text-left ">Tên ca</th>
+                                                                <th class="text-center">Ngày chấm</th>
+                                                                <th class="text-center ">Ký hiệu công</th>
+                                                                <th class="text-center ">Công</th>
+                                                                <th class="text-center ">Số giờ làm thêm</th>
+                                                                <th class="text-center ">Số phút đi muộn</th>
+                                                                <th class="text-center ">Ngày tạo</th>
+                                                                <th class="text-left ">Người tạo</th>
+                                                                <th class="text-left ">ghi chú</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody v-for="(bosung,indexcbs) in chitietbangcong.congBoSung">
+                                                            <tr v-for="(chitiet, keyct) in bosung.ListCong">
+                                                                <td class="text-center" v-show="keyct === 0" :rowspan="bosung.ListCong.length">{{indexcbs+1}}</td>
+                                                                <td class="text-center" v-show="keyct === 0" :rowspan="bosung.ListCong.length">{{bosung.MaCa}}</td>
+                                                                <td class="text-left" style="border-right: 1px solid #ccc;" v-show="keyct === 0" :rowspan="bosung.ListCong.length">{{bosung.TenCa}}</td>
+                                                                <td class="text-center"
+                                                                     :style="        [chitiet.LoaiNgay===1?{'color':'blue'}:chitiet.LoaiNgay===2?{'color':'red'}:'']">
+                                                                    {{commonStatisJs.convertDateTime(chitiet.NgayCham)}}
+                                                                </td>
+                                                                <td class="text-center">{{chitiet.KyHieuCong}}</td>
+                                                                <td class="text-center">{{chitiet.Cong}}</td>
+                                                                <td class="text-center">{{chitiet.SoGioOT}}</td>
+                                                                <td class="text-center">{{chitiet.SoPhutDiMuon}}</td>
+                                                                <td class="text-center">{{commonStatisJs.convertDateTime(chitiet.NgayTao)}}</td>
+                                                                <td class="text-left">{{chitiet.NguoiTao}}</td>
+                                                                <td class="text-left">{{chitiet.GhiChu}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" v-bind:id="'luongchitiet'+index">
+                                                <div>
+                                                    <div class="table-reponsive  ">
+                                                        <table class=" table-hover op-table">
+                                                            <thead class="table-border">
+                                                                <tr>
+                                                                    <th class="text-center">Phiếu lương</th>
+                                                                    <th class="text-center">Ngày công<br /> hành chính</th>
+                                                                    <th class="text-center">Ngày công<br /> chuẩn</th>
+                                                                    <th class="text-center">Lương cơ bản</th>
+                                                                    <th class="text-center">Lương chính</th>
+                                                                    <th class="text-center">Lương OT</th>
+                                                                    <th class="text-center">Phụ cấp cố định</th>
+                                                                    <th class="text-center">Phụ cấp khác</th>
+                                                                    <th class="text-center">Chiết khấu bán hàng</th>
+                                                                    <th class="text-center">Tổng giảm trừ</th>
+                                                                    <th class="text-center">Tổng lương</th>
+                                                                    <th class="text-center">Đã trả</th>
+                                                                    <th class="text-center">Còn lại</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody >
+                                                                <tr class="op-tr-show" v-for="(ct, key) in BangLuongChiTiet">
+                                                                    <td class="text-center">
+                                                                        <a href="javascript:void(0)" v-on:click="ShowModalChiTietLuong(ct)">
+                                                                            {{ct.MaBangLuongChiTiet}}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td class="text-center">{{commonStatisJs.FormatNumber3Digit(ct.NgayCongThuc,3)}}</td>
+                                                                    <td class="text-center">{{ct.NgayCongChuan}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongCoBan,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongChinh,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongOT,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.PhuCapCoBan,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.PhuCapKhac)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.ChietKhau,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.TongTienPhat,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongSauGiamTru,0)}}</td>
+                                                                    <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.DaTra,0)}}</td>
+                                                                    <td class="text-right"
+                                                                        :style="[ct.ConLai > 0?{'color':'red'}:{'color':'black'}]">
+                                                                        {{commonStatisJs.FormatNumber3Digit(ct.ConLai,0)}}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                            <tfoot style="display:none">
+                                                                <tr style="background:#e3e4e8;font-weight: 700">
+                                                                    <td colspan="3">Tổng cộng</td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot v-show="databind.data.length>0">
+                            <tr style="font-weight:700; background-color:#e3e4e8">
+                                <td class="bg12 bhma text-left" colspan="3" style="font-weight:bold">Tổng cộng</td>
+                                <td class="bg12 bhma text-center">{{databind.sum.TongCong}}</td>
+                                <td class="bg12 bhma text-center">{{databind.sum.TongCongNgayNghi}}</td>
+                                <td class="bg12 bhma text-center">{{databind.sum.TongOT}}</td>
+                                <td class="bg12 bhma text-center">{{databind.sum.TongDiMuon}}</td>
+                                <td class="bg12 bhma text-center"></td>
+                            </tr>
+                        </tfoot>
+                        <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                            <tr>
+                                <td class="bg12 bhma text-center" colspan="9"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div class="componnet-follow ">
+                        <div class="col-md-12 nopadding">
+                            <div class="col-md-4  flex " style="padding-left:0">
+                                <div class="form-group flex flex-between">
+                                    <label>Công</label>
+                                    <select class="form-control width-75  select-number" v-model="changecong.KyHieuCongId" v-on:change="ChangeKyHieuCong">
+                                        <option v-for="item in listdata.KyHieuCong" :value="item.ID" :key="item.ID" :title="item.MoTa">
+                                            {{ item.KyHieu }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-8 nopadding flex-column">
+                                <div class="form-group floatleft flex flex-between " v-if="changecong.ShowOT">
+                                    <label>Đi muộn/ Về sớm</label>
+                                    <div class="flex">
+                                        <input type="text" class="input-simple width-75" v-model="changecong.SoPhutDiMuon">
+                                        <span>phút</span>
+                                    </div>
+                                </div>
+                                <div class="form-group  floatleft flex flex-between " v-if="changecong.ShowOT">
+                                    <label>Giờ OT </label>
+                                    <div class="flex">
+                                        <input type="text" class="input-simple width-75" v-model="changecong.SoGioOT">
+                                        <span>giờ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft" style="line-height: 30px;">
+                                <input  type="checkbox" v-model="changecong.TatCaNhanVien" />
+                                Áp dụng cho tất cả nhân viên thuộc ca
+                            </div>
+                            <div class="form-group floatleft">
+                                <label>Ghi chú</label>
+                                <div class="form-news">
+                                    <textarea v-model="changecong.GhiChu"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <button type="button" class="btn btn-main" v-on:click="SaveChangeCong" v-show="!loadding">
+                                <i aria-hidden="true" class="fa fa-floppy-o"></i> Lưu
+                            </button>
+                            <button type="button" class="btn btn-main" v-show="loadding">
+                                <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="page">
+                            <div class="flex flex-row">
+                                <label>Số bản ghi:</label>
+                                <select class="form-control seleted-page" v-model="curentpage.pagesize" v-on:change="SelectPageSize">
+                                    <option v-for="(item, index) in listpagesize" v-bind:value="item">
+                                        {{item}}
+                                    </option>
+                                </select>
+                            </div>
+                                <div class="flex flex-end">
+                                    <a href="javascript:void(0)" v-show="databind.isprev" v-on:click="ButtonSelectPage(0,true)"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" v-show="databind.isprev" v-on:click="ButtonSelectPage(-1)"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" v-show="!databind.isprev" class="a-disable"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" v-show="!databind.isprev" class="a-disable"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                    <ul class="list-page">
+                                        <li v-for="(item, index) in databind.listpage" v-show="databind.listpage.length>0">
+                                            <a href="javascript:void(0)" v-on:click="SelectPage(item)" v-bind:class="[item==databind.pagenow ? 'click' : '']">{{item}}</a>
+                                        </li>
+                                    </ul>
+                                    <a href="javascript:void(0)" v-show="!databind.isnext" class="a-disable"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" v-show="!databind.isnext" class="a-disable"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" v-show="databind.isnext" v-on:click="ButtonSelectPage(1)"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" v-show="databind.isnext" v-on:click="ButtonSelectPage(0,false)"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                    <div class="total-recos">
+                                        {{databind.pageview}}
+                                    </div>
+                                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="callprice popup-cham-cong ">
+        <div class="col-md-12 nopadding">
+            <div class="popup-cc-form">
+                <div class="form-group">
+                    <label>Công</label>
+                    <div class="form-news">
+                        <select class="form-control  select-number" v-model="changecong.KyHieuCongId" v-on:change="ChangeKyHieuCong">
+                            <option v-for="item in listdata.KyHieuCong" :value="item.ID" :key="item.ID" :title="item.MoTa">
+                                {{ item.KyHieu }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="line-height: 30px;">
+                    <input class=" check-fa-toggle" type="checkbox" v-model="changecong.TatCaNhanVien" />
+                    Áp dụng cho tất cả nhân viên thuộc ca
+                </div>
+            </div>
+            <div class="popup-cc-form" v-if="changecong.ShowOT">
+                <div class="form-group">
+                    <label>Đi muộn/ Về sớm</label>
+                    <div class="form-news">
+                        <input type="text" class="_input-number" v-model="changecong.SoPhutDiMuon">
+                        <span class="span-note-input">phút</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Giờ OT </label>
+                    <div class="form-news">
+                        <input type="text" class="_input-number" v-model="changecong.SoGioOT">
+                        <span class="span-note-input">giờ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Ghi chú</label>
+                <div class="form-news">
+                    <textarea v-model="changecong.GhiChu"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-end">
+            <button type="button" class="btn btn-main" v-on:click="SaveChangeCong" v-show="!loadding">
+                <i aria-hidden="true" class="fa fa-floppy-o"></i> Lưu
+            </button>
+            <button type="button" class="btn btn-main" v-show="loadding">
+                <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+            </button>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/NhanSu/_KyHieuCongPartial.cshtml")
+@Html.Partial("~/Views/NhanSu/_NgayNghiPartial.cshtml")
+@Html.Partial("_ThemMoiPhanCaPartial")
+@Html.Partial("_DanhMucCaLamViec")
+<div class="modal fade" id="modalPopuplgDelete">
+    <div class="modal-dialog draggable modal-md " role="document">
+        @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+    </div>
+</div>
+<script src="~/Scripts/Components/menuLeftSearchDate.js"></script>
+<script src="~/Scripts/NhanSu/ChamCong2_1.js"></script>
+<script>
+    $(document).mouseup(function (e) {
+        var container = $(".componnet-follow");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+</script>

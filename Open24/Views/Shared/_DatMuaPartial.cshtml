@@ -1,0 +1,154 @@
+﻿
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+
+        <div class="modal-content draggable">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >
+                    Thông tin đặt mua gói
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                        <p id="message_error_dathang" class="text-right" style="color:red;"></p>
+                
+                    <div class="form-group">
+                        <label> Họ và tên (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" id="dm_name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Điện thoại (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" id="dm_phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email </label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" id="dm_email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <textarea type="text" rows="2" id="dm_adress"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú</label>
+                        <div class="form-news">
+                            <textarea type="text" rows="4" id="dm_note"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label ></label>
+                        <div class="form-news">
+                            <button type="button" class="btn btn-dat-mua" id="btnDatMua">Đặt mua</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Hidden("type_software",null,new { @id= "type_software" })
+<script>
+    $("#btnDatMua").on('click', function () {
+        if (localValidate.CheckNull($('#dm_name').val())) {
+            alertMessageErrordathang("Vui lòng nhập họ tên");
+        }
+        else if (localValidate.CheckNull($('#dm_phone').val())) {
+            alertMessageErrordathang("Vui lòng nhập số điện thoại");
+        }
+        else if (localValidate.CheckNull($('#dm_adress').val())) {
+            alertMessageErrordathang("Vui lòng nhập địa chỉ");
+        }
+        else if (!localValidate.CheckNull($('#dm_email').val()) && !localValidate.CheckEmail($('#dm_email').val())) {
+            alertMessageErrordathang("Địa chỉ Email không hợp lệ");
+        }
+        else if (!localValidate.CheckPhoneNumber($('#dm_phone').val())) {
+            alertMessageErrordathang("Số điện thoại không đúng");
+        }
+
+        else {
+           
+            $.ajax({
+                type: 'GET',
+                url: "https://geoip-db.com/json/",
+                success: function (data) {
+                    callInsertOrder(JSON.parse(data));
+                },
+                timeout: 3000,      // 3 seconds
+                error: function (qXHR, textStatus, errorThrown) {
+                    callInsertOrder(null);
+                    if (textStatus === "timeout") {
+                        console.log(qXHR);
+                    }
+                }
+            });
+            
+        }
+
+    });
+    function callInsertOrder(ipAdress)
+    {
+        model = {
+            FullName: localValidate.convertStrFormC($('#dm_name').val()),
+            Phone: localValidate.convertStrFormC($('#dm_phone').val()),
+            Email: localValidate.convertStrFormC($('#dm_email').val()),
+            Address: localValidate.convertStrFormC($('#dm_adress').val()),
+            Note: localValidate.convertStrFormC($('#dm_note').val()),
+            TypeSoftWare: $('#type_software').text()
+        }
+        var diachi="";
+        var ip4 = "";
+        if (ipAdress != null && ipAdress !== undefined) {
+            diachi = (ipAdress.city !== '' && ipAdress.city !== null) ? ipAdress.city + " - " + ipAdress.country_name : ipAdress.country_name;
+            ip4 = ipAdress.IPv4;
+        }
+       
+        $.ajax({
+            data: model,
+            url: '/Open24Api/ApiHome/OrderedSoftWare?ip4=' + ip4 + "&ipAdress=" + diachi,
+            type: 'POST',
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (result) {
+                if (result.res) {
+                    $('#dm_message').text(($('#dm_name').val()));
+                    $('#exampleModal').modal('hide');
+                    $(".popup-Notification").show();
+                }
+                else {
+                    alertMessageErrordathang(result.mess);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(status);
+                console.log(xhr);
+            }
+        });
+
+    }
+    function alertMessageErrordathang(mess) {
+        $('#message_error_dathang').text(mess);
+    }
+    $(window.document).on('hide.bs.modal', '#exampleModal', function () {
+        $('#dm_name').val("");
+        $('#dm_email').val("");
+        $('#dm_phone').val("");
+        $('#dm_adress').val("");
+        $('#dm_note').val("");
+        $('#message_error_dathang').text("");
+    });
+</script>

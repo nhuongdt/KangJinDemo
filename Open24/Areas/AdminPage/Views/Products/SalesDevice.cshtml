@@ -1,0 +1,487 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "Danh sách thiết bị bán hàng";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+
+
+@section scripts {
+    <script src="~/Content/CkEditor/ckeditor.js"></script>
+    <script src="~/Content/ckfinder/ckfinder.js"></script>
+    <script>
+    $(document).ready(function () {
+        var tool = [
+            'Bold', 'Italic', 'Underline', 'Subscript',
+            'Superscript', 'Image', 'Table', 'NumberedList',
+            'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
+            'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link',
+            'Unlink', 'TextColor', 'Maximize','FontSize', 'Format', 'Font'
+        ];
+        CKEDITOR.replace('CK_SpecialPoint',
+        {
+            entermode: CKEDITOR.ENTER_BR,
+            toolbar: [tool]
+            });
+        CKEDITOR.replace('CK_ApplicationReal',
+            {
+                entermode: CKEDITOR.ENTER_BR,
+                toolbar: [tool]
+            });
+        CKEDITOR.replace('CK_DigitalInformation',
+            {
+                entermode: CKEDITOR.ENTER_BR,
+                toolbar: [tool]
+            });
+    CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+    $(document).on('click', '.classSalesDevice', function () {
+        var t = $(this).closest('tr').next(".tr-hide").css("display");
+        if (t == "none") {
+            $(".tr-hide").removeClass("block");
+            $(this).closest('tr').next(".tr-hide").addClass("block");
+        }
+        else if (t == "block") {
+            $(this).closest('tr').next(".tr-hide").removeClass("block");
+        }
+        else {
+            $(".tr-hide").removeClass("block");
+        }
+    });
+    });
+    </script>
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Assets/js/Admin/SalesDevice.js"></script>
+}
+
+
+
+<div class="right_col">
+    <h3>Danh sách thiết bị bán hàng</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleInsert)
+                {
+                    <button class="btn-updata btn-green" data-bind="click: AddSalesDiveces"><i class="fa fa-pencil-square-o"></i> Thêm mới thiết bị </button>
+                    <button class="btn-updata btn-green" data-bind="click: GroupDevices"><i class="fa fa-pencil-square-o"></i> Nhóm thiết bị </button>
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="example" class="table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã SP</th>
+                            <th>Tên thiết bị</th>
+                            <th>Người cập nhật</th>
+                            <th>Ngày cập nhật</th>
+                            <th>Số lượt mua</th>
+                            <th>Trạng thái</th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th>Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListSalesDevice">
+                        <tr class="tr-show" data-bind="attr: {  id: ID}">
+                            <td data-bind="text: Encoder"></td>
+                            <td class="classSalesDevice" data-bind="text:Name"></td>
+                            <td class="classSalesDevice" data-bind="text: EditUser"></td>
+                            <td class="classSalesDevice" data-bind="text: ConvertDate(EditDate)"></td>
+                            <td class="classSalesDevice" data-bind="text:ViewBuy"></td>
+                            <td class="classSalesDevice" data-bind="text: ConvertTrangthai(Status)"></td>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <td>
+                                    <div class="edit-delete">
+                                        @if (Model.RoleUpdate)
+                                        {
+                                            <a class="red" href="#" data-bind="click: $parent.UpdateSalesDiveces">
+                                                <i class="ace-icon fa fa-pencil "></i>
+                                            </a>
+                                        }
+                                        @if (Model.RoleDelete)
+                                        {
+                                            <a class="blue" href="#" data-bind="click: $parent.DeleteSalesDiveces">
+                                                <i class="ace-icon fa fa-trash-o "></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                        <tr class="tr-hide">
+                            <td colspan="6">
+                                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                    <ul class="nav nav-tabs " role="tablist" id="TabSalesDevice">
+                                        <li role="presentation" class="active">
+                                            <a data-bind="attr: { href:'#1_'+ ID}" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a data-bind="attr: { href:'#2_'+ ID}" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Đặt điểm nổi bật</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a data-bind="attr: { href:'#3_'+ ID}" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Công dụng</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a data-bind="attr: { href:'#4_'+ ID}" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Thông số kỹ thuật</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" style="    padding: 5px;">
+                                        <div role="tabpanel" class="tab-pane fade active in" data-bind="attr: {  id: '1_' + ID}" aria-labelledby="home-tab">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="addnews fl">
+                                                        <div class="content-addnews fl">
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Thương hiệu</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: Trademark" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Thời gian bảo hành (tháng)</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: TimeGuarantee" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Loại thiết bị</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: GroupDeviceName" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Giá </span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: FormatVND(Price)" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews" data-bind="visible: IsSalePrice">
+                                                                <div class="col-md-6 title-add"><span>Giá sau giảm</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: FormatVND(PriceSale)" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <ul class="list-bt" data-bind="foreach: SalesImgDevices">
+                                                        <li>
+                                                            <a>
+                                                                <img data-bind="attr: {  src:SrcImage}">
+                                                            </a>
+                                                        </li>
+
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '2_' + ID}" aria-labelledby="profile-tab">
+                                            <span data-bind="html:SpecialPoint" />
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '3_' + ID}" aria-labelledby="profile-tab">
+                                            <span data-bind="html:ApplicationReal" />
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '4_' + ID}" aria-labelledby="profile-tab">
+                                            <span data-bind="html:DigitalInformation" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ModalSalesDevices">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;" data-bind="text:Devices_Title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                    <ul id="myTab" class="nav nav-tabs " role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Thông tin chung</a>
+                        </li>
+                        <li role="presentation" class="">
+                            <a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Đặc điểm</a>
+                        </li>
+                        <li role="presentation" class="">
+                            <a href="#tab_content3" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Công dụng</a>
+                        </li>
+                        <li role="presentation" class="">
+                            <a href="#tab_content4" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Thông số kỹ thuật</a>
+                        </li>
+                        <li role="presentation" class="">
+                            <a href="#tab_content5" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Ảnh</a>
+                        </li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+                            <div class="content-addnews fl">
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><Span>Tên thiết bị: </Span></div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" data-bind="value: Devices_Name" />
+                                    </div>
+
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><Span>Nhóm thiết bị</Span></div>
+                                    <div class="col-md-9">
+                                        <select class="form-control" id="selectSalesGroupDevices" data-bind="options:SalesGroupDevicesActive, optionsText: 'Name', optionsValue: 'ID'"></select>
+
+                                    </div>
+                                </div>
+
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><Span>Thương hiệu:</Span></div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" data-bind="value: Devices_Trademark" />
+                                    </div>
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><Span>Thời gian bảo hành:</Span></div>
+                                    <div class="col-md-9">
+                                        <input type="number" min="0" placeholder="Thời gian tính theo tháng" class="form-control" data-bind="value: Devices_TimeGuarantee" />
+                                    </div>
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><Span>Giá:</Span></div>
+                                    <div class="col-md-9">
+                                        <input type="number" min="0" class="form-control" data-bind="value: Devices_Price" />
+                                    </div>
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"></div>
+                                    <div class="col-md-9">
+                                        <input type="checkbox" data-bind="checked: Devices_IsSalePrice" /><span>Thực hiện giảm giá</span>
+                                        @*<input id='watch-me' name='star' type='radio' data-bind="checked: Devices_IsSalePrice, checkedValue: true" /> Thực hiện giảm giá
+                                            <input id='see-me' name='star' type='radio' data-bind="checked: Devices_IsSalePrice, checkedValue: false" /> Không giảm giá*@
+
+                                    </div>
+                                </div>
+                                <div class="fl form-addnews" data-bind="visible:Devices_IsSalePrice">
+                                    <div class="col-md-3 title-add"><Span>Giá sau giảm:</Span></div>
+                                    <div class="col-md-9">
+                                        <input type="number" min="0" class="form-control" data-bind="value: Devices_PriceSale" />
+                                    </div>
+                                </div>
+
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><Span>Trạng thái</Span></div>
+                                    <div class="col-md-9">
+                                        <form id='form-id'>
+                                            <input id='watch-me' name='star' type='radio' data-bind="checked: Devices_Status, checkedValue: true" /> Hiện thị
+                                            <input id='see-me' name='star' type='radio' data-bind="checked: Devices_Status, checkedValue: false" /> Ẩn
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                            <div class="row">
+                                <textarea class="form-control" rows="4" id="CK_SpecialPoint"></textarea>
+
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+                            <div class="row">
+                                <textarea class="form-control" rows="4" id="CK_ApplicationReal"></textarea>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="profile-tab">
+                            <div class="row">
+                                <textarea class="form-control" rows="4" id="CK_DigitalInformation"></textarea>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="profile-tab">
+                            <div class="fl form-addnews">
+                                <div class="col-md-3 title-add" style="    float: right;">
+                                    <span class="btn  btn-file form-control">
+                                        Chọn ảnh
+                                        <input type="file" id="selectImage" accept=".jpg,.gif,.png" name="image">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="fl form-addnews">
+                                <ul class="list-bt" data-bind="foreach: Devices_SalesImgDevices" style="margin-top:0px">
+                                    <li>
+                                        <a href="javascript:void(0)" data-bind="click:$parent.removeImg"><i style="     font-size: 20px; color: red;position: absolute; right: 0px;" class="fa fa-close"></i></a>
+
+                                        <img data-bind="attr: {  src:SrcImage}">
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" data-bind="click:saveSalesDeices"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="ModalSalesGroupDevices">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;"> Danh sách nhóm thiết bị bán hàng</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="ListGroupDevice">
+                    @if (Model.RoleInsert)
+                    {
+                        <button class="btn-updata btn-green" data-bind="click:AddSalesGroupDevice"><i class="fa fa-pencil-square-o"></i> Thêm mới nhóm thiết bị </button>
+                    }
+                    <div class="table-responsive">
+                        <table class="table table-hover" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th style="background:none;width:14%" scope="col">Mã nhóm</th>
+                                    <th style="background:none;width:30%" scope="col">Tên nhóm thiết bị</th>
+                                    <th style="background:none;width:31%" scope="col">Mô tả</th>
+                                    <th style="background:none;width:17%" scope="col">Trạng thái</th>
+                                    @if (Model.RoleUpdate || Model.RoleDelete)
+                                    {
+                                        <th style="background:none;width:8%" scope="col">Xử lý</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: SalesGroupDevices">
+                                <tr>
+                                    <td class="classSalesDevice" data-bind="text:Encoder"></td>
+                                    <td class="classSalesDevice" data-bind="text:Name"></td>
+                                    <td class="classSalesDevice" data-bind="text: Note"></td>
+                                    <td class="classSalesDevice" data-bind="text: ConvertTrangthaiActive(Status)"></td>
+                                    @if (Model.RoleUpdate || Model.RoleDelete)
+                                    {
+                                        <td>
+                                            <div class="edit-delete">
+                                                @if (Model.RoleUpdate)
+                                                {
+                                                    <a class="red" href="#" data-bind="click: $parent.UpdateSalesGroupDiveces">
+                                                        <i class="ace-icon fa fa-pencil "></i>
+                                                    </a>
+                                                }
+                                                @if (Model.RoleDelete)
+                                                {
+                                                    <a class="blue" href="#" data-bind="click: $parent.DeleteSalesGroupDiveces">
+                                                        <i class="ace-icon fa fa-trash-o "></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" id="NewGroupDeviceView" hidden>
+                    <div class="col-md-6">
+                        <div class="fl form-addnews">
+                            <div class="col-md-12 title-add"><h4>Tên nhóm<span class="red">(*)</span></h4></div>
+                            <div class="col-md-12">
+                                <input type="text" placeholder="Nhập tên nhóm..." class="form-control" data-bind="value: GroupDevice_Name" />
+                            </div>
+
+                        </div>
+
+                        <div class="fl form-addnews">
+                            <div class="col-md-12 title-add"><h4>Trạng thái</h4></div>
+                            <div class="col-md-12">
+                                <form id='form-id'>
+                                    <input id='watch-me' name='star' type='radio' data-bind="checked: GroupDevice_Status, checkedValue: true" /> Hoạt động
+                                    <input id='see-me' name='star' type='radio' data-bind="checked: GroupDevice_Status, checkedValue: false" /> Không hoạt động
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fl form-addnews">
+                            <div class="col-md-12 title-add"><h4>Mô tả</h4></div>
+                            <div class="col-md-12">
+                                <textarea class="form-control" placeholder="Nhập mô tả..." rows="4" data-bind="value: GroupDevice_Note"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                        <div class="col-md-9">
+                            <div class="pull-right">
+                                <button type="button" class="btn btn-outline-info" data-bind="click:BackSalesGroupDevice"><i class="fa fa-chevron-left"></i> Quay lại</button>
+                                <button class="btn-updata btn-green" data-bind="click:SaveSalesGroupDevice"><i class="fa fa-floppy-o"></i> Lưu</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

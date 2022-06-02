@@ -1,0 +1,91 @@
+﻿@using LogicalCK
+@using System.Web.Configuration;
+
+@{
+	Layout = null;
+	var imgPath = WebConfigurationManager.AppSettings["LogicalUpload.Directory"];
+	var media = new DirectoryInfo(Server.MapPath(imgPath));
+	var extensions = WebConfigurationManager.AppSettings["LogicalUpload.Extensions"];
+}
+<html>
+	<head>
+		<title>Media Browser</title>
+		<style>
+			body {
+				font-family: 'Segoe UI', Verdana, Helvetica, sans-serif;
+				font-size: 80%;
+			}
+
+			#form {
+				width: 600px;
+			}
+
+			#folderExplorer {
+				float: left;
+				width: 100px;
+			} 
+
+			#fileExplorer {
+				float: left;
+				width: 680px;
+				border-left: 1px solid #dff0ff;
+			}
+
+			.thumbnail {
+				float: left;
+				margin: 3px;
+				padding: 3px;
+				border: 1px solid #dff0ff;
+			}
+
+			ul {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+
+			li {
+				padding: 0;
+			}
+		</style>
+		@*<script src="/Scripts/jquery-1.10.2.min.js" type="text/javascript"></script>*@
+		@Scripts.Render("~/bundles/jquery")
+	</head>
+	<body>
+		<h2>Server Media Files</h2>
+		<div id="folderExplorer">
+			<ul>
+					@foreach (var dir in media.EnumerateDirectories().Where(d => d.GetFilesByExtensions(extensions).Any()))
+					{
+						<li>@dir.Name</li>
+					}
+				</ul>
+		</div>
+		<div id="fileExplorer">
+			@foreach (var file in media.GetFilesByExtensions(extensions))
+			{
+				<div class="thumbnail">
+					<img src="/RichContent/Thumb/?image=@file.Name" alt="thumb" title="@file.Name" />
+				</div>
+			}
+		</div>
+		<script src="/Scripts/ckeditor/ckeditor.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			var funcNum = @(Request["CKEditorFuncNum"] + ";")
+            $(function () {
+            	$('li').click(function () {
+            		$('#fileExplorer').load('/RichContent/ImageViewer?directory=' + encodeURIComponent($(this).text()));
+            	}).hover(function () {
+            		$(this).css('cursor', 'pointer');
+            	});
+            	$('#fileExplorer').on('click', 'img', function () {
+            		var fileUrl = '@imgPath.Replace("~", "")' + '/' + $(this).attr('title');
+            		window.opener.CKEDITOR.tools.callFunction(funcNum, fileUrl);
+            		window.close();
+            	}).hover(function () {
+            		$(this).css('cursor', 'pointer');
+            	});
+            });
+		</script>
+	</body>
+</html>

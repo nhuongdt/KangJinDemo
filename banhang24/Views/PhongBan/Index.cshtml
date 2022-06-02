@@ -1,0 +1,283 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Open24.vn - Phòng bàn";
+}
+@section scripts {
+<script src="~/Scripts/knockout-3.4.2.js"></script>
+<script src="~/Scripts/PhongBan/ViTri.js"></script>
+<script>
+          var height_table = $("#td").height();
+          var width_table = $(".table-hover").width();
+          console.log(height_table);
+          if (height_table > 500) {
+              $(".table-reponsive").addClass("table_h");
+          }
+          if (width_table > 850) {
+              $(".table-reponsive").addClass("table_h");
+          }
+</script>
+}
+<div class="container op-container">
+  <div class="row">
+      <div class="col-sm-12">
+          <div class="row">
+              <div class=" op-filter">
+                  <section class="op-filter-body">
+                      <article class="boxLeft sortTime">
+                          <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                              <img src="~/Content/images/icon/Iconbanhanggg-02.png" /> Nhóm phòng bàn
+                          </h3>
+                          <a class="op-filter-add op-js-themmoinhomhang" title="Thêm nhóm bàn">
+                              <i class="fa fa-plus-circle" data-bind="click: themmoicapnhatkhuvuc">
+                              </i>
+                          </a>
+                          <aside class="op-filter-container">
+                              <div class="input-group">
+                                  <select class="form-control" data-bind="options: NhomKhuVucs,
+                                                optionsText: 'TenKhuVuc', optionsValue: 'ID', optionsCaption: '--- Tất cả ---',
+                                                value: newNhomKhuVuc().ID , event:{change: changeddlNhomKhuVuc}"></select>
+                                  <div class="input-group-btn">
+                                      <button type="button" class="btn btn-default" aria-label="Cập nhật" data-bind="click: editKV, enable: newNhomKhuVuc().ID">
+                                          <span class="fa fa-pencil-square-o"></span>
+                                      </button>
+                                  </div>
+                              </div>
+                          </aside>
+                      </article>
+                      <article class="boxLeft">
+                          <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                              <img src="~/Content/images/icon/seach1.png" />      Tìm kiếm
+                          </h3>
+                          <span></span>
+                          <aside class="op-filter-container">
+                              <div class="menuCheckbox">
+                                  <input type="tel" class="form-control" placeholder="Theo tên phòng/bàn"
+                                         data-bind="value: filter, valueUpdate: 'afterkeydown'" />
+                              </div>
+                          </aside>
+                      </article>
+                      <article class="boxLeft">
+                          <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                              <img src="~/Content/images/icon/Iconbanhanggg-05.png" />
+                              Lựa chọn hiển thị
+                          </h3>
+                          <span></span>
+                          <aside class="op-filter-container menuRadio">
+                              <div class="last">
+                                  <label>Số bản ghi:</label>
+                                  <select class="form-control" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                              </div>
+                          </aside>
+                      </article>
+                  </section>
+                  <div class="op-filter-footer">
+                      <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                      <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                          <span>Thu gọn</span>
+                      </button>
+                      <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                          <span>Mở rộng</span>
+                      </button>
+                      <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                  </div>
+              </div>
+              <div class="content-table">
+                      <h2 class="pull-left title">Phòng/Bàn</h2>
+                      <div class="btnMenu pull-right">
+                          <div class="btn-group">
+                              <button type="button" class="btn btn-main dropdown-toggle" data-bind="click: showPopupAddViTri" aria-haspopup="true" aria-expanded="false">
+                                  <span class="glyphicon glyphicon-plus"></span><span class="tit-none">Thêm mới</span>
+                              </button>
+                          </div>
+                          <input type="file" id="fileLoader" name="fileLoader" title="Load File" style="display:none" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                          <button class="btn btn-main" id="btnExport" name="btnExport" data-bind="click: exportToExcelViTris"><span class="glyphicon glyphicon-export"></span>Xuất file</button>
+                      </div>
+                     <div class="table-reponsive">
+                         <table class=" table-striped table-hover">
+                             <thead>
+                                 <tr>
+                                     <th class="tenhang">Tên phòng bàn</th>
+                                     <th class="ghichu">Ghi chú</th>
+                                     <th class="nhomban">Nhóm</th>
+                                 </tr>
+                             </thead>
+                             <tbody data-bind="foreach: filteredDMViTri">
+                                 <tr class="prev-tr-hide  ">
+                                     <td class="tenhang" data-bind="text: TenViTri"></td>
+                                     <td class="ghichu" data-bind="text: GhiChu"></td>
+                                     <td class="nhomban" data-bind="text: TenKhuVuc"></td>
+                                 </tr>
+                                 <tr class="op-js-tr-hide">
+                                     <td colspan="4">
+                                         <div class="op-object-detail ">
+                                             <ul class="nav nav-tabs">
+                                                 <li class="active"><a data-toggle="tab" data-bind="attr:{href:'#home' + ID}">Thông tin</a></li>
+                                                 <li><a data-toggle="tab" data-bind="attr:{href:'#info' + ID}">Nhật ký giao dịch</a></li>
+                                             </ul>
+                                             <div class="tab-content tab-content-next">
+                                                 <div class="tab-pane active" data-bind="attr:{id:'home' + ID}">
+                                                    <div class="table-res">
+                                                        <table class="border-none">
+                                                            <tr>
+                                                                <th>Tên phòng/ bàn</th>
+                                                                <th data-bind="text: TenViTri">b1</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Ghi chú</td>
+                                                                <td data-bind="text: GhiChu"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Nhóm</td>
+                                                                <td data-bind="text: TenKhuVuc"></td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                     <div class="col-lg-12">
+                                                         <div class="group-btn floatleft text-right" >
+                                                             <a  class="btn btn-main" data-bind="click: $parent.editVT">
+                                                                 <i class="fa fa-check-square"></i> Cập nhật
+                                                             </a>
+                                                             <a  class="btn btn-cancel" data-bind="click: $parent.modalDelete">
+                                                                 <i class="fa fa-trash"></i> Xóa
+                                                             </a>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                                 <div class="tab-pane" data-bind="attr:{id:'info' + ID}">
+                                                     <div class="table-res">
+                                                         <table class='table'>
+                                                             <tr>
+                                                                 <th>Mã hóa đơn</th>
+                                                                 <th>Thời gian</th>
+                                                                 <th>Người bán</th>
+                                                                 <th>Tổng cộng</th>
+                                                             </tr>
+                                                             <tr>
+                                                                 <td>HD000044</td>
+                                                                 <td>Bán hàng</td>
+                                                                 <td>07/05/2017</td>
+                                                                 <td>950,000</td>
+                                                             </tr>
+                                                             <tr>
+                                                                 <td>HD000044</td>
+                                                                 <td>Bán hàng</td>
+                                                                 <td>07/05/2017</td>
+                                                                 <td>950,000</td>
+                                                             </tr>
+                                                         </table>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </td>
+                                 </tr>
+                             </tbody>
+                         </table>
+                     </div>
+                     <div class="page">
+                         <div class="flex flex-end">
+                             <ul data-bind="foreach: PageList">
+                                 <li>
+                                     <a href="javascript:void(0)" data-bind="text: $data+1, click: $root.GoToPage, css: $root.GetClass($data)"></a>
+                                 </li>
+                             </ul>
+                             <div class="total-recos">Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số <span data-bind="text: $root.ViTris().length"></span> phòng bàn.</div>
+                         </div>
+                     </div>
+              </div>            
+          </div>
+      </div>
+  </div>
+</div>
+<div class="modal fade" id="modalPopuplg_ViTri">
+    <div  class="modal-dialog draggable modal-dialog-pb">
+        @Html.Action("_themmoicapnhatvitri", new { area = "", Controller = "PhongBan" })
+    </div>
+</div>
+<div  class="op-js-modal" >
+      <div class="modal-content">
+          @Html.Action("_themmoicapnhatkhuvuc", new { area = "", Controller = "PhongBan" })
+      </div>
+</div>
+<div class="modal fade" id="modalPopup_EditNhomKV" >
+    <div id="modalContainer_NhomKV" class="modal-dialog draggable modal-dialog-pb">
+        @Html.Action("_editkhuvuc", new { area = "", Controller = "PhongBan" })
+    </div>
+</div>
+<!-- Modal -->
+@*Xóa*@
+<div class="modal fade" id="modalpopup_deleteVT">
+    <div id="modalContainer_delete" class="modal-sm ">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa phòng/bàn <span style="font-weight:bold" data-bind="text: deleteTenViTri"></span> khỏi danh mục phòng bàn.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaVT"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_deleteKV">
+    <div id="modalContainer_delete" class="modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa nhóm <span style="font-weight:bold" data-bind="text: deleteTenKhuVuc"></span> khỏi danh mục nhóm phòng bàn.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaKV"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+          var w = $(window).width();
+          if (w < 768) {
+              var t = w - 20;
+              $(".op-object-detail ").width(t);
+              $(".tab-content-next").width(t);
+          }
+          $(document).on('click', '.prev-tr-hide', function () {
+              $(this).parents(".table-reponsive").toggleClass("table_re");
+              $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+              $("td").not($(this).find("td")).removeClass("bg-gray");
+              $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+              $(this).toggleClass("bor-right");
+              $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        if (t == "none") {
+            $(".op-js-tr-hide").removeClass("ac");
+            $(".op-js-tr-hide").removeClass("l");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+        }
+        else if (t == "block") {
+            $(this).next(".op-js-tr-hide").removeClass("ac");
+        }
+        else {
+            $(".op-js-tr-hide").removeClass("ac");
+        }
+    });
+          $(".op-js-themmoinhomhang").click(function () {
+              $(".modal-ontop").show();
+              $(".op-js-modal").modal('show');
+          });
+          $(document).on('click', '.close-modal,.save-modal', function () {
+              $(".modal-ontop").hide();
+              $(".op-js-modal").modal('hide');
+          });
+          $(".modal-ontop").click(function () {
+              $(this).hide();
+              $(".op-js-modal").modal('hide');
+          });
+          var t = $(".table-reponsive").width();
+          $(".op-object-detail ").width(t - 10);
+          $(window).resize(function () {
+              var t = $(".table-reponsive").width();
+              $(".op-object-detail ").width(t - 10)
+          });
+</script>

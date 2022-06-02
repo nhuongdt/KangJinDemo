@@ -1,0 +1,295 @@
+﻿<style>
+    .weekDays-selector > label {
+        display: flex;
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+        background: white;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+    }
+
+    .weekDays-selector > input:checked + label {
+        background: var(--color-primary);
+        color: white;
+        border-color: white;
+    }
+
+    .weekDays-selector > input {
+        display: none
+    }
+
+    #calendar_lstKH, #calendar_lstDV {
+        position: absolute;
+        top: 36px;
+        max-height: 500px;
+        background: white;
+        overflow: auto;
+        border: 1px solid #ccc;
+        width: 100%;
+        z-index: 1000;
+    }
+
+        #calendar_lstKH li, #calendar_lstDV li {
+            border-bottom: 1px dotted #ccc;
+            padding: 6px;
+        }
+
+    .calendar-searchdv {
+        width: 100%;
+        font-weight: 400;
+    }
+
+    #ddlRepeat a:hover {
+        background-color: #007bff
+    }
+
+    .calendar-servicechosed {
+        border-radius: 4px;
+        overflow: auto;
+        min-height: 34px;
+        margin-left: 25%;
+        padding-right: 11%;
+    }
+
+        .calendar-servicechosed ul {
+            overflow: auto;
+            max-height: 80px;
+        }
+
+        .calendar-servicechosed li {
+            float: left;
+            color: #333;
+            line-height: 38px;
+            text-align: left;
+            width: auto !important;
+            padding: 0px 7px;
+            margin: 1px 0 1px 1px;
+            background: var(--table-footer);
+        }
+
+        .calendar-servicechosed span {
+            font-size: 13px;
+        }
+
+    .calendar-status-finish .form-inline {
+        margin-bottom: 9px;
+    }
+
+    /*.lbl-status {
+        width: 20% !important;
+    }*/
+</style>
+<link href="~/Content/partial.css" rel="stylesheet" />
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title">
+            Thêm mới lịch hẹn
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="form-group ">
+
+            <label class="css-form-label"> Khách hàng</label>
+
+            <div class="css-form-detail">
+                <jqauto-customer params="showDiv: true,
+                loaiDoiTuong :1,
+                roleAdd: false,
+                showDiary: false,
+                changeCus: Calendar_ChoseCusTomer, "></jqauto-customer>
+            </div>
+        </div>
+        <div class="form-group ">
+
+            <label class="css-form-label">DV, hàng hóa</label>
+
+            <div class="css-form-detail">
+                <div class="dropdown " id="calendarVueDV">
+                    <div class="op-search" data-toggle="dropdown" style="max-width:unset">
+                        <input class="form-control" id="calendar_txtDV"
+                               placeholder="Tìm kiếm dịch vụ, hàng hóa" autocomplete="off" v-model="query" v-on:keyup="submit" />
+                        <i class="fa fa-search op-search-icon"></i>
+                    </div>
+                    <ul id="calendar_lstDV" class="dropdown-menu" hidden>
+                        <li v-for="item of SearchService" v-on:click="click(item)">
+                            <a style="font-weight: bold;">
+                                <span>Mã: {{ item.MaHangHoa }}</span><br />
+                                <span style="white-space:break-spaces">Tên: {{ item.TenHangHoa }}   -   </span>
+                            </a>
+                        </li>
+                    </ul>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group " id="calendar-servicechosed" data-bind="visible: ListServiceChosed().length > 0">
+            <div class="col-sm-10 no-padding-left calendar-servicechosed">
+                <ul data-bind="foreach: ListServiceChosed">
+                    <li>
+                        <span data-bind="html:TenHangHoa">
+                        </span>&nbsp;
+                        <span data-bind="click: $parent.Calendar_RemoveService">
+                            <i class="fa fa-times"></i>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group ">
+
+            <label class="css-form-label">Thời gian</label>
+
+            <div class="css-form-detail">
+                <div class="flex">
+                    <div class="col-md-8 col-xs-8 nopadding">
+
+                        <div class="op-search  " data-bind="with: newCalendar" style="min-width:unset">
+                            <input class="form-control" id="calendar-date" data-bind="value: NgayTao, event:{change:$parent.ChangeNgayDatLich}" />
+
+                            <i class="fa fa-calendar op-search-icon"></i>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-4 nopadding">
+                        <div class="op-search" data-bind="with: newCalendar" style="min-width:unset">
+                            <input class="form-control" id="calendar-time" data-bind="value: ThoiGianTao" />
+                            <i class="fa fa-clock-o op-search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="form-group ">
+
+            <label class="css-form-label">Lặp định kỳ</label>
+            <div class="css-form-detail">
+                <div class="flex">
+                    <div class="dropdown width-100">
+                        <button type="button" class="btn btn-default dropdown-toggle flex " data-toggle="dropdown" id="btnTypeRepeat" style="align-items:center"
+                                aria-haspopup="true" aria-expanded="false">
+                            <span>Không lặp </span>
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" data-bind="foreach: KieuLapLai" style="width:max-content">
+                            <li data-bind="click:  $parent.ChoseRepeatType">
+                                <a class="dropdown-item" href="javascript:void(0)" style="color:black" data-bind="text: Text, value: ID"></a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="width-100" data-bind="visible: newCalendar().KieuLap() != 0">
+                        <input class="form-control text-right" onclick="this.select()" data-bind="value: newCalendar().SoLanLap" />
+                    </div>
+                    <div class="width-100" style="line-height:24px; padding:3px" data-bind="visible: newCalendar().KieuLap() != 0">
+                        <label data-bind="text: LblSoLanLap"></label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-group " data-bind="visible: newCalendar().KieuLap()=== 2">
+            <label class="css-form-label">Vào thứ</label>
+            <div class="css-form-detail weekDays-selector">
+                <input type="checkbox" id="weekday-mon" value="true" class="weekday" data-bind="checked: Monday" />
+                <label for="weekday-mon">2</label>
+                <input type="checkbox" id="weekday-tue" value="true" class="weekday" data-bind="checked: Tuesday" />
+                <label for="weekday-tue">3</label>
+                <input type="checkbox" id="weekday-wed" value="true" class="weekday" data-bind="checked: Wedday" />
+                <label for="weekday-wed">4</label>
+                <input type="checkbox" id="weekday-thu" value="true" class="weekday" data-bind="checked: Thurday" />
+                <label for="weekday-thu">5</label>
+                <input type="checkbox" id="weekday-fri" value="true" class="weekday" data-bind="checked: Friday" />
+                <label for="weekday-fri">6</label>
+                <input type="checkbox" id="weekday-sat" value="true" class="weekday" data-bind="checked: Satuday" />
+                <label for="weekday-sat">7</label>
+                <input type="checkbox" id="weekday-sun" value="true" class="weekday" data-bind="checked: Sunday" />
+                <label for="weekday-sun">CN</label>
+            </div>
+        </div>
+        <div class="form-group " data-bind="visible: newCalendar().KieuLap() == 3 || newCalendar().KieuLap() == 4">
+            <label class="css-form-label">&nbsp;</label>
+            <div class=" dropdown css-form-detail" id="ddlRepeat">
+                <div class="btn-group" style="width:100%">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="btnRepeatMonth"
+                            aria-haspopup="true" aria-expanded="false" style="width:100%; text-align:left">
+                        Không lặp lại <i class="fa fa-caret-down" style="float:right"></i>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group " data-bind="visible: newCalendar().KieuLap() != 0">
+
+            <label class="css-form-label">Kết thúc</label>
+
+            <div class="css-form-detail">
+                <div class="calendar-status-finish">
+                    <div class="form-group flex flex">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="1" data-bind="checked: newCalendar().TrangThaiKetThuc" name="calendar-rdo1" id="cbKTKhongBaoGio">
+                            <label class="form-check-label" for="cbKTKhongBaoGio">Không bao giờ</label>
+                        </div>
+                    </div>
+                    <div class="form-group flex flex">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="2" data-bind="checked: newCalendar().TrangThaiKetThuc" name="calendar-rdo1" id="cbKTVaoNgay">
+                            <label class="lbl-status form-check-label" for="cbKTVaoNgay">Vào ngày </label>
+                        </div>
+                        <input class="form-control col-md-6" style="width:30%" id="calendar-datefinish" data-bind="value: GiaTriKetThuc_1, enable: parseInt(newCalendar().TrangThaiKetThuc()) === 2" />
+                    </div>
+                    <div class="form-group flex flex">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="3" data-bind="checked: newCalendar().TrangThaiKetThuc" name="calendar-rdo1" id="cbKTSau">
+                            <label class="lbl-status form-check-label" for="cbKTSau">Sau </label>
+                        </div>
+                        <input class="form-control text-right" style="width: 15%;" data-bind="value: GiaTriKetThuc_2, enable: parseInt(newCalendar().TrangThaiKetThuc()) === 3" onclick="this.select()" />
+                        <span style="margin-left:10px">Lần</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group ">
+
+            <label class="css-form-label"> Ghi chú</label>
+
+            <div class="css-form-detail" data-bind="with: newCalendar">
+                <textarea rows="2" data-bind="value: GhiChu">
+</textarea>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="modal-footer ">
+        <button type="button" class="btn btn-main" id="calendar-btnSave" data-bind="click: SaveCalendar">
+            <i class="fa fa-check-square"></i>Đặt lịch
+        </button>
+        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
+    </div>
+</div>
+
+
+<script>
+    $(document).mouseup(function (e) {
+        var container = $("#calendar_lstDV");
+
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+
+    });
+</script>

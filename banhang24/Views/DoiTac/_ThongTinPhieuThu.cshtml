@@ -1,0 +1,177 @@
+﻿
+<script>
+    $(window.document).on('shown.bs.modal', '.modal', function () {
+   
+      
+        $('.datepicker_mask').datetimepicker({
+            timepicker: true,
+            mask: false,
+            format: 'd/m/Y H:i',
+            maxDate: new Date(),
+            scrollMonth: false,
+        });
+        $(document).keydown(function (e) {
+            if (e.keyCode == 9) {
+                $('.datepicker_mask').datetimepicker({
+                    timepicker: true,
+                    mask: true,
+                    format: 'd/m/Y H:i',
+                    maxDate: new Date()
+                });
+            }
+        });
+    });
+</script>
+
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title" id="ttpt_title">Phiếu thu</h4>
+    </div>
+    <div class="modal-body ">
+        <div data-bind="foreach: Modal_SoQuy">
+            <div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Mã phiếu:</label>
+                        <div class="css-form-detail span-number-price">
+                            <span class="line-none " data-bind="text: MaHoaDon"></span>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label" id="ttpt_KhachHang">
+                            Khách hàng:
+                        </label>
+                        <div class="css-form-detail span-number-price">
+                            <span data-bind="text: NguoiNopTien"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group floatleft">
+                        <label class="css-form-label" id="lblTongThu">Tổng thu:</label>
+                        <div class="css-form-detail span-number-price">
+                            <span class="line-none " data-bind="text: formatNumber3Digit(TongTienThu,2)"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group floatleft">
+                        <label class="css-form-label " data-bind="text: LoaiHoaDon == 11?'Khoản thu':'Khoản chi'"></label>
+                        <div class="css-form-detail divkhoanthuchi" style="position:relative">
+                            <div class="position-relative form-control " data-toggle="dropdown">
+                                <div class="collection" data-bind="text: LoaiHoaDon == 11?'--Chọn mục thu--':'--Chọn mục chi--'"></div>
+                            </div>
+                            <div class=" dropdown-menu">
+                                <div class="op-search">
+                                    <input type="text" class="input-simple" data-bind="value: $root.filterKhoanThuChi, valueUpdate: 'afterkeydown'" placeholder="Tìm kiếm khoản chi" />
+                                    <i class="fa fa-search op-search-icon" aria-hidden="true"></i>
+                                </div>
+                                <ul>
+                                    <li data-bind="click: $root.NotChose_KhoanThuChi" class="flex flex-between">
+                                        <a href="javascript:void(0)" data-bind="text: LoaiHoaDon == 11?'--Chọn mục thu--':'--Chọn mục chi--'"></a>
+                                    </li>
+                                    <!--ko foreach: $root.arrFilterKhoanThuChi-->
+                                    <li data-bind="click :$root.Chose_KhoanThuChi, attr:{id:'khoanthuchi_'+ID}" class="flex flex-between">
+                                        <a href="javascript: void(0)" data-bind="text: NoiDungThuChi, attr:{id : ID}"></a>
+                                    </li>
+                                    <!--/ko -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6 ">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Thời gian:</label>
+                        <div class="css-form-detail add-icon-date">
+                            <!--ko if: $root.Allow_ChangeTimeSoQuy()-->
+                            <input type="text" class="form-control datepicker_mask "
+                                   data-bind="value: NgayLapHoaDon" />
+                            <!--/ko-->
+                            <!--ko if: !$root.Allow_ChangeTimeSoQuy()-->
+                            <span data-bind="text: NgayLapHoaDon"></span>
+                            <!--/ko-->
+                        </div>
+                    </div>
+
+
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Ghi chú:</label>
+                        <div class="css-form-detail">
+                            <textarea rows="1" data-bind="value: NoiDungThu"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Nhân viên:</label>
+                        <div class="css-form-detail span-number-price">
+                            <span class="line-none" data-bind="text: TenNhanVien"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-reponsive">
+                <div class="table-res">
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th>Mã hóa đơn</th>
+                                <th>Thời gian</th>
+                                <th class="text-right">Giá trị</th>
+                                <th class="text-right" id="ttpt_hdDaThu">Đã thu trước</th>
+                                <th class="text-right" id="ttpt_hdCanThu">Tiền thu</th>
+                                <th class="text-right">Phương thức</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: $data.Quy_HoaDon_ChiTiet">
+                            <tr>
+                                <td data-bind="text: MaHoaDon"></td>
+                                <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')">Bán hàng</td>
+                                <td class="text-right" data-bind="text: formatNumber3Digit(TongTienThu,2)"></td>
+                                <td class="text-right" data-bind="text: formatNumber3Digit(DaChi,2)"></td>
+                                <td class="text-right" data-bind="text: formatNumber3Digit(TienThu,2)"></td>
+                                <td class="text-left" data-bind="text: PhuongThuc"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <div class="flex flex-end" style="padding-top:10px">
+                <div class="col-md-6 col-xs-12 flex flex-end">
+                    <label class="width-150" id="footer-lblTongThu">
+                        Tổng tiền thu:
+                    </label>
+                   
+                        <span type="text" class="form-control Bold text-right width-200" disabled="disabled"
+                              data-bind="text: formatNumber3Digit(TongTienThu,2)" />
+                    
+                </div>
+               
+
+            </div>
+            <div class="flex flex-end" style="padding-top:10px;">
+                <a href="javascript:void(0)" data-dismiss="modal" class="btn btn-cancel">
+                    <i class="fa fa-ban"></i> Đóng
+                </a>
+                <!-- ko if: $root.Show_BtnDeleteSoQuy() && TrangThai -->
+                <a  class="btn btn-cancel" data-bind="click: $root.HuyPhieuThuChi">
+                    <i class="fa fa-trash"></i> Hủy bỏ
+                </a>
+                <!--/ko-->
+                <!-- ko if: $root.Show_BtnUpdateSoQuy() && TrangThai -->
+                <a  class="btn btn-save" data-bind="click: $root.UpdatePhieuThuChi">
+                    <i class="fa fa-floppy-o"></i> Cập nhật
+                </a>
+                <!--/ko-->
+            </div>
+        </div>
+
+
+
+    </div>
+   
+
+</div>
+
+

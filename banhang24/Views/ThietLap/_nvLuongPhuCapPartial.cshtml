@@ -1,0 +1,409 @@
+﻿@using Model;
+<style>
+    .ul-combobox li {
+        padding-left: 15px !important;
+        padding-right: 45px !important;
+        border-bottom: 1px dotted #ccc !important;
+    }
+    .icon-edit-combobox {
+        position: absolute;
+        top: 0px;
+        right: 5px;
+    }
+        .icon-edit-combobox .fa-times {
+            margin-left: 10px;
+            margin-top: 8px;
+            display: block;
+            color: red !important;
+            font-size: 14px;
+        }
+    .icon-edit-combobox a{
+        float:left;
+    }
+    </style>
+<div class="modal fade" id="modalNvluongphucap">
+    <div class=" modal-dialog draggable">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Loại lương(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                        <select class="form-control" v-model="LoaiLuong">
+                            @foreach (var item in commonEnumHellper.ListLoaiLuongPhuCap)
+                            {
+                                <option value="@item.Key">
+                                    @item.Value
+                                </option>
+                            }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày áp dụng(<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateTNLuong" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày kết thúc (<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateDNLuong" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số tiền (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control currency" type="text"onkeypress="return keypressNumber(event)" v-model="sotien" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Hệ số (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="number" v-model="heso" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Bậc</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="bac" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung</label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="ghichu"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-save" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-cancel" v-on:click="SaveTax">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNvloailuong">
+    <div class=" modal-dialog draggable modal-sm ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Tên loại lương(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="tenloailuong" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ghi chú</label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="ghichu"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="Save">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmNvLuong = new Vue({
+        el: '#modalNvluongphucap',
+        data: {
+            nhanvienId: null,
+            ID: null,
+            Isnew: true,
+            sotien: "",
+            heso: "",
+            bac: '',
+            ghichu: "",
+            title: "",
+            error: '',
+            tenloailuong: '',
+            LoaiLuong:"1",
+            loailuongId: null,
+            ListLoaiLuong: [],
+            IsRoleInsert: true,
+            IsRoleUpdate: true,
+            IsRoleDelete: true
+        },
+        methods: {
+            messageError: function (input) {
+                this.error = input;
+            },
+            CheckRole: function (insert, update, dele) {
+                if (insert === '1') {
+                    this.IsRoleInsert = true;
+                }
+                else {
+                    this.IsRoleInsert = false;
+                }
+                if (update === '1') {
+                    this.IsRoleUpdate = true;
+                }
+                else {
+                    this.IsRoleUpdate = false;
+                }
+                if (dele === '1') {
+                    this.IsRoleDelete = true;
+                }
+                else {
+                    this.IsRoleDelete = false;
+                }
+            },
+            Insert: function (id) {
+                $('#modalNvluongphucap').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.bac = model.Bac;
+                    this.heso = model.HeSo;
+                    this.sotien = this.convertMoney(model.SoTien);
+                    this.ghichu = model.NoiDung;
+                    //if (model.IsDeletLoailuong) {
+                    //    this.loailuongId = model.ID_LoaiLuong;
+                    //    this.tenloailuong = model.TenLoaiLuong;
+                    //}
+                    //else {
+                    //    this.loailuongId =null;
+                    //    this.tenloailuong = "";
+                    //}
+                    this.LoaiLuong = null;
+                    if (model.LoaiLuong !== null) {
+                        this.LoaiLuong = model.LoaiLuong.toString();
+                    }
+                    this.error = "";
+                    this.Isnew = false;
+                    $('#dateTNLuong').val(this.convertDate(model.NgayApDung));
+                    $('#dateDNLuong').val(this.convertDate(model.NgayKetThuc));
+                    this.title = "Cập nhật lương, phụ cấp";
+                    $('#modalNvluongphucap').modal("show");
+                }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.Isnew = true;
+                this.bac = "";
+                this.heso = "";
+                this.sotien = '';
+                this.ghichu = '';
+                this.error = '';
+                this.tenloailuong = '',
+                this.loailuongId = null;
+                this.LoaiLuong = "1";
+                this.title = "Thêm mới khoản lương, phụ cấp";
+                $('#dateTNLuong').val(null);
+                $('#dateDNLuong').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            getLoaiLuong: function () {
+                $.getJSON("/api/DanhMuc/NS_NhanVienAPI/GetAllLoaiLuong", function (data) {
+                    vmNvLuong.ListLoaiLuong = data;
+                });
+            },
+            convertMoney: function (input) {
+                if (commonStatisJs.CheckNull(input))
+                    return "";
+                return input.toString().replace(/,/g, '').replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+            },
+            SaveTax: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull(self.LoaiLuong)) {
+                    self.messageError("Vui lòng nhập loại lương");
+                }
+                else if (commonStatisJs.CheckNull($('#dateTNLuong').val())) {
+                    self.messageError("Vui lòng nhập ngày áp dụng");
+                }
+                else if (commonStatisJs.CheckNull($('#dateDNLuong').val())) {
+                    self.messageError("Vui lòng nhập ngày kết thúc");
+                }
+                else if (commonStatisJs.CheckNull(self.sotien)) {
+                    self.messageError("Vui lòng nhập số tiền");
+                }
+                else if (commonStatisJs.CheckNull(self.heso)) {
+                    self.messageError("Vui lòng nhập hệ số");
+                }
+                else {
+                    var model = {
+                        ID: self.ID,
+                        ID_NhanVien: self.nhanvienId,
+                        NgayApDung: commonStatisJs.convertDateToServer($('#dateTNLuong').val()),
+                        NgayKetThuc: commonStatisJs.convertDateToServer($('#dateDNLuong').val()),
+                        SoTien: parseInt(self.sotien.replace(/,/g, '')),
+                        HeSo: self.heso,
+                        Bac: self.bac,
+                        NoiDung: self.ghichu,
+                        ID_LoaiLuong: self.loailuongId,
+                        LoaiLuong: self.LoaiLuong
+                    };
+                    $.ajax({
+                        data: model,
+                        url: "/api/DanhMuc/NS_NhanVienAPI/SaveLuongPhuCap?Isnew=" + self.Isnew,
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (item) {
+                            if (item.res === true) {
+                                $('#modalNvluongphucap').modal("hide");
+                                bottomrightnotify(item.mess, "success");
+                                $('body').trigger("InsertNvluongphucapSuccess");
+                            }
+                            else {
+                                self.messageError(item.mess);
+                            }
+                        }
+                    });
+                }
+            },
+            InsertLoaiLuong: function (event) {
+                vmNvloailuong.Insert();
+            },
+            UpdateLoaiLuong: function (item, event) {
+                debugger
+                vmNvloailuong.edit(item);
+            },
+            DeleteLoaiLuong: function (item, event) {
+                vmModalRemove.show("/api/DanhMuc/NS_NhanVienAPI/deleteloailuongNv?id=" + item.ID, "Xác nhận",
+                    "Bạn có chắc chắn muốn xóa loại lương:  " + item.TenLoaiLuong + " không","deleteloailuongNvSuccess");
+            }
+        },
+        computed: {
+        }
+    });
+    $('body').on('deleteloailuongNvSuccess', function () {
+        vmNvLuong.getLoaiLuong();
+    });
+    vmNvLuong.getLoaiLuong();
+    //$('#lstloailuong').on('click', 'li .text-tree', function () {
+    //    vmNvLuong.tenloailuong = $(this).text();
+    //    vmNvLuong.loailuongId = $(this).closest('li').data('id');
+    //});
+    $('.currency').focus(function () {
+        vmNvLuong.sotien = $(this).val().replace(/,/g, '');
+    });
+    $('.currency').focusout(function () {
+        vmNvLuong.sotien = vmNvLuong.convertMoney($(this).val());
+    });
+    $('#dateTNLuong').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    $('#dateDNLuong').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    var vmNvloailuong = new Vue({
+        el: '#modalNvloailuong',
+        data: {
+            ID: null,
+            title: "",
+            error: '', 
+            Isnew: true,
+            tenloailuong: "",
+            ghichu: ''
+        },
+        methods: {
+            messageError: function (input) {
+                this.error = input;
+            },
+            Insert: function () {
+                $('#modalNvloailuong').modal("show");
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.tenloailuong = model.TenLoaiLuong;
+                    this.error = "";
+                    this.Isnew = false;
+                    this.ghichu = model.GhiChu;
+                    this.title = "Cập nhật loại lương";
+                    $('#modalNvloailuong').modal("show");
+                }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.Isnew = true;
+                this.tenloailuong = "";
+                this.error = "";
+                this.ghichu = "";
+                this.title = "Thêm mới loại lương";
+            },
+            Save : function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull(self.tenloailuong)) {
+                    self.messageError("Vui lòng tên loại lương");
+                }
+                else {
+                    var model = {
+                        ID: self.ID,
+                        TenLoaiLuong: self.tenloailuong,
+                        GhiChu: self.ghichu
+                    };
+                    $.ajax({
+                        data: model,
+                        url: "/api/DanhMuc/NS_NhanVienAPI/SaveLoaiLuong?Isnew=" + self.Isnew,
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (item) {
+                            if (item.res === true) {
+                                vmNvLuong.getLoaiLuong();
+                                $('#modalNvloailuong').modal("hide");
+                                bottomrightnotify(item.mess, "success");
+                            }
+                            else {
+                                self.messageError(item.mess);
+                            }
+                        }
+                    });
+                }
+            }
+        },
+        computed: {
+        }
+    });
+</script>

@@ -1,0 +1,999 @@
+﻿@using System.Web.Optimization
+@using banhang24.Hellper;
+@model  banhang24.Models.ModelMauIn
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Quản lý mẫu in";
+}
+<head>
+    <style type="text/css">
+        .note-print-page label {
+        }
+
+        .color-required {
+            color: #7161ccdd
+        }
+
+        .cke_bottom {
+            display: none;
+        }
+
+        .ifram-text {
+            min-height: 600px;
+            width: 100%;
+            border: none;
+        }
+
+        #cke_txtCkeditor {
+            width: 100% !important;
+        }
+
+        .note-print-page li p {
+            color: #0097c4;
+        }
+
+        .border-bottom-dashed {
+            border-bottom: 1px dashed black;
+        }
+
+        ul.note-print-page li:not(.title) {
+            /* float: left; */
+            line-height: 24px;
+            padding: 3px;
+            width: calc(100% - 30px);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            text-align: right;
+            margin-left: 20px;
+        }
+
+        ul.note-print-page li label:hover {
+            cursor: pointer;
+            background: rgba(0,0,0,0.15);
+            border-radius: 4px;
+        }
+
+        ul.note-print-page li label {
+            width: unset;
+            transition: all 0.4s ease;
+        }
+
+        ul.note-print-page li.title {
+            font-weight: bold;
+            font-size: 17px;
+            height: 30px;
+            background: #e6e6e6;
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            line-height: 24px;
+            height: 30px;
+        }
+    </style>
+    <link href="~/Content/icomoon/style1.css" rel="stylesheet" />
+    <script src="~/Scripts/tinymce/tinymce.min.js"></script>
+</head>
+@{
+    var shop = (ViewBag.ShopCookies as string).ToUpper();
+    var isGara = shop == "C16EDDA0-F6D0-43E1-A469-844FAB143014";
+    int[] arrayGara = { 3, 4 };
+}
+<div class="op-container">
+    <input id="CopiedText" style="position:fixed; z-index:-1;top:0; left:0" />
+    <div class="col-md-2 col-xs-12">
+        <div class="title-establish border-bottom floatleft">
+            <h1>
+                Thiết lập mẫu in<i class="fa fa-exclamation-circle " title="Danh sách token mẫu in" id="iNotPprint" style="    color: #ccc;padding-left: 5px;"></i>
+            </h1>
+        </div>
+        <ul class="nav nav-tabs establish-left pading25"
+            style="width:230px; padding:0 15px 0 0; overflow:auto;max-height:600px">
+            @if (Model.RolePermission.DatHang)
+            {
+                <li id="LiDatHang" data-id="@commonEnum.MauInTeamPlates.DatHang">
+                    <a href="javascript:void(0)" data-toggle="tab"> <span class="icon-IconMauinn-02"></span>Đặt hàng</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (true)
+            {
+                <li id="LiValueCard" data-id="@commonEnum.MauInTeamPlates.TheGiaTri">
+                    <a href="javascript:void(0)" data-toggle="tab">
+                        <i class="fab fa-cc-visa"></i> Hóa đơn nạp thẻ
+                    </a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.HoaDon)
+            {
+                <li id="LiHoaDon" data-id="@commonEnum.MauInTeamPlates.HoaDon">
+                    <a href="javascript:void(0)" data-toggle="tab"> <span class="icon-IconMauinn-02"></span> Hóa đơn</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (isGara)
+            {
+                <li id="liPhieuTN" data-id="@commonEnum.MauInTeamPlates.PhieuTiepNhan">
+                    <a href="javascript:void(0)" data-toggle="tab"> <span class="icon-IconMauinn-02"></span> Phiếu tiếp nhận</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            <li id="LiTraHang" data-id="@commonEnum.MauInTeamPlates.TraHang">
+                <a href="javascript:void(0)" data-toggle="tab">
+                    <i class="fas fa-undo-alt"></i>
+                    Trả hàng
+                </a>
+                <i class="fa fa-exclamation-circle"></i>
+            </li>
+            @if (Model.RolePermission.DoiTraHang)
+            {
+                <li id="LiDoiTraHang" data-id="@commonEnum.MauInTeamPlates.DoiTraHang">
+                    <a href="javascript:void(0)" data-toggle="tab">
+                        <i class="fas fa-exchange-alt"></i>
+                        Đổi trả hàng
+                    </a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.GoiDichVu)
+            {
+                <li id="LiGoiDV" data-id="@commonEnum.MauInTeamPlates.GoiDV">
+                    <a href="javascript:void(0)" data-toggle="tab">
+                        <i class="fab fa-servicestack"></i>
+                        Gói dịch vụ
+                    </a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.NhapHang)
+            {
+                <li id="LiNhapHang" data-id="@commonEnum.MauInTeamPlates.NhapHang">
+                    <a href="javascript:void(0)" data-toggle="tab"><span class="icon-IconMauinn-08"></span> Nhập hàng</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.TraHangNhap)
+            {
+                <li id="LiTraHangNhap" data-id="@commonEnum.MauInTeamPlates.TraHangNhap">
+                    <a href="javascript:void(0)" data-toggle="tab"><span class="icon-IconMauinn-08"></span> Trả hàng nhập</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.ChuyenHang)
+            {
+                <li id="LiChuyenHang" data-id="@commonEnum.MauInTeamPlates.ChuyenHang">
+                    <a href="javascript:void(0)" data-toggle="tab"><span class="icon-IconMauinn-05"></span>Chuyển hàng</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.PhieuThu)
+            {
+                <li id="LiPhieuThu" data-id="@commonEnum.MauInTeamPlates.PhieuThu">
+                    <a href="javascript:void(0)" data-toggle="tab">
+                        <i class="fas fa-coins"></i>
+                        Phiếu thu
+                    </a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.PhieuChi)
+            {
+                <li id="LiPhieuChi" data-id="@commonEnum.MauInTeamPlates.PhieuChi">
+                    <a href="javascript:void(0)" data-toggle="tab"><span class="icon-IconMauinn-09"></span> Phiếu chi</a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            @if (Model.RolePermission.XuatHuy)
+            {
+                <li id="LiXuatHuy" data-id="@commonEnum.MauInTeamPlates.XuatHuy">
+                    <a href="javascript:void(0)" data-toggle="tab">
+                        <i class="fas fa-warehouse"></i>
+                        Xuất kho
+                    </a>
+                    <i class="fa fa-exclamation-circle"></i>
+                </li>
+            }
+            <li id="LiDieuChinh" data-id="@commonEnum.MauInTeamPlates.DieuChinh">
+                <a href="javascript:void(0)" data-toggle="tab">
+                    <i class="fas fa-sliders-h"></i>
+                    Điều chỉnh
+                </a>
+                <i class="fa fa-exclamation-circle"></i>
+            </li>
+            <li data-id="@commonEnum.MauInTeamPlates.MaVach">
+                <a href="javascript:void(0)" data-toggle="tab">
+                    <i class="fas fa-barcode"></i> Mã vạch
+                </a>
+                <i class="fa fa-exclamation-circle"></i>
+            </li>
+            <li data-id="@commonEnum.MauInTeamPlates.PhieuLuong">
+                <a href="javascript:void(0)" data-toggle="tab">
+                    <i class="fas fa-money-bill-alt">
+                    </i> Phiếu lương
+                </a>
+                <i class="fa fa-exclamation-circle"></i>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-10 col-xs-12">
+        <div style="display:flex; margin:15px 0">
+            @if (Model.RolePermission.IsExits && Model.RolePermission.IsInsert)
+            {
+                <button type="button" class="btn btn-main height-30" style="width:unset" data-toggle="modal" data-bind="click:ShowPopupAddNew">
+                    <i class="fa fa-plus" aria-hidden="true"></i>     <font>Thêm mới</font>
+                </button>
+            }
+            <select class="form-control" style="max-width:250px;margin-right:5px;" id="selectMauIn" data-bind="options:ListMauIn, optionsText: 'Value', optionsValue: 'Key' ,value: @*newNhomDoiTuong().ID*@ selectedMauIn"></select>
+            @if (Model.RolePermission.IsExits && Model.RolePermission.IsUpdate)
+            {
+                <button class="btn btn-main height-30 " data-bind="click:ShowPopupEdit,visible:CheckVisibleEdit" style="width:150px">
+                    <i class="fa fa-edit"></i> Cập nhật mẫu in
+                </button>
+            }
+        </div>
+        <div class="print-customer establish-right " style="width:100% !important">
+            <div class=" flex" id="dathang">
+                <div class="col-md-6  bordermauin">
+                    <textarea id="txtCkeditor">                </textarea>
+                    <div class="flex" style="margin:15px; justify-content:flex-end">
+                        @if (Model.RolePermission.IsExits && Model.RolePermission.IsCopy)
+                        {
+                            <button data-bind="click:CopyMauIn,visible: Showbutton" class="btn btn-main">
+                                <i class="fa fa-cut"></i> Sao chép
+                            </button>
+                        }
+                        @if (Model.RolePermission.IsExits && Model.RolePermission.IsUpdate)
+                        {
+                            <button class="btn btn-main " data-bind="click:EditDuLieuMauIn,visible: Showbutton">
+                                <img src="/Content/images/icon/Iconthemmoi-14.png"> Lưu
+                            </button>
+                        }
+                        @if (Model.RolePermission.IsExits && Model.RolePermission.IsDelete)
+                        {
+                            <button data-bind="click:DeleteMauIn,visible: Showbutton" class="btn btn-cancel">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 out-print nopadding">
+                    <iframe class="ifram-text" id="InputPrint" data-bind="iframeContent: dataIframe"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="themmoi" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable " role="document">
+            <div class="modal-content  ui-draggable ui-draggable-handle">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title" id="myModalLabel" data-bind="text:TitleEdit">
+                        Thêm mới mẫu in
+                    </h4>
+                </div>
+                <div class="modal-body floatleft">
+                    <div class="form-group floatleft">
+                        <label>Tên mẫu in</label>
+                        <div class="form-news">
+                            <input type="text" data-bind="value:TenMauInAddNew" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Khổ giấy</label>
+                        <div class="form-news">
+                            <select class="form-control" id="SelecttedKhoGiay">
+                                <!--ko if: IsInvoice()-->
+                                @if (!isGara)
+                                {
+                                    foreach (var item in commonEnum.Gara_MauInHoaDon
+                                        .Where(o => !o.Key.Equals((int)commonEnum.TypeMauin.dangdung)))
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var item in commonEnum.DanhSachTypeMauIn.Where(o => !o.Key.Equals((int)commonEnum.TypeMauin.dangdung)))
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                                <!--/ko-->
+                                <!--ko if: !IsInvoice()-->
+                                @foreach (var item in commonEnum.DanhSachTypeMauIn
+                                                .Where(o => !o.Key.Equals((int)commonEnum.TypeMauin.dangdung)
+                                                && !Array.Exists(arrayGara, e => e == o.Key)))
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                                <!--/ko-->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        <button type="button" data-bind="click:AddNewMauIn" class="btn btn-main"> <i class="fa fa-check-square"></i> Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" style="display:none" id="NotePrint">
+        <div class="modal-dialog" style="width:calc(100vw - 30px)">
+            <div class="modal-content">
+                <div class="modal-body draggable">
+                    <div class="flex flex-between">
+                        <h4>Danh sách token mẫu in</h4>
+                        <button class="btn btn-link" data-dismiss="modal"><i class="material-icons red font-24">close</i></button>
+                    </div>
+                    <p style="font-size: 13px;color:red">
+                        <i>
+                            <span>Note: Đối với mẫu in theo nhóm,  những trường chứa dấu (*) là bắt buộc</span>
+                        </i>
+                    </p>
+                    <div class=" list-note-print flex-row" style="margin:15px 0;">
+                        @*<h5>Hóa đơn</h5>*@
+                        <div class="div-print-page col-md-4 col-sm-12 col-xs-12">
+                            <ul class="note-print-page">
+                                <li class="title"><p>Thông tin cửa hàng (chi nhánh)</p></li>
+                                <li><label onclick="CopyThisText(this)">{Logo}</label><span>Logo cửa hàng </span></li>
+                                <li><label onclick="CopyThisText(this)">{TenCuahang}</label><span>Tên cửa hàng </span></li>
+                                <li><label onclick="CopyThisText(this)">{DiaChiCuaHang}</label><span>Địa chỉ cửa hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{DienThoaiCuaHang}</label><span>Số điện thoại cửa hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenChiNhanh}</label><span>Chi nhánh bán hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{DienThoaiChiNhanh}</label><span>Điện thoại chi nhánh </span></li>
+                                <li><label onclick="CopyThisText(this)">{DiaChiChiNhanh}</label><span>Địa chỉ chi nhánh</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenNganHangPOS}</label><span>Tên ngân hàng POS</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenChuThePOS}</label><spaman>Tên chủ thẻ POS</spaman></li>
+                                <li><label onclick="CopyThisText(this)">{SoTaiKhoanPOS}</label><span>Số tài khoản POS</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenNganHangChuyenKhoan}</label><span>Tên ngân hàng chuyển khoản</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenChuTheChuyenKhoan}</label><span>Tên chủ thẻ chuyển khoản</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoTaiKhoanChuyenKhoan}</label><span>Số tài khoản chuyển khoản</span></li>
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p>Thông tin khách hàng (NCC)</p></li>
+                                <li><label onclick="CopyThisText(this)">{MaKhachHang}</label><span>Mã khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenKhachHang}</label><span>Tên khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenNhaCungCap}</label><span>Tên nhà cung cấp</span></li>
+                                <li><label onclick="CopyThisText(this)">{NgaySinhKH}</label><span>Ngày sinh của khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{DienThoai}</label><span>Điện thoại khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaSoThue}</label><span>Mã số thuế của khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TaiKhoanNganHang}</label><span>Số tài khoản của khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{DiaChi}</label><span>Địa chỉ khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongDiemKhachHang}</label><span>Tổng điểm tích lũy của khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{NoTruoc}</label><span>Nợ trước</span></li>
+                                <li><label onclick="CopyThisText(this)">{NoSau}</label><span>Tổng tiền khách nợ sau khi thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongTaiKhoanThe}</label><span>Tổng tài khoản thẻ</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongSuDungThe}</label><span>Tổng đã sử dụng thẻ</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoDuConLai}</label><span>Số dư còn lại trong thẻ</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenNhomKhach}</label><span>Tên nhóm khách hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoDuDatCoc}</label><span>Tổng số dư còn lại của tiền cọc</span></li>
+                                <li class="title"><p>Cách tùy chỉnh nét đứt, nét liền, bao quanh cho mẫu in</p></li>
+                                <li>
+                                    <span class="bold">
+                                        I. Thêm nét đứt - nét liền
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        1.1 Tìm đến dòng muốn sửa có chứa tr (tr: viết tắt của <b>table row</b>)
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        1.2 Thêm vào phía sau tr dòng sau:
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        - Nếu muốn nét liền: <b onclick="CopyThisText(this)">class ="mauin-tr-netlien"</b>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        - Nếu muốn nét đứt: <b onclick="CopyThisText(this)">class ="mauin-tr-netdut"</b>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span class="bold">
+                                        II. Thêm viền bao quanh bảng
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        2.1 Tìm đến dòng muốn sửa có chứa chữ <b>table</b>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        2.2 Thêm vào phía sau table dòng sau:  <b onclick="CopyThisText(this)">class ="mauin-table-baoquanh"</b>
+                                    </span>
+                                </li>
+                                @if (isGara)
+                                {
+                                    <li class="title"><p> Thông tin chủ xe</p></li>
+                                    <li><label onclick="CopyThisText(this)">{ChuXe}</label><span>Tên chủ xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{ChuXe_SDT}</label><span>SĐT chủ xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{ChuXe_Email}</label><span>Email của chủ xe </span></li>
+                                    <li class="title"><p>Thông tin công ty bảo hiểm</p></li>
+                                    <li><label onclick="CopyThisText(this)">{TenBaoHiem}</label><span>Tên công ty bảo hiểm</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_SDT}</label><span>SĐT của công ty bảo hiểm</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_DiaChi}</label><span>Địa chỉ của công ty bảo hiểm </span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_Email}</label><span>Email của công ty bảo hiểm </span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_TenLienHe}</label><span>Tên người liên hệ của công ty bảo hiểm </span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_SDTLienHe}</label><span>SĐT của người liên hệ công ty bảo hiểm </span></li>
+                                    <li><label onclick="CopyThisText(this)">{TongTienBHDuyet}</label><span>Tổng tiền bảo hiểm đã duyệt</span></li>
+                                    <li><label onclick="CopyThisText(this)">{PTThueBaoHiem}</label><span>Thuế bảo hiểm chịu (%)</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TongTienThueBaoHiem}</label><span>Thuế bảo hiểm chịu (VND)</span></li>
+                                    <li><label onclick="CopyThisText(this)">{SoVuBaoHiem}</label><span>Khấu trừ theo vụ (lần thứ bao nhiêu) </span></li>
+                                    <li><label onclick="CopyThisText(this)">{KhauTruTheoVu}</label><span>Số tiền được khấu trừ theo vụ </span></li>
+                                    <li><label onclick="CopyThisText(this)">{PTGiamTruBoiThuong}</label><span>Giảm trừ bồi thường (%) </span></li>
+                                    <li><label onclick="CopyThisText(this)">{GiamTruBoiThuong}</label><span>Giảm trừ bồi thường (VND) </span></li>
+                                    <li><label onclick="CopyThisText(this)">{BHThanhToanTruocThue}</label><span>Bảo hiểm thanh toán (trước VAT) </span></li>
+                                    <li><label onclick="CopyThisText(this)">{PhaiThanhToanBaoHiem}</label><span>Bảo hiểm thanh toán (sau VAT)</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_TienBangChu}</label><span>Số tiền bảo hiểm đã thanh toán (bằng chữ)</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BaoHiemDaTra}</label><span>Số tiền bảo hiếm đã thanh toán (theo hóa đơn)</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_ConThieu}</label><span>Số tiền bảo hiếm còn thiếu</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_NoTruoc}</label><span>Nợ cũ bảo hiểm</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BH_NoSau}</label><span>Nợ hiện tại</span></li>
+
+                                    <li class="title"><p> Mẫu in theo nhóm (loại)</p></li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{TheoHangHoa_Nhom}</label><span style="color:red">(*) </span></li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{TheoDichVu_Nhom}</label><span style="color:red">(*) </span></li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{TheoNhomHang}</label><span style="color:red">(*) </span></li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TenNhomHangHoa}</span> </label><span>Tên nhóm hàng hóa - dịch vụ </span>
+                                        <span style="color:red">(*) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{SoThuTuNhom}</span></label> <span>Số thự tự nhóm </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{SoThuTuNhom_LaMa}</span></label><span>Số thự tự nhóm (dạng chữ cái La Mã)</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongSLTheoNhom}</span></label><span>Tổng số lượng hàng theo nhóm</span>
+                                    </li>
+
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongCKTheoNhom}</span></label><span>Tổng chiết khấu theo nhóm hàng</span>
+                                    </li>
+
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongThueTheoNhom}</span></label><span>Tổng thuế theo nhóm hàng</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienTheoNhom_TruocCK}</span></label><span>Tổng thuế theo nhóm hàng (trước chiết khấu)</span>
+                                    </li>
+
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienTheoNhom_TruocVAT}</span></label><span>Tổng tiền theo nhóm hàng (trước VAT)</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienTheoNhom}</span></label><span>Tổng tiền theo nhóm hàng (sau VAT)</span>
+                                    </li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{TheoHangHoa}</label><span style="color:red">(*) </span></li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongSL_PhuTung}</span></label><span>Tổng số lượng phụ tùng</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongThue_PhuTung}</span></label><span>Tổng tiền thuế của phụ tùng</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongCK_PhuTung}</span></label><span>Tổng chiết khấu của phụ tùng</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienPhuTung_TruocCK}</span></label><span>Tổng tiền phụ tùng (trước chiết khấu)</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienPhuTung_TruocVAT}</span></label><span>Tổng tiền phụ tùng (trước VAT)</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienPhuTung}</span></label><span>Tổng tiền phụ tùng (sau VAT)</span>
+                                    </li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{TheoDichVu}</label><span style="color:red">(*) </span></li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongSL_DichVu}</span></label><span>Tổng số lượng dịch vụ</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongThue_DichVu}</span></label><span>Tổng tiền thuế của dịch vụ</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongCK_DichVu}</span></label><span>Tổng chiết khấu của dịch vụ</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienDichVu_TruocCK}</span></label><span>Tổng tiền dịch vụ (trước chiết khấu)</span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienDichVu_TruocVAT}</span> </label><span>Tổng tiền dịch vụ (trước VAT) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{TongTienDichVu}</span></label> <span>Tổng tiền dịch vụ (sau VAT)</span>
+                                    </li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{Combo}</label><span style="color:red"> (*) </span></li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{ThanhPhan}</span> </label>
+                                        <span>Khai báo mục này là thành phần thuộc combo</span><span style="color:red"> (*)</span>
+                                    </li>
+                                    <li><label class="color-required" onclick="CopyThisText(this)">{Nhom_HangHoaDV}</label><span style="color:red"> (*) </span></li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{NhomDV_TruocCK}</span> </label>
+                                        <span>Tổng tiền dịch vụ (chưa chiết khấu) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{NhomDV_TruocVAT}</span> </label>
+                                        <span>Tổng tiền dịch vụ (đã chiết khấu, chưa tính VAT) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{NhomDV_ThanhToan}</span> </label>
+                                        <span>Tổng tiền dịch vụ (đã chiết khấu, đã tính VAT) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{NhomHH_TruocCK}</span> </label>
+                                        <span>Tổng tiền phụ tùng (chưa chiết khấu) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{NhomHH_TruocVAT}</span> </label>
+                                        <span>Tổng tiền phụ tùng (đã chiết khấu, chưa tính VAT) </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{NhomHH_ThanhToan}</span> </label>
+                                        <span>Tổng tiền phụ tùng (đã chiết khấu, đã tính VAT) </span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="div-print-page col-md-4 col-sm-12 col-xs-12">
+                            <ul class="note-print-page">
+                                <li class="title"><p>Thông tin hàng hóa</p></li>
+                                <li><label onclick="CopyThisText(this)">{STT}</label><span>Số thứ tự</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaHangHoa}</label><span>Mã hàng hóa</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaLoHang}</label><span>Mã lô sản xuất của hàng hóa</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenHangHoa} </label><span>Tên hàng hóa </span></li>
+                                <li><label onclick="CopyThisText(this)">{TenHangHoaThayThe} </label><span>Tên gọi thay thế của hàng hóa </span></li>
+                                <li><label onclick="CopyThisText(this)">{DonViTinh} </label><span>Đơn vị tính của hàng hóa</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThuocTinh_GiaTri} </label><span>Thuộc tính của hàng hóa</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoLuong}</label><span>Số lượng mỗi mặt hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{SLDVDaSuDung}</label><span>Số lượng dịch vụ đã sử dụng</span></li>
+                                <li><label onclick="CopyThisText(this)">{SLDVConLai}</label><span>Số lượng dịch vụ còn lại</span></li>
+                                <li><label onclick="CopyThisText(this)">{DonGia}</label><span>Đơn giá mỗi mặt hàng</span></li>
+                                @if (isGara)
+                                {
+                                    <li><label onclick="CopyThisText(this)">{DonGiaBaoHiem}</label><span>Giá bảo hiểm duyệt cho mỗi phụ tùng (trước thuế)</span></li>
+                                }
+                                <li><label onclick="CopyThisText(this)">{PTChietKhauHH}</label><span>Phần trăm chiết khấu hàng hóa</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiamGia}</label><span>Chiết khấu hàng hóa/ 1 đơn vị số lượng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongChietKhau}</label><span>Tổng chiết khấu của từng mặt hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaBan}</label><span>Đơn giá mỗi mặt hàng sau giảm giá</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienThue}</label><span>Tiền thuế mỗi mặt hàng/ 1 đơn vị số lượng</span></li>
+                                <li><label onclick="CopyThisText(this)">{HH_ThueTong}</label><span>Tổng tiền thuế của từng mặt hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThanhTienTruocCK}</label><span>Thành tiền mỗi mặt hàng (trước chiết khấu)</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThanhTien}</label><span>Thành tiền mỗi mặt hàng (sau chiết khấu)</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThanhToan}</label><span>Thành tiền mỗi mặt hàng sau VAT</span></li>
+                                <li><label onclick="CopyThisText(this)">{PTChiPhi}</label><span>Chi phí mỗi mặt hàng % (cửa hàng chịu)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienChiPhi}</label><span>Chi phí mỗi mặt hàng VND (cửa hàng chịu)</span></li>
+                                <li><label onclick="CopyThisText(this)">{BH_ThanhTien}</label><span>Số tiền bảo hiểm thanh toán cho từng mặt hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{GhiChu_NVThucHien}</label><span>Nhân viên thực hiện dịch vụ</span></li>
+                                <li><label onclick="CopyThisText(this)">{GhiChu_NVTuVan}</label><span>Nhân viên tư vấn dịch vụ</span></li>
+                                <li><label onclick="CopyThisText(this)">{NVThucHienDV_CoCK}</label><span>Nhân viên thực hiện + chiết khấu</span></li>
+                                <li><label onclick="CopyThisText(this)">{NVTuVanDV_CoCK}</label><span>CNhân viên tư vấn + chiết khấu</span></li>
+                                <li><label onclick="CopyThisText(this)">{GhiChu}</label><span>Ghi chú chi tiết hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{GhiChuHH}</label><span>Mô tả hàng hóa</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenPhongBan}</label><span>Phòng/vị trí thực hiện dịch vụ</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThoiGianBatDau}</label><span>Thời gian bắt đầu thực hiện dịch vụ</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoPhutThucHien}</label><span>Số phút thực hiện</span></li>
+                                <li><label onclick="CopyThisText(this)">{QuaThoiGian}</label><span>Số phút quá</span></li>
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p>Thông tin hóa đơn</p></li>
+                                <li><label onclick="CopyThisText(this)">{MaHoaDon}</label><span>Mã hóa đơn bán hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaHoaDonTraHang}</label><span>Mã báo giá (nếu hóa đơn xử lý từ báo giá)</span></li>
+                                <li><label onclick="CopyThisText(this)">{Ngay}</label><span>Ngày lập hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{Thang}</label><span>Tháng lập hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{Nam}</label><span>Năm lập hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{NgayLapHoaDon}</label><span>Ngày lập hóa đơn đầy đủ</span></li>
+                                <li><label onclick="CopyThisText(this)">{NgayApDungGoiDV}</label><span>Ngày bắt đầu áp dụng gói dịch vụ</span></li>
+                                <li><label onclick="CopyThisText(this)">{HanSuDungGoiDV}</label><span>Hạn sử dụng gói dịch vụ</span></li>
+                                <li><label onclick="CopyThisText(this)">{PhongBan}</label><span>Tên phòng bàn</span></li>
+                                <li><label onclick="CopyThisText(this)">{NhanVienBanHang}</label><span>Nhân viên bán hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongTienHang}</label><span>Tổng tiền hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{PTChietKhauHD}</label><span>Phần trăm giảm giá hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChietKhauHoaDon}</label><span>Giảm giá hóa đơn (VND)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongTienHDSauGiamGia}</label><span>Tổng tiền hóa đơn sau khi giảm giá</span></li>
+                                <li><label onclick="CopyThisText(this)">{PTThueHoaDon}</label><span>% thuế của hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongTienThue}</label><span>Tổng thuế của hóa đơn (VND)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongThueKhachHang}</label><span>Tổng tiền thuế khách hàng phải trả</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongCong}</label><span>Tổng phải thanh toán</span></li>
+                                @if (isGara)
+                                {
+                                    <li><label onclick="CopyThisText(this)">{TongThanhToan}</label><span>Tổng quyết toán hóa đơn</span></li>
+                                }
+                                <li><label onclick="CopyThisText(this)">{TienBangChu}</label><span>Tổng tiền mua hàng (bằng chữ)</span></li>
+                                <li><label onclick="CopyThisText(this)">{KH_TienBangChu}</label><span>Tổng tiền khách đã thanh toán (bằng chữ)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienMat}</label><span>Tiền mặt khách đưa</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienPOS}</label><span>Tiền khách quẹt thẻ POS</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienDoiDiem}</label><span>Tiền thanh toán qua quy đổi điểm</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienTheGiaTri}</label><span>Tiền thanh toán qua thẻ giá trị</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienChuyenKhoan}</label><span>Tiền khách chuyển khoản</span></li>
+                                <li><label onclick="CopyThisText(this)">{TTBangTienCoc}</label><span>Thanh toán bằng tiền cọc</span></li>
+                                <li><label onclick="CopyThisText(this)">{PhuongThucTT}</label><span>Phương thức thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{KhachCanTra}</label><span>Tổng tiền khách cần thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{DaThanhToan}</label><span>Khách đã trả</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienThuaTraKhach}</label><span>Tiền thừa trả khách</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienKhachThieu}</label><span>Tiền khách nợ của hóa đơn hiện tại</span></li>
+                                <li><label onclick="CopyThisText(this)">{DiemGiaoDich}</label><span>Điểm giao dịch của hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{DienGiai}</label><span>Ghi chú của hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongSoLuongHang}</label><span>Tổng số lượng mặt hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongGiamGiaHang}</label><span>Tổng chiết khấu của tất cả mặt hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{PhiTraHang}</label><span>Tổng chi phí hóa đơn (khách hàng trả)</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChiPhi}</label><span>Tổng chi phí cửa hàng phải chi trả</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChiPhi_GhiChu}</label><span>Ghi chú chi phí</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongTienHangChuaChietKhau}</label><span>Tổng tiền của tất cả mặt hàng (chưa trừ chiết khấu)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongGiamGiaHD_HH}</label><span>Tổng giảm giá hàng hóa + hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongTienHDSauVAT}</label><span>Tổng tiền hóa đơn sau thuế</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChietKhauNVHoaDon}</label><span>Tên nhân viên được chiết khấu theo hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChietKhauNVHoaDon_InGtriCK}</label><span>Tên nhân viên được chiết khấu hóa đơn và giá trị chiết khấu tương ứng</span></li>
+                            </ul>
+                        </div>
+                        <div class="div-print-page col-md-4 col-sm-12 col-xs-12">
+                            <ul class="note-print-page">
+                                <li class="title"><p>Thông tin phiếu thu (chi)</p></li>
+                                <li><label onclick="CopyThisText(this)">{NgayLapHoaDon} </label><span>Ngày lập hóa đơn</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaPhieu}</label><span>Mã phiếu thu (chi)</span></li>
+                                <li><label onclick="CopyThisText(this)">{NguoiNopTien}</label><span>Họ tên người nộp tiền</span></li>
+                                <li><label onclick="CopyThisText(this)">{NoiDungThu} </label><span>Lý do thu (chi)</span></li>
+                                <li><label onclick="CopyThisText(this)">{KhoanMucThuChi} </label><span>Khoản mục thu (chi)</span></li>
+                                <li><label onclick="CopyThisText(this)">{HoaDonLienQuan}</label><span>Các chứng từ hóa đơn liên quan</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaTriPhieu}</label><span>Số tiền thu (chi)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienBangChu}</label><span>Giá trị tiền hiển thị dạng chữ</span></li>
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p>Phiếu nạp thẻ giá trị</p></li>
+                                <li><label onclick="CopyThisText(this)">{MucNap} </label><span>Số tiền nạp vào</span></li>
+                                <li><label onclick="CopyThisText(this)">{KhuyenMai}</label><span>Số tiền được khuyến mãi</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThanhTien}</label><span>Tổng tiền nạp sau khuyến mãi</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChietKhauHoaDon}</label><span>Số tiền được giảm giá</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongCong}</label><span>Tổng khách phải trả sau giảm giá</span></li>
+                                <li><label onclick="CopyThisText(this)">{DaThanhToan}</label><span>Tổng tiền khách thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienBangChu}</label><span>Tổng tiền khách thanh toán (bằng chữ)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienMat}</label><span>Giá trị tiền mặt khách thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienPOS}</label><span>Giá trị tiền POS khách thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienChuyenKhoan}</label><span>Giá trị tiền chuyển khoản khách thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{PhuongThucTT}</label><span>Phương thức thanh toán (dạng text)</span></li>
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p>Phiếu chuyển hàng</p></li>
+                                <li><label onclick="CopyThisText(this)">{MaChuyenHang}</label><span>Mã phiếu chuyển hàng</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChiNhanhChuyen}</label><span>Chi nhánh chuyển</span></li>
+                                <li><label onclick="CopyThisText(this)">{NguoiChuyen} </label><span>Người chuyển</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChiNhanhNhan} </label><span>Chi nhánh nhận</span></li>
+                                <li><label onclick="CopyThisText(this)">{NguoiNhan} </label><span>Người nhận</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenHangHoa}</label><span>Tên hàng hóa chuyển</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoLuongChuyen}</label><span>Số lượng chuyển</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoLuongNhan}</label><span>Số lượng nhận</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaChuyen}</label><span>Giá chuyển</span></li>
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p>Phiếu xuất kho</p></li>
+                                <li><label onclick="CopyThisText(this)">{NguoiTao}</label><span>Người tạo phiếu</span></li>
+                                <li><label onclick="CopyThisText(this)">{SoLuongHuy} </label><span>Số lượng xuất</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaVon} </label><span>Giá vốn</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaTriHuy}</label><span>Giá trị xuất</span></li>
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p>Phiếu điều chỉnh</p></li>
+                                <li><label onclick="CopyThisText(this)">{NguoiTao} </label><span>Người tạo phiếu</span></li>
+                                <li><label onclick="CopyThisText(this)">{GhiChu}</label><span>Ghi chú phiếu</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaVonHienTai} </label><span>Giá vốn hiện tại</span></li>
+                                <li><label onclick="CopyThisText(this)">{GiaVonMoi} </label><span>Giá vốn mới</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChenhLech}</label><span>Chênh lệch giá cũ và giá mới</span></li>
+                                @if (isGara)
+                                {
+                                    <li class="title"><p>Phiếu tiếp nhận xe</p></li>
+                                    <li><label onclick="CopyThisText(this)">{MaPhieuTiepNhan} </label><span>Mã phiếu tiếp nhận</span></li>
+                                    <li><label onclick="CopyThisText(this)">{NhanVienTiepNhan} </label><span>Nhân viên tiếp nhận xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{NgayVaoXuong} </label><span>Ngày xe vào xưởng</span></li>
+                                    <li><label onclick="CopyThisText(this)">{NgayXuatXuong} </label><span>Ngày thực tế xe xuất xưởng</span></li>
+                                    <li><label onclick="CopyThisText(this)">{NgayHoanThanhDuKien} </label><span>Ngày hoàn thành dự kiến</span></li>
+                                    <li><label onclick="CopyThisText(this)">{CoVanDichVu} </label><span>Tên cố vấn dịch vụ</span></li>
+                                    <li><label onclick="CopyThisText(this)">{CoVan_SDT} </label><span>SĐT cố vấn dịch vụ</span></li>
+                                    <li><label onclick="CopyThisText(this)">{PTN_GhiChu} </label><span>Ghi chú phiếu tiếp nhận</span></li>
+                                    <li><label onclick="CopyThisText(this)">{BienSo}</label><span>Biển số xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{SoKmVao} </label><span>Số Ki-lô-mét vào</span></li>
+                                    <li><label onclick="CopyThisText(this)">{SoKmRa} </label><span>Số Ki-lô-mét ra</span></li>
+                                    <li><label onclick="CopyThisText(this)">{SoKhung} </label><span>Số khung xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{SoMay}</label><span>Số máy của xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{HopSo}</label><span>Hộp số</span></li>
+                                    <li><label onclick="CopyThisText(this)">{DungTich}</label><span>Dung tích xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TenMauXe} </label><span>Tên mẫu xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TenHangXe} </label><span>Tên hãng xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TenLoaiXe}</label><span>Tên loại xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{MauSon} </label><span>Màu sơn xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{NamSanXuat}</label><span>Năm sản xuất mẫu xe</span></li>
+                                    <li><label class="color-required">Thông tin liên hệ</label></li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{LH_Ten}</span> </label><span>Tên người liên hệ của khách hàng </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{LH_SDT}</span> </label><span>SĐT người liên hệ của khách hàng </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{BH_TenLienHe}</span> </label><span>Tên người liên hệ của bảo hiểm </span>
+                                    </li>
+                                    <li>
+                                        <label> - <span onclick="CopyThisText(this)">{BH_SDTLienHe}</span> </label><span>SĐT người liên hệ của bảo hiểm </span>
+                                    </li>
+                                    <li class="title"><p> Tình trạng  xe</p></li>
+                                    <li><label onclick="CopyThisText(this)">{STT}</label><span>Số thứ tự</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TenHangMuc} </label><span>Tên hạng mục sửa chữa</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TinhTrang} </label><span>Tình trạng xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{PhuongAnSuaChua} </label><span>Phương án sửa chữa</span></li>
+                                    <li><label onclick="CopyThisText(this)">{TieuDe} </label><span>Tên vật dụng trong xe</span></li>
+                                    <li><label onclick="CopyThisText(this)">{SoLuong} </label><span>Số lượng</span></li>
+                                }
+                            </ul>
+                            <ul class="note-print-page">
+                                <li class="title"><p> Phiếu lương</p></li>
+                                <li><label onclick="CopyThisText(this)">{NgayLapPhieu} </label><span>Ngày lập phiếu luơng</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenBangLuong}</label><span>Tên bảng lương</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaBangLuongChiTiet} </label><span>Mã phiếu lương chi tiết</span></li>
+                                <li><label onclick="CopyThisText(this)">{MaNhanVien} </label><span>Mã nhân viên</span></li>
+                                <li><label onclick="CopyThisText(this)">{TenNhanVien}</label><span>Tên nhân viên</span></li>
+                                <li><label onclick="CopyThisText(this)">{NgayCongChuan} </label><span>Ngày công chuẩn</span></li>
+                                <li><label onclick="CopyThisText(this)">{NgayCongThuc}</label><span>Công thực tế đi làm</span></li>
+                                <li><label onclick="CopyThisText(this)">{LuongCoBan} </label><span>Lương cơ bản</span></li>
+                                <li><label onclick="CopyThisText(this)">{LuongChinh} </label><span>Lương thực tính (chưa OT, chưa phụ cấp)</span></li>
+                                <li><label onclick="CopyThisText(this)">{LuongOT}</label><span>Lương làm thêm</span></li>
+                                <li><label onclick="CopyThisText(this)">{PhuCapCoBan} </label><span>Phụ cấp cơ bản (theo VND)</span></li>
+                                <li><label onclick="CopyThisText(this)">{PhuCapKhac}</label><span>Phụ cấp khác (theo ngày, theo % lương)</span></li>
+                                <li><label onclick="CopyThisText(this)">{TongGiamTru} </label><span>Tổng tiền giảm trừ</span></li>
+                                <li><label onclick="CopyThisText(this)">{ChietKhau} </label><span>Hoa hồng nhân viên</span></li>
+                                <li><label onclick="CopyThisText(this)">{LuongSauGiamTru}</label><span>Tổng lương sau giảm trừ</span></li>
+                                <li><label onclick="CopyThisText(this)">{TruTamUngLuong} </label><span>Số tiền tạm ứng bị trừ khi thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThucLinh}</label><span>Thực lĩnh</span></li>
+                                <li><label onclick="CopyThisText(this)">{ThanhToan} </label><span>Số tiền thanh toán</span></li>
+                                <li><label onclick="CopyThisText(this)">{TienBangChu} </label><span>Tiền bằng chữ</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var logoImage = Open24FileManager.hostUrl + '@Model.Model.DiaChiNganHang';
+    var isInvoice = false;
+    var screenheight = window.innerHeight;
+    console.log(screenheight)
+    $(document).ready(function () {
+        tinymce.init({
+            inline_styles: true,
+            style_formats: [
+                { title: 'table1', inline: 'span', styles: { border: '1px solid #ccc' } },
+                { title: 'Green', inline: 'span', classes: 'green' },
+                { title: 'Blue', inline: 'span', classes: 'blue' }
+            ],
+            fontsize_formats:"8pt 9pt 10pt 11pt 12pt 13pt 14pt 15pt 16pt 17pt 18pt 19pt 20pt 21pt 22pt 23pt 24pt 25pt",
+            selector: '#txtCkeditor',
+            height: screenheight - 250,
+            language: 'en',
+            content_style: 'td { margin: 10px; border: 1px solid red; padding: 3px; }',
+            plugins: 'print preview importcss searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help quickbars emoticons code',
+            //toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
+            menubar: 'file edit view insert format tools table tc help',
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | code',
+            toolbar_mode: 'sliding',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            setup: function (editor) {
+                editor.on('init', function (e) {
+                    InitMauIn()
+                })
+            }, importcss_append: true,
+        });
+        $('#iNotPprint').on('click', function () {
+            $('#NotePrint').modal("show");
+        })
+        function InitMauIn() {
+             if ('@ViewBag.ShopCookies' == "5878196D-BE76-40EF-A398-0B6537D0D82B") {
+              $('#liPhieuTN').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.PhieuTiepNhan' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.PhieuTiepNhan');
+            }
+        if ('@Model.RolePermission.DatHang' === 'True') {
+            isInvoice = true;
+            $('#LiDatHang').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.DatHang' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.DatHang');
+        }
+        else if ('@Model.RolePermission.HoaDon' === 'True') {
+            isInvoice = true;
+            $('#LiHoaDon').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.HoaDon' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.HoaDon');
+        }
+        else if ('@Model.RolePermission.TraHang' === 'True') {
+            $('#LiTraHang').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.TraHang' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.TraHang');
+        }
+        else if ('@Model.RolePermission.DoiTraHang' === 'True') {
+            $('#LiDoiTraHang').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.DoiTraHang' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.DoiTraHang');
+        }
+        else if ('@Model.RolePermission.NhapHang' === 'True') {
+            $('#LiNhapHang').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.NhapHang' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.NhapHang');
+        }
+        else if ('@Model.RolePermission.TraHangNhap' === 'True') {
+            $('#LiTraHangNhap').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.TraHangNhap' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.TraHangNhap');
+        }
+        else if ('@Model.RolePermission.ChuyenHang' === 'True') {
+            $('#LiDatHang').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.ChuyenHang' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.ChuyenHang');
+        }
+        else if ('@Model.RolePermission.PhieuThu' === 'True') {
+            $('#LiPhieuThu').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.PhieuThu' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.PhieuThu');
+        }
+        else if ('@Model.RolePermission.PhieuChi' === 'True') {
+            $('#LiPhieuChi').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.PhieuChi' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.PhieuChi');
+        }
+        else if ('@Model.RolePermission.XuatHuy' === 'True') {
+            $('#LiXuatHuy').addClass('active');
+            loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.XuatHuy' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.XuatHuy');
+        }
+        else {
+            if ('@Model.RolePermission.GoiDichVu' === 'True') {
+                $('#LiGoiDV').addClass('active');
+                loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.GoiDV' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.GoiDV');
+            }
+            else {
+                if ('@Model.RolePermission.DieuChinh' === 'True') {
+                    $('#LiDieuChinh').addClass('active');
+                    loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.DieuChinh' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.DieuChinh');
+                }
+                else {
+                    $('#LiValueCard').addClass('active');
+                    loadMauIn('/t/EventChangeMauIn?MaChungTu=' + '@commonEnum.MauInTeamPlates.TheGiaTri' + '&&typeKhoGiay=0', '@commonEnum.MauInTeamPlates.TheGiaTri');
+                }
+            }
+        }
+        }
+    });
+    var c = $("#mauinhoadon").html();
+    $("#printablediv").html(c);
+    function editor() {
+        var e = $("#mauinhoadon").html();
+        $("#printablediv").html(e);
+    };
+    var d = $(".editor1").html();
+    $(".result-print1").html(d);
+    function editor1() {
+        var d = $(".editor1").html();
+        $(".result-print1").html(d);
+    }
+    var e = $(".editor2").html();
+    $(".result-print2").html(e);
+    function editor2() {
+        var e = $(".editor2").html();
+        $(".result-print2").html(e);
+    }
+    var h = $(".editor3").html();
+    $(".result-print3").html(h);
+    function editor3() {
+        var h = $(".editor3").html();
+        $(".result-print3").html(h);
+    }
+    var s = $(".editor4").html();
+    $(".result-print4").html(s);
+    function editor4() {
+        var s = $(".editor4").html();
+        $(".result-print4").html(s);
+    }
+    var g = $(".editor5").html();
+    $(".result-print5").html(g);
+    function editor5() {
+        var g = $(".editor5").html();
+        $(".result-print5").html(g);
+    }
+    var k = $(".editor6").html();
+    $(".result-print6").html(k);
+    function editor6() {
+        var g = $(".editor6").html();
+        $(".result-print6").html(g);
+    }
+    var b = $(".editor7").html();
+    $(".result-print7").html(b);
+    function editor7() {
+        var g = $(".editor7").html();
+        $(".result-print7").html(g);
+    }
+    var c = $(".editor8").html();
+    $(".result-print8").html(c);
+    function editor8() {
+        var g = $(".editor8").html();
+        $(".result-print8").html(g);
+    }
+    var d = $(".editor9").html();
+    $(".result-print9").html(d);
+    function editor9() {
+        var g = $(".editor9").html();
+        $(".result-print9").html(g);
+    }
+    $(".come-back").click(function () {
+        $(".out-print").removeClass("print-v");
+        $(".result-print").removeClass("print-view-print");
+        $(".main-print").hide();
+    });
+    $(".establish-left li .fa-exclamation-circle").click(function () {
+        $(".box-detail-print").hide();
+        $(this).not(".box-detail-print").next(".box-detail-print").toggle();
+        $(".box-detail-print").mouseup(function () {
+            return false
+        });
+        $(".establish-left li .fa-exclamation-circle").mouseup(function () {
+            return false
+        });
+    });
+    $(document).mouseup(function () {
+        $(".box-detail-print").hide();
+    });
+    $(".cke_inner").hide();
+    var parts = location.hostname.split('.');
+    var subdomain = parts.shift();
+    var upperleveldomain = parts.join('.');
+    //console.log('subdomain ' + subdomain, 'upperleveldomain ' + upperleveldomain)
+    var saveResult = false;
+    function saveTextAsFile(filename, idelement, subDomain) {
+        saveResult = false;
+        var textToWrite = document.getElementById(idelement).innerHTML;
+        var data = {}
+        data.filename = filename;
+        data.filecontent = textToWrite;
+        data.subDomain = subdomain;
+        var result = ajaxHelper("/api/DanhMuc/HT_ThietLapAPI/SaveFile", "POST", data);
+        console.log(saveResult);
+    }
+    function ajaxHelper(uri, method, data) {
+        return $.ajax({
+            type: method,
+            url: uri,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: data ? JSON.stringify(data) : null,
+            success: function (result) {
+                saveResult = result;
+                console.log(saveResult);
+            },
+            statusCode: {
+                404: function () {
+                    self.error("Page not found");
+                },
+            }
+        })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+            });
+    };
+</script>
+@Scripts.Render("~/bundles/Mauin")
+<script>
+    $(document).ready(function () {
+        $('.modal-dialog').draggable({
+            handle: ".modal-body"
+        });
+        $('.list-note-print li.title').on("click", function () {
+            $(this).siblings('li').toggle()
+        })
+    })
+    function CopyThisText(ele) {
+        var text = $(ele).html();
+        $("#CopiedText").val(text);
+        $("#CopiedText").select();
+        document.execCommand("copy");
+        bottomrightnotify('<i class="fa fa-files-o" aria-hidden="true"></i> ' + "Đã sao chép trường " + text, "success");
+    }
+</script>

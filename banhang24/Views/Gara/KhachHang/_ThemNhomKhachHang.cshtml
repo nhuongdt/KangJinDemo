@@ -1,0 +1,425 @@
+﻿@using banhang24.Hellper
+<style>
+    .toogle {
+        float: right;
+        height: 26px;
+        background: #cacaca;
+        border-radius: 15px;
+        position: relative;
+    }
+
+    .gara-popup-chietkhau span.transverse {
+        right: 7px;
+    }
+
+    .transverse {
+        right: -46px;
+        line-height: 28px;
+        color: #fff;
+    }
+
+    .toogle-report.Ptram > .poison {
+        color: #686868;
+    }
+
+    .gara-popup-chietkhau span.poison {
+        left: 5px;
+        font-size: 8px;
+    }
+
+    .poison {
+        position: absolute;
+        left: 05px;
+        line-height: 27px;
+        color: #747474;
+        font-size: 8px;
+    }
+
+    .transverse {
+        right: 8px;
+        line-height: 28px;
+        color: #fff;
+    }
+
+    .toogle:before {
+        content: "";
+        width: 22px;
+        height: 22px;
+        background: var(--color-main);
+        border-radius: 15px;
+        top: 1px;
+        position: absolute;
+        margin-top: 1px;
+        transition: left 0.4s ease;
+    }
+
+    .active-re:before {
+        left: 37px;
+    }
+
+    .gara-popup-chietkhau .toogle-report:before {
+        transition: left 0.4s ease;
+        background: var(--color-main);
+    }
+
+    .gara-popup-chietkhau .toogle-report.active-re:before {
+        left: 28px;
+        background: var(--color-main);
+    }
+
+    .gara-popup-chietkhau .toogle-report:before {
+        transition: left 0.4s ease;
+        background: var(--color-main);
+    }
+
+    div#thongtin > div {
+        margin: 5px 0;
+    }
+</style>
+<div class="modal fade in" id="ThemNhomKhachHang">
+    <div class="modal-dialog draggable modal-md">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+                <h4 class="modal-title">{{isNew?'Thêm mới nhóm khách hàng':'Cập nhật nhóm khách hàng'}}</h4>
+            </div>
+            <div class="modal-body cus">
+               
+                    <ul class="nav nav-tabs">
+                        <li class="active" id="tabThongTin">
+                            <a data-toggle="tab" href="#thongtinnhomKH" aria-expanded="true">Thông tin nhóm khách</a>
+                        </li>
+                        <li hidden id="tabThietLap"><a data-toggle="tab" href="#thietlap" aria-expanded="false">Điều kiện nâng nhóm</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="thongtinnhomKH" class="tab-pane fade active in thongtin">
+                            <div class="flex flex-row flex-start form-group">
+                                <label class="form-label control-label">Tên nhóm <span style="color:red">(*)</span> :</label>
+                                <div style="width:calc(100% - 130px)">
+                                    <input class="form-control" autofocus=""
+                                           v-model="newGroup.TenNhomDoiTuong">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Giảm giá :</label>
+                                <div class="form-news" style="display:flex">
+                                    <div style="width: calc(100% - 70px); margin-right:10px;">
+                                        <input class="form-control text-right" maxlength="15" onclick="this.select()"
+                                               v-model="newGroup.GiamGia"
+                                               v-on:keyup="KeyUp_GiamGiaNhomKH"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)">
+                                    </div>
+                                    <div class="toogle toogle-report js-toggle" style="margin:0"
+                                         v-on:click="choose_PhanTram"
+                                         v-model="newGroup.GiamGia"
+                                         v-bind:class="{'active-re': newGroup.GiamGiaTheoPhanTram}">
+                                        <span class="poison">VNĐ</span>
+                                        <span class="transverse">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="QuanLyKhachHangTheoDonVi">
+                                <label>Chi nhánh :</label>
+                                <div class="form-news">
+                                    <div class="outselect outselectDV ">
+                                        <div class="choose-person floatleft " data-toggle="dropdown"
+                                             aria-expanded="true">
+                                            <ul>
+                                                <li class="li-input-span fl-left"
+                                                    v-for=" (item, index) in ChiNhanhChosed">
+                                                    <span>
+                                                        {{item.TenDonVi}}
+                                                    </span>&nbsp;
+                                                    <span v-on:click="RemoveChiNhanh(item, index)">
+                                                        <i class="fa fa-times"></i>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <input style="width:100%" type="text" readonly class="dropdown" placeholder="--- Tất cả ---"
+                                                   v-show="ChiNhanhChosed.length === 0">
+                                        </div>
+                                        <div class="selec-person dropdown-menu floatleft">
+                                            <ul>
+                                                <li v-on:click="ChoseChiNhanh(null)">
+                                                    <span>--- Tất cả ---</span>
+                                                </li>
+                                            </ul>
+                                            <ul v-for="(item, index) in listData.ChiNhanhs">
+                                                <li v-on:click="ChoseChiNhanh(item)" style="position:relative">
+                                                    <span> {{item.TenDonVi}}</span>
+                                                    <span v-if="$.inArray(item.ID, ListIDChiNhanh) > -1" style="position:absolute; top:8px; right:5px">
+                                                        <i class="fa fa-check" style="display:block"></i>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Ghi chú :</label>
+                                <div class="form-news">
+                                    <textarea rows="3" v-model="newGroup.GhiChu"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="thietlap" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <div class="  floatleft">
+                                        <p title="" class="txt6 ng-binding" style="color:red">Điều kiện khách hàng nâng nhóm:</p>
+                                        <table class='table'>
+                                            <tr v-for="(item, index) in DieuKienNangNhom">
+
+                                                <td>
+                                                    <div class="outselect">
+                                                        <div class="choose-person floatleft " data-toggle="dropdown">
+                                                            <input type="text" class="dropdown"
+                                                                   v-model="item.HinhThuc"
+                                                                   v-on:click="SetCheck_ItemChosing(item,1)">
+                                                        </div>
+                                                        <div class="selec-person dropdown-menu floatleft">
+                                                            <ul>
+                                                                <li v-for="(item2, index) in MangDieuKien"
+                                                                    v-on:click="ChoseDieuKien(item2, item)">
+                                                                    <span>{{item2.TenDieuKien}}</span>
+                                                                    <span v-if="dieukienChosed === item2.ID">
+                                                                        <i class="fa fa-check" style="display:block"></i>
+                                                                    </span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="outselect">
+                                                        <div class="choose-person floatleft " data-toggle="dropdown">
+                                                            <input type="text" class="dropdown" v-model="item.LoaiSoSanh"
+                                                                   v-on:click="SetCheck_ItemChosing(item,2)">
+                                                        </div>
+                                                        <div class="selec-person dropdown-menu floatleft">
+                                                            <ul>
+                                                                <li v-for="(item3, index) in MangSoSanh"
+                                                                    v-if="$.inArray(item.LoaiHinhThuc,[8,9,10]) == -1"
+                                                                    v-on:click="ChoseKieuSoSanh(item3, item)">
+                                                                    <span>{{item3.KieuSoSanh}}</span>
+                                                                    <span v-show="dieukienChosed === item3.ID">
+                                                                        <i class="fa fa-check" style="display:block"></i>
+                                                                    </span>
+                                                                </li>
+                                                                <!-- neu gioitinh/khuvuc/vungmien: chi lay mangsosanh [ = , khac ] -->
+                                                                <li v-if="$.inArray(item.LoaiHinhThuc,[8,9,10]) >-1 "
+                                                                    v-for="(item3, index) in MangSoSanh.filter(x=> $.inArray(x.ID,[3,6] ) >-1) "
+                                                                    v-on:click="ChoseKieuSoSanh(item3, item)">
+                                                                    <span>{{item3.KieuSoSanh}}</span>
+                                                                    <span v-show="dieukienChosed === item3.ID">
+                                                                        <i class="fa fa-check" style="display:block"></i>
+                                                                    </span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input class="form-control" onclick="this.select()"
+                                                           v-model="item.GiaTri"
+                                                           v-if="$.inArray(item.LoaiHinhThuc,[1,2,4,5,7] ) >-1"
+                                                           v-on:keyup="DieuKienNangNhom_ChangeGiaTri"
+                                                           onkeypress="return keypressNumber_limitNumber2(event, this)">
+                                                    <div class="gara-bill-infor-button shortlabel" v-if="item.LoaiHinhThuc===6">
+                                                        <div style="display: none;">
+                                                            <a>
+                                                                <i class="material-icons">add</i>
+                                                            </a>
+                                                        </div>
+                                                        <input placeholder="Chọn tháng" class="gara-search-HH"
+                                                               v-model="item.ThangSinh"
+                                                               v-on:click="SetCheck_ItemChosing(item,3)">
+                                                        <div class="gara-search-dropbox drop-search" style="display: none;">
+                                                            <ul>
+                                                                <li v-for="(item4, index) in ThangSinh"
+                                                                    v-on:click="ChoseThangSinh(item4,item)" style="position:relative">
+                                                                    <a href="javascript:void(0)">
+                                                                        <span>{{item4}}</span>
+                                                                        <span v-if="dieukienChosed === item4" style="position:absolute; right:5px; top:8px;">
+                                                                            <i class="fa fa-check" style="display:block"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="outselect"
+                                                         v-if="item.LoaiHinhThuc===9"
+                                                         v-bind:id="'TinhThanh_' + item.IDRandom">
+                                                        <dropdown-search v-bind:showbutton="false" placeholder="Chọn tỉnh thành"
+                                                                         v-bind:listdata="listData.ListTinhThanhSearch"
+                                                                         v-bind:colshow="2"
+                                                                         v-on:onselectvalue="ChoseTinhThanh"
+                                                                         v-bind:valueselected="item.ID_KhuVuc"
+                                                                         v-on:onsearch="SearchTinhThanh"></dropdown-search>
+                                                    </div>
+                                                    <div class="gara-bill-infor-button shortlabel" v-if="item.LoaiHinhThuc===10">
+                                                        <div style="display: none;">
+                                                            <a>
+                                                                <i class="material-icons">add</i>
+                                                            </a>
+                                                        </div>
+                                                        <input placeholder="Chọn vùng" class="gara-search-HH"
+                                                               v-model="item.VungMien"
+                                                               v-on:click="SetCheck_ItemChosing(item,1)">
+                                                        <div class="gara-search-dropbox drop-search" style="display: none;">
+                                                            <ul>
+                                                                <li v-for="(item5, index) in listData.VungMiens"
+                                                                    v-on:click="ChoseVungMien(item5,item)"
+                                                                    style="position:relative">
+                                                                    <a href="javascript:void(0)">
+                                                                        <span class="seach-hh">{{item5.TenVung}}</span>
+                                                                        <span class="tit-seach" v-if="dieukienChosed === item5.ID" style="position:absolute; top:8px; right:5px">
+                                                                            <i class="fa fa-check" style="display:block"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="w111"
+                                                         v-if="item.LoaiHinhThuc === 8">
+                                                        <label v-on:click="ChangeGioiTinh(true, item)">
+                                                            <input type="radio"
+                                                                   value="true"
+                                                                   v-model="item.GioiTinh" /> Nam
+                                                        </label>
+                                                        <label v-on:click="ChangeGioiTinh(false, item)">
+                                                            <input type="radio"
+                                                                   value="false"
+                                                                   v-model="item.GioiTinh" /> Nữ
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-wrap floatleft  " style="width:100%!important"
+                                                         v-if="item.LoaiHinhThuc === 3">
+                                                        <input type="text" class="form-control datepicker_maskby" placeholder="Từ ngày"
+                                                               v-on:click="ResetThoiGian(item)"
+                                                               v-model="item.TimeBy" />
+                                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a title="Xóa nhóm" class="txtRed" v-on:click="RemoveDieuKienNangNhom(item, index)">
+                                                        <i class="fa fa-times"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <button class="add-dk" v-on:click="ThemDieuKienNN">
+                                            <span class="fs14">+</span> Thêm điều kiện
+                                        </button>
+                                    </div>
+                                    <div class="col-md-12 nopadding nhom-khach-hang">
+                                        <table class='table'>
+                                            <tr>
+                                                <td><span>Cập nhật lại danh sách khách hàng theo điều kiện trên</span></td>
+
+                                                <td>
+                                                    <label style="width:unset">
+                                                        <input type="radio" name="rdcokhong" value="true"
+                                                               v-model="isCheck_UpdateCus"> Có
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label style="width:unset">
+                                                        <input type="radio" name="rdcokhong" value="false"
+                                                               v-model="isCheck_UpdateCus"> Không
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span>Hệ thống tự động cập nhật khách hàng khi thêm mới (nếu đủ điều kiện)</span>
+
+                                                </td>
+                                                <td>
+                                                    <label style="width:unset">
+                                                        <input type="radio" name="rdcokhong1"
+                                                               value="true"
+                                                               v-model="newGroup.TuDongCapNhat"> Có
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label style="width:unset">
+                                                        <input type="radio" name="rdcokhong1"
+                                                               value="false"
+                                                               v-model="newGroup.TuDongCapNhat"> Không
+                                                    </label>
+                                                </td>
+                                            </tr>
+
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="capnhap" class="tab-pane fade">
+                            <div class="floatleft check-update">
+                                <label class="floatleft"><input type="checkbox" value="1" /> Cho phép hệ thống tự động cập nhật</label>
+                            </div>
+                        </div>
+                        <div class="form-group  floatleft">
+                            <label class="form-label control-label">&nbsp;</label>
+                            <div class="footer-right pull-right">
+
+                            </div>
+                        </div>
+                    </div>
+              
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-delete " v-on:click="DeleteNhomKhach" v-if="!isNew">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-cancel " data-dismiss="modal"><i class="fa fa-ban"></i>Bỏ qua</button>
+                    <button type="button" class="btn btn-save " v-if="!isLoading"
+                            v-on:click="SaveNhomKhachHang">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save " v-if="isLoading"
+                            v-on:click="SaveNhomKhachHang">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/KhachHang/_ThemNhomKhachHang.js")"></script>
+<script>
+    function keypressNumber_limitNumber2(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        var keyArray = $this.split('.');
+        if (keyCode != 42 && keyCode != 47 && keyCode > 44 && keyCode < 58) {
+            if (keyCode == 45) {
+                if ($this.split('-').length > 1) {
+                    event.preventDefault();// không cho nhập
+                }
+            }
+            if (keyCode == 46) {
+                if ($this.split('.').length > 1) {
+                    event.preventDefault();// không cho nhập
+                }
+            }
+            if (keyArray.length > 1) {
+                if (keyArray[1].length > 2) {
+                    event.preventDefault();
+                }
+            }
+        }
+        else {
+            event.preventDefault();// không cho nhập
+        }
+    }
+</script>

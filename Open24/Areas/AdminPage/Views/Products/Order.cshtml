@@ -1,0 +1,275 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "Order";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Assets/js/Admin/Order.js"></script>
+}
+@using Model_banhang24vn.Common
+<style>
+    #tatol tr td {
+        border: none;
+    }
+</style>
+<div class="right_col">
+    <h3>Danh sách đơn đặt hàng</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="example" class="table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Họ tên khách hàng</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày sửa</th>
+                            <th>Thanh toán</th>
+                            <th>Trạng thái</th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th>Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListOrder">
+                        <tr class="tr-show" data-bind="attr: {  id: ID}">
+                            <td class="classSalesDevice" data-bind="text:Encoder"></td>
+                            <td class="classSalesDevice" data-bind="text:UserOrder"></td>
+                            <td class="classSalesDevice" data-bind="text: ConvertDate(CreatedDate)"></td>
+                            <td class="classSalesDevice" data-bind="text: ConvertDate(ModifiedDate)"></td>
+                            <td class="classSalesDevice" data-bind="text:payment"></td>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <td>
+                                    @if (Model.RoleUpdate)
+                                    {
+                                        <a href="javascript:void(0)" style="color:#337ab7;text-decoration: underline;" data-bind="text:statusShow,click: $parent.UpdateOrder"></a>
+                                    }
+                                    else
+                                    {
+                                        <span data-bind="text:statusShow" />
+                                    }
+                                </td>
+                                <td>
+                                    <div class="edit-delete">
+                                        @if (Model.RoleDelete)
+                                        {
+                                            <a class="blue" href="javascript:void(0)" data-bind="click: $parent.DeleteOrder">
+                                                <i class="ace-icon fa fa-trash-o "></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                        <tr class="tr-hide">
+                            <td colspan="7">
+                                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                    <ul class="nav nav-tabs " role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a data-bind="attr: { href:'#1_'+ ID}" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a data-bind="attr: { href:'#2_'+ ID}" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Sản phẩm đặt hàng</a>
+                                        </li>
+
+                                    </ul>
+                                    <div class="tab-content" style="    padding: 5px;    background: #e5e5e5;">
+                                        <div role="tabpanel" class="tab-pane fade active in" data-bind="attr: {  id: '1_' + ID}" aria-labelledby="home-tab">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="addnews fl">
+                                                        <div class="content-addnews fl">
+                                                            <h4> Thông tin người mua hàng</h4>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Họ tên</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: UserOrder" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Số điện thoại</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: PhoneOrder" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Email</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: EmailOrder" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Địa chỉ </span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: AdressOrder" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="addnews fl">
+                                                        <div class="content-addnews fl">
+                                                            <h4> Thông tin người người nhận</h4>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Họ tên</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: UserReceived" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Số điện thoại</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: PhoneReceived" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Địa chỉ </span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: AdressOrder" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="fl form-addnews">
+                                                                <div class="col-md-6 title-add"><span>Ghi chú</span></div>
+                                                                <div class="col-md-6">
+                                                                    <label data-bind="text: Note" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '2_' + ID}" aria-labelledby="profile-tab">
+                                            <table class="table table-hover" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="background:none;width:40%" scope="col">Sản phẩm</th>
+                                                        <th style="background:none;width:15%" scope="col">Mã SP</th>
+                                                        <th style="background:none;width:10%; text-align: center" scope="col">SL</th>
+                                                        <th style="background:none;width:15%; text-align: right" scope="col">Đơn giá</th>
+                                                        <th style="background:none;width:20%; text-align: right" scope="col">Tổng</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody data-bind="foreach: $parent.OrderDetail">
+                                                    <tr>
+                                                        <td data-bind="text:SalesDevice_Name"></td>
+                                                        <td data-bind="text: SalesDevice_Encoder"></td>
+                                                        <td style="text-align: center;" data-bind="text: Order_Quantity"></td>
+                                                        <td style=" text-align: right;" data-bind="text: FormatVND(Order_price)"></td>
+                                                        <td style="text-align: right;" data-bind="text:FormatVND(Order_Money)"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <table class="table table-borderless " id="tatol" cellspacing="0" border="0">
+                                                <tr>
+                                                    <td style="width:55%; background: #e5e5e5;" scope="col"></td>
+                                                    <td style="width:25%" scope="col">Giảm giá:</td>
+                                                    <td style="width:20%; text-align: right;" scope="col" data-bind="text:FormatVND(Sale)"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:55%; background: #e5e5e5;" scope="col"></td>
+                                                    <td style="width:25%" scope="col">Tổng giá trị sản phẩm:</td>
+                                                    <td style="width:20%; text-align: right;" scope="col" data-bind="text:FormatVND(Money)"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:55%; background: #e5e5e5;" scope="col"></td>
+                                                    <td style="width:25%" scope="col">Tổng thanh toán:</td>
+                                                    <td style="width:20%; text-align: right;" scope="col" data-bind="text:FormatVND(Total)"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;"> Cập nhật đơn hàng</h4>
+            </div>
+            <div class="modal-body">
+                <div class="content-addnews fl">
+                    <div class="fl form-addnews">
+                        <div class="col-md-12 title-add"><h4>Trạng thái đơn hàng</h4></div>
+                        <div class="col-md-12">
+                            <select class="form-control form-control-lg" id="selected-Status">
+                                @foreach (var item in Notification.TrangThaiOrder.ToList())
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" data-bind="click:saveStatusOrder"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

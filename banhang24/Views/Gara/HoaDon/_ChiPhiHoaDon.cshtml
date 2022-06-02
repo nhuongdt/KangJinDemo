@@ -1,0 +1,815 @@
+﻿<style>
+    #vmChiPhiHoaDon .ddl-searchNCC {
+        position: absolute;
+        padding: 7px;
+        background: white;
+        padding-bottom: 15px;
+        z-index: 999;
+    }
+
+    #vmChiPhiHoaDon .grid {
+        display: grid;
+        align-items: center;
+        grid-template-columns: max-content max-content auto max-content max-content max-content auto max-content;
+        max-width: 100%;
+        padding-bottom: 6px;
+        box-sizing: border-box;
+    }
+
+    #vmChiPhiHoaDon table input[type=text] {
+        border-bottom: none !important;
+    }
+
+    #vmChiPhiHoaDon .font500 {
+        font-weight: 500;
+    }
+
+    #vmChiPhiHoaDon .nhat-ky-dv-chi-tiet {
+        margin-top: 15px;
+    }
+
+    #vmChiPhiHoaDon .table-dich-vu {
+        width: 100%;
+        border: 1px solid #ccc;
+        margin-bottom: 15px !important;
+    }
+
+        #vmChiPhiHoaDon .table-dich-vu .tr-thead {
+            background-color: #d2f0ef;
+            font-weight: bold;
+        }
+
+        #vmChiPhiHoaDon .table-dich-vu tbody > tr > td {
+            border: 1px solid #e6e6e6;
+        }
+
+    #vmChiPhiHoaDon .op-hoadon-soluong-modify {
+        min-width: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        height: 30px;
+        border-radius: 0;
+        transition: all 0.4s ease;
+    }
+
+        #vmChiPhiHoaDon .op-hoadon-soluong-modify .material-icons {
+            font-size: 18px;
+        }
+
+    #vmChiPhiHoaDon .table-dich-vu .tr-title {
+        background-color: #eeeeee;
+        font-weight: bold;
+        text-align: center;
+    }
+</style>
+<div class="modal fade" id="vmChiPhiHoaDon">
+    <div class="modal-dialog draggable modal-lg modal-lgmax">
+        <div class="modal-content   ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    Chi phí hóa đơn
+                </h4>
+            </div>
+            <div class="modal-body flex flex-column">
+                <div class="flex flex-end" v-if="typeUpdate !== 2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="cbApDungChungNhaCungCap"
+                               v-model="ApDungChungNhaCungCap"
+                               v-on:change="changeCheckApplyVendor" />
+                        <label class="form-check-label" for="cbApDungChungNhaCungCap">
+                            Chọn 1 nhà cung cấp cho tất cả dịch vụ
+                        </label>
+                    </div>
+                </div>
+                <div class="tab-col-12 " v-if="typeUpdate !== 2">
+                    <products placeholder="Tìm dịch vụ"
+                              :text-search="txtSearch"
+                              :col-show="3"
+                              :list-all="ListProduct"
+                              :list-search="ListProduct"
+                              v-on:on-select-item="ChoseProduct">
+                    </products>
+                </div>
+                <div class="nopadding nhat-ky-dv-chi-tiet">
+                    <table class="table-dich-vu" v-for="(item, index) in ListChiPhi">
+                        <thead v-if="index === 0">
+                            <tr class="tr-thead tr-goi-dich-vu">
+                                <td style="width:15%">Mã dịch vụ </td>
+                                <td style="width:25%">Tên dịch vụ </td>
+                                <td class="text-center" style="width:5%">SL </td>
+                                <td class="text-center" style="width:8%">Chi phí</td>
+                                <td class="text-center" style="width:10%">Thành tiền</td>
+                                <td class="text-center" style="max-width:40%">Nhà cung cấp</td>
+                                <td class="text-center" style="width:3%" v-if="typeUpdate!=2">#</td>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr class="tr-title tr-goi-dich-vu" v-if="typeUpdate !==0">
+                                <td v-bind:colspan="typeUpdate!==2?7:6">
+                                    Mã hóa đơn:
+                                    <span>{{item.MaHoaDon}}</span>
+                                </td>
+                            </tr>
+                            <tr class="tr-title tr-goi-dich-vu" v-if="item.BienSo">
+                                <td v-bind:colspan="typeUpdate!==2?7:6">
+                                    <span> Biển số xe: </span>
+                                    <span>{{item.BienSo}}</span>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(ct, index2) in item.ChiTiets">
+                                <tr>
+                                    <td>
+                                        <span :title="ct.MaHangHoa">
+                                            {{ct.MaHangHoa}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span :title="ct.TenHangHoaThayThe" style="white-space:initial">
+                                            {{ct.TenHangHoaThayThe}}
+                                        </span><br />
+
+                                        <input type="text" class="input-simple text-center"
+                                               placeholder="Ghi chú"
+                                               style="width: 100%; padding:0px!important;text-align:left;
+                                                        font-style:italic; font-size:12px!important; color:blue"
+                                               v-model="ct.GhiChu"
+                                               v-on:keyup.13="enterInput(1)" />
+
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="text" class="input-simple text-center"
+                                               style="width: 60px"
+                                               onkeypress="keypressNumber_limitNumber(event, this)"
+                                               v-model="ct.SoLuong"
+                                               v-on:keyup.13="enterInput(2)"
+                                               v-on:keyup="editSoLuong(item,index2)"
+                                               v-bind:style="{ color: ct.SoLuong <= ct.SoLuongHoaDon && ct.SoLuong > 0 ? 'initial' : 'red'}" />
+                                    </td>
+                                    <td class="text-right">
+                                        <input type="text" class="input-simple text-right" style="width: 100px"
+                                               onkeypress="keypressNumber_limitNumber(event, this)"
+                                               v-model="ct.DonGia"
+                                               v-on:keyup.13="enterInput(3)"
+                                               v-on:keyup="editChiPhi(item,index2)" />
+                                    </td>
+                                    <td class="text-right">
+                                        <input type="text" class="input-simple text-right" style="width: 100px"
+                                               onkeypress="keypressNumber_limitNumber(event, this)"
+                                               v-model="ct.ThanhTien"
+                                               v-on:keyup.13="enterInput(4)"
+                                               v-on:keyup="editThanhTien(item,index2)" />
+                                    </td>
+                                    <td v-on:click="showListSearch(item,index2)">
+                                        <div class="gara-bangia">
+                                            <a class="font500" style="white-space:initial"
+                                               v-if="ct.TenNhaCungCap">
+                                                <span>
+                                                    {{ct.MaNhaCungCap}}
+                                                </span>
+                                                <span>
+                                                    - {{ct.TenNhaCungCap}}
+                                                </span>
+                                            </a>
+
+                                            <vendors class="ddl-searchNCC" placeholder="Tìm nhà cung cấp" style="display:none"
+                                                     :id-chi-nhanh="inforLogin.ID_DonVi"
+                                                     :loai-doi-tuong="2"
+                                                     :colshow="3"
+                                                     :id-chosing="ct.ID_DoiTuong"
+                                                     v-on:on-select-item="SelectNhaCungCap">
+                                            </vendors>
+
+                                        </div>
+                                    </td>
+                                    <td v-if="typeUpdate!=2">
+                                        <button class="op-hoadon-soluong-modify red" type="button"
+                                                v-on:click="DeleteChiTiet(item,index2)">
+                                            <i class="material-icons">close</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                        <tfoot>
+                            <tr class="tr-title tr-goi-dich-vu">
+                                <td>Tổng</td>
+                                <td></td>
+                                <td class="text-center">{{formatNumber3Digit(item.TongSoLuong)}}</td>
+                                <td></td>
+                                <td class="text-right">{{formatNumber3Digit(item.TongChiPhi)}}</td>
+                                <td v-bind:colspan="typeUpdate!==2?2:1"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger w100" data-dismiss="modal" v-if="typeUpdate !== 2">Hủy</button>
+                <button class="btn btn-danger w100" data-dismiss="modal" v-if="typeUpdate === 2">Đóng</button>
+                <button class="btn btn-primary w100" v-on:click="Agree" v-if="typeUpdate === 0">Áp dụng</button>
+                <button class="btn btn-primary w100" v-on:click="SaveDB" v-if="typeUpdate === 1">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).mouseup(function (e) {
+        var container = $(".ddl-searchNCC");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+    var VueChiPhi = new Vue({
+        el: '#vmChiPhiHoaDon',
+        components: {
+            'vendors': cmpDropdown1Item,
+            'products': cmpDropdown1Item,
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_DonVi: $('#txtDonVi').val(),
+                UserLogin: $('#txtUserLogin').val(),
+                ID_NhanVien: $('#txtIDNhanVien').val(),
+            };
+
+            if (commonStatisJs.CheckNull(self.inforLogin.UserLogin)) {
+                self.inforLogin.UserLogin = VHeader.UserLogin;
+            }
+            if (commonStatisJs.CheckNull(self.inforLogin.ID_DonVi)) {
+                self.inforLogin.ID_DonVi = VHeader.IdDonVi;
+            }
+            if (commonStatisJs.CheckNull(self.inforLogin.ID_NhanVien)) {
+                self.inforLogin.ID_NhanVien = VHeader.IdNhanVien;
+            }
+        },
+        data: {
+            saveOK: false,
+            typeUpdate: 0,//0.new, 1.update, 2.view
+            RowChosing: -1,
+            InvoiceChosing: {},// assign at gara.js (IDRandomHD, BienSo)
+            ApDungChungNhaCungCap: false,
+            vendorApply: {},
+
+            txtSearch: '',
+            ListProduct: [],
+
+            ListChiPhi: [
+                { IDRandomHD: null, TongSoLuong: 0, TongChiPhi: 0, ChiTiets: [] }
+            ],
+            ListChiPhi_Old: [],// used to get version old if change NCC
+            CTHD_inDB: [],
+        },
+        methods: {
+            CTHD_GetChiPhiDichVu: function (arrIDHoaDon, type = 1, arrVendor = []) {// 1.update, 2.view
+                let self = this;
+                let myData = {
+                    arrID: arrIDHoaDon,
+                    arrIDVendor: arrVendor,
+                }
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'CTHD_GetChiPhiDichVu', 'POST', myData).done(function (x) {
+                    if (x.res) {
+                        x.dataSoure.map(function (x) {
+                            x["IDRandom"] = x.ID_HoaDon_ChiTiet
+                            x["IDRandomHD"] = x.ID_HoaDon
+                        })
+                        if (type === 2) {
+                            x.dataSoure = x.dataSoure.filter(x => x.ID_NhaCungCap !== null);// chỉ show chi phí đã saveDB
+                        }
+                        self.ListProduct = x.dataSoure;
+                        self.GroupHoaDon();
+                        if (type === 2) {
+                            self.ShowModal(2);
+                        }
+                    }
+                })
+            },
+            GroupHoaDon: function () {
+                let self = this;
+                let arrHD = [], lstCP = [];
+
+                self.ListProduct = self.ListProduct.filter(x => x.LoaiHangHoa !== 1);
+                for (let i = 0; i < self.ListProduct.length; i++) {
+                    let itFor = self.ListProduct[i];
+                    if ($.inArray(itFor.ID_HoaDon, arrHD) === -1) {
+                        let objNew = {
+                            ID_HoaDon: itFor.ID_HoaDon,
+                            IDRandomHD: itFor.ID_HoaDon,
+                            BienSo: itFor.BienSo,
+                            TongChiPhi: itFor.TongChiPhi,
+                            MaHoaDon: itFor.MaHoaDon,
+                            NgayLapHoaDon: itFor.NgayLapHoaDon,
+                            ChiTiets: [
+                                {
+                                    MaHangHoa: itFor.MaHangHoa,
+                                    TenHangHoaThayThe: itFor.TenHangHoaThayThe,
+                                    TenDonViTinh: itFor.TenDonViTinh,
+                                    ID_DonViQuiDoi: itFor.ID_DonViQuiDoi,
+                                    LoaiHangHoa: itFor.LoaiHangHoa,
+                                    GiaBan: itFor.GiaBan,
+                                    ID_HoaDon_ChiTiet: itFor.ID_HoaDon_ChiTiet,
+                                    ID_HoaDon: itFor.ID_HoaDon,
+                                    ID_NhaCungCap: itFor.ID_NhaCungCap,
+                                    MaNhaCungCap: itFor.MaNhaCungCap,
+                                    TenNhaCungCap: itFor.TenNhaCungCap,
+                                    SoLuong: itFor.SoLuong,
+                                    SoLuongHoaDon: itFor.SoLuongHoaDon,
+                                    DonGia: formatNumber3Digit(itFor.DonGia),
+                                    ThanhTien: formatNumber3Digit(itFor.ThanhTien),
+                                    GhiChu: itFor.GhiChu,
+                                }],
+                        }
+                        lstCP.push(objNew);
+                        arrHD.push(itFor.ID_HoaDon);
+                    }
+                    else {
+
+                        // add service in to GoiDV
+                        for (let j = 0; j < lstCP.length; j++) {
+                            if (lstCP[j].ID_HoaDon === itFor.ID_HoaDon) {
+                                let detail = {
+                                    MaHangHoa: itFor.MaHangHoa,
+                                    TenHangHoaThayThe: itFor.TenHangHoaThayThe,
+                                    TenDonViTinh: itFor.TenDonViTinh,
+                                    ID_DonViQuiDoi: itFor.ID_DonViQuiDoi,
+                                    LoaiHangHoa: itFor.LoaiHangHoa,
+                                    GiaBan: itFor.GiaBan,
+                                    ID_HoaDon_ChiTiet: itFor.ID_HoaDon_ChiTiet,
+                                    ID_HoaDon: itFor.ID_HoaDon,
+                                    ID_NhaCungCap: itFor.ID_NhaCungCap,
+                                    MaNhaCungCap: itFor.MaNhaCungCap,
+                                    TenNhaCungCap: itFor.TenNhaCungCap,
+                                    SoLuong: itFor.SoLuong,
+                                    SoLuongHoaDon: itFor.SoLuongHoaDon,
+                                    DonGia: formatNumber3Digit(itFor.DonGia),
+                                    ThanhTien: formatNumber3Digit(itFor.ThanhTien),
+                                    GhiChu: itFor.GhiChu,
+                                };
+                                lstCP[j].ChiTiets.push(detail);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                lstCP = lstCP.sort(function (a, b) {
+                    let x = moment(a.NgayLapHoaDon).format('YYYYMMDD');
+                    let y = moment(b.NgayLapHoaDon).format('YYYYMMDD');
+                    return x > y ? -1 : x < y ? 1 : 0;
+                });
+                self.ListChiPhi = lstCP;
+            },
+            ShowModal: function (type = 0) {//0.gara, 1.DS hoadon - update, 2. tab congno NCC
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = type;
+                self.ApDungChungNhaCungCap = false;
+                self.ListProduct = self.ListProduct.filter(x => x.LoaiHangHoa !== 1);
+                self.ListProduct.map(function (x) {
+                    x["ID"] = x.ID_DonViQuiDoi
+                    x["Text1"] = x.MaHangHoa
+                    x["Text2"] = x.TenHangHoaThayThe
+                    x["Text3"] = x.GiaBan
+                })
+
+                if (self.ListProduct.length === 0) {
+                    ShowMessage_Danger('Hóa đơn không có dịch vụ. Không thể thay đổi chi phí');
+                    self.ListChiPhi = [];
+                    return;
+                }
+
+                let exist = false;
+                if (type === 0) {
+                    self.ListChiPhi = [];
+
+                    let cacheCP = localStorage.getItem('lcChiPhi');
+                    if (cacheCP !== null) {
+                        cacheCP = JSON.parse(cacheCP);
+                    }
+                    else {
+                        cacheCP = [];
+                    }
+                    for (let i = 0; i < cacheCP.length; i++) {
+                        let forOut = cacheCP[i];
+                        if (forOut.IDRandomHD === self.InvoiceChosing.IDRandomHD) {
+                            self.ListChiPhi = [forOut];
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist) {
+                        let arr = [];
+                        for (let i = 0; i < self.ListProduct.length; i++) {
+                            let itFor = self.ListProduct[i];
+                            itFor.STT = itFor.SoThuTu;
+                            itFor.ID_HoaDon_ChiTiet = itFor.IDRandom;
+                            itFor.SoLuongHoaDon = itFor.SoLuong;
+                            itFor.DonGia = 0;
+                            itFor.ThanhTien = 0;
+                            itFor.ID_NhaCungCap = null;
+                            itFor.MaNhaCungCap = '';
+                            itFor.TenNhaCungCap = '';
+                            itFor.GhiChu = '';
+                            arr.push(itFor);
+                        }
+                        self.ListChiPhi = [{
+                            IDRandomHD: self.InvoiceChosing.IDRandomHD,
+                            TongChiPhi: 0,
+                            BienSo: self.InvoiceChosing.BienSo,
+                            NgayLapHoaDon: null,
+                            ChiTiets: arr
+                        }]
+                    }
+                }
+
+                self.sumCaculator();
+                $('#vmChiPhiHoaDon').modal('show');
+            },
+            DeleteChiTiet: function (item, index) {
+                let self = this;
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    if (forOut.IDRandomHD === item.IDRandomHD) {
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            if (j === index) {
+                                forOut.ChiTiets.splice(index, 1);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.sumCaculator();
+            },
+            showListSearch: function (item, index) {
+                let self = this;
+                self.InvoiceChosing = item;
+                self.RowChosing = index;
+
+                let $this = $(event.currentTarget);
+                let $next = $this.find('.ddl-searchNCC');
+                $next.show();
+                $next.find('input').select();
+            },
+
+            SelectNhaCungCap: function (item) {
+                let self = this;
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    if (forOut.IDRandomHD === self.InvoiceChosing.IDRandomHD) {
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            if (j === self.RowChosing) {
+                                forOut.ChiTiets[j].ID_NhaCungCap = item.ID;
+                                forOut.ChiTiets[j].MaNhaCungCap = item.Text1;
+                                forOut.ChiTiets[j].TenNhaCungCap = item.Text2;
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.ListChiPhi = $.extend([], true, self.ListChiPhi);
+
+                // neu dang apdung chung NCC, nhung thay doi 1 dong
+                if (self.ApDungChungNhaCungCap) {
+                    if (self.vendorApply.ID !== item.ID) {
+                        self.ApDungChungNhaCungCap = false;
+                    }
+                }
+                let $this = $(event.currentTarget);
+                $(function () {
+                    $this.closest('.ddl-searchNCC').hide();
+                })
+            },
+            sumCaculator: function () {
+                let self = this;
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let sumSL = 0, sumCP = 0;
+                    let forOut = self.ListChiPhi[i];
+                    for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                        let forIn = forOut.ChiTiets[j];
+                        sumSL += formatNumberToFloat(forIn.SoLuong);
+                        sumCP += formatNumberToFloat(forIn.ThanhTien);
+                    }
+                    forOut.TongSoLuong = sumSL;
+                    forOut.TongChiPhi = sumCP;
+                    break;
+                }
+            },
+            editSoLuong: function (item, index) {
+                let self = this;
+                let slTang = 0;
+                let keyCode = event.keyCode || event.which;
+                switch (keyCode) {
+                    case 38:
+                        slTang = 1;
+                        break;
+                    case 40:
+                        slTang = -1;
+                        break;
+                }
+
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    if (forOut.IDRandomHD === item.IDRandomHD) {
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            if (j === index) {
+                                let forIn = forOut.ChiTiets[j];
+                                if (keyCode === 38 || keyCode === 40) {
+                                    forOut.ChiTiets[j].SoLuong = formatNumberToFloat(forIn.SoLuong) + slTang;
+                                }
+                                forOut.ChiTiets[j].ThanhTien = formatNumber3Digit(formatNumberToFloat(forIn.SoLuong) * formatNumberToFloat(forIn.DonGia));
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.sumCaculator();
+            },
+            editChiPhi: function (item, index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                formatNumberObj($this);
+
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    if (forOut.IDRandomHD === item.IDRandomHD) {
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            if (j === index) {
+                                let forIn = forOut.ChiTiets[j];
+                                forOut.ChiTiets[j].DonGia = $this.val();
+                                forOut.ChiTiets[j].ThanhTien = formatNumber3Digit(formatNumberToFloat(forIn.SoLuong) * formatNumberToFloat(forIn.DonGia));
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.sumCaculator();
+
+                let keyCode = event.keyCode || event.which;
+                switch (keyCode) {
+                    case 38:
+                        self.shiftInput(3);
+                        break;
+                    case 40:
+                        self.enterInput(3);
+                        break;
+                }
+            },
+            editThanhTien: function (item, index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                formatNumberObj($this);
+
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    if (forOut.IDRandomHD === item.IDRandomHD) {
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            if (j === index) {
+                                let forIn = forOut.ChiTiets[j];
+                                forOut.ChiTiets[j].DonGia = formatNumber3Digit(RoundDecimal(formatNumberToFloat($this.val()) / formatNumberToFloat(forIn.SoLuong), 3));
+                                forOut.ChiTiets[j].ThanhTien = $this.val();
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.sumCaculator();
+                let keyCode = event.keyCode || event.which;
+                switch (keyCode) {
+                    case 38:
+                        self.shiftInput(4);
+                        break;
+                    case 40:
+                        self.enterInput(4);
+                        break;
+                }
+            },
+            enterInput: function (columnEdit) {
+                let thisObj = $(event.currentTarget);
+                let trClosest = $(thisObj).closest('tr');
+                let tdNext = trClosest.next().find('td');
+                $(tdNext).eq(columnEdit).find('input').focus().select();
+            },
+            shiftInput: function (columnEdit) {
+                let thisObj = $(event.currentTarget);
+                let trClosest = $(thisObj).closest('tr');
+                let tdNext = trClosest.prev().find('td');
+                $(tdNext).eq(columnEdit).find('input').focus().select();
+            },
+            ChoseProduct: function (item) {
+                let self = this;
+                let exist = false;
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    if (item.IDRandomHD === forOut.IDRandomHD) {
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            let forIn = forOut.ChiTiets[j];
+                            if (item.ID_HoaDon_ChiTiet === forIn.ID_HoaDon_ChiTiet) {
+                                exist = true;
+                                forOut.ChiTiets[j].SoLuong = formatNumberToFloat(forIn.SoLuong) + 1;
+                                forOut.ChiTiets[j].ThanhTien = formatNumber3Digit(RoundDecimal(formatNumberToFloat(forIn.SoLuong) * formatNumberToFloat(forIn.DonGia), 3));
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (!exist) {
+                    for (let i = 0; i < self.ListChiPhi.length; i++) {
+                        let forOut = self.ListChiPhi[i];
+                        if (item.IDRandomHD === forOut.IDRandomHD) {
+                            item.STT = item.SoThuTu;
+                            if (commonStatisJs.CheckNull(item.ID_HoaDon_ChiTiet)) {
+                                item.ID_HoaDon_ChiTiet = item.IDRandom;
+                            }
+                            item.SoLuongHoaDon = item.SoLuong;
+                            item.DonGia = 0;
+                            item.ThanhTien = 0;
+                            item.ID_NhaCungCap = null;
+                            item.MaNhaCungCap = '';
+                            item.TenNhaCungCap = '';
+                            item.GhiChu = '';
+                            forOut.ChiTiets.push(item);
+                            break;
+                        }
+                    }
+                }
+                self.sumCaculator();
+            },
+            changeCheckApplyVendor: function () {
+                let self = this;
+                if (self.ApDungChungNhaCungCap) {
+                    let ncc0 = [];
+
+                    self.ListChiPhi_Old = $.extend(true, [], self.ListChiPhi);
+
+                    for (let i = 0; i < self.ListChiPhi.length; i++) {
+                        let forOut = self.ListChiPhi[i];
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            let forIn = forOut.ChiTiets[j];
+                            if (!commonStatisJs.CheckNull(forIn.ID_NhaCungCap)) {
+                                ncc0 = [forIn];
+                                break;
+                            }
+                        }
+                        if (ncc0.length > 0) {
+                            break;
+                        }
+                    }
+                    if (ncc0.length === 0) {
+                        ShowMessage_Danger('Vui lòng chọn nhà cung cấp');
+                        self.ApDungChungNhaCungCap = false;
+                        return;
+                    }
+                    for (let i = 0; i < self.ListChiPhi.length; i++) {
+                        let forOut = self.ListChiPhi[i];
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            forOut.ChiTiets[j].ID_NhaCungCap = ncc0[0].ID_NhaCungCap;
+                            forOut.ChiTiets[j].MaNhaCungCap = ncc0[0].MaNhaCungCap;
+                            forOut.ChiTiets[j].TenNhaCungCap = ncc0[0].TenNhaCungCap;
+                        }
+                    }
+                    self.vendorApply = ncc0[0];
+                }
+                else {
+                    // get again vendor old
+                    for (let i = 0; i < self.ListChiPhi.length; i++) {
+                        let forOut = self.ListChiPhi[i];
+                        for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                            let forIn = forOut.ChiTiets[j];
+
+                            for (let m = 0; m < self.ListChiPhi_Old.length; m++) {
+                                let cpOld = self.ListChiPhi_Old[m];
+                                for (let n = 0; n < cpOld.ChiTiets.length; n++) {
+                                    let ctOld = cpOld.ChiTiets[n];
+
+                                    if (forIn.ID_HoaDon_ChiTiet === ctOld.ID_HoaDon_ChiTiet) {
+                                        forOut.ChiTiets[j].ID_NhaCungCap = ctOld.ID_NhaCungCap;
+                                        forOut.ChiTiets[j].MaNhaCungCap = ctOld.MaNhaCungCap;
+                                        forOut.ChiTiets[j].TenNhaCungCap = ctOld.TenNhaCungCap;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    self.vendorApply = {};
+                }
+                self.ListChiPhi = $.extend([], true, self.ListChiPhi);
+            },
+            CheckSave: function () {
+                let self = this;
+                let errNCC = '', errSL = '';
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forOut = self.ListChiPhi[i];
+                    for (let j = 0; j < forOut.ChiTiets.length; j++) {
+                        let forIn = forOut.ChiTiets[j];
+                        if (formatNumberToFloat(forIn.SoLuong) > forIn.SoLuongHoaDon) {
+                            errSL += forIn.TenHangHoaThayThe + ', ';
+                        }
+                        if (commonStatisJs.CheckNull(forIn.ID_NhaCungCap) && formatNumberToFloat(forIn.ThanhTien) !== 0) {
+                            errNCC += forIn.TenHangHoaThayThe + ', ';
+                        }
+                    }
+                    break;
+                }
+                if (errSL !== '') {
+                    ShowMessage_Danger(Remove_LastComma(errSL) + ': nhập quá số lượng cho phép');
+                    return false;
+                }
+                if (errNCC !== '') {
+                    ShowMessage_Danger(Remove_LastComma(errNCC) + ': chưa chọn nhà cung cấp');
+                    return false;
+                }
+                return true;
+            },
+            Agree: function () {
+                let self = this;
+                let check = self.CheckSave();
+                if (!check) {
+                    return;
+                }
+                self.saveOK = true;
+
+                // save cache
+                let exist = false;
+                let cacheCP = localStorage.getItem('lcChiPhi');
+                if (cacheCP !== null) {
+                    cacheCP = JSON.parse(cacheCP);
+                }
+                else {
+                    cacheCP = [];
+                }
+                for (let i = 0; i < cacheCP.length; i++) {
+                    let forOut = cacheCP[i];
+                    for (let j = 0; j < self.ListChiPhi.length; j++) {
+                        let forIn = self.ListChiPhi[j];
+                        if (forOut.IDRandomHD === forIn.IDRandomHD) {
+                            forOut.ChiTiets = forIn.ChiTiets;
+                            break;
+                        }
+                    }
+                }
+                // DM_LoaiGiaPhong
+                if (!exist) {
+                    cacheCP = self.ListChiPhi;
+                }
+                localStorage.setItem('lcChiPhi', JSON.stringify(cacheCP));
+                $('#vmChiPhiHoaDon').modal('hide');
+            },
+            SaveDB: function () {
+                let self = this;
+                let check = self.CheckSave();
+                if (!check) {
+                    return;
+                }
+                self.saveOK = true;
+
+                let list = [], arr = [];
+                let details = '';
+                for (let i = 0; i < self.ListChiPhi.length; i++) {
+                    let forIn = self.ListChiPhi[i];
+                    arr.push(forIn.ID_HoaDon);
+
+                    for (let k = 0; k < forIn.ChiTiets.length; k++) {
+                        let ct = forIn.ChiTiets[k];
+                        if (formatNumberToFloat(ct.ThanhTien) > 0 || !commonStatisJs.CheckNull(ct.ID_NhaCungCap)) {
+                            details += " - ".concat(ct.TenHangHoaThayThe, ': Số lượng ', ct.SoLuong,
+                                ' Chi phí ', ct.DonGia, ' Thành tiền ', ct.ThanhTien, ' <br />')
+                            list.push(ct);
+                        }
+                    }
+                }
+
+                let myData = {
+                    lstChiPhi: list,
+                    arrIDHoaDon: arr,
+                }
+                if (list.length > 0) {
+                    console.log('myData ', myData)
+                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'CTHD_PostPutChiPhi', 'POST', myData).done(function (x) {
+                        if (x.res) {
+                            let diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: 1,
+                                ChucNang: 'Hóa đơn - Chi phí hóa đơn',
+                                NoiDung: 'Cập nhật chi phí cho hóa đơn <b>'.concat(self.ListChiPhi[0].MaHoaDon, ' </b>, Người sửa: ', self.inforLogin.UserLogin),
+                                NoiDungChiTiet: 'Cập nhật chi phí cho hóa đơn <b>' + self.ListChiPhi[0].MaHoaDon + ' </b> gồm: <br />' + details,
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                            ShowMessage_Success('Cập nhật chi phí thành công');
+                        }
+                        $('#vmChiPhiHoaDon').modal('hide');
+                    })
+                }
+            },
+        },
+    })
+</script>

@@ -1,0 +1,514 @@
+﻿<style>
+    .color-red {
+        color: #eb4923;
+    }
+    .table-dich-vu {
+        width: 100%;
+        border: 1px solid #ccc;
+        margin-bottom: 15px !important;
+        min-width:868px;
+    }
+        .table-dich-vu .tr-title {
+            background-color: #eeeeee;
+            font-weight: bold;
+            text-align: center;
+        }
+        .table-dich-vu .tr-thead {
+            background-color: #d2f0ef;
+            font-weight: bold;
+        }
+        .table-dich-vu td {
+            text-align: center;
+        }
+            /*.table-dich-vu td .form-check-input:after {
+                left: 7px;
+            }*/
+    .nhat-ky-dv-chi-tiet {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 15px;
+    }
+    .nhat-ky-dv-giao-dich {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 15px;
+        max-height: 400px;
+        overflow: auto;
+    }
+        .nhat-ky-dv-giao-dich table {
+            width: 90%;
+        }
+</style>
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title">
+            Gói dịch vụ
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="col-md-12 nhat-ky-dv">
+            <div class="row tab-news-modal" id="tab-diary-service">
+                <ul class="nav nav-tabs" style="width:100%;">
+                    <li class="active"><a data-toggle="tab" href="#goidichvu">Gói dịch vụ</a></li>
+                    <li><a data-toggle="tab" href="#nhatkydichvu">Nhật ký sử dụng</a></li>
+                    <li><a data-toggle="tab" href="#nhatkygiaodichdv" data-bind="click: Merger_AllTable_NhatKyGiaoDich">Nhật ký giao dịch</a></li>
+                    <li><a data-toggle="tab" href="#nhatkythegiatri">Nhật ký thẻ giá trị</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="goidichvu">
+                        <div class="container-fluid  header-dv">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="goidichvu1" name="inlineRadioOptions"
+                                       data-bind="checked: Check_FilterGoiDV, checkedValue: '1'">
+                                <label class="form-check-label" for="goidichvu1">Còn hạn</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="goidichvu2" name="inlineRadioOptions"
+                                       data-bind="checked: Check_FilterGoiDV, checkedValue: '2'">
+                                <label class="form-check-label" for="goidichvu2">Hết hạn</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="goidichvu3" name="inlineRadioOptions"
+                                       data-bind="checked: Check_FilterGoiDV, checkedValue: '3'">
+                                <label class="form-check-label" for="goidichvu3">Tất cả</label>
+                            </div>
+                        </div>
+                        <div class="container-fluid tab-col-12 ">
+                            <button type="button" class=" btn-search-modal-icon">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <input type="text" class="form-control input-search-modal-icon" autofocus id="txtSearchGoiDV"
+                                   placeholder="Tìm kiếm mã gói, mã dịch vụ, tên dịch vụ" autocomplete="off"
+                                   data-bind="value: search_PackageService, valueUpdate:'afterkeydown'">
+                        </div>
+                        <div class="container-fluid nopadding nhat-ky-dv-chi-tiet" data-bind="foreach: FilterDV_PackageService">
+                            <table class="table-dich-vu">
+                                <thead>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td colspan="7">
+                                            <span class="spMaDoiTuong" hidden>
+                                                (Mã khách:
+                                                <span style="color:var(--color-main)" data-bind="text: MaDoiTuong"></span>)
+                                            </span>
+                                            Gói dịch vụ:
+                                            <span data-bind="text: MaHoaDon"></span>
+                                            - Ngày mua:
+                                            <span data-bind="text: NgayLapHoaDon"></span>
+                                            - Áp dụng:
+                                            <span class="color-red" data-bind="text: NgayApDungGoiDV"></span>
+                                            - Hết hạn:
+                                            <span class="color-red" data-bind="text: HanSuDungGoiDV"></span>
+                                        </td>
+                                    </tr>
+                                    <tr class="tr-thead tr-goi-dich-vu">
+                                        <td>Mã dịch vụ </td>
+                                        <td>Tên dịch vụ </td>
+                                        <td>Số lượng </td>
+                                        <td>Đơn giá</td>
+                                        <td class="color-red">Đã sử dụng</td>
+                                        <td class="color-red">Còn lại</td>
+                                        <td>
+                                            <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                                   onclick="CheckAll_inPackage(this)"
+                                                   data-bind="attr:{id: ID_GoiDV },
+                                                   event:{change: function () { $root.CheckAllService_CheckBox($data)} }">
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: ListServices">
+                                    <tr>
+                                        <td>
+                                            <span data-bind="text: MaDichVu">
+                                            </span>
+                                            <span class="bg-pink" data-bind="visible: TangKem">
+                                                (KM)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span data-bind="text: TenDichVu">
+                                            </span><br />
+                                            <span data-bind="visible:GhiChu " >(<i data-bind="text: GhiChu"></i>)
+                                            </span>
+                                        </td>
+                                        <td data-bind="text: TangKem?SoLuongTang:SoLuongMua"></td>
+                                        <td data-bind="text: formatNumber(GiaBan)"></td>
+                                        <td data-bind="text: DaSuDung"></td>
+                                        <td data-bind="text: SoLuongConLai"></td>
+                                        <td style="width:40px">
+                                            <input class="form-check-input" type="checkbox" onclick="Change_ChoseService(this)"
+                                                   data-bind="attr:{id: $parent.ID_GoiDV +'_'+ ID_ChiTietGoiDV + '_'+ TangKem},
+                                                   event:{change: function () { $root.ChoseService_CheckBox ($parent, $data)} }">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng</td>
+                                        <td></td>
+                                        <td data-bind="text: TongSLMua">10</td>
+                                        <td></td>
+                                        <td data-bind="text: TongSLDaDung">4</td>
+                                        <td data-bind="text: TongSLConLai">6</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane " id="nhatkydichvu">
+                        <div class="container-fluid tab-col-12 ">
+                            <button type="button" class=" btn-search-modal-icon">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <input type="text" class="form-control input-search-modal-icon" id="txtSearchTab2"
+                                   placeholder="Tìm kiếm mã dịch vụ, tên dịch vụ" autocomplete="off"
+                                   data-bind="value: search_NhatKySuDung, valueUpdate:'afterkeydown'">
+                        </div>
+                        <div class="container-fluid tab-col-12">
+                            <table class="table-dich-vu">
+                                <thead>
+                                    <tr class="tr-thead">
+                                        <td>Ngày sử dụng</td>
+                                        <td>Mã hóa đơn</td>
+                                        <td>Mã dịch vụ </td>
+                                        <td>Tên dịch vụ </td>
+                                        <td>Số lượng </td>
+                                        <td>Nhân viên tư vấn, thực hiện</td>
+                                        <td>Hoa hồng</td>
+                                        <td style="width:40px">
+                                            Ảnh
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: List_FilterNhatKySuDung">
+                                    <tr>
+                                        <td data-bind="text: NgayLapHoaDon"></td>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: MaDichVu"></td>
+                                        <td style="text-align:left" data-bind="text: TenDichVu"></td>
+                                        <td data-bind="text: SoLuong">5</td>
+                                        <td style="text-align:left" data-bind="text: Remove_LastComma(NhanVienThucHien)"></td>
+                                        <td style="text-align:right" data-bind="text: formatNumber(TongChietKhau)"></td>
+                                        <td style="width:40px">
+                                            <a href="#">
+                                                <span style="    font-size: 14px;" class="glyphicon glyphicon-picture"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng:</td>
+                                        <td colspan="3"></td>
+                                        <td data-bind="text: formatNumber($root.Tab2_SumSoLuongSD())"></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <div class="page">
+                                <div class="flex flex-end">
+                                    <a href="javascript:void(0)" data-bind="visible: $root.Tab2_isPrev()">
+                                        <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                    </a>
+                                    <ul class="list-page" data-bind="foreach: $root.Tab2_ListPage">
+                                        <li data-bind="click: $root.Tab2_GotoPage">
+                                            <a href="javascript:void(0)"
+                                               data-bind="text: $data, css:{'click': $data == $root.Tab2_CurrentPage()}"></a>
+                                        </li>
+                                    </ul>
+                                    <a href="javascript:void(0)" data-bind="visible: $root.Tab2_isNext()">
+                                        <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                    </a>
+                                    <div class="total-recos" style=" margin-top: 4px;" data-bind="text: Tab2_PageView">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane " id="nhatkygiaodichdv">
+                        <div class="container-fluid tab-col-12 ">
+                            <button type="button" class=" btn-search-modal-icon">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <input type="text" class="form-control input-search-modal-icon"
+                                   placeholder="Tìm kiếm mã chứng từ, phiếu thu/chi" autocomplete="off"
+                                   data-bind="value: search_NhatKyGiaoDich, valueUpdate:'afterkeydown'">
+                        </div>
+                        <div class="container-fluid  nhat-ky-dv-giao-dich"
+                             data-bind="foreach: Filter_NhatKyGiaoDich">
+                            <label data-bind="visible: GoiDichVu.length >0"> Gói dịch vụ</label>
+                            <table class="table-dich-vu floatleft" data-bind="visible: GoiDichVu.length >0">
+                                <thead>
+                                    <tr class="tr-thead">
+                                        <td>Mã chứng từ </td>
+                                        <td>Ngày</td>
+                                        <td>Tổng tiền </td>
+                                        <td>Phải thanh toán</td>
+                                        <td>Đã thanh toán</td>
+                                        <td>Còn lại</td>
+                                        <td>Ghi chú</td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: GoiDichVu">
+                                    <tr>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: NgayLapHoaDon"></td>
+                                        <td data-bind="text: formatNumber(TongTienHang)"></td>
+                                        <td data-bind="text: formatNumber(PhaiThanhToan)"></td>
+                                        <td data-bind="text: formatNumber(DaThanhToan)"></td>
+                                        <td data-bind="text: formatNumber(PhaiThanhToan - DaThanhToan)"></td>
+                                        <td style="text-align:left" data-bind="text: GhiChu"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng</td>
+                                        <td></td>
+                                        <td data-bind="text: formatNumber($root.GoiDV_SumTongTien())"></td>
+                                        <td data-bind="text: formatNumber($root.GoiDV_SumPhaiThanhToan())"></td>
+                                        <td data-bind="text: formatNumber($root.GoiDV_SumDaThanhToan())"></td>
+                                        <td data-bind="text: formatNumber($root.GoiDV_SumConLai())"></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <label data-bind="visible: HoaDonBan.length >0"> Hóa đơn bán</label>
+                            <table class="table-dich-vu floatleft" data-bind="visible: HoaDonBan.length >0">
+                                <thead>
+                                    <tr class="tr-thead tr-goi-dich-vu">
+                                        <td>Mã chứng từ </td>
+                                        <td>Ngày</td>
+                                        <td>Tổng tiền </td>
+                                        <td>Phải thanh toán</td>
+                                        <td>Đã thanh toán</td>
+                                        <td>Còn lại</td>
+                                        <td>Ghi chú</td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: HoaDonBan">
+                                    <tr>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: NgayLapHoaDon"></td>
+                                        <td data-bind="text: formatNumber(TongTienHang)"></td>
+                                        <td data-bind="text: formatNumber(PhaiThanhToan)"></td>
+                                        <td data-bind="text: formatNumber(DaThanhToan)"></td>
+                                        <td data-bind="text: formatNumber(PhaiThanhToan - DaThanhToan)"></td>
+                                        <td style="text-align:left" data-bind="text: GhiChu"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng:</td>
+                                        <td></td>
+                                        <td data-bind="text: formatNumber($root.HDBan_SumTongTien())"></td>
+                                        <td data-bind="text: formatNumber($root.HDBan_SumPhaiThanhToan())"></td>
+                                        <td data-bind="text: formatNumber($root.HDBan_SumDaThanhToan())"></td>
+                                        <td data-bind="text: formatNumber($root.HDBan_SumConLai())"></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <label data-bind="visible: PhieuThu.length >0"> Phiếu thu</label>
+                            <table class="table-dich-vu" data-bind="visible: PhieuThu.length >0">
+                                <thead>
+                                    <tr class="tr-thead tr-goi-dich-vu">
+                                        <td>Mã phiếu thu </td>
+                                        <td>Ngày</td>
+                                        <td>Tiền mặt</td>
+                                        <td>Tiền gửi</td>
+                                        <td>Tổng thu</td>
+                                        <td>Loại thu</td>
+                                        <td>Nội dung</td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: PhieuThu">
+                                    <tr>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: NgayLapHoaDon"></td>
+                                        <td data-bind="text: formatNumber(TienMat)"></td>
+                                        <td data-bind="text: formatNumber(TienGui)"></td>
+                                        <td data-bind="text: formatNumber(TongThu)"></td>
+                                        <td data-bind="text: formatNumber(LoaiThuChi)"></td>
+                                        <td style="text-align:left" data-bind="text: NoiDungThu"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng:</td>
+                                        <td></td>
+                                        <td data-bind="text: formatNumber($root.PhieuThu_SumTienMat())"></td>
+                                        <td data-bind="text: formatNumber($root.PhieuThu_SumTienGui())"></td>
+                                        <td data-bind="text: formatNumber($root.PhieuThu_SumTongThu())"></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <label data-bind="visible: PhieuChi.length >0"> Phiếu chi</label>
+                            <table class="table-dich-vu" data-bind="visible: PhieuChi.length >0">
+                                <thead>
+                                    <tr class="tr-thead tr-goi-dich-vu">
+                                        <td>Mã phiếu chi </td>
+                                        <td>Ngày</td>
+                                        <td>Tiền mặt</td>
+                                        <td>Tiền gửi</td>
+                                        <td>Tổng chi</td>
+                                        <td>Loại chi</td>
+                                        <td>Nội dung</td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: PhieuChi">
+                                    <tr>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: NgayLapHoaDon"></td>
+                                        <td data-bind="text: formatNumber(TienMat)"></td>
+                                        <td data-bind="text: formatNumber(TienGui)"></td>
+                                        <td data-bind="text: formatNumber(TongThu)"></td>
+                                        <td data-bind="text: formatNumber(LoaiThuChi)"></td>
+                                        <td style="text-align:left" data-bind="text: NoiDungThu"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng:</td>
+                                        <td></td>
+                                        <td data-bind="text: formatNumber($root.PhieuChi_SumTienMat())"></td>
+                                        <td data-bind="text: formatNumber($root.PhieuChi_SumTienGui())"></td>
+                                        <td data-bind="text: formatNumber($root.PhieuChi_SumTongThu())"></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane " id="nhatkythegiatri">
+                        <div class="container-fluid  nhat-ky-dv-giao-dich">
+                            <label> Lịch sử nạp tiền</label>
+                            <table class="table-dich-vu" style="width:100%!important">
+                                <thead>
+                                    <tr class="tr-thead tr-goi-dich-vu">
+                                        <td>Mã phiếu </td>
+                                        <td>Ngày nạp</td>
+                                        <td>Mức nạp </td>
+                                        <td>Khuyến mãi</td>
+                                        <td>Chiết khấu</td>
+                                        <td>Tổng tiền nạp</td>
+                                        <td>Đã thanh toán</td>
+                                        <td>Số dư sau nạp</td>
+                                        <td>Ghi chú</td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: ValueCard_HisNapTien">
+                                    <tr>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')"></td>
+                                        <td data-bind="text: formatNumber(MucNap)"></td>
+                                        <td data-bind="text: formatNumber(KhuyenMaiVND)"></td>
+                                        <td data-bind="text: formatNumber(ChietKhauVND)"></td>
+                                        <td data-bind="text: formatNumber(TongTienNap)"></td>
+                                        <td data-bind="text: formatNumber(KhachDaTra)"></td>
+                                        <td data-bind="text: formatNumber(SoDuSauNap)"></td>
+                                        <td data-bind="text: formatNumber(DienGiai)"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot style="display:none">
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng:</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <label>Nhật ký sử dụng</label>
+                            <table class="table-dich-vu" style="width:100%!important">
+                                <thead>
+                                    <tr class="tr-thead">
+                                        <td>Ngày</td>
+                                        <td>Hoạt động</td>
+                                        <td>Hóa đơn liên quan</td>
+                                        <td>Phiếu sử dụng</td>
+                                        <td>Số dư trước phát sinh</td>
+                                        <td>Phát sinh tăng</td>
+                                        <td>Phát sinh giảm</td>
+                                        <td>Số dư sau phát sinh</td>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: ValueCard_HisUsed">
+                                    <tr>
+                                        <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')"></td>
+                                        <td data-bind="text: SLoaiHoaDon"></td>
+                                        <td data-bind="text: MaHoaDon"></td>
+                                        <td data-bind="text: MaHoaDonSQ"></td>
+                                        <td data-bind="text: formatNumber(SoDuTruoc)"></td>
+                                        <td data-bind="text: LoaiHoaDonSQ== 12? formatNumber(TienThe):0"></td>
+                                        <td data-bind="text: LoaiHoaDonSQ== 11? formatNumber(TienThe):0"></td>
+                                        <td data-bind="text: formatNumber(SoDuSau)"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="tr-title tr-goi-dich-vu">
+                                        <td>Tổng</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td data-bind="text: formatNumber($root.ValueCard_SumIncrease())"></td>
+                                        <td data-bind="text: formatNumber($root.ValueCard_SumDecrease())"></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="modal-footer">
+      
+            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
+            <button type="button" class="btn btn-main" data-bind="click: AddService_fromPackage">
+                <i class="fa fa-check-square"></i>Xác nhận
+            </button>
+       
+    </div>
+</div>
+<script>
+    $(".table-dich-vu .tr-thead .form-check-input").change(function () {
+        if (this.checked) {
+            $(this).closest('.tr-thead').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('.form-check-input').prop("checked", true);
+            });
+        }
+        else {
+            $(this).closest('.tr-thead').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('.form-check-input').prop("checked", false);
+            });
+        }
+    });
+   
+    $(".table-dich-vu tbody .form-check-input").change(function () {
+        var boolcheck = 0;
+        var trlength = $(this).closest('tr').closest('tbody').find('tr').length;
+        $(this).closest('tr').closest('tbody').find('tr').each(function (i) {
+            if ($(this).find('.form-check-input').is(":checked")) {
+                boolcheck += 1;
+            }
+            if (i === trlength - 1) {
+                if (trlength === boolcheck)
+                    $(this).closest('tr').closest('tbody').prev('thead').find('.tr-thead').find('.form-check-input').prop("checked", true);
+                else
+                    $(this).closest('tr').closest('tbody').prev('thead').find('.tr-thead').find('.form-check-input').prop("checked", false);
+            }
+        });
+    });
+</script>

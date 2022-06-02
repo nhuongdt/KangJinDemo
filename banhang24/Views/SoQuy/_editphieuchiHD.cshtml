@@ -1,0 +1,131 @@
+﻿<div class="modal-content  ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title" id="lblTitleKH">Phiếu chi</h4>
+    </div>
+    <div class="modal-body paylip">
+        <div class="col-xs-12 col-md-6 no-padding-left border-bottom-group">
+            <div class="form-group floatleft" data-bind="with: newQuyHoaDon">
+                <label >Mã phiếu chi:</label>
+                <div class="form-news">
+                    <span class="line-none" data-bind="text: MaHoaDon" />
+                </div>
+            </div>
+
+            <div class="form-group floatleft" data-bind="with: newQuyHoaDon">
+                <label >Nhà cung cấp:</label>
+                <div class="form-news">
+                    <span class="line-none" data-bind="text: NguoiNopTien" />
+                </div>
+            </div>
+            <div class="form-group floatleft" data-bind="with: newQuyHoaDon">
+                <label >Người tạo:</label>
+                <div class="form-news">
+                    <span class="line-none" data-bind="text: NguoiTao" />
+                </div>
+            </div>
+
+            <div class="form-group floatleft">
+                <label class=" ">Khoản mục chi</label>
+                <div class="form-news divkhoanthuchi">
+                    <div class="form-control " data-toggle="dropdown" style="position:relative">
+                        <div class="floatleft collection">--Chọn mục chi--</div>
+                        <i class="fa fa-chevron-down" style="top:unset; position:absolute;top:7px;right:7px"></i>
+                    </div>
+                    <div class="dropdown-menu seach-company">
+                        <div style="position:relative; margin:5px 0" class="floatleft">
+                            <input type="text" style="padding-left:30px" class=" input-simple floatleft"  data-bind="value: filterLoaiChi, valueUpdate: 'afterkeydown'" />
+                            <i class="fa fa-search"  style="top:unset; position:absolute;top:7px;left:7px" aria-hidden="true"></i>
+                        </div>
+                       
+                        <ul>
+                            <li data-bind="click : Chose_KhoanThuChi">
+                                <a href="javascript:void(0)">--Chọn mục chi --</a>
+                            </li>
+                            <!--ko foreach: arrFilterLoaiChi-->
+                            <li data-bind="click :$parent.Chose_KhoanThuChi, attr:{id:'khoanthuchi_'+ID}">
+                                <a href="javascript: void(0)" data-bind="text: NoiDungThuChi, attr:{id : ID}"></a>
+                            </li>
+                            <!--/ko -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-md-6 border-bottom-group">
+            <div class="form-group floatleft">
+                <label >Nhân viên:</label>
+                <div class="form-news">
+                    <select class="form-control"  data-bind="options: NhanViens ? NhanViens : [],
+                                                optionsText: 'TenNhanVien', optionsValue: 'ID', optionsCaption: 'Chọn', value: selectedID_NV,
+                                                 "></select>
+                </div>
+            </div>
+            <div class="form-group floatleft" data-bind="with: newQuyHoaDon">
+                <label >Thời gian:</label>
+                <div class="form-news">
+                    <!--ko if: $root.Allow_ChangeTimeSoQuy-->
+                    <input type="text" id="txtChiHoaDon" class="form-control datetimepicker4" placeholder="23/12/2017" data-bind="value: NgayLapHoaDon">
+                    <!--/ko-->
+                    <!--ko if: !$root.Allow_ChangeTimeSoQuy()-->
+                    <span data-bind="text: NgayLapHoaDon">
+                    </span>
+                    <!--/ko-->
+                </div>
+            </div>
+            <div class="form-group floatleft" data-bind="with: newQuyHoaDon">
+                <label >Ghi chú:</label>
+                <div class="form-news">
+                    <textarea rows="2" data-bind="value: NoiDungThu" class=" ng-pristine ng-untouched ng-valid ng-empty nopadding">        </textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 tab-sections">
+            <div class="table-reponsive">
+                <div class="table-res">
+                    <table class='table'>
+                        <tr>
+                            <th>Mã phiếu</th>
+                            <th>Thời gian</th>
+                            <th>Giá trị phiếu</th>
+                            <th>Đã chi trước</th>
+                            <th>Tiền chi</th>
+                            <th>Phương thức</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        <tbody data-bind="foreach: ChiTietQuys">
+                            <tr>
+                                <td data-bind="text: MaHoaDonHD"></td>
+                                <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')"></td>
+                                <td data-bind="text: formatNumber(TongTienThu)"></td>
+                                <td data-bind="text: formatNumber(DaChi)"></td>
+                                <td data-bind="text: formatNumber(TienThu)"></td>
+                                <td data-bind="text: PhuongThuc"></td>
+                                <td data-bind="text: GhiChu"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="floatleft sum-prduct" data-bind="with: newQuyHoaDon">
+                <div class="col-xs-9 col-sm-9  col-lg-10 text-right">
+                    Tổng tiền chi :
+                </div>
+                <div class="col-xs-3 col-sm-3 col-lg-2 text-right" data-bind="text: (TongTienThu)">54,000</div>
+            </div>
+        </div>
+        <div class="col-md-12 nopadding">
+            <div class="group-btn pull-right">
+                <!--ko if: Role_UpdateSoQuy-->
+                <a href="javascript:void(0)" class="btn btn-main btnAddSoQuy btnAddSoQuyNH" data-bind="click: addSoQuy">
+                    <i class="fa fa-check-square"></i> Cập nhật
+                </a>
+                <!--/ko-->
+            </div>
+        </div>
+    </div>
+</div>

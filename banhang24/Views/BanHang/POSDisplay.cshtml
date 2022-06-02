@@ -1,0 +1,298 @@
+﻿@using System.Web.Optimization
+@using banhang24.AppCache
+@using banhang24.Hellper
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Open24.vn - Màn hình khách hàng </title>
+    <link rel="icon" href="~/Content/images/open24.vn.png" type="image/gif">
+    <link rel="stylesheet" href="@Html.WriteRenderFile(Styles.Url("~/Content/CssFramework"))" />
+    <link rel="stylesheet" href="@Html.WriteRenderFile(Styles.Url("~/Content/Open24Css"))" />
+    <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/JsFramework"))" type="text/javascript"></script>
+    <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/JsStatic"))" type="text/javascript"></script>
+    <style>
+        .font17 {
+            font-size: 17px;
+        }
+        .header {
+            background-color: var(--color-main);
+            color: white;
+            text-align: center;
+            height: 42px;
+        }
+        .cthd {
+            margin-bottom: 100px;
+        }
+        .hd-text {
+            text-align: left;
+        }
+        .hd-number {
+            text-align: right;
+        }
+        .height24 {
+            height: 24px;
+        }
+        .nopadding-left-right {
+            padding: 7px 0px;
+        }
+        .date-lot {
+            background: #00a69c;
+            color: white;
+            height: 25px;
+            border-radius: 4px;
+        }
+        .lot-padding {
+            padding: 8px 1px;
+        }
+        .firstlot-number-nonv {
+            padding-top: 17px !important;
+        }
+        .firstlot-number-th {
+            padding-top: 33px !important;
+        }
+        .firstlot-number-thtv {
+            padding-top: 56px !important;
+        }
+        .endlot-number {
+            margin-top: 50px !important;
+        }
+        .vitri {
+            padding: 2px 8px;
+            background: #b2dfed;
+            border-radius: 15px;
+            float: left;
+            min-width: 70px;
+            text-align: center;
+        }
+        .posdisplay img {
+            width: 100%;
+            height: 100vh;
+        }
+        .fixed-row-bottom {
+            position: fixed;
+            bottom: 0;
+        }
+        .fixed-row-top {
+            position: fixed;
+            top: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .posdisplay {
+            overflow: hidden;
+        }
+            .posdisplay .row {
+                margin: 0;
+            }
+            .posdisplay .col-sm-12, .col-sm-4, .col-sm-8 {
+                padding: 0;
+            }
+            .posdisplay .header .row {
+                position: fixed;
+            }
+            .posdisplay .body {
+                height: calc(100vh - (42px + 155px));
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+        .view-footer .form-group {
+            border-bottom: 1px dotted #ccc;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body class="posdisplay">
+    <input type="hidden" value="@ViewBag.SubDomain" id="subDomain" />
+    <input type="hidden" value="@contant.GetUserCookies().ID" id="txtIDUser" />
+    <div class="row">
+        <div class="col-sm-8">
+            @if (ViewBag.imgaddr == "")
+            {
+                <img src="~/FolderImage/@ViewBag.SubDomain/img_pos.jpg" />
+            }
+            else
+            {
+                <img src="~/FolderImage/@ViewBag.SubDomain/@ViewBag.imgaddr/img_pos.jpg" />
+            }
+        </div>
+        <div class="col-sm-4">
+            <div class="row header">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <table class=" table-hover op-table table-display-view">
+                            <thead>
+                                <tr class="row">
+                                    <th class="text-center col-sm-1">STT</th>
+                                    <th class="text-center col-sm-6"> Tên sản phẩm <span data-bind="text: SumProduct() ===0?'':'(' + formatNumber(SumProduct()) + ')'"></span></th>
+                                    <th class="text-center col-sm-2"> SL <span data-bind="text: SumQuantity() ===0?'':'(' +formatNumber(SumQuantity()) + ')' "></span></th>
+                                    <th class="text-right col-sm-3"> Thành tiền</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row body">
+                <div class="col-sm-12">
+                    <table class=" table-hover op-table table-display-view" data-bind="foreach: HangHoaAfterAdds">
+                        <tbody>
+                            <tr class="tr-view-sp">
+                                <td class="text-center display-hd-stt" data-bind="text: SoThuTu"></td>
+                                <td class="td-view-sp  display-hd-sp">
+                                    <div class=" floatleft view-sp">
+                                        <p>
+                                            <span class="sp-view-tenhh" data-bind="text: TenHangHoa">Tắm Trắng</span>
+                                            <span class="sp-view-dinhluong" data-bind="text: TenDonViTinh"> (ml)</span>
+                                        </p>
+                                    </div>
+                                    <div class="floatleft view-ghichu">
+                                        <p data-bind="visible: GhiChu_NVThucHien">
+                                            <span class="view-title-ghichu"> Thực hiện:</span>
+                                            <span class="sp-view-nvthuchien" data-bind="text: GhiChu_NVThucHien">Tắm Trắng</span>
+                                        </p>
+                                        <p data-bind="visible: GhiChu_NVTuVan">
+                                            <span class="view-title-ghichu">  Tư vấn:</span>
+                                            <span class="sp-view-nvthuchien" data-bind="text: GhiChu_NVTuVan">Tắm Trắng</span>
+                                        </p>
+                                        <p data-bind="visible: TenKhuyenMai">
+                                            <span class="view-title-ghichu"> Khuyến mại:</span>
+                                            <span class="sp-view-nvthuchien" data-bind="text: TenKhuyenMai">Tắm Trắng</span>
+                                        </p>
+                                    </div>
+                                    <div class="floatleft view-vitri" data-bind="visible: TenViTri">
+                                        <p>
+                                            <span class="view-title-ghichu"> Vị trí:</span>
+                                            <span class="vitri" data-bind="text: TenViTri">A3</span>
+                                        </p>
+                                    </div>
+                                    <div class="floatleft view-ghichu view-lo-sp" data-bind="visible: DM_LoHang.length > 0">
+                                        <p>
+                                            <span class="view-title-ghichu sp-v-solo"> Số lô:</span>
+                                            <span data-bind="text: DM_LoHang.length > 0? DM_LoHang[0].NgaySanXuat:''">lo1122232</span>
+                                        </p>
+                                        <div class="floatleft">
+                                            <div class="view-lo-sxngay">
+                                                <span class="view-title-ghichu">  Ngày sx:</span>
+                                                <span class="sp-view-ngaysx" data-bind="text: DM_LoHang.length > 0? DM_LoHang[0].NgaySanXuat:''">12/12/2019</span>
+                                            </div>
+                                            <div class="view-lo-sxngay">
+                                                <span class="view-title-ghichu">  Hạn sd:</span>
+                                                <span class="sp-view-hansd" data-bind="text: DM_LoHang.length > 0? DM_LoHang[0].NgayHetHan:''">12/12/2019</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center display-hd-sl" data-bind="text: SoLuong">1</td>
+                                <td class="text-right display-hd-price" data-bind="text: formatNumber(ThanhTien)">1</td>
+                            </tr>
+                            <!--ko foreach: DM_LoHang-->
+                            <!--ko if: $index() != 0-->
+                            <tr class="tr-view-lo">
+                                <td class="text-center display-hd-stt"></td>
+                                <td class="td-view-lo">
+                                    <div class="floatleft view-ghichu view-lo-sp">
+                                        <p>
+                                            <span class="view-title-ghichu sp-v-solo"> Số lô:</span>
+                                            <span data-bind="text: MaLoHang">lo1122232</span>
+                                        </p>
+                                        <div class="floatleft">
+                                            <div class="view-lo-sxngay">
+                                                <span class="view-title-ghichu">  Ngày sx:</span>
+                                                <span class="sp-view-ngaysx" data-bind="text: NgaySanXuat">12/12/2019</span>
+                                            </div>
+                                            <div class="view-lo-sxngay">
+                                                <span class="view-title-ghichu">  Hạn sd:</span>
+                                                <span class="sp-view-hansd" data-bind="text: NgayHetHan">12/12/2019</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="floatleft view-vitri" data-bind="visible: TenViTri">
+                                        <p>
+                                            <span class="view-title-ghichu"> Vị trí:</span>
+                                            <span class="vitri" data-bind="text: TenViTri">A3</span>
+                                        </p>
+                                    </div>
+                                </td>
+                                <td class="text-center display-hd-sl" data-bind="text: SoLuong">1</td>
+                                <td class="text-right display-hd-price" data-bind="text: formatNumber(ThanhTien)">1</td>
+                            </tr>
+                            <!--/ko-->
+                            <!--/ko-->
+                            <!--ko foreach: HangHoa_KM-->
+                            <tr class="tr-view-km">
+                                <td class="text-center display-hd-stt"></td>
+                                <td class="td-view-km display-hd-sp">
+                                    <div class=" floatleft view-sp">
+                                        <p>
+                                            <span class="sp-view-tenhh" data-bind="text: TenHangHoa">Tắm Trắng</span>
+                                            <span class="sp-view-dinhluong" data-bind="text: TenDonViTinh"> (ml)</span>
+                                            <span class="sp-view-km"> (KM)</span>
+                                        </p>
+                                    </div>
+                                </td>
+                                <td class="text-center" data-bind="text: SoLuong">1</td>
+                                <td class="text-right" data-bind="text: formatNumber(ThanhTien)">1</td>
+                            </tr>
+                            <!--/ko-->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row fixed-row-bottom view-footer">
+                <div class="floatleft "style="padding: 5px 15px">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Tổng tiền hàng:</label>
+                        <div class="css-form-detail flex text-right" style="justify-content:flex-end">
+                            <span data-bind="text: formatNumber3Digit(HoaDons().TongTienHang)"></span>
+                            <font>&nbsp;(VND)</font>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Giảm giá:</label>
+                        <div class="css-form-detail flex text-right" style="justify-content:flex-end">
+                            <span data-bind="text: formatNumber3Digit(HoaDons().TongGiamGiaKM_HD)"></span>
+                            <font>&nbsp;(VND)</font>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Thành tiền:</label>
+                        <div class="css-form-detail flex text-right" style="justify-content:flex-end">
+                            <span data-bind="text: formatNumber3Digit(HoaDons().PhaiThanhToan)"></span>
+                            <font>&nbsp;(VND)</font>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Thanh toán</label>
+                        <div class="css-form-detail flex text-right" style="justify-content:flex-end">
+                            <span data-bind="text: formatNumber3Digit(HoaDons().DaThanhToan)"></span>
+                            <font>&nbsp;(VND)</font>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Tiền thừa</label>
+                        <div class="css-form-detail flex text-right" style="justify-content:flex-end">
+                            <span data-bind="text: formatNumber3Digit(HoaDons().TienThua)"></span>
+                            <font>&nbsp;(VND)</font>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="/Scripts/jquery.signalR-2.2.2.min.js"></script>
+<script src="/signalr/hubs"></script>
+<script src="@Html.WriteRenderFile(Scripts.Url(" ~/bundles/DisplayCustomer"))" type="text/javascript"></script>
+<script>
+        $(document).ready(function () {
+                $('.modal-dialog').draggable({
+                    handle: ".modal-header"
+                });
+            })
+</script>

@@ -1,0 +1,320 @@
+﻿
+@model Model_banhang24vn.CustomView.UserRoleView
+@using Model_banhang24vn.Common
+@{
+    ViewBag.Title = "Contract";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+    var keyItPhone = (int)GridPagedingHellper.columContract.IT_Phone;
+    var keyItName= (int)GridPagedingHellper.columContract.IT_Name;
+    var keyHoTen = (int)GridPagedingHellper.columContract.Name;
+    var keyPhone = (int)GridPagedingHellper.columContract.Phone;
+    var keyCreatedate = (int)GridPagedingHellper.columContract.CreateDate;
+    var keyModifieddate = (int)GridPagedingHellper.columContract.ModifiedDate;
+    var keyModifiedBy = (int)GridPagedingHellper.columContract.ModifiedBy;
+    var keyStatus = (int)GridPagedingHellper.columContract.Status;
+}
+
+
+
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script>
+        function Customer() {
+            var self = this;
+            //===============================
+            // Khai báo chung
+            //===============================
+            self.koSearch = ko.observable(null);
+            self.ListContract = ko.observableArray();
+            self.PageItem = ko.observable();
+            self.pageCount = ko.observable();
+            self.page = ko.observable(1);
+            self.sort = ko.observable(1);
+            self.Colum = ko.observable(null);
+
+
+            //===============================
+            // Click tìm kiếm
+            //===============================
+
+            self.SearchGrid = function (d, e) {
+                if (e.keyCode === 13) {
+                    FilterGrid();
+                }
+            }
+            //===============================
+            // Phân trang 
+            //===============================
+            self.ClickPrevious = function () {
+                if (self.page() > 1) {
+                    self.page(self.page() - 1);
+                    FilterGrid();
+                }
+            }
+
+            self.ClickNext = function () {
+                if (self.page() < self.pageCount()) {
+                    self.page(self.page()+1);
+                    FilterGrid();
+                }
+            }
+
+            self.netPageKeyup = function (d, e) {
+                if (e.keyCode === 13) {
+                    if (self.page() > self.pageCount()
+                        || self.pageCount() === 1
+                        || !$.isNumeric(self.page())) {
+                        self.page(1);
+                    }
+                    FilterGrid();
+
+                }
+            }
+
+            $('#SelectedLimit').on('change', function () {
+                self.page(1);
+                FilterGrid();
+            });
+
+
+            $('#example thead tr').on('click', 'th', function () {
+
+                $("#iconSort").remove();
+                if (self.sort() === 0) {
+                    self.sort(1);
+                    this.innerHTML += " <i id='iconSort' class='fa fa-caret-down pull-right' aria-hidden='true'></i>";
+                }
+                else {
+                    self.sort(0);
+                    this.innerHTML += " <i id='iconSort' class='fa fa-caret-up pull-right' aria-hidden='true'></i>";
+                }
+                self.Colum($(this).data("id"));
+                FilterGrid();
+
+            });
+
+            //===============================
+            // Tìm kiếm gridview chung
+            //===============================
+            function FilterGrid() {
+                var model = {
+                    Search: self.koSearch(),
+                    Page: self.page(),
+                    Limit: $('#SelectedLimit').val(),
+                    Columname: self.Colum(),
+                    Sort: self.sort()
+                };
+
+                $.ajax({
+                    url: '/Open24Api/ApiStoreRegistration/SearchContract',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: model,
+                    success: function (result) {
+                        if (result.res === true) {
+                            self.ListContract(result.DataSoure.Data);
+                            self.PageItem(result.DataSoure.PageItem);
+                            self.pageCount(result.DataSoure.PageCount);
+                            self.page(result.DataSoure.Page);
+                        }
+                        else {
+                            alert(result.mess);
+                        }
+                    },
+                    error: function (evt) {
+                        AlertError("Đã xảy ra lỗi.");
+                    }
+                });
+            }
+            self.Contract_ID = ko.observable();
+            self.changeStatus = function (item) {
+                self.Contract_ID(item.ID);
+                $('#selected-Status').val(item.Status);
+                $('#myModal').modal('show');
+            }
+            self.saveStatusContract = function () {
+                var model = {
+                    ID: self.Contract_ID(),
+                    Status: parseInt($('#selected-Status').val())
+                };
+                $.ajax({
+                    url: '/Open24Api/ApiStoreRegistration/SaveStatusContract',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: model,
+                    success: function (result) {
+                        if (result.res === true) {
+                            FilterGrid();
+                            $('#myModal').modal('hide');
+                            AlertNotice(result.mess);
+                        }
+                        else {
+                            AlertError(result.mess);
+                        }
+                    },
+                    error: function (evt) {
+                        AlertError("Đã xảy ra lỗi.");
+                    }
+                });
+            }
+            self.clickLinkFrom = function (item) {
+
+                sessionStorage.setItem("SearchSubdomain", item);
+                window.open("/AdminPage/StoreRegistration");
+            }
+
+            FilterGrid();
+        };
+        ko.applyBindings(new Customer());
+
+        //===============================
+        // Hiện thị Datetime
+        //===============================
+        function ConvertDate(config) {
+            if (config === undefined
+                || config === null
+                || config.replace(/\s+/g, '') === "") {
+                return "";
+            }
+            else {
+                var a = moment(config).format('DD/MM/YYYY');
+                return a;
+            }
+        }
+    </script>
+
+}
+
+<div class="right_col">
+    <h3>Danh sách giới thiệu khách hàng</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-reponsive">
+                <table id="example" class="table table-bordered" cellspacing="0">
+                    <thead >
+                        <tr >
+                            <th colspan="2" style="text-align:center">Khách hàng giới thiệu</th>
+                            <th colspan="2" style="text-align:center">Khách được giới thiệu</th>
+                            <th colspan="4" style="text-align:center">Thông tin chung</th>
+                        </tr>
+                        <tr>
+                            <th data-id="@keyItName">Họ tên</th>
+                            <th data-id="@keyItPhone">Số điện thoại</th>
+                            <th data-id="@keyHoTen">Họ tên</th>
+                            <th data-id="@keyPhone">Số điện thoại</th>
+                            <th data-id="@keyCreatedate">Ngày tạo</th>
+                            <th data-id="@keyModifieddate">Ngày sửa</th>
+                            <th data-id="@keyModifiedBy">Người sửa</th>
+                            <th data-id="@keyStatus">Trạng thai</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListContract">
+                        <tr>
+                            <td data-bind="text: IT_Name"></td>
+                            <td> 
+                            <a href="javascrip:void(0)" style="color:#337ab7;text-decoration: underline;" data-bind="click: function(){ $parent.clickLinkFrom($data.StoreOpen) },text: IT_Phone"></a></td>
+                            <td data-bind="text: Name"></td>
+                            <td data-bind="visible:IsPhone"> 
+                                <a href="javascrip:void(0)" style="color:#337ab7;text-decoration: underline;" data-bind="click: function(){ $parent.clickLinkFrom($data.Phone) },text: Phone"></a>                     
+                            </td>
+                            <td data-bind="visible:!IsPhone,text: Phone"></td>
+                            <td data-bind="text: ConvertDate(CreatedDate)"></td>
+                            <td data-bind="text: ConvertDate(ModifiedDate)"></td>
+                            <td data-bind="text: ModifiedBy"></td>
+                            <td >
+                                @if(Model.RoleUpdate)
+                                {
+
+                                    <a href="javascript:void(0)" style="color:#337ab7;text-decoration: underline;" data-bind="text: Statuss,click:$parent.changeStatus"></a>
+                                }
+                               else
+                                {
+
+                                    <span  data-bind="text: Statuss" />
+                                }
+                            </td>
+                            
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;"> Cập nhật khách hàng được giới thiệu</h4>
+            </div>
+            <div class="modal-body">
+                <div class="content-addnews fl">
+                    <div class="fl form-addnews">
+                        <div class="col-md-12 title-add"><h4>Trạng thái</h4></div>
+                        <div class="col-md-12">
+                            <select class="form-control form-control-lg" id="selected-Status">
+                                @foreach (var item in Notification.TrangThaiContract.AsEnumerable())
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" data-bind="click:saveStatusContract"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

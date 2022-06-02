@@ -1,0 +1,244 @@
+﻿@using System.Web.Optimization
+@using banhang24.Hellper;
+@using Model;
+@{
+    Layout = null;
+}
+<link href="~/Content/NhanSu.css" rel="stylesheet" />
+<div class="container op-container" id="vLoaiBaoHiem">
+    <div class="row">
+        <div class="col-md-12 col-lg-12">
+            <div class="row">
+                <div class="op-header">
+                    <div class="op-header-title" >
+                        <h2 class="pull-left title"> @banhang24.Resources.ResourceTexts.Personnel / Loại bảo hiểm </h2>
+                    </div>
+                    <div class="flex flex-between">
+                        <div class="header-button">
+                            <div class="header-button-left">
+                                <button type="button" class="btn btn-main addHHH btn-main" aria-haspopup="true" aria-expanded="false" data-toggle="modal" v-on:click="Insert">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>     <font>Thêm mới</font>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="op-search">
+                                <button type="button" class=" op-search-button" v-on:click="GetForSearchLoaiBaoHiem(true)">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                                <input type="text" class="form-control " v-on:keyup="keymonitor" v-model="curentpage.text" placeholder="Nhập tên loại bảo hiểm">
+                            </div>
+                            <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                                <i class="material-icons">sort</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="op-filter">
+                    <section class="op-filter-body">
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)" v-on:click="ClickFilter.ThoiGian=!ClickFilter.ThoiGian">
+                                <img src="~/Content/images/icon/thoi-gian.png" height="14" />
+                                Thời gian
+                            </h3>
+                            <aside class="op-filter-container" v-show="ClickFilter.ThoiGian">
+                                <div class="menuCheckbox" id="SinhNhatSL">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <input type="radio" name="sinhnhat" data-id="1" checked />
+                                        </div>
+                                        <div class="conten-choose">
+                                            <div class=" choose-date ">
+                                                <div data-toggle="dropdown" aria-expanded="true">
+                                                    <input type="text" class="dropdown form-control choose-date-show" v-model="curentpage.textdate">
+                                                </div>
+                                                <div class="dropdown-menu " id="SelectNgaySinh">
+                                                    <div class="col-md-4 col-sm-4">
+                                                        <h3>Theo ngày và tuần</h3>
+                                                        <ul>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.homnay)"><a href="javascript:void(0);">hôm nay</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.homqua)"><a href="javascript:void(0);">hôm qua</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.tuannay)"><a href="javascript:void(0);">Tuần này</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.tuantruoc)"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-4">
+                                                        <h3>Theo tháng và quý</h3>
+                                                        <ul>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.thangnay)"><a href="javascript:void(0);">Tháng này</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.thangtruoc)"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.quynay)"><a href="javascript:void(0);">Quý này</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.quytruoc)"><a href="javascript:void(0);">Quý trước</a></li>
+                                                        </ul>
+                                                    </div><div class="col-md-4 col-sm-4">
+                                                        <h3>Theo năm</h3>
+                                                        <ul>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.namnay)"><a href="javascript:void(0);">Năm này</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.namtruoc)"><a href="javascript:void(0);">Năm trước</a></li>
+                                                            <li value="@((int)commonEnumHellper.TypeBirthDay.toanthoigian)"><a href="javascript:void(0);">Toàn thời gian</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <input type="radio" name="sinhnhat" data-id="0" />
+                                        </div>
+                                        <div class="conten-choose">
+                                            <div class="floatleft form-wrap ">
+                                                <input type='text' class="form-control daterange newDateTime" disabled
+                                                       placeholder="Lựa chọn khác" name="daterange" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" v-on:click="ClickFilter.TrangThai=!ClickFilter.TrangThai">
+                                <img src="/Content/images/icon/trangthai-black.png"> Trạng thái
+                            </h3>
+                            <aside class="op-filter-container" v-show="ClickFilter.TrangThai">
+                                <div class="menuCheckbox choose_TrangThai ft-select-trang-thai">
+                                    <ul>
+                                        <li>
+                                            <input value="@((int)commonEnumHellper.eLoaiBaoHiem.dangapdung)" type="checkbox" v-on:click="AddTrangThai"> Đang áp dụng
+                                        </li>
+                                        <li>
+                                            <input value="@((int)commonEnumHellper.eLoaiBaoHiem.ngungapdung)" type="checkbox" v-on:click="AddTrangThai">Ngừng áp dụng
+                                        </li>
+                                    </ul>
+                                </div>
+                            </aside>
+                        </article>
+                    </section>
+                    <div class="op-filter-footer">
+                        <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                        <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                            <span>Thu gọn</span>
+                        </button>
+                        <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                            <span>Mở rộng</span>
+                        </button>
+                        <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                    </div>
+                </div>
+                <div class="content-table content-table" id="myScrollspy" style="top: 48px;position: sticky;">
+                    <div class="table-reponsive table-HH banghh tablescroll" id="table-reponsive">
+                        <table class=" table-hover op-table">
+                            <thead class="table-border">
+                                <tr>
+                                    <th class="text-center" style="width:50px">STT</th>
+                                    <th class="text-left">Tên loại bảo hiểm</th>
+                                    <th class="text-center">Ngày áp dụng</th>
+                                    <th class="text-center">Tỷ lệ công ty đóng</th>
+                                    <th class="text-center">Tỷ lệ nhân viên đóng</th>
+                                    <th class="text-left">Người tạo</th>
+                                    <th class="text-center">Ngày tạo</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-left">Ghi chú</th>
+                                    <th class="text-center" style="width:50px">#</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template v-for="(item, index) in   databind.data">
+                                    <tr class="op-tr-show">
+                                        <td class="text-center">{{index+1}}</td>
+                                        <td class="text-left">{{item.TenBaoHiem}}</td>
+                                        <td class="text-center">{{commonStatisJs.convertDateTime(item.NgayApDung)}}</td>
+                                        <td class="text-center">{{item.TyLeCongTy + '%'}}</td>
+                                        <td class="text-center">{{item.TyLeNhanVien+'%'}}</td>
+                                        <td class="text-left">{{item.NguoiTao}}</td>
+                                        <td class="text-center">{{commonStatisJs.convertDateTime(item.NgayTao)}}</td>
+                                        <td class="text-center">{{item.TrangThai===1?"Đang áp dụng":"Ngừng áp dụng"}}</td>
+                                        <td class="text-left">{{item.GhiChu}}</td>
+                                        <td class="text-center">
+                                            <a href=" javascript:void(0)" title="Cập nhật loại bảo hiểm" v-on:click="Edit(item)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                            <a href=" javascript:void(0)" v title="Xóa loại bảo hiểm" style="color:red" v-on:click="Delete(item)"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                                <tr>
+                                    <td class="bg12 bhma text-center" colspan="10"><i>Không có dữ liệu</i></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                     <div class="page">
+                                <div class="flex flex-row">
+                                    <label>Số bản ghi:</label>
+                                    <select class="form-control seleted-page" v-model="curentpage.pagesize" v-on:change="SelectPageSize">
+                                        <option v-for="(item, index) in listpagesize" v-bind:value="item">
+                                            {{item}}
+                                        </option>
+                                    </select>
+                                </div>
+                                    <div class="flex flex-end">
+                                        <a href="javascript:void(0)" v-show="databind.isprev" v-on:click="ButtonSelectPage(0,true)"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" v-show="databind.isprev" v-on:click="ButtonSelectPage(-1)"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" v-show="!databind.isprev" class="a-disable"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" v-show="!databind.isprev" class="a-disable"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                        <ul class="list-page">
+                                            <li v-for="(item, index) in databind.listpage" v-show="databind.listpage.length>0">
+                                                <a href="javascript:void(0)" v-on:click="SelectPage(item)" v-bind:class="[item==databind.pagenow ? 'click' : '']">{{item}}</a>
+                                            </li>
+                                        </ul>
+                                        <a href="javascript:void(0)" v-show="!databind.isnext" class="a-disable"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" v-show="!databind.isnext" class="a-disable"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" v-show="databind.isnext" v-on:click="ButtonSelectPage(1)"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" v-show="databind.isnext" v-on:click="ButtonSelectPage(0,false)"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                        <div class="total-recos" style="    margin-top: 4px;">
+                                            {{databind.pageview}}
+                                        </div>
+                                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+@Html.Partial("_ThemMoiLoaiBaoHiemPartial")
+<script>
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tạo báo cáo",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        })
+    })
+</script>
+<script src="~/Scripts/NhanSu/LoaiBaoHiem.js"></script>

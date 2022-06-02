@@ -1,0 +1,215 @@
+﻿@{
+    ViewBag.Title = "Thêm mới bài viết tin tức";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/abc")
+    <script src="~/Content/js/jquery.growl.js" type="text/javascript"></script>
+    <script src="~/Assets/js/Admin/Main.js" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/CkEditor/ckeditor.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/ckfinder/ckfinder.js")" type="text/javascript"></script>
+    <script src="~/Content/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script type="text/javascript">
+        $("#datetimepicker").datetimepicker({
+            format: "MM/DD/YYYY HH:mm",
+            defaultDate: null,
+            minDate: new Date()
+        });
+        $('#datetimepicker').find("input").val(null);
+    </script>
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        CKEDITOR.replace('txtContentNews',
+            {
+                entermode: CKEDITOR.ENTER_BR,
+                toolbar: [[
+                    'Bold', 'Italic', 'Underline', 'Subscript',
+                    'Superscript', 'Image', 'Table', 'NumberedList',
+                    'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
+                    'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link', 'Unlink', 'TextColor', 'Maximize', 'Source',
+                    'FontSize', 'Format', 'Font'
+                ]]
+        });
+        CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+        });
+    function back() {
+        location.href = "/AdminPage/Post";
+    }
+</script>
+<style type="text/css">
+    .thumb {
+        height: 75px;
+        border: 1px solid #000;
+        margin: 10px 5px 0 0;
+    }
+    .btn-file {
+        width: 180px;
+    }
+</style>
+
+<div class="right_col" role="main">
+    <div class="addnews fl">
+        <h3>Thêm mới bài viết</h3>
+        <div class="content-addnews fl" >
+            <div class="col-md-8">
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Tiêu đề<span class="red">(*)</span></h4></div>
+                    <div class="col-md-12">
+                        <input type="text" class="form-control" id="valTitleNews" data-bind="value: dbkoTitleNews,event:{ change: nameNewsChanged}" />
+                        <div id="validateTitleNews" style="color:red"></div>
+                    </div>
+
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Url  <span class="red">(*)</span></h4></div>
+                    <div class="col-md-12">
+                        <div class="fl">
+                            <input type="text" class="form-control" data-bind="value: Url,event:{ change: UrlChanged}" />
+                        </div>
+                        <div class="fl">
+                            <p class="seo-link">https://.../<span data-bind="text: Url"></span>...html</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Thể loại<span class="red">(*)</span></h4></div>
+                    <div class="col-md-12">
+                        <select class="form-control" id="selCategoryNews" data-bind="options:GroupCateNews, optionsText: 'Name', optionsValue: 'ID'"></select>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Thẻ tag</h4></div>
+                    <div class="col-md-12">
+                        <input type="text" class="form-control" id="valTagNews" data-bind="value: dbkoTagNews" />
+                        <div id="validateTagNews" style="color:red"></div>
+                    </div>
+                </div>
+
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Mô tả</h4></div>
+                    <div class="col-md-12">
+                        <textarea class="form-control" rows="5" id="valSummaryNews" data-bind="value: dbkoSummaryNews"></textarea>
+                        <div id="validateSummaryNews" style="color:red"></div>
+                    </div>
+                </div>
+
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Nội dung<span class="red">(*)</span></h4></div>
+                    <div class="col-md-12">
+                        <textarea class="ckeditor" id="txtContentNews"></textarea>
+                        <div id="checkeditorValidate" style="color:red"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Thời gian đang bài</h4></div>
+                    <div class="col-md-12">
+                        <div class="container">
+                                <div class='input-group date' id='datetimepicker'>
+                                    <input type='text' class="form-control" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                        <div class="col-md-12">
+                            <span class="btn  btn-file form-control">
+                                Chọn ảnh đại diện <input type='file' id="imageUploadForm" accept=".jpg,.gif,.png" name="image" onchange="readURL(this);" />
+                            </span>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="fl">
+                                <img src="~/Content/images/imgdemo.png" id="blah" alt="Ảnh tải lên" />
+                            </div>
+                        </div>
+                    </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Trạng thái</h4></div>
+                    <div class="col-md-12">
+                        <div class="radio-addnews">
+                            <input type="radio" data-bind="checked: dbkoStatusNews, checkedValue: true" /> Hiện thị
+                        </div>
+                        <div class="radio-addnews">
+                            <input type="radio" data-bind="checked: dbkoStatusNews, checkedValue: false" /> Ẩn
+                        </div>
+                    </div>
+                    </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add checkedGhim"><h5><input type="checkbox" class="custom-control-input"> Ghim bài viết  </h5></div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-12">
+                        <div class="pull-left">
+                            <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: insertArticleNews"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn btn-light" onclick="back()"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Quay lại</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+        </div>
+    </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal5">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Thêm mới thể loại</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group floatleft">
+                        <label class="form-label control-label ">Thể loại</label>
+                        <div class="form-wrap">
+                            <input type="text" class="form-control" id="valCateNews" data-bind="value: valCategoryNameNews">
+                            <div id="validateCateNews" style="color:red"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                    <button class="btn-updata btn-green" data-bind="click: insertCateTypeNews"><i class="fa fa-floppy-o"></i> Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+        });
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result)
+                        .width(200)
+                        .height(150);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function getBase64Image(img) {
+            var canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            var dataURL = canvas.toDataURL("image/png");
+
+            return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+        }
+
+
+    </script>

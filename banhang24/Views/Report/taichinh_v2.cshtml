@@ -1,0 +1,2623 @@
+﻿@using System.Web.Optimization;
+@using banhang24.Hellper;
+<style>
+    h4{
+        margin:0
+    }
+    .treename {
+        line-height: 30px;
+        width: 100%;
+        float: left;
+    }
+    ._tr-bold {
+        font-weight: bold;
+    }
+    .trbolds td {
+        font-weight: bold !important;
+        border-bottom: 1px solid black;
+    }
+    .tdMargin {
+        padding-left: 20px !important;
+    }
+    .sum-soquy > div {
+        display: flex;
+        line-height: 24px;
+        padding: 3px 5px;
+        justify-content: flex-end;
+    }
+        .sum-soquy > div > span:last-child {
+            display: inline-block;
+            width: 200px;
+            text-align: right;
+        }
+        .sum-soquy > div > span {
+            font-weight: bold;
+        }
+</style>
+<style>
+    .table-frame > table > thead > tr:nth-child(2) > th {
+        top: 30px !important
+    }
+    .tab-pane {
+        position: relative;
+    }
+    .StartImport {
+        margin-right: 5px;
+        z-index: 0;
+        display: inline-block;
+        background: #808080;
+        color: #fff;
+        font-weight: bold;
+        font-size: 12px;
+        padding: 7px 15px;
+        white-space: nowrap;
+        border: none;
+        vertical-align: middle;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+    .SelectReport {
+        background: #bee69f;
+        color: #000000;
+    }
+    .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline !important;
+    }
+    .nameDonVi input {
+        border: none;
+        height: 30px;
+        outline: none;
+        padding-left: 10px;
+        width: 50%;
+    }
+</style>
+<div class="op-container " id="reportTaiChinh">
+    <div class="container-fluid nopadding position-relative">
+        <div class="op-baocao-type">
+            <ul class="floatleft">
+                <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_TongHopCongNo').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                        Tổng hợp công nợ
+                    </label>
+                </li>
+                <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_NhatKyThuTien').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                        Nhật ký thu tiền
+                    </label>
+                </li>
+                <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_NhatKyChiTien').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="3" v-model="LoaiBaoCao" class="radio-option" />
+                        Nhật ký chi tiền
+                    </label>
+                </li>
+                <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_SoQuy').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="4" v-model="LoaiBaoCao" class="radio-option" />
+                        Sổ quỹ
+                    </label>
+                </li>
+                <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_TaiChinh').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="5" v-model="LoaiBaoCao" class="radio-option" />
+                        Báo cáo kết quả kinh doanh
+                    </label>
+                </li>
+                <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_PhanTichThuChi').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="6" v-model="LoaiBaoCao" class="radio-option" />
+                        Phân tích thu chi
+                    </label>
+                </li>
+            </ul>
+        </div>
+        <div class="col-left">
+            <div class=" op-filter ">
+                <section class="op-filter-body">
+                    <article class="boxLeft op-baocao-classic">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/report-loaibaocao.png"> Loại báo cáo
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <ul class="floatleft">
+                                    <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_TongHopCongNo').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                                            Tổng hợp công nợ
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_NhatKyThuTien').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                                            Nhật ký thu tiền
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_NhatKyChiTien').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="3" v-model="LoaiBaoCao" class="radio-option" />
+                                            Nhật ký chi tiền
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_SoQuy').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="4" v-model="LoaiBaoCao" class="radio-option" />
+                                            Sổ quỹ
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_TaiChinh').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="5" v-model="LoaiBaoCao" class="radio-option" />
+                                            Báo cáo kết quả kinh doanh
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_PhanTichThuChi').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="6" v-model="LoaiBaoCao" class="radio-option" />
+                                            Phân tích thu chi
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft " v-show="LoaiBaoCao !== '1'">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="listChiNhanh" v-on:callfunctionloaddata="ChiNhanhChange"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showLoaiDoiTac" v-show="LoaiBaoCao !== '5'">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaihang.png">  Loại đối tác
+                        </h3>
+                        <filter-checkbox v-bind:listitem="listLoaiDoiTac" v-on:callfunctionloaddata="LoaiDoiTacChange"></filter-checkbox>
+                    </article>
+                    <article class="boxLeft showTimeTC" v-show="['5', '6'].includes(LoaiBaoCao)">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />   Thời gian
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container pinbut0">
+                            <div class="menuCheckbox">
+                                <div class="outselect ">
+                                    <div class="choose-person" id="choose-person" data-toggle="dropdown" aria-expanded="true">
+                                        <input class="form-control" type="text" v-model="YearSelect" />
+                                    </div>
+                                    <div class="selec-person dropdown-menu">
+                                        <ul v-for="item in ListYear">
+                                            <li v-on:click="if(YearSelect !== item){YearSelect = item;}"><span>{{item}}</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio">
+                                <div class="flex flex-column">
+                                    <label><input type="radio" name="TaiChinhLoaiThoiGian" value="1" v-model="TaiChinhLoaiThoiGian" class="radio-option" />Theo tháng</label>
+                                    <label><input type="radio" name="TaiChinhLoaiThoiGian" value="2" v-model="TaiChinhLoaiThoiGian" class="radio-option" />Theo quý</label>
+                                    <label><input type="radio" name="TaiChinhLoaiThoiGian" value="3" v-model="TaiChinhLoaiThoiGian" class="radio-option" />Theo năm</label>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" v-show="!['5', '6', '4'].includes(LoaiBaoCao) || (LoaiBaoCao === '4' && SoQuyLoai !== 4)">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/ngaytao.png" />
+                            Thời gian
+                        </h3>
+                        <filter-datetime radioname="rdThoiGian" v-bind:typetime="ThoiGian.TypeTime"
+                                         v-on:callfunction="onCallThoiGian"
+                                         v-bind:selectvalue="3"></filter-datetime>
+                    </article>
+                    <article class="boxLeft DatePK showDate"
+                             id="BCSQtheoCN" v-show="LoaiBaoCao === '4' && SoQuyLoai === 4">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />      Đến ngày
+                        </h3>
+                        <aside class="op-filter-container DatePK ">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="floatleft form-wrap ">
+                                        <input class="form-control" id="datetimepicker_mask" autocomplete="off" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showNhomKH" v-show="LoaiBaoCao !== '5'">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/nguoiban.png" />     Nhóm khách hàng
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="listNhomKhachHang" v-on:callfunctionloaddata="NhomKhachHangNhaCungCapChange"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showNhomNCC" v-show="LoaiBaoCao !== '5'">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/nguoiban.png" />     Nhóm nhà cung cấp
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="listNhomNhaCungCap" v-on:callfunctionloaddata="NhomKhachHangNhaCungCapChange" placeholder="Chọn"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showLoaiThuChi" v-show="['2','3', '4','6'].includes(LoaiBaoCao)">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">   Loại phiếu
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="GetListLoaiPhieuThuChi()" v-on:callfunctionloaddata="LoaiPhieuChange"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" v-show="['1'].includes(LoaiBaoCao)">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/ketquakinhdoanh.png"> Trạng thái
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdTrangThaiCongNo" v-model="TrangThaiCongNo" value="0">Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTrangThaiCongNo" v-model="TrangThaiCongNo" value="1">Phát sinh trong kỳ</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTrangThaiCongNo" v-model="TrangThaiCongNo" value="2">Còn nợ</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showKQKD" v-show="['2', '3', '4', '6'].includes(LoaiBaoCao)">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/ketquakinhdoanh.png">       Kết quả kinh doanh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_LocKinhDoanh">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdKinhDoanhTM" v-model="HachToanKinhDoanh" value="true"> Đưa vào hạch toán</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdKinhDoanhTM" v-model="HachToanKinhDoanh" value="false"> Không hạch toán</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdKinhDoanhTM" v-model="HachToanKinhDoanh" value="">Tất cả</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showLoaiTien" v-show="LoaiBaoCao === '6'">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />   Hình thức thanh toán
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_LoaiTien">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdLoaiTien" value="" v-model="HinhThucThanhToan"> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdLoaiTien" value="1" v-model="HinhThucThanhToan"> Tiền mặt</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdLoaiTien" value="2" v-model="HinhThucThanhToan"> Ngân hàng</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+            <div class="op-filter-footer">
+                <button type="button" class="kv2Btn">Hoàn tất</button>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title op-baocao-title">
+                    <h2 class="title" onclick="showTypeBc()">Báo cáo tài chính</h2>
+                </div>
+                <div style="height:unset; text-align:center">
+                    <h4 class="floatleft flex  flex-center">
+                        <label>{{ BaoCaoTieuDe }}</label>
+                    </h4>
+                    <span class="floatleft showTodayBC" v-show="!['5', '6'].includes(LoaiBaoCao)">{{ BaoCaoThoiGianText }}</span>
+                    <span class="floatleft showTodayBC_ChiNhanh" v-show="LoaiBaoCao !== '1'">Chi nhánh: {{listChiNhanh.filter(p => p.CNChecked === true).length === 0? 'Toàn bộ chi nhánh' : listChiNhanh.filter(p => p.CNChecked === true).map(p=>p.TenDonVi).toString()}}</span>
+                </div>
+                <div class="flex flex-between">
+                    <div class="header-button">
+                        <button class="btn btn-main btnExport" id="btnExport" name="btnExport" style="margin-right: 4px;" v-on:click="ExportExcel" v-if="VHeader.Quyen.filter(p => p === 'BCTC_XuatFile').length > 0">
+                            <i class="fa fa-file-excel-o"></i> Xuất Excel
+                        </button>
+                        <div style="position:relative" class="btn-dropdown" id="select-column" v-show="['1', '2','3'].includes(LoaiBaoCao) || (LoaiBaoCao === '4' && SoQuyLoai !== 4)">
+                            <button type="button" class="btn btn-main dropdown-toggle" onclick="showCollumnFilter(this)" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-angle-double-down"></i>
+                            </button>
+                            <div class="dropdown-list">
+                                <ul>
+                                    <li v-for="item in ListHeader">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                <span></span>
+                                                {{item.colText}}
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search" v-show="!['5', '6'].includes(LoaiBaoCao) && !(LoaiBaoCao === '4' && SoQuyLoai === 4)">
+                            <input type="text" class="form-control" v-model="TextSearch" placeholder="Tìm kiếm ..." v-on:keyup="TextSearchOnKeyUp">
+                            <button type="button" class=" op-search-button" v-on:click="TextSearchChange">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table " id="myScrollspy">
+                <div class="tab-content tab-show nopadding" style="transition: filter 0.3s linear" v-bind:style="[isLoading === true ? {'filter': 'blur(3px)'} : '']">
+                    <div v-show="LoaiBaoCao !== '4'">
+                        <div class="table-reponsive table-frame">
+                            <table class="table table-striped table-hover" v-if="LoaiBaoCao === '1'">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in ListHeader.filter(p=>p.colShow === true)" v-bind:rowspan="[0, 1, 2].includes(item.index)? 2 : 1"
+                                            v-bind:colspan="[0, 1, 2].includes(item.index)? 1 : 2"
+                                            v-bind:class="{'bg17 middle':[0, 1, 2].includes(item.index), 'text-center':[0, 1, 2].includes(item.index)=== false, 'bg18': item.index===3, 'bg20': item.index===4, 'bg21': item.index===5}">{{item.colText}}</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg18 text-right" v-if="ListHeader.find(p=>p.colName === 'colDauKy').colShow">Phải thu</th>
+                                        <th class="bg18 text-right" v-if="ListHeader.find(p=>p.colName === 'colDauKy').colShow">Phải trả</th>
+                                        <th class="bg20 text-right" v-if="ListHeader.find(p=>p.colName === 'colTrongKy').colShow">Phải thu</th>
+                                        <th class="bg20 text-right" v-if="ListHeader.find(p=>p.colName === 'colTrongKy').colShow">Phải trả</th>
+                                        <th class="bg21 text-right" v-if="ListHeader.find(p=>p.colName === 'colCuoiKy').colShow">Phải thu</th>
+                                        <th class="bg21 text-right" v-if="ListHeader.find(p=>p.colName === 'colCuoiKy').colShow">Phải trả</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in BaoCaoTongHopCongNo.dataView">
+                                        <td class="text-left" v-if="ListHeader.find(p=>p.colName === 'colNhomDoiTac').colShow"><span>{{item.NhomDoiTac}}</span></td>
+                                        <td class="text-left" v-if="ListHeader.find(p=>p.colName === 'colMaDoiTac').colShow"><span>{{item.MaDoiTac}}</span></td>
+                                        <td class="text-left" v-if="ListHeader.find(p=>p.colName === 'colTenDoiTac').colShow"><span>{{item.TenDoiTac}}</span></td>
+                                        <td class="text-right" v-if="ListHeader.find(p=>p.colName === 'colDauKy').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.PhaiThuDauKy, 0)}}</span></td>
+                                        <td class="text-right" v-if="ListHeader.find(p=>p.colName === 'colDauKy').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.PhaiTraDauKy, 0)}}</span></td>
+                                        <td class="text-right" v-if="ListHeader.find(p=>p.colName === 'colTrongKy').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.TongTienChi, 0)}}</span></td>
+                                        <td class="text-right" v-if="ListHeader.find(p=>p.colName === 'colTrongKy').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.TongTienThu, 0)}}</span></td>
+                                        <td class="text-right" v-if="ListHeader.find(p=>p.colName === 'colCuoiKy').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.PhaiThuCuoiKy, 0)}}</span></td>
+                                        <td class="text-right" v-if="ListHeader.find(p=>p.colName === 'colCuoiKy').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.PhaiTraCuoiKy, 0)}}</span></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-show="BaoCaoTongHopCongNo.data.length>0">
+                                    <tr class="bold">
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index < 3 && p.colShow).length" class="bg12" v-if="ListHeader.filter(p=>p.index < 3 && p.colShow).length > 0">Tổng cộng</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colDauKy').colShow">{{commonStatisJs.FormatNumber3Digit(BaoCaoTongHopCongNo.sPhaiThuDauKy, 0)}}</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colDauKy').colShow">{{commonStatisJs.FormatNumber3Digit(BaoCaoTongHopCongNo.sPhaiTraDauKy, 0)}}</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTrongKy').colShow">{{commonStatisJs.FormatNumber3Digit(BaoCaoTongHopCongNo.sTongTienChi, 0)}}</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTrongKy').colShow">{{commonStatisJs.FormatNumber3Digit(BaoCaoTongHopCongNo.sTongTienThu, 0)}}</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colCuoiKy').colShow">{{commonStatisJs.FormatNumber3Digit(BaoCaoTongHopCongNo.sPhaiThuCuoiKy, 0)}}</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colCuoiKy').colShow">{{commonStatisJs.FormatNumber3Digit(BaoCaoTongHopCongNo.sPhaiTraCuoiKy, 0)}}</td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoTongHopCongNo.data.length<=0 || isLoading">
+                                    <tr>
+                                        <td v-show="!isLoading" class=" text-center" v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <table class="table table-striped table-hover" v-if="LoaiBaoCao === '2'">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in ListHeader.filter(p=>p.colShow === true)"
+                                            v-bind:class="{'text-left': [0,1,2,4,5,10].includes(item.index), 'text-center': [3,7,8,9].includes(item.index), 'text-right': [6].includes(item.index)}">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in BaoCaoNhatKyThuTien.dataView">
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colNhomDoiTac').colShow"><span>{{item.NhomDoiTuong}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colHdLienQuan').colShow"><span>{{item.MaHoaDon}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colMaPhieuThu').colShow"><span>{{item.MaPhieuThu}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colNgayLapPhieu').colShow"><span>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colMaNguoiNop').colShow"><span>{{item.MaNguoiNop}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colTenNguoiNop').colShow"><span>{{item.TenNguoiNop}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colTongTienThu').colShow" class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.ThuChi, 0)}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colKhoanMuc').colShow"><span>{{item.NoiDungThuChi}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colGhiChu').colShow"><span>{{item.GhiChu}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colLoaiPhieu').colShow"><span>{{item.LoaiThuChi}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colChiNhanh').colShow"><span>{{item.TenChiNhanh}}</span></td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr class="bold">
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index < 6 && p.colShow).length" class="bg12">Tổng cộng:</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTongTienThu').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoNhatKyThuTien.sTongThuChi, 0)}}</span></td>
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index > 6 && p.colShow).length" class="bg12"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-striped table-hover" v-if="LoaiBaoCao === '3'">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in ListHeader.filter(p=>p.colShow === true)"
+                                            v-bind:class="{'text-left': [0,1,2,4,5,10].includes(item.index), 'text-center': [3,7,8,9].includes(item.index), 'text-right': [6].includes(item.index)}">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in BaoCaoNhatKyChiTien.dataView">
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colNhomDoiTac').colShow"><span>{{item.NhomDoiTuong}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colHdLienQuan').colShow"><span>{{item.MaHoaDon}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colMaPhieuChi').colShow"><span>{{item.MaPhieuThu}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colNgayLapPhieu').colShow"><span>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colMaNguoiNhan').colShow"><span>{{item.MaNguoiNop}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colTenNguoiNhan').colShow"><span>{{item.TenNguoiNop}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colTongTienChi').colShow" class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.ThuChi, 0)}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colKhoanMuc').colShow"><span>{{item.NoiDungThuChi}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colGhiChu').colShow"><span>{{item.GhiChu}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colLoaiPhieu').colShow"><span>{{item.LoaiThuChi}}</span></td>
+                                        <td v-if="ListHeader.find(p=>p.colName === 'colChiNhanh').colShow"><span>{{item.TenChiNhanh}}</span></td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr class="bold">
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index < 6 && p.colShow).length" class="bg12">Tổng cộng:</td>
+                                        <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTongTienChi').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoNhatKyChiTien.sTongThuChi, 0)}}</span></td>
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index > 6 && p.colShow).length" class="bg12"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div v-if="LoaiBaoCao === '5'" class="table-frame">
+                                <table class="table table-striped table-hover" v-if="TaiChinhLoaiThoiGian === '1'">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Tên loại</th>
+                                            <th class="tenthang text-right Thang1">T1.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang2">T2.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang3">T3.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang4">T4.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang5">T5.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang6">T6.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang7">T7.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang8">T8.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang9">T9.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang10">T10.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang11">T11.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang12">T12.<span>{{YearSelect}}</span></th>
+                                            <th class="text-right">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in BaoCaoKetQuaKinhDoanhTheoThang.data">
+                                            <td class="mahang" v-bind:class="{'padding33' : ListIndex.includes(index)}"><span v-bind:title="item.GhiChu">{{item.TaiChinh}}</span></td>
+                                            <td class="tenhang text-right Thang1" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang1, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang2" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang2, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang3" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang3, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang4" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang4, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang5" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang5, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang6" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang6, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang7" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang7, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang8" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang8, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang9" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang9, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang10" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang10, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang11" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang11, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang12" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Thang12, 0)}}</span></td>
+                                            <td class="tenhang text-right bold"><span>{{commonStatisJs.FormatNumber3Digit(item.Tong, 0)}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover" v-if="TaiChinhLoaiThoiGian === '2'">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Tên loại</th>
+                                            <th class="tenhang text-right">Q1.<span>{{YearSelect}}</span></th>
+                                            <th class="tenhang text-right">Q2.<span>{{YearSelect}}</span></th>
+                                            <th class="tenhang text-right">Q3.<span>{{YearSelect}}</span></th>
+                                            <th class="tenhang text-right">Q4.<span>{{YearSelect}}</span></th>
+                                            <th class="nhomhang text-right">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in BaoCaoKetQuaKinhDoanhTheoQuy.data">
+                                            <td class="mahang" v-bind:class="{'padding33' : ListIndex.includes(index)}"><span>{{item.TaiChinh}}</span></td>
+                                            <td class="tenhang text-right Thang1" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Quy1, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang2" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Quy2, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang1" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Quy3, 0)}}</span></td>
+                                            <td class="tenhang text-right Thang2" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Quy4, 0)}}</span></td>
+                                            <td class="tenhang text-right bold"><span>{{commonStatisJs.FormatNumber3Digit(item.Tong, 0)}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover" v-if="TaiChinhLoaiThoiGian === '3'">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Tên loại</th>
+                                            <th class="tenhang text-right"><span>{{YearSelect}}</span></th>
+                                            <th class="nhomhang text-right">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in BaoCaoKetQuaKinhDoanhTheoNam.data">
+                                            <td class="mahang" v-bind:class="{'padding33' : ListIndex.includes(index)}"><span>{{item.TaiChinh}}</span></td>
+                                            <td class="tenhang text-right" v-bind:class="{'color_text' : ListIndex.includes(index)}"><span>{{commonStatisJs.FormatNumber3Digit(item.Tong, 0)}}</span></td>
+                                            <td class="tenhang text-right bold"><span>{{commonStatisJs.FormatNumber3Digit(item.Tong, 0)}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="LoaiBaoCao === '6'" class="table-frame">
+                                <table class="table table-striped table-hover _table-quy" v-if="TaiChinhLoaiThoiGian === '1'">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Khoản thu chi</th>
+                                            <th class="tenthang text-right Thang1">T1.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang2">T2.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang3">T3.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang4">T4.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang5">T5.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang6">T6.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang7">T7.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang8">T8.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang9">T9.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang10">T10.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang11">T11.<span>{{YearSelect}}</span></th>
+                                            <th class="tenthang text-right Thang12">T12.<span>{{YearSelect}}</span></th>
+                                            <th class="text-right tr-bold">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in BaoCaoPhanTichThuChiTheoThang.data" v-bind:class="{'bold': ['00000010-0000-0000-0000-000000000010', '00000030-0000-0000-0000-000000000030'].includes(item.ID_KhoanThuChi)}">
+                                            <td v-bind:class="{'tdMargin': ['00000010-0000-0000-0000-000000000010', '00000030-0000-0000-0000-000000000030'].includes(item.ID_KhoanThuChi)}">
+                                                <span>{{item.KhoanMuc}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang1, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang2, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang3, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang4, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang5, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang6, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang7, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang8, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang9, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang10, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang11, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Thang12, 0)}}</span>
+                                            </td>
+                                            <td class="text-right bold">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.TongCong, 0)}}</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover _table-quy" v-if="TaiChinhLoaiThoiGian === '2'">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Khoản thu chi</th>
+                                            <th class="tenhang text-right">Q1.<span>{{YearSelect}}</span></th>
+                                            <th class="tenhang text-right">Q2.<span>{{YearSelect}}</span></th>
+                                            <th class="tenhang text-right">Q3.<span>{{YearSelect}}</span></th>
+                                            <th class="tenhang text-right">Q4.<span>{{YearSelect}}</span></th>
+                                            <th class="nhomhang text-right">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in BaoCaoPhanTichThuChiTheoQuy.data" v-bind:class="{'bold': ['00000010-0000-0000-0000-000000000010', '00000030-0000-0000-0000-000000000030'].includes(item.ID_KhoanThuChi)}">
+                                            <td v-bind:class="{'tdMargin': ['00000010-0000-0000-0000-000000000010', '00000030-0000-0000-0000-000000000030'].includes(item.ID_KhoanThuChi)}">
+                                                <span>{{item.KhoanMuc}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Quy1, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Quy2, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Quy3, 0)}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.Quy4, 0)}}</span>
+                                            </td>
+                                            <td class="text-right bold">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.TongCong, 0)}}</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover _table-nam" v-if="TaiChinhLoaiThoiGian === '3'">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Khoản thu chi</th>
+                                            <th class="tenhang text-right"><span>{{YearSelect}}</span></th>
+                                            <th class="nhomhang text-right">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in BaoCaoPhanTichThuChiTheoNam.data" v-bind:class="{'bold': ['00000010-0000-0000-0000-000000000010', '00000030-0000-0000-0000-000000000030'].includes(item.ID_KhoanThuChi)}">
+                                            <td v-bind:class="{'tdMargin': ['00000010-0000-0000-0000-000000000010', '00000030-0000-0000-0000-000000000030'].includes(item.ID_KhoanThuChi)}">
+                                                <span>{{item.KhoanMuc}}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.TongCong, 0)}}</span>
+                                            </td>
+                                            <td class="text-right bold">
+                                                <span>{{commonStatisJs.FormatNumber3Digit(item.TongCong, 0)}}</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="LoaiBaoCao === '4'">
+                        <div class="sum-soquy" style="justify-content: space-between; display: flex;">
+                            <ul class="nav nav-tabs nav-news " style=" width: auto;">
+                                <li v-bind:class="{'active': SoQuyLoai === 1}" v-on:click="ChonLoaiSoQuy(1)"><a data-toggle="tab" href="#table_SoQuyTienMat">Tiền mặt</a></li>
+                                <li v-bind:class="{'active': SoQuyLoai === 2}" v-on:click="ChonLoaiSoQuy(2)"><a data-toggle="tab" href="#table_SoQuyNganHang">Ngân hàng</a></li>
+                                <li v-bind:class="{'active': SoQuyLoai === 3}" v-on:click="ChonLoaiSoQuy(3)"><a data-toggle="tab" href="#table_SoQuyTongQuy">Tổng quỹ</a></li>
+                                <li v-bind:class="{'active': SoQuyLoai === 4}" v-on:click="ChonLoaiSoQuy(4)"><a data-toggle="tab" href="#table_SoQuychinhanh">Chi nhánh</a></li>
+                            </ul>
+                            <div style=" align-items: end;" v-if="LoaiBaoCao === '4' && SoQuyLoai !== 4">
+                                <span>Số dư đầu kỳ :</span>
+                                <span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuySoDu.SoDuDauKy)}}</span>
+                            </div>
+                        </div>
+                        <div class="tab-content floatleft">
+                            <div class="tab-pane table_SoQuyTienMat" v-bind:class="{'active': SoQuyLoai === 1}" v-if="SoQuyLoai === 1">
+                                <div class="table-reponsive table-frame">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)"
+                                                    v-bind:class="{'text-left': [0,2,3,8].includes(item.index), 'text-center': [1,4,5,6].includes(item.index), 'text-right': [7].includes(item.index)}">{{item.colText}}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in BaoCaoSoQuyTienMat.dataView">
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colMaPhieu').colShow"><span>{{item.MaPhieuThu}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colThoiGian').colShow"><span>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colKhoanMuc').colShow"><span>{{item.KhoanMuc}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colNguoiNopNhan').colShow"><span>{{item.TenDoiTac}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colTienThu').colShow" class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.ThuTienMat)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colTienChi').colShow" class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.ChiTienMat)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colLuyKe').colShow" class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.TonLuyKeTienMat)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colGhiChu').colShow"><span>{{item.GhiChu}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colChiNhanh').colShow"><span>{{item.TenDonVi}}</span></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="bold">
+                                                <td v-bind:colspan="ListHeader.filter(p=>p.index < 4 && p.colShow).length" class="bg12">Tổng cộng</td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTienThu').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTienMat.TongThu)}}</span></td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTienChi').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTienMat.TongChi)}}</span></td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colLuyKe').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTienMat.SoDuCuoiKy)}}</span></td>
+                                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 6 && p.colShow).length" class="bg12"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane table_SoQuyNganHang" v-bind:class="{'active': SoQuyLoai === 2}" v-if="SoQuyLoai === 2">
+                                <div class="table-reponsive table-frame">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)"
+                                                    v-bind:class="{'text-left': [0,2,3,7,8,10].includes(item.index), 'text-center': [1,9].includes(item.index), 'text-right': [4,5,6].includes(item.index)}">{{item.colText}}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in BaoCaoSoQuyNganHang.dataView">
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colMaPhieu').colShow"><span>{{item.MaPhieuThu}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colThoiGian').colShow"><span>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colKhoanMuc').colShow"><span>{{item.KhoanMuc}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colNguoiNopNhan').colShow"><span>{{item.TenDoiTac}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colTienThu').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.ThuTienGui)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colTienChi').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.ChiTienGui)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colLuyKe').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.TonLuyKeTienGui)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colSoTaiKhoan').colShow"><span>{{item.SoTaiKhoan}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colNganHang').colShow"><span>{{item.NganHang}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colGhiChu').colShow"><span>{{item.GhiChu}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colChiNhanh').colShow"><span>{{item.TenDonVi}}</span></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="bold">
+                                                <td v-bind:colspan="ListHeader.filter(p=>p.index < 4 && p.colShow).length" class="bg12">Tổng cộng</td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTienThu').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyNganHang.TongThu)}}</span></td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTienChi').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyNganHang.TongChi)}}</span></td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colLuyKe').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyNganHang.SoDuCuoiKy)}}</span></td>
+                                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 6 && p.colShow).length" class="bg12"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane table_SoQuyTongQuy" v-bind:class="{'active': SoQuyLoai === 3}" v-if="SoQuyLoai === 3">
+                                <div class="table-reponsive table-frame">
+                                    <table class="table table-striped table-hover ">
+                                        <thead>
+                                            <tr>
+                                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)"
+                                                    v-bind:class="{'text-left': [0,2,3,7,8,10].includes(item.index), 'text-center': [1,9].includes(item.index), 'text-right': [4,5,6].includes(item.index)}">{{item.colText}}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in BaoCaoSoQuyTongQuy.dataView">
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colMaPhieu').colShow"><span>{{item.MaPhieuThu}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colThoiGian').colShow"><span>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colKhoanMuc').colShow"><span>{{item.KhoanMuc}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colNguoiNopNhan').colShow"><span>{{item.TenDoiTac}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colTienThu').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.TienThu)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colTienChi').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.TienChi)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colLuyKe').colShow"><span>{{commonStatisJs.FormatNumber3Digit(item.TonLuyKe)}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colSoTaiKhoan').colShow"><span>{{item.SoTaiKhoan}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colNganHang').colShow"><span>{{item.NganHang}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colGhiChu').colShow"><span>{{item.GhiChu}}</span></td>
+                                                <td v-if="ListHeader.find(p=>p.colName === 'colChiNhanh').colShow"><span>{{item.TenDonVi}}</span></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="bold">
+                                                <td v-bind:colspan="ListHeader.filter(p=>p.index < 4 && p.colShow).length" class="bg12">Tổng cộng</td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTienThu').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTongQuy.TongThu)}}</span></td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colTienChi').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTongQuy.TongChi)}}</span></td>
+                                                <td class="bg12 text-right" v-if="ListHeader.find(p=>p.colName === 'colLuyKe').colShow"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTongQuy.SoDuCuoiKy)}}</span></td>
+                                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 6 && p.colShow).length" class="bg12"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane table_SoQuychinhanh" v-bind:class="{'active': SoQuyLoai === 4}" v-if="SoQuyLoai === 4">
+                                <div class="table-reponsive table-frame">
+                                    <table class="table table-striped table-hover ">
+                                        <thead>
+                                            <tr>
+                                                <th class="middle">Chi nhánh</th>
+                                                <th class="text-right">Tồn tiền mặt</th>
+                                                <th class="text-right">Tồn tiền gửi</th>
+                                                <th class="text-right middle">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in BaoCaoSoQuyTheoChiNhanh.dataView">
+                                                <td><span>{{item.TenDonVi}}</span></td>
+                                                <td class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.TonTienMat)}}</span></td>
+                                                <td class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.TonTienGui)}}</span></td>
+                                                <td class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(item.TongThuChi)}}</span></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="bold">
+                                                <td class="bg12">Tổng cộng</td>
+                                                <td class="bg12 text-right"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTheoChiNhanh.STongTienMat)}}</span></td>
+                                                <td class="bg12 text-right"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTheoChiNhanh.STongTienGui)}}</span></td>
+                                                <td class="bg12 text-right"><span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuyTheoChiNhanh.STongThuChi)}}</span></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <page-list v-bind:pagesize="PageList.PageSize"
+                               v-bind:listpage="PageList.ListPage" v-bind:currentpage="PageList.currentPage" v-bind:pageview="PageList.PageView"
+                               v-bind:numberofpage="PageList.NumberOfPage"
+                               v-on:pageselected="PageChange" v-show="!['5', '6'].includes(LoaiBaoCao)"></page-list>
+                </div>
+                @*<div v-show="isLoading" class="table-loading">
+                        <div class="loading">
+                        </div>
+                        <div style="text-align: center;font-size: 20px;">
+                            Đang tải dữ liệu, vui lòng chờ ...
+                        </div>
+                    </div>*@
+                <div class="op-loading-container" v-show="isLoading">
+                    <div class="op-loading-ball">
+                        <div class="ball delay-1"></div>
+                        <div class="ball delay-2"></div>
+                        <div class="ball delay-3"></div>
+                        <div class="ball delay-4"></div>
+                    </div>
+                    <div class="op-loading-title"><span>Đang tải dữ liệu, vui lòng chờ...</span></div>
+                </div>
+                @*<div v-show="isLoading" class="op-loading-container">
+                        <div class="op-loading">
+                            <div class="op-loading-white"> </div>
+                        </div>
+                    </div>*@
+                <div style="float:right" v-if="LoaiBaoCao === '4' && SoQuyLoai !== 4">
+                    <div class="sum-soquy">
+                        <div style="">
+                            <span>Tổng thu :</span>
+                            <span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuySoDu.TongThu, 0)}}</span>
+                        </div>
+                        <div style="">
+                            <span>Tổng chi :</span>
+                            <span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuySoDu.TongChi, 0)}}</span>
+                        </div>
+                        <div style="">
+                            <span>Phát sinh trong kỳ :</span>
+                            <span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuySoDu.PhatSinhTrongKy, 0)}}</span>
+                        </div>
+                        <div style="">
+                            <span>Số dư cuối kỳ :</span>
+                            <span>{{commonStatisJs.FormatNumber3Digit(BaoCaoSoQuySoDu.SoDuCuoiKy, 0)}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Components/filter-checkbox.js"></script>
+<script src="~/Scripts/Components/filter-chinhanh.js"></script>
+<script src="~/Scripts/Components/filter-datetime.js"></script>
+<script src="~/Scripts/Components/page-list.js"></script>
+<script>
+    var VReportTaiChinh = new Vue({
+        el: '#reportTaiChinh',
+        data: {
+            urlApi: {
+                DonViApi: '/api/DanhMuc/DM_DonViAPI/',
+                DMNhomDoiTuongApi: '/api/DanhMuc/DM_NhomDoiTuongAPI/',
+                ReportApi: '/api/DanhMuc/ReportAPI/',
+                HtApi: '/api/DanhMuc/HT_API/'
+            },
+            LoaiBaoCao: '1',
+            TaiChinhLoaiThoiGian: '1',
+            listLoaiDoiTac: [],
+            listChiNhanh: [],
+            ThoiGian: {
+                TypeTime: 0,
+                From: '',
+                To: ''
+            },
+            onRefresh: true,
+            listNhomKhachHang: [],
+            listNhomNhaCungCap: [],
+            BaoCaoTieuDe: 'Báo cáo tổng hợp công nợ',
+            BaoCaoThoiGianText: '',
+            SoQuyLoai: 1,
+            ListHeader: [],
+            IdChiNhanh: "",
+            TextSearch: "",
+            ChiNhanhLoaded: false,
+            NhomDoiTuongLoaded: false,
+            PageList: {
+                ListPage: [1],
+                PageView: "",
+                NumberOfPage: 1,
+                PageSize: 10,
+                currentPage: 1
+            },
+            BaoCaoTongHopCongNo: {
+                data: [],
+                dataView: [],
+                sPhaiTraDauKy: 0,
+                sPhaiThuDauKy: 0,
+                sTongTienChi: 0,
+                sTongTienThu: 0,
+                sPhaiTraCuoiKy: 0,
+                sPhaiThuCuoiKy: 0,
+                currentPage: 1,
+                PageSize: 10,
+                Reload: true
+            },
+            BaoCaoNhatKyThuTien: {
+                data: [],
+                dataView: [],
+                sTongThuChi: 0,
+                currentPage: 1,
+                PageSize: 10,
+                Reload: true
+            },
+            BaoCaoNhatKyChiTien: {
+                data: [],
+                dataView: [],
+                sTongThuChi: 0,
+                currentPage: 1,
+                PageSize: 10,
+                Reload: true
+            },
+            BaoCaoSoQuyTienMat: {
+                data: [],
+                dataView: [],
+                SoDuDauKy: 0,
+                TongThu: 0,
+                TongChi: 0,
+                PhatSinhTrongKy: 0,
+                SoDuCuoiKy: 0,
+                currentPage: 1,
+                PageSize: 10,
+                Reload: true
+            },
+            BaoCaoSoQuyNganHang: {
+                data: [],
+                dataView: [],
+                SoDuDauKy: 0,
+                TongThu: 0,
+                TongChi: 0,
+                PhatSinhTrongKy: 0,
+                SoDuCuoiKy: 0,
+                currentPage: 1,
+                PageSize: 10,
+                Reload: true
+            },
+            BaoCaoSoQuyTongQuy: {
+                data: [],
+                dataView: [],
+                SoDuDauKy: 0,
+                TongThu: 0,
+                TongChi: 0,
+                PhatSinhTrongKy: 0,
+                SoDuCuoiKy: 0,
+                currentPage: 1,
+                PageSize: 10,
+                Reload: true
+            },
+            BaoCaoSoQuySoDu: {
+                SoDuDauKy: 0,
+                TongThu: 0,
+                TongChi: 0,
+                PhatSinhTrongKy: 0,
+                SoDuCuoiKy: 0
+            },
+            BaoCaoSoQuyTheoChiNhanh: {
+                data: [],
+                dataView: [],
+                STongTienMat: 0,
+                STongTienGui: 0,
+                STongThuChi: 0,
+                currentPage: 1,
+                PageSize: 10,
+                timeEnd: '',
+                Reload: true
+            },
+            BaoCaoKetQuaKinhDoanhTheoThang: {
+                data: [],
+                Reload: true
+            },
+            BaoCaoKetQuaKinhDoanhTheoQuy: {
+                data: [],
+                Reload: true
+            },
+            BaoCaoKetQuaKinhDoanhTheoNam: {
+                data: [],
+                Reload: true
+            },
+            BaoCaoPhanTichThuChiTheoThang: {
+                data: [],
+                Reload: true
+            },
+            BaoCaoPhanTichThuChiTheoQuy: {
+                data: [],
+                Reload: true
+            },
+            BaoCaoPhanTichThuChiTheoNam: {
+                data: [],
+                Reload: true
+            },
+            isPageSelect: false,
+            isLoading: true,
+            ListLoaiPhieuThuChi: [],
+            HachToanKinhDoanh: true,
+            HinhThucThanhToan: '',
+            ListYear: [],
+            YearSelect: (new Date()).getFullYear(),
+            TrangThaiCongNo: 0,
+            ListIndex: []
+        },
+        methods:
+        {
+            LoadData: function () {
+                let self = this;
+                self.GetBaoCaoToiGianText();
+                if (self.ChiNhanhLoaded && self.NhomDoiTuongLoaded) {
+                    switch (self.LoaiBaoCao) {
+                        case '1':
+                            self.LoadBaoCaoTaiChinhCongNo();
+                            break;
+                        case '2':
+                            self.LoadBaoCaoNhatKyThuTien();
+                            break;
+                        case '3':
+                            self.LoadBaoCaoNhatKyChiTien();
+                            break;
+                        case '4':
+                            switch (self.SoQuyLoai) {
+                                case 1:
+                                    self.LoadBaoCaoSoQuyTienMat();
+                                    break;
+                                case 2:
+                                    self.LoadBaoCaoSoQuyNganHang();
+                                    break;
+                                case 3:
+                                    self.LoadBaoCaoSoQuyTongQuy();
+                                    break;
+                                case 4:
+                                    self.LoadBaoCaoSoQuyTheoChiNhanh();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case '5':
+                            switch (self.TaiChinhLoaiThoiGian) {
+                                case '1':
+                                    self.LoadBaoCaoKetQuaKinhDoanhTheoThang();
+                                    break;
+                                case '2':
+                                    self.LoadBaoCaoKetQuaKinhDoanhTheoQuy();
+                                    break;
+                                case '3':
+                                    self.LoadBaoCaoKetQuaKinhDoanhTheoNam();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case '6':
+                            switch (self.TaiChinhLoaiThoiGian) {
+                                case '1':
+                                    self.LoadBaoCaoPhanTichThuChiTheoThang();
+                                    break;
+                                case '2':
+                                    self.LoadBaoCaoPhanTichThuChiTheoQuy();
+                                    break;
+                                case '3':
+                                    self.LoadBaoCaoPhanTichThuChiTheoNam();
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    self.isPageSelect = false;
+                    self.onRefresh = false;
+                }
+                else {
+                    setTimeout(self.LoadData, 1000);
+                }
+            },
+            GetCurrentPageBaoCao: function () {
+                let self = this;
+                switch (self.LoaiBaoCao) {
+                    case '1':
+                        self.PageList.currentPage = self.BaoCaoTongHopCongNo.currentPage;
+                        self.PageList.PageSize = self.BaoCaoTongHopCongNo.PageSize;
+                        break;
+                    case '2':
+                        self.PageList.currentPage = self.BaoCaoNhatKyThuTien.currentPage;
+                        self.PageList.PageSize = self.BaoCaoNhatKyThuTien.PageSize;
+                        break;
+                    case '3':
+                        self.PageList.currentPage = self.BaoCaoNhatKyChiTien.currentPage;
+                        self.PageList.PageSize = self.BaoCaoNhatKyChiTien.PageSize;
+                        break;
+                    case '4':
+                        switch (self.SoQuyLoai) {
+                            case 1:
+                                self.PageList.currentPage = self.BaoCaoSoQuyTienMat.currentPage;
+                                self.PageList.PageSize = self.BaoCaoSoQuyTienMat.PageSize;
+                                break;
+                            case 2:
+                                self.PageList.currentPage = self.BaoCaoSoQuyNganHang.currentPage;
+                                self.PageList.PageSize = self.BaoCaoSoQuyNganHang.PageSize;
+                                break;
+                            case 3:
+                                self.PageList.currentPage = self.BaoCaoSoQuyTongQuy.currentPage;
+                                self.PageList.PageSize = self.BaoCaoSoQuyTongQuy.PageSize;
+                                break;
+                            case 4:
+                                self.PageList.currentPage = self.BaoCaoSoQuyTheoChiNhanh.currentPage;
+                                self.PageList.PageSize = self.BaoCaoSoQuyTheoChiNhanh.PageSize;
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            },
+            LoadBaoCaoTaiChinhCongNo: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoTongHopCongNo.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoTongHopCongNo.Reload === false) {
+                    self.BaoCaoTongHopCongNo.currentPage = self.PageList.currentPage;
+                    self.BaoCaoTongHopCongNo.PageSize = self.PageList.PageSize;
+                    self.BaoCaoTongHopCongNo.dataView = self.BaoCaoTongHopCongNo.data.slice((self.BaoCaoTongHopCongNo.currentPage - 1) * self.BaoCaoTongHopCongNo.PageSize, self.BaoCaoTongHopCongNo.PageSize * self.BaoCaoTongHopCongNo.currentPage);
+                    self.GetPageValue(self.BaoCaoTongHopCongNo.currentPage, self.BaoCaoTongHopCongNo.PageSize, self.BaoCaoTongHopCongNo.data.length);
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.IdChiNhanh;
+                    myData.TextSearch = self.TextSearch;
+                    myData.TimeStart = self.ThoiGian.From;
+                    myData.TimeEnd = self.ThoiGian.To;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TrangThaiCongNo = self.TrangThaiCongNo;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_CongNo_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoTongHopCongNo.data = data.dataSoure.data;
+                            self.BaoCaoTongHopCongNo.sPhaiTraDauKy = data.dataSoure.sPhaiTraDauKy;
+                            self.BaoCaoTongHopCongNo.sPhaiThuDauKy = data.dataSoure.sPhaiThuDauKy;
+                            self.BaoCaoTongHopCongNo.sTongTienChi = data.dataSoure.sTongTienChi;
+                            self.BaoCaoTongHopCongNo.sTongTienThu = data.dataSoure.sTongTienThu;
+                            self.BaoCaoTongHopCongNo.sPhaiTraCuoiKy = data.dataSoure.sPhaiTraCuoiKy;
+                            self.BaoCaoTongHopCongNo.sPhaiThuCuoiKy = data.dataSoure.sPhaiThuCuoiKy;
+                            self.BaoCaoTongHopCongNo.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoTongHopCongNo.dataView = self.BaoCaoTongHopCongNo.data.slice((self.BaoCaoTongHopCongNo.currentPage - 1) * self.BaoCaoTongHopCongNo.PageSize, self.BaoCaoTongHopCongNo.PageSize);
+                            self.GetPageValue(self.BaoCaoTongHopCongNo.currentPage, self.BaoCaoTongHopCongNo.PageSize, self.BaoCaoTongHopCongNo.data.length);
+                            self.isLoading = false;
+                            self.BaoCaoTongHopCongNo.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoNhatKyThuTien: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoNhatKyThuTien.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoNhatKyThuTien.Reload === false) {
+                    self.BaoCaoNhatKyThuTien.currentPage = self.PageList.currentPage;
+                    self.BaoCaoNhatKyThuTien.PageSize = self.PageList.PageSize;
+                    self.BaoCaoNhatKyThuTien.dataView = self.BaoCaoNhatKyThuTien.data.slice((self.BaoCaoNhatKyThuTien.currentPage - 1) * self.BaoCaoNhatKyThuTien.PageSize, self.BaoCaoNhatKyThuTien.PageSize * self.BaoCaoNhatKyThuTien.currentPage);
+                    self.GetPageValue(self.BaoCaoNhatKyThuTien.currentPage, self.BaoCaoNhatKyThuTien.PageSize, self.BaoCaoNhatKyThuTien.data.length);
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TextSearch = self.TextSearch;
+                    myData.TimeStart = self.ThoiGian.From;
+                    myData.TimeEnd = self.ThoiGian.To;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked === true).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked === true).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_ThuChi_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoNhatKyThuTien.data = data.dataSoure.data;
+                            self.BaoCaoNhatKyThuTien.sTongThuChi = data.dataSoure.sTongThuChi;
+                            self.BaoCaoNhatKyThuTien.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoNhatKyThuTien.dataView = self.BaoCaoNhatKyThuTien.data.slice((self.BaoCaoNhatKyThuTien.currentPage - 1) * self.BaoCaoNhatKyThuTien.PageSize, self.BaoCaoNhatKyThuTien.PageSize);
+                            self.GetPageValue(self.BaoCaoNhatKyThuTien.currentPage, self.BaoCaoNhatKyThuTien.PageSize, self.BaoCaoNhatKyThuTien.data.length);
+                            self.isLoading = false;
+                            self.BaoCaoNhatKyThuTien.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoNhatKyChiTien: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoNhatKyChiTien.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoNhatKyChiTien.Reload === false) {
+                    self.BaoCaoNhatKyChiTien.currentPage = self.PageList.currentPage;
+                    self.BaoCaoNhatKyChiTien.PageSize = self.PageList.PageSize;
+                    self.BaoCaoNhatKyChiTien.dataView = self.BaoCaoNhatKyChiTien.data.slice((self.BaoCaoNhatKyChiTien.currentPage - 1) * self.BaoCaoNhatKyChiTien.PageSize, self.BaoCaoNhatKyChiTien.PageSize * self.BaoCaoNhatKyChiTien.currentPage);
+                    self.GetPageValue(self.BaoCaoNhatKyChiTien.currentPage, self.BaoCaoNhatKyChiTien.PageSize, self.BaoCaoNhatKyChiTien.data.length);
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TextSearch = self.TextSearch;
+                    myData.TimeStart = self.ThoiGian.From;
+                    myData.TimeEnd = self.ThoiGian.To;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked === true).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked === true).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_ThuChi_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoNhatKyChiTien.data = data.dataSoure.data;
+                            self.BaoCaoNhatKyChiTien.sTongThuChi = data.dataSoure.sTongThuChi;
+                            self.BaoCaoNhatKyChiTien.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoNhatKyChiTien.dataView = self.BaoCaoNhatKyChiTien.data.slice((self.BaoCaoNhatKyChiTien.currentPage - 1) * self.BaoCaoNhatKyChiTien.PageSize, self.BaoCaoNhatKyChiTien.PageSize);
+                            self.GetPageValue(self.BaoCaoNhatKyChiTien.currentPage, self.BaoCaoNhatKyChiTien.PageSize, self.BaoCaoNhatKyChiTien.data.length);
+                            self.isLoading = false;
+                            self.BaoCaoNhatKyChiTien.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoSoQuyTienMat: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoSoQuyTienMat.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoSoQuyTienMat.Reload === false) {
+                    self.BaoCaoSoQuyTienMat.currentPage = self.PageList.currentPage;
+                    self.BaoCaoSoQuyTienMat.PageSize = self.PageList.PageSize;
+                    self.BaoCaoSoQuyTienMat.dataView = self.BaoCaoSoQuyTienMat.data.slice((self.BaoCaoSoQuyTienMat.currentPage - 1) * self.BaoCaoSoQuyTienMat.PageSize, self.BaoCaoSoQuyTienMat.PageSize * self.BaoCaoSoQuyTienMat.currentPage);
+                    self.GetPageValue(self.BaoCaoSoQuyTienMat.currentPage, self.BaoCaoSoQuyTienMat.PageSize, self.BaoCaoSoQuyTienMat.data.length);
+                    self.GetBaoCaoSoQuySoDu();
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TextSearch = self.TextSearch;
+                    myData.TimeStart = self.ThoiGian.From;
+                    myData.TimeEnd = self.ThoiGian.To;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    myData.LoaiTien = 1;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_SoQuy_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoSoQuyTienMat.data = data.dataSoure.data;
+                            self.BaoCaoSoQuyTienMat.SoDuDauKy = data.dataSoure.SoDuDauKy;
+                            self.BaoCaoSoQuyTienMat.TongThu = data.dataSoure.TongThu;
+                            self.BaoCaoSoQuyTienMat.TongChi = data.dataSoure.TongChi;
+                            self.BaoCaoSoQuyTienMat.PhatSinhTrongKy = data.dataSoure.PhatSinhTrongKy;
+                            self.BaoCaoSoQuyTienMat.SoDuCuoiKy = data.dataSoure.SoDuCuoiKy;
+                            self.BaoCaoSoQuyTienMat.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoSoQuyTienMat.dataView = self.BaoCaoSoQuyTienMat.data.slice((self.BaoCaoSoQuyTienMat.currentPage - 1) * self.BaoCaoSoQuyTienMat.PageSize, self.BaoCaoSoQuyTienMat.PageSize);
+                            self.GetPageValue(self.BaoCaoSoQuyTienMat.currentPage, self.BaoCaoSoQuyTienMat.PageSize, self.BaoCaoSoQuyTienMat.data.length);
+                            self.GetBaoCaoSoQuySoDu();
+                            self.isLoading = false;
+                            self.BaoCaoSoQuyTienMat.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoSoQuyNganHang: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoSoQuyNganHang.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoSoQuyNganHang.Reload === false) {
+                    self.BaoCaoSoQuyNganHang.currentPage = self.PageList.currentPage;
+                    self.BaoCaoSoQuyNganHang.PageSize = self.PageList.PageSize;
+                    self.BaoCaoSoQuyNganHang.dataView = self.BaoCaoSoQuyNganHang.data.slice((self.BaoCaoSoQuyNganHang.currentPage - 1) * self.BaoCaoSoQuyNganHang.PageSize, self.BaoCaoSoQuyNganHang.PageSize * self.BaoCaoSoQuyNganHang.currentPage);
+                    self.GetPageValue(self.BaoCaoSoQuyNganHang.currentPage, self.BaoCaoSoQuyNganHang.PageSize, self.BaoCaoSoQuyNganHang.data.length);
+                    self.GetBaoCaoSoQuySoDu();
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TextSearch = self.TextSearch;
+                    myData.TimeStart = self.ThoiGian.From;
+                    myData.TimeEnd = self.ThoiGian.To;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    myData.LoaiTien = 2;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_SoQuy_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoSoQuyNganHang.data = data.dataSoure.data;
+                            self.BaoCaoSoQuyNganHang.SoDuDauKy = data.dataSoure.SoDuDauKy;
+                            self.BaoCaoSoQuyNganHang.TongThu = data.dataSoure.TongThu;
+                            self.BaoCaoSoQuyNganHang.TongChi = data.dataSoure.TongChi;
+                            self.BaoCaoSoQuyNganHang.PhatSinhTrongKy = data.dataSoure.PhatSinhTrongKy;
+                            self.BaoCaoSoQuyNganHang.SoDuCuoiKy = data.dataSoure.SoDuCuoiKy;
+                            self.BaoCaoSoQuyNganHang.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoSoQuyNganHang.dataView = self.BaoCaoSoQuyNganHang.data.slice((self.BaoCaoSoQuyNganHang.currentPage - 1) * self.BaoCaoSoQuyNganHang.PageSize, self.BaoCaoSoQuyNganHang.PageSize);
+                            self.GetPageValue(self.BaoCaoSoQuyNganHang.currentPage, self.BaoCaoSoQuyNganHang.PageSize, self.BaoCaoSoQuyNganHang.data.length);
+                            self.GetBaoCaoSoQuySoDu();
+                            self.isLoading = false;
+                            self.BaoCaoSoQuyNganHang.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoSoQuyTongQuy: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoSoQuyTongQuy.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoSoQuyTongQuy.Reload === false) {
+                    self.BaoCaoSoQuyTongQuy.currentPage = self.PageList.currentPage;
+                    self.BaoCaoSoQuyTongQuy.PageSize = self.PageList.PageSize;
+                    self.BaoCaoSoQuyTongQuy.dataView = self.BaoCaoSoQuyTongQuy.data.slice((self.BaoCaoSoQuyTongQuy.currentPage - 1) * self.BaoCaoSoQuyTongQuy.PageSize, self.BaoCaoSoQuyTongQuy.PageSize * self.BaoCaoSoQuyTongQuy.currentPage);
+                    self.GetPageValue(self.BaoCaoSoQuyTongQuy.currentPage, self.BaoCaoSoQuyTongQuy.PageSize, self.BaoCaoSoQuyTongQuy.data.length);
+                    self.GetBaoCaoSoQuySoDu();
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TextSearch = self.TextSearch;
+                    myData.TimeStart = self.ThoiGian.From;
+                    myData.TimeEnd = self.ThoiGian.To;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_SoQuy_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoSoQuyTongQuy.data = data.dataSoure.data;
+                            self.BaoCaoSoQuyTongQuy.SoDuDauKy = data.dataSoure.SoDuDauKy;
+                            self.BaoCaoSoQuyTongQuy.TongThu = data.dataSoure.TongThu;
+                            self.BaoCaoSoQuyTongQuy.TongChi = data.dataSoure.TongChi;
+                            self.BaoCaoSoQuyTongQuy.PhatSinhTrongKy = data.dataSoure.PhatSinhTrongKy;
+                            self.BaoCaoSoQuyTongQuy.SoDuCuoiKy = data.dataSoure.SoDuCuoiKy;
+                            self.BaoCaoSoQuyTongQuy.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoSoQuyTongQuy.dataView = self.BaoCaoSoQuyTongQuy.data.slice((self.BaoCaoSoQuyTongQuy.currentPage - 1) * self.BaoCaoSoQuyTongQuy.PageSize, self.BaoCaoSoQuyTongQuy.PageSize);
+                            self.GetPageValue(self.BaoCaoSoQuyTongQuy.currentPage, self.BaoCaoSoQuyTongQuy.PageSize, self.BaoCaoSoQuyTongQuy.data.length);
+                            self.GetBaoCaoSoQuySoDu();
+                            self.isLoading = false;
+                            self.BaoCaoSoQuyTongQuy.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoSoQuyTheoChiNhanh: function () {
+                let self = this;
+                if (self.isPageSelect === false && self.BaoCaoSoQuyTheoChiNhanh.Reload === false) {
+                    self.GetCurrentPageBaoCao();
+                }
+                if (self.isPageSelect || self.BaoCaoSoQuyTheoChiNhanh.Reload === false) {
+                    self.BaoCaoSoQuyTheoChiNhanh.currentPage = self.PageList.currentPage;
+                    self.BaoCaoSoQuyTheoChiNhanh.PageSize = self.PageList.PageSize;
+                    self.BaoCaoSoQuyTheoChiNhanh.dataView = self.BaoCaoSoQuyTheoChiNhanh.data.slice((self.BaoCaoSoQuyTheoChiNhanh.currentPage - 1) * self.BaoCaoSoQuyTheoChiNhanh.PageSize, self.BaoCaoSoQuyTheoChiNhanh.PageSize * self.BaoCaoSoQuyTheoChiNhanh.currentPage);
+                    self.GetPageValue(self.BaoCaoSoQuyTheoChiNhanh.currentPage, self.BaoCaoSoQuyTheoChiNhanh.PageSize, self.BaoCaoSoQuyTheoChiNhanh.data.length);
+                }
+                else {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.TimeEnd = self.BaoCaoSoQuyTheoChiNhanh.timeEnd;
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_SoQuyTheoChiNhanh_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoSoQuyTheoChiNhanh.data = data.dataSoure.data;
+                            self.BaoCaoSoQuyTheoChiNhanh.STongTienMat = data.dataSoure.STongTienMat;
+                            self.BaoCaoSoQuyTheoChiNhanh.STongTienGui = data.dataSoure.STongTienGui;
+                            self.BaoCaoSoQuyTheoChiNhanh.STongThuChi = data.dataSoure.STongThuChi;
+                            self.BaoCaoSoQuyTheoChiNhanh.currentPage = 1;
+                            self.PageList.currentPage = 1;
+                            self.BaoCaoSoQuyTheoChiNhanh.dataView = self.BaoCaoSoQuyTheoChiNhanh.data.slice((self.BaoCaoSoQuyTheoChiNhanh.currentPage - 1) * self.BaoCaoSoQuyTheoChiNhanh.PageSize, self.BaoCaoSoQuyTheoChiNhanh.PageSize);
+                            self.GetPageValue(self.BaoCaoSoQuyTheoChiNhanh.currentPage, self.BaoCaoSoQuyTheoChiNhanh.PageSize, self.BaoCaoSoQuyTheoChiNhanh.data.length);
+                            self.isLoading = false;
+                            self.BaoCaoSoQuyTheoChiNhanh.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoKetQuaKinhDoanhTheoThang: function () {
+                let self = this;
+                if (self.BaoCaoKetQuaKinhDoanhTheoThang.Reload === true) {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.Year = self.YearSelect;
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "GetBaoCaoKetQuaHoatDongKinhDoanhTheoThang",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoKetQuaKinhDoanhTheoThang.data = data.dataSoure.data;
+                            self.isLoading = false;
+                            self.BaoCaoKetQuaKinhDoanhTheoThang.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoKetQuaKinhDoanhTheoQuy: function () {
+                let self = this;
+                if (self.BaoCaoKetQuaKinhDoanhTheoQuy.Reload === true) {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.Year = self.YearSelect;
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "GetBaoCaoKetQuaHoatDongKinhDoanhTheoQuy",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoKetQuaKinhDoanhTheoQuy.data = data.dataSoure.data;
+                            self.isLoading = false;
+                            self.BaoCaoKetQuaKinhDoanhTheoQuy.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoKetQuaKinhDoanhTheoNam: function () {
+                let self = this;
+                if (self.BaoCaoKetQuaKinhDoanhTheoNam.Reload === true) {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.Year = self.YearSelect;
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "GetBaoCaoKetQuaHoatDongKinhDoanhTheoNam",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoKetQuaKinhDoanhTheoNam.data = data.dataSoure.data;
+                            self.isLoading = false;
+                            self.BaoCaoKetQuaKinhDoanhTheoNam.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoPhanTichThuChiTheoThang: function () {
+                let self = this;
+                if (self.BaoCaoPhanTichThuChiTheoThang.Reload === true) {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    myData.Year = self.YearSelect;
+                    myData.LoaiTien = self.HinhThucThanhToan;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_PhanTichThuChiTheoThang_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoPhanTichThuChiTheoThang.data = data.dataSoure.data;
+                            self.isLoading = false;
+                            self.BaoCaoPhanTichThuChiTheoThang.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoPhanTichThuChiTheoQuy: function () {
+                let self = this;
+                if (self.BaoCaoPhanTichThuChiTheoQuy.Reload === true) {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    myData.Year = self.YearSelect;
+                    myData.LoaiTien = self.HinhThucThanhToan;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_PhanTichThuChiTheoQuy_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoPhanTichThuChiTheoQuy.data = data.dataSoure.data;
+                            self.isLoading = false;
+                            self.BaoCaoPhanTichThuChiTheoQuy.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadBaoCaoPhanTichThuChiTheoNam: function () {
+                let self = this;
+                if (self.BaoCaoPhanTichThuChiTheoNam.Reload === true) {
+                    self.isLoading = true;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                    myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                    myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                    myData.Year = self.YearSelect;
+                    myData.LoaiTien = self.HinhThucThanhToan;
+                    $.ajax({
+                        url: self.urlApi.ReportApi + "BaoCaoTaiChinh_PhanTichThuChiTheoNam_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            self.BaoCaoPhanTichThuChiTheoNam.data = data.dataSoure.data;
+                            self.isLoading = false;
+                            self.BaoCaoPhanTichThuChiTheoNam.Reload = false;
+                        }
+                    });
+                }
+            },
+            LoadChiNhanh: function () {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.DonViApi + "GetListDonVi_User",
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data !== null) {
+                            data.map(function (item) {
+                                if (item['ID'] === VHeader.IdDonVi) {
+                                    item['CNChecked'] = true;
+                                }
+                                else {
+                                    item['CNChecked'] = false;
+                                }
+                            });
+                            self.listChiNhanh = data;
+                            self.LoadData();
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                        }
+                        self.ChiNhanhLoaded = true;
+                    }
+                });
+            },
+            LoadNhomDoiTuong: function () {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.DMNhomDoiTuongApi + "GetAllDMNhomDoiTuong",
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res) {
+                            self.listNhomKhachHang = data.dataSoure.data.filter(p => p.LoaiDoiTuong === 1).map(p => ({
+                                ID: p.ID,
+                                TenDonVi: p.TenNhomDoiTuong,
+                                CNChecked: false
+                            }));
+                            self.listNhomNhaCungCap = data.dataSoure.data.filter(p => p.LoaiDoiTuong === 2).map(p => ({
+                                ID: p.ID,
+                                TenDonVi: p.TenNhomDoiTuong,
+                                CNChecked: false
+                            }));
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                        }
+                        self.NhomDoiTuongLoaded = true;
+                    }
+                });
+            },
+            onCallThoiGian: function (value) {
+                let self = this;
+                if (self.ThoiGian.From !== value.fromdate || self.ThoiGian.To !== value.todate) {
+                    if (value.fromdate !== '2001-01-01') {
+                        self.ThoiGian.From = value.fromdate;
+                        self.ThoiGian.To = value.todate;
+                        //self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.ThoiGian.From).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.ThoiGian.To).add(-1, 'days').format('DD/MM/YYYY');
+                    }
+                    else {
+                        self.ThoiGian.From = '';
+                        self.ThoiGian.To = '';
+                        //self.BaoCaoThoiGianText = 'Toàn thời gian';
+                    }
+                    self.BaoCaoTongHopCongNo.Reload = true;
+                    self.BaoCaoNhatKyThuTien.Reload = true;
+                    self.BaoCaoNhatKyChiTien.Reload = true;
+                    self.BaoCaoSoQuyTienMat.Reload = true;
+                    self.BaoCaoSoQuyNganHang.Reload = true;
+                    self.BaoCaoSoQuyTongQuy.Reload = true;
+                    if (self.onRefresh === false) {
+                        self.LoadData();
+                    }
+                }
+                self.ThoiGian.TypeTime = value.radioselect;
+            },
+            InitLoaiDoiTac: function () {
+                let self = this;
+                if (VHeader.IdNganhNgheKinhDoanh === 'C16EDDA0-F6D0-43E1-A469-844FAB143014') {
+                    self.listLoaiDoiTac = [{ Text: 'Khách hàng', Value: 1, Checked: true },
+                    { Text: 'Nhà cung cấp', Value: 2, Checked: true },
+                    { Text: 'Bảo hiểm', Value: 3, Checked: true }]
+                    /*{ Text: 'Nhân viên', Value: 4, Checked: true }];*/
+                }
+                else {
+                    self.listLoaiDoiTac = [{ Text: 'Khách hàng', Value: 1, Checked: true },
+                    { Text: 'Nhà cung cấp', Value: 2, Checked: true }]
+                    /*{ Text: 'Nhân viên', Value: 4, Checked: true }];*/
+                }
+                if (self.LoaiBaoCao != '1') {
+                    self.listLoaiDoiTac.push({ Text: 'Nhân viên', Value: 4, Checked: true });
+                }
+            },
+            GetBaoCaoTieuDe: function () {
+                let self = this;
+                $("#BCSQtheoCN").hide()
+                switch (self.LoaiBaoCao) {
+                    case '1':
+                        self.BaoCaoTieuDe = "Báo cáo tổng hợp công nợ";
+                        break;
+                    case '2':
+                        self.BaoCaoTieuDe = "Báo cáo nhật ký thu tiền";
+                        break;
+                    case '3':
+                        self.BaoCaoTieuDe = "Báo cáo nhật ký chi tiền";
+                        break;
+                    case '4':
+                        self.BaoCaoTieuDe = "Báo cáo sổ quỹ";
+                        break;
+                    case '5':
+                        self.BaoCaoTieuDe = "Báo cáo kết quả hoạt động kinh doanh";
+                        break;
+                    case '6':
+                        self.BaoCaoTieuDe = "Báo cáo phân tích thu chi";
+                        break;
+                    default:
+                        break;
+                }
+                if (['5', '6'].includes(self.LoaiBaoCao)) {
+                    switch (self.TaiChinhLoaiThoiGian) {
+                        case '1':
+                            self.BaoCaoTieuDe += " theo tháng";
+                            break;
+                        case '2':
+                            self.BaoCaoTieuDe += " theo quý";
+                            break;
+                        case '3':
+                            self.BaoCaoTieuDe += " theo năm";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if (self.LoaiBaoCao === '4') {
+                    switch (self.SoQuyLoai) {
+                        case 1:
+                            self.BaoCaoTieuDe += " tiền mặt";
+                            break;
+                        case 2:
+                            self.BaoCaoTieuDe += " ngân hàng";
+                            break;
+                        case 3:
+                            self.BaoCaoTieuDe += " tổng quỹ";
+                            break;
+                        case 4:
+                            self.BaoCaoTieuDe += " theo chi nhánh";
+                            $("#BCSQtheoCN").show();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            },
+            GetBaoCaoToiGianText: function () {
+                let self = this;
+                if (self.LoaiBaoCao === '4' && self.SoQuyLoai === 4) {
+                    self.BaoCaoThoiGianText = 'Đến ngày ' + self.BaoCaoSoQuyTheoChiNhanh.timeEnd;
+                }
+                else {
+                    if (self.ThoiGian.From === '' && self.ThoiGian.To === '') {
+                        self.BaoCaoThoiGianText = 'Toàn thời gian';
+                    }
+                    else {
+                        self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.ThoiGian.From).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.ThoiGian.To).add(-1, 'days').format('DD/MM/YYYY');
+                    }
+                }
+            },
+            ChonLoaiSoQuy: function (value) {
+                let self = this;
+                self.SoQuyLoai = value;
+                self.LoadData();
+                //self.GetBaoCaoSoQuySoDu();
+            },
+            LoaiDoiTacChange: function () {
+                let self = this;
+                self.BaoCaoTongHopCongNo.Reload = true;
+                self.BaoCaoNhatKyThuTien.Reload = true;
+                self.BaoCaoNhatKyChiTien.Reload = true;
+                self.BaoCaoSoQuyTienMat.Reload = true;
+                self.BaoCaoSoQuyNganHang.Reload = true;
+                self.BaoCaoSoQuyTongQuy.Reload = true;
+                self.BaoCaoSoQuyTheoChiNhanh.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                self.LoadData();
+            },
+            ChiNhanhChange: function () {
+                let self = this;
+                self.BaoCaoNhatKyThuTien.Reload = true;
+                self.BaoCaoNhatKyChiTien.Reload = true;
+                self.BaoCaoSoQuyTienMat.Reload = true;
+                self.BaoCaoSoQuyNganHang.Reload = true;
+                self.BaoCaoSoQuyTongQuy.Reload = true;
+                self.BaoCaoSoQuyTheoChiNhanh.Reload = true;
+                self.BaoCaoKetQuaKinhDoanhTheoThang.Reload = true;
+                self.BaoCaoKetQuaKinhDoanhTheoQuy.Reload = true;
+                self.BaoCaoKetQuaKinhDoanhTheoNam.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                self.LoadData();
+            },
+            NhomKhachHangNhaCungCapChange: function () {
+                let self = this;
+                self.BaoCaoTongHopCongNo.Reload = true;
+                self.BaoCaoNhatKyThuTien.Reload = true;
+                self.BaoCaoNhatKyChiTien.Reload = true;
+                self.BaoCaoSoQuyTienMat.Reload = true;
+                self.BaoCaoSoQuyNganHang.Reload = true;
+                self.BaoCaoSoQuyTongQuy.Reload = true;
+                self.BaoCaoSoQuyTheoChiNhanh.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                self.LoadData();
+            },
+            LoaiPhieuChange: function () {
+                let self = this;
+                self.BaoCaoNhatKyThuTien.Reload = true;
+                self.BaoCaoNhatKyChiTien.Reload = true;
+                self.BaoCaoSoQuyTienMat.Reload = true;
+                self.BaoCaoSoQuyNganHang.Reload = true;
+                self.BaoCaoSoQuyTongQuy.Reload = true;
+                self.BaoCaoSoQuyTheoChiNhanh.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                self.LoadData();
+            },
+            GetBaoCaoSoQuySoDu: function () {
+                let self = this;
+                switch (self.SoQuyLoai) {
+                    case 1:
+                        self.BaoCaoSoQuySoDu.SoDuDauKy = self.BaoCaoSoQuyTienMat.SoDuDauKy;
+                        self.BaoCaoSoQuySoDu.TongThu = self.BaoCaoSoQuyTienMat.TongThu;
+                        self.BaoCaoSoQuySoDu.TongChi = self.BaoCaoSoQuyTienMat.TongChi;
+                        self.BaoCaoSoQuySoDu.PhatSinhTrongKy = self.BaoCaoSoQuyTienMat.PhatSinhTrongKy;
+                        self.BaoCaoSoQuySoDu.SoDuCuoiKy = self.BaoCaoSoQuyTienMat.SoDuCuoiKy;
+                        break;
+                    case 2:
+                        self.BaoCaoSoQuySoDu.SoDuDauKy = self.BaoCaoSoQuyNganHang.SoDuDauKy;
+                        self.BaoCaoSoQuySoDu.TongThu = self.BaoCaoSoQuyNganHang.TongThu;
+                        self.BaoCaoSoQuySoDu.TongChi = self.BaoCaoSoQuyNganHang.TongChi;
+                        self.BaoCaoSoQuySoDu.PhatSinhTrongKy = self.BaoCaoSoQuyNganHang.PhatSinhTrongKy;
+                        self.BaoCaoSoQuySoDu.SoDuCuoiKy = self.BaoCaoSoQuyNganHang.SoDuCuoiKy;
+                        break;
+                    case 3:
+                        self.BaoCaoSoQuySoDu.SoDuDauKy = self.BaoCaoSoQuyTongQuy.SoDuDauKy;
+                        self.BaoCaoSoQuySoDu.TongThu = self.BaoCaoSoQuyTongQuy.TongThu;
+                        self.BaoCaoSoQuySoDu.TongChi = self.BaoCaoSoQuyTongQuy.TongChi;
+                        self.BaoCaoSoQuySoDu.PhatSinhTrongKy = self.BaoCaoSoQuyTongQuy.PhatSinhTrongKy;
+                        self.BaoCaoSoQuySoDu.SoDuCuoiKy = self.BaoCaoSoQuyTongQuy.SoDuCuoiKy;
+                        break;
+                    //case 4:
+                    //    self.BaoCaoTieuDe += " theo chi nhánh";
+                    //    break;
+                    default:
+                        self.BaoCaoSoQuySoDu.SoDuDauKy = 0;
+                        self.BaoCaoSoQuySoDu.TongThu = 0;
+                        self.BaoCaoSoQuySoDu.TongChi = 0;
+                        self.BaoCaoSoQuySoDu.PhatSinhTrongKy = 0;
+                        self.BaoCaoSoQuySoDu.SoDuCuoiKy = 0;
+                        break;
+                }
+            },
+            PageChange: function (value) {
+                let self = this;
+                if (self.PageList.currentPage !== value.currentPage) {
+                    self.PageList.currentPage = value.currentPage;
+                } else if (self.PageSize !== value.pageSize) {
+                    self.PageList.PageSize = value.pageSize;
+                }
+                self.isPageSelect = true;
+                self.LoadData();
+            },
+            GetPageValue: function (currentPage, PageSize, sobanghi) {
+                let self = this;
+                var hienthiFrom = ((currentPage - 1) * PageSize) + 1;
+                var hienthiTo = '';
+                if (currentPage * PageSize < sobanghi) {
+                    hienthiTo = currentPage * PageSize;
+                }
+                else {
+                    hienthiTo = sobanghi;
+                }
+                self.PageList.PageView = 'Hiển thị ' + hienthiFrom + ' - ' + hienthiTo + ' trên tổng số ' + sobanghi + ' bản ghi';
+                self.PageList.NumberOfPage = Math.ceil(sobanghi / PageSize);
+                self.GetPageList();
+            },
+            GetPageList: function () {
+                let self = this;
+                let page = self.PageList.NumberOfPage;
+                let pagenow = self.PageList.currentPage;
+                let listpage = [];
+                if (page > 5) {
+                    if (pagenow > 2 && pagenow < (page - 2)) {
+                        listpage = Array.from({ length: 5 }, (x, i) => i + pagenow - 2);
+                    }
+                    else if (pagenow >= (page - 2)) {
+                        if (pagenow !== page) {
+                            listpage = Array.from({ length: 5 }, (x, i) => i + pagenow - 3);
+                        }
+                        else {
+                            listpage = Array.from({ length: 5 }, (x, i) => i + pagenow - 4);
+                        }
+                    }
+                    else {
+                        listpage = [1, 2, 3, 4, 5];
+                    }
+                }
+                else {
+                    if (page != 0) {
+                        listpage = Array.from({ length: page }, (x, i) => i + 1);
+                    }
+                }
+                self.PageList.ListPage = listpage;
+            },
+            InitLoaiPhieuThuChi: function () {
+                let self = this;
+                self.ListLoaiPhieuThuChi = [{ ID: 1, TenDonVi: 'Phiếu thu khác', CNChecked: false },
+                { ID: 2, TenDonVi: 'Phiếu chi khác', CNChecked: false },
+                { ID: 3, TenDonVi: 'Thu tiền khách trả', CNChecked: false },
+                { ID: 4, TenDonVi: 'Chi tiền trả khách', CNChecked: false },
+                { ID: 5, TenDonVi: 'Thu tiền NCC trả', CNChecked: false },
+                { ID: 6, TenDonVi: 'Chi tiền trả NCC', CNChecked: false }]
+            },
+            GetListLoaiPhieuThuChi: function () {
+                let self = this;
+                switch (self.LoaiBaoCao) {
+                    case '2':
+                        return self.ListLoaiPhieuThuChi.filter(p => [1, 3, 5].includes(p.ID));
+                        break;
+                    case '3':
+                        return self.ListLoaiPhieuThuChi.filter(p => [2, 4, 6].includes(p.ID));
+                        break;
+                    default:
+                        return self.ListLoaiPhieuThuChi;
+                        break;
+                }
+            },
+            GetHeader: function () {
+                let self = this;
+                switch (self.LoaiBaoCao) {
+                    case '1':
+                        self.ListHeader = self.InitHeaderTongHopCongNo();
+                        break;
+                    case '2':
+                        self.ListHeader = self.InitHeaderNhatKyThuTien();
+                        break;
+                    case '3':
+                        self.ListHeader = self.InitHeaderNhatKyChiTien();
+                        break;
+                    case '4':
+                        switch (self.SoQuyLoai) {
+                            case 1:
+                                self.ListHeader = self.InitHeaderSoQuyTienMat();
+                                break;
+                            case 2:
+                                self.ListHeader = self.InitHeaderSoQuyNganHang();
+                                break;
+                            case 3:
+                                self.ListHeader = self.InitHeaderSoQuyTongQuy();
+                                break;
+                            default:
+                                self.ListHeader = [];
+                                break;
+                        }
+                        break;
+                    default:
+                        self.ListHeader = [];
+                        break;
+                }
+            },
+            InitHeaderTongHopCongNo: function () {
+                return [{ colName: 'colNhomDoiTac', colText: 'Nhóm đối tác', colShow: true, index: 0 },
+                { colName: 'colMaDoiTac', colText: 'Mã đối tác', colShow: true, index: 1 },
+                { colName: 'colTenDoiTac', colText: 'Tên đối tác', colShow: true, index: 2 },
+                { colName: 'colDauKy', colText: 'Đầu kỳ', colShow: true, index: 3 },
+                { colName: 'colTrongKy', colText: 'Trong kỳ', colShow: true, index: 4 },
+                { colName: 'colCuoiKy', colText: 'Cuối kỳ', colShow: true, index: 5 }];
+            },
+            InitHeaderNhatKyThuTien: function () {
+                return [{ colName: 'colNhomDoiTac', colText: 'Nhóm đối tác', colShow: true, index: 0 },
+                { colName: 'colHdLienQuan', colText: 'HĐ liên quan', colShow: true, index: 1 },
+                { colName: 'colMaPhieuThu', colText: 'Mã phiếu thu', colShow: true, index: 2 },
+                { colName: 'colNgayLapPhieu', colText: 'Ngày lập phiếu', colShow: true, index: 3 },
+                { colName: 'colMaNguoiNop', colText: 'Mã người nộp', colShow: true, index: 4 },
+                { colName: 'colTenNguoiNop', colText: 'Tên người nộp', colShow: true, index: 5 },
+                { colName: 'colTongTienThu', colText: 'Tổng tiền thu', colShow: true, index: 6 },
+                { colName: 'colKhoanMuc', colText: 'Khoản mục', colShow: true, index: 7 },
+                { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 8 },
+                { colName: 'colLoaiPhieu', colText: 'Loại phiếu', colShow: true, index: 9 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 10 }];
+            },
+            InitHeaderNhatKyChiTien: function () {
+                return [{ colName: 'colNhomDoiTac', colText: 'Nhóm đối tác', colShow: true, index: 0 },
+                { colName: 'colHdLienQuan', colText: 'HĐ liên quan', colShow: true, index: 1 },
+                { colName: 'colMaPhieuChi', colText: 'Mã phiếu chi', colShow: true, index: 2 },
+                { colName: 'colNgayLapPhieu', colText: 'Ngày lập phiếu', colShow: true, index: 3 },
+                { colName: 'colMaNguoiNhan', colText: 'Mã người nhận', colShow: true, index: 4 },
+                { colName: 'colTenNguoiNhan', colText: 'Tên người nhận', colShow: true, index: 5 },
+                { colName: 'colTongTienChi', colText: 'Tổng tiền chi', colShow: true, index: 6 },
+                { colName: 'colKhoanMuc', colText: 'Khoản mục', colShow: true, index: 7 },
+                { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 8 },
+                { colName: 'colLoaiPhieu', colText: 'Loại phiếu', colShow: true, index: 9 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 10 }];
+            },
+            InitHeaderSoQuyTienMat: function () {
+                return [{ colName: 'colMaPhieu', colText: 'Mã phiếu', colShow: true, index: 0 },
+                { colName: 'colThoiGian', colText: 'Thời gian', colShow: true, index: 1 },
+                { colName: 'colKhoanMuc', colText: 'Khoản mục', colShow: true, index: 2 },
+                { colName: 'colNguoiNopNhan', colText: 'Người nộp/nhận', colShow: true, index: 3 },
+                { colName: 'colTienThu', colText: 'Tiền thu', colShow: true, index: 4 },
+                { colName: 'colTienChi', colText: 'Tiền chi', colShow: true, index: 5 },
+                { colName: 'colLuyKe', colText: 'Lũy kế', colShow: true, index: 6 },
+                { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 7 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 8 }];
+            },
+            InitHeaderSoQuyNganHang: function () {
+                return [{ colName: 'colMaPhieu', colText: 'Mã phiếu', colShow: true, index: 0 },
+                { colName: 'colThoiGian', colText: 'Thời gian', colShow: true, index: 1 },
+                { colName: 'colKhoanMuc', colText: 'Khoản mục', colShow: true, index: 2 },
+                { colName: 'colNguoiNopNhan', colText: 'Người nộp/nhận', colShow: true, index: 3 },
+                { colName: 'colTienThu', colText: 'Tiền thu', colShow: true, index: 4 },
+                { colName: 'colTienChi', colText: 'Tiền chi', colShow: true, index: 5 },
+                { colName: 'colLuyKe', colText: 'Lũy kế', colShow: true, index: 6 },
+                { colName: 'colSoTaiKhoan', colText: 'Số tài khoản', colShow: true, index: 7 },
+                { colName: 'colNganHang', colText: 'Ngân hàng', colShow: true, index: 8 },
+                { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 9 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 10 }];
+            },
+            InitHeaderSoQuyTongQuy: function () {
+                return [{ colName: 'colMaPhieu', colText: 'Mã phiếu', colShow: true, index: 0 },
+                { colName: 'colThoiGian', colText: 'Thời gian', colShow: true, index: 1 },
+                { colName: 'colKhoanMuc', colText: 'Khoản mục', colShow: true, index: 2 },
+                { colName: 'colNguoiNopNhan', colText: 'Người nộp/nhận', colShow: true, index: 3 },
+                { colName: 'colTienThu', colText: 'Tiền thu', colShow: true, index: 4 },
+                { colName: 'colTienChi', colText: 'Tiền chi', colShow: true, index: 5 },
+                { colName: 'colLuyKe', colText: 'Lũy kế', colShow: true, index: 6 },
+                { colName: 'colSoTaiKhoan', colText: 'Số tài khoản', colShow: true, index: 7 },
+                { colName: 'colNganHang', colText: 'Ngân hàng', colShow: true, index: 8 },
+                { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 9 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 10 }];
+            },
+            GetListYear: function () {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.HtApi + "GetListYear",
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res) {
+                            self.ListYear = data.dataSoure.data;
+                        }
+                        else {
+                            self.ListYear = [(new Date()).getFullYear()];
+                            //commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                        }
+                    }
+                });
+            },
+            TextSearchOnKeyUp: function (e) {
+                let self = this;
+                if (e.keyCode === 13) {
+                    self.TextSearchChange();
+                }
+            },
+            TextSearchChange: function () {
+                let self = this;
+                self.BaoCaoTongHopCongNo.Reload = true;
+                self.BaoCaoNhatKyThuTien.Reload = true;
+                self.BaoCaoNhatKyChiTien.Reload = true;
+                self.BaoCaoSoQuyTienMat.Reload = true;
+                self.BaoCaoSoQuyNganHang.Reload = true;
+                self.BaoCaoSoQuyTongQuy.Reload = true;
+                self.LoadData();
+            },
+            //ExportExcel
+            ExportExcel: function () {
+                let self = this;
+                let myData = {};
+                myData.BaoCaoThoiGian = self.BaoCaoThoiGianText;
+                myData.ColHide = self.ListHeader.filter(p => p.colShow === false).map(p => p.index);
+                switch (self.LoaiBaoCao) {
+                    case '1':
+                        myData.IdChiNhanhs = self.IdChiNhanh;
+                        myData.TextSearch = self.TextSearch;
+                        myData.TimeStart = self.ThoiGian.From;
+                        myData.TimeEnd = self.ThoiGian.To;
+                        myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                        myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.TrangThaiCongNo = self.TrangThaiCongNo;
+                        self.ExportExcel_BaoCaoTaiChinh_CongNo_v2(myData);
+                        break;
+                    case '2':
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.TextSearch = self.TextSearch;
+                        myData.TimeStart = self.ThoiGian.From;
+                        myData.TimeEnd = self.ThoiGian.To;
+                        myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                        myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                        myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                        myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                        self.Export_BCTC_NhatKyThuTien_v2(myData);
+                        break;
+                    case '3':
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.TextSearch = self.TextSearch;
+                        myData.TimeStart = self.ThoiGian.From;
+                        myData.TimeEnd = self.ThoiGian.To;
+                        myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                        myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                        myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                        myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                        self.Export_BCTC_NhatKyChiTien_v2(myData);
+                        break;
+                    case '4':
+                        switch (self.SoQuyLoai) {
+                            case 1:
+                                myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.TextSearch = self.TextSearch;
+                                myData.TimeStart = self.ThoiGian.From;
+                                myData.TimeEnd = self.ThoiGian.To;
+                                myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                                myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                                myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                                myData.LoaiTien = 1;
+                                myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                                self.Export_BCTC_SoQuyTienMat_v2(myData);
+                                break;
+                            case 2:
+                                myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.TextSearch = self.TextSearch;
+                                myData.TimeStart = self.ThoiGian.From;
+                                myData.TimeEnd = self.ThoiGian.To;
+                                myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                                myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                                myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                                myData.LoaiTien = 2;
+                                myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                                self.Export_BCTC_SoQuyNganHang_v2(myData);
+                                break;
+                            case 3:
+                                myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.TextSearch = self.TextSearch;
+                                myData.TimeStart = self.ThoiGian.From;
+                                myData.TimeEnd = self.ThoiGian.To;
+                                myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                                myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                                myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                                myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                                self.Export_BCTC_SoQuyTongQuy_v2(myData);
+                                break;
+                            case 4:
+                                myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.TimeEnd = self.BaoCaoSoQuyTheoChiNhanh.timeEnd;
+                                myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                                myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                                myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                                myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                                myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                                self.Export_BCTC_SoQuyTheoChiNhanh_v2(myData);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case '5':
+                        myData.Year = self.YearSelect;
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                        switch (self.TaiChinhLoaiThoiGian) {
+                            case '1':
+                                self.ExportBaoCaoKetQuaHoatDongKinhDoanhTheoThang(myData);
+                                break;
+                            case '2':
+                                self.ExportBaoCaoKetQuaHoatDongKinhDoanhTheoQuy(myData);
+                                break;
+                            case '3':
+                                self.ExportBaoCaoKetQuaHoatDongKinhDoanhTheoNam(myData);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case '6':
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked).length === 0 ? self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.LoaiKH = self.listLoaiDoiTac.filter(p => p.Checked === true).map(p => p.Value);
+                        myData.IdNhomKhachHang = self.listNhomKhachHang.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.IdNhomNhaCungCap = self.listNhomNhaCungCap.filter(p => p.CNChecked).map(p => p.ID);
+                        myData.LoaiThuChi = self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).length === 0 ? self.GetListLoaiPhieuThuChi().map(p => p.ID) : self.GetListLoaiPhieuThuChi().filter(p => p.CNChecked).map(p => p.ID);
+                        myData.HachToanKinhDoanh = self.HachToanKinhDoanh;
+                        myData.Year = self.YearSelect;
+                        myData.LoaiTien = self.HinhThucThanhToan;
+                        myData.BaoCaoChiNhanh = 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ? 'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString());
+                        switch (self.TaiChinhLoaiThoiGian) {
+                            case '1':
+                                self.Export_BCTC_PhanTichThuChiTheoThang_v2(myData);
+                                break;
+                            case '2':
+                                self.Export_BCTC_PhanTichThuChiTheoQuy_v2(myData);
+                                break;
+                            case '3':
+                                self.Export_BCTC_PhanTichThuChiTheoNam_v2(myData);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            },
+            ExportExcel_BaoCaoTaiChinh_CongNo_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "ExportExcel_BaoCaoTaiChinh_CongNo_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_NhatKyThuTien_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_NhatKyThuTien_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_NhatKyChiTien_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_NhatKyChiTien_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_SoQuyTienMat_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_SoQuyTienMat_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_SoQuyNganHang_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_SoQuyNganHang_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_SoQuyTongQuy_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_SoQuyTongQuy_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_SoQuyTheoChiNhanh_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_SoQuyTheoChiNhanh_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            ExportBaoCaoKetQuaHoatDongKinhDoanhTheoThang: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "ExportBaoCaoKetQuaHoatDongKinhDoanhTheoThang",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            ExportBaoCaoKetQuaHoatDongKinhDoanhTheoQuy: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "ExportBaoCaoKetQuaHoatDongKinhDoanhTheoQuy",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            ExportBaoCaoKetQuaHoatDongKinhDoanhTheoNam: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "ExportBaoCaoKetQuaHoatDongKinhDoanhTheoNam",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_PhanTichThuChiTheoThang_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_PhanTichThuChiTheoThang_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_PhanTichThuChiTheoQuy_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_PhanTichThuChiTheoQuy_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            Export_BCTC_PhanTichThuChiTheoNam_v2: function (myData) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BCTC_PhanTichThuChiTheoNam_v2",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res)
+                            self.DownloadFileTeamplateXLSX(data.mess);
+                    }
+                });
+            },
+            DownloadFileTeamplateXLSX: function (item) {
+                let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + item;
+                window.location.href = url;
+            }
+        },
+        created: function () {
+            let self = this;
+            self.InitLoaiDoiTac();
+            self.LoadChiNhanh();
+            self.LoadNhomDoiTuong();
+            self.GetHeader();
+            self.InitLoaiPhieuThuChi();
+            self.GetListYear();
+            self.IdChiNhanh = VHeader.IdDonVi;
+            if (VHeader.IdNganhNgheKinhDoanh === "C16EDDA0-F6D0-43E1-A469-844FAB143014") {
+                self.ListIndex = [2, 3, 10, 11, 14, 15];
+            } else {
+                self.ListIndex = [2, 3, 9, 10, 13, 14];
+            }
+        },
+        watch: {
+            LoaiBaoCao: {
+                handler: function () {
+                    let self = this;
+                    self.GetBaoCaoTieuDe();
+                    self.GetHeader();
+                    self.InitLoaiDoiTac();
+                    self.LoadData();
+                    //if (self.LoaiBaoCao==="4"&&s)
+                },
+                deep: true
+            },
+            TaiChinhLoaiThoiGian: {
+                handler: function () {
+                    let self = this;
+                    self.GetBaoCaoTieuDe();
+                    self.LoadData();
+                },
+                deep: true
+            },
+            SoQuyLoai: {
+                handler: function () {
+                    let self = this;
+                    self.GetBaoCaoTieuDe();
+                    self.GetHeader();
+                },
+                deep: true
+            },
+            HachToanKinhDoanh: {
+                handler: function () {
+                    let self = this;
+                    self.BaoCaoNhatKyThuTien.Reload = true;
+                    self.BaoCaoNhatKyChiTien.Reload = true;
+                    self.BaoCaoSoQuyTienMat.Reload = true;
+                    self.BaoCaoSoQuyNganHang.Reload = true;
+                    self.BaoCaoSoQuyTongQuy.Reload = true;
+                    self.BaoCaoSoQuyTheoChiNhanh.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                    self.LoadData();
+                },
+                deep: true
+            },
+            YearSelect: {
+                handler: function () {
+                    let self = this;
+                    self.BaoCaoKetQuaKinhDoanhTheoThang.Reload = true;
+                    self.BaoCaoKetQuaKinhDoanhTheoQuy.Reload = true;
+                    self.BaoCaoKetQuaKinhDoanhTheoNam.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                    self.LoadData();
+                }
+            },
+            HinhThucThanhToan: {
+                handler: function () {
+                    let self = this;
+                    self.BaoCaoPhanTichThuChiTheoThang.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoQuy.Reload = true;
+                    self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
+                    self.LoadData();
+                }
+            },
+            TrangThaiCongNo: {
+                handler: function () {
+                    let self = this;
+                    self.BaoCaoTongHopCongNo.Reload = true;
+                    self.LoadData();
+                }
+            }
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+       
+        $('.daterange').daterangepicker({
+            "opens": "right",
+            "drop": "auto",
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tìm kiếm",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+        var time = new Date();
+        $.datetimepicker.setLocale('vi');
+        $('#datetimepicker_mask').datetimepicker({
+            timepicker: false,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y',
+            value: moment(time).format('DD/MM/YYYY'),
+            onChangeDateTime: function (dp, $input) {
+                if (VReportTaiChinh.BaoCaoSoQuyTheoChiNhanh.timeEnd !== $input.val()) {
+                    VReportTaiChinh.BaoCaoSoQuyTheoChiNhanh.timeEnd = $input.val();
+                    VReportTaiChinh.BaoCaoSoQuyTheoChiNhanh.Reload = true;
+                    VReportTaiChinh.LoadData();
+                }
+            },
+            onGenerate: function (dp, $input) {
+                VReportTaiChinh.BaoCaoSoQuyTheoChiNhanh.timeEnd = $input.val();
+            }
+        });
+    })
+</script>

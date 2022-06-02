@@ -1,0 +1,475 @@
+﻿@using banhang24.Hellper
+<style>
+    .gara-detail-sections-title {
+        display: flex;
+        align-items: center;
+        padding: 5px 5px 5px 15px;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 15px;
+    }
+
+    #TiepNhanXeModal .btn-upload-image {
+        width: 100px;
+        max-width: 100%;
+        position: relative;
+        margin: 3px 15px;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        color: #000;
+        line-height: 22px !important;
+        font-size: 1rem !important;
+    }
+
+        #TiepNhanXeModal .btn-upload-image input {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            text-align: right;
+            opacity: 0;
+            background: none repeat scroll 0 0 transparent;
+            cursor: inherit;
+            display: block;
+        }
+
+    #TiepNhanXeModal table thead tr th {
+        text-align: center;
+    }
+</style>
+<div class="modal fade" id="TiepNhanXeModal">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content  ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <h5 class="modal-title">
+                    {{isNew?'Thêm mới phiếu tiếp nhận':'Cập nhật phiếu tiếp nhận'}}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+            </div>
+            <div class="modal-body modal-body-scroll" style="padding:15px;">
+                <ul class="nav nav-tabs mb-3 gara-detail-tab" id="gara-detail-tab" role="tablist">
+                    <li class="nav-item active">
+                        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#TiepNhanXeThongTin" role="tab" aria-controls="pills-profile" aria-selected="false">
+                            Thông tin chi tiết
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#TiepNhanXeTinhTrang" role="tab" aria-controls="pills-contact" aria-selected="false">
+                            Tình trạng xe
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content ">
+                    <div class="tab-pane active" id="TiepNhanXeThongTin" role="tabpanel" aria-labelledby="pills-profile-tab">
+                     
+                        <div class="flex flex-column gara-detail-sections">
+                            <div class="row padding-10">
+                                <div class="col-lg-6">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Mã tiếp nhận</label>
+                                        <div class="form-news">
+                                            <input class="form-control MaTiepNhan" type="text"
+                                                   autocomplete="off"
+                                                   id="MaTiepNhan" placeholder="Mã tự động"
+                                                   v-model="newPhieuTiepNhan.MaPhieuTiepNhan" />
+                                            <span class="commodity-note">
+                                                <i class="fa fa-info-circle"></i>
+                                                <span href="javascript:void(0)" class="materiall">Thông tin được nhập tự động</span>
+                                            </span>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Cố vấn dịch vụ</label>
+                                        <div class="form-news">
+                                            <nhanviens :text-search="adviserName"
+                                                       :staffs="listData.NhanViens"
+                                                       :search-list="listData.NhanViens"
+                                                       v-on:reset-item-chose="$root.ResetAdviser"
+                                                       v-on:change-staff-parent="ChangeAdviser">
+                                            </nhanviens>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Ngày tiếp nhận</label>
+                                        <div class="form-news">
+                                            <my-date-time :date-chose="newPhieuTiepNhan.NgayVaoXuong"
+                                                          :role-change-date="true"
+                                                          v-on:change-date="ChangeNgayTiepNhan">
+                                            </my-date-time>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Người lập</label>
+                                        <div class="form-news">
+                                            <nhanviens :text-search="staffName"
+                                                       :staffs="listData.NhanViens"
+                                                       :search-list="listData.NhanViens"
+                                                       v-on:change-staff-parent="ChangeCreator">
+                                            </nhanviens>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-column gara-detail-sections">
+                            <label class="control-label">Thông tin xe</label>
+                            <div class="row padding-10">
+                                <div class="col-lg-6">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Biển số <span class="red"> (*) </span></label>
+                                        <div class="form-news">
+                                            <cars :text-search="carChosing.BienSo"
+                                                  :show-btn-add="role.Xe.ThemMoi && newPhieuTiepNhan.ID_Xe == null"
+                                                  :show-btn-update="role.Xe.CapNhat && newPhieuTiepNhan.ID_Xe !== null"
+                                                  v-on:reset-car="Reset_ThongTinXe"
+                                                  v-on:show-modal-car="showModalNewCar"
+                                                  v-on:show-modal-update="$root.updateCar"
+                                                  v-on:change-car-parent="ChangeCar">
+                                            </cars>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Số máy</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" readonly v-model="carChosing.SoMay" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Mẫu xe</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" readonly
+                                                   v-if="carChosing.TenMauXe && carChosing.TenHangXe"
+                                                   v-bind:value="carChosing.TenMauXe.concat('_', carChosing.TenHangXe)" />
+                                            <input type="text" class="form-control" readonly
+                                                   v-if="!carChosing.TenMauXe || !carChosing.TenHangXe"
+                                                   v-model="carChosing.TenMauXe" />
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Số khung</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" readonly v-model="carChosing.SoKhung" />
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="flex flex-column gara-detail-sections">
+                            <div class="flex flex-row floatleft" style="border-bottom: 1px solid #ccc; width: 100%; padding: 5px 0 5px 10px;">
+                                <label style="margin-right:5px; width:150px;">Thông tin khách hàng</label>
+                                <label class="control-label ">
+                                    <input type="checkbox" v-model="newPhieuTiepNhan.LaChuXe"
+                                           v-on:change="Change_LaChuXe" style="position:relative">
+                                    Là chủ xe
+                                </label>
+                            </div>
+                            <div class="row padding-10">
+                                <div class="floatleft">
+                                    <div class="col-lg-6 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Khách hàng <span class="red"> (*) </span> </label>
+                                            <div class="form-news">
+                                                <customers :text-search="customerChosing.TenDoiTuong"
+                                                           :loai-doi-tuong="1"
+                                                           :showbutton="role.KhachHang.ThemMoi && newPhieuTiepNhan.ID_KhachHang ==null"
+                                                           :showbutton-update="role.KhachHang.CapNhat && newPhieuTiepNhan.ID_KhachHang!==null"
+                                                           :disable-search="false"
+                                                           :id-chi-nhanh="inforLogin.ID_DonVi"
+                                                           v-on:show-modal-customer="showModalCustomer"
+                                                           v-on:show-modal-update="$root.UpdateCustomer"
+                                                           v-on:reset-customer-parent="$root.ResetCustomer"
+                                                           v-on:change-customer-parent="ChangeCustomer">
+                                                </customers>
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Email</label>
+                                            <div class="form-news">
+                                                <input type="text" class="form-control" readonly v-model="customerChosing.Email" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Điện thoại</label>
+                                            <div class="form-news">
+                                                <input type="text" class="form-control" readonly v-model="customerChosing.DienThoai" />
+
+                                            </div>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Địa chỉ</label>
+                                            <div class="form-news">
+                                                <input type="text" class="form-control" readonly v-model="customerChosing.DiaChi" />
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+
+                                </div>
+                                <div class="floatleft ">
+                                    <div class="col-lg-6 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Người liên hệ</label>
+                                            <div class="form-news">
+                                                <input class="form-control gara-search-HH   "
+                                                       v-model="newPhieuTiepNhan.TenLienHe" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Điện thoại</label>
+                                            <div class="form-news">
+                                                <input type="text" class="form-control"
+                                                       v-model="newPhieuTiepNhan.SoDienThoaiLienHe" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-column gara-detail-sections">
+                            <label class="control-label">Thông tin bảo hiểm</label>
+                            <div class="row padding-10">
+                                <div class="floatleft">
+                                    <div class="col-lg-12 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Bảo hiểm</label>
+                                            <div class="form-news">
+                                                <customers :text-search="insurenceChosing.TenBaoHiem"
+                                                           :loai-doi-tuong="3"
+                                                           :disable-search="false"
+                                                           :id-chi-nhanh="inforLogin.ID_DonVi"
+                                                           :showbutton="role.BaoHiem.ThemMoi && newPhieuTiepNhan.ID_BaoHiem == null"
+                                                           :showbutton-update="role.BaoHiem.CapNhat && newPhieuTiepNhan.ID_BaoHiem!==null"
+                                                           v-on:show-modal-customer="$root.insertBaoHiem"
+                                                           v-on:show-modal-update="$root.updateBaoHiem"
+                                                           v-on:reset-customer-parent="ResetInsurence"
+                                                           v-on:change-customer-parent="ChangeInsurence">
+                                                </customers>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="floatleft ">
+                                    <div class="col-lg-6 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Người liên hệ</label>
+                                            <div class="form-news">
+                                                <input class="form-control gara-search-HH   "
+                                                       v-model="newPhieuTiepNhan.NguoiLienHeBH" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-xs-12">
+                                        <div class="form-group floatleft">
+                                            <label class="control-label">Điện thoại</label>
+                                            <div class="form-news">
+                                                <input type="text" class="form-control"
+                                                       v-model="newPhieuTiepNhan.SoDienThoaiLienHeBH" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-column gara-detail-sections">
+                            <label class="control-label">Thông tin tiếp nhận</label>
+                            <div class="row padding-10">
+                                <div class="col-lg-6">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Số km vào</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control text-right" autocomplete="off" onclick="this.select()"
+                                                   v-model="newPhieuTiepNhan.SoKmVao" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label" style="letter-spacing:-1px">Ngày ra dự kiến</label>
+                                        <div class="form-news">
+                                            <my-date-time :date-chose="newPhieuTiepNhan.NgayXuatXuongDuKien"
+                                                          :role-change-date="true"
+                                                          v-on:change-date="ChangeNgayXuatXuong">
+                                            </my-date-time>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 highlight-note-box">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Ghi chú</label>
+                                        <div class="form-news">
+                                            <textarea type="text" rows="2" autocomplete="off" v-model="newPhieuTiepNhan.GhiChu"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Trạng thái</label>
+                                        <div class="form-news" style="position:relative">
+                                            <a class="form-control" data-toggle="dropdown">
+                                                {{trangthaiPhieuTN}}
+                                            </a>
+                                            <ul class="dropdown-menu" id="TrangThaiPTNList" style="width:100%">
+                                                <li v-for="(item, index) in listData.TrangThaiPhieuTN"
+                                                    v-on:click="Change_TrangThaiPhieuTN(item)">
+                                                    <a href="javascript:void(0)">
+                                                        <span> {{item.Text}}</span>
+                                                        <span style="float:right" class="fa fa-check"
+                                                              v-if="newPhieuTiepNhan.TrangThai === item.ID"></span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                    <div class="tab-pane " id="TiepNhanXeTinhTrang" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        <div style="    padding: 15px 0;">
+                            <table class="table-res">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên hạng mục</th>
+                                        <th>Tình trạng</th>
+                                        <th>Phương án sửa chữa</th>
+                                        <th>Ảnh đính kèm</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody style="max-height:250px">
+                                    <tr v-for="(item, index) in listData.HangMucSuaChuas">
+                                        <td style="text-align:center">{{index+1}}</td>
+                                        <td><input class="form-control" v-model="item.TenHangMuc" /></td>
+                                        <td><input class="form-control" v-model="item.TinhTrang" /></td>
+                                        <td><input class="form-control" v-model="item.PhuongAnSuaChua" /></td>
+                                        <td>
+                                            <span class="btn  btn-upload-image form-control">
+                                                Chọn ảnh <input type="file" name="image" class="inputfile"
+                                                                v-on:change="HangMuc_ChoseImage(index)"
+                                                                accept="image/*">
+                                            </span>
+                                            <span v-on:click="ZoomImage(index,1)">
+                                                <a href="javascript:void(0)">{{item.FileName}}</a>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a title="Thêm"
+                                               v-on:click="AddNew_ItemFix(index)"><i class="material-icons">add</i></a>
+                                            <a title="Xóa"
+                                               v-on:click="Remove_ItemFix(index)"><i class="material-icons">close</i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <h5> Vật dụng, giấy tờ kèm theo</h5>
+                        <div style="    padding: 15px 0;" id="listAttach">
+                            <table class="table-res">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Nội dung</th>
+                                        <th>Số lượng</th>
+                                        <th>Ảnh đính kèm</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody style="max-height:250px">
+                                    <tr v-for="(item, index) in listData.GiayToDinhKems">
+                                        <td>{{index+ 1}}</td>
+                                        <td><input class="form-control" v-model="item.TieuDe" /></td>
+                                        <td><input class="form-control text-right" v-model="item.SoLuong" type="number" /></td>
+                                        <td>
+                                            <span class="btn  btn-upload-image form-control">
+                                                Chọn ảnh <input type="file" name="image" class="inputfile"
+                                                                v-on:change="VatDung_ChoseImage(index)"
+                                                                accept="image/*">
+                                            </span>
+                                            <span v-on:click="ZoomImage(index,2)">
+                                                <a href="javascript:void(0)">{{item.FileName}}</a>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a title="Thêm"
+                                               v-on:click="AddNew_ItemAttach(index)"><i class="material-icons">add</i></a>
+                                            <a title="Xóa"
+                                               v-on:click="Remove_ItemAttach(index)"><i class="material-icons">close</i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i>Hủy
+                </button>
+                <button type="button" class="btn btn-save" v-on:click="AddNew_PhieuTiepNhan"
+                        v-if="role.PhieuTiepNhan.CapNhat && !$root.isLoading">
+                    <i class="fa fa-save"></i>
+                    Lưu
+                </button>
+                <button type="button" class="btn btn-save"
+                        v-if="$root.isLoading">
+                    <i class="fa fa-save"></i>
+                    Đang lưu
+                </button>
+
+            </div>
+
+        </div>
+
+        <script>
+            $('.infor-popup a').click(function () {
+                $(this).siblings().toggle();
+            })
+            $.datetimepicker.setLocale('vi');
+        </script>
+    </div>
+
+    <cmp-list-chose id="ptn_xacnhan_capnhat"
+                    :show="cmp.show"
+                    :title="cmp.title"
+                    :list-chose="cmp.ListChose"
+                    v-on:agree="$root.Agree_thaydoiPTN">
+    </cmp-list-chose>
+
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/importExcel.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/Input.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/BanLamViec/_TiepNhanXe.js")"></script>

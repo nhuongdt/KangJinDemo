@@ -1,0 +1,202 @@
+﻿
+@{
+    ViewBag.Title = "CandidateApplyFile";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    <script src="~/Assets/Admin/Home.js"></script>
+    <script>
+        $("#MailSetup").click(function () {
+            $('.mail-setup').toggle();
+            $(".mail-setup").mouseup(function () {
+                return false
+            });
+            $("#MailSetup").mouseup(function () {
+                return false
+            });
+            $(document).mouseup(function () {
+                $(".mail-setup").hide();
+            });
+        });
+        vmMain.reloadUrl(2);
+        vmMain.GetData();
+    </script>
+}
+<div class=" floatleft " id="mainHome">
+    <div class="col-md-4 col-sm-4 col-xs-12 mail_list_column">
+        <div class="form-group floatleft border-bottom">
+            <div class=" floatleft">
+                <button class="btn btn-sm btn-default pull-left " id="MailSetup" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Forward">
+                    <i class="fa fa-cog" aria-hidden="true"></i>Cài đặt
+                </button>
+                <div class="mail-setup floatleft tree-tag">
+                    <div class="form-group ">
+                        <label>
+                            Thiết lập hiện thị
+                        </label>
+                    </div>
+                    <div class="form-group" id="CheckedSetup">
+                        <div class="checkbox ghim-bao-viet">
+                            <label>
+                                <input type="checkbox" value="1" v-on:click="checkedSetup(1)" checked>Hồ sơ mới
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox ghim-bao-viet">
+                            <label>
+                                <input type="checkbox" value="2" v-on:click="checkedSetup(2)" checked>Đã xem
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="pull-right mail-page form-search">
+                    <p>
+                        {{modelSearch.pageItem}}  <a href="javascript:void(0)" v-on:click="ClickPrevious"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-on:click="ClickNext"><i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+                    </p>
+                </div>
+            </div>
+            <div class="floatleft form-input-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Tìm kiếm hồ sơ" v-model="modelSearch.text" v-on:keyup="keySearch">
+
+            </div>
+        </div>
+        <div class="floatleft mail-content">
+            <div class="fl" v-for="(item, index) in dataResult">
+                <a href="javascript:void(0)" v-on:click="UpdateHoSoUngTuyen(item,$event)"  v-bind:class="['', item.TrangThai!==true ? 'inbox-read' : '']">
+                    <div class="mail_list">
+                        <div class="left">
+                            <i class="fa fa-envelope-o" aria-hidden="true" v-show="item.TrangThai===true"></i>
+                            <i class="fa fa-envelope-open-o" aria-hidden="true" v-show="item.TrangThai!==true"></i>
+                            
+                        </div>
+                        <div class="right ">
+                            <h3>{{item.HoTen}}<small>{{localValidate.ConvertTitleDateTime(item.NgayTao)}}</small></h3>
+                            <p class="no-magirn">Email: {{item.Email}}</p>
+                            <p>Vị trí : {{item.ViTri}}</>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /MAIL LIST -->
+    <!-- CONTENT MAIL -->
+    <div class="col-md-8 col-sm-8 col-xs-12 mail_view">
+        <div class="inbox-body">
+            <div class="mail_heading row">
+                <div class="col-md-8">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" type="button"><i class="fa fa-reply"></i> Reply</button>
+                        <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="In hồ sơ"><i class="fa fa-print"></i></button>
+                        <button class="btn btn-sm btn-default" v-on:click="DeleteHoSoUngTuyen" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Xóa hồ sơ"><i class="fa fa-trash-o"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-right">
+                    <p class="date" v-if="recruitment.NgayTao!==null && recruitment.NgayTao!==undefined"> {{localValidate.ConvertTitleDateTime(recruitment.NgayTao)}}</p>
+                </div>
+                <div class="col-md-12   contact-title">
+                    <div class=" col-md-6 no-padding">
+                        <div class="form-group form-news">
+                            <label>Tên ứng viên:</label>
+                            <div class="form-wrap">
+                                {{recruitment.HoTen}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Email:</label>
+                            <div class="form-wrap">
+                                {{recruitment.Email}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Địa chỉ:</label>
+                            <div class="form-wrap">
+                                {{recruitment.DiaChi}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Trường tốt nghiệp:</label>
+                            <div class="form-wrap">
+                                {{recruitment.TruongTotNghiep}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Chuyên ngành:</label>
+                            <div class="form-wrap">
+                                {{recruitment.ChuyenNganh}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" col-md-6">
+                        <div class="form-group form-news">
+                            <label>Giới tính:</label>
+                            <div class="form-wrap">
+                                {{recruitment.GioiTinh}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Ngày sinh:</label>
+                            <div class="form-wrap">
+                                {{recruitment.NgaySinh}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Số điện thoại:</label>
+                            <div class="form-wrap">
+                                {{recruitment.SoDienThoai}}
+                            </div>
+                        </div>
+                   
+                        <div class="form-group form-news">
+                            <label>Hệ đào tạo:</label>
+                            <div class="form-wrap">
+                                {{recruitment.HeDaoTao}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Vị Trí ứng tuyển:</label>
+                            <div class="form-wrap">
+                                {{recruitment.ViTri }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="view-mail">
+                <p v-html="recruitment.KyNang">
+                </p>
+                <div class="attachment">
+                    <p v-show="recruitment.count>0">
+                        <span><i class="fa fa-paperclip"></i> {{recruitment.count+' file đính kèm'}} </span>
+                        @*<a href="javascript:void(0)">Tải về tất cả</a>*@ 
+                    </p>
+                    <ul class="link-file" v-for="(item, index) in recruitment.DS_FileDinhKems">
+                        <li >
+                            
+                            <div class="file-name">
+                                <a v-bind:href="item.LinkFile"> {{item.TenFile}}</a>
+</div>
+                            <span>{{localValidate.ConvertSize(item.Size)}} </span>
+
+
+                            @*<div class="links">
+                                <a  v-bind:href="item.LinkFile">View</a> -
+                                <a v-bind:href="item.LinkFile">Download</a>
+                            </div>*@
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-primary" type="button"><i class="fa fa-reply"></i> Reply</button>
+                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="In hồ sơ"><i class="fa fa-print"></i></button>
+                <button class="btn btn-sm btn-default"v-on:click="DeleteHoSoUngTuyen" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Xóa hồ sơ"><i class="fa fa-trash-o"></i></button>
+            </div>
+        </div>
+
+    </div>
+    <!-- /CONTENT MAIL -->
+</div>

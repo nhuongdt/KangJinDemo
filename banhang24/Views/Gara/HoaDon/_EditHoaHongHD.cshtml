@@ -1,0 +1,187 @@
+﻿@using banhang24.Hellper
+<style>
+    .tttt-gara > div > div {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 5px 0
+    }
+
+        .tttt-gara > div > div > div {
+            padding-left: 0;
+            padding-right: 15px;
+        }
+
+            .tttt-gara > div > div > div:last-child {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            @@media (max-width: 1024px) {
+                HoaHongNhanVienHD .position-relative.table-frame {
+                    height: initial !important;
+                    min-height: 230px;
+                    max-height: 310px;
+                }
+            }
+    
+</style>
+<div class="modal fade" id="HoaHongNhanVienHD">
+    <div class="modal-dialog draggable modal-lgmax">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Chiết khấu nhân viên hóa đơn
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content ">
+                    <div class="tab-pane active" id="HoaHongNhanVien" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        <div class="flex flex-row" style="flex-wrap:wrap">
+                            <div class="op-ck-left">
+                                <nvien-hoadon-search :list-all="listData.NhanViens"
+                                                     :list-search="listData.NhanViens"
+                                                     v-on:select-item="AddNhanVien_BanGoi">
+
+                                </nvien-hoadon-search>
+                            </div>
+                            <div class="op-ck-right">
+                                <div class="flex flex-between" style="line-height:24px; padding:3px;">
+                                    <div>
+                                        <span>Doanh thu: </span>
+                                        <span>{{formatNumber3Digit(inforHoaDon.TongThanhToan - inforHoaDon.TongTienThue,2)}}</span>
+                                    </div>
+                                    <div>
+                                        <span>Thực thu: </span>
+                                        <span class="red">{{formatNumber3Digit(inforHoaDon.ThucThu,2)}}</span>
+                                    </div>
+                                    <div>
+                                        <span>Còn nợ: </span>
+                                        <span>{{formatNumber3Digit(inforHoaDon.ConNo,2)}}</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row">
+                                    <label>Chia đều chiết khấu</label>
+                                    <div class="form-check">
+                                        <label class="form-check-label" style="width:auto; margin:0 15px">
+                                            <input type="radio" class="form-check-input" name="ckHoaDon1"
+                                                   value="1"
+                                                   v-model="IsShareDiscount"
+                                                   v-on:change="Change_IsShareDiscount(1)">Có
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" style="width:auto; ">
+                                            <input type="radio" class="form-check-input" name="ckHoaDon1"
+                                                   value="2"
+                                                   v-model="IsShareDiscount"
+                                                   v-on:change="Change_IsShareDiscount(1)">Không
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="gara-detail-status gara-no-stt">
+                                    <div class="table-frame position-relative" style=" height:400px; overflow:auto; position:relative; width:100%">
+                                        <table class="table position-relative" style="padding-bottom:50px">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nhân viên</th>
+                                                    <th>Chiết khấu</th>
+                                                    <th>Hệ số</th>
+                                                    <th>Tiền được nhận</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in GridNVienBanGoi_Chosed">
+                                                    <td>
+                                                        <div >{{item.TenNhanVien}}</div>
+                                                    </td>
+                                                    <td style="text-align: center">
+                                                        <input class="input-simple text-right width-100"
+                                                               v-bind:value="parseInt(item.TinhChietKhauTheo) !== 3? item.ChietKhauMacDinh: formatNumber3Digit(item.ChietKhauMacDinh,2)"
+                                                               v-on:click="HoaHongHD_ShowDivChietKhau(item, index)" />
+
+                                                    </td>
+                                                    <td style="text-align: center">
+                                                        <input class="input-simple text-right width-100"
+                                                               onkeypress="keypressNumber_limitNumber(event,this)"
+                                                               v-model="item.HeSo"
+                                                               v-bind:disabled=" parseInt(IsShareDiscount) === 1"
+                                                               v-on:keyup="HoaHongHD_EditHeSo(item,index)" />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span>{{ formatNumber3Digit(item.TienChietKhau,2)}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-link" title="Xóa"
+                                                           v-on:click="HoaHongHD_RemoveNhanVien(index)">
+                                                            <i class="fa fa-close text-danger"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="gara-popup-chietkhau" style="width:300px" id="jsDiscount">
+                                            <div style="width: 100%;display: flex;line-height: 30px;justify-content: space-between; align-content:center">
+                                                <span style="width:100px">Chiết khấu bằng</span>
+                                                <input class="input-simple text-right" autocomplete="off" onclick="this.select()"
+                                                       style="width:calc(100% - 120px)"
+                                                       onkeypress="keypressNumber_limitNumber(event,this)"
+                                                       v-on:keyup="HoaHongHD_EditChietKhau()" />
+                                            </div>
+                                            <div class="options" style="width: 100%;display: flex;line-height: 30px;justify-content: space-between;">
+                                                <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="rdoTypeCK1" value="2"
+                                                           v-model="LoaiChietKhauHD_NV"
+                                                           v-on:change="HoaHongHD_ChangeLoaiChietKhau(2)">%DoanhThu
+                                                </label>
+                                                <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="rdoTypeCK1" value="1"
+                                                           v-model="LoaiChietKhauHD_NV"
+                                                           v-on:change="HoaHongHD_ChangeLoaiChietKhau(1)">% Thực thu
+                                                </label>
+                                                <label class="form-check-label">
+                                                    <input type="radio" class="form-check-input" name="rdoTypeCK1" value="3"
+                                                           v-model="LoaiChietKhauHD_NV"
+                                                           v-on:change="HoaHongHD_ChangeLoaiChietKhau(3)"> VNĐ
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isNew" v-on:click="AgreeDiscount">
+                        <i class="fa fa-save"></i>
+                        Đồng ý
+                    </button> 
+                    <button type="button" class="btn btn-save" v-if="!isNew" v-on:click="AgreeDiscount">
+                        <i class="fa fa-save"></i>
+                        Cập nhật
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).mouseup(function (e) {
+                var container = $(".gara-popup-chietkhau");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    container.hide();
+                }
+            });
+        </script>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/HoaDon/_HoaHongNhanVien.js")"></script>

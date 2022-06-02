@@ -1,0 +1,255 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "RechargeService";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script >
+
+        function ViewModel() {
+            var self = this;
+            //===============================
+            // Khai báo chung
+            //===============================
+            self.koSearch = ko.observable();
+            self.ListResult = ko.observableArray();
+            self.PageItem = ko.observable();
+            self.pageCount = ko.observable();
+            self.page = ko.observable();
+            self.sort = ko.observable(1);
+            self.Colum = ko.observable();
+            self.priceactived = ko.observable();
+
+            //===============================
+            // Click tìm kiếm
+            //===============================
+
+            self.SearchGrid = function (d, e) {
+                if (e.keyCode === 13) {
+                    FilterGrid();
+                }
+            }
+            //===============================
+            // Phân trang 
+            //===============================
+            self.ClickPrevious = function () {
+                if (self.page() > 1) {
+                    self.page(self.page() - 1)
+                    FilterGrid();
+                }
+            }
+
+            self.ClickNext = function () {
+                if (self.page() < self.pageCount()) {
+                    self.page(self.page() + 1)
+                    FilterGrid();
+                }
+            }
+
+            self.netPageKeyup = function (d, e) {
+                if (e.keyCode === 13) {
+                    if (self.page() > self.pageCount()
+                        || self.pageCount() === 1
+                        || !$.isNumeric(self.page())) {
+                        self.page(1);
+                    }
+                    FilterGrid();
+
+                }
+            }
+
+            $('#SelectedLimit').on('change', function () {
+                self.page(1);
+            });
+
+
+            //===============================
+            // Tìm kiếm gridview chung
+            //===============================
+            function FilterGrid() {
+                var model = {
+                    Search: self.koSearch(),
+                    Page: self.page(),
+                    Limit: $('#SelectedLimit').val(),
+                };
+
+                $.ajax({
+                    url: '/Open24Api/ApiHome/SearchRechargeService',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: model,
+                    success: function (result) {
+                        if (result.res === true) {
+                            self.ListResult(result.DataSoure.Data);
+                            self.PageItem(result.DataSoure.PageItem);
+                            self.pageCount(result.DataSoure.PageCount);
+                            self.page(result.DataSoure.Page);
+                        }
+                        else {
+                            alert(result.mess);
+                        }
+                    },
+                    error: function () {
+                        alert("Đã xảy ra lỗi.");
+                    }
+                });
+            }
+            FilterGrid();
+            self.ThemMoiDichVunapTien = function () {
+                vmdichvunaptien.Insert();
+            }
+            self.CapNhatPhieuNap = function (item) {
+                vmdichvunaptien.Update(item);
+            }
+            self.XoaPhieuNhap = function (item) {
+                if (confirm('Bạn có chắc chắn muốn xóa không?')) {
+                    $.ajax({
+                        url: '/Open24Api/ApiHome/RemovePhieuNapTien?Key=' + item.ID,
+                        type: 'GET',
+                        success: function (result) {
+                            if (result.res === true) {
+                                AlertNotice(result.mess);
+                                FilterGrid();
+                            }
+                            else {
+                                AlertError(result.mess)
+                            }
+                        }
+                    });
+                } else {
+                    return;
+                }
+            }
+            $('body').on("SucsessPhieuNapTien", function () {
+                FilterGrid();
+            });
+        };
+        ko.applyBindings(new ViewModel());
+
+        //===============================
+        // Hiện thị Datetime
+        //===============================
+        function ConvertDate(config) {
+            if (config === undefined
+                || config === null
+                || config.replace(/\s+/g, '') === "") {
+                return "";
+            }
+            else {
+                var a = moment(config).format('DD/MM/YYYY');
+                return a;
+            }
+        }
+        //===============================
+        // Hiện thị trạng thái
+        //===============================
+        function ConvertTrangthai(value) {
+            if (value === 0) {
+                return "Hủy"
+            }
+            else if (value === 1) {
+                return "Kích hoạt"
+            }
+            else {
+                return "Chờ kích hoạt";
+            }
+        };
+    </script>
+
+
+@Html.Partial("/Areas/AdminPage/Views/Home/_NapTienDichVuPartial.cshtml")
+}
+<div class="right_col">
+    <h3>Danh sách cửa hàng nạp tiền </h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                <button class="btn-updata btn-green" data-bind="click: ThemMoiDichVunapTien"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên người nạp</th>
+                            <th>Tên cửa hàng</th>
+                            <th>SubDomain</th>
+                            <th>SĐT cửa hàng</th>
+                            <th>Ngày tạo</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ghi chú</th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th>#</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListResult">
+                        <tr>
+                            <td data-bind="text: TenKhachNap"></td>
+                            <td data-bind="text: TenCuaHang"></td>
+                            <td data-bind="text: SubDoamin"></td>
+                            <td data-bind="text: SoDienThoai"></td>
+                            <td data-bind="text:ConvertDate(NgayTao)"></td>
+                            <td data-bind="text: FormatVND(SoTien)"></td>
+                            <td data-bind="text: TrangThai===1?'Đã thanh toán':'Chờ thanh toán'"></td>
+                            <td data-bind="text: GhiChu"></td>
+                            <td>
+                                @if (Model.RoleUpdate)
+                                {
+                                    <a class="red" href="javascript:void(0)" title="click sửa phiếu nạp thẻ" data-bind="click: $root.CapNhatPhieuNap">
+                                        <i class="ace-icon fa fa-pencil "></i>
+                                    </a>
+                                }
+                                @if (Model.RoleDelete)
+                                {
+                                    <a class="blue" href="javascript:void(0)" title="click xóa phiếu nạp thẻ" data-bind="click: $root.XoaPhieuNhap">
+                                        <i class="ace-icon fa fa-trash-o "></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+

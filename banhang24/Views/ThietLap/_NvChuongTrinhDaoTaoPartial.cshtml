@@ -1,0 +1,182 @@
+﻿<div class="modal fade" id="modaldaotao">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content " >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Từ ngày (<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="txtTuNgayHoc" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Đến ngày </label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="txtDenNgayHoc" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nơi học (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="noihoc" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngành học (<span style="color:red">*</span>)
+                        </label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="nganhhoc" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Hệ đào tạo (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="hedaotao" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Bằng cấp (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="bangcap" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveEducate">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmQuyTrinhDaoTao = new Vue({
+        el: '#modaldaotao',
+        data: {
+            nhanvienId: null,
+            ID:null,
+            noihoc: "",
+            nganhhoc: "",
+            hedaotao: "",
+            bangcap: "",
+            title: "",
+            error:'',
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                $('#modaldaotao').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.noihoc = model.NoiHoc;
+                    this.nganhhoc = model.NganhHoc;
+                    this.hedaotao = model.HeDaoTao;
+                    this.bangcap = model.BangCap;
+                    this.error = "";
+                    $('#txtDenNgayHoc').val(this.convertDate(model.DenNgay));
+                    $('#txtTuNgayHoc').val(this.convertDate(model.TuNgay));
+                    this.title = "Cập nhật quy trình đào tạo";
+                    $('#modaldaotao').modal("show");
+                }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.noihoc = "";
+                this.nganhhoc = "";
+                this.noio = "";
+                this.hedaotao = "";
+                this.bangcap = "";
+                this.error = '';
+                this.title = "Thêm mới quy trình đào tạo";
+                $('#txtDenNgayHoc').val(null);
+                $('#txtTuNgayHoc').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            SaveEducate: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull($('#txtTuNgayHoc').val())) {
+                    self.messageError("Vui lòng nhập từ ngày");
+                }
+                else if (commonStatisJs.CheckNull(self.noihoc)) {
+                    self.messageError("Vui lòng nhập nơi học");
+                }
+                else if (commonStatisJs.CheckNull(self.bangcap)) {
+                    self.messageError("Vui lòng nhập bằng cấp");
+                }
+                else if (commonStatisJs.CheckNull(self.nganhhoc)) {
+                    self.messageError("Vui lòng nhập ngành học");
+                }
+                else if (commonStatisJs.CheckNull(self.hedaotao)) {
+                    self.messageError("Vui lòng nhập hệ đào tạo");
+                }
+                else {
+                        var model = {
+                            ID: self.ID,
+                            ID_NhanVien: self.nhanvienId,
+                            TuNgay: commonStatisJs.convertDateToServer($('#txtTuNgayHoc').val()),
+                            DenNgay: commonStatisJs.convertDateToServer($('#txtDenNgayHoc').val()),
+                            NoiHoc: self.noihoc,
+                            NganhHoc: self.nganhhoc,
+                            HeDaoTao: self.hedaotao,
+                            BangCap: self.bangcap
+                        };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveQuyTrinhDaoTao",
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modaldaotao').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvQtDaoTaoSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+             },
+        computed: {
+        }
+    })
+    $('#txtTuNgayHoc').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    $('#txtDenNgayHoc').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+</script>

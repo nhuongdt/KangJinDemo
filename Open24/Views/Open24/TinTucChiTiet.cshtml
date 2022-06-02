@@ -1,0 +1,130 @@
+﻿@using Model_banhang24vn
+@model Model_banhang24vn.CustomView.Client.newsDetailView
+@{
+    ViewBag.Title = Model.NewsModel.Title;
+    var tags = (IEnumerable<Tag>)ViewBag.Tags;
+    var url = System.Configuration.ConfigurationManager.AppSettings["Webhttp"] + Model.NewsModel.Url;
+    
+}
+
+@section scripts{
+    <script>
+        $(document).ready(function(){
+            if ($('.tags-news').find('a').length > 0) {
+                $($('.tags-news').find('a')[$('.tags-news').find('a').length - 1]).html($($('.tags-news').find('a')[$('.tags-news').find('a').length - 1]).html().replace(',', ''))
+            }
+            $('#TitleDate').text(localValidate.converToTimeview('@ViewBag.CreateDate'));
+            vmNews.GetNewsDate();
+        })
+    </script>
+}
+
+<div id="renderNews">
+    <div class="container-fluid op-banner">
+        <div class="container ">
+            <div class="op-banner-content" data-aos="fade-right">
+                <h1 class="op-gara-heading">
+                    <span style="margin-bottom:30px">     Tin tức Open24</span>
+
+                </h1>
+            </div>
+            <div class="op-banner-image" style="max-width:60%">
+                <img src="~/Content/images/open24/op-tintuc-bg.svg" alt="gara xe" />
+            </div>
+        </div>
+    </div>
+    <section class="banner">
+        <div class="container flex">
+            <div class="detail-customer">
+                <div class="dt-cutomer-l">
+                    <div class="date-timenews">
+                        <span><i class="fas fa-clock"></i></span><span id="TitleDate"></span>
+                    </div>
+                    <h1 class="title-detailnews fl">
+                        @Model.NewsModel.Title
+                    </h1>
+                    <div class="summary-detailnews fl">
+                        @Model.NewsModel.Summary
+                    </div>
+                    <div class="content-detailnews fl" >
+                        @Html.Raw(Model.NewsModel.Content)
+                    </div>
+                    @*<p class="by-detailnews fl">
+                        @Model.CreateByUser
+                    </p>*@
+                    <div class="fl text-center fiften-days">
+                        <p>
+                            Phần mềm quản lý Open24
+                        </p>
+                        <div class="fl bnt-news1">
+                            <a class="trial" data-bs-toggle="modal" data-bs-target="#modalTuVan">
+                                Đăng ký dùng thử
+                            </a>
+                        </div>
+                    </div>
+                    <div class="content-detailnews tags-news fl">
+                        <span class="glyphicon glyphicon-tags"></span><span style="margin-left:1%">
+                            Tags:
+                            @foreach (var item in tags)
+                            {
+                                <a href="/tag/@item.ID"> @item.Name,</a>
+                            }
+                        </span> 
+                    </div>
+                    @if (Model.ListRlatedArticles.Any())
+                    {
+                        <div class="related-news fl">
+                            <div class="line"></div>
+                            <div class="title-related">
+                                Tin tức liên quan
+                            </div>
+                            <div class="related-list fl">
+                                @foreach (var item in Model.ListRlatedArticles)
+                                {
+                                    <p> <i class="fa fa-chevron-right"></i><a href="@item.Url"> @item.Title</a></p>
+                                }
+                                <p>
+                                    <a href="@Model.CategoriesModel.Url" class="next-more-group-news">
+                                        Xem thêm
+                                        <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    }
+                    <div class="related-news fl">
+                        <div class="fl carenews" style="padding-top: 1%;">
+                            <div class="fb-like" data-href='@url' data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+                        </div>
+                        <div class="fb-comments" data-href='@url' data-numposts="5" data-width="100%"></div>
+                    </div>
+                </div>
+                <div class="dt-cutomer-r">
+                    <div class="title-viewnews fl">
+                        Bài viết mới nhất
+                    </div>
+                    <ul class="list-tree-news">
+                        <li v-for="(item, index) in listcurentolbar" v-show="listcurentolbar.length>0">
+                            <a class="fl" href="javascript:void(0)" v-bind:href="item.Url">
+                                <div class="img img-tol3-new">
+                                    <img v-bind:src="item.Image" />
+                                </div>
+                                <div class="new-title">
+                                    <p>{{item.Title}}</p>
+                                    <span class="time-news-more">   {{item.CreatDate}}</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="view-news fl">
+                        @Html.Partial("PageFacebookPartial")
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    @Html.Partial("_WeareonePartial")
+</div>
+
+<script src="~/Assets/js/Client/open24/RenderNewVue.js"></script>

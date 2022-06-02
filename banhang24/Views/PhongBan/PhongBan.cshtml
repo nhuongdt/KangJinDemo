@@ -1,0 +1,348 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Phòng bàn";
+}
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft sortTime">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/Iconbanhanggg-02.png" /> Nhóm phòng bàn
+                        </h3>
+                        <a class="op-filter-add op-js-themmoinhomhang" title="Thêm nhóm bàn">
+                            <i class="fa fa-plus-circle" data-bind="click: themmoicapnhatkhuvuc">
+                            </i>
+                        </a>
+                        <aside class="op-filter-container">
+                            <div class="input-group">
+                                <select class="form-control" data-bind="options: NhomKhuVucs,
+                                                optionsText: 'TenKhuVuc', optionsValue: 'ID', optionsCaption: '--- Tất cả ---',
+                                                value: newNhomKhuVuc().ID , event:{change: changeddlNhomKhuVuc}"></select>
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default" aria-label="Cập nhật" data-bind="click: editKV, enable: newNhomKhuVuc().ID">
+                                        <span class="fa fa-pencil-square-o"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title" >
+                   <h2 class="pull-left title"> @banhang24.Resources.ResourceTexts.Setup / Quản lý sơ đồ</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class=" header-button-left " style="margin-bottom:5px">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-main dropdown-toggle addPB btn-main no-magrin" style="display:none" data-bind="click: showPopupAddViTri" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-plus"></span><span class="tit-none">Thêm mới</span>
+                                </button>
+                            </div>
+                            <input type="file" id="fileLoader" name="fileLoader" title="Load File" style="display:none" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                            <button class="btn btn-main btnExport" id="btnExport" style="display:none" name="btnExport" data-bind="click: exportToExcelViTris"><span class="glyphicon glyphicon-export"></span>Xuất file</button>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" id="textSearch" placeholder="Theo tên phòng/bàn"
+                                   data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off">
+                            <button type="button" class="op-search-button">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table" id="myScrollspy" style="top: 48px;position: sticky;">
+                <div class="table-reponsive table-frame">
+                    <table class=" table-striped table-hover" id="tablePB">
+                        <thead>
+                            <tr>
+                                <th class="tenhang">Tên phòng bàn</th>
+                                <th class="ghichu">Ghi chú</th>
+                                <th class="nhomban">Nhóm</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: ViTris">
+                            <tr class="prev-tr-hide" data-bind="click: $parent.loadHoaDon">
+                                <td class="tenhang" data-bind="text: TenViTri"></td>
+                                <td class="ghichu" data-bind="text: GhiChu"></td>
+                                <td class="nhomban" data-bind="text: TenKhuVuc"></td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="4">
+                                    <div class="op-object-detail ">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active" onclick="LoadGetHeight()"><a data-toggle="tab" data-bind="attr:{href:'#home' + ID}">Thông tin</a></li>
+                                            <li onclick="LoadGetHeight()"><a data-toggle="tab" data-bind="attr:{href:'#info' + ID}">Nhật ký giao dịch</a></li>
+                                        </ul>
+                                        <div class="tab-content tab-content-next">
+                                            <div class="tab-pane active" data-bind="attr:{id:'home' + ID}">
+                                                <div class="table-res">
+                                                    <table class="border-none">
+                                                        <tr>
+                                                            <th>Tên phòng/ bàn</th>
+                                                            <th data-bind="text: TenViTri">b1</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Ghi chú</td>
+                                                            <td data-bind="text: GhiChu"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Nhóm</td>
+                                                            <td data-bind="text: TenKhuVuc"></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <div class="group-btn floatleft text-right">
+                                                        <a  class="btn btn-main editVT" style="display:none" data-bind="click: $parent.editVT">
+                                                            <i class="fa fa-check-square"></i> Cập nhật
+                                                        </a>
+                                                        <a  class="btn btn-cancel deleteVT" style="display:none" data-bind="click: $parent.modalDelete">
+                                                            <i class="fa fa-trash"></i> Xóa
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" data-bind="attr:{id:'info' + ID}">
+                                                <div class="table-res">
+                                                    <table class='table'>
+                                                        <tr>
+                                                            <th>Mã hóa đơn</th>
+                                                            <th>Thời gian</th>
+                                                            <th>Khách hàng</th>
+                                                            <th>Tổng cộng</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $root.HoaDons">
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="javascipt:void(0)" data-bind="text: MaHoaDon , event:{click: $root.linkphieuHD}"></a>
+                                                                </td>
+                                                                <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''">Bán hàng</td>
+                                                                <td data-bind="text: TenDoiTuong">07/05/2017</td>
+                                                                <td data-bind="text: formatNumber(TongTienHang)">950,000</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="page">
+                                                    <div class="flex flex-end">
+                                                        <a href="javascript:void(0)" data-bind="click: $root.StartPage_Load, visible: $root.VisibleStartPageHD"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" data-bind="click: $root.BackPage_Load, visible: $root.VisibleStartPageHD"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                                        <ul data-bind="foreach: $root.PageList_DisplayHD">
+                                                            <li>
+                                                                <a href="javascript:void(0)" data-bind="text: pageNumberHD, click: $root.GoToPage_Load, css: $root.GetClass_Load($data)"></a>
+                                                            </li>
+                                                        </ul>
+                                                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage_Load, visible: $root.VisibleEndPageHD "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" data-bind="click: $root.EndPage_Load, visible: $root.VisibleEndPageHD "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                                        <div class="total-recos">
+                                                            Hiển thị <span data-bind="text: $root.fromitemHD"></span> - <span data-bind="text: $root.toitemHD"></span> trên tổng số
+                                                            <span data-bind="text: $root.TotalRecordHD"></span> hóa đơn.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page">
+                    <div class="flex flex-row">
+                        <label>Số bản ghi:</label>
+                        <select id="SelecttedPage" class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                    </div>
+                    <div class="flex flex-end">
+                        <a href="javascript:void(0)" data-bind="click: $root.StartPage, visible: VisibleStartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.BackPage, visible: VisibleStartPage "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <ul data-bind="foreach: PageList_Display">
+                            <li>
+                                <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageHD, css: $root.GetClassHD($data)"></a>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage, visible: VisibleEndPage "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.EndPage, visible: VisibleEndPage "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <div class="total-recos">
+                            Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số
+                            <span data-bind="text: TotalRecord"></span> phòng bàn.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPopuplg_ViTri">
+    <div class="modal-dialog draggable modal-dialog-pb modal-md">
+        @Html.Action("_themmoicapnhatvitri", new { area = "", Controller = "PhongBan" })
+    </div>
+</div>
+<div class="modal fade op-js-modal" >
+    <div class="modal-dialog">
+        <div class="modal-content ">
+            @Html.Action("_themmoicapnhatkhuvuc", new { area = "", Controller = "PhongBan" })
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPopup_EditNhomKV" >
+    <div id="modalContainer_NhomKV" class="modal-dialog draggable modal-md modal-dialog-pb">
+        @Html.Action("_editkhuvuc", new { area = "", Controller = "PhongBan" })
+    </div>
+</div>
+<!-- Modal -->
+@*Xóa*@
+<div class="modal fade" id="modalpopup_deleteVT">
+    <div id="modalContainer_delete" class="modal-sm ">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <div class="title-delete">
+                    <span id="header-confirm-delete">Xóa phòng bàn</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                Bạn có chắc chắn muốn xóa phòng/bàn <span style="font-weight:bold" data-bind="text: deleteTenViTri"></span> khỏi danh mục phòng bàn.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaVT"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_deleteKV">
+    <div id="modalContainer_delete" class="modal-sm">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <div class="title-delete">
+                    <span id="header-confirm-delete">Xóa nhóm phòng bàn</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                Bạn có chắc chắn muốn xóa nhóm <span style="font-weight:bold" data-bind="text: deleteTenKhuVuc"></span> khỏi danh mục nhóm phòng bàn.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaKV"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var w = $(window).width();
+    if (w < 768) {
+        var t = w - 20;
+        $(".op-object-detail  ").width(t);
+        $(".tab-content-next").width(t);
+    }
+    function LoadGetHeight() {
+        sleep(100).then(() => { setHeight(); });
+    };
+    function setHeight() {
+        heigth = heigth - heightold;
+        $('#tablePB tr').each(function () {
+            if ($(this).hasClass('ac')) {
+                heightold = $(this).height();
+            }
+        });
+        heigth += heightold;
+        $('.line-right').css("margin-top", setTop + "px").height(heigth);
+    }
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    $('#tablePB').on('click', '.prev-tr-hide', function () {
+        setTop = $('#tablePB thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+        $(this).parents(".table-reponsive").toggleClass("table_re");
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        if (t == "none") {
+            if (parseInt($('#SelecttedPage').val()) >= 20) {
+                $(".table-reponsive").removeClass('height470');
+            }
+            $(".op-js-tr-hide").removeClass("ac");
+            $(".op-js-tr-hide").removeClass("l");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+            heightold = $(this).next().height();
+            heigth = parseInt($(this).height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            if (parseInt($('#SelecttedPage').val()) >= 20) {
+                $(".table-reponsive").addClass('height470');
+            }
+            $(this).next(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            if (parseInt($('#SelecttedPage').val()) >= 20) {
+                $(".table-reponsive").addClass('height470');
+            }
+            $(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+    });
+    $(".op-js-themmoinhomhang").click(function () {
+        $(".modal-ontop").show();
+        $(".op-js-modal").modal('show');
+    });
+    $(document).on('click', '.close-modal,.save-modal', function () {
+        $(".modal-ontop").hide();
+        $(".op-js-modal").modal('hide');
+    });
+    $(".modal-ontop").click(function () {
+        $(this).hide();
+        $(".op-js-modal").modal('hide');
+    });
+</script>
+<script>
+    var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+    if ($.inArray('PhongBan_CapNhat', lc_CTQuyen) > -1) {
+        $('.editVT').show();
+    }
+    if ($.inArray('PhongBan_Xoa', lc_CTQuyen) > -1) {
+        $('.deleteVT').show();
+    }
+    if ($.inArray('PhongBan_XuatFile', lc_CTQuyen) > -1) {
+        $('.btnExport').show();
+    }
+    var t = $(".table-reponsive").width();
+    $(".op-object-detail .tab-content").width(t - 10);
+</script>
+<script>
+    $(document).ready(function () {
+        var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+        if ($.inArray('PhongBan_ThemMoi', lc_CTQuyen) > -1) {
+            $('.addPB').css('display', 'block');
+        }
+    })
+</script>
+<script src="~/Scripts/knockout-3.4.2.js"></script>
+<script src="~/Scripts/PhongBan/ViTri.js"></script>

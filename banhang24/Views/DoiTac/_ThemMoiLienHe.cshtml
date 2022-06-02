@@ -1,0 +1,255 @@
+﻿<style>
+    .title-col-2 label {
+        padding-left: 0px !important;
+    }
+</style>
+<div class="modal-content  ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title" id="lblTitle"></h4>
+    </div>
+    <div class="modal-body">
+        <div class="col-md-9 col-xs-12  ">
+
+            <div class="form-group floatleft">
+
+                <label id="lblKhachHang_LienHe">Khách hàng</label>
+
+                <div class="form-news" id="divSearchKH">
+                    <input type="text" class="form-control input-combobox " placeholder="Chọn khách hàng"
+                           id="txtCustomer_modal"
+                           v-model="query_Kh" v-on:keyup="submit">
+                    <i class="fa fa-search icon-search-input" aria-hidden="true"></i>
+                    <div id="showseach_Kh" hidden style="width:183px !important;max-height: 266px;" class="divSearchVue">
+                        <ul>
+                            <li v-for="item of SearchKhachHang" v-on:click="click(item)">
+                                <a style="font-weight: bold;">
+                                    <span>Tên: {{ item.TenDoiTuong }}</span><br />
+                                    <span>Mã: {{ item.MaDoiTuong }}</span>
+                                    <br />
+                                    <span v-if="item.DienThoai">ĐT: {{ item.DienThoai }}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group floatleft">
+                <label>Mã liên hệ</label>
+                <div class="form-news">
+                    <input type="text" class="form-control" data-bind=" value: newModal_LienHe.MaLienHe" placeholder="Mã tự động">
+                </div>
+            </div>
+
+            <div class="form-group floatleft">
+
+                <label>Tên người liên hệ</label>
+
+                <div class="form-news flex input-group">
+                    <div style="display:inline-block; width:calc(100% - 120px)">
+                        <input type="text" class="form-control" data-bind="value: newModal_LienHe.TenLienHe" autofocus>
+                    </div>
+                    <select class="form-control"  style="width:120px; display:inline-block"
+                            data-bind="options: $root.ListXungHo,
+                                    optionsText: 'Text',
+                                    optionsValue: 'ID',
+                                    value: newModal_LienHe.XungHo" ></select>
+                </div>
+
+            </div>
+
+            <div class="form-group floatleft">
+
+                <label>Di động</label>
+
+                <div class="form-news">
+                    <input type="text" class="form-control" onkeypress="return chekPhone(event)"
+                           data-bind="value: newModal_LienHe.SoDienThoai">
+                </div>
+            </div>
+
+
+            <div class="form-group floatleft">
+
+                <label>Điện thoại cố định</label>
+
+                <div class="form-news">
+                    <input type="text" class="form-control" onkeypress="return chekPhone(event)"
+                           data-bind="value: newModal_LienHe.DienThoaiCoDinh ">
+                </div>
+            </div>
+            <div class="form-group floatleft">
+
+                <label>Sinh nhật</label>
+
+                <div class="form-news">
+                    <input type="text" class="form-control datepicker_mask"
+                           data-bind=" click: $root.formatDateTime, value: newModal_LienHe.NgaySinh">
+                </div>
+            </div>
+            <div class="form-group floatleft">
+
+                <label>Email</label>
+
+                <div class="form-news">
+                    <input type="text" class="form-control" data-bind=" value: newModal_LienHe.Email">
+                </div>
+            </div>
+            <div class="form-group floatleft">
+
+                <label>Chức vụ</label>
+
+                <div class="form-news">
+                    <input type="text" class="form-control" data-bind=" value: newModal_LienHe.ChucVu">
+                </div>
+            </div>
+
+
+            <div class="form-group floatleft">
+
+                <label>Tỉnh thành</label>
+
+                <div class="form-news">
+                    <div class="form-group from-tt-qh">
+                        <div class="form-control dropdown-toggle" style=" width:100%;" id="txtProvince_modal" data-toggle="dropdown">--Chọn Tỉnh thành--</div>
+                        <button class="btn btn-right dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-caret-down"></i></button>
+                        <div id="showseach_Pr" hidden style="overflow:hidden; width:100%;" class="dropdown-menu">
+                            <input type="text" class="input-simple" placeholder="Nhập tìm kiếm" style="overflow:hidden; width:100%;" 
+                                   data-bind="value:searchTT ,valueUpdate: 'afterkeydown'" />
+                            <ul style="max-height:250px; overflow:auto">
+                                <li data-bind="click: $root.ChoseProvince_Modal">
+                                    <a>
+                                        <span>--Chọn Tỉnh thành--</span>
+                                    </a>
+                                </li>
+                                <!--ko foreach: $root.FilterProvince_LienHe -->
+                                <li data-bind="click: $root.ChoseProvince_Modal">
+                                    <a>
+                                        <span data-bind="text:TenTinhThanh"></span>
+                                    </a>
+                                </li>
+                                <!--/ko-->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group floatleft">
+                <label>Quận huyện</label>
+                <div class="form-news">
+                    <div class="form-group from-tt-qh" id="divSearch_Dt">
+                        <div class="form-control dropdown-toggle " data-toggle="dropdown" id="txtDistrict_modal">--Chọn quận huyện--</div>
+                        <button class="btn btn-right dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-caret-down"></i></button>
+                        <div id="showseach_Dt" hidden class="dropdown-menu" style=" width:100%;">
+                            <input type="text" class="input-simple" placeholder="Nhập tìm kiếm"style="overflow:hidden; width:100%;" 
+                                   data-bind="value:searchDistrict ,valueUpdate: 'afterkeydown'" />
+                            <ul style="max-height:250px;width:100%; overflow:auto">
+                                <li data-bind="click: $root.ChoseProvince_Modal">
+                                    <a>
+                                        <span>--Chọn quận huyện--</span>
+                                    </a>
+                                </li>
+                                <!--ko foreach: $root.FilterDistrict_LienHe -->
+                                <li data-bind="click: $root.ChoseDistrict_Modal">
+                                    <a>
+                                        <span data-bind="text:TenQuanHuyen"></span>
+                                    </a>
+                                </li>
+                                <!--/ko-->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group floatleft">
+
+                <label><strong>Địa chỉ</strong></label>
+
+                <div class="form-news">
+                    <input type="text" class="form-control" data-bind=" value: newModal_LienHe.DiaChi ">
+                </div>
+            </div>
+
+
+
+            <div class="form-group floatleft">
+
+                <label><strong>Ghi chú</strong></label>
+
+                <div class="form-news">
+                    <textarea  rows="1" type="text" data-bind="value: newModal_LienHe.GhiChu " />
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-md-3 col-xs-12 ">
+            <div class="img-user-contact" style="float:right; width:100%">
+                <!--  ko if: $root.HaveImage_Select() == false -->
+                <img src="~/Content/images/photo.png"
+                     style="border: 1px dotted #ccc;width: 99%; height: 160px;" />
+                <!--/ko-->
+                <ul data-bind="foreach: $root.FilesSelect">
+                    <!-- ko if: $index() == 0-->
+                    <li>
+                        <div class="img-customer">
+                            <img alt="" data-bind="attr: {src: URLAnh }" />
+                            <a data-bind="click: $root.DeleteImg_UserContact">
+                                <i class="fa fa-close red"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <!--/ko-->
+                </ul>
+            </div>
+            <div class="choose-img" style=" width: 100%;">
+                <span class="btn  btn-file form-control insert-pics" style="background:var(--color-primary); margin:5px 0; color:white" data-bind="event:{change: $root.fileSelect}">
+                    Chọn ảnh <input type='file' multiple id="imageUpHHForm" name="files[]" accept=".png,.jpg,.jpeg,.gif" />
+                    <output id="list"></output>
+                </span>
+            </div>
+        </div>
+
+
+
+
+    </div>
+    <div class="modal-footer ">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>Bỏ qua</button>
+            <button type="button" class="btn btn-save" data-bind="click: $root.addUpdate_UserContract">
+                <i class="fa fa-save"></i> Lưu
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    $('.from-tt-qh').on('click', '.btn-combobox', function () {
+        $(".search-result-combobox,.search-result-combobox input").mouseup(function () {
+            return false;
+        });
+        var display = $(this).next('.divSearchVue').css('display');
+        $('.divSearchVue').hide();
+        if (display === 'none')
+            $(this).next('.divSearchVue').toggle();
+    });
+    $('.from-tt-qh').on('click', '.input-combobox', function () {
+        $(".search-result-combobox,.search-result-combobox input").mouseup(function () {
+            return false;
+        });
+        var display = $(this).next().next('.divSearchVue').css('display');
+        $('.divSearchVue').hide();
+        if (display === 'none')
+            $(this).next().next('.divSearchVue').toggle();
+    });
+    $(".input-combobox,.btn-combobox").mouseup(function () {
+        return false;
+    });
+    $(document).mouseup(function () {
+        $('.divSearchVue').hide();
+    });
+</script>

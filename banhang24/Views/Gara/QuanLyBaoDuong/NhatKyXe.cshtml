@@ -1,0 +1,445 @@
+﻿@{
+    Layout = null;
+}
+@using banhang24.Hellper
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div class="op-container" id="vNhatKyXe">
+        <div class="col-left">
+            <div class=" op-filter">
+
+                <section class="op-filter-body ">
+                    @*<article class="boxLeft ">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                            </h3>
+                            <aside class="op-filter-container">
+                                <filter-chinhanh v-bind:listchinhanh="listChiNhanh" v-on:callfunctionloaddata="LoadData"></filter-chinhanh>
+                            </aside>
+                        </article>*@
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/ngaytao.png" />
+                            Ngày giao xe
+                        </h3>
+                        <filter-datetime radioname="rdNgayGiaoXe" v-bind:typetime="NgayGiaoXeTypeTime"
+                                         v-on:callfunction="onCallNgayGiaoXe"
+                                         v-bind:selectvalue="defaultNgayGiaoXeFilterValue"></filter-datetime>
+                    </article>
+                    @*<article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Ngày ra dự kiến
+                            </h3>
+                            <filter-datetime radioname="rdNgayXuatXuongDuKien" v-bind:typetime="NgayXuatXuongDuKienTypeTime"
+                                             v-on:callfunction="onCallNgayXuaXuongDuKien"
+                                             v-bind:selectvalue="0"></filter-datetime>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Ngày xuất xưởng
+                            </h3>
+                            <filter-datetime radioname="rdNgayXuatXuong" v-bind:typetime="NgayXuatXuongTypeTime"
+                                             v-on:callfunction="onCallNgayXuaXuong"
+                                             v-bind:selectvalue="0"></filter-datetime>
+                        </article>*@
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/ngaytao.png" />
+                            Trạng thái
+                        </h3>
+                        <filter-checkbox v-bind:listitem="ListTrangThai" v-on:callfunctionloaddata="oncallTrangThaiSelect"></filter-checkbox>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">Nhật ký hoạt động</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <button class="btn btn-save" v-on:click="ShowModalBanGiao"
+                                    @*v-if="$root.role.PhieuTiepNhan.ThemMoi"*@>
+                                <i class="fa fa-plus"></i>
+                                Thêm mới
+                            </button>
+                            <button class="btn btn-main"
+                                    @*v-if="$root.role.PhieuTiepNhan.XuatFile"
+                                    v-on:click="ExportExcel"*@>
+                                <i class="fa fa-file-excel-o"></i>
+                                Xuất file
+                            </button>
+                            <div class="btn-dropdown" id="button-filter">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)">
+                                    <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list dropdown-menu filter-list-2">
+                                    <ul>
+                                        <li v-for="item in ListHeader">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                    <span></span>{{item.colText}}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" v-model="TextSearch" placeholder="Theo mã, tên, điện thoại, email" v-on:keyup="TextSearchEnterKeyup">
+                            <button type="button" class="op-search-button" v-on:click="LoadData()">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="op-filter-toggle btn btn-main" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table ">
+                <div class="table-frame" @*style="transition: all 0.4s ease;" v-bind:style="{'height': ((dataPhieuTiepNhan.data.length <= 0 ? 1 : dataPhieuTiepNhan.data.length) * 33 + 44) + 'px'}"*@>
+                    <table class="table-res" v-bind:style="{filter: isLoading === true ? 'blur(3px)' : ''}">
+                        <thead>
+                            <tr>
+                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(item, index) in NhatKyHoatDong.Data">
+                                <tr class="tr-prev-hide" onclick="addfocus(this)" v-on:click="RowSelected(item)" v-bind:class="[index%2 === 1? 'bggray' : '']">
+                                    <td v-if="ListHeader.find(p => p.colName === 'colMaPhieu').colShow">
+                                        {{item.MaPhieu}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colThoiGianGiao').colShow">
+                                        {{item.ThoiGianGiao}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colBienSo').colShow">
+                                        {{item.BienSo}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colMaKhachHang').colShow">
+                                        {{item.MaKhachHang}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colTenKhachHang').colShow">
+                                        {{item.TenKhachHang}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colNhanVienGiao').colShow">
+                                        {{item.NhanVienGiao}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colNhanVienNhan').colShow">
+                                        {{item.NhanVienNhan}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colThoiGianNhan').colShow">
+                                        {{item.ThoiGianNhan}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colTrangThai').colShow">
+                                        {{item.TrangThai}}
+                                    </td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length" style="padding:0">
+                                        <div class="gara-tab">
+                                            <div class="gara-tab-title">
+                                                <a class="enable-detail active" onclick="toggleTab(this,1)">Thông tin</a>
+                                            </div>
+                                            <div class="active gara-tab-content gara-tab-thongtin" hidden>
+                                                <div>
+                                                    <div class="gara-detail-sections">
+                                                        <label class="control-label">Thông tin xe</label>
+                                                        <div class="row container-fluid">
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Biển số:</label>
+                                                                    <div class="css-form-detail"><a v-bind:href="'#/' + VHeader.UrlPage.DanhSachXe + '?'+item.BienSo" target="_blank"><span>{{item.BienSo}}</span></a></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">  Mẫu xe:</label>
+                                                                    <div class="css-form-detail"><span>@*{{item.TenMauXe}}*@</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">  Hãng xe:</label>
+                                                                    <div class="css-form-detail"><span>@*{{item.TenHangXe}}*@</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">  Loại xe:</label>
+                                                                    <div class="css-form-detail"><span>@*{{item.TenLoaiXe}}*@</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Số máy:</label>
+                                                                    <div class="css-form-detail"><span>{{item.SoMay}}</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Số khung:</label>
+                                                                    <div class="css-form-detail"><span>@*{{item.SoKhung}}*@</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Năm sản xuất:</label>
+                                                                    <div class="css-form-detail"><span>@*{{item.NamSanXuat}}*@</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Màu sơn:</label>
+                                                                    <div class="css-form-detail"><span>@*{{item.MauSon}}*@</span></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="gara-detail-sections">
+                                                        <label class="control-label">Thông tin bàn giao xe</label>
+                                                        <div class="row container-fluid">
+                                                            <div class="col-md-4 col-xs-12">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Mã phiếu:</label>
+                                                                    <div class="css-form-detail"><span>{{item.MaPhieu}}</span></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-xs-12">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Thời gian giao:</label>
+                                                                <div class="css-form-detail"><span>{{item.ThoiGianGiao}}</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-xs-12">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Khách hàng:</label>
+                                                                <div class="css-form-detail"><span>{{item.MaKhachHang}} - {{item.TenKhachHang}}</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-xs-12">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Nhân viên giao:</label>
+                                                                <div class="css-form-detail"><span>{{item.NhanVienGiao}}</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-xs-12">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Nhân viên nhận:</label>
+                                                                <div class="css-form-detail"><span>{{item.NhanVienNhan}}</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-xs-12">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Thời gian nhận</label>
+                                                                <div class="css-form-detail"><span>{{item.ThoiGianNhan}}</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div style="display:inline-block; text-align:right">
+                                                    <div class="">
+                                                        <button class="btn btn-main" v-on:click="HoanThanh(item)"
+                                                                @*v-if="$root.role.PhieuTiepNhan.CapNhat"*@>
+                                                            <i class="far fa-check"></i>
+                                                            Hoàn thành
+                                                        </button>
+                                                        <button class="btn btn-main" @*v-on:click="UpdatePhieuTiepNhan(item)"
+                                                                v-if="$root.role.PhieuTiepNhan.CapNhat"*@>
+                                                            <i class="far fa-edit"></i>
+                                                            Sửa đổi
+                                                        </button>
+                                                        <button class="btn btn-cancel " @*v-on:click="XoaPhieuTiepNhan(item)"
+                                                                v-if="$root.role.PhieuTiepNhan.Xoa"*@>
+                                                            <i class="far fa-trash-alt"></i>
+                                                            Xóa
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-datetime.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-chinhanh.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-checkbox.js")"></script>
+    <script src="@Url.ContentVersioned("~/Content/js/Common.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/Input.js")"></script>
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiHangXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiLoaiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiMauXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLyBaoDuong/_ThemMoiNhatKyHoatDongXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLyBaoDuong/_NhatKyHoatDongHoanThanh.cshtml")
+    <script>
+        //Require filter datetime
+        $(function () {
+            $('.daterange').daterangepicker({
+                "opens": "right",
+                "drop": "auto",
+                locale: {
+                    "format": 'DD/MM/YYYY',
+                    "separator": " - ",
+                    "applyLabel": "Tìm kiếm",
+                    "cancelLabel": "Hủy",
+                    "fromLabel": "Từ",
+                    "toLabel": "Đến",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "CN",
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7"
+                    ],
+                    "monthNames": [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ],
+                    "firstDay": 1
+                }
+            });
+        });
+        var VueNhatKySuDungXe = new Vue({
+            el: "#vNhatKyXe",
+            data: {
+                NgayGiaoXeTypeTime: 0,
+                NgayGiaoXeFrom: '',
+                NgayGiaoXeTo: '',
+                defaultNgayGiaoXeFilterValue: 5,
+                isLoading: true,
+                onRefresh: true,
+                isPageSelect: false,
+                ListTrangThai: [{ Text: 'Đang hoạt động', Value: 1, Checked: true }, { Text: 'Hoàn thành', Value: 2, Checked: true }, { Text: 'Hủy', Value: 0, Checked: false }],
+                ListHeader: [],
+                TextSearch: '',
+                NhatKyHoatDong: {
+                    Data: []
+                }
+            },
+            methods: {
+                onCallNgayGiaoXe: function (value) {
+                    let self = this;
+                    if (value.fromdate !== '2016-01-01') {
+                        self.NgayGiaoXeFrom = value.fromdate;
+                        self.NgayGiaoXeTo = value.todate;
+                    }
+                    else {
+                        self.NgayGiaoXeFrom = '';
+                        self.NgayGiaoXeTo = '';
+                    }
+                    if (self.onRefresh === false) {
+                        self.isLoading = true;
+                        self.LoadData();
+                    }
+                    self.NgayGiaoXeTypeTime = value.radioselect;
+                },
+                oncallTrangThaiSelect: function () {
+
+                },
+                InitListHeader: function () {
+                    return [{ colName: 'colMaPhieu', colText: 'Mã phiếu', colShow: true, index: 0 },
+                    { colName: 'colThoiGianGiao', colText: 'Thời gian giao', colShow: true, index: 1 },
+                    { colName: 'colBienSo', colText: 'Biển số xe', colShow: true, index: 2 },
+                    { colName: 'colMaKhachHang', colText: 'Mã khách hàng', colShow: true, index: 3 },
+                    { colName: 'colTenKhachHang', colText: 'Tên khách hàng', colShow: true, index: 4 },
+                    { colName: 'colNhanVienGiao', colText: 'Nhân viên giao', colShow: true, index: 5 },
+                    { colName: 'colNhanVienNhan', colText: 'Nhân viên nhận', colShow: true, index: 6 },
+                    { colName: 'colThoiGianNhan', colText: 'Thời gian nhận', colShow: true, index: 7 },
+                    { colName: 'colTrangThai', colText: 'Trạng thái', colShow: true, index: 8 }];
+                },
+                TextSearchEnterKeyup: function () {
+
+                },
+                LoadData: function () {
+                    let dataTemp = [{
+                        MaPhieu: "00001", ThoiGianGiao: "2022-04-16 16:02", BienSo: "29A-12312",
+                        MaKhachHang: "KH0001", TenKhachHang: "Khách hàng 1", NhanVienGiao: "NV001 - Nhân viên 1", NhanVienNhan: "", ThoiGianNhan: "", TrangThai: "Đang hoạt động"
+                    }];
+                    let self = this;
+                    self.NhatKyHoatDong.Data = dataTemp;
+
+                },
+                ShowModalBanGiao: function () {
+                    vNhatKyHoatDongXe.showModal();
+                },
+                RowSelected: function (item) {
+                },
+                HoanThanh: function (item) {
+                    vTiepNhanXeHoatDong.showModal();
+                }
+            },
+            created: function () {
+                let self = this;
+                self.ListHeader = self.InitListHeader();
+                self.isLoading = false;
+                self.LoadData();
+            }
+        });
+
+        function addfocus(ele) {
+            $(ele).siblings().removeClass('active');
+            if ($(ele).hasClass('active')) {
+                $(ele).removeClass("active");
+                $(ele).next().removeClass("active");
+                document.getElementsByClassName('table-frame')[0].classList.remove('table-active');
+            }
+            else {
+                $(ele).addClass("active");
+                $(ele).next().addClass("active");
+                document.getElementsByClassName('table-frame')[0].classList.add('table-active');
+            }
+        }
+    </script>
+
+</body>
+</html>

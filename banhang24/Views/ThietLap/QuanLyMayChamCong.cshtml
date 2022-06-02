@@ -1,0 +1,208 @@
+﻿@using System.Web.Optimization;
+@using banhang24.AppCache;
+@using banhang24.Hellper;
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Quản lý máy chấm công";
+}
+<style>
+    .boxLeftC .form-check-label {
+        margin: 5px;
+    }
+</style>
+<div class="container-fluid op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" fillter-left filter-left-report">
+                <section class="mainLeft">
+                    <article class="boxLeft">
+                        <h3 class="  leftTitle">
+                            <img src="/Content/images/icon/loaithuchi.png" alt="">Tìm kiếm chi nhánh
+                            <a class="showhideicon">
+                                <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                <i style="display:none" class="fa fa-chevron-up" aria-hidden="true"></i>
+                            </a>
+                        </h3>
+                        <aside class="boxLeftC" id="vFilterChiNhanh">
+                            @*<div class="outselect" id="vQLMCChiNhanh">
+            <div class="choose-person floatleft " data-toggle="dropdown" aria-expanded="false">
+                <ul>
+                    <li class="li-input-span" v-for="item in databind.data.filter(p => p.CNChecked === true)">
+                        <span>{{item.TenDonVi}}</span>&nbsp;
+                        <span v-on:click="RemoveChiNhanh(item.ID, $event)">
+                            <i class="fa fa-times"></i>
+                        </span>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="selec-person dropdown-menu">
+                <ul>
+                    <li v-for="item in databind.data.filter(p => p.CNChecked === false)" v-on:click="SelectChiNhanh(item.ID, $event)">{{item.TenDonVi}}</li>
+                </ul>
+            </div>
+        </div>*@
+                            <dropdown-donvi v-bind:listdataselected="databind.data.filter(p => p.CNChecked === true)" v-bind:listdata="databind.data.filter(p => p.CNChecked === false)"></dropdown-donvi>
+                        </aside>
+                    </article> <article class="boxLeft">
+                        <h3 class="  leftTitle">
+                            <img src="/Content/images/icon/report-loaibaocao.png" alt=""> Trạng thái
+                            <a class="showhideicon">
+                                <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                <i style="display:none" class="fa fa-chevron-up" aria-hidden="true"></i>
+                            </a>
+                        </h3>
+                        <aside class="boxLeftC">
+                            <div class="form-check floatleft">
+                                <input class="form-check-input" type="radio" name="trangthai" id="trangthai1" value="1" checked>
+                                <label class="form-check-label" for="trangthai1">
+                                    Tất cả
+                                </label>
+                            </div>
+                            <div class="form-check floatleft">
+                                <input class="form-check-input" type="radio" name="trangthai" id="trangthai2" value="2">
+                                <label class="form-check-label" for="trangthai2">
+                                    Đang hoạt động
+                                </label>
+                            </div>
+                            <div class="form-check floatleft">
+                                <input class="form-check-input" type="radio" name="trangthai" id="trangthai3" value="3">
+                                <label class="form-check-label" for="trangthai3">
+                                    Xóa
+                                </label>
+                            </div>
+                        </aside>
+                    </article>
+                </section> 
+                <div class="close-fillter">
+                    <button type="button" class="kv2Btn">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right" id="vMayChamCong">
+            <div class="titile-commodity container-fluid">
+                <div class="col-md-12 col-sm-12 col-sx-12 nopadding header-title" style="height:0">
+                    <a href="javascript:void(0)" class="btn-link seach-fillter">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </a>
+                    <h2 class="pull-left title">Cài đặt / Máy chấm công </h2>
+                </div>
+                <div class="col-md-12 col-sm-12 col-sx-12 nopadding header-button">
+                    <div class="col-md-7 col-sm-4 col-xs-2 nopadding header-button-left " style="margin-bottom:5px">
+                        <button type="button" class="bnt-bue  dropdown-toggle  btn-add-new" data-toggle="modal" v-on:click="AddNewMayChamCong">
+                            <font>Thêm mới</font>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table content-table" id="myScrollspy" style="top: 50px !important;position: sticky; float:right">
+                <div class="table-reponsive table-HH banghh table-frame" id="table-reponsive">
+                    <table class=" table-hover">
+                        <thead class="thead-boder">
+                            <tr>
+                                <th>
+                                    Mã máy
+                                </th>
+                                <th>
+                                    Tên máy
+                                </th>
+                                <th>
+                                    Chi nhánh
+                                </th>
+                                <th>
+                                    IP/Domain
+                                </th>
+                                <th>
+                                    Số series
+                                </th>
+                                <th>
+                                    Ghi chú
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="item in databind.data">
+                            <tr>
+                                <td><span>{{item.MaMCC}}</span></td>
+                                <td><span>{{item.TenHienThi}}</span></td>
+                                <td><span>{{item.MaChiNhanh}} - {{item.TenChiNhanh}}</span></td>
+                                <td><span>{{item.IP}}</span></td>
+                                <td><span>{{item.SoSeries}}</span></td>
+                                <td><span>{{item.GhiChu}}</span></td>
+                                <td>
+                                    <a href="javascrip:void(0)" class="btn-updata btn-green " v-on:click="Edit(item)">
+                                        <i class="fa fa-check-square"></i> Sửa đổi
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                            <tr>
+                                <td class="bg12 bhma text-center" colspan="6"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="page">
+                    <div class="col-md-4 nopadding">
+                        <div class="menuRadio">
+                            <div class="last">
+                                <label>Số bản ghi:</label>
+                                <select id="SelecttedPage" class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                    <option value="40">40</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 nopadding">
+                        <div class="pull-right">
+                            <a href="javascript:void(0)" data-bind="click: $root.StartPage, visible: VisibleStartPage" style="display: none;"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                            <a href="javascript:void(0)" data-bind="click: $root.BackPage, visible: VisibleStartPage " style="display: none;"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                            <ul data-bind="foreach: PageList_Display">
+                                <li>
+                                    <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageHD, css: $root.GetClassHD($data)" class="click"></a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageHD, css: $root.GetClassHD($data)"></a>
+                                </li>
+                            </ul>
+                            <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage, visible: VisibleEndPage " style="display: none;"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                            <a href="javascript:void(0)" data-bind="click: $root.EndPage, visible: VisibleEndPage " style="display: none;"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                            <div class="total-recos">
+                                Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số
+                                <span data-bind="text: TotalRecord"></span> hóa đơn.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="themmoimaychamcong">
+    <div class="modal-dialog modal-md modal-lg " role="document">
+        @Html.Partial("~/Views/ThietLap/_ThemMoiMayChamCong.cshtml")
+    </div>
+</div>
+<script src="~/Scripts/Components/FilterComponent.js"></script>
+<script src="~/Scripts/Thietlap/QLMayChamCong.js"></script>
+
+<script>
+    $(".leftTitle").on("click", function () {
+        $(this).find("a i").toggle();
+        $(this).next().slideToggle("fast");
+    })
+    $(".seach-fillter").click(function () {
+        $(".col-left").show();
+        $(".fillter-left").show();
+    });
+    $(".kv2Btn").click(function () {
+        $(".col-left").hide();
+        $(".fillter-left").hide();
+    });
+</script>

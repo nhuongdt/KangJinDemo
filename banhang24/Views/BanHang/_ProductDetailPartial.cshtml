@@ -1,0 +1,251 @@
+﻿<style>
+
+    .list-img-user .detail-user-discount {
+        padding-left: 0;
+        min-height: 0;
+    }
+
+    .detail-user-discount p {
+        margin: 0px !important;
+        padding-top: 3px !important
+    }
+
+    .title-user {
+        font-weight: bold;
+        width: unset;
+    }
+
+    .line-space {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .list-img-user .form-group:hover {
+        background-color: #d6f1f0;
+    }
+
+    .search-img-user button {
+        position: absolute;
+        left: unset;
+        top: 0px;
+        right: 0px;
+        width: 36px;
+        float: right;
+        height: 30px;
+        background: var(--color-button);
+        border: none;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+        color: white;
+    }
+
+    .tab-discount-user li.active {
+        border-top: 1px solid var(--color-main);
+        border-left: 1px solid var(--color-main);
+        border-right: 1px solid var(--color-main);
+        border-bottom: none !important;
+    }
+
+    .tab-discount-user li a {
+        margin: 0px !important;
+        font-weight: bold;
+    }
+
+    .tab-discount-user {
+        padding-bottom: 13px !important;
+    }
+
+        .tab-discount-user .nav-tabs {
+            border-bottom: 1px solid var(--color-main);
+        }
+
+    .note-discount-money-new p span {
+        color: #f81600;
+    }
+
+    .note-discount-money-new p img {
+        margin-right: 10px;
+    }
+
+    .input-span input {
+        width: calc(100% - 15px);
+        height: 22px;
+        float: left;
+        padding-right: 0px;
+    }
+
+    .input-span label {
+        width: 15px;
+        float: right;
+        font-weight: 100;
+        color: red;
+    }
+
+    .list-img-user .img-user {
+        width: 55px;
+        height: 50px;
+        position: unset;
+        border-radius: 5px;
+        background: none;
+        object-fit: cover;
+        border: 1px dashed #ccc;
+        margin: 0 5px;
+    }
+</style>
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title">
+            Chi tiết hàng hóa thành phần
+        </h4>
+    </div>
+    <div class="modal-body flex flex-between" style="align-items:flex-start; padding:0 15px; flex-wrap:wrap">
+
+        <div class="op-ck-left ">
+
+            <div class="floatleft" id="el_ProductDetail" style="position:relative">
+                <input type="text" class="form-control" placeholder="Tìm kiếm hàng hóa" id="modalDinhLuong_txtSearchHH" autofocus
+                       v-model="query" v-on:keyup="submit">
+                <button type="button" class=" btn btn-right ">
+                    <i class="fa fa-search"></i>
+                </button>
+                <div id="showseach_ProductDetail" hidden>
+                    <ul>
+                        <li v-for="item of resultProductDetail">
+                            <a>
+                                <span>{{ item.MaHangHoa }}</span>
+                                <span> {{ item.TenHangHoa }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+            <div class="floatleft" id="modalDinhLuong_lstProduct" style="max-height:350px;overflow-y:auto; overflow-x:hidden" data-bind="foreach: ListHangHoa_DinhLuong">
+                <div class="form-group list-img-user" data-bind="click: $root.Add_TPDinhLuong ">
+                    <div class="img-user">
+                        <img data-bind="attr:{src: SrcImage ==null?'/Content/images/iconbepp18.9/gg-37.png':SrcImage}" />
+                    </div>
+                    <div class="detail-user-discount" style="width:100%">
+                        <div>
+                            <span class="title-user " data-bind="text: TenHangHoa"></span>
+                            <span style="color:#ff6a00" data-bind="text: ThuocTinh_GiaTri"></span>
+                            <span data-bind="visible: TenDonViTinh"> (</span>
+                            <span style="font-style:italic" data-bind="text: TenDonViTinh"></span>
+                            <span data-bind="visible: TenDonViTinh">)</span>
+                        </div>
+
+                        <span style="color: #c4814e" data-bind="visible: MaLoHang">
+                            Lô: <span class="bold" data-bind="text: MaLoHang"></span>
+                            <span data-bind="visible: NgaySanXuat">
+                                <i>
+                                    .NSX: <span data-bind="text: NgaySanXuat==null?'': moment(NgaySanXuat).format('DD/MM/YYYY')">
+                                    </span> -
+                                </i>
+                            </span>
+                            <span data-bind="visible: NgayHetHan">
+                                <i>
+                                    HSD: <span data-bind="text: NgayHetHan==null?'': moment(NgayHetHan).format('DD/MM/YYYY')"></span>
+                                </i>
+                            </span>
+                            <br />
+                        </span>
+                        Mã hàng: <span class="seach-hh" data-bind="text: MaHangHoa"></span>
+                        Giá vốn: <span data-bind="text: formatNumber(GiaVon)">
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="op-ck-right">
+            <div class="col-md-12 note-discount-money-new">
+                <p>
+                    <img src="~/Content/images/icon/services.png" /><span data-bind="text:  DichVu_isDoing()!== undefined ? 'Dịch vụ thực hiện: '+ DichVu_isDoing().TenHangHoa:'' " />
+                </p>
+            </div>
+            <div class="col-md-12 ">
+                <div class="table-frame table-responsive table-reponsive table-discount-user">
+                    <table class=" table-hover table table-striped table-not-border table-img-user ">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Stt
+                                </th>
+                                <th>
+                                    Mã hàng hóa
+                                </th>
+                                <th>
+                                    Tên hàng hóa
+                                </th>
+                                <th>
+                                    Quy cách
+                                </th>
+                                <th>
+                                    Số lượng
+                                </th>
+                                <th>
+                                    Giá vốn 
+                                </th>
+                                <th>
+                                   Thành tiền
+                                </th>
+                                <th>
+                                    Ghi chú
+                                </th>
+                                <th style="width:30px">
+                                    #
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: Grid_TPDinhLuongChosed">
+                            <tr data-bind="visible: SoLuong> 0">
+                                <td data-bind="text: STT"></td>
+                                <td data-bind="text: MaHangHoa">1</td>
+                                <td>
+                                    <span style="display:inline-block; min-width:220px" data-bind="text: TenHangHoa"></span>
+                                    <span style="font-style:italic" data-bind="text: '('+ TenDonViTinh +')', visible: TenDonViTinh"></span>
+                                </td>
+                                <td>
+                                    <input class="input-simple height-24 width-75 text-right" onclick="this.select()"
+                                           data-bind="value: formatNumber3Digit(SoLuongQuyCach) , event:{keyup: $root.EditQuyCach_Modal}" />
+                                    <label data-bind="text: DonViTinhQuyCach"></label>
+                                </td>
+                                <td>
+                                    <input class="input-simple height-24 width-75 text-right" onclick="this.select()"
+                                           data-bind="value:  formatNumber3Digit(SoLuong),
+                                                           event:{keyup: $root.EditSoLuong_TPDinhLuong}" />
+                                </td>
+                                <td>
+                                    <div class="input-simple height-24 width-75 text-right" data-bind="text: formatNumber3Digit(GiaVon)"></div>
+                                </td>
+                                <td>
+                                    <div class="input-simple height-24 width-75 text-right" data-bind="text: formatNumber3Digit(GiaVonAfter)"></div>
+                                </td>
+                                <td>
+                                    <input class="input-simple height-24 width-75 text-right" onclick="this.select()"
+                                           data-bind="value: GhiChu, event: {keyup: $root.EditGhiChu_TPDinhLuong}" />
+                                </td>
+                                <td>
+                                    <button data-bind="click: $root.Delete_TPDinhLuong" class="btn btn-link"><i class="fa fa-times text-danger" aria-hidden="true"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="modal-footer">
+        
+            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+            <button type="button" class="btn btn-save" data-bind="click: Agree_TPDinhLuong">
+                <i class="fa fa-save"></i> Lưu
+            </button>
+       
+    </div>
+</div>

@@ -1,0 +1,62 @@
+﻿@{
+    Layout = null;
+}
+
+
+<html>
+<head>
+    
+    <title>Open24.vn - Kích hoạt sử dụng phần mềm</title>
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <style>
+
+        body {
+            background: #015869;
+            height: 100%;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+    </style>
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+</head>
+<body>
+        <div class="activep">
+            <img src="~/Content/images/openmatma-26.png" alt="Ảnh logo"/>
+              <div class="activep-key">
+                <span style="font-size:36px">Nhập mã kích hoạt </span>
+                <input id="txtActiveCode" type="text" class="activep-input text-center" size="6" maxlength="6" autofocus onkeyup="active()"/>
+                <span class="error">
+                    Mã kích hoạt không đúng!
+                </span>
+            </div>
+            <p ><i>(Mã kích hoạt được gửi qua email hoặc số điện thoại quý khách đã đăng ký)</i></p>
+        </div>
+</body>
+</html>
+
+<script>
+    function active()
+    {
+        var code = document.getElementById("txtActiveCode").value;
+        if (code.length == 6) {
+
+            $.ajax({
+                url: '/Home/SendActive/' + code,
+                success: function (data) {
+                    if (data.indexOf(".open24.vn") > -1) {
+                        window.location.replace("http://" + data);
+                    }
+                    else if (data == "ActiveFail") {
+                        $(".error").show();
+                    }
+                    else {
+                        alert(data);
+                    }
+                }
+            });
+        }
+        else
+        {
+            $(".error").hide();
+        }
+    }
+</script>

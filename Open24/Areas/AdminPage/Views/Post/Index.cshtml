@@ -1,0 +1,399 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "Danh sách bài viết";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Scripts/Post/Post.js"></script>
+    <script src="~/Content/CkEditor/ckeditor.js"></script>
+    <script src="~/Content/ckfinder/ckfinder.js"></script>
+    <script src="~/Content/js/ckeditor-responsive-images.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            CKEDITOR.replace('idContentNews',
+                {
+                    entermode: CKEDITOR.ENTER_BR, toolbar: [[
+                        'Bold', 'Italic', 'Underline', 'Subscript',
+                        'Superscript', 'Image', 'Table', 'NumberedList',
+                        'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
+                        'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link', 'Unlink',
+                        'TextColor', 'Maximize', 'Source', 'FontSize', 'Format', 'Font'
+                    ]]
+            });
+            CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+        });
+    </script>
+    <script type="text/javascript">
+        $("#datetimepicker").datetimepicker({
+            format: "MM/DD/YYYY HH:mm",
+            minDate: new Date()
+        });
+    </script>
+}
+<style>
+    #imgname {
+        font-weight: 100;
+    }
+
+    .editnews {
+        height: 650px;
+        overflow-y: scroll;
+    }
+</style>
+<div class="right_col">
+    <h3>Danh sách bài viết</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleInsert)
+                {
+                    <button class="btn-updata btn-green" onclick="AddNewArticle()"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Thêm mới bài viết</button>
+
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-reponsive">
+                <table class="table table-striped table-bordered" id="tbl">
+                    <thead>
+                        <tr>
+                            <th>Ảnh </th>
+                            <th>Link</th>
+                            <th id="eventTitle">Tiêu đề</th>
+                            <th id="eventCategory">Thể loại</th>
+                            <th id="eventCreatdate">Ngày tạo</th>
+                            <th id="eventView">Lượt xem</th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th>Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: listArticle">
+                        <tr>
+                            <td class="list-img" style="width:10%"> <span class="glyphicon glyphicon-pushpin" data-bind="visible:Gender===true" aria-hidden="true" style="float:right"></span><img data-bind="attr:{src: Image}" style="width: 100px; height: 70px;"></td>
+                            <td style="width:27%"> <a data-bind="attr:{href:link}" target="_blank"><span data-bind="text: link"></span></a></td>
+                            <td data-bind="text: Title" style="width:27%"></td>
+                            <td data-bind="text: CategoryName" style="width:10%"></td>
+                            <td data-bind="text: moment(CreateDate).format('DD/MM/YYYY')" style="width:8%"></td>
+                            <td data-bind="text: View" style="width:10%;text-align:right"></td>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <td style="width:8%">
+                                    <div class="edit-delete">
+                                        @if (Model.RoleUpdate)
+                                        {
+                                            <a class="blue" href="javascript:void(0)" title="Ghim bài viết lên đầu trang" data-bind="click: $parent.btnUpdatePin">
+                                                <span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+                                            </a>
+                                            <a class="blue" href="#" data-bind="click: $parent.btnUpdateArticle" title="Sửa bài viết">
+                                                <i class="ace-icon fa fa-pencil "></i>
+                                            </a>
+                                        }
+                                        @if (Model.RoleDelete)
+                                        {
+                                            <a class=" red" href="#" data-bind="click: $parent.deleteArticle" title="Xóa bài viết">
+                                                <i class="ace-icon fa fa-trash-o "></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: koPageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: koClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width:50px;">
+                            <input type="text" data-bind="value: kopage, event: { keyup: nextPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: kopageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: koClickNext">&raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+@*Tin tức*@
+<div class="modal fade" id="myModal2">
+    <div class="modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>*@
+                <a href="#" class="close" data-dismiss="modal">×</a>
+                <h4 class="modal-title" id="myModalLabel">Sửa bài viết</h4>
+            </div>
+            <div class="editnews fl">
+                <input type="text" class="form-control hidden" id="idIDNews" data-bind="value: valIDNews" />
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Tiêu đề</h5></div>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="idTitleNews" data-bind="value: valTitleNews,,event:{ change: NewsChanged}" />
+                        <div id="validateTitleNews" style="color:red"></div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Url</h5></div>
+                    <div class="col-md-10">
+                        <div class="fl">
+                            <input type="text" class="form-control" data-bind="value: Url,event:{ change: UrlChanged}" />
+                        </div>
+                        <div class="fl">
+                            <p class="seo-link">https://.../<span data-bind="text: Url"></span>...html</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Thể loại</h5></div>
+                    <div class="col-md-10">
+                        <select class="form-control" id="idCateTypeNews" data-bind="options:GroupCateNewsUd, optionsText: 'Name', optionsValue: 'ID'"></select>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Ảnh đại diện</h5></div>
+                    <div class="col-md-10">
+                        <span class="btn  btn-file form-control">
+                            Chọn ảnh <input type='file' id="imageUploadForm" accept=".jpg,.gif,.png" name="image" onchange="readURL(this);" />
+                        </span>
+                        <div class="fl">
+                            <img src="~/Content/images/imgdemo.png" alt="your image" id="blah" data-bind="attr:{src: pathImage}" style="width:200px;height:150px" />
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Tag</h5></div>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="idTagNews" data-bind="value: valTagNews" />
+                        <div id="validateTagNews" style="color:red"></div>
+                    </div>
+                </div>
+
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Mô tả</h5></div>
+                    <div class="col-md-10">
+                        <textarea class="form-control" rows="4" id="idSummaryNews" data-bind="value: valSummaryNews"></textarea>
+                        <div id="validateSummaryNews" style="color:red"></div>
+                    </div>
+                </div>
+                <div class="fl form-addnews" data-bind="visible:checkDatetime">
+                    <div class="col-md-2 title-add"><h5>Thời gian đang bài</h5></div>
+                    <div class="col-md-10">
+                        <div class="container">
+                            <div class="row">
+                                <div class='col-sm-6'>
+                                    <div class='input-group date' id='datetimepicker'>
+                                        <input type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Nội dung</h5></div>
+                    <div class="col-md-10">
+                        <textarea class="ckeditor" id="idContentNews"></textarea>
+                    </div>
+                </div>
+
+                <div class="fl form-addnews">
+                    <div class="col-md-2 title-add"><h5>Trạng thái</h5></div>
+                    <div class="col-md-10">
+                        <div class="radio-addnews">
+                            <input type="radio" name="optStatusNews" data-bind="checked: chkStatusNews, checkedValue: true" value="true" /> Hiện thị
+                        </div>
+                        <div class="radio-addnews">
+                            <input type="radio" name="optStatusNews" data-bind="checked: chkStatusNews, checkedValue: false" value="false" /> Ẩn
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn-updata btn-green" data-bind="click: updateArticleNews"><i class="fa fa-floppy-o"></i> Lưu</button>
+                <button class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+@*Tuyển dụng*@
+<div class="modal fade" id="myModal3">
+    <div class="modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>*@
+                <a href="#" class="close" data-dismiss="modal">×</a>
+                <h4 class="modal-title" id="myModalLabel">Sửa thể loại</h4>
+            </div>
+            <div class="editnews fl">
+                <input type="text" class="form-control hidden" id="idIDRecruit" data-bind="value: valIDRecruit" />
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Tiêu đề</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idTitleRecruit" data-bind="value: valTitleRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Thể loại</label></div>
+                    <div class="col-md-9">
+                        <select class="form-control" id="idCateTypeRecruit" data-bind="options:GroupCateRecruitUp, optionsText: 'Name', optionsValue: 'ID'"></select>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Ảnh tuyển dụng</label></div>
+                    <div class="col-md-9">
+                        <span class="btn  btn-file form-control">
+                            Chọn ảnh <input type="file" name="file" id="idImageRecruit" data-bind="value: valImageRecruit" class="inputfile" data-multiple-caption="{count} files selected" multiple="">
+                        </span>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Mức lương</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idSalaryRecruit" data-bind="value: valSalaryRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Địa chỉ</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idAddressRecruit" data-bind="value: valAddressRecruit" />
+                    </div>
+                </div>
+
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Kinh nghiệm</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idExperienceRecruit" data-bind="value: valExperienceRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Vị trí</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idPositionRecruit" data-bind="value: valPositionRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Trình độ</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idDegreeRecruit" data-bind="value: valDegreeRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Lĩnh vực tuyển dụng</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idTradesRecruit" data-bind="value: valTradesRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Thời gian tuyển dụng</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control datetimepicker" id="idExpirationDateRecruit" data-bind="value: valExpirationDateRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Số lượng tuyển dụng</label></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="idNumberOfRecruitsRecruit" data-bind="value: valNumberOfRecruitsRecruit" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Mô tả</label></div>
+                    <div class="col-md-9">
+                        <textarea class="form-control" rows="4" id="idSummaryRecruit" data-bind="value: valSummaryRecruit"></textarea>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Mô tả nghề nghiệp</label></div>
+                    <div class="col-md-9">
+                        <textarea class="ckeditor" id="idContentRecruit"></textarea>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Gới tính</label></div>
+                    <div class="col-md-9">
+                        <div class="radio-addnews">
+                            <input type="radio" name="optGenderRecruitUp" data-bind="checked: optGenderRecruitUp, checkedValue: true" /> Nam
+                        </div>
+                        <div class="radio-addnews">
+                            <input type="radio" name="optGenderRecruitUp" data-bind="checked: optGenderRecruitUp, checkedValue: true" /> Nữ
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>Trạng thái</label></div>
+                    <div class="col-md-9">
+                        <div class="radio-addnews">
+                            <input type="radio" id="rdoStatus" name="optStatusRecruitUp" data-bind="checked: chkStatusRecruit, checkedValue: true" /> Hiện thị
+                        </div>
+                        <div class="radio-addnews">
+                            <input type="radio" id="rdoStatus1" name="optStatusRecruitUp" data-bind="checked: chkStatusRecruit, checkedValue:false" /> Ẩn
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Hủy</button>
+                <button class="btn-updata btn-green" data-bind="click: updateArticleRecruit"><i class="fa fa-floppy-o"></i> Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#blah')
+                    .attr('src', e.target.result)
+                    .width(200)
+                    .height(150);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    //function te() {
+    //    var totalFiles = document.getElementById("imageUploadForm").files.length;
+    //    if (totalFiles != "") {
+    //        $("#imgname").text("");
+    //    }
+    //}
+
+    function AddNewArticle() {
+        window.location.href = "/AdminPage/Post/AddPost";
+    }
+
+</script>

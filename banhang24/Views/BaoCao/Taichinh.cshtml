@@ -1,0 +1,454 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+    //ViewBag.Title = "Open24.vn - Báo Cáo Tài chính";
+}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class=" op-filter">
+                    <ul class="tabs-main ">
+                        <li class="title-report">Báo cáo tài chính </li>
+                    </ul>
+                    <section class="op-filter-body">
+                        <article class="boxLeft sortTime">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/kieuhienthi.png" />    Kiểu hiển thị
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container">
+                                <ul class="chose_kieubang">
+                                    <li value="1">
+                                        <a href="#home" data-toggle="tab">
+                                            <input type="radio" name="" value="1" data-bind="checked: check_kieubang">
+                                            <label>Biểu đồ</label>
+                                        </a>
+                                    </li>
+                                    <li value="2">
+                                        <a href="#info" data-toggle="tab">
+                                            <input type="radio" name="" value="2" href="#info" data-toggle="tab" data-bind="checked: check_kieubang">
+                                            <label>Báo cáo</label>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </aside>
+                        </article>
+                        <article class="boxLeft showChiNhanh">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/loaithuchi.png" />  Chi nhánh
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="outselect">
+                                    <div class="nameDonVi choose-person floatleft " data-toggle="dropdown" id="choose_DonVi">
+                                        <ul data-bind="foreach: MangChiNhanh">
+                                            <li class="li-input-span">
+                                                <span data-bind="text: TenDonVi">
+                                                </span>
+                                                <span data-bind="click: $parent.CloseDonVi">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" class="dropdown nameDonVi" id="NoteNameDonVi" data-bind="event:{keyup: NoteNameDonVi}" placeholder="Chọn chi nhánh..." />
+                                    </div>
+                                    <div class="selec-person dropdown-menu" id="selec-all-DonVi">
+                                        <ul data-bind="foreach: DonVis">
+                                            <li data-bind="attr:{id: ID}, click: $parent.SelectedDonVi">
+                                                <span data-bind="text: TenDonVi "></span>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/thoigian.png" />   Thời gian
+                            </h3>
+                            <span></span>
+                            <aside class="op-filter-container pinbut0">
+                                <div class="menuCheckbox">
+                                    <div class="outselect ">
+                                        <div class="choose-person" id="choose-person" data-toggle="dropdown" aria-expanded="true">
+                                            <input class="form-control" type="text" data-bind="value: newYear" />
+                                        </div>
+                                        <div class="selec-person dropdown-menu" id="selec-all-Year" data-bind="foreach: ArrayYear">
+                                            <ul>
+                                                <li data-bind="attr:{id: Year}, click: $parent.SelectYearReport"><span data-bind="text: Year"></span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                            <aside class="op-filter-container">
+                                <div class="menuRadio chose_Time">
+                                    <ul>
+                                        <li>
+                                            <label><input type="radio" name="rdTonKho" value="1" data-bind="checked: Loc_TonKho"> Theo Tháng</label>
+                                        </li>
+                                        <li>
+                                            <label><input type="radio" name="rdTonKho" value="2" data-bind="checked: Loc_TonKho"> Theo Quý</label>
+                                        </li>
+                                        <li>
+                                            <label><input type="radio" name="rdTonKho" value="3" data-bind="checked: Loc_TonKho"> Theo Năm</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </aside>
+                        </article>
+                    </section>
+                    <div class="op-filter-footer">
+                        <button type="button" class="kv2Btn">Hoàn tất</button>
+                    </div>
+                </div>
+                <div class="content-table  " id="myScrollspy" style="top: 48px;position: sticky;">
+                    <a href="javascript:void(0)" class="seach-fillter seach-fillter-bottom"><i class="fa fa-search" aria-hidden="true"></i></a>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="home">
+                            <div id="chart"></div>
+                        </div>
+                        <div class="tab-pane" id="info">
+                            <div class=" repost-bg floatleft" id="printablediv5">
+                                <div class="repost">
+                                    <div class="title-report-center">Báo cáo kết quả hoạt động kinh doanh</div>
+                                    <p>Chi nhánh: <span data-bind="text: TenChiNhanh"></span></p>
+                                </div>
+                                <div class="btnMenu pull-right">
+                                    <button type="button" class="btn btn-main dropdown-toggle " data-bind="click: ExportExcel"> <i class="fa fa-file-excel-o"></i> Xuất file</button>
+                                    <button class="btn btn-main btn-group" id="btnExport" name="btnExport" onclick="printPage()"><i class="fa fa-print icon-print"></i>In</button>
+                                </div>
+                                <div class="table-reponsive" id="table-reponsive">
+                                    <table class="table table-striped table-hover table_TheoThang">
+                                        <thead>
+                                            <tr>
+                                                <th class="mahang">Tên loại</th>
+                                                <th class="tenthang text-right Thang1">T1.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang2">T2.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang3">T3.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang4">T4.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang5">T5.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang6">T6.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang7">T7.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang8">T8.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang9">T9.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang10">T10.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang11">T11.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang text-right Thang12">T12.<span data-bind="text: newYear"></span></th>
+                                                <th class="text-right">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: listReportTaiChinh_TheoThang">
+                                            <tr>
+                                                <td class="mahang" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh"></td>
+                                                <td class="tenhang text-right Thang1" data-bind="attr:{class: ColorText},text: formatNumber(Thang1)"></td>
+                                                <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Thang2)"></td>
+                                                <td class="tenhang text-right Thang3" data-bind="attr:{class: ColorText},text: formatNumber(Thang3)"></td>
+                                                <td class="tenhang text-right Thang4" data-bind="attr:{class: ColorText},text: formatNumber(Thang4)"></td>
+                                                <td class="tenhang text-right Thang5" data-bind="attr:{class: ColorText},text: formatNumber(Thang5)"></td>
+                                                <td class="tenhang text-right Thang6" data-bind="attr:{class: ColorText},text: formatNumber(Thang6)"></td>
+                                                <td class="tenhang text-right Thang7" data-bind="attr:{class: ColorText},text: formatNumber(Thang7)"></td>
+                                                <td class="tenhang text-right Thang8" data-bind="attr:{class: ColorText},text: formatNumber(Thang8)"></td>
+                                                <td class="tenhang text-right Thang9" data-bind="attr:{class: ColorText},text: formatNumber(Thang9)"></td>
+                                                <td class="tenhang text-right Thang10" data-bind="attr:{class: ColorText},text: formatNumber(Thang10)"></td>
+                                                <td class="tenhang text-right Thang11" data-bind="attr:{class: ColorText},text: formatNumber(Thang11)"></td>
+                                                <td class="tenhang text-right Thang12" data-bind="attr:{class: ColorText},text: formatNumber(Thang12)"></td>
+                                                <td class="tenhang text-right" data-bind="attr:{class: ColorText},text: formatNumber(Tong)"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen">
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="14"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <table class="table table-striped table-hover table_TheoQuy">
+                                        <thead>
+                                            <tr>
+                                                <th class="mahang">Tên loại</th>
+                                                <th class="tenhang text-right">Q1.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenhang text-right">Q2.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenhang text-right">Q3.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenhang text-right">Q4.<span data-bind="text: newYear"></span></th>
+                                                <th class="nhomhang text-right">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: listReportTaiChinh_TheoQuy">
+                                            <tr>
+                                                <td class="mahang" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh,
+                                                   "></td>
+                                                <td class="tenhang text-right Thang1" data-bind="attr:{class: ColorText}, text: formatNumber(Quy1)"></td>
+                                                <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText}, text: formatNumber(Quy2)"></td>
+                                                <td class="tenhang text-right Thang1" data-bind="attr:{class: ColorText}, text: formatNumber(Quy3)"></td>
+                                                <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText}, text: formatNumber(Quy4)"></td>
+                                                <td class="tenhang text-right" data-bind="attr:{class: ColorText}, text: formatNumber(Tong)"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen">
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="5"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <table class="table table-striped table-hover table_TheoNam">
+                                        <thead>
+                                            <tr>
+                                                <th class="mahang">Tên loại</th>
+                                                <th class="tenhang text-right"><span data-bind="text: newYear"></span></th>
+                                                <th class="nhomhang text-right">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: listReportTaiChinh_TheoNam">
+                                            <tr>
+                                                <td class="mahang" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh"></td>
+                                                <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Nam)"></td>
+                                                <td class="tenhang text-right" data-bind="attr:{class: ColorText},text: formatNumber(Tong)"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen">
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="3"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="info1">
+                            <div class="repost-bg floatleft" id="printtable">
+                                <div class="repost">
+                                    <div class="title-report-center tieudetr">Báo cáo kết quả hoạt động kinh doanh</div>
+                                    <p class="nameChiNhanhTr">Chi nhánh: <span data-bind="text: TenChiNhanh"></span></p>
+                                </div>
+                                <div id="table-reponsivetr">
+                                    <table class="table table-striped table-hover table_TheoThang">
+                                        <thead>
+                                            <tr>
+                                                <th class="mahang itemLeft" style="padding-left: 9px;">Tên loại</th>
+                                                <th class="tenthang itemRight Thang1" style="padding-right: 9px;">T1.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang2" style="padding-right: 9px;">T2.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang3" style="padding-right: 9px;">T3.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang4" style="padding-right: 9px;">T4.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang5" style="padding-right: 9px;">T5.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang6" style="padding-right: 9px;">T6.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang7" style="padding-right: 9px;">T7.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang8" style="padding-right: 9px;">T8.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang9" style="padding-right: 9px;">T9.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang10" style="padding-right: 9px;">T10.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang11" style="padding-right: 9px;">T11.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenthang itemRight Thang12" style="padding-right: 9px;">T12.<span data-bind="text: newYear"></span></th>
+                                                <th class="itemRight" style="padding-right: 9px;">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: listReportTaiChinh_TheoThang">
+                                            <tr>
+                                                <td class="mahang itemLeft" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh" style="padding-left: 9px;"></td>
+                                                <td class="tenhang itemRight Thang1" data-bind="attr:{class: ColorText},text: formatNumber(Thang1)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Thang2)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang3" data-bind="attr:{class: ColorText},text: formatNumber(Thang3)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang4" data-bind="attr:{class: ColorText},text: formatNumber(Thang4)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang5" data-bind="attr:{class: ColorText},text: formatNumber(Thang5)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang6" data-bind="attr:{class: ColorText},text: formatNumber(Thang6)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang7" data-bind="attr:{class: ColorText},text: formatNumber(Thang7)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang8" data-bind="attr:{class: ColorText},text: formatNumber(Thang8)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang9" data-bind="attr:{class: ColorText},text: formatNumber(Thang9)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang10" data-bind="attr:{class: ColorText},text: formatNumber(Thang10)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang11" data-bind="attr:{class: ColorText},text: formatNumber(Thang11)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang12" data-bind="attr:{class: ColorText},text: formatNumber(Thang12)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight" data-bind="attr:{class: ColorText},text: formatNumber(Tong)" style="padding-right: 9px;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-striped table-hover table_TheoQuy">
+                                        <thead>
+                                            <tr>
+                                                <th class="mahang itemLeft" style="padding-left: 9px;">Tên loại</th>
+                                                <th class="tenhang itemRight" style="padding-right: 9px;">Q1.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenhang itemRight" style="padding-right: 9px;">Q2.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenhang itemRight" style="padding-right: 9px;">Q3.<span data-bind="text: newYear"></span></th>
+                                                <th class="tenhang itemRight" style="padding-right: 9px;">Q4.<span data-bind="text: newYear"></span></th>
+                                                <th class="nhomhang itemRight" style="padding-right: 9px;">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: listReportTaiChinh_TheoQuy">
+                                            <tr>
+                                                <td class="mahang itemLeft" style="padding-left: 9px;" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh"></td>
+                                                <td class="tenhang itemRight Thang1" data-bind="attr:{class: ColorText},text: formatNumber(Quy1)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Quy2)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang1" data-bind="attr:{class: ColorText},text: formatNumber(Quy3)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Quy4)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight" data-bind="attr:{class: ColorText},text: formatNumber(Tong)" style="padding-right: 9px;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-striped table-hover table_TheoNam">
+                                        <thead>
+                                            <tr>
+                                                <th class="mahang itemLeft" style="padding-left: 9px;">Tên loại</th>
+                                                <th class="tenhang itemRight"><span data-bind="text: newYear" style="padding-right: 9px;"></span></th>
+                                                <th class="nhomhang itemRight" style="padding-right: 9px;">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: listReportTaiChinh_TheoNam">
+                                            <tr>
+                                                <td class="mahang itemLeft" style="padding-left: 9px;" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh"></td>
+                                                <td class="tenhang itemRight Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Nam)" style="padding-right: 9px;"></td>
+                                                <td class="tenhang itemRight" data-bind="attr:{class: ColorText},text: formatNumber(Tong)" style="padding-right: 9px;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Content/js/exporting.js"></script>
+<script>
+    $(window).bind("load", function () {
+        $("#cbmahang").click(function () {
+            $(".mahang").toggle();
+        });
+        $("#cbtenhang").click(function () {
+            $(".tenhang").toggle();
+        });
+        $("#cbnhomhang").click(function () {
+            $(".nhomhang").toggle();
+        });
+    });
+    $(function () {
+        $('.datetimepicker4').datetimepicker();
+    });
+    var w = $(window).width();
+    if (w < 769) {
+        var t = w - 25;
+        $(".op-object-detail ").width(t);
+    }
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $(".op-filter-container .nav-tabs   a ").click(function () {
+        $(".op-filter-container .nav-tabs   a ").removeClass("box-tab");
+        $(this).addClass("box-tab");
+    });
+    function printDiv(divID) {
+        var divElements = document.getElementById(divID).innerHTML;
+        PrintExtraReport(divElements);
+    }
+    function printPage() {
+        var strPrint = '';
+        strPrint += document.getElementById('printtable').innerHTML;
+        PrintExtraReportTr(strPrint);
+    }
+    //$(document).on('click', '.selec-person ul li', function () {
+    //    var check = $(this).find(".fa-check").css("display");
+    //    if (check == "none") {
+    //        var per = $(this).html();
+    //        $(this).parents(".selec-person").prev(".choose-person").find("ul").append("<li></li>");
+    //        $(this).parents(".selec-person").prev(".choose-person").find("ul li:last").html(per);
+    //        $(this).parents(".selec-person").prev(".choose-person").find("input").addClass("per_ac");
+    //        $(this).parents(".selec-person").prev(".choose-person").find("ul").addClass("per_ac1");
+    //        $(this).find(".fa-check").toggle();
+    //    }
+    //    else {
+    //        $(this).find(".fa-check").hide();
+    //        var k = $(this).index();
+    //        $(this).parents(".selec-person").prev(".choose-person").find("li").eq(k).remove();
+    //    }
+    //});
+    $(document).on('click', '.per_ac1 li', function () {
+        var ch = $(this).index();
+        $(this).remove();
+        var li = document.getElementById("selec-person");
+        var list = li.getElementsByTagName("li");
+        for (var i = 0; i < list.length; i++) {
+            $("#selec-person ul li").eq(ch).find(".fa-check").css("display", "none");
+        }
+    })
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+</script>
+<style>
+    #chart {
+        position: relative;
+        overflow: hidden;
+        /*width: 1171px;*/
+        height: 500px;
+        text-align: left;
+        line-height: normal;
+        z-index: 0;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        top: 2px;
+    }
+    /*.highcharts-background {
+        width: 1171px;
+        height: 450px;
+    }
+    .highcharts-series rect {
+        fill: #32b7b3 !important;
+        text-align: center !important;
+        width: 30px;
+    }*/
+    .text-unit {
+        bottom: 113px;
+        right: 0px;
+    }
+    .StartImport {
+        margin-right: 5px;
+        z-index: 0;
+        display: inline-block;
+        background: #808080;
+        color: #fff;
+        font-weight: bold;
+        font-size: 12px;
+        padding: 7px 15px;
+        white-space: nowrap;
+        border: none;
+        vertical-align: middle;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+    .SelectReport {
+        background: #bee69f;
+        color: #000000;
+    }
+    .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline !important;
+    }
+    .nameDonVi input {
+        border: none;
+        height: 30px;
+        outline: none;
+        padding-left: 10px;
+        width: 50%;
+    }
+</style>
+<script src="~/Scripts/knockout-3.4.2.js"></script>
+@Scripts.Render("~/bundles/TaiChinhBC")
+}

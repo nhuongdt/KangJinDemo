@@ -1,0 +1,638 @@
+﻿<div class="modal-content ">
+    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title themhanghoa">Thêm hàng hóa</h4>
+    </div>
+    <div class="modal-body">
+        <ul class="nav nav-tabs updateHHTab">
+            <li class="active dshh1"><a data-toggle="tab" href="#thongtin_HH">Thông tin</a></li>
+            <li class="dshh2"><a data-toggle="tab" href="#motachitiet_HH">Mô tả chi tiết</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="thongtin_HH" class="tab-pane  in active">
+                <div class="row">
+                    <div class="col-sx-12 col-sm-12 col-lg-6">
+                        <div >
+                            <div class="form-group"  data-bind="with: newHangHoa">
+                                    <label class="css-form-label">Mã hàng hóa</label>
+                                    <div class="css-form-detail">
+                                        <input class="form-control" id="txtMaHangHoa1" type="text" name="txtMaHangHoa" data-bind="value: MaHangHoa" placeholder="Mã hàng tự động" />
+                                    </div>
+                                    <span class="commodity-note">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span href="javascript:void(0)" class="materiall">Mã hàng hóa là thông tin duy nhất</span>
+                                    </span>
+                            </div>
+                            <div class="form-group" data-bind="with: newHangHoa">
+                                    <label class="css-form-label">
+                                        Tên hàng hóa <span style="color:red">(*)</span>
+                                    </label>
+                                    <div class="css-form-detail">
+                                        <input class="form-control" type="text" id="txtTenHangHoa1" name="txtTenHangHoa" data-bind="value: TenHangHoa" />
+                                    </div>
+                                    <span class="commodity-note">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span href="javascript:void(0)" class="materiall">Tên hàng hóa sản phẩm</span>
+                                    </span>
+                            </div>
+                            <div class="form-group">
+                                <label class="css-form-label">Nhóm hàng hóa</label>
+                                <div class="css-form-detail">
+                                    <div class="input-group">
+                                        <div class="outselect">
+                                            <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                                <div class="form-control" id="choose_TenNHHAddHH" style="cursor:pointer">---Chọn nhóm---</div>
+                                            </div>
+                                            <div class="selec-person dropdown-menu floatleft ">
+                                                <div class="seach-nhomhang">
+                                                    <input type="text" class="seach-nhomhang" data-bind="value: filterNHH, valueUpdate: 'afterkeydown'">
+                                                    <i class="fa fa-search"></i>
+                                                </div>
+                                                <ul id="lstNhomHangAddHH" class="group-parent">
+                                                    <li data-bind="click : clickFistChonAddHH" class="p-left10">
+                                                        <a href="javascript:void(0)">---Chọn nhóm---</a>
+                                                    </li>
+                                                    <li data-bind="foreach : arrFilterNhomHH_AddHH">
+                                                        <div class="group-p1" data-bind="click : $root.selectIDNHHAdd">
+                                                            <a  data-bind="text: TenNhomHangHoa, attr:{id: ID}"></a>
+                                                            <span data-bind="attr:{id: 'spanCheckNhomAddHH_'+ ID}" class="pull-right"></span>
+                                                        </div>
+                                                        <ul class="floatleft" data-bind="foreach: Childs">
+                                                            <li>
+                                                                <div class="group-p2" data-bind="click : $root.selectIDNHHAdd">
+                                                                    <a href="javascript:void(0)" data-bind="text: TenNhomHangHoa, attr:{id: ID}"></a>
+                                                                    <span data-bind="attr:{id: 'spanCheckNhomAddHH_'+ ID}" class="pull-right"></span>
+                                                                </div>
+                                                                <ul class="floatleft" data-bind="foreach: Child2s">
+                                                                    <li>
+                                                                        <div class="group-p3" data-bind="click : $root.selectIDNHHAdd">
+                                                                            <a href="javascript:void(0)" data-bind="text: TenNhomHangHoa, attr:{id: ID}"></a>
+                                                                            <span data-bind="attr:{id: 'spanCheckNhomAddHH_'+ ID}" class="pull-right"></span>
+                                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-default op-js-themmoi" id="btnThemMoiNhom" href="javascript:void(0)">
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" data-bind="with: newHangHoa">
+                                <label class="css-form-label">Giá bán</label>
+                                <div class="css-form-detail">
+                                    <!-- ko if: $root.booleanAdd() === true-->
+                                    <input class="form-control" id="txtGiaBan"
+                                           name="txtGiaBan" type="text" data-bind="value: GiaBan, event:{change: $root.clicktien }" onkeyup="return formatNumberObj(this)"
+                                           onkeypress="return keyPress(event)" />
+                                    <!-- /ko-->
+                                    <!-- ko if: $root.booleanAdd() === false-->
+                                    <input class="form-control" id="txtGiaBan"
+                                           name="txtGiaBan" type="text" data-bind="value: GiaBan, event:{change: $root.clicktien }, enable: $root.HangHoa_GiaBan()==='HangHoa_GiaBan'" onkeyup="return formatNumberObj(this)"
+                                           onkeypress="return keyPress(event)" />
+                                    <!-- /ko-->
+                                </div>
+                            </div>
+                            <!-- ko if: $root.booleanAdd() === false-->
+                            <!-- ko if: $root.HangHoa_XemGiaVon() === 'HangHoa_XemGiaVon'-->
+                            <div id="giavonhide" class="form-group" data-bind="with: newHangHoa">
+                                <label class="css-form-label">Giá vốn</label>
+                                <div class="css-form-detail">
+                                    <!-- ko if: $root.booleanAdd() === true-->
+                                    <input class="form-control" id="txtGiaVon" name="txtGiaVon" type="text"
+                                           data-bind="value: GiaVon" onkeypress="return keyPress(event)" onkeyup="return formatNumberObj(this)" />
+                                    <!-- /ko-->
+                                    <!-- ko if: $root.booleanAdd() === false-->
+                                    <input class="form-control" id="txtGiaVon" name="txtGiaVon" type="text"
+                                           data-bind="value: GiaVon, enable: $root.HangHoa_GiaVon()==='HangHoa_GiaVon'" onkeypress="return keyPress(event)" onkeyup="return formatNumberObj(this)" />
+                                    <!-- /ko-->
+                                </div>
+                            </div>
+                            <!-- /ko-->
+                            <!-- /ko-->
+                            <!-- ko if: $root.booleanAdd() === true-->
+                            <div id="giavonhide" class="form-group" data-bind="with: newHangHoa">
+                                <label class="css-form-label">Giá vốn</label>
+                                <div class="css-form-detail">
+                                    <!-- ko if: $root.booleanAdd() === true-->
+                                    <input class="form-control" id="txtGiaVon" name="txtGiaVon" type="text"
+                                           data-bind="value: GiaVon" onkeypress="return keyPress(event)" onkeyup="return formatNumberObj(this)" />
+                                    <!-- /ko-->
+                                    <!-- ko if: $root.booleanAdd() === false-->
+                                    <input class="form-control" id="txtGiaVon" name="txtGiaVon" type="text"
+                                           data-bind="value: GiaVon, enable: $root.HangHoa_GiaVon()==='HangHoa_GiaVon'" onkeypress="return keyPress(event)" onkeyup="return formatNumberObj(this)" />
+                                    <!-- /ko-->
+                                </div>
+                            </div>
+                            <!-- /ko-->
+                            <div class="form-group checktonkholohanghoa" data-bind="with: newHangHoa">
+                                    <label class="css-form-label">Tồn kho</label>
+                                    <div class="css-form-detail">
+                                        <input class="form-control" id="txtTonKho" name="txtTonKho" type="text" data-bind="value: TonKho" onkeypress="return keyPress(event)" onkeyup="return formatNumberObj(this)" />
+                                    </div>
+                                    <span class="commodity-note">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span href="javascript:void(0)" class="materiall">Số lượng tồn kho của sản phẩm (sẽ tự động tạo ra phiếu kiểm kho cho sản phẩm)</span>
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sx-12 col-sm-12 col-lg-6" data-bind="with: newHangHoa">
+                        <div class=" floatleft">
+                            <div class="img-commodity">
+                                <div class="img-customer">
+                                    <!-- ko foreach: $root.DM_HangHoa_Anh-->
+                                    <!-- ko if: $index() == 0-->
+                                    <img id="blahHH" alt="" data-bind="attr: {src: URLAnh , 'title': name}" />
+                                    <a href="javascript:void(0)" data-bind="click: $root.modalDeleteAnh">
+                                        <i class="fa fa-close red"></i>
+                                    </a>
+                                    <!-- /ko -->
+                                    <!-- /ko -->
+                                    <!-- ko if: $root.loadavt()==false-->
+                                    <!-- ko foreach: $root.files-->
+                                    <!-- ko if: $index() == 0-->
+                                    <img id="blahHH" alt="" data-bind="attr: {src: URLAnh , 'title': name}" />
+                                    <a href="javascript:void(0)" data-bind="click: $root.modalDeleteAnh">
+                                        <i class="fa fa-close red"></i>
+                                    </a>
+                                    <!-- /ko -->
+                                    <!-- /ko -->
+                                    <!-- /ko -->
+                                </div>
+                                <div class="choose-img floatleft">
+                                    <span class="btn  btn-file form-control">
+                                        Chọn ảnh <input type='file' multiple id="imageUpHHForm" name="files[]" data-bind="event:{change: $root.fileSelect}" accept=".png,.jpg,.jpeg,.gif" />
+                                        <output id="list"></output>
+                                    </span>
+                                    <p class="floatleft">
+                                        <label><input type="checkbox" value="checked" data-bind="checked: DuocBanTrucTiep, checkedValue: true" /> Được bán trực tiếp</label>
+                                    </p>
+                                    <p class="floatleft" id="QuanLyTheoLoHangCheck" style="display:none">
+                                      <label><input type="checkbox" value="checked" data-bind="checked: QuanLyTheoLoHang, checkedValue: false, click: $root.CheckQuanLyLoHang"/> Quản lý theo lô</label>
+                                    </p>
+                                </div>
+                            </div>
+                            <ul class="img-list-c">
+                                <!-- ko foreach: $root.DM_HangHoa_Anh-->
+                                <li data-bind="if: $index() != 0, attr: {id : $index}">
+                                    <div class="img-item">
+                                        <img class="thumb" data-bind="attr: {'src': URLAnh, 'title': name}" />
+                                    </div>
+                                    <a data-bind="click: $root.modalDeleteAnh">
+                                        <i class="fa fa-close red"></i>
+                                    </a>
+                                </li>
+                                <!-- /ko -->
+                                <!-- ko if: $root.loadavt()==true-->
+                                <!-- ko foreach: $root.files-->
+                                <li data-bind="attr: {id : $index}">
+                                    <div class="img-item">
+                                        <img data-bind="attr: {'src': URLAnh, 'title': name}" />
+                                    </div>
+                                    <a data-bind="click: $root.modalDeleteAnh">
+                                        <i class="fa fa-close red"></i>
+                                    </a>
+                                </li>
+                                <!-- /ko -->
+                                <!-- /ko -->
+                                <!-- ko if: $root.loadavt()==false-->
+                                <!-- ko foreach: $root.files-->
+                                <!-- ko if: $index() != 0-->
+                                <li>
+                                    <div class="img-item">
+                                        <img data-bind="attr: {'src': URLAnh, 'title': name}" />
+                                    </div>
+                                    <a data-bind="click: $root.modalDeleteAnh">
+                                        <i class="fa fa-close red"></i>
+                                    </a>
+                                </li>
+                                <!-- /ko -->
+                                <!-- /ko -->
+                                <!-- /ko -->
+                                <li>
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                            </ul>
+                            <p id="errorAnh" class="errorAnhHH" style="color:red"></p>
+                        </div>
+                    </div>
+                    <div class="col-sx-12 col-sm-12" id="sanphamcothuoctinh">
+                        <div class="panel panel-primary floatleft">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    Theo dõi thuộc tính(Màu sắc, Kích thước...) <i class="fa fa-chevron-down pull-right"></i>
+                                    <i class="fa fa-chevron-up pull-right" aria-hidden="true" ></i>
+                                </h3>
+                            </div>
+                            <div class="panel-collapse " id="panelDonViTinh" data-bind="attr: {style: $root.ThuocTinhCuaHH().length > 0 ? 'display:block' : 'display:none'}">
+                                <div class="panel-body">
+                                    <div class="table-reponsive">
+                                        <table class="attribute" id="attribute1">
+                                            <thead>
+                                                <tr>
+                                                    <td>Thuộc tính</td>
+                                                    <td>&nbsp;</td>
+                                                    <td>Giá trị</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody data-bind="foreach: $root.ThuocTinhCuaHH">
+                                                <tr>
+                                                    <td class="attribute-select">
+                                                        <div class="floatleft">
+                                                            <div class="input-group">
+                                                                <select name="ddlThuocTinh" class="form-control ddlThuocTinh" data-bind="options: $root.arrThuocTinh ? $root.arrThuocTinh : [],
+                                                                                optionsText: 'TenThuocTinh',
+                                                                                optionsValue: 'ID', optionsCaption: '--Chọn thuộc tính--',
+                                                                                value: ID_ThuocTinh, event: {change: $root.clickChooseTT} , attr:{id: 'ddlThuocTinh' + index} "></select>
+                                                                <div class="input-group-btn">
+                                                                    <button class="btn btn-default addthuoctinh" data-bind="click: $root.showAddThuocTinh">
+                                                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div class="input-group-btn">
+                                                            <button type="button" class="btn btn-default" aria-label="Cập nhật" data-bind="click: $root.editThuocTinh, attr: {id: 'enableEdit_'+ index}" disabled>
+                                                                <span class="fa fa-pencil-square-o"></span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td> <input type="text" data-bind="value: GiaTri" class="form-control"> </td>
+                                                    <td class="hidexoathuoctinh"><a href="javascript:void(0)" title="Xóa đơn vị" class="delete-attribute" data-bind="click: $root.removeThuocTinh"><i class="fa fa-times"></i></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <button class="btn btn-main themdonviclick1" type="button" data-bind="click: addThuocTinhCon"><i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="results"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sx-12 col-sm-12">
+                        <div class=" panel-primary floatleft" id="hideDonViTinh">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    Đơn vị tính <i class="fa fa-chevron-down pull-right"></i>
+                                    <i class="fa fa-chevron-up pull-right" aria-hidden="true" ></i>
+                                </h3>
+                            </div>
+                            <div class="panel-collapse" id="panelDonViTinh" data-bind="attr: {style: !$root.newHangHoa().DonViTinhChuan() ? 'display:none' : 'display:block'}">
+                                <div class="panel-body">
+                                    <div class="form-horizontal">
+                                        <div class="form-group" data-bind="with: newHangHoa">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-5">
+                                                        <label class=" control-label no-padding-right">Đơn vị cơ bản</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="text" class="form-control" data-bind="value: DonViTinhChuan" id="txtDonViTinhChuan" />
+                                                    </div>
+                                                    <span class="commodity-note">
+                                                        <i class="fa fa-info-circle"></i>
+                                                        <span href="javascript:void(0)" class="materiall">Đơn vị của hàng hóa như: hộp, lốc, thùng…</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-5">
+                                                        <label class=" control-label no-padding-right">Số lượng quy cách</label>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="text" data-bind="value: QuyCach" onkeypress="return keypressNumber_limitNumber(event,this)" class="form-control" />
+                                                    </div>
+                                                    <span class="commodity-note">
+                                                        <i class="fa fa-info-circle"></i>
+                                                        <span href="javascript:void(0)" class="materiall">Số lượng quy cách đóng gói của hàng hóa. Ví dụ ml, kg, ...</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="divtabledonvitinh" data-bind="with:newHangHoa, attr: {style: $root.newHangHoa().DonViTinh().length > 0 ? 'display:block' : 'display:none'}">
+                                        <div class="table-res">
+                                            <table class="table table-hover no-boder" id="tabledonvitinh">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tên đơn vị</th>
+                                                        <th>Giá trị quy đổi</th>
+                                                        <th>Giá bán</th>
+                                                        <th>Mã hàng hóa</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody data-bind="foreach: DonViTinh">
+                                                    <tr class="DonViTinhChiTiets" data-bind="attr: {id: $data.ID}">
+                                                        <td>
+                                                            <input type="text" id="txtTenDVT" class="form-control Ten_DVT" data-bind="value: $data.TenDonViTinh" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" id="txtTyLeDVT" class="form-control TyLeQuyDoi_DVT" data-bind="value: $data.TyLeChuyenDoi,
+                                                                   attr: {disabled: $data.ID == '00000000-0000-0000-0000-000000000000' ? false : true}, event:{change: $root.clicktien }"
+                                                                   onkeypress="return keypressNumber_limitNumber(event,this)" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" id="txtGiaBanDVT" class="form-control GiaBan_DVT" data-bind="value: $data.GiaBan, enable: $root.HangHoa_GiaBan()==='HangHoa_GiaBan'" onkeyup="formatNumberObj(this)"
+                                                                   onkeypress="return keypressNumber_limitNumber(event,this)" />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" id="txtMaDVT" class="form-control MaHangHoa_DVT" data-bind="value: $data.MaHangHoa, attr: {id: 'txtmadv' + $data.ID}" placeholder="Mã tự động" />
+                                                        </td>
+                                                        <td><a title="Xóa đơn vị" class="icon-del" data-bind="click: $root.removeDonViQuiDoi"><img src="~/Content/images/icon/Iconthemmoi-17.png" id="xoaCTHH" /></a></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <button id="btnDonVi" class="btn btn-main themdonviclick" type="button" data-bind="click: addDVQD">Thêm đơn vị</button>
+                                        </div>
+                                    </div>
+                                    <div id="results"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="motachitiet_HH" class="tab-pane fade in" style="margin-top: 20px;">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Định mức tồn</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="row">
+                                                <div class="floatleft">
+                                                    <div class="col-sm-6" data-bind="with : newHangHoa">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-4 control-label">Ít nhất</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" class="form-control fvy1" data-bind="value: TonToiThieu" onkeypress="return keypressNumber_limitNumber(event,this)" />
+                                                            </div>
+                                                            <span class="commodity-note">
+                                                                <i class="fa fa-info-circle"></i>
+                                                                <span href="javascript:void(0)" class="materiall">Tồn ít nhất là tồn tối thiểu của 1 sản phầm (Hệ thống sẽ dựa vào thông tin này để cảnh báo tồn kho tối thiểu)</span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6" data-bind="with : newHangHoa">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-4 control-label">Nhiều nhất</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" class="form-control" data-bind="value: TonToiDa" onkeypress="return keypressNumber_limitNumber(event,this)" />
+                                                            </div>
+                                                            <span class="commodity-note">
+                                                                <i class="fa fa-info-circle"></i>
+                                                                <span href="javascript:void(0)" class="materiall">Tồn nhiều nhất là tồn tối đa cả 1 sản phẩm (Hệ thống sẽ dựa vào thông tin này để cảnh báo khi hàng hóa vượt mức tồn cho phép)</span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" data-bind="with: newHangHoa">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Mô tả</h3>
+                                </div>
+                                <textarea  class="border-none" data-bind="value: GhiChu" name="txtMoTa"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-main" id="btnLuuHangHoa" data-bind="click: $root.addHangHoa">
+                    <img src="~/Content/images/icon/Iconthemmoi-14.png" />&nbsp; Lưu
+                </button>
+                <button type="button" class="btn btn-main" id="btnThemVaLuu" style="display:none" data-bind="click: $root.addHangHoaCungLoai">
+                    <img src="~/Content/images/icon/Iconthemmoi-14.png" />&nbsp; Lưu & Thêm hàng hóa cùng loại
+                </button>
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("[rel=tooltip]").tooltip({ placement: 'right' });
+    });
+    //$(".themdonviclick").click(function () {
+    //    var tendonvitinhchuan = $('#txtDonViTinhChuan').val();
+    //    if (tendonvitinhchuan !== "") {
+    //        document.getElementById("divtabledonvitinh").className = " show";
+    //        var newelement = $('<tr class="DonViTinhChiTiets">' +
+    //            '<td>' +
+    //            '<input type="text" id="txtTenDVT" class="form-control Ten_DVT"/>' +
+    //            '</td>' +
+    //            '<td>' +
+    //            '<input type="text" id="txtTyLeDVT" value="1" class="form-control TyLeQuyDoi_DVT" data-bind="event:{blur: CalculateConvertRate}" />' +
+    //            '</td>' +
+    //            '<td>' +
+    //            '<input type="text" id="txtGiaBanDVT" class="form-control GiaBan_DVT" onclick = "clicktien(this)" />' +
+    //            '</td>' +
+    //            //'<td>' +
+    //            //'<input type="text" class="form-control GiaVon_DVT"/>' +
+    //            //'</td>' +
+    //            '<td>' +
+    //            '<input type="text" class="form-control MaHangHoa_DVT" placeholder="Mã tự động" />' +
+    //            '</td>' +
+    //            '<td><a title="Xóa đơn vị"  class="icon-del"><i class="fa fa-times"></i></a></td>' +
+    //            '</tr>')
+    //        //$('#tabledonvitinh').append('<tbody></tbody>');
+    //        $('#tabledonvitinh').find('tbody:last').append(newelement);
+    //        ko.applyBindings(ViewModel, newelement[0]);
+    //    }
+    //    else {
+    //        bottomrightnotify("Chưa nhập đơn vị tính cơ bản.", "danger");
+    //        return false;
+    //    }
+    //});
+    //$(document).on('click', '.icon-del', function () {
+    //    $(this).parents("tr").remove();
+    //});
+    $(document).on('click', '.btn-default', function () {
+        $("#tabledonvitinh tbody tr ").remove();
+    });
+    //tính tiền thành phần
+    function thanhtien(obj) {
+        var rowid = $(obj).attr('id');
+        rowid = rowid.substr(rowid.lastIndexOf('_') + 1);
+        var objsoluong = formatNumberObj($("#soluong_" + rowid));
+        var soluong = formatNumberToFloat(objsoluong);
+        if (isNaN(soluong)) {
+            soluong = 0;
+        }
+        var oldPrice = formatNumberToInt($("#giavon_" + rowid).text());
+        var price_number = oldPrice * soluong;
+        var temp = price_number;
+        if (temp != '0') {
+            $('#thanhtien_' + rowid).html(formatNumber(temp));
+        }
+        else {
+            document.getElementById("thanhtien_" + rowid).innerHTML = '0';
+        }
+        var sum = 0;
+        $('.clThanhTien').each(function () {
+            var valThis = $(this).text();
+            var ivalThis = formatNumberToFloat(valThis);
+            sum += ivalThis;
+            $('#lblTongTien3').html(formatNumber(sum));
+        })
+    };
+    function keyPress(e) {
+        var keypressed = null;
+        if (window.event) {
+            keypressed = window.event.keyCode; //IE
+        }
+        else {
+            keypressed = e.which; //NON-IE, Standard
+        }
+        if (keypressed < 48 || keypressed > 57) {
+            if (keypressed == 8 || keypressed == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    function keyPressDecimal(e) {
+        if (e.which != 46 && (e.which < 47 || e.which > 59)) {
+            e.preventDefault();
+            if ((e.which == 46) && ($(this).indexOf('.') != -1)) {
+                e.preventDefault();
+            }
+        }
+    }
+    $("#btnDonVi").click(function () {
+        $('#txtTenDVT').focus();
+    });
+    function clicktien(obj) {
+        var parent = $(obj).parent('td').prev('td').children('input');
+        if (parent.attr('disabled') !== 'disabled') {
+            var a = $('#txtGiaBan').val();
+            //var b = $('#txtTyLeDVT').val();
+            var b = parseFloat(parent.val());
+            if (isNaN(b)) {
+                b = 0;
+            }
+            $(obj).val(formatNumber(a * b));
+        }
+    }
+    function keypressNumber_limitNumber(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode != 46 || $(obj).val().indexOf('.') != -1) && (keyCode < 48 || keyCode > 57)) {
+            if ((event.which != 46 || $this.indexOf('.') != -1)) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        if ($this.indexOf(".") > -1 && ($this.split('.')[1].length > 2)) {
+            event.preventDefault();
+        }
+    }
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#blahHH').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+            //var formData = new FormData();
+            //var totalFiles = document.getElementById("imageUpHHForm").files.length;
+            //for (var i = 0; i < totalFiles; i++) {
+            //    var file = document.getElementById("imageUpHHForm").files[i];
+            //    formData.append("imageUpHHForm", file);
+            //}
+            //$.ajax({
+            //    type: "POST",
+            //    url: '/api/DanhMuc/DM_HangHoaAPI/' + "ImageUpload",
+            //    data: formData,
+            //    dataType: 'json',
+            //    contentType: false,
+            //    processData: false,
+            //    success: function (response) {
+            //        console.log('Thành công: ' + response)
+            //    },
+            //    error: function (jqXHR, textStatus, errorThrown) {
+            //        console.log('err');
+            //    }
+            //});
+        }
+    }
+    //load thiết lập
+    $(document).ready(function () {
+        var lc_CTThietLap = JSON.parse(localStorage.getItem('lc_CTThietLap'));
+        if (lc_CTThietLap.CoDonViTinh !== true) {
+            $('#hideDonViTinh').hide();
+        }
+        if (lc_CTThietLap.SanPhamCoThuocTinh !== true) {
+            $('#sanphamcothuoctinh').hide();
+        }
+    });
+    $(document).on('click', '.attribute-select input ', function () {
+        $(this).next(".select-commodity").toggle();
+        $(this).prev(".drop-abt").find(" i").toggle();
+    });
+    $(document).on('click', '.select-commodity ul li', function () {
+        var name = $(this).find("span").html();
+        $(this).parents(".select-commodity").prev("input").val(name);
+        $(".select-commodity .fa-check").not($(this).find(".fa-check")).hide();
+        $(this).find(".fa-check").show();
+    });
+    $('.panel-heading').on('click', function () {
+        $(this).next("div").slideToggle();
+        $(this).find("i").toggle();
+    });
+    $('input[type=text]').click(function () {
+        $(this).select();
+    });
+    function checkquanlytheolo(obj) {
+        var $this = $(obj).val();
+        console.log($this)
+    }
+</script>

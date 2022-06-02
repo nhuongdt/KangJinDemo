@@ -1,0 +1,227 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+}
+
+<html>
+<head>
+    <title>Open24.vn - Đăng nhập</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+    @*<link rel="stylesheet" href="~/Content/VariablesStyle.css" />
+        <link rel="stylesheet" href="~/Content/bootstrap.css" />
+        <link href="~/Content/login.css" rel="stylesheet" />*@
+    @Styles.Render("~/Content/LoginCss")
+    <style>
+        html{
+            font-size:13px
+        }
+        .focus h5 {
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="ring load-dang-nhap" hidden>
+        </div>
+        <div id="LoadSetUp" hidden>
+            <div class=" load-set-up">
+                <i class="fa fa-cog fa-spin fa-3x fa-fw setup1" style=" "></i><br />
+                <i class="fa fa-cog fa-spin fa-3x fa-fw setup2"></i><br />
+                <i class="fa fa-cog fa-spin fa-3x fa-fw setup3" style=" "></i><br />
+
+            </div>
+            <div class="title-thong-bao">
+                <p>Quý khách vui lòng chờ trong giây lát</p>
+                <p>Hệ thống đang khởi tạo dữ liệu cho lần đăng nhập đầu tiên</p>
+            </div>
+        </div>
+        <div id="Loadsucces" hidden>
+            <div class=" load-set-up ">
+                <div class="load-succes">
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                </div>
+
+            </div>
+            <div class="title-thong-bao title-succes">
+                <p>khởi tạo dữ liệu thành công!</p>
+
+            </div>
+        </div>
+    </div>
+    <div id="wrapper">
+        <div class="content-login">
+            <div id="wrappermiddle">
+                <div class="img-admin">
+                    <img src="~/Content/images/login/logo1.png" />
+                    <div class="text-center manage">
+                        <i>Quản lý những gì bạn muốn</i>
+                    </div>
+                </div>
+                @*@if (ViewBag.Error != "")
+                    {
+                    <div class="notilogin">@ViewBag.Error</div>
+                    }*@
+                <div class="notilogin"></div>
+                <div id="username_input" data-bind="with: newNguoiDung">
+                    <div id="username_inputmiddle">
+
+                        <input autofocus="autofocus" autocomplete="off" type="text" name="txtUser" class="url" id="txtUser" placeholder="Tên đăng nhập (số điện thoại)">
+                        <div class="icon-admin">
+                            <img src="~/Content/images/login/admin.png" />
+
+                        </div>
+                        <div class="notify-username red"></div>
+
+                    </div>
+                </div>
+
+                <div id="password_input" data-bind="with: newNguoiDung">
+                    <div id="password_inputmiddle">
+
+                        <input type="password" name="txtPassWord" class="url" id="txtPassWord" value="Mật khẩu" placeholder="Mật khẩu">
+                        <div class="icon-admin">
+                            <img src="~/Content/images/login/keys.png" />
+                        </div>
+                        <div class="notify-username red"></div>
+
+                    </div>
+                </div>
+                <div id="submit">
+                    <div class="remember" >
+                        <label style="    display: flex;    flex-direction: row;    align-items: center;    line-height: 24px;">
+                            <input type="checkbox" value="remember-me" name="remember_me" id="remember_me" style="margin:0 5px 0 0"> 
+                            Ghi nhớ mật khẩu? 
+                        </label>
+
+                    </div>
+
+                </div>
+                <div class="divlogin">
+                    <button class="login" id="btnDangNhap">Đăng nhập</button>
+                    <p class="text-center forgetpass">
+                        <i>Tổng đài hỗ trợ 0247 303 9333 | <a href="../forgotpassword">Quên mật khẩu</a></i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script src="~/Content/Framework/Jquery/jquery/jquery-3.4.1.min.js"></script>
+<script src="~/Content/Framework/Bootstrap/base/bootstrap.min.js"></script>
+<script src="~/Content/Framework/Bootstrap/plugins/bootstrapNotify/bootstrap-notify.js"></script>
+@*<script src="~/Scripts/bootstrap-notify.js"></script>*@
+
+
+<script>
+    var _ipaddress = "";
+    $.getJSON('https://jsonip.com/?callback=?', function (data) {
+        _ipaddress = data.ip;
+    });
+    $(document).keypress(function (e) {
+        if (e.which == 13) {
+            Login();
+        }
+    });
+    $('#btnDangNhap').on('click', function () {
+        Login()
+    });
+    function Login() {
+        $.getJSON("/api/DanhMuc/NS_NhanVienAPI/CheckCreateDatabase", function (result) {
+            if (result === true) {
+                $('#wrapper').css("opacity", "0.3");
+                $('.load-dang-nhap').toggle();
+
+            }
+            else {
+                $('#wrapper').toggle();
+                $('#LoadSetUp').toggle();
+            }
+
+            var model = {
+                UserName: $('#txtUser').val(),
+                Password: $('#txtPassWord').val(),
+                Remember: $('#remember_me').is(":checked"),
+                Ipaddress: _ipaddress
+            };
+            $.ajax({
+                data: model,
+                url: "/Home/LoginNews",
+                type: 'POST',
+                dataType: 'json',
+                timeout: 1000 * 60 * 10,
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+
+                    if (data.res === true) {
+                        if (result !== true) {
+                            $('#wrapper').hide();
+                            $('#LoadSetUp').hide();
+                            $('#Loadsucces').toggle();
+                            setTimeout(function () { window.location.href = "/#/DashBoard"; }, 300);
+                        }
+                        else {
+                            window.location.href = "/#/DashBoard";
+                        }
+                    }
+                    else {
+                        if (result === true) {
+                            $('#wrapper').css("opacity", "1");
+                            $('.load-dang-nhap').hide();
+
+                        }
+                        else {
+                            $('#wrapper').show();
+                            $('#LoadSetUp').hide();
+                        }
+                        $('.notilogin').text(data.mess);
+                        console.log(data.log);
+                    }
+                },
+                error: function (data, textStatus, errorThrown) {
+                    if (textStatus == "timeout") {
+                        console.log("Got timeout");
+                    }
+                }
+            });
+
+        }).fail(function () {
+            alert("Đã xảy ra lỗi")
+        });
+    }
+    $('#submit').click(function () {
+        if ($('#remember_me').is(':checked')) {
+            // save username and password
+            localStorage.usrname = $('#txtUser').val();
+            localStorage.pass = $('#txtPassWord').val();
+            localStorage.chkbx = $('#remember_me').val();
+        } else {
+            localStorage.usrname = '';
+            localStorage.pass = '';
+            localStorage.chkbx = '';
+        }
+    });
+    if (localStorage.chkbx && localStorage.chkbx != '') {
+        $('#remember_me').attr('checked', 'checked');
+        $('#txtUser').val(localStorage.usrname);
+        $('#txtPassWord').val(localStorage.pass);
+    } else {
+        $('#remember_me').removeAttr('checked');
+        $('#txtUser').val('');
+        $('#txtPassWord').val('');
+    }
+    var connect = JSON.parse(localStorage.getItem('userConnect'));
+    if (connect !== null && connect !== undefined && connect !== '') {
+        $('#txtUser').val(connect.User);
+        $('#txtPassWord').val(connect.Pass);
+        $('#remember_me').prop('checked', true);
+        localStorage.removeItem('userConnect');
+        localStorage.usrname = connect.User;
+        localStorage.pass = connect.Pass;
+        localStorage.chkbx = true;
+    }
+</script>

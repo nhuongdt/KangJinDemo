@@ -1,0 +1,169 @@
+﻿@using Model_banhang24vn.Common
+@{
+    ViewBag.Title = "DÙNG THỬ MIỄN PHÍ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+
+    <script>
+        $(document).ready(function () {
+            $('.ten-cua-hangkd').focus();
+        });
+        $('.dang-ky-center').on('click', '.form-input-dk', function () {
+            if (!$(this).find('.text-nganh-nghe').length > 0) {
+                if ($(this).find('.p-dk').hasClass('dk-title-input')) {
+                    $(this).find('.p-dk').removeClass('dk-title-input');
+                    $(this).find('input').show();
+                    $(this).find('.poss-op').show();
+                }
+                if (!$(this).hasClass('form-ac')) {
+                    $(this).addClass('form-ac');
+                }
+                $(this).find('input').focus();
+            }
+        });
+        $(".dang-ky-center .form-input-dk input").on('keydown blur', function (e) {
+            if (e.type === 'blur' || e.keyCode === 9 || e.keyCode === 13) {
+                if ($(this).val() === '' || $(this).val() === null || $(this).val() === undefined) {
+                    if (!$(this).closest('.form-input-dk').find('.p-dk').hasClass('dk-title-input')) {
+                        $(this).closest('.form-input-dk').find('.p-dk').addClass('dk-title-input');
+                        $(this).hide();
+                        $(this).closest('.form-input-dk').find('.poss-op').hide();
+                        //$(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').click();
+                    }
+                }
+                if ($(this).closest('.form-input-dk').hasClass('form-ac')) {
+                    $(this).closest('.form-input-dk').removeClass('form-ac');
+                }
+            }
+            if (e.keyCode === 9 || e.keyCode === 13) {
+
+                if (!$(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').find('.p-dk').hasClass('p-nn-dk')) {
+                    $(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').find('.p-dk').removeClass('dk-title-input');
+                    $(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').find('input').show().focus();
+                    $(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').find('.poss-op').show().focus();
+                }
+                if (!$(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').hasClass('form-ac')) {
+                    $(this).closest('.form-input-dk').closest('.form-group').next('.form-group').find('.form-input-dk').addClass('form-ac');
+                }
+                return false;
+            }
+
+
+        });
+    </script>
+
+    <script src="~/Assets/js/Client/DangKyDungThu.js"></script>
+}
+<style>
+    .wait-res {
+        font-weight: bold;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        padding-top: 16%;
+        padding-left: 0px;
+    }
+
+    .fuzzy {
+        top: 0px;
+    }
+</style>
+<div class="dang-ky-dung-thu-op">
+    <div class="container">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="dang-ky-center">
+                    <div class="dk-header">
+                        <h1>
+                            <img src="~/Content/images/iconlist/checked.png" /> Tạo tài khoản open24 của bạn !
+                        </h1>
+                        <p>Sử dụng miễn phí 15 ngày với đầy đủ các tính năng.</p>
+                    </div>
+                    <div class="dk-content">
+                        <span id="dk_Notification" style="color:red;float:right;font-size: 14px;"></span>
+
+                        <div class="form-group">
+                            <div class="form-input-dk form-drop-nn">
+                                <p class="p-dk dk-title-input p-nn-dk">Chọn ngành nghề bạn kinh doanh<span style="color:red"> (*)</span> </p>
+                                <p class="text-nganh-nghe" data-bind="text:NghanhNgheValue"></p>
+
+                                <div class="dropdown drop-nganh-nghe">
+                                    <img src="/Content/images/khachhang/khup.png" alt="up">
+                                    <div class="dropdown-menu " aria-labelledby="dropdownMenuButton" id="select_nganhnghe">
+                                        @foreach (var item in Notification.ListKeyInTitle.ToList())
+                                        {
+                                            <a class="dropdown-item" data-id="@item.Key" href="javascript:void(0))">@item.Value</a>
+                                        }
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-input-dk form-ac">
+                                <p class="p-dk ">Tên cửa hàng công ty kinh doanh<span style="color:red"> (*)</span></p>
+                                <input type="text" class="form-control ten-cua-hangkd" data-bind="value:TenCuaHangKinhDoanh,event: { change: ChangeCuaHang }">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-input-dk">
+                                <p class="p-dk dk-title-input">Điện thoại <span style="color:red"> (*)</span> </p>
+                                <input type="text" class="form-control" maxlength="11" style="display:none" data-bind="value:SoDienThoai,event: { change: ChangeSoDienThoai }" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-input-dk">
+                                <p class="p-dk dk-title-input">Email </p>
+                                <input type="text" class="form-control" style="display:none" data-bind="value:Email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-input-dk" id="tengianhang">
+                                <p class="p-dk dk-title-input">Địa chỉ tài khoản quản lý open24<span style="color:red"> (*)</span> </p>
+                                <input type="text" class="form-control" style="display:none;    padding-right: 70px;" data-bind="value:TenGianHang,event: { change: ChangeTenGianHang }">
+                                <span class="poss-op" style="display:none">.open24.vn</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-input-dk" id="tendangnhap">
+                                <p class="p-dk dk-title-input">Tên đăng nhập<span style="color:red"> (*)</span> </p>
+                                <input type="text" class="form-control" style="display:none" data-bind="value:TenDangNhap,event: { change: ChangeTenDangNhap }">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-input-dk">
+                                <p class="p-dk dk-title-input">Mật khẩu<span style="color:red"> (*)</span> </p>
+                                <input type="password" class="form-control" style="display:none" data-bind="value:MatKhau">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check-dk">
+                                <div class="fl font12" id="divcbdongy">
+                                    <input type="checkbox" style="width:0px;" id="cbdongy" checked> <span style="    padding-left: 15px;">Tôi đồng ý với <a href="/dieu-khoan" target="_blank">quy định</a> sử dụng và bảo mật của Open24</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <a href="javascript:void(0)" data-bind="click:save"> <div class="text-dk">Đăng ký</div></a>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="wait-res">
+                    <p class="text-center">
+                        <img src="~/Content/images/loading-image.gif" alt="Ảnh đăng ký">
+                    </p>
+                    <p class="text-center">
+                        Vui lòng đợi !
+                    </p>
+                </div>
+                <div class="fuzzy">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

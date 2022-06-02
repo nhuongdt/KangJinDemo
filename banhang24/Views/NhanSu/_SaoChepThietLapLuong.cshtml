@@ -1,0 +1,276 @@
+﻿@using Model;
+<style>
+    .model-phan-ca {
+        width: 1118px;
+    }
+    table tbody tr td a .fa-times {
+        color: red;
+        font-size: 16px;
+        margin-left: 10px;
+    }
+    .title-table-nhanvien {
+        padding: 8px 0;
+        background: var(--color-table);
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    .title-table-nhanvien input {
+        margin-right: 6px;
+    }
+    #treeDepartment .treename.active {
+        background-color: #337ab7;
+    }
+        #treeDepartment .treename.active a {
+            color: #337ab7;
+        }
+    #treeDepartment .list-group-item.active {
+        color: #fff !important;
+    }
+</style>
+<div class="modal fade in" id="modalCopySetupSalary">
+    <div class="modal-dialog draggable modal-lg model-phan-ca ">
+        <div class="modal-content  ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{titlePopup}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-sm-12 col-xs-12 nopadding">
+                    <div class="col-sm-3 col-md-3 col-xs-12 nopadding">
+                        <section class="op-filter-body">
+                            <article class="boxLeft ">
+                                <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                    <img src="/Content/images/icon/Iconbanhanggg-02.png">  Phòng ban
+                                </h3>
+                                <aside class="op-filter-container">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" placeholder="Tìm kiếm phòng ban" autofocus="autofocus" class="form-control number-price-new" autocomplete="off"
+                                               v-model="listdata.searchPhong" v-on:keyup="searchPhongBan">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <div class="treename active" v-on:click="SelectNhanVienByPhongBan(listdata.idChiNhanh, true)">
+                                        <a href="javascript:void(0)"> Tất cả</a>
+                                    </div>
+                                    <div id="treeDepartment"></div>
+                                </aside>
+                            </article>
+                        </section>
+                    </div>
+                    <div class="col-sm-9 col-md-9 col-xs-12 ">
+                        <div class="col-md-12 col-sm-12 col-xs-12 row" style="margin-bottom: 12px;;">
+                            <div class="col-sm-2 col-md-2 col-xs-5 nopadding">
+                                <label>Sao chép<span style="color:red"> (*)</span></label>
+                            </div>
+                            <div class="col-sm-10 col-md-10 col-xs-7">
+                                <div>
+                                    <div class=" choose-person floatleft " data-toggle="dropdown" aria-expanded="true">
+                                        <ul>
+                                            <li class="li-input-span" v-for="(item, index) in  listdata.LoaiThietLap.filter(o=>o.Checked)">
+                                                <span>{{item.Text}}</span>
+                                                <span v-on:click="item.Checked=!item.Checked">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" class="dropdown " v-show=" listdata.LoaiThietLap.filter(o=>o.Checked).length===0">
+                                    </div>
+                                    <div class="selec-person dropdown-menu" style="width:100%!important; left:inherit!important">
+                                        <ul>
+                                            <li v-for="(item, index) in   listdata.LoaiThietLap.filter(o=>!o.Checked)" v-on:click="ChoseLoaiLuong(item)">
+                                                <span>{{item.Text}}</span>
+                                            </li>
+                                        </ul>
+                                        <ul v-else>
+                                            <li v-for="(item, index) in  listdata.LoaiThietLap.filter(o=>!o.Checked)">
+                                                <span>{{item.Text}}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 row">
+                            <div class="col-sm-2 col-md-2 col-xs-5 nopadding">
+                                <label>Từ nhân viên<span style="color:red"> (*)</span></label>
+                            </div>
+                            <div class="col-sm-10 col-md-10 col-xs-7">
+                                <div>
+                                    <div class=" choose-person floatleft " data-toggle="dropdown" aria-expanded="true">
+                                        <ul>
+                                            <li class="li-input-span" v-for="(item, index) in  ListNhanVienSetUp.filter(o=>o.Active)">
+                                                <span>{{item.TenNhanVien}}</span>
+                                                <span v-on:click="item.Active=!item.Active">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" class="dropdown "
+                                               v-model="listdata.searchStaffSetup"
+                                               v-show="ListNhanVienSetUp.filter(o=>o.Active).length===0">
+                                    </div>
+                                    <div class="selec-person dropdown-menu" style="width:100%!important; left:inherit!important">
+                                        <ul>
+                                            <li v-for="(item, index) in   ListNhanVienSetUp.filter(o=>!o.Active)" v-on:click="ChoseNhanVien_HasSetup(item)">
+                                                <span>{{item.MaNhanVien}}</span> -
+                                                <span>{{item.TenNhanVien}}</span>
+                                            </li>
+                                        </ul>
+                                        <ul v-else>
+                                            <li v-for="(item, index) in  ListNhanVienSetUp.filter(o=>!o.Active)">
+                                                <span>{{item.MaNhanVien}}</span> -
+                                                <span>{{item.TenNhanVien}}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 row">
+                            <div class="col-sm-offset-2 col-md-offset-2 col-sm-10 col-md-10 col-xs-12">
+                                <input type="checkbox" v-model="listdata.updateNVSetup" /> &nbsp;
+                                <b>
+                                    Cập nhật lại thiết lập lương cho những nhân viên đã cài đặt
+                                </b>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 row">
+                            <div class="col-sm-2 col-md-2 col-xs-5 nopadding">
+                                <label style="font-weight:700!important">Đến</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 row">
+                            <div class="col-sm-5 col-md-5 col-xs-12 nopadding">
+                                <div class="form-group title-table-nhanvien flex align-items-center">
+                                    <input type="checkbox" class="checkbox-modal"  v-model="listdata.checkAllNhanVien" :checked="selectAllNhanVien">
+                                    <span>Nhân viên</span>
+                                </div>
+                                <div class="floatleft">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" placeholder="Tìm kiếm nhân viên" autofocus="autofocus" class="form-control number-price-new"
+                                               v-model="listdata.searchStaff" v-on:keyup="searchNVienAll">
+                                        <i style="position:absolute; left:7px; top:7px" class="fa fa-search"></i>
+                                    </div>
+                                    <ul class="floatleft ul-nhan-vien-ap-dung" style="max-height:450px; overflow:auto">
+                                        <li v-for="(item, index) in  dataComputed.ListNhanVien" class="flex flex-between">
+                                            <label class="flex flex-row" style="width:calc(100% - 50px)">
+                                                <input type="checkbox" v-model="item.Checked">
+                                                <span class="nhan-vien-text flex flex-column">
+                                                    <b>{{item.Ten}}</b>
+                                                    <span>Mã: {{item.Ma}}</span>
+                                                </span>
+                                            </label>
+                                            <button class="btn btn-default" v-on:click="NextNhanVien(item)"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 col-md-2 col-xs-12">
+                                <div class="btn-chon-nhan-vien">
+                                    <a href="javascript:void(0)" v-on:click="NextListNhanVien"><div>Chọn <i aria-hidden="true" class="fa fa-angle-double-right"></i></div></a>
+                                    <a href="javascript:void(0)" v-on:click="PrevListNhanVien"><div><i aria-hidden="true" class="fa fa-angle-double-left"></i>Bỏ chọn</div></a>
+                                </div>
+                            </div>
+                            <div class="col-sm-5 col-md-5 col-xs-12 nopadding">
+                                <div class="form-group title-table-nhanvien flex align-items-center">
+                                    <input type="checkbox" class="checkbox-modal" v-model="listdata.checkAllNhanVienApply" :checked="selectAllNhanVienApply">
+                                    <span>Nhân viên áp dụng</span>
+                                </div>
+                                <div class="floatleft">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" placeholder="Tìm kiếm nhân viên" autofocus="autofocus"
+                                               class="form-control number-price-new" autocomplete="off"
+                                               v-model="listdata.searchStaffApply" v-on:keyup="searchNVienApply">
+                                        <i style="position:absolute; left:7px; top:7px" class="fa fa-search"></i>
+                                    </div>
+                                    <ul class="floatleft ul-nhan-vien-ap-dung" style="max-height:450px; overflow:auto">
+                                        <li v-for="(item, index) in dataComputed.ListNhanVienSelect " class="flex flex-between">
+                                            <button class="btn btn-default" v-on:click="PrevNhanVien(item)"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                                            <label class="flex flex-between" style="width:calc(100% - 50px)">
+                                                <span class="nhan-vien-text flex flex-column">
+                                                    <b>{{item.Ten}}</b>
+                                                    <span>Mã: {{item.Ma}}</span>
+                                                </span>  
+                                                <input type="checkbox" v-model="item.Checked">
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12 row">
+                            <div class="modal-footer nopadding">
+                                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                                <button type="button" class="btn btn-save" v-on:click="ApDung" v-show="!loadding">
+                                    <i class="fa fa-floppy-o" aria-hidden="true"></i> Áp dụng
+                                </button>
+                                <button type="button" class="btn btn-save" v-show="loadding">
+                                    <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $.datetimepicker.setLocale('vi');
+        $('.datetime').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+        });
+    });
+    $('.checkall input[type=checkbox]').on('change', function () {
+        if ($(this).is(':checked')) {
+            $(this).closest('tr').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('td').each(function () {
+                    if ($(this).hasClass('tr-check')) {
+                        $(this).find('input').prop('checked', true);
+                    }
+                });
+            });
+        }
+        else {
+            $(this).closest('tr').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('td').each(function () {
+                    if ($(this).hasClass('tr-check')) {
+                        $(this).find('input').prop('checked', false);
+                    }
+                });
+            });
+        }
+    });
+</script>
+<style>
+    #modalCopySetupSalary .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+        float: left;
+    }
+    #modalCopySetupSalary .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline;
+    }
+</style>
+<script src="~/Scripts/NhanSu/SaoChep_ThietLapLuong.js"></script>

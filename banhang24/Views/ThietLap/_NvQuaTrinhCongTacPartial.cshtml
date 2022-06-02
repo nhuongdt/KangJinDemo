@@ -1,0 +1,163 @@
+﻿<div class="modal fade" id="modalcongtac">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Từ ngày (<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="txtTuNgayCTac" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Đến ngày </label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="txtDenNgayCTac" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Cơ quan (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="coquan" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>
+                            Vị trí  
+                        </label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="vitri" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Địa chỉ </label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="diachi" ></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveJob">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmQuaTrinhCongTac = new Vue({
+        el: '#modalcongtac',
+        data: {
+            nhanvienId: null,
+            ID:null,
+            coquan: "",
+            vitri: "",
+            diachi: "",
+            title: "",
+            error:'',
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                $('#modalcongtac').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.coquan = model.CoQuan;
+                    this.vitri = model.ViTri;
+                    this.diachi = model.DiaChi;
+                    this.error = "";
+                    $('#txtTuNgayCTac').val(this.convertDate(model.TuNgay));
+                    $('#txtDenNgayCTac').val(this.convertDate(model.DenNgay));
+                    this.title = "Cập nhật quá trình công tác";
+                    $('#modalcongtac').modal("show");
+                 }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.coquan = "";
+                this.diachi = "";
+                this.vitri = "";
+                this.error = '';
+                this.title = "Thêm mới quá trình công tác";
+                $('#txtTuNgayCTac').val(null);
+                $('#txtDenNgayCTac').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            SaveJob: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull($('#txtTuNgayCTac').val())) {
+                    self.messageError("Vui lòng nhập từ ngày");
+                }
+                else if (commonStatisJs.CheckNull(self.coquan)) {
+                    self.messageError("Vui lòng nhập cơ quan");
+                }
+                else {
+                        var model = {
+                            ID: self.ID,
+                            ID_NhanVien: self.nhanvienId,
+                            TuNgay: commonStatisJs.convertDateToServer($('#txtTuNgayCTac').val()),
+                            DenNgay: commonStatisJs.convertDateToServer($('#txtDenNgayCTac').val()),
+                            CoQuan: self.coquan,
+                            ViTri: self.vitri,
+                            DiaChi: self.diachi,
+                        };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveQuaTrinhCongTac",
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modalcongtac').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvQtCongTacSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+             },
+        computed: {
+        }
+    })
+    $('#txtTuNgayCTac').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    $('#txtDenNgayCTac').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+</script>

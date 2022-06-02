@@ -1,0 +1,619 @@
+﻿
+<style>
+    #vmUpAnhHoaDon .img-default {
+        border: 1px dotted #ccc;
+        height: 170px;
+    }
+
+        #vmUpAnhHoaDon .img-default img {
+            width: 95%;
+            height: 100%;
+        }
+
+        #vmUpAnhHoaDon .img-default i {
+            position: absolute;
+            top: 4px;
+        }
+</style>
+<div class="modal fade in" id="vmUpAnhHoaDon">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" aria-label="Close" data-dismiss="modal"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{isView?'Xem ảnh':'Cập nhật'}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 col-sm-12 text-align-centet" v-if="!isView">
+                        <span class="btn btn-file form-control" style="background:var(--color-main)">
+                            <span style="color:white">Chọn ảnh</span>
+                            <input type="file" name="file" id="file" class="inputfile" multiple
+                                   v-on:change="fileSelect"
+                                   accept=".png,.jpg,.jpeg,.gif">
+                        </span>
+                </div>
+                <div class="col-md-12  col-xs-12  col-sm-12" style="display:flex;flex-direction:row;justify-content:center">
+                    <div class="col-sm-2 col-xs-4- col-md-3 img-default "
+                         v-for="(item, index) in ListFileChosed.filter(p=>!p.isDelete)" v-if="ListFileChosed.filter(p=>!p.isDelete).length > 0">
+                        <img v-bind:src="item.isUpload ? item.URLAnh : Open24FileManager.hostUrl + item.URLAnh" v-on:click="ZoomImg(index)">
+                        <a href="javascript:void(0)"
+                           v-on:click="DeleteImg(item)">
+                            <i class="fa fa-close red"></i>
+                        </a>
+                    </div>
+                    <div class="col-sm-2 col-xs-4- col-md-3 img-default " v-if="ListFileChosed.filter(p=>!p.isDelete).length == 0">
+                        <img src="/Content/images/photo.png">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i>{{ isView ? 'Đóng' : 'Hủy' }}
+                </button>
+                <button type="button" class="btn btn-save" v-if="!isView"
+                        v-on:click="Agree">
+                    <i class="fa fa-save"></i>{{ isSaveToTemp ? 'Đồng ý' : 'Lưu' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmUpAnhHoaDon = new Vue({
+        el: '#vmUpAnhHoaDon',
+        components: {
+        },
+        created: function () {
+            let self = this;
+            let idDonVi = $('#txtDonVi').val();
+            console.log('vmUpAnh ', idDonVi);
+            if (commonStatisJs.CheckNull(idDonVi)) {
+                self.inforLogin = {
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    UserLogin: VHeader.UserLogin,
+                }
+                self.roleUpdateImg = VHeader.Quyen.indexOf('HoaDon_CapNhatAnh');
+            }
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            typeUpdate: 1,//1.insert, 2.update
+            isLoading: false,
+            roleUpdateImg: false,
+            inforLogin: {},
+            InvoiceChosing: {},
+            ListFileChosed: [],
+            ListFileOld: [],
+            urlApi: {
+                HoaDonApi: "/api/BH_HoaDonAPI/"
+            },
+            isView: false,
+            isSaveToTemp: true
+        },
+        methods: {
+            showModalInsert: function () {
+                let self = this;
+                //self.isView = isView;
+                //self.isSaveToTemp = isSaveToTemp;
+                self.saveOK = false;
+                /*self.GetListImgInvoiceLC();*/
+                $('#vmUpAnhHoaDon').modal('show');
+            },
+            GetListImgInvoiceLC: function () {
+                let self = this;
+                console.log("GetListImgInvoiceLC" + self.InvoiceChosing.IDRandomHD);
+                let lcImg = localStorage.getItem('lcImgInvoice');
+                if (lcImg != null) {
+                    lcImg = JSON.parse(lcImg);
+                    self.ListFileChosed = lcImg.filter(p => p.IDRandomHD === self.InvoiceChosing.IDRandomHD);
+                }
+            },
+            GetListImgInvoiceDB: function (idHoaDon, IdRandomHD) {
+                let self = this;
+                if (self.isSaveToTemp) {
+                    let lcImg = localStorage.getItem('lcImgInvoice');
+                    if (lcImg !== null) {
+                        lcImg = JSON.parse(lcImg);
+                    }
+                    else {
+                        lcImg = [];
+                    }
+                    if (lcImg.filter(p => p.IDRandomHD === IdRandomHD).length > 0) {
+                        self.GetListImgInvoiceLC();
+                    }
+                    else {
+                        $.getJSON(self.urlApi.HoaDonApi + 'GetListImgInvoice/' + idHoaDon).done(function (x) {
+                            if (x.res) {
+                                for (let i = 0; i < x.dataSoure.length; i++) {
+                                    let obj = {
+                                        Id: x.dataSoure[i].Id,
+                                        file: null,
+                                        FileName: x.dataSoure[i].URLAnh.substr(x.dataSoure[i].URLAnh.lastIndexOf("/")),
+                                        URLAnh: x.dataSoure[i].URLAnh,
+                                        IDRandomHD: IdRandomHD,
+                                        IDHoaDon: x.dataSoure[i].IdHoaDon,
+                                        isDelete: false,
+                                        isUpload: false,
+                                        isNew: false,
+                                    };
+                                    lcImg.push(obj);
+                                }
+                                localStorage.setItem('lcImgInvoice', JSON.stringify(lcImg));
+                                self.GetListImgInvoiceLC();
+                            }
+                        });
+                    }
+                }
+                else {
+                    self.ListFileChosed = [];
+                    $.getJSON(self.urlApi.HoaDonApi + 'GetListImgInvoice/' + idHoaDon).done(function (x) {
+                        if (x.res) {
+                            for (let i = 0; i < x.dataSoure.length; i++) {
+                                let obj = {
+                                    Id: x.dataSoure[i].Id,
+                                    file: null,
+                                    FileName: x.dataSoure[i].URLAnh.substr(x.dataSoure[i].URLAnh.lastIndexOf("/")+1),
+                                    URLAnh: x.dataSoure[i].URLAnh,
+                                    IDRandomHD: IdRandomHD,
+                                    IDHoaDon: x.dataSoure[i].IdHoaDon,
+                                    isDelete: false,
+                                    isUpload: false,
+                                    isNew: false,
+                                };
+                                self.ListFileChosed.push(obj);
+                            }
+                        }
+                    });
+                }
+            },
+            ZoomImg: function (index) {
+                let self = this;
+                let arr = [];
+                let imgTemp = self.ListFileChosed.filter(p => !p.isDelete);
+                for (let i = 0; i < imgTemp.length; i++) {
+                    let itFor = imgTemp[i];
+                    if (itFor.URLAnh !== '/Content/images/photo.png') {
+                        arr.push({
+                            src: !itFor.isUpload ? Open24FileManager.hostUrl + itFor.URLAnh : itFor.URLAnh,
+                            caption: itFor.FileName,
+                            active: i === index,
+                        });
+                    }
+                }
+                VImageView.ListImg = arr;
+                VImageView.openModal();
+            },
+            fileSelect: function () {
+                let self = this;
+                let files = event.target.files;
+                let countErrType = 0;
+                let countErrSize = 0;
+                let errFileSame = '';
+                let err = '';
+
+                // Check Type file & Size
+                for (let i = 0; i < files.length; i++) {
+                    if (!files[i].type.match('image.*')) {
+                        countErrType += 1;
+                    }
+
+                    var size = parseFloat(files[i].size / 1024).toFixed(2);
+                    if (size > 2048) {
+                        countErrSize += 1;
+                    }
+                }
+
+                // remove comma ,
+                if (errFileSame !== '') {
+                    errFileSame = errFileSame.substr(0, errFileSame.length - 2)
+                }
+
+                if (countErrType > 0) {
+                    err = countErrType + ' file chưa đúng định dạng. ';
+                }
+
+                if (countErrSize > 0) {
+                    if (countErrType > 0) {
+                        if (errFileSame === '') {
+                            // err type + error size
+                            err += '<br />' + countErrSize + ' file có dung lượng > 2MB';
+                        }
+                        else {
+                            // err type + error size + error exist file
+                            err += '<br />' + countErrSize + ' file có dung lượng > 2MB' + '<br />' + ' File ' + errFileSame + ' đã tồn tại';
+                        }
+                    }
+                    else {
+                        // err size
+                        if (errFileSame === '') {
+                            err = countErrSize + ' file có dung lượng > 2MB'
+                        }
+                        else {
+                            // err size + error exist file
+                            err = countErrSize + ' file có dung lượng > 2MB' + '<br />' + 'File ' + errFileSame + ' đã tồn tại';
+                        }
+                    }
+                }
+                else {
+                    if (countErrType > 0) {
+                        if (errFileSame === '') {
+                            // err type
+                            err = err;
+                        }
+                        else {
+                            // err type + error exist file
+                            err += '<br />' + 'File ' + errFileSame + ' đã tồn tại';
+                        }
+                    }
+                    else {
+                        // not err
+                        if (errFileSame === '') {
+                            err = '';
+                        }
+                        else {
+                            // error exist file
+                            err = 'File ' + errFileSame + ' đã tồn tại';
+                        }
+                    }
+                }
+
+                if (err !== '') {
+                    ShowMessage_Danger(err);
+                    return;
+                }
+                for (let i = 0; i < files.length; i++) {
+                    let f = files[i];
+
+                    // Only process image files.
+                    if (!f.type.match('image.*')) {
+                        continue;
+                    }
+                    let size = parseFloat(f.size / 1024).toFixed(2);
+                    var listfile = [];
+                    if (size <= 2048) {
+                        let reader = new FileReader();
+                        // Closure to capture the file information.
+                        reader.onload = (function (theFile) {
+                            return function (e) {
+                                let obj = {
+                                    Id: uuidv4(),
+                                    file: theFile,
+                                    FileName: theFile.name,
+                                    URLAnh: e.target.result,
+                                    IDRandomHD: self.InvoiceChosing.IDRandomHD,
+                                    IDHoaDon: "",
+                                    isDelete: false,
+                                    isUpload: true,
+                                    isNew: true
+                                };
+                                self.ListFileChosed.push(obj);
+                            };
+                        })(f);
+
+                        // Read in the image file as a data URL.
+                        reader.readAsDataURL(f);
+                    }
+                }
+
+                //let formData = new FormData();
+                //let myData = {
+                //    Subdomain: $('#subDomain').val(),
+                //    Function: '3',
+                //    files: formData
+                //};
+                //let result = Open24FileManager.UploadImageT(myData);
+                //for (let i = 0; i < result.length; i++) {
+
+                //}
+            },
+            DeleteImg: function (item) {
+                let self = this;
+                if (item.isUpload) {
+                    self.ListFileChosed = self.ListFileChosed.filter(p => p.Id !== item.Id);
+                }
+                else {
+                    let objIndex = self.ListFileChosed.findIndex(p => p.Id === item.Id);
+                    self.ListFileChosed[objIndex].isDelete = true;
+                }
+            },
+            Agree: function () {
+                let self = this;
+                self.saveOK = true;
+                if (self.isSaveToTemp) {
+                    self.InsertImageTemp();
+                }
+                else {
+                    self.SaveImageFromFile();
+                }
+                /*let listRemove = self.ListFileChosed.filter(p => p.isDelete === true);*/
+                $('#vmUpAnhHoaDon').modal('hide');
+            },
+            InsertImageTemp: function () {
+                let self = this;
+                let ListUpload = self.ListFileChosed.filter(p => p.isUpload === true);
+                let formData = new FormData();
+                for (let i = 0; i < ListUpload.length; i++) {
+                    formData.append("files", ListUpload[i].file);
+                }
+                let myData = {
+                    Subdomain: $('#subDomain').val(),
+                    Function: '3',
+                    files: formData,
+                    Id: self.InvoiceChosing.IDRandomHD
+                };
+
+                let result = Open24FileManager.UploadImageT(myData);
+                if (result.length > 0) {
+                    for (let i = 0; i < result.length; i++) {
+                        let obj = {
+                            Id: uuidv4(),
+                            file: null,
+                            FileName: result[i].substr(result[i].lastIndexOf("/")),
+                            URLAnh: result[i],
+                            IDRandomHD: self.InvoiceChosing.IDRandomHD,
+                            IDHoaDon: "",
+                            isDelete: false,
+                            isUpload: false,
+                            isNew: true
+                        };
+                        self.ListFileChosed.push(obj);
+                    }
+                }
+                self.ListFileChosed = self.ListFileChosed.filter(p => p.isUpload !== true);
+                let lcImg = localStorage.getItem('lcImgInvoice');
+                if (lcImg === null) {
+                    lcImg = [];
+                }
+                else {
+                    lcImg = JSON.parse(lcImg).filter(p => p.IDRandomHD != self.InvoiceChosing.IDRandomHD);
+                }
+                lcImg.push(...self.ListFileChosed);
+                localStorage.setItem('lcImgInvoice', JSON.stringify(lcImg));
+
+            },
+            SaveImage: function () {
+                let self = this;
+                if (self.isSaveToTemp) {
+                    self.SaveImageFromCache();
+                }
+                else {
+                    self.SaveImageFromFile();
+                }
+            },
+            SaveImageFromCache: function () {
+                let self = this;
+                let lcImg = localStorage.getItem('lcImgInvoice');
+                if (lcImg) {
+                    let IdHoaDon = self.InvoiceChosing.ID;
+                    let IdRandom = self.InvoiceChosing.IDRandom;
+                    let lstFileImg = JSON.parse(lcImg).filter(p => p.IDRandomHD === IdRandom);
+
+                    let lstNewDelete = lstFileImg.filter(p => p.isNew && p.isDelete);
+                    let lstOldRemove = lstFileImg.filter(p => !p.isNew && p.isDelete);
+                    let lstNew = lstFileImg.filter(p => p.isNew && !p.isDelete);
+                    let nhatky = false;
+                    if (lstNewDelete.length > 0) {
+                        /*Remove only from temp files or remove folder temp*/
+                        /*isDeleteDirectory = true;*/
+                    }
+                    if (lstOldRemove.length > 0) {
+                        /*Remove from database and file drive*/
+                        self.DeleteImg_inDB(lstOldRemove.map(p => p.Id));
+                        Open24FileManager.RemoveFiles(lstOldRemove.map(p => p.URLAnh));
+                        nhatky = true;
+                    }
+                    if (lstNew.length > 0) {
+                        /*Move file from temp files to file drive and insert to database*/
+                        /*isDeleteDirectory = true;*/
+                        let myData = {
+                            Subdomain: $('#subDomain').val(),
+                            Function: '3',
+                            files: lstNew.map(p => p.URLAnh),
+                            Id: IdHoaDon,
+                        };
+                        let files = Open24FileManager.UploadImageM(myData);
+                        self.InsertToTableAnh(files, myData.Id);
+                        nhatky = true;
+                    }
+                    //if (isDeleteDirectory) {
+                    //    self.DeleteTempDirectory();
+                    //}
+                    console.log("IdRandom: " + IdRandom);
+                    if (nhatky) {
+                        self.SaveNhatKy(lstNew, lstOldRemove);
+                    }
+
+                    self.ClearLocalStorage(IdRandom);
+                }
+            },
+            SaveImageFromFile: function () {
+                let self = this;
+                let nhatky = false;
+                let IdHoaDon = self.InvoiceChosing.ID;
+                let lstOldRemove = self.ListFileChosed.filter(p => !p.isNew && p.isDelete);
+                let ListUpload = self.ListFileChosed.filter(p => p.isUpload === true);
+                if (ListUpload.length > 0) {
+                    let formData = new FormData();
+                    for (let i = 0; i < ListUpload.length; i++) {
+                        formData.append("files", ListUpload[i].file);
+                    }
+                    let myData = {
+                        Subdomain: $('#subDomain').val(),
+                        Function: '3',
+                        files: formData,
+                        Id: IdHoaDon
+                    };
+
+                    let result = Open24FileManager.UploadImage(myData);
+                    self.InsertToTableAnh(result, IdHoaDon);
+                    nhatky = true;
+                }
+                if (lstOldRemove.length > 0) {
+                    /*Remove from database and file drive*/
+                    self.DeleteImg_inDB(lstOldRemove.map(p => p.Id));
+                    Open24FileManager.RemoveFiles(lstOldRemove.map(p => p.URLAnh));
+                    nhatky = true;
+                }
+                if (nhatky) {
+                    self.SaveNhatKy(ListUpload, lstOldRemove);
+                    ShowMessage_Success("Cập nhật ảnh thành công!");
+                }
+
+            },
+            InsertToTableAnh: function (lstfile, Id) {
+                let self = this;
+                if (lstfile.length > 0) {
+                    $.ajax({
+                        url: self.urlApi.HoaDonApi + "UploadImgInvoice?id=" + Id,
+                        type: "POST",
+                        data: JSON.stringify(lstfile),
+                        contentType: "application/json",
+                        dataType: "JSON",
+                    }).done(function (x) {
+
+                    });
+                }
+            },
+            InsertImage: function () {
+                let self = this;
+                if (self.InvoiceChosing.LoaiHoaDon === 1) {
+                    self.isLoading = true;
+                    
+                    let lstAddNew = self.ListFileChosed.filter(p => p.isNew === true).map(p => p.URLAnh);
+                    let myData = {
+                        Subdomain: $('#subDomain').val(),
+                        Function: '3',
+                        files: lstAddNew,
+                        Id: self.InvoiceChosing.ID,
+                    };
+
+                    let files = Open24FileManager.UploadImageM(myData);
+                    //if (result.length > 0) {
+                    //    $.ajax({
+                    //        url: '/api/BH_HoaDonAPI/' + "UploadImgInvoice?id=" + myData.Id,
+                    //        type: "POST",
+                    //        data: JSON.stringify(result),
+                    //        contentType: "application/json",
+                    //        dataType: "JSON",
+                    //    }).done(function (x) {
+                    //        $('#vmUpAnhHoaDon').gridLoader({ show: false });
+                    //        self.isLoading = false;
+
+                    //        if (x.res) {
+                    //            let sImgOld = '';
+                    //            if (self.typeUpdate === 2) {
+                    //                sImgOld = '<br /> - Ảnh cũ gồm: '.concat(self.ListFileOld.filter(x => x.URLAnh !== '/Content/images/photo.png')
+                    //                    .map(function (x) { return x.FileName }).toString())
+                    //            }
+                    //            let diary = {
+                    //                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                    //                ID_DonVi: self.inforLogin.ID_DonVi,
+                    //                ChucNang: 'Thêm ảnh hóa đơn',
+                    //                NoiDung: "Thêm ảnh hóa đơn " + self.InvoiceChosing.MaHoaDon,
+                    //                NoiDungChiTiet: "Thêm ảnh hóa đơn ".concat(self.InvoiceChosing.MaHoaDon,
+                    //                    '<br /> - Ảnh mới thêm gồm: ', arrFileName.toString(),
+                    //                    sImgOld,
+                    //                    '<br /> - ', self.typeUpdate === 2 ? 'Người sửa: ' : 'Người tạo: ', self.inforLogin.UserLogin,
+                    //                ),
+                    //                LoaiNhatKy: 1
+                    //            };
+                    //            Insert_NhatKyThaoTac_1Param(diary);
+                    //            if (self.typeUpdate === 2) {
+                    //                ShowMessage_Success("Cập nhật ảnh thành công");
+                    //            }
+                    //        }
+                    //    });
+                    //}
+                    //let lcImg = localStorage.getItem('lcImgInvoice');
+                    //if (lcImg != null) {
+                    //    lcImg = JSON.parse(lcImg);
+                    //    lcImg = $.grep(lcImg, function (x) {
+                    //        return x.IDRandomHD !== self.InvoiceChosing.IDRandom;
+                    //    });
+                    //    localStorage.setItem('lcImgInvoice', JSON.stringify(lcImg));
+                    //}
+                }
+            },
+            DeleteImg_inDB: function (imgs) {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.HoaDonApi + "DeleteImgInvoice",
+                    type: "POST",
+                    data: JSON.stringify(imgs),
+                    contentType: "application/json",
+                    dataType: "JSON",
+                    success: function (data, textStatus, jqXHR) {
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                    }
+                });
+            },
+            DeleteTempDirectory: function (IdRandom) {
+                let myData = {
+                    Subdomain: $('#subDomain').val(),
+                    Function: '3',
+                    Id: IdRandom,
+                };
+                Open24FileManager.DeleteDirectory(myData);
+            },
+            SaveNhatKy: function (lstnew, lstremove) {
+                let self = this;
+                let diary = {
+                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    ChucNang: 'Cập nhật hình ảnh hóa đơn',
+                    NoiDung: "Cập nhật hình ảnh hóa đơn: " + self.InvoiceChosing.MaHoaDon,
+                    NoiDungChiTiet: "Cập nhật hình ảnh hóa đơn: ".concat(self.InvoiceChosing.MaHoaDon,
+                        '<br /> - Thêm mới: ', lstnew.map(p => p.FileName).toString(),
+                        '<br /> - Xóa: ', lstremove.map(p => p.FileName).toString(),
+                        '<br /> - Người cập nhật: ', self.inforLogin.UserLogin,
+                    ),
+                    LoaiNhatKy: 3
+                };
+                Insert_NhatKyThaoTac_1Param(diary);
+            },
+            ClearLocalStorage: function (vIdRandom) {
+                let self = this;
+                console.log(vIdRandom);
+                if (vIdRandom !== undefined) {
+                    let lcImg = localStorage.getItem('lcImgInvoice');
+                    if (lcImg != null) {
+                        lcImg = JSON.parse(lcImg);
+                        lcImg = lcImg.filter(p => p.IDRandomHD !== vIdRandom);
+                        localStorage.setItem('lcImgInvoice', JSON.stringify(lcImg));
+                    }
+                }
+                self.DeleteTempDirectory(vIdRandom);
+            },
+            Cancel: function () {
+                console.log("Cancel");
+                let self = this;
+                self.GetListImgInvoiceLC();
+                self.isView = false;
+                self.isSaveToTemp = true;
+            }
+        },
+        watch: {
+            //LoaiBaoCao: {
+            //    handler: function () {
+            //        let self = this;
+            //        self.GetListImgInvoiceLC();
+            //    },
+            //    deep: true
+            //}
+        }
+    })
+    function uuidv4() {
+        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    };
+
+    $('#vmUpAnhHoaDon').on('hidden.bs.modal', function () {
+        vmUpAnhHoaDon.Cancel();
+    })
+</script>

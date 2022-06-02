@@ -1,0 +1,1230 @@
+﻿@using System.Web.Optimization
+@using banhang24.AppCache
+@{
+    Layout = null;
+}
+<style>
+    .sms-divNhomKH label {
+        width: 200px !important;
+    }
+    .choose-person input {
+        border: none !important;
+    }
+</style>
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter filter-left-report">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title ">
+                            <img src="/Content/images/icon/report-loaibaocao.png"> Tin nhắn SMS
+                        </h3>
+                        <aside class="op-filter-container">
+                            <ul class="chose_kieubang ul-radius">
+                                <li value="1" class="active">
+                                    <a href="#smsdagui" data-toggle="tab" class="box-tab">
+                                        <input type="radio" name="kieubang1" value="1">
+                                        <label>Tin nhắn đã gửi</label>
+                                    </a>
+                                </li>
+                                <li value="2">
+                                    <a href="#smsgiaodich" data-toggle="tab">
+                                        <input type="radio" name="kieubang1" value="2">
+                                        <label>Danh sách giao dịch</label>
+                                    </a>
+                                </li>
+                                <li value="3">
+                                    <a href="#smssinhnhat" data-toggle="tab">
+                                        <input type="radio" name="kieubang1" value="3">
+                                        <label>Danh sách KH sinh nhật</label>
+                                    </a>
+                                </li>
+                                <li value="4">
+                                    <a href="#smslichhen" data-toggle="tab">
+                                        <input type="radio" name="kieubang1" value="4">
+                                        <label>Danh sách KH có lịch hẹn</label>
+                                    </a>
+                                </li>
+                            </ul>
+                        </aside>
+                    </article>
+                    <article class="boxLeft " id="locchinhanh" style="display:none">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="outselect outselectDV">
+                                    <div class="choose-person floatleft " data-toggle="dropdown" id="choose_TenDonVi">
+                                        <ul data-bind="foreach: MangNhomDV">
+                                            <li class="li-input-span">
+                                                <span data-bind="text: TenDonVi">
+                                                </span>
+                                                <span data-bind="click: $parent.CloseDV">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" id="dllChiNhanh" readonly="readonly" class="dropdown" placeholder="Chọn chi nhánh" />
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft" id="selec-all-DV">
+                                        <ul data-bind="foreach: ChiNhanhs">
+                                            <li data-bind="attr:{id: ID}, click: $parent.selectedCN">
+                                                <span data-bind="text: TenDonVi"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft _nhomkhachhang" style="display:none">
+                        <h3 class="op-filter-title">
+                            <img src="/Content/images/icon/nhomkhachhang.png" height="15">  Nhóm khách hàng
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="input-group" style="display:unset!important">
+                                <select class="form-control" id="ddlNhom" data-bind="options: NhomDoiTuongs,
+                                                optionsText: 'TenNhomDoiTuong', optionsValue: 'ID', optionsCaption: 'Chọn',
+                                                value: selectNhomDT"></select>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" id="filterleft-typework" hidden>
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">  Loại công việc
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="outselect outselectDV">
+                                    <div class="choose-person floatleft " data-toggle="dropdown" id="divTypeWorkChose">
+                                        <ul data-bind="foreach: MangNhomCongViec">
+                                            <li class="li-input-span">
+                                                <span data-bind="text: TenLoaiTuVanLichHen">
+                                                </span>
+                                                <span data-bind="click: $parent.CloseCongViec">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" id="txtTypeWork" readonly="readonly" class="dropdown" placeholder="Chọn loại công việc" />
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft" id="selec-all-CongViec">
+                                        <ul data-bind="foreach: LoaiCongViecs">
+                                            <li data-bind="attr:{id: ID}, click: $parent.selectedLoaiCongViecFilter">
+                                                <span data-bind="text: TenLoaiTuVanLichHen"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title">
+                            <img src="/Content/images/icon/thoigian.png">Thời gian
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" value="0" data-bind="checked: customerBirthday">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date ">
+                                            <div data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show" placeholder="Toàn thời gian"
+                                                       value="Toàn thời gian" id="txtCusBirthDay" autocomplete="off">
+                                            </div>
+                                            <div class="dropdown-menu choseNgaySinh">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="1"><a href="javascript:void(0);">Hôm nay</a></li>
+                                                        <li value="2"><a href="javascript:void(0);">Hôm qua</a></li>
+                                                        <li value="11" hidden class="timesinhnhat"><a href="javascript:void(0);">Ngày mai</a></li>
+                                                        <li value="3"><a href="javascript:void(0);">Tuần này</a></li>
+                                                        <li value="4"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                        <li value="12" hidden class="timesinhnhat"><a href="javascript:void(0);">Tuần tới</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="5"><a href="javascript:void(0);">Tháng này</a></li>
+                                                        <li value="6"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                        <li value="13" hidden class="timesinhnhat"><a href="javascript:void(0);">Tháng tới</a></li>
+                                                        <li value="7"><a href="javascript:void(0);">Quý này</a></li>
+                                                        <li value="8"><a href="javascript:void(0);">Quý trước</a></li>
+                                                        <li value="14" hidden class="timesinhnhat"><a href="javascript:void(0);">Quý tới</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="9"><a href="javascript:void(0);">Năm này</a></li>
+                                                        <li value="10"><a href="javascript:void(0);">Năm trước</a></li>
+                                                        <li value="0"><a href="javascript:void(0);">Toàn thời gian</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" value="1" data-bind="checked: customerBirthday" />
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap ">
+                                            <input type='text' class="form-control daterange" id="txtCusBirthDay_Input"
+                                                   placeholder="Lựa chọn khác" name="daterange"
+                                                   data-bind="value: customerBirthday_Input, enable: customerBirthday() !=='0'" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" id="locloaichungtu" style="display:none">
+                        <h3 class="op-filter-title">
+                            <img src="/Content/images/icon/loaihang.png"> Loại chứng từ
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox choose_LoaiHang">
+                                <ul>
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" value="1" data-bind="checked: LoaiGD_BL"> Hóa đơn bán lẻ
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" value="2" data-bind="checked: LoaiGD_GDV">Gói dịch vụ
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" id="loaitin">
+                        <h3 class="op-filter-title">
+                            <img src="/Content/images/icon/trangthai-black.png"> Loại tin
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdoType" value="0" data-bind="checked: Loc_LoaiTin" /> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdoType" value="1" data-bind="checked: Loc_LoaiTin" /> Giao dịch</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdoType" value="2" data-bind="checked: Loc_LoaiTin" /> Sinh nhật </label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdoType" value="3" data-bind="checked: Loc_LoaiTin" /> Tin thường</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdoType" value="4" data-bind="checked: Loc_LoaiTin" /> Lịch hẹn</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" id="loctrangthai">
+                        <h3 class="op-filter-title">
+                            <img src="/Content/images/icon/trangthai-black.png"> Trạng thái
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_TinhTrangBH">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdTuyChonBH" value="0" data-bind="checked: Loc_TrangThaiGui" /> Tất cả</label>
+                                    </li>
+                                    <li class="trangthai1" hidden>
+                                        <label><input type="radio" name="rdTuyChonBH" value="1" data-bind="checked: Loc_TrangThaiGui" /> Đã gửi </label>
+                                    </li>
+                                    <li class="trangthai1" hidden>
+                                        <label><input type="radio" name="rdTuyChonBH" value="2" data-bind="checked: Loc_TrangThaiGui" /> Chưa gửi</label>
+                                    </li>
+                                    <li class="trangthai2">
+                                        <label><input type="radio" name="rdTuyChonBH" value="3" data-bind="checked: Loc_TrangThaiGui" /> Thành công </label>
+                                    </li>
+                                    <li class="trangthai2">
+                                        <label><input type="radio" name="rdTuyChonBH" value="4" data-bind="checked: Loc_TrangThaiGui" /> Thất bại</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title" >
+                    <h2 class="pull-left title">@banhang24.Resources.ResourceTexts.Partner / Danh sách sms</h2>
+                </div>
+                <div class="op-header-button">
+                    <div class=" header-button-left">
+                        <button class="btn btn-main btn-send-sms btn-main  txtCongViecThemMoi" name="btnExport" data-bind="click: $root.showpopupSMS" style=" background-color:var(--color-main)">
+                            <i class="fa fa-paper-plane-o" aria-hidden="true"></i>Thêm mới
+                        </button>
+                        <button class="btn-link shownhapxuat pull-right" id="shownhapxuat" title="Chức năng nhập xuất" style="width:30px;">
+                            <i class="material-icons"> more_vert</i>
+                        </button>
+                        <div class="btn-dropdown pull-right" id="selected-column">
+                                <button type="button" class="btn btn-main dropdown-toggle" onclick="showCollumnFilter(this)"  id="loccotSMS" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                     <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list" style="display: none;right:0">
+                                    <ul>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" checked="checked" value="tennguoigui"><span></span>Tên người gửi</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" checked="checked" value="tenkhachhang"><span></span>Tên khách hàng</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" checked="checked" value="sodienthoai"><span></span>Số điện thoại</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" checked="checked" value="thoigiangui"><span></span>Thời gian gửi</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" checked="checked" value="trangthai"><span></span>Trạng thái</label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="btn-group operation" id="divThaoTac">
+                        <div class=" choose-commodity">
+                            <button type="button" class="btn btn-main no-magrin"  data-bind="click: showpopupSMS_Many">
+                                <i class="fa fa-paper-plane-o"></i><font>Gửi nhiều khách</font> 
+                            </button>
+                            <div style="display: inline-block;padding: 5px 0;">
+                                Có&nbsp;
+                                <span>
+                                    <a href="javascript:void(0)"
+                                       data-bind="click:">
+                                        <span id="count"></span>&nbsp;
+                                        <span data-bind="text: TypeSMS()===1?'khách hàng':'lịch hẹn'"></span>
+                                    </a>
+                                </span>được chọn <span onclick="RemoveAllCheck()">
+                                    <a href="javascript:void(0)">
+                                        &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa fa-times icon-del">
+                                        </i>Bỏ chọn tất cả
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 nopadding pull-right input-search-filter" style="display:none">
+                        <button type="button" class=" btn-search-icon">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <input type="text" class="form-control" placeholder="Theo mã, tên hàng" id="txtFilterTinNhan">
+                    </div>
+                </div>
+            </div>
+            <div class="content-table  possible-table-tab">
+                <div class="tab-content nopadding tab-show" id="danhsachtab">
+                    <div class="tab-pane active ct-tab-pane" id="smsdagui">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive bangchung table-frame ">
+                                <table class="table-hover table-new" id="table-congviec">
+                                    <thead>
+                                        <tr>
+                                            <th class="tennguoigui">
+                                                <a href="javascript:void(0)">Tên người gửi</a>
+                                            </th>
+                                            <th class="tenkhachhang">
+                                                <a href="javascript:void(0)">Tên khách hàng</a>
+                                            </th>
+                                            <th class="sodienthoai">
+                                                <a href="javascript:void(0)">Số điện thoại</a>
+                                            </th>
+                                            <th class="thoigiangui">
+                                                <a href="javascript:void(0)">Thời gian gửi</a>
+                                            </th>
+                                            <th class="loaitinnhan">
+                                                <a href="javascript:void(0)">Loại tin nhắn</a>
+                                            </th>
+                                            <th class="noidung">
+                                                <a href="javascript:void(0)">Nội dung tin</a>
+                                            </th>
+                                            <th class="trangthai">
+                                                <a href="javascript:void(0)">Trạng thái</a>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: ArrayTinNhans">
+                                        <tr class="prev-tr-hide" >
+                                            <td class="tennguoigui" data-bind="text: TenNguoiGui"></td>
+                                            <td class="tenkhachhang" data-bind="text: TenKhachHang"></td>
+                                            <td class="sodienthoai">
+                                                <a style="cursor: pointer" data-bind="text: SoDienThoai, click: $parent.showpopupGuiTinTuSMS">11042019KH02</a>
+                                            </td>
+                                            <td class="thoigiangui" data-bind="text: moment(ThoiGianGui).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(ThoiGianGui).format('DD/MM/YYYY hh:mm'):''"></td>
+                                            <td class="loaitinnhan" data-bind="text: LoaiTinNhan === 1 ? 'Tin giao dịch' :(LoaiTinNhan === 2 ? 'Tin sinh nhật' : LoaiTinNhan === 3?'Tin thường':'Lịch hẹn')"></td>
+                                            <td class="noidung" style="white-space: nowrap;" data-bind="text: commonStatisJs.SubStringContent(NoiDung,70)"></td>
+                                            <td class="trangthai" data-bind="text: TrangThai === 100? 'Thành công' : 'Thất bại'"></td>
+                                        </tr>
+                                        <tr class="op-js-tr-hide">
+                                            <td colspan="5">
+                                                <div class="op-object-detail " style="width:100%">
+                                                    <ul class="nav nav-tabs" style="width:100%;">
+                                                        <li class="active"><a href="javascript:void(0)">Thông tin</a></li>
+                                                    </ul>
+                                                    <div class="tab-content tab-content-next">
+                                                        <div class="tab-pane active">
+                                                            <div class="col-xs-12 col-sm-6 col-lg-6">
+                                                                <div class="detail-content floatleft">
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Tên người gửi:</label>
+                                                                        <div class="css-form-detail" data-bind="text: TenNguoiGui"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Tên khách hàng:</label>
+                                                                        <div class="css-form-detail" data-bind="text: TenKhachHang"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Số điện thoại:</label>
+                                                                        <div class="css-form-detail" data-bind="text: SoDienThoai"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <label class="css-form-label ">Trạng thái:</label>
+                                                                        <div class="css-form-detail" data-bind="text: TrangThai === 100? 'Thành công' : 'Thất bại'"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <label class="css-form-label ">Nội dung:</label>
+                                                                        <div class="css-form-detail floatleft text-deal">
+                                                                            <textarea data-bind="value: NoiDung" placeholder="Nội dung..."></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-12">
+                                                                <div class="group-btn floatleft text-right">
+                                                                    <a  class="btn btn-cancel txtTuVanXoa" style="display:none" data-bind="click: $parent.modalDelete">
+                                                                        <i class="fa fa-trash"></i> Xóa
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                             <div class="page">
+                                <div class="flex flex-row">
+                                    <label>Số bản ghi:</label>
+                                    <select id="SelecttedPage" class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                                </div>
+                                <div class="flex flex-end">
+                                    <a href="javascript:void(0)" data-bind="click: $root.StartPage, visible: VisibleStartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" data-bind="click: $root.BackPage, visible: VisibleStartPage "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                    <ul data-bind="foreach: PageList_Display">
+                                        <li>
+                                            <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageHD, css: $root.GetClassHD($data)"></a>
+                                        </li>
+                                    </ul>
+                                    <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage, visible: VisibleEndPage "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" data-bind="click: $root.EndPage, visible: VisibleEndPage "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                    <div class="total-recos">Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số <span data-bind="text: TotalRecord"></span> tin nhắn.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane ct-tab-pane" id="smsgiaodich">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive bangchung ">
+                                <table class="table-hover table-new" id="table-giaodich">
+                                    <thead>
+                                        <tr>
+                                            <th>Nhóm khách hàng</th>
+                                            <th>Mã khách hàng</th>
+                                            <th>Tên khách hàng</th>
+                                            <th>Điện thoại</th>
+                                            <th>Mã giao dịch</th>
+                                            <th>Loại giao dịch</th>
+                                            <th>Ngày lập hóa đơn</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: ListKhachHangGD">
+                                        <tr class="prev-tr-hide">
+                                            <td data-bind="text: TenNhomDT"></td>
+                                            <td data-bind="text: MaDoiTuong"></td>
+                                            <td data-bind="text: TenDoiTuong"></td>
+                                            <td>
+                                                <a style="cursor: pointer" data-bind="text: DienThoai, click: $parent.showpopupGuiTinGD"></a>
+                                            </td>
+                                            <td data-bind="text: MaHoaDon"></td>
+                                            <td data-bind="text: LoaiGiaoDich"></td>
+                                            <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="page">
+                                        <div class="flex flex-row">
+                                            <label>Số bản ghi:</label>
+                                            <select id="SelecttedPageGD" class="form-control seleted-page" data-bind="value: pageSizeGD,
+                                                options: pageSizesGD, event: {change: ResetCurrentPageGD}"></select>
+                                        </div>
+                                    <div class="flex flex-end">
+                                        <a href="javascript:void(0)" data-bind="click: $root.StartPageGD, visible: VisibleStartPageGD"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" data-bind="click: $root.BackPageGD, visible: VisibleStartPageGD "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                        <ul data-bind="foreach: PageList_DisplayGD">
+                                            <li>
+                                                <a href="javascript:void(0)" data-bind="text: pageNumberGD, click: $root.GoToPageHDGD, css: $root.GetClassHDGD($data)"></a>
+                                            </li>
+                                        </ul>
+                                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPageGD, visible: VisibleEndPageGD "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" data-bind="click: $root.EndPageGD, visible: VisibleEndPageGD "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                        <div class="total-recos">Hiển thị <span data-bind="text: fromitemGD"></span> - <span data-bind="text: toitemGD"></span> trên tổng số <span data-bind="text: TotalRecordGD"></span> hóa đơn.</div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane ct-tab-pane" id="smssinhnhat">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive bangchung ">
+                                <table class="table-hover table-new" id="tblsinhnhat">
+                                    <thead>
+                                        <tr>
+                                            <th class="check-group check-group-main">
+                                                <input type="checkbox" onclick="SetCheckAll_SinhNhat(this)" class="ckHeader">
+                                            </th>
+                                            <th>Nhóm khách hàng</th>
+                                            <th>Mã khách hàng</th>
+                                            <th>Tên khách hàng</th>
+                                            <th>Điện thoại</th>
+                                            <th>Ngày sinh</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: ListKhachHangSinhNhat">
+                                        <tr class="prev-tr-hide">
+                                            <td class="check-group">
+                                                <input type="checkbox" data-bind="attr:{id: ID}" onclick="ChoseDoiTuong(this)" />
+                                            </td>
+                                            <td data-bind="text: TenNhomDT"></td>
+                                            <td data-bind="text: MaDoiTuong"></td>
+                                            <td data-bind="text: TenDoiTuong"></td>
+                                            <td>
+                                                <a style="cursor: pointer" data-bind="text: DienThoai, click: $parent.showpopupGuiTinSN">11042019KH02</a>
+                                            </td>
+                                            <td data-bind="text: moment(NgaySinh_NgayTLap).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySinh_NgayTLap).format('DD/MM/YYYY'):''"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="page">
+                                        <div class="flex flex-row">
+                                            <label>Số bản ghi:</label>
+                                            <select id="SelecttedPageKH" class="form-control seleted-page" data-bind="value: pageSizeKH,
+                                                options: pageSizesKH, event: {change: ResetCurrentPageKH}"></select>
+                                        </div>
+                                    <div class="flex flex-end">
+                                        <a href="javascript:void(0)" data-bind="click: $root.StartPageKH, visible: VisibleStartPageKH"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" data-bind="click: $root.BackPageKH, visible: VisibleStartPageKH "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                        <ul data-bind="foreach: PageList_DisplayKH">
+                                            <li>
+                                                <a href="javascript:void(0)" data-bind="text: pageNumberKH, click: $root.GoToPageHDKH, css: $root.GetClassHDKH($data)"></a>
+                                            </li>
+                                        </ul>
+                                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPageKH, visible: VisibleEndPageKH "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" data-bind="click: $root.EndPageKH, visible: VisibleEndPageKH "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                        <div class="total-recos">Hiển thị <span data-bind="text: fromitemKH"></span> - <span data-bind="text: toitemKH"></span> trên tổng số <span data-bind="text: TotalRecordKH"></span> khách hàng.</div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane ct-tab-pane" id="smslichhen">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive bangchung ">
+                                <table class="table-hover table-new" id="tbllichhen">
+                                    <thead>
+                                        <tr>
+                                            <th class="check-group check-group-main">
+                                                <input type="checkbox" class="ckHeader" data-bind="event:{change: ChangeCheck_Header}">
+                                            </th>
+                                            <th>Ngày hẹn</th>
+                                            <th>Tên công việc</th>
+                                            <th>Mã khách hàng</th>
+                                            <th>Tên khách hàng</th>
+                                            <th>Điện thoại</th>
+                                            <th>Nhóm khách hàng</th>
+                                            <th>Loại công việc</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: PageResults_LichHen">
+                                        <tr class="prev-tr-hide">
+                                            <td class="check-group">
+                                                <input type="checkbox" data-bind="attr:{id: ID}, event:{change: $root.ChangeCheck_Row}" />
+                                            </td>
+                                            <td data-bind="text: moment(NgayHen).format('DD/MM/YYYY')"></td>
+                                            <td data-bind="text: NoiDungLichHen"></td>
+                                            <td data-bind="text: MaDoiTuong"></td>
+                                            <td data-bind="text: TenDoiTuong"></td>
+                                            <td>
+                                                <a style="cursor: pointer" data-bind="text: DienThoai, click: $parent.showpopupGuiTinSN">11042019KH02</a>
+                                            </td>
+                                            <td data-bind="text: TenNhomDoiTuongs "></td>
+                                            <td data-bind="text: TenLoaiTuVanLichHen"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="page">
+                                        <div class="flex flex-row">
+                                            <label>Số bản ghi:</label>
+                                            <select class="form-control seleted-page" data-bind="value: PageSize_LichHen,
+                                                options: PageSizes_LichHen, event: {change: ResetCurrentPage_LichHen}"></select>
+                                        </div>
+                                            <div class="flex flex-end">
+                                                <a href="javascript:void(0)" data-bind="click: $root.StartPage_LichHen, visible: VisibleStartPage_LichHen"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                                <a href="javascript:void(0)" data-bind="click: $root.BackPage_LichHen, visible: VisibleStartPage_LichHen "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                                <ul data-bind="foreach: PageList_LichHen">
+                                                    <li>
+                                                        <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPage_LichHen, css: $root.GetClass_LichHen($data)"></a>
+                                                    </li>
+                                                </ul>
+                                                <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage_LichHen, visible: VisibleEndPage_LichHen "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                                <a href="javascript:void(0)" data-bind="click: $root.EndPage_LichHen, visible: VisibleEndPage_LichHen "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                                <div class="total-recos">Hiển thị <span data-bind="text: fromitem_LichHen"></span> - <span data-bind="text: toitem_LichHen"></span> trên tổng số <span data-bind="text: TotalRow_LichHen"></span> lịch hẹn</div>
+                                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*model sms le tinh*@
+<div class="modal fade in" id="exampleModal" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="false">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title txtEditThemBrand">Thêm mới SMS</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nopadding form-modal-send-sms">
+                    <p id="message_error_dathang" class="text-right" style="color:red;"></p>
+                    <div class="form-group floatleft">
+                        <label>Thương hiệu - BrandName (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown">
+                                    <div class="form-control" id="txtBrandNames" style="cursor:pointer"> Chọn BrandName</div>
+                                    <i class="fa fa-angle-down" aria-hidden="true" style="    position: absolute; top: 8px;font-size: 18px;right: 10px;"></i>
+                                </div>
+                                <div class="selec-person dropdown-menu " style="width:100%">
+                                    <ul>
+                                        <li data-bind="click: selectedBrandName">
+                                            <a href="javascript:void(0)">
+                                                <span>Chọn BrandName</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <ul data-bind="foreach: BrandNames" id="selectedBrandName">
+                                        <li data-bind="click: $root.selectedBrandName, attr:{id: ID}">
+                                            <a href="javascript:void(0)">
+                                                <span data-bind="text: BrandName"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Loại tin</label>
+                        <div class="form-news">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown">
+                                    <div class="form-control" id="txtLoaiTin" style="cursor:pointer"> Chọn loại tin</div>
+                                    <i class="fa fa-angle-down" aria-hidden="true" style="    position: absolute; top: 8px;font-size: 18px;right: 10px;"></i>
+                                </div>
+                                <div class="selec-person dropdown-menu " style="width:100%">
+                                    <ul data-bind="foreach: LoaiTins" id="selectedLoaiTin">
+                                        <li data-bind="click: $root.selectedLoaiTin, attr:{id: ID}">
+                                            <a href="javascript:void(0)">
+                                                <span data-bind="text: TenLoai"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="hideDoiTuongGui">
+                        <label>Gửi đến (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+                            <div class="outselect">
+                                <div class="outselect outselectmodalsms ">
+                                    <div class="choose-person floatleft dropdown" id="choose_LoaiCongViec" aria-expanded="true">
+                                        <div class="col-sm-12 col-xs-12 nopadding-left">
+                                            <ul data-bind="foreach: MangKhachHangGuiTin, visible: MangKhachHangGuiTin().length > 0">
+                                                <li class="li-input-span">
+                                                    <span data-bind="text: TenDoiTuong">
+                                                    </span>
+                                                    <span data-bind="click: $root.CloseDoiTuongGuiTin">
+                                                        <i class="fa fa-times"></i>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-sm-12 col-xs-12 nopadding-left">
+                                            <ul data-bind="foreach: NhomKhachHangChosed, visible: NhomKhachHangChosed().length > 0">
+                                                <li class="li-input-span">
+                                                    <span data-bind="text: TenNhomDoiTuong">
+                                                    </span>
+                                                    <span data-bind="click: $root.CloseNhomDoiTuongGuiTin">
+                                                        <i class="fa fa-times"></i>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <input type="text" id="dllCongViec" class="dropdown input-khach-hang"
+                                               placeholder="Chọn toàn bộ hoặc tìm kiếm khách"
+                                               data-bind="jqAutoCustomer: { source: ListAllDoiTuong, value: JqAutoSelectKH,
+                                                                inputProp: 'NguoiNopTien', labelProp: 'NguoiNopTien', valueProp: 'ID', template: 'rowChiTiet'}" style="padding-right:35px" />
+                                        <script id="rowChiTiet" type="text/html">
+                                            @Html.Partial("~/Views/Component/_ko-ListSearchNguoiNopTien.cshtml")
+                                        </script>
+                                        <span data-bind="click: ShowModalNhomKH">
+                                            <i class="fa fa-group" title="Chọn nhóm khách hàng" aria-hidden="true" style="position: absolute; top: 8px;font-size: 18px;right: 10px;"></i>
+                                        </span>
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft drop-list-khach-hang">
+                                        <ul id="selectedAllDT">
+                                            <li data-bind="click: ChooseDoiTuongGuiTin">
+                                                <span>Toàn bộ khách hàng</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="sinhnhatkhachhang">
+                        <div class="form-group floatleft">
+                            <label>Khách hàng sinh nhật</label>
+                            <div class="form-news" style="display:flex">
+                                <div class="form-date-singer add-icon-date">
+                                    <input type="text" class="form-control newDatesingle" id="txtNgaySN">
+                                </div>
+                                <div class="outselect outselectmodalsms doituonglocsinhnhat">
+                                    <div class=" floatleft" id="choose_LoaiCongViecSN" aria-expanded="true">
+                                        <ul data-bind="foreach: MangKhachHangGuiTinSN">
+                                            <li class="li-input-span">
+                                                <span data-bind="text: TenDoiTuong">
+                                                </span>
+                                                <span data-bind="click: $root.CloseDoiTuongGuiTinSN">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" id="dllCongViecSN" class="dropdown form-control input-khach-hang" placeholder="Chọn khách hàng">
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft drop-list-khach-hang">
+                                        <ul id="selectedDoiTuongSN">
+                                            <li data-bind="click: $root.ChooseDoiTuongGuiTinSN, visible: ArrKhachHangCoSDTSN().length >0">
+                                                <span>Toàn bộ khách hàng</span>
+                                            </li>
+                                            <!--ko foreach: ArrKhachHangCoSDTSN-->
+                                            <li data-bind="click: $root.ChooseDoiTuongGuiTinSN, attr:{id: ID}">
+                                                <span data-bind="text: TenDoiTuong"></span><br />
+                                                SDT: <span data-bind="text: DienThoai"></span>
+                                            </li>
+                                            <!--/ko-->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="hoadongiaodich">
+                        <div class="form-group floatleft">
+                            <label>Hóa đơn giao dịch</label>
+                            <div class="form-news" style="display:flex; flex-direction:row">
+                                <div class="form-date-singer add-icon-date">
+                                    <input type="text" class="form-control newDatesingle" id="txtNgayHD">
+                                </div>
+                                <div class="outselect outselectmodalsms doituonglocsinhnhat">
+                                    <div class=" floatleft" id="choose-hoadon" aria-expanded="true">
+                                        <ul data-bind="foreach: MangKhachHangGuiTinGD">
+                                            <li class="li-input-span">
+                                                <span data-bind="text: MaHoaDon">
+                                                </span>
+                                                <span data-bind="click: $root.closeHoaDon">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" id="dllCongViecGD" class="form-control dropdown input-khach-hang" placeholder="Chọn hóa đơn">
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft drop-list-khach-hang">
+                                        <ul data-bind="foreach: ArrKhachHangCoSDTGD" id="selectedHoaDon">
+                                            <li data-bind="click: $root.ChooseHoaDon, attr:{id: ID}">
+                                                MaHD: <span data-bind="text: MaHoaDon"></span>
+                                                TenKH: <span data-bind="text: MaHoaDon"></span>
+                                                SoDT: <span data-bind="text: SoDienThoai"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" id="lichhen">
+                        <div class="form-group floatleft">
+                            <label>Lịch hẹn</label>
+                            <div class="form-news" style="display:flex">
+                                <div class="form-date-singer add-icon-date">
+                                    <input type="text" class="form-control newDatesingle" id="txtNgayDatLich">
+                                </div>
+                                <div class="outselect outselectmodalsms doituonglocsinhnhat">
+                                    <div class=" floatleft" id="choose_LoaiCongViecSN" aria-expanded="true">
+                                        <ul data-bind="foreach: Popup_LichHenChosed">
+                                            <li class="li-input-span">
+                                                <span data-bind="text:TenDoiTuong">
+                                                </span>
+                                                <span data-bind="click: $root.Popup_RemoveAppointment">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" id="txtLichHen" class="form-control dropdown input-khach-hang" placeholder="Chọn khách hàng">
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft drop-list-khach-hang">
+                                        <ul id="ddlAppointemnt">
+                                            <li data-bind="click: $root.Popup_ChoseAppointment, visible: LichHen_byDate().length >0 || Popup_LichHenChosed().length > 0">
+                                                <span>Toàn bộ khách hàng</span>
+                                            </li>
+                                            <!--ko foreach: LichHen_byDate-->
+                                            <li data-bind="click: $root.Popup_ChoseAppointment, attr:{id: ID}">
+                                                <span data-bind="text: TenDoiTuong"></span> - <span data-bind="text: DienThoai"></span><br />
+                                                <span data-bind="text: NoiDungLichHen"></span>
+                                            </li>
+                                            <!--/ko-->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Mẫu SMS</label>
+                        <div class="form-news">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown">
+                                    <div class="form-control" id="txtMauTinChoose" style="cursor:pointer"> Chọn mẫu tin</div>
+                                    <i class="fa fa-angle-down" aria-hidden="true" style=" position: absolute; top: 8px;font-size: 18px;right: 10px;"></i>
+                                </div>
+                                <div class="selec-person dropdown-menu " style="width:100%">
+                                    <ul>
+                                        <li data-bind="click: selectedMauTin">
+                                            <a href="javascript:void(0)">
+                                                <span>Chọn mẫu tin</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <ul data-bind="foreach: SMSMaus" id="ChooseMauTin">
+                                        <li data-bind="click: $root.selectedMauTin, attr:{id: ID}">
+                                            <a href="javascript:void(0)">
+                                                <span data-bind="text: NoiDungTin"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung</label>
+                        <div class="form-news">
+                            <textarea type="text" rows="4" id="txtNoiDungTin"></textarea>
+                            <span id="remaining"></span><span id="messages"></span>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số dư hiện tại</label>
+                        <label data-bind="text: formatNumber($root.SoDuTaiKhoan())"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-main" id="btnGuiTinNhan" data-bind="click: $root.GuiTinNhan"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> Gửi</button>
+                    <button type="button" class="btn btn-main" id="btnGuiTinNhanSN" data-bind="click: $root.GuiTinNhanSN"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> Gửi</button>
+                    <button type="button" class="btn btn-main" id="btnGuiTinNhanGD" data-bind="click: $root.GuiTinNhanGD"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> Gửi</button>
+                    <button type="button" class="btn btn-main" id="btnGuiTinLichHen" data-bind="click: $root.GuiTinLichHen"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> Gửi</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*end model*@
+@*start popup gửi tin sdt*@
+<div class="modal fade in" id="exampleModalSDT" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="false">
+    <div class="modal-dialog draggable modal-sm">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title txtEditThemBrand">Thêm mới SMS</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nopadding">
+                    <p id="message_error_dathang" class="text-right" style="color:red;"></p>
+                    <div class="form-group floatleft">
+                        <label>Số điện thoại (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" id="txtSoDienThoai" onkeypress="return keyPress(event)">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Thương hiệu: (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+                            <div class="outselect" style="display:flex; flex-direction:row">
+                                <div class="choose-person floatleft " data-toggle="dropdown">
+                                    <div class="form-control" id="txtBrandNamesSDT" style="cursor:pointer"> Chọn BrandName</div>
+                                    <i class="fa fa-angle-down" aria-hidden="true" style="    position: absolute; top: 8px;font-size: 18px;right: 10px;"></i>
+                                </div>
+                                <div class="selec-person dropdown-menu " style="width:100%">
+                                    <ul>
+                                        <li data-bind="click: selectedBrandNameSDT">
+                                            <a href="javascript:void(0)">
+                                                <span>Chọn BrandName</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <ul data-bind="foreach: BrandNames" id="selectedBrandNameSDT">
+                                        <li data-bind="click: $root.selectedBrandNameSDT, attr:{id: ID}">
+                                            <a href="javascript:void(0)">
+                                                <span data-bind="text: BrandName"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Mẫu SMS</label>
+                        <div class="form-news">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown">
+                                    <div class="form-control" id="txtMauTinChooseSDT" style="cursor:pointer"> Chọn mẫu tin</div>
+                                    <i class="fa fa-angle-down" aria-hidden="true" style=" position: absolute; top: 8px;font-size: 18px;right: 10px;"></i>
+                                </div>
+                                <div class="selec-person dropdown-menu " style="width:100%">
+                                    <ul>
+                                        <li data-bind="click: selectedMauTinSDT">
+                                            <a href="javascript:void(0)">
+                                                <span>Chọn mẫu tin</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <ul data-bind="foreach: SMSMaus" id="ChooseMauTinSDT">
+                                        <li data-bind="click: $root.selectedMauTinSDT, attr:{id: ID}">
+                                            <a href="javascript:void(0)">
+                                                <span data-bind="text: NoiDungTin"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung</label>
+                        <div class="form-news">
+                            <textarea type="text" rows="4" id="txtNoiDungTinSDT"></textarea>
+                            <span id="remainingSDT"></span><span id="messages"></span>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số dư hiện tại</label>
+                        <label data-bind="text: formatNumber($root.SoDuTaiKhoan())"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    <button type="button" class="btn btn-save" id="btnGuiTinNhanSDT" data-bind="click: $root.GuiTinNhanSDT"> <i class="fa fa-save"></i> Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade in" id="modalNhomKHNCC" >
+    <div class="modal-dialog draggable modal-sm">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title txtEditThemBrand">Nhóm khách hàng</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nopadding">
+                    <input type="text" class="form-control" placeholder="Tìm nhóm khách hàng" data-bind="value: filterNhomKH, valueUpdate:'afterkeydown' " />
+                </div>
+                <br />
+                <div class="col-md-12 nopadding sms-divNhomKH">
+                    <div class="col-md-6 col-sm-6">
+                        <ul class="floatleft" data-bind="foreach: ArrFiterNhomKH">
+                            <!--ko if: $index() < $parent.ArrFiterNhomKH().length/2-->
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-bind="event:{change: $parent.ChoseNhomKH}, attr: {id:'smsNhom_'+ID}" />&nbsp;&nbsp;
+                                    <span data-bind="text: TenNhomDoiTuong"></span>
+                                </label>
+                            </li>
+                            <!--/ko-->
+                        </ul>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <ul class="floatleft" data-bind="foreach: ArrFiterNhomKH">
+                            <!--ko if: $index() >= $parent.ArrFiterNhomKH().length/2-->
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-bind="event:{change: $parent.ChoseNhomKH}, attr: {id:'smsNhom_'+ID}" />&nbsp;&nbsp;
+                                    <span data-bind="text: TenNhomDoiTuong"></span>
+                                </label>
+                            </li>
+                            <!--/ko-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-main" data-bind="click: AgreeChoseNhom"><i class="fa fa-paper-plane-o" aria-hidden="true"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*end*@
+<script>
+    $('.outselectmodalsms .input-khach-hang').on('keyup', function (e) {
+        if ($(this).val() !== '' && $(this).val() !== null) {
+            $(this).closest('div').next().show();
+        }
+        if (e.keyCode === 13) {
+        }
+    })
+    $('.input-khach-hang').on('click', function () {
+        //$('.drop-list-khach-hang').toggle();
+        $(".drop-list-khach-hang").mouseup(function () {
+            return false;
+        });
+        $('.input-khach-hang').mouseup(function () {
+            return false;
+        });
+        $(document).mouseup(function () {
+            $(".drop-list-khach-hang").hide();
+        });
+    });
+    $('.drop-list-khach-hang ul li').on('click', function () {
+        $('.drop-list-khach-hang').hide();
+    });
+    function keyPress(e) {
+        var keypressed = null;
+        if (window.event) {
+            keypressed = window.event.keyCode; //IE
+        }
+        else {
+            keypressed = e.which; //NON-IE, Standard
+        }
+        if (keypressed < 48 || keypressed > 57) {
+            if (keypressed === 8 || keypressed === 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+    if ($.inArray('GuiTinNhan_ThemMoi', lc_CTQuyen) > -1) {
+        $('.txtCongViecThemMoi').show();
+    }
+    else {
+        $('.txtCongViecThemMoi').hide();
+    }
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    $('#table-reponsive').on('click', '.prev-tr-hide', function () {
+        setTop = $('#table-reponsive thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+        $(this).parents(".table-reponsive").toggleClass("table_re");
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        if (t == "none") {
+            $(".op-js-tr-hide").removeClass("ac");
+            $(".op-js-tr-hide").removeClass("l");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+            heightold = $(this).next().height();
+            heigth = parseInt($(this).height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            $(this).next(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            $(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+    });
+    var $remaining = $('#remaining'),
+        $messages = $remaining.next();
+    var numtext = 160;
+    $('#txtNoiDungTin').keyup(function () {
+        //!(/^[A-z&#209;&#241;!-9-\s]*$/i).test(this.value) ? this.value = this.value.replace(/[^A-z&#209;&#241;!-9-\s]/ig, '') : null;
+        var chars = this.value.length,
+            messages = Math.ceil(chars / numtext),
+            remaining = messages > 1 ? (messages - 1) * numtext + (chars % ((messages - 1) * numtext) || (messages - 1) * numtext) : (messages - 1) * numtext + (chars % (messages * numtext) || messages * numtext);
+        var totalmes = messages * numtext;
+        if (messages !== 0) {
+            $remaining.text(remaining + '/' + totalmes);
+            $messages.text(' (' + messages + ' tin nhắn)');
+        }
+        else {
+            $remaining.text("");
+            $messages.text("");
+        }
+    });
+    var $remainingSDT = $('#remainingSDT'),
+        $messagesSDT = $remainingSDT.next();
+    
+    $('#txtNoiDungTinSDT').keyup(function () {
+        !(/^[A-z&#209;&#241;!-9-\s]*$/i).test(this.value) ? this.value = this.value.replace(/[^A-z&#209;&#241;!-9-\s]/ig, '') : null;
+        var chars = this.value.length,
+            messages = Math.ceil(chars / numtext),
+            remaining = messages > 1 ? (messages - 1) * numtext + (chars % ((messages - 1) * numtext) || (messages - 1) * numtext) : (messages - 1) * numtext + (chars % (messages * numtext) || messages * numtext);
+        var totalmes = messages * numtext;
+        if (messages !== 0) {
+            $remainingSDT.text(remaining + '/' + totalmes);
+            $messagesSDT.text(' (' + messages + ' tin nhắn)');
+        }
+        else {
+            $remainingSDT.text("");
+            $messagesSDT.text("");
+        }
+    });
+    var time = new Date();
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            ClassCalender: "_date-birday",
+            visibleNextprev: false,
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tạo báo cáo",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+        $('.newDatesingle').datetimepicker({
+            timepicker: false,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y',
+            value: moment(time).format('DD/MM/YYYY'),
+        });
+    });
+</script>
+<script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/DanhMucSMS"))" type="text/javascript"></script>
+<script>
+    expand_sts = window.localStorage;
+    $("#shownhapxuat").click(function () {
+        if ($((".btnExport")).hasClass("forcehide")) {
+            expand_import();
+        } else {
+            hide_import();
+        }
+    });
+    if (localStorage.getItem("expand_sts") == "open") {
+        expand_import();
+    } else {
+        hide_import();
+    }
+    function expand_import() {
+        if ($("html").width() > 425) {
+            $(".btnImport").removeClass("forcehide");
+            $((".btnExport")).removeClass("forcehide");
+            localStorage.setItem("expand_sts", "open");
+        }
+    };
+    function hide_import() {
+        if ($("html").width() > 425) {
+            $(".btnImport").addClass("forcehide");
+            $((".btnExport")).addClass("forcehide");
+            localStorage.setItem("expand_sts", "close");
+        }
+    };
+</script>

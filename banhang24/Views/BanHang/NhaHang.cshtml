@@ -1,0 +1,1111 @@
+﻿@using System.Web.Optimization
+@using banhang24.AppCache
+@using banhang24.Hellper
+@{
+    Layout = null;
+}
+<style>
+    .myddl {
+        border: 1px solid #ccc;
+        border-radius: 1px !important;
+    }
+    .loading-box {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: 999999999999999999
+    }
+    .loading-bg {
+        background: #fff;
+        height: 100%
+    }
+    .loading-obj {
+        overflow: visible;
+        position: relative;
+        background: #fff;
+        width: 200px;
+        height: 200px;
+        margin: auto;
+        top: calc(50vh - 200px);
+        border-radius: 50%
+    }
+    .loading-img {
+        margin: 82px 50px;
+        vertical-align: middle
+    }
+    .loading-txt {
+        width: 200px;
+        margin: auto;
+        padding-left: 100px
+    }
+    .loading-done {
+        display: none;
+        position: absolute;
+        top: 0;
+        background: #fff;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        text-align: center;
+        padding: 50px
+    }
+    .loader {
+        border: 5px solid var(--color-primary);
+        border-radius: 50%;
+        border-top: 5px solid #fff;
+        border-left: 5px solid #fff;
+        border-bottom: 5px solid #fff;
+        height: 120px;
+        top: 15px;
+        right: 15px;
+        z-index: 999;
+        animation: spin 1s cubic-bezier(.4, 0, .2, 1) infinite;
+        position: absolute;
+        width: 150px;
+        height: 150px
+    }
+</style>
+<html>
+<head>
+    <title>Open24.vn - Thu ngân</title>
+    <link rel="icon" href="~/Content/images/open24.vn.png" type="image/gif">
+    <link rel="stylesheet" href="@Html.WriteRenderFile(Styles.Url("~/Content/CssFramework"))" />
+    <link rel="stylesheet" href="@Html.WriteRenderFile(Styles.Url("~/Content/Open24Css"))" />
+    <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/JsFramework"))" type="text/javascript"></script>
+    <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/JsStatic"))" type="text/javascript"></script>
+    <link href="~/Content/Nhahang2.css" rel="stylesheet" />
+    <script>
+        $(function () {
+            $(".draggable").draggable({ handle: ".modal-header" });
+        });
+        window.applicationCache.onupdateready = function (e) {
+            window.applicationCache.swapCache();
+        }
+    </script>
+</head>
+<body class="container-fluid nopadding">
+    <div class="loading-box">
+        <div class="loading-bg">
+            <div class="loading-obj">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+    <div id="divPage">
+        <input style="display:none" value="@ViewBag.cookieDonVi" id="txtDonVi" />
+        <input style="display:none" value="@ViewBag.cookieIDUser" id="txtIDUser" />
+        <input style="display:none" value="@ViewBag.cookieUserLogin" id="txtUserLogin" />
+        <input style="display:none" value="@ViewBag.cookieIDNhanVien" id="txtIDNhanVien" />
+        <input type="hidden" value="@ViewBag.SubDomain" id="subDomain" />
+        <!-- ==============================================================-->
+        <!-- Bill-Header -->
+        <!-- ==============================================================-->
+        <div class="container-fluid bill-header nopadding">
+            <div class="nopadding" id="header_left">
+                <ul class="nav nav-tabs" id="position_selecttion">
+                    <li class="active" id="homePB">
+                        <a href="#home" data-toggle="tab" data-bind="click: getPhongBan_ByIDNhom, hotkeydown:{'F1': getPhongBan_ByIDNhom}">
+                            Phòng bàn
+                            <font>(F1)</font>
+                        </a>
+                    </li>
+                    <li id="homeFoods">
+                        <a href="#infor" data-toggle="tab" data-bind="click: getHangHoa_ByIDNhom,
+                               hotkeydown: {'F2' : getHangHoa_ByIDNhom  } ">
+                            Thực đơn
+                            <font>(F2)</font>
+                        </a>
+                    </li>
+                </ul>
+                <div class="bill-seach">
+                    <div id="seachHangHoa" hidden class="search-hh-hd">
+                        <div id="el">
+                            <nav>
+                                <input type="text" class="form-control ui-autocomplete-input" id="inputFocus" v-model="query" autocomplete="off"
+                                       v-on:keyup="submit" placeholder="Tìm kiếm thực đơn (F3)">
+                                <span class="icon-seachpp">
+                                    <img src="/Content/images/iconbepp18.9/timkiem.png" alt="search icon">
+                                </span>
+                            </nav>
+                            <div id="showseach" hidden>
+                                <ul>
+                                    <li v-for="item of searchResult">
+                                        <a>
+                                            <span class="team-img">
+                                                <img style="width: 30px;height:30px" v-bind:src="item.SrcImage" alt="ảnh hàng hóa">
+                                            </span>
+                                            <span class="tit-seach">{{ item.TenHangHoa }}</span>
+                                            <i>
+                                                <span>{{ item.TenDonViTinh }}</span>
+                                            </i><br />
+                                            <span class="seach-hh"> {{ item.MaHangHoa }}</span>
+                                            Giá: <span>
+                                                {{ item.GiaBan }}
+                                            </span>
+                                            <span>
+                                                Tồn kho:<span>{{ item.TonKho }}</span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="searchPhongBan" class="filter-vi-tri">
+                        <nav>
+                            <input type="text" class="form-control ui-autocomplete-input" placeholder="Tìm kiếm vị trí"
+                                   data-bind=" value: modelViTri,event: { keyup: filterViTrichanged }">
+                            <span class="icon-seachpp">
+                                <img src="/Content/images/iconbepp18.9/timkiem.png" alt="tìm kiếm ">
+                            </span>
+                        </nav>
+                        <div class="total-so-do">
+                            <span data-bind="text:roomBusy">0</span> <font>vị trí bận</font> |
+                            <span data-bind="text:roomEmpty">48</span> <font>&nbsp;vị trí trống</font>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nopadding" id="header_right">
+                <div class="bill-bxslide">
+                    <a class="bx-prev"  data-bind="click: prevTableUsed, visible: hasPrevTbl">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <ul data-bind="foreach: resultTableUsed">
+                        <li data-bind=" attr:{id: 'room_'+ ID, class: $root.selectedPhongBan() == ID?'using':''},
+                        text: TenViTri, click: function () {$parent.ClickImg($data,false)}">Phòng 1</li>
+                    </ul>
+                    <a class="bx-next"  data-bind="click: nextTableUsed, visible: hasNextTbl">
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="bill-control-right " style="width:156px">
+                    <ul>
+                        <li data-bind="click: showHoaDonOffline">
+                            <a href="javascript:void(0)" title="Đồng bộ dữ liệu" class="synchronous">
+                                <i class="fa fa-cloud-upload"></i>
+                            </a>
+                            <a href="javascript:void(0)" style="position:relative">
+                                <span class="synchronousspan" style="right: -10px;top: -15px;" data-bind="text: countHDoffilne, visible: countHDoffilne() > 0">
+                                    99
+                                </span>
+                            </a>
+                        </li>
+                        <li class="bill-print" title="Print" data-bind="click: function(){ BindSettingPrint(false)}">
+                            <a href="javascript:void(0)">
+                                <i class="fa fa-print" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li class="handling-kitchen">
+                            <a  id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dLabel">
+                                <li><a href="/$/kitchen"><i class="fa fa-bell"></i> Nhà bếp</a></li>
+                                <li><a href="/#/TotalSalesReport"><i class="fa fa-align-left"></i> Xem báo cáo ngày</a></li>
+                                <li hidden>
+                                    <a href="javascript:void(0)"
+                                       data-toggle="modal" data-target=".bs-example-modal-mk">
+                                        <i class="fa fa-share-square"></i> &nbsp; Chọn hóa đơn trả hàng
+                                    </a>
+                                </li>
+                                <li hidden> <a href="javascript:void(0)" data-bind="click: showPopupLapPhieuThu"><i class="fa fa-file-text-o"></i> Lập phiếu thu</a></li>
+                                <li> <a href="javascript:void(0)" data-bind="click: showPopupTraCuuHH"><i class="fa fa-file-text-o"></i> Tra cứu hàng hóa</a></li>
+                                <li hidden>
+                                    <a href="javascript:void(0)" data-bind="click: BindSet_HideShowColumCTHD">
+                                        <img src="~/Content/images/print/nhin.png" height="16" alt="ẩn hiện" /> Ẩn hiện cột trên hóa đơn
+                                    </a>
+                                </li>
+                                <li><a href="/#/Invoices"><i class="fa fa-list-alt"></i> Quản lý</a></li>
+                                <li><a href="/home/logout"><i class="fa fa-external-link"></i> Đăng xuất</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" data-bind="click: FullScreen">
+                                <i class="fa fa-arrows" id="full-screen" title="Toàn màn hình"></i>
+                                <span title="Thoát chế độ toàn màn hình" id="ESC-full-screen" hidden>ESC</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="install-notifi" id="thietlapmauin" style="top: 39px !important;right: 19px !important;display: none;">
+                        @Html.Partial("_ThietLapMauIn")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ==============================================================-->
+        <!-- Bill-body -->
+        <!--==============================================================-->
+        <div class="container-fluid bill-content nopadding " id="divContent">
+            <div class="nopadding" id="content_left">
+                <div class="tab-content">
+                    <div class="tab-pane floatleft active" id="home">
+                        <div class="floatleft">
+                            <div class="nav nav-tabs floatleft tab-table  donate">
+                                <ul style="min-width:700px" class="list-inline">
+                                    <li data-bind="attr:{class: !$root.selectGroupkhuVuc()?'active':''}">
+                                        <img class="act-l" src="~/Content/images/conner-white.png" />
+                                        <a href="#h" data-toggle="tab" data-bind="click: getPhongBan_ByIDNhom">Tất cả</a>
+                                        <img class="act-r" src="~/Content/images/conner-white.png" />
+                                    </li>
+                                    <!--ko foreach: NhomBans -->
+                                    <li data-bind="event:{click: $parent.getPhongBan_ByIDNhom }, attr:{class: $root.selectGroupkhuVuc()==ID?'active':''}">
+                                        <img class="act-l" src="~/Content/images/conner-white.png" />
+                                        <a  data-toggle="tab" data-bind="text: TenKhuVuc, attr:{href: 'nhom_'+ID}">Phòng ban Số 0001</a>
+                                        <img class="act-r" src="~/Content/images/conner-white.png" />
+                                    </li>
+                                    <!--/ko-->
+                                </ul>
+                            </div>
+                            <div class="tab-content ">
+                                <div class="tab-pane active floatleft table_choose" id="h">
+                                    <ul class="list-room list-room-hoa-don">
+                                        <!--ko foreach: PageResultsPBMangVe -->
+                                        <li>
+                                            <a href="javascript:void(0)" data-bind="click: function () {$parent.ClickImg($data,true)}">
+                                                <div class="room-head">
+                                                    <h5 data-bind="text:TenViTri">Mang về</h5>
+                                                </div>
+                                                <div class="room-body">
+                                                    <div class="image-transport">
+                                                        <img src="~/Content/images/iconbepp18.9/i-giao-hang.png" alt="giao hàng" />
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <!--/ko-->
+                                        <!--ko foreach: PageResultsPB -->
+                                        <li>
+                                            <a href="javascript:void(0)" data-bind="click: function () {$parent.ClickImg($data,true)}">
+                                                <div class="room-head">
+                                                    <h5 class="room-emty" data-bind="text:TenViTri">Bàn A6</h5>
+                                                    <span data-bind="text:TenKhuVuc">Tầng 1</span>
+                                                </div>
+                                                <div class="room-body">
+                                                    <p data-bind="visible: CreateTime !=='0'">
+                                                        <label data-bind=" text: CreateTime">10:30 PM </label>
+                                                        <span class="sp-room-time" data-bind="text:WorkingTime">1 phút</span>
+                                                    </p>
+                                                    <p data-bind="visible: SoLuongKhachHang !==0">
+                                                        <label>Số khách</label>
+                                                        <font class="ft-room-time timeUse" data-bind="text:SoLuongKhachHang"> 5</font>
+                                                    </p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <!--/ko-->
+                                    </ul>
+                                    <div class="view-control">
+                                        <a href="javascript:void(0)" title="Trang trước" data-bind="click: GotoPrev, visible: hasGotoPrev">
+                                            <i class="fa fa-chevron-left"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" data-bind="click: GotoNext, visible: hasGotoNext" title="Trang sau">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane  floatleft" id="infor">
+                        <div id="tree" style="display:none"></div>
+                        <div class="nav nav-tabs  nhomHH">
+                            <a class="bx-prev"  data-bind="visible: hasPrevNhomHH, click: prevNhomHH ">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a class="bx-next"  data-bind="visible: hasNextNhomHH, click: nextNhomHH">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </a>
+                            <ul style="display:inline-block" class="list-inline">
+                                <li class="active" data-bind="attr:{class: !$root.selectedNhomHH()?'active':''}">
+                                    <a href="#ho" data-toggle="tab" data-bind="click: getHangHoa_ByIDNhom">Tất cả</a>
+                                </li>
+                                <!--ko foreach: resultNhomHH -->
+                                <li class="active" data-bind="attr:{class: $root.selectedNhomHH()== id?'active':''}">
+                                    <a  data-toggle="tab" data-bind="click: $parent.getHangHoa_ByIDNhom, attr:{id: id}, text:text"></a>
+                                </li>
+                                <!--/ko-->
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="ho">
+                                <div class="bill-listmenu  bill-listmenu-hoadon floatleft">
+                                    <ul id="showseachPage" data-bind="foreach: PageResults">
+                                        <li onclick="showFocus($(this))" data-bind=" click: $parent.addHangHoa, css: CssImg">
+                                            <div class="img-bill">
+                                                <a href="javascript:void(0)">
+                                                    <img data-bind="attr:{src: SrcImage ==null?'/Content/images/iconbepp18.9/gg-37.png':SrcImage}" alt="">
+                                                </a>
+                                            </div>
+                                            <div class="name-bill-hh">
+                                                <a href="javascript:void(0)" data-bind="html: formatNumber(GiaBan) +' Đ'"></a>
+                                            </div>
+                                            <div class="name-menu" data-bind="style:{ background: BackgroundColor}">
+                                                <div>
+                                                    <div class="floatleft name-goods">
+                                                        <a href="javascript:void(0)" style=" font-weight:bold!important"
+                                                           data-bind="html: TenHangHoa"></a>
+                                                        <span style="color:white" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div class="view-control">
+                                        <a href="javascript:void(0)" title="Trang trước" data-bind="click: previous, visible: hasPrevious">
+                                            <i class="fa fa-chevron-left"></i>
+                                        </a>
+                                        <a href="javascript:void(0)" title="Trang sau" data-bind="click: next, visible: hasNext">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nopadding" id="content_right">
+                <div class="container-fluid nopadding">
+                    <div class="nav nav-tabs  divLstHoaDon nha-bep-hoa-don">
+                        <a class="bx-prev"  data-bind="click: prevHoaDon_ofPB, visible: hasPrevHD">
+                            <i class="fa fa-angle-left"></i>
+                        </a>
+                        <div style="    left: 3px;    position: relative;    width: calc(100% - 90px);    margin-left: 23px;">
+                            <!--ko foreach: listHoaDon_ofPB-->
+                            <span class="table-time active" onclick="SetActiveHD(this)">
+                                <a href="#th" data-toggle="tab" data-bind="attr:{id: ID},click: $parent.GetThongTinHoaDon,style: {width: MaHoaDon !=null && MaHoaDon.length > 3?'110px': '100px'}">
+                                    <img class="act-l" src="~/Content/images/conner-white.png" />
+                                    <span class="munber-goods" data-bind="text: MaHoaDon, attr:{id: IDRandom}"></span>
+                                    <span class="time-detail" data-bind="text: CreateTime"></span>
+                                    <i class="material-icons md-18" aria-hidden="true" data-bind="click: $parent.CloseHoaDon">close</i>
+                                    <img class="act-r" src="~/Content/images/conner-white.png" />
+                                </a>
+                            </span>
+                            <!--/ko-->
+                        </div>
+                        <span class="operation hoverMaHoaDon"></span>
+                        <a class="bx-next"  data-bind="click: nextHoaDon_ofPB, visible: hasNextHD">
+                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                        </a>
+                        <span class="add-top">
+                            <a  class="bill-pluss hover-round bill-plusnext " data-bind="click: addPhongBan">
+                                <i class="material-icons ">add</i>
+                            </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="container-fluid nopadding">
+                    <div class="tab-content tab-nha-bep" style="padding:15px 15px 0 15px;">
+                        <div class="tab-pane active bill-infor" id="th">
+                            <ul class="nav nav-tabs">
+                                <li class="active" id="td_tab">
+                                    <a href="#tt" data-toggle="tab">Thực đơn</a>
+                                </li>
+                                <li id="tt_tab">
+                                    <a href="#mr" data-toggle="tab">Thông tin</a>
+                                </li>
+                                <li class="bill-print-flast hover-round" data-bind="click: printDraft" id="btnPrintDraft">
+                                    <img src="~/Content/images/iconbepp18.9/pri.png" alt="in" />
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active floatleft p20" id="tt">
+                                    <div class="bill-listchoose floatleft">
+                                        <ol data-bind="foreach: HangHoaAfterAdds" class="list-chon-hh">
+                                            <li class="list-chon-hh-li">
+                                                <div class="inner-listchoose floatleft">
+                                                    <div class="bill-name-list2" style="height:20px">
+                                                        <span data-bind="text: TenHangHoa">Tên hàng hóa</span>
+                                                        <em data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !== null">
+                                                            <a>
+                                                                <span>&nbsp;&#40;</span>
+                                                                <span data-bind="text: TenDonViTinh">Lần</span>
+                                                                <span>&#41;</span>
+                                                            </a>
+                                                        </em>
+                                                    </div>
+                                                    <div class="w60">
+                                                        <button class=" price-fist price-fist2 text-right"
+                                                                data-bind="text: formatNumber(GiaBan) , attr:{id: IDRandom}, click: $parent.clickGiaBan"></button>
+                                                        <div class="arrow-left1 arrow-left arrow-left2" data-bind="attr:{id: 'arrow-left_'+ IDRandom}">
+                                                            <div class="price floatleft">
+                                                                <span>Giá mới</span>
+                                                                <input type="text" class="form-control price_new" data-bind="attr:{id: IDRandom}, event:{keyup: $parent.editPrice}"
+                                                                       onkeypress="return keypressNumber(event)" />
+                                                            </div>
+                                                            <div class="price price_2 floatleft  ">
+                                                                <span>Giảm giá</span>
+                                                                <input type="text" class="form-control pri-g"
+                                                                       data-bind="attr:{id:'pri-g_'+ IDRandom}, event:{keyup:$parent.editSale}" onkeypress="return getNumber(event,this)" />
+                                                                <div class="plus vnd" data-bind="attr:{id: 'vnd_'+IDRandom}, event:{click: $parent.clickVND}">VNĐ</div>
+                                                                <div class="plus senter gb" data-bind="attr:{id: 'novnd_'+IDRandom},  event:{click: $parent.clickNoVND}">%</div>
+                                                            </div>
+                                                        </div>
+                                                        <span class="sale-h red" data-bind="visible: PTChietKhau > 0 || TienChietKhau > 0, attr:{id:'gg_'+IDRandom}">
+                                                            <span data-bind="text: (DVTinhGiam.indexOf('%') > -1)? PTChietKhau: formatNumber(TienChietKhau),
+                                                          attr:{id: 'lblGiamGia_'+ IDRandom}">
+                                                            </span>
+                                                            <span data-bind="text: DVTinhGiam, attr:{id: 'dvtGiam_'+ IDRandom}"></span>
+                                                        </span>
+                                                        <div data-bind="visible: PTChietKhau > 0 || TienChietKhau > 0" class="span-sale">
+                                                        </div>
+                                                    </div>
+                                                    <div class="w121">
+                                                        <a href="javascript:void(0)" class="bill-plus"
+                                                           data-bind="attr:{id: 'munber-g_'+ IDRandom}, event:{click: $parent.giamSoLuong }"
+                                                           title="Giảm số lượng">
+                                                            <i class="fa fa-angle-down"></i>
+                                                        </a>
+                                                        <!--disable: neu la dvtheogio va thoigian dang chay-->
+                                                        <input class=" munber-bill" autocomplete="off" disabled
+                                                               data-bind="value: SoLuong, attr:{id:'munber_'+ IDRandom, disabled: DichVuTheoGio === 1 && !Stop }, event:{keyup: $parent.editSoluong },
+                                                               click: $parent.ShowComputerQuantity, enable: DichVuTheoGio === 0 || (Stop && DichVuTheoGio === 1)"
+                                                               onkeypress="keypressNumber_limitNumber(event, this)" onclick="this.select()" />
+                                                        <a href="javascript:void(0)" class="bill-plus bill-plusnext"
+                                                           data-bind="attr:{id: 'munber-t_'+ IDRandom}, event:{click: $parent.tangSoLuong }"
+                                                           title="Tăng số lượng">
+                                                            <i class="fa fa-angle-up"></i>
+                                                        </a>
+                                                    </div>
+                                                    <div class="warning ">
+                                                        <span class="activeBlue" data-bind="visible: Bep_SoLuongHoanThanh !==0 && Bep_SoLuongHoanThanh !==null">/</span>
+                                                        <span class="activeBlue" data-bind="text: Bep_SoLuongHoanThanh, visible: Bep_SoLuongHoanThanh !==0"></span>
+                                                        <div data-bind="visible: CssWarning, attr:{id: 'show_wr_'+IDRandom }">
+                                                            <div class="main-warning" data-bind="click: $parent.ShowinforTon_Dat">
+                                                                <i class="fa fa-warning red"></i>
+                                                            </div>
+                                                            <div class="content-warning" data-bind="attr:{id: 'wr_'+IDRandom }">
+                                                                Tồn:&nbsp;<span data-bind="text: TonKho"></span>&nbsp;-&nbsp;
+                                                                Đặt:&nbsp;<span data-bind="text: SoLuong"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="total-bill-last w60">
+                                                        <span data-bind="html: formatNumber3Digit(ThanhTien), attr:{id: 'sum-f_'+ IDRandom}"></span>
+                                                    </div>
+                                                    <a href="javascript:void(0)" class="bill-de" data-bind="event:{click: $parent.xoaHangHoa}">
+                                                        <i class="material-icons md-18" aria-hidden="true">close</i>
+                                                    </a>
+                                                    <div style="background:none; height:20px;width:100%">
+                                                        <div style="display:inline-block">
+                                                            <div class="pen-note bill-pay bill-pen">
+                                                                <i>
+                                                                    <input type="text" class="floatleft" placeholder="Ghi chú" autocomplete="off"
+                                                                           data-bind="value: GhiChu, attr:{id:'gc_'+IDRandom}, event:{keyup: $parent.UpdateCTHD_GhiChu}">
+                                                                </i>
+                                                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                            </div>
+                                                        </div>
+                                                        <!--ko if: DichVuTheoGio === 1 -->
+                                                        <div style="display: inline-block;    display: inline-block;      position: relative;    width: calc(100% - 200px);margin-top:-4px;">
+                                                            <a class="linker" href="javascript:void(0)" data-ng-bind="click: $root."
+                                                               data-bind="click: $root.CTHD_ShowPoupTime">
+                                                                <span class="dichvu-tinhgio" data-bind="attr: {id: 'tinggio_'+ IDRandom},
+                                                                      text: moment(ThoiGian).format('HH:mm') ">23:56</span>
+                                                                <i class="fa fa-clock-o"></i>
+                                                            </a>
+                                                        </div>
+                                                        <!--/ko-->
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="mr">
+                                    <ul>
+                                        <li>
+                                            <div class="container-fluid nopadding">
+                                                <div class="form-group floatleft " id="divSearchKH">
+                                                    <input type="text" class="form-control" id="txtSearchKH" autocomplete="off"
+                                                           v-model="query_Kh" v-on:keyup="submit" onfocusout="HideLostFocust()" placeholder="Tìm kiếm khách hàng">
+                                                    <div class="iptBtn" data-bind="click: showPopupAddKH" id="iconAddKH">
+                                                        <i class="material-icons" title="Thêm mới khách hàng">add</i>
+                                                    </div>
+                                                    <div id="showseach_Kh" hidden style="width:400px" class="divSearchVue">
+                                                        <ul>
+                                                            <li v-for="item of SearchKhachHang" v-on:click="click(item)">
+                                                                <a style="    font-weight: bold;">
+                                                                    <span>Tên: {{ item.TenDoiTuong }}</span><br />
+                                                                    <span>Mã: {{ item.MaDoiTuong }}   -   </span>
+                                                                    <span>ĐT: {{ item.DienThoai }}</span>
+                                                                    <span>Điểm: {{ item.TongTichDiem }}</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <!--table hideshow-->
+                                                <div class="floatleft paddibot15">
+                                                    <table class="table table-striped table-hover ">
+                                                        <tbody data-bind="foreach: ChiTietDoiTuong">
+                                                            <tr>
+                                                                <td width="10%">
+                                                                    <a href="javascript:void(0)" data-bind="click: $parent.deleteNCC">
+                                                                        <i class="fa fa-close fa-lg text-danger"></i>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="javascript:void(0)" data-bind="text: TenDoiTuong, event:{click: $parent.showPopupEditKH}"></a>
+                                                                </td>
+                                                                <td data-bind="text: (DienThoai ===undefined || DienThoai ==='')?'':'ĐT : '+ DienThoai"></td>
+                                                                <td data-bind="text:' Điểm: ' + formatNumber(TongTichDiem)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!--end tablehideshow-->
+                                                <div class="form-group floatleft">
+                                                    <label class="css-form-label">Ngày tạo :</label>
+                                                    <div class="css-form-detail" style="position:relative">
+                                                        <input type="text" class="form-control" id="txtNgayTaoHD"
+                                                               data-bind="value: moment(HoaDons().NgayLapHoaDon(),'YYYY-MM-DD HH:mm').format('DD/MM/YYYY HH:mm'),
+                                                           event:{change: ChangeNgayLapHD}">
+                                                        <i class="fa fa-calendar" aria-hidden="true" style="position:absolute; right:7px; top:7px;"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group floatleft" data-bind="visible: enabledmangve">
+                                                    <label class="css-form-label">Số khách:</label>
+                                                    <div class="css-form-detail">
+                                                        <input class="form-control" type="number"
+                                                               data-bind=" value: HoaDons().SoLuongKhachHang(), event:{change: editNumberCustomer}" id="sokhacden" />
+                                                    </div>
+                                                </div>
+                                                <div class="form-group floatleft">
+                                                    <label class="css-form-label">Bảng giá :</label>
+                                                    <div class="css-form-detail">
+                                                        <div class="dropdown myddl">
+                                                            <div class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
+                                                                 aria-expanded="false" style="height:30px">
+                                                                <span data-bind="text: titleGiaban" style="padding-left:5px">
+                                                                </span>
+                                                                <i class="fa fa-angle-down"></i>
+                                                            </div>
+                                                            <div class="dropdown-menu" aria-labelledby="ddlGiaBan" style="top: 30px;padding: 5px;width:420px;">
+                                                                <div>
+                                                                    <input class="form-control" data-bind="value: filterGiaBan, valueUpdate: 'afterkeydown'" />
+                                                                    <i class="fa fa-search" style=" position:absolute;right:15px; top:5px;"></i>
+                                                                </div>
+                                                                <ul id="ddlGiaBan" class="list-group list-group-flush" data-bind="foreach: arrFilterGiaBan">
+                                                                    <li class="list-group-item" data-bind="click: $parent.ChangeBangGia, attr:{id:'bg_'+ ID}">
+                                                                        <span data-bind="text: TenGiaBan"></span>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group floatleft ">
+                                                    <label class="css-form-label"> NV lập hóa đơn:</label>
+                                                    <div class="css-form-detail">
+                                                        <div class="dropdown myddl">
+                                                            <div id="searchwaitress" style="height:30px" class=" dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bind="">
+                                                                <span data-bind="text: titleNhanvien" style="padding-left:5px">
+                                                                </span>
+                                                                <i class="fa fa-angle-down"></i>
+                                                            </div>
+                                                            <div class="dropdown-menu" aria-labelledby="searchwaitress" style="top: 30px;padding: 5px;width:420px;">
+                                                                <div>
+                                                                    <input class="form-control" data-bind="value: filterNVien, valueUpdate: 'afterkeydown'" />
+                                                                    <i class="fa fa-search" style=" position:absolute;right:15px; top:5px;"></i>
+                                                                </div>
+                                                                <ul id="ddlNVien" class="list-group list-group-flush" data-bind="foreach: arrFilterNhanVien" style="max-height:500px; overflow:scroll">
+                                                                    <li class="list-group-item" data-bind="click: $parent.ChangeNVienBan, attr:{id:'nv_'+ ID}">
+                                                                        <span data-bind="text: TenNhanVien"></span>
+                                                                        <i class="fa fa-edit"></i>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group floatleft">
+                                                    <label class="css-form-label">Ghi chú :</label>
+                                                    <div class="css-form-detail">
+                                                        <textarea rows="2" id="txtNote" placeholder="Ghi chú..."
+                                                                  data-bind="value: HoaDons().DienGiai(), event:{keyup: editNote}"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="infor-TT">
+                            <div class="container-fluid  ">
+                                <div class="table "  id="payment-frame">
+                                    <div hidden  class="show-btn"><i class="material-icons">keyboard_arrow_up </i></div>
+                                    <div hidden  class="hide-btn"><i class="material-icons">keyboard_arrow_down </i></div>
+                                    <table class="table" id="detail-payment">
+                                        <tr class="bold border-top-none sale-goods">
+                                            <td>Tổng tiền hàng</td>
+                                            <td></td>
+                                            <td class="text-right">
+                                                <span class="sum-price" data-bind="text: formatNumber3Digit(HoaDons().TongTienHang())"></span>
+                                            </td>
+                                        </tr>
+                                        <tr class="sale-goods" id="tdPhiDV">
+                                            <td>Phí dịch vụ</td>
+                                            <td></td>
+                                            <td>
+                                                <div style="float:right; text-align:right;" id="charge-box">
+                                                    <span class="parent-charge parent-price parent-price-1" id="tongChiPhi"
+                                                          data-bind="text: formatNumber3Digit(HoaDons().TongChiPhi())"></span>
+                                                </div>
+                                                <div class="arrow-left arrow-left3">
+                                                    <div class="price price_2 floatleft">
+                                                        <span>Phí dịch vụ</span>
+                                                        <input type="text" class="form-control" id="txtcharge"
+                                                               onkeypress="return getNumber(event,this)"
+                                                               data-bind="value: HoaDons().PTChiPhi()>0?HoaDons().PTChiPhi(): formatNumber3Digit(HoaDons().TongChiPhi()), event:{keyup: HD_EditPhiDV}" />
+                                                        <div class="plus gb vnd2" data-bind="attr:{class: HoaDons().DVTinhPhiDV() == 'VND'?'plus gb':'plus'},
+                                                             click: PhiDV_ClickVND">VNĐ</div>
+                                                        <div class="plus senter2" data-bind="attr:{class: HoaDons().DVTinhPhiDV() == 'VND'?'plus': 'plus gb'},
+                                                             click: PhiDV_ClickPercent">%</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="sale-goods">
+                                            <td>Giảm giá (F8)</td>
+                                            <td>
+                                                <span id="ptGiam" class="operation"
+                                                      data-bind="text: HoaDons().TongChietKhau() > 0 ? HoaDons().TongChietKhau(): formatNumber3Digit(HoaDons().TongGiamGia())"></span>
+                                                <span id="dvtGiamParent" class="operation"
+                                                      data-bind="text:HoaDons().DVTinhGiam()"></span>
+                                            </td>
+                                            <td>
+                                                <span class="parent-price parent-price-1"
+                                                      data-bind="text: formatNumber3Digit(HoaDons().TongGiamGiaKM_HD()), click: GetlistGroupSale"></span>
+                                                <div class="arrow-left arrow-left2">
+                                                    <div class="price price_2 floatleft flex flex-between" data-bind="event:{keyup:editSalePr } ">
+                                                        <span>Giảm giá</span>
+                                                        <input type="text" class="form-control price-sa"
+                                                               onkeypress="return getNumber(event,this)" />
+                                                        <div class="plus vnd1" data-bind="click: clickVNDPr">VNĐ</div>
+                                                        <div class="plus senter1 gb" data-bind="click: clickNoVNDPr">%</div>
+                                                    </div>
+                                                    <div class="price price_2 floatleft">
+                                                        <!--ko foreach: ListGroupSale-->
+                                                        <div class="choosenhom floatleft">
+                                                            <span>&nbsp;</span>
+                                                            <div class="choosenhom-right">
+                                                                <input type="radio" class="w20" name="rdoGroupSale" data-bind="value:ID,
+                                                               checked: $parent.HoaDons().ID_NhomDTApplySale(), event:{change: $parent.ChangeID_NhomSale }" />
+                                                                <label data-bind="text: TenNhomDoiTuong">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <!--/ko-->
+                                                    </div>
+                                                    <div class="price price_2 floatleft">
+                                                        <span>Tổng giảm giá :</span>
+                                                        <div style="float:right;border-bottom: 1px solid #CCC;height: 30px;width: calc(100% - 97px);line-height: 18px;padding: 7px 05px 0;text-align: right;"
+                                                             data-bind="text: formatNumber3Digit(HoaDons().TongGiamGiaKM_HD())"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="sale-goods">
+                                            <td>
+                                                Thuế (F7)
+                                                <span id="dvtTax" class="operation"
+                                                      data-bind="text: HoaDons().PTThue() != 0 ?'%':
+                                                   HoaDons().TongTienThue() != 0?'VND': '%'"></span>
+                                            </td>
+                                            <td>
+                                                <span id="ptTax" class="operation"
+                                                      data-bind="text: HoaDons().PTThue()"></span>
+                                            </td>
+                                            <td id="tdTax">
+                                                <div style="float:right">
+                                                    <span class="parent-price parent-tax"
+                                                          data-bind="text: formatNumber3Digit(HoaDons().TongTienThue())"></span>
+                                                </div>
+                                                <div class="arrow-left arrow-left3">
+                                                    <div class="price price_2 floatleft">
+                                                        <span>Thuế</span>
+                                                        <input type="text" class="form-control" id="txtTax"
+                                                               onkeypress="return getNumber(event,this)" data-bind="event:{keyup: editTax}" />
+                                                        <div class="plus gb vnd2" data-bind="click: clickVNDTax">VNĐ</div>
+                                                        <div class="plus senter2" data-bind="click: clickNoVNDTax">%</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-bottom sale-goods">
+                                            <td>Khách cần trả</td>
+                                            <td>VNĐ</td>
+                                            <td class="text-right">
+                                                <span class="price-pay bold" id="lblKhachCanTra"
+                                                      data-bind="text: formatNumber3Digit(HoaDons().PhaiThanhToan())">
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-bottom bold sale-goods">
+                                            <td class="p01">
+                                                <span data-bind="click: ThanhToanThe, hotkeydown:{'F9':ThanhToanThe }">
+                                                    Tiền khách đưa (F9)
+                                                    <img src="~/Content/images/iconbepp18.9/poi.png" alt="tiền khách đưa" />
+                                                </span>
+                                            </td>
+                                            <td>    <div data-bind="click: ThanhToanThe, hotkeydown:{'F9':ThanhToanThe }"><font id="lblTienMat">(Tiền mặt)</font></div></td>
+                                            <td lass="p01">
+                                                <input class="price-pay-end  text-right bold" type="text" id="txtTienKhachDua"
+                                                       data-bind="value: formatNumber3Digit(HoaDons().DaThanhToan()),event:{keyup:editDaTra }"
+                                                       onkeypress="return keypressNumber(event)" style="width:150px" />
+                                            </td>
+                                        </tr>
+                                        <tr class="sale-goods">
+                                            <td data-bind="text: HoaDons().TienThua() >= 0?'Tiền thừa trả lại khách':'Tiền khách thiếu'"></td>
+                                            <td></td>
+                                            <td class="text-right" id="txtTienThua" data-bind="text: formatNumber3Digit(Math.abs(HoaDons().TienThua()))"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="bill-control btn-nha-bep">
+                                    <a href="javascript:void(0)" id="btnThongBaoNhaBep">
+                                        <div class="nha-bep-thong-bao">
+                                            Thông báo bếp
+                                        </div>
+                                    </a>
+                                    <a href="javascript:void(0)" data-bind="click: showModalChuyenGhepBan,visible: enabledmangve" id="btnGhepBan">
+                                        <div class="nha-bep-ghep"> Chuyển/Ghép bàn </div>
+                                    </a>
+                                    <a href="javascript:void(0)" id="btnSave" @*data-bind=" hotkeydown:{'F10':saveHoaDon }"*@>
+                                        <div class="nha-bep-thanh-toan">    Thanh toán (F10)  </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="supper-hotline  pull-right" hidden>
+                                Hỗ trợ: <span>1900 6914</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ==============================================================-->
+        <!-- Bill-mobile -->
+        <!--==============================================================-->
+        <div class="mobile-nav" hidden>
+            <a id="redirect_divLeft" class="active">
+                <i class="material-icons">shopping_cart</i>
+                <small>Thêm mới</small>
+            </a>
+            <a id="redirect_divRight" href="#tt" data-toggle="tab">
+                <i class="material-icons">   speaker_notes</i>
+                <small>Giỏ hàng</small>
+            </a>
+            <a id="redirect_mr" href="#mr" data-toggle="tab">
+                <i class="material-icons">   done</i>
+                <small>Thanh toán</small>
+            </a>
+        </div>
+        <div class="modal fade" id="op_setting_modal" tabindex="-1" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLongTitle">Thiết lập</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid" id="popup_menu">
+                            <ul>
+                                <li data-bind="click: showHoaDonOffline">
+                                    <a href="javascript:void(0)" title="Đồng bộ dữ liệu" class="synchronous">
+                                        <h4>  <i class="fa fa-cloud-upload"></i> Đồng bộ dữ liệu</h4>
+                                    </a>
+                                    <a href="javascript:void(0)" style="position:relative">
+                                        <span class="synchronousspan" style="right: -10px;top: -15px;" data-bind="text: countHDoffilne, visible: countHDoffilne() > 0">
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="handling-kitchen">
+                                    <a  id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <h4>  <i class="fa fa-cogs"></i>Khác</h4>
+                                    </a>
+                                    <ul>
+                                        <li><a href="/$/kitchen"><i class="fa fa-bell"></i> Nhà bếp</a></li>
+                                        <li><a href="/#/TotalSalesReport"><i class="fa fa-align-left"></i> Xem báo cáo ngày</a></li>
+                                        <li hidden>
+                                            <a href="javascript:void(0)"
+                                               data-toggle="modal" data-target=".bs-example-modal-mk">
+                                                <i class="fa fa-share-square"></i> &nbsp; Chọn hóa đơn trả hàng
+                                            </a>
+                                        </li>
+                                        <li> <a href="javascript:void(0)" data-bind="click: showPopupLapPhieuThu"><i class="fa fa-file-text-o"></i> Lập phiếu thu</a></li>
+                                        <li> <a href="javascript:void(0)" data-bind="click: showPopupTraCuuHH"><i class="fa fa-file-text-o"></i> Tra cứu hàng hóa</a></li>
+                                        <li hidden>
+                                            <a href="javascript:void(0)" data-bind="click: BindSet_HideShowColumCTHD">
+                                                <img src="~/Content/images/print/nhin.png" height="16" alt="ẩn hiện" /> Ẩn hiện cột trên hóa đơn
+                                            </a>
+                                        </li>
+                                        <li><a href="/#/Invoices"><i class="fa fa-list-alt"></i> Quản lý</a></li>
+                                        <li><a href="/home/logout"><i class="fa fa-external-link"></i> Đăng xuất</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ==============================================================-->
+        <!-- Bill-modal -->
+        <!--==============================================================-->
+        <!--modal trahanghoamodal-->
+        <div class="modal fade" id="trahanghoamodal">
+            @Html.Partial("_TraCuuHangHoa")
+        </div>
+        <!--modal modalPopuplgDelete-->
+        <div class="modal fade" id="modalPopuplgDelete">
+            <div class="modal-dialog draggable modal-md">
+                @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+            </div>
+        </div>
+        <!--modal _getHoaDonOffline-->
+        <div class="modal fade bs-example-modal-lg">
+            <div class="modal-dialog draggable modal-lg" role="document">
+                @Html.Action("_getHoaDonOffline", new { area = "", Controller = "BanHang" })
+            </div>
+        </div>
+        <!--modal print_HoaDonDraft -->
+        <div class="modal fade printflast" id="print_HoaDonDraft">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title">Hóa đơn</h4>
+                    </div>
+                    <div class="modal-body modal-bill" id="content-print">
+                    </div>
+                    <div class="footer-res floatleft">
+                        <a href="javascript: void(0)" class="btn btn-main" @*data-bind="click: function () {InHoaDon()} "*@>
+                            <img src="~/Content/images/iconbepp18.9/innhap.png" alt="in hóa đơn" />  In hóa đơn
+                        </a>
+                        <a href="javascript: void(0)" class="btn btn-cancel">
+                            <img src="~/Content/images/iconbepp18.9/guiggmail.png" alt="gửi email" />      Gửi email
+                        </a>
+                        <a href="javascript: void(0)" class="btn btn-cancel" data-dismiss="modal">
+                            <i class="fa fa-ban"></i> Bỏ qua
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--modal print_HoaDonBL -->
+        <div class="modal fade printflast" id="print_HoaDonBL">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title">Hóa đơn</h4>
+                    </div>
+                    <div class="modal-body modal-bill" id="content-print-BanLe">
+                        @Html.Raw(Html.Action("LoadMauIn", "ThietLap", new { id = "K80_HoaDonBanLe.txt" }))
+                    </div>
+                    <div class="footer-res floatleft">
+                        <a  class="btn btn-main" data-bind="click: function () {InHoaDon()} ">
+                            <img src="~/Content/images/iconbepp18.9/innhap.png" alt="in hóa đơn" />  In hóa đơn
+                        </a>
+                        <a  class="btn btn-cancel">
+                            <img src="~/Content/images/iconbepp18.9/guiggmail.png" alt="gửi email" />      Gửi email
+                        </a>
+                        <a  class="btn btn-cancel" data-dismiss="modal">
+                            <i class="fa fa-ban"></i> Bỏ qua
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--modal printPhieuThu -->
+        <div class="modal fade printflast" id="printPhieuThu">
+            <div class=" modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title">Hóa đơn</h4>
+                    </div>
+                    <div class="modal-body modal-bill" id="content-print-PhieuThu">
+                        @Html.Raw(Html.Action("LoadMauIn", "ThietLap", new { id = "K80_PhieuThu.txt" }))
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--modal modalChuyenGhepBan -->
+        <div class="modal fade" id="modalChuyenGhepBan">
+            @Html.Partial("_ChuyenGhepBan")
+        </div>
+        <!--modal modalPopupLapPhieuThu -->
+        <div class="modal fade" id="modalPopupLapPhieuThu">
+            <div class="modal-dialog draggable modal-lg">
+                @Html.Partial("~/Views/BanHang/_lapPhieuThu.cshtml")
+            </div>
+        </div>
+        <!--modal show infor account bank / modalInforAccount -->
+        <div class="modal fade" id="modalInforAccount">
+            <div class="modal-dialog draggable " role="document">
+                <div class="modal-dialog modal-md">
+                    @Html.Partial("_CreateAccountBank")
+                </div>
+            </div>
+        </div>
+        <!-- Caculator Price-->
+        <div class="modal fade in" id="computersquer">
+            <div class="modal-dialog draggable ">
+                <div class="computer">
+                    @Html.Partial("~/Views/BanHang/_CaculatorPrice.cshtml")
+                </div>
+            </div>
+        </div>
+        <!-- Caculator Quantity-->
+        <div class="modal fade in" id="mdCaculatorQuatity">
+            <div class="modal-dialog draggable ">
+                <div class="computer">
+                    @Html.Partial("~/Views/BanHang/_CaculatorQuantity.cshtml")
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("_PopupTimeCTHD")
+    <div id="modalNewCustomer">
+        <div class="modal fade in" id="modalPopuplg_KH">
+            <div class="modal-dialog draggable modal-lg">
+                @Html.Partial("~/Views/DoiTac/_ThemMoiKhachHang.cshtml")
+            </div>
+        </div>
+        <div class="modal fade in" id="NguonKhach">
+            <div class="modal-dialog draggable modal-md">
+                @Html.Partial("~/Views/DoiTac/_ThemMoiNguonKhach.cshtml")
+            </div>
+        </div>
+        <div class="modal fade in" id="modalAddGroup">
+            <div class="modal-dialog draggable modal-dialog-pb">
+                @Html.Partial("~/Views/DoiTac/_ThemNhomKhachHang1_2.cshtml")
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/NhaHang"))" type="text/javascript"></script>
+    <script>$(document).ready(function(){$(".modal-dialog").draggable({handle:".modal-header"})});</script> <!--draggable-->
+</body>
+</html>
+<script>
+    window.onload = function () {
+        $(".loading-box").delay(1000).fadeOut();
+    }
+    $("#directscroll").click(function () {
+        $(".loading-box").show();
+        $(".loading-box").delay(650).fadeOut();
+        document.getElementById("contentRight").scrollIntoView();
+        $(this).hide();
+        $("#directHome").show();
+    });
+    $("#directHome").click(function () {
+        $(".loading-box").show();
+        $(".loading-box").delay(650).fadeOut();
+        document.getElementById("divHeaderLeft").scrollIntoView();
+        $(this).hide();
+        $("#directscroll").show();
+    });
+    //ẩn hiện phí dịch vụ
+    $("#charge-box").on("click", function () {
+        $(".arrow-left.arrow-left2").hide();
+        $(this).next().show();
+        $("#charge-box").mouseup(function () {
+            return false;
+        })
+        $(document).mouseup(function () {
+            $("#charge-box").next().hide();
+        })
+    }
+    )
+</script>
+<script>
+    //điều hướng menu di dộng/ tablet
+    $("#redirect_divLeft").click(function () {
+        $(this).parent().removeClass("act1");
+        $(this).parent().removeClass("act2");
+        $(this).parent().addClass("act0");
+        $(this).addClass("active");
+        $(this).siblings().removeClass("active");
+        document.getElementById("header_left").scrollIntoView();
+    });
+    $("#redirect_divRight").click(function () {
+        $(this).parent().removeClass("act0");
+        $(this).parent().removeClass("act2");
+        $(this).parent().addClass("act1");
+        $(this).addClass("active");
+        $(this).siblings().removeClass("active");
+        $("#tt_tab").removeClass("active");
+        $("#td_tab").addClass("active");
+        document.getElementById("content_right").scrollIntoView();
+    });
+    $("#redirect_mr").click(function () {
+        $(this).parent().removeClass("act0");
+        $(this).parent().removeClass("act1");
+        $(this).parent().addClass("act2");
+        $(this).addClass("active");
+        $(this).siblings().removeClass("active");
+        $("#tt_tab").addClass("active");
+        $("#td_tab").removeClass("active");
+        document.getElementById("content_right").scrollIntoView();
+    });
+    $("#td_tab").click(function () {
+        $(".mobile-nav").removeClass("act0");
+        $(".mobile-nav").removeClass("act2");
+        $(".mobile-nav").addClass("act1");
+        $("#redirect_divRight").siblings().removeClass("active");
+        $("#redirect_divRight").addClass("active");
+    });
+    $("#tt_tab").click(function () {
+        $(".mobile-nav").removeClass("act0");
+        $(".mobile-nav").removeClass("act1");
+        $(".mobile-nav").addClass("act2");
+        $("#redirect_mr").siblings().removeClass("active");
+        $("#redirect_mr").addClass("active");
+    });
+</script>
+<script>
+    $(".hide-btn").on("click", function () {
+        $(".infor-TT").addClass("hiden-md");
+        $("#th").addClass("show-md");
+        $("#tt").addClass("show-md");
+        $("#mr").addClass("show-md");
+        $(this).hide();
+        $(".show-btn").show();
+    })
+    $(".show-btn").on("click", function () {
+        $(".infor-TT").removeClass("hiden-md");
+        $("#th").removeClass("show-md");
+        $("#tt").removeClass("show-md");
+        $("#mr").removeClass("show-md");
+        $(this).hide();
+        $(".hide-btn").show();
+    });
+    $.datetimepicker.setLocale('vi');
+    $(function () {
+        $('#txtNgayTaoHD').datetimepicker({
+            format: "d/m/Y H:i",
+            defaultDate: new Date(),
+            mask: true,
+            maxDate: new Date(),
+            scrollMonth: false,
+        })
+    });
+    function openPopup(ele) {
+        $(ele).next().toggle();
+    }
+    $(document).mouseup(function (e) {
+        var container = $(".popup-timer");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+</script>

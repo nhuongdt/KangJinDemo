@@ -1,0 +1,552 @@
+﻿@using banhang24.Hellper
+@Html.Hidden("loaibaocao", (int)commonEnum.CheckBoxColum.lienhe, new { @id = "ID_loaibaocao" })
+<style>
+    td.check-group input[type=checkbox] {
+        margin-left: 3px;
+    }
+</style>
+<link href="~/Content/Doitac.css" rel="stylesheet" />
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <input type="hidden" value="@contant.GetUserCookies().ID_NhanVien" id="txtIDNhanVien" />
+        <input type="hidden" value="@contant.GetUserCookies().ID" id="txtUserID" />
+        <div class="col-left">
+            <div class=" op-filter filter-left-report">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title">
+                            <img src="~/Content/images/icon/time-new.png" />     Thời gian
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu time-select">
+                                        <input type="radio" name="rd_TimeReport" value="1" checked
+                                               data-bind="checked: filterNgayTao">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date">
+                                            <div class="dr_TimeReport" data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show ip_TimeReport" autocomplete="off"
+                                                       placeholder="Toàn thời gian" value="Toàn thời gian">
+                                            </div>
+                                            <div class="dropdown-menu choose_txtTime">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="1" style="display: block;"><a href="javascript:void(0);">Hôm nay</a></li>
+                                                        <li value="2" style="display: block;"><a href="javascript:void(0);">Hôm qua</a></li>
+                                                        <li value="3" style="display: block;"><a href="javascript:void(0);">Tuần này</a></li>
+                                                        <li value="4" style="display: block;"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                        <li value="5" style="display: block;"><a href="javascript:void(0);">7 ngày qua</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="6" style="display: block;"><a href="javascript:void(0);">Tháng này</a></li>
+                                                        <li value="7" style="display: block;"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                        <li value="8" style="display: block;"><a href="javascript:void(0);">30 ngày qua</a></li>
+                                                        <li value="9" style="display: block;"><a href="javascript:void(0);">Quý này</a></li>
+                                                        <li value="10" style="display: block;"><a href="javascript:void(0);">Quý trước</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="11" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Năm này</a></li>
+                                                        <li value="12" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Năm trước</a></li>
+                                                        <li value="0" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Toàn thời gian</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu time-select">
+                                        <input type="radio" name="rd_TimeReport" value="2" data-bind="checked: filterNgayTao">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap">
+                                            <input type="text" class="form-control ip_DateReport newDateTime" id="filterDate" name="daterange" disabled="disabled"
+                                                   data-bind="value: filterNgayTao_Input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title">
+                            <img src="~/Content/images/icon/area-new.png" />  Khu vực
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="col-md-12">
+                                <div class="form-group" id="divProvince">
+                                    <input type="text" class="form-control" placeholder="Chọn tỉnh thành" id="txtSearchProvince" autocomplete="off"
+                                           data-bind="jqAuto:{source:listProvince,value: selectProvince, inputProp:'TenTinhThanh', valueProp:'ID',
+                                                         labelProp:'TenTinhThanh',filter: filterProvince}">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Chọn quận huyện" id="txtSearchDistrict" autocomplete="off"
+                                           data-bind="jqAuto:{source:listDistrict,value: selectDistrict, inputProp:'TenQuanHuyen', valueProp:'ID',
+                                                         labelProp:'TenQuanHuyen', filter: filterDistrict}">
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title" >
+                   <h2 class="pull-left title">@banhang24.Resources.ResourceTexts.Partner / Người liên hệ</h2>
+                </div>
+                <div class="op-header-button" >
+                    <div class=" header-button-left">
+                        <button type="button" class="btn btn-main add-new" id="btnAddUserContact"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                data-bind="click: showPopupAddNguoiLienHe">
+                            <i class="fa fa-plus" aria-hidden="true"></i>     <font>Thêm mới</font>
+                        </button>
+                        <button class="btn-link shownhapxuat pull-right" id="shownhapxuat" title="Chức năng nhập xuất" style="width:30px;">
+                            <i class="material-icons"> more_vert</i>
+                        </button>
+                        <button class="btn btn-main pull-right btnExport" type="submit" data-toggle="modal" data-target="#myModalinport" id="btnImport" hidden>
+                             <i class="fa fa-download"></i> @banhang24.Resources.ResourceTexts.ImportFile
+                        </button>
+                        <button class="btn btn-main pull-right btnExport" id="btnExport" name="btnExport" data-bind="click: ExportExcel" hidden>
+                            <span class="glyphicon glyphicon-export"></span>Xuất file
+                        </button>
+                        <div class="btn-dropdown pull-right" id="select-column">
+                            <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                 <i class="fa fa-angle-double-down"></i>
+                            </button>
+                            <div class="dropdown-list" style="display: none; right:0">
+                                <ul data-bind="foreach: listCheckbox">
+                                    <li>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" class="checkbox" checked="checked" data-bind="value:Key"><span></span><label class="nopadding" data-bind="text:Value" /></label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                <div class="col-md-5 col-xs-12 col-sm-6 nopadding pull-right input-search-filter">
+                    <input type="text" class="form-control" placeholder="Theo mã, tên liên hệ, tên khách hàng" id="txtSearch" autocomplete="off">
+                    <button type="button" class=" btn-search-icon" data-bind="click: Click_IconSearch">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <div class=" choose-commodity">
+                    <div class="btn-group operation" id="divThaoTac" style="width:auto; margin:0">
+                        <button type="button" class="btn btn-main no-magrin " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-bars"></i><font>Thao tác</font> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu ">
+                            <li>
+                                <a href="javascript:void(0);" data-bind="click: DeleteMany" id="btnDeleteMultiple">
+                                    <i class="fa fa-trash"></i>&nbsp;Xóa liên hệ
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="display:inline-block; margin:8px;">
+                        Có&nbsp;
+                        <span>
+                            <a href="javascript:void(0)">
+                                <span id="count"></span>&nbsp; Người liên hệ
+                            </a>
+                        </span>được chọn <span onclick="RemoveAllCheck()">
+                            <a href="javascript:void(0)">
+                                &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa fa-times icon-del">
+                                </i>Bỏ chọn tất cả
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table possible-table-tab">
+                <div class="table-reponsive bangchung table-frame">
+                    <table class="table-hover table-new" id="tblList">
+                        <thead class="thead-boder">
+                            <tr>
+                                <th class="check-group check-group-main">
+                                    <input type="checkbox" class="ckHeader" onclick="SetCheckAll(this)">
+                                </th>
+                                @foreach (var item in commonEnum.UserContact)
+                                {
+                                    <th class="@item.Key">
+                                        <a href="javascript:void(0)">@item.Value</a>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: PageResults">
+                            <tr class="prev-tr-hide" >
+                                <td class="check-group check-group-main">
+                                    <input type="checkbox" class="ckHeader" onclick="ChoseDoiTuong(this)" data-bind="attr:{id: ID}">
+                                </td>
+                                <td class="@commonEnum.TypeUserContact.malienhe" data-bind="text: MaLienHe, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.ten" data-bind="text: TenLienHe, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.khachang" data-bind="text: TenDoiTuong, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.didong" data-bind="text: SoDienThoai, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.sinhnhat"
+                                    data-bind="text:moment(NgaySinh).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySinh).format('DD/MM/YYYY'):'', click: $parent.GetDetail_InforLienHe"></td>
+                                <td class="@commonEnum.TypeUserContact.email" data-bind="text: Email, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.chucvu" data-bind="text: ChucVu, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.diachi" data-bind="text: DiaChi, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.tinhthanh" data-bind="text: TenTinhThanh, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.quanhuyen" data-bind="text: TenQuanHuyen, click: $parent.GetDetail_InforLienHe"> </td>
+                                <td class="@commonEnum.TypeUserContact.ghichu" data-bind="text: GhiChu, click: $parent.GetDetail_InforLienHe"> </td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="13">
+                                 
+                                        <div class="op-object-detail ">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a data-toggle="tab" data-bind=" attr: { href: '#home'+ ID }">Thông tin</a></li>
+                                            </ul>
+                                            <div class="tab-content tab-content-next">
+                                                <div class="tab-pane active" data-bind="attr: { id: 'home'+ ID }">
+                                                    <div class="op-object-detail ">
+                                                        <div class="col-md-2 col-sm-12 col-xs-12 nopadding-left">
+                                                            <div class="img-product img-product-border">
+                                                                <!--  ko if: $parent.HaveImage() == false -->
+                                                                <a >
+                                                                    <img src="~/Content/images/photo.png" />
+                                                                </a>
+                                                                <!-- /ko -->
+                                                                <!-- ko foreach: $parent.AnhDaiDien-->
+                                                                <a>
+                                                                    <img alt="" data-bind="attr: {src: URLAnh}" style="height:120px; width:100%;" />
+                                                                </a>
+                                                                <!-- /ko -->
+                                                            </div>
+                                                            <h2 class="accordion-toggle"><a href="javascript:void(0)" class="trig1"></a></h2>
+                                                            <div class="accordion-content">
+                                                                <ul class="bxslider img-list-product">
+                                                                    <!-- ko foreach: $root.FileImgs-->
+                                                                    <!-- ko if: $index() != 0-->
+                                                                    <li class="slide">
+                                                                        <a href="javascript:void(0)">
+                                                                            <img data-bind="attr: {src: URLAnh}" />
+                                                                        </a>
+                                                                    </li>
+                                                                    <!-- /ko -->
+                                                                    <!-- /ko -->
+                                                                </ul>
+                                                            </div>
+                                                            <!-- div zoom image-->
+                                                        </div>
+                                                        <div class="col-md-10 col-sm-12 col-xs-12">
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <div class="row">
+                                                                        <div class="detail-content">
+                                                                            <div class="form-group floatleft">
+                                                                                <label class="css-form-label ng-binding">Mã liên hệ:</label>
+                                                                                <div class="css-form-detail" data-bind="text: MaLienHe"></div>
+                                                                            </div>
+                                                                            <div class="form-group floatleft">
+                                                                                <label class="css-form-label ng-binding">Tên liên hệ:</label>
+                                                                                <div class="css-form-detail" data-bind="text: TenLienHe"></div>
+                                                                            </div>
+                                                                            <div class="form-group floatleft">
+                                                                                <label class="css-form-label ng-binding">Khách hàng :</label>
+                                                                                <div class="css-form-detail" data-bind="html: TenDoiTuong"></div>
+                                                                            </div>
+                                                                            <div class="form-group floatleft">
+                                                                                <label class="css-form-label ng-binding">Ngày sinh :</label>
+                                                                                <div class="css-form-detail" data-bind="text: moment(NgaySinh).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySinh).format('DD/MM/YYYY'):''">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="form-group floatleft border-end">
+                                                                                <label class="css-form-label ng-binding">Chức vụ :</label>
+                                                                                <div class="css-form-detail" data-bind="text: ChucVu"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="detail-content">
+                                                                        <div class="form-group floatleft">
+                                                                            <label class="css-form-label ng-binding">Email:</label>
+                                                                            <div class="css-form-detail" data-bind="text: Email"></div>
+                                                                        </div>
+                                                                        <div class="form-group floatleft">
+                                                                            <label class="css-form-label ng-binding">Điện thoại:</label>
+                                                                            <div class="css-form-detail" data-bind="text: SoDienThoai"></div>
+                                                                        </div>
+                                                                        <div class="form-group floatleft">
+                                                                            <label class="css-form-label ng-binding">Địa chỉ :</label>
+                                                                            <div class="css-form-detail" data-bind="text: DiaChi"></div>
+                                                                        </div>
+                                                                        <div class="form-group floatleft">
+                                                                            <label class="css-form-label ng-binding">Tỉnh thành :</label>
+                                                                            <div class="css-form-detail" data-bind="text: TenTinhThanh"></div>
+                                                                        </div>
+                                                                        <div class="form-group floatleft border-end">
+                                                                            <label class="css-form-label ng-binding">Quận/ Huyện :</label>
+                                                                            <div class="css-form-detail" data-bind="text: TenQuanHuyen"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="detail-content">
+                                                                        <div class="form-group floatleft border-end">
+                                                                            <label class="css-form-label ">Ghi chú:</label>
+                                                                            <div class="css-form-detail" data-bind="text: GhiChu"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <div class="row">
+                                                                        <div class="group-btn floatleft text-right">
+                                                                            <a  class="btn btn-main edit" data-bind="click: $parent.showPopupEditNguoiLienHe" hidden>
+                                                                                <i class="fa fa-check-square"></i> Sửa đổi
+                                                                            </a>
+                                                                            <a  class="btn btn-cancel xoa" data-bind="click: $parent.modalDelete" hidden>
+                                                                                <i class="fa fa-trash"></i> Xóa
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                   
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page">
+                    <div class="flex flex-row">
+                        <label>Số bản ghi:</label>
+                        <select class="form-control seleted-page" data-bind="options: pageSizes,
+                                           value: pageSize, event: {change: ResetCurrentPage}
+                                           " style="min-width:75px"></select>
+                    </div>
+                    <div class="flex flex-end">
+                        <a href="javascript:void(0)" data-bind="click: $root.StartPage, visible: VisibleStartPage "><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.BackPage, visible: VisibleStartPage "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <ul data-bind="foreach: PageList">
+                            <li>
+                                <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPage, css: $root.GetClass($data)"></a>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage, visible: VisibleEndPage"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.EndPage, visible: VisibleEndPage"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <div class="total-recos">
+                            Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số
+                            <span data-bind="text: TotalRecord"></span> khách hàng
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalPopuplg_Contact">
+        <div class="modal-dialog draggable modal-md">
+            @Html.Partial("_NguoiLienHe")
+        </div>
+    </div>
+    <!--Modal delete-->
+    <div class="modal " id="modalPopuplgDelete">
+        <div class="modal-dialog draggable modal-md">
+                @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+        </div>
+    </div>
+    <div id="myModalinport" class="modal fade" >
+        <div class="modal-dialog draggable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">Nhập liên hệ từ File dữ liệu</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 printinport">
+                            <div class="floatleft excel-file nopadding" id="importNhapHang">
+                                <div data-bind="visible: visibleImport ">
+                                    <h5 class="no-magrin">Nhập liên hệ từ file Excel - <a href="#" class="link-text" style="float:none;"> Hướng dẫn </a></h5>
+                                    <div class="title-inport "> Tải về File mẫu <span class="blue " data-bind="click: DownloadFileTeamplateXLS"> Excel 2003</span>  hoặc<span class="blue" data-bind="click: DownloadFileTeamplateXLSX"> bản cao hơn</span></div>
+                                </div>
+                                <div class="choose-file">
+                                    <div class="btn-modal-file" data-bind="visible: visibleImport ">
+                                        <div class="pull-right ClickSelectFile ">
+                                            <div class="k-button floatleft table_h">
+                                                <span class="btn btn-import btn-file form-control no-magrin">
+                                                    Chọn file dữ liệu <input type='file' id="imageUploadFormKH" name="image" data-bind="event:{ change: SelectedFileImport }"
+                                                                             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="padingbottom">
+                                        <div class="list-file">
+                                            <ul>
+                                                <li class="filterFileSelect">
+                                                    <span data-bind="text: fileNameExcel"></span>
+                                                    <div class="delete-file" data-bind="click: refreshFileSelect">
+                                                        <img src="/Content/images/icon/Iconthemmoi-17.png">
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <img data-bind="visible:notvisibleImport" class="imgUploadClick"
+                                                 src="/Content/images/icon/icon-folder.png" style=" position: absolute;width: 39px;  top: 6px; left: 455px;">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-main btnImportExcel" id="saveImageFolder" data-bind="click: Execute_Import" style="display: none;"><i class="fa fa-floppy-o"></i> Thực hiện</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="warning-content floatleft NoteImport">
+                                <h5 class="title-alert"><i class="fa fa-warning"></i> Lưu ý</h5>
+                                <p>Bạn vui lòng nhập đúng định dạng hàng cột theo file Excel mẫu .</p>
+                                <p>Hệ thống cho phép nhập tối đa 15000 liên hệ mỗi lần từ file Excel 2003 hoặc bản cao hơn .</p>
+                                <p>Click vào checkbook "đồng ý..." nếu bạn muốn tiếp tục import dữ liệu bằng cách bỏ qua dữ liệu sai.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="BangBaoLoi">
+                        <div class="error-data">
+                            <h2 class="pull-left title">Bảng thông báo lỗi</h2>
+                        </div>
+                        <div class="table-reponsive table_price table_error">
+                            <table class="table table-striped table-hover table-wh table_h3">
+                                <thead>
+                                    <tr>
+                                        <th>Tên trường dữ liệu</th>
+                                        <th>Vị trí</th>
+                                        <th>Thuộc tính</th>
+                                        <th>Diễn giải<span class="pull-right red " data-bind="click: ShowandHide"><i class="fa fa-refresh fa-lg" aria-hidden="true"></i></span></th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: loiExcel">
+                                    <tr>
+                                        <td data-bind="text: TenTruongDuLieu"></td>
+                                        <td data-bind="text: ViTri"></td>
+                                        <td data-bind="text: ThuocTinh"></td>
+                                        <td data-bind="text: DienGiai"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer file-all">
+                            <div class="form-group pull-left continue-hh choseContinue">
+                                <input type="checkbox" data-bind="checked: ContinueImport" value="0" />  Đồng ý bỏ qua lỗi và tiếp tục
+                            </div>
+                            <button type="button" class="btn btn-main pull-right startImport" id="btnLuuHangHoa" data-bind="click: Import_PassError">
+                                <i class="fa fa-save"></i>&nbsp; Tiếp tục
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $.datetimepicker.setLocale('vi');
+    $('#tblList').on('click', ".prev-tr-hide td", function () {
+        if ($(this).hasClass('check-group')) {
+        }
+        else {
+            var parentTR = $(this).parent();
+            setTop = 35 + parseInt($(parentTR).height() * ($(parentTR).index() / 2));
+            $(parentTR).parents(".table-reponsive").toggleClass("table_re");
+            var t = $(parentTR).next(".op-js-tr-hide").css("display");
+            $(".prev-tr-hide td").not($(parentTR).find("td")).removeClass("bor");
+            $("td").not($(parentTR).find("td")).removeClass("bg-gray");
+            $(".prev-tr-hide").not($(parentTR)).removeClass("bor-right");
+            $(parentTR).toggleClass("bor-right");
+            $(parentTR).find("td").toggleClass("bg-gray");
+            $(parentTR).find("td").toggleClass("bor");
+            if (t == "none") {
+                if (parseInt($('#SelecttedPage').val()) >= 20) {
+                    $(".table-reponsive").removeClass('height470');
+                }
+                $(".op-js-tr-hide").removeClass("ac");
+                $(parentTR).next(".op-js-tr-hide").addClass("ac");
+                heightold = $(parentTR).next().height();
+                heigth = parseInt($(parentTR).height()) + heightold;
+                $('.line-right').height(heigth).css("margin-top", setTop + "px");
+            }
+            else if (t == "block") {
+                if (parseInt($('#SelecttedPage').val()) >= 20) {
+                    $(".table-reponsive").addClass('height470');
+                }
+                $(parentTR).next(".op-js-tr-hide").removeClass("ac");
+                $('.line-right').height(0).css("margin-top", "0px");
+            }
+            else {
+                if (parseInt($('#SelecttedPage').val()) >= 20) {
+                    $(".table-reponsive").addClass('height470');
+                }
+                $(".op-js-tr-hide").removeClass("ac");
+                $('.line-right').height(0).css("margin-top", "0px");
+            }
+        }
+    });
+    var funcName = '@RoleKey.LienHe';
+</script>
+<script src="~/Scripts/knockout-3.4.2.js"></script>
+<script src="~/Scripts/DoiTac/Lienhe-1.1.js"></script>
+<style>
+    /* with ul for search vue*/
+    #ui-id-1 {
+        width: 170px !important;
+    }
+</style>
+<script>
+    expand_sts = window.localStorage;
+    $("#shownhapxuat").click(function () {
+        //alert(localStorage.getItem("expand_sts"));
+        if ($((".btnExport")).hasClass("forcehide")) {
+            expand_import();
+        } else {
+            hide_import();
+        }
+    });
+    if (localStorage.getItem("expand_sts") == "open") {
+        expand_import();
+    } else {
+        hide_import();
+    }
+    function expand_import() {
+        if ($("html").width() > 425) {
+            $(".btnImport").removeClass("forcehide");
+            $((".btnExport")).removeClass("forcehide");
+            localStorage.setItem("expand_sts", "open");
+        }
+    };
+    function hide_import() {
+        if ($("html").width() > 425) {
+            $(".btnImport").addClass("forcehide");
+            $((".btnExport")).addClass("forcehide");
+            localStorage.setItem("expand_sts", "close");
+        }
+    };
+</script>
+<script>
+</script>

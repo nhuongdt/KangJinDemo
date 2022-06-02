@@ -1,0 +1,966 @@
+﻿@using System.Web.Optimization;
+@using banhang24.Hellper;
+@using banhang24.AppCache
+@{
+    ViewBag.Title = "Trả hàng chi tiết";
+    Layout = null;
+}
+@section scripts {
+}
+<link rel="stylesheet" href="~/Content/GiaodichChitiet.css" />
+<style>
+    .tr-noborder > td {
+        border-bottom: none
+    }
+
+    .tr-noborder > td {
+        border-bottom: none !important;
+    }
+
+    .tr-noborder:hover + tr > td {
+        background: rgba(19, 116, 173,0.06)
+    }
+
+    .tr-noborder + tr:hover > td {
+        background: none;
+    }
+
+    .thongtinlo > div {
+        line-height: 18px;
+    }
+
+    import-function {
+        padding: 3px;
+        height: 24px;
+        width: 24px;
+        font-size: 16px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #686868;
+    }
+
+    .bg-red {
+        background: red;
+        color: white
+    }
+
+    .fa-close {
+        color: red;
+    }
+
+    .import-function i {
+        font-size: 16px;
+    }
+
+    .import-function > .fa-close {
+        color: red;
+    }
+
+    .import-function > .fa-plus {
+        color: var(--color-primary);
+    }
+
+    .import-function > .fa-cog {
+        color: green;
+    }
+
+    .import-function > .fa-close {
+        color: red;
+    }
+
+    a.import-dropdown > span {
+        color: #686868;
+    }
+
+    #menu-mobile {
+        background: var(--color-primary);
+    }
+
+    #gopay {
+        background: var(--color-primary)
+    }
+
+    #execute {
+        background: var(--color-special);
+    }
+
+    .table-res tr td, .table-reponsive tr td {
+        font-size: 12px;
+    }
+
+    .notshow li a {
+        color: black
+    }
+
+    ._ghi-chu-nhap-hang input {
+        height: auto !important;
+        border: none;
+        font-size: 11px;
+        color: #666;
+        background: #f9f9f9
+    }
+
+    ._ghi-chu-nhap-hang i {
+        top: 0px;
+    }
+
+    ._ten-hang-hoa p {
+        margin: 0px;
+    }
+
+    ._ghi-chu-nhap-hang {
+        display: none;
+        margin: 0px;
+        position: absolute;
+        bottom: -5px;
+        background: none;
+    }
+
+    .table_h1 tbody tr td, .item-lot {
+        height: 52px;
+    }
+
+    .font-w-b {
+        font-weight: bold;
+    }
+
+    .table_h1 tbody tr:hover td {
+        background: #f9f9f9;
+    }
+
+    .item-lot p:last-child {
+        margin: 0px;
+        margin-top: 4px;
+    }
+
+    ._ghi-chu-nhap-hang {
+        margin: 0px;
+    }
+
+    .op-js-thuoctinhlo, .op-js-thuoctinhlo1 {
+        width: unset;
+        margin-left: unset;
+        float: unset;
+        width: unset;
+        padding-right: unset;
+    }
+
+        .op-js-thuoctinhlo span {
+            float: left;
+            width: unset;
+            line-height: 25px;
+            margin: 0 5px;
+        }
+</style>
+<div class="op-gdct" id="divPage">
+    <div class="op-gdct-danhsachhang op-gdct-mobile-show">
+        <div style="display:flex; justify-content:flex-start; align-items:center;">
+            <div class="seach-warehouse" style="margin:0">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input autocomplete="off" type="text" class=" form-control" id="txtAutoHangHoa" onclick="this.select()"
+                       data-bind="jqAutoProduct: { source: HangHoas, value: selectedHH,
+                                                     inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',  template: 'rowChiTiet'}"
+                       placeholder="Tìm hàng hóa theo mã hoặc tên (F3)" onkeypress="keypressEnterSelected(event)" />
+                <script id="rowChiTiet" type="text/html">
+                    @Html.Partial("~/Views/Component/_ko-ListSearchFullHangHoa.cshtml")
+                </script>
+            </div>
+            <div class="warehouse-fast-input">
+                <div class="number-fast trahangnhaploainhap">
+                    <input autocomplete="off" type="text" class="form-control text-right" id="txtSoLuongHang"
+                           onkeypress="return keypressNumber_limitNumber(event,this)" />
+                </div>
+                <div class="import-fast bnt-barcode pull-right" data-bind="click: ClickNhapNhanh_Thuong">
+                    <img src="~/Content/images/anhhh/print.png" alt="nhập nhanh" style="height:24px;" />
+                </div>
+            </div>
+        </div>
+        <div class="floatleft" style="padding:15px 0;height:calc(100% - 50px)">
+            <div class="table-frame">
+                <table class="table-reponsive">
+                    <thead>
+                        <tr>
+                            <th><span>STT </span></th>
+                            <th><span>Mã Hàng hóa <span data-bind="text: LenCTHD() === 0 ? '' : '(' + LenCTHD() +')'"></span>  </span></th>
+                            <th><div style="width:270px"><span>Tên Hàng hóa</span></div>  </th>
+                            <th><span>ĐVT  </span></th>
+                            <th><span>Giá nhập  </span></th>
+                            <th><span>Giá trả lại  </span></th>
+                            <th><span>Tiền thuế  </span></th>
+                            <th><span>Số lượng  </span></th>
+                            <th><span>Thanh toán </span></th>
+                            <th><span>&nbsp;  </span></th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: HangHoaAfterAdd_View">
+                        <tr>
+                            <td>
+                                <span data-bind="text:$index()+1"></span>
+                            </td>
+                            <td>
+                                <span data-bind="text: commonStatisJs.SubStringContent(MaHangHoa,15)  "></span>
+                            </td>
+                            <td>
+                                <div>
+                                    <div>
+                                        <span data-bind="text:commonStatisJs.SubStringContent(TenHangHoa,30)"></span>
+                                        <i style="color:deepskyblue" data-bind="text: ThuocTinh_GiaTri"></i>
+                                    </div>
+                                    <input class="input-simple input-note" placeholder="Ghi chú" type="text"
+                                           data-bind="visible:QuanLyTheoLoHang === false ,value: GhiChu, event :{keyup: $root.UpdateGhiChu_CTHD}" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="dropdown" data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
+                                    <button class="btn" data-toggle="dropdown">
+                                        <span data-bind="text: TenDonViTinh">đơn vị tính</span>
+                                        <i class="fa fa-angle-down" data-bind="visible: $data.DonViTinh.filter(p=>p.Xoa === false).length > 1"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" data-bind="foreach: DonViTinh.filter(p=>p.Xoa === false),visible: DonViTinh.filter(p=>p.Xoa === false).length > 1">
+                                        <li data-bind="click: function() {$root.ChangeDonViTinh($data, $parent)}">
+                                            <a>
+                                                <span data-bind="text: TenDonViTinh"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <!-- ko if:QuanLyTheoLoHang === false -->
+                            <td>
+                                <input class="input-simple width-75" readonly="readonly"
+                                       data-bind="value: formatNumber3Digit(GiaNhap,2), attr: {id : 'giavon_' + ID_Random }" />
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" onclick="this.select()"
+                                       data-bind="value: formatNumber3Digit(DonGia,2) ,attr: {id : 'dongia_' + ID_Random}, event:{keyup: $parent.EditGiaBan}"
+                                       onkeypress="return keypressNumber(event)" />
+                            </td>
+                            <td>
+                                <div style="position:relative" class="text-right">
+                                    <div class="import-dropdown text-right" data-bind="click: $root.ShowDiv_ThueHangHoa">
+                                        <input type="text" autocomplete="off" class=" input-simple width-75 newprice "
+                                               data-bind="attr:{id: 'tax_'+ ID_Random},
+                                               value: formatNumber3Digit(TienThue,2),
+                                               " readonly="readonly">
+                                    </div>
+                                    <div class="import-dropbox drop-box-arrow-up" style="display: none;">
+                                        <div style="display:flex; ">
+                                            <span>Thuế: </span>
+                                            <input class="input-simple width-75" data-bind="attr:{id:'ipTaxCT_'+ ID_Random},
+                                                    event:{keyup: $root.cthd_editThue}">
+                                            <a class="input-options jsVND" data-bind="click: function(){$root.cthd_clickThue($data,false)} ">VNĐ</a>
+                                            <a class="input-options jsPTram picked" data-bind="click: function(){$root.cthd_clickThue($data,true)} ">%</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" onclick="this.select()" placeholder="số lượng"
+                                       data-bind=" value: formatNumber3Digit(SoLuong), attr: {id : 'soluong_' + ID_Random}, event:{keyup: $parent.EditSoLuong}"
+                                       onkeypress="return keypressNumber_limitNumber(event,this)" />
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" onclick="this.select()"
+                                       data-bind="value: formatNumber3Digit(ThanhToan,2) ,attr: {id : 'thanhtien_' + ID_Random},
+                                       event:{keyup: $root.EditThanhToan}"
+                                       onkeypress="return keypressNumber(event)">
+                            </td>
+                            <td>
+                                <div class="flex " style="justify-content:flex-end">
+                                    <a class="btn import-function " title="Thêm lô hàng hóa cùng loại" data-bind="visible : QuanLyTheoLoHang === true,click: $root.ClickThemLo">
+                                        <i class="material-icons">add</i>
+                                    </a>
+                                    <a class="btn import-function " title="Xóa hàng hóa" data-bind="click:$root.deleteChiTietHD">
+                                        <i class="material-icons text-danger">close</i>
+                                    </a>
+                                </div>
+                            </td>
+                            <!-- /ko -->
+                            <!-- ko if:QuanLyTheoLoHang === true -->
+                            <td colspan="5"></td>
+                            <!--/ko -->
+                        </tr>
+                        <!-- ko if:QuanLyTheoLoHang === true -->
+                        <tr>
+                            <td></td>
+                            <td colspan="3">
+                                <div class="op-js-thongtinlo flex flex-row flex-between import-option-lohang">
+                                    <div class="flex flex-row op-js-thuoctinhlo1 ">
+                                        <!--ID_Random: used to check when add Lot (multiple Lot = null)-->
+                                        <span data-bind="attr: {id: ID_Random}" hidden></span>
+                                        <span>Số lô</span>
+                                        <div class="dropdown  ">
+                                            <input type="text" autocomplete="off" style="height:24px" class="form-control width-75 height-24" placeholder="Tìm kiếm lô" data-toggle="dropdown"
+                                                   data-bind="click: $root.LoadListLoHang,value: DM_LoHang.length > 0? DM_LoHang[0].MaLoHang:'', attr :{id: 'AddNewLo' + ID_Random}, event :{keyup: $root.SearchLoHang}">
+                                            @*<div class="dropdown-menu " style="width:270px">*@
+                                            <ul data-bind="foreach: $root.ListLot_ofProduct" class="dropdown-menu " style="width:270px">
+                                                <li data-bind=" click: $root.ChangeLoHang">
+                                                    <a class="thongtinlo">
+                                                        <div class="flex flex-row flex-between">
+                                                            <span data-bind="text: MaLoHang" class="bold"></span>
+                                                            <span>
+                                                                Tồn: <span class="bold" data-bind="text: formatNumber3Digit(TonKho)"></span>
+                                                            </span>
+                                                        </div>
+                                                        <small class="flex flex-row flex-between">
+                                                            <span data-bind="visible: NgaySanXuat" style="font-style:italic">
+                                                                NSX:<span style="color:green" data-bind="text: moment(NgaySanXuat).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySanXuat).format('DD/MM/YYYY'):''"></span>
+                                                            </span>
+                                                            <span data-bind="visible: NgayHetHan" style="font-style:italic">
+                                                                HSD:<span style="color:red" data-bind="text: moment(NgayHetHan).format('DD/MM/YYYY')!='Invalid date'? moment(NgayHetHan).format('DD/MM/YYYY'):''"></span>
+                                                            </span>
+                                                        </small>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            @*</div>*@
+                                        </div>
+                                    </div>
+                                    <div class="op-js-thuoctinhlo flex flex-row">
+                                        <span>NSX</span>
+                                        <input type="text" autocomplete="off" class="form-control width-75 height-24" data-bind="value: DM_LoHang.length > 0?DM_LoHang[0].NgaySanXuat:'', attr:{id : 'nsx' + ID_Random}, visible: DM_LoHang.length > 0?DM_LoHang[0].ID_LoHang === null : true" />
+                                        <div class="date-lot bglot1 width-75" data-bind="text: DM_LoHang.length > 0?DM_LoHang[0].NgaySanXuat:'', attr:{id : 'nsx' + ID_Random}, visible: DM_LoHang.length > 0?DM_LoHang[0].ID_LoHang !== null : true"></div>
+                                    </div>
+                                    <div class="op-js-thuoctinhlo flex flex-row">
+                                        <span>HSD</span>
+                                        <input type="text" autocomplete="off" class="form-control width-75 height-24" data-bind="value: DM_LoHang.length > 0?DM_LoHang[0].NgayHetHan:'', attr:{id : 'hd' + ID_Random}, visible: DM_LoHang.length > 0?DM_LoHang[0].ID_LoHang === null : true" />
+                                        <div class="date-lot bglot2 width-75" data-bind="text: DM_LoHang.length > 0?DM_LoHang[0].NgayHetHan:'', attr:{id : 'nsx' + ID_Random}, visible: DM_LoHang.length > 0?DM_LoHang[0].ID_LoHang !== null : true"></div>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-link import-function" data-bind="click: $root.ResetLo, attr: {id: 'delete' + ID_Random}">
+                                            <i class="material-icons text-danger ">close</i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input class="input-simple input-note" placeholder="Ghi chú" type="text" data-bind="value: DM_LoHang[0].GhiChu, attr:{id: 'ghichu_' + ID_Random}, event :{keyup: $root.UpdateGhiChu_CTHD}" />
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" readonly="readonly" data-bind="value: formatNumber3Digit(GiaNhap,2), attr: {id : 'giavon_' + ID_Random }" />
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" onclick="this.select()"
+                                       data-bind="value: formatNumber3Digit(DonGia,2) ,attr: {id : 'dongia_' + ID_Random}, event:{keyup: $parent.EditGiaBan}"
+                                       onkeypress="return keypressNumber(event)" />
+                            </td>
+                            <td>
+                                <div style="position:relative" class="text-right">
+                                    <div class="import-dropdown text-right" data-bind="click: $root.ShowDiv_ThueHangHoa">
+                                        <input type="text" autocomplete="off" class=" input-simple width-75 newprice "
+                                               data-bind="attr:{id: 'tax_'+ ID_Random},
+                                               value: formatNumber3Digit(TienThue,2),
+                                               " readonly="readonly">
+                                    </div>
+                                    <div class="import-dropbox drop-box-arrow-up" style="display: none;">
+                                        <div style="display:flex; ">
+                                            <span>Thuế: </span>
+                                            <input class="input-simple width-75" data-bind="attr:{id:'ipTaxCT_'+ ID_Random},
+                                                    event:{keyup: $root.cthd_editThue}">
+                                            <a class="input-options jsVND" data-bind="click: function(){$root.cthd_clickThue($data,false)} ">VNĐ</a>
+                                            <a class="input-options jsPTram picked" data-bind="click: function(){$root.cthd_clickThue($data,true)} ">%</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" onclick="this.select()" placeholder="số lượng"
+                                       data-bind=" value: formatNumber3Digit(SoLuong), attr: {id : 'soluong_' + ID_Random}, event:{keyup: $parent.EditSoLuong}"
+                                       onkeypress="return keypressNumber_limitNumber(event,this)" />
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" onclick="this.select()"
+                                       data-bind="value: formatNumber3Digit(ThanhToan,2) ,attr: {id : 'thanhtien_' + ID_Random},
+                                       event:{keyup: $root.EditThanhToan}"
+                                       onkeypress="return keypressNumber(event)">
+                            </td>
+                            <td>
+                                <div class="flex " style="justify-content:flex-end">
+                                    <a class="import-function " title="Thêm lô hàng hóa cùng loại" data-bind="visible : QuanLyTheoLoHang === true,click: $root.ClickThemLo">
+                                        <i class="material-icons ">add</i>
+                                    </a>
+                                    <a class="import-function" title="Xóa hàng hóa" data-bind="click:$root.deleteChiTietHD">
+                                        <i class="material-icons text-danger">close</i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- /ko -->
+                        <!--ko foreach: DM_LoHang-->
+                        <!--ko if: $index() != 0-->
+                        <tr>
+                            <td></td>
+                            <td colspan="3">
+                                <div class="op-js-thongtinlo import-option-lohang flex flex-row flex-between">
+                                    <div class="op-js-thuoctinhlo1 flex flex-row">
+                                        <!--ID_Random: used to check when add Lot (multiple Lot = null)-->
+                                        <span data-bind="attr: {id: ID_Random}" hidden></span>
+                                        <span>Số lô</span>
+                                        <div class="dropdown  ">
+                                            <input type="text" autocomplete="off" style="height:24px" class="form-control width-75 height-24" data-toggle="dropdown" placeholder="Tìm kiếm lô"
+                                                   data-bind="click: $root.LoadListLoHang,value : MaLoHang, attr:{id: 'AddNewLo' + ID_Random},
+                                                                       event: {keyup: $root.SearchLoHang}">
+                                            @*<div class="dropdown-menu " style="width:270px">*@
+                                            <ul data-bind="foreach: $root.ListLot_ofProduct" class="dropdown-menu " style="width:270px">
+                                                <li data-bind=" click: $root.ChangeLoHang">
+                                                    <a class="thongtinlo">
+                                                        <div class="flex flex-row flex-between">
+                                                            <span data-bind="text: MaLoHang" class="bold"></span>
+                                                            <span>
+                                                                Tồn: <span class="bold" data-bind="text: formatNumber3Digit(TonKho)"></span>
+                                                            </span>
+                                                        </div>
+                                                        <small class="flex flex-row flex-between">
+                                                            <span data-bind="visible: NgaySanXuat" style="font-style:italic">
+                                                                NSX:<span style="color:green" data-bind="text: moment(NgaySanXuat).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySanXuat).format('DD/MM/YYYY'):''"></span>
+                                                            </span>
+                                                            <span data-bind="visible: NgayHetHan" style="font-style:italic">
+                                                                HSD:<span style="color:red" data-bind="text: moment(NgayHetHan).format('DD/MM/YYYY')!='Invalid date'? moment(NgayHetHan).format('DD/MM/YYYY'):''"></span>
+                                                            </span>
+                                                        </small>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            @*</div>*@
+                                        </div>
+                                    </div>
+                                    <div class="op-js-thuoctinhlo flex flex-row">
+                                        <span>NSX:</span>
+                                        <input autocomplete="off" type="text" class="form-control width-75 height-24" data-bind="value: NgaySanXuat, attr:{id : 'nsx' + ID_Random}, visible: ID_LoHang === null" />
+                                        <div class="date-lot bglot1 width-75" data-bind="text: NgaySanXuat, attr:{id : 'nsx' + ID_Random}, visible: ID_LoHang !== null">HD111</div>
+                                    </div>
+                                    <div class="op-js-thuoctinhlo flex flex-row">
+                                        <span>HSD</span>
+                                        <input autocomplete="off" type="text" class="form-control width-75 height-24" data-bind="value: NgayHetHan, attr:{id : 'hd' + ID_Random}, visible: ID_LoHang === null" />
+                                        <div class="date-lot bglot2 width-75" data-bind="text: NgayHetHan, attr:{id : 'nsx' + ID_Random}, visible: ID_LoHang !== null">HD111</div>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-link import-function" data-bind="click: $root.ResetLo, attr: {id: 'delete' + ID_Random}">
+                                            <i class="material-icons text-danger">close</i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input class="input-simple input-note" placeholder="Ghi chú" type="text" data-bind="value: GhiChu, event :{keyup: $root.UpdateGhiChu_CTHD}" />
+                            </td>
+                            <td>
+                                <input class="input-simple width-75" autocomplete="off" readonly="readonly" data-bind="value: formatNumber3Digit(GiaNhap,2), attr: {id : 'giavon_' + ID_Random }" />
+                            </td>
+                            <td>
+                                <input type="text" autocomplete="off" class=" newprice input-simple width-75" onclick="this.select()"
+                                       data-bind="value: formatNumber3Digit(DonGia,2)  ,attr: {id : 'dongia_' + ID_Random},event:{keyup: $root.EditGiaBan}"
+                                       onkeypress="return keypressNumber(event)" />
+                            </td>
+                            <td>
+                                <div style="position:relative" class="text-right">
+                                    <div class="import-dropdown text-right" data-bind="click: $root.ShowDiv_ThueHangHoa">
+                                        <input type="text" autocomplete="off" class=" input-simple width-75 newprice "
+                                               data-bind="attr:{id: 'tax_'+ ID_Random},
+                                               value: formatNumber3Digit(TienThue,2),
+                                               " readonly="readonly">
+                                    </div>
+                                    <div class="import-dropbox drop-box-arrow-up" style="display: none;">
+                                        <div style="display:flex; ">
+                                            <span>Thuế: </span>
+                                            <input class="input-simple width-75" data-bind="attr:{id:'ipTaxCT_'+ ID_Random},
+                                                    event:{keyup: $root.cthd_editThue}">
+                                            <a class="input-options jsVND" data-bind="click: function(){$root.cthd_clickThue($data,false)} ">VNĐ</a>
+                                            <a class="input-options jsPTram picked" data-bind="click: function(){$root.cthd_clickThue($data,true)} ">%</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-right w60">
+                                <input autocomplete="off" class=" input-simple width-75 " type="text"
+                                       data-bind=" value: formatNumber3Digit(SoLuong), attr: {id : 'soluong_' + ID_Random},
+                                       event:{keyup: $root.EditSoLuong}"
+                                       onkeypress="return keypressNumber_limitNumber(event,this)" />
+                            </td>
+                            <td class="clThanhTien ">
+                                <input class="input-simple width-75" onclick="this.select()"
+                                       data-bind="value: formatNumber3Digit(ThanhToan,2) ,attr: {id : 'thanhtien_' + ID_Random},
+                                       event:{keyup: $root.EditThanhToan}"
+                                       onkeypress="return keypressNumber(event)">
+                            </td>
+                            <td>
+                                <div class="flex" style="justify-content:flex-end">
+                                    <a class="import-function" data-bind="click: $root.deleteChiTietHD">
+                                        <i class="material-icons text-danger">close</i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <!--/ko-->
+                        <!--/ko-->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="op-gdct-thongtinphieu">
+        <div class="flex flex-between">
+            <div class="floatleft title-nhap-xuat" style="display:flex; justify-content:space-between; padding:0 ">
+                <h4 style="margin:0; font-weight:bold; line-height:30px;">Giao dịch/Phiếu trả hàng nhập</h4>
+                <div id="popup-print" style="display:flex;flex-direction:row;position:relative;align-items: center;">
+                    <div class="flex">
+                        <div class="op-dropdown">
+                            <button class="btn btn-link op-dropdown-toggle" data-bind="click: showPrint" data-type="dropdown" data-toggle="dropdown">
+                                <i class="fa fa-print font-18"></i>
+                            </button>
+                            <div class="op-dropdialog" style="width:300px;">
+                                <div class="form-group flex flex-between" style="align-items:center" id="divSetTonKho">
+                                    <label>
+                                        Ẩn hàng hóa đã hết tồn kho
+                                    </label>
+                                    <input autocomplete="off" type="checkbox" class="choose-mauin" value="1"
+                                           data-bind="checked: parseInt(ConTonKho()) === 1, event: {change: $root.ChangeCheckTonKho}">
+                                </div>
+                                <div class="form-group flex flex-between" style="align-items:center">
+                                    <label>
+                                        In hóa đơn khi nhấn thanh toán
+                                    </label>
+                                    <div class="show-table" id="divSetPrintPay">
+                                        <span class="main-show main-hide" @*data-bind="click: Setting_PrintPay"*@>
+                                            <span class="turnon">Bật</span>
+                                            <span class="turnoff">Tắt</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group flex flex-between" style="align-items:center">
+                                    <label>
+                                        Số liên khi in
+                                    </label>
+                                    <div class="show-table">
+                                        <input autocomplete="off" type="text" class="form-control choose-mauin" id="txtNumberOfPrint"
+                                               data-bind="value: numbersPrintHD"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)" style="width: 60px; text-align: center">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="op-dropdown">
+                            <button class="btn btn-link op-dropdown-toggle" data-type="dropdown" data-toggle="dropdown">
+                                <i class="fa fa-info font-18"></i>
+                            </button>
+                            <div class="op-dropdialog" style="width:384px; max-height:unset">
+                                <div class="title-keys floatleft">
+                                    Phím tắt
+                                </div>
+                                <div class="floatleft">
+                                    <div class="flex flex-between">
+                                        <label>
+                                            F3
+                                        </label>
+                                        <div class="text-right">
+                                            Tìm hàng hóa
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            F6
+                                        </label>
+                                        <div class="text-right">
+                                            Thay đổi chế độ nhập số lượng
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            F10
+                                        </label>
+                                        <div class="text-right">
+                                            Hoàn thành
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            Home
+                                        </label>
+                                        <div class="text-right">
+                                            Thay đổi số lượng sản phẩm
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            <i class="fa fa-angle-down"></i>
+                                        </label>
+                                        <div class="text-right">
+                                            Giảm số lượng
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            <i class="fa fa-angle-up"></i>
+                                        </label>
+                                        <div class="text-right">
+                                            Tăng số lượng
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            Enter
+                                        </label>
+                                        <div class="text-right">
+                                            Di chuyển xuống ô số lượng của sản phẩm tiếp theo
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-between">
+                                        <label>
+                                            Shift
+                                        </label>
+                                        <div class="text-right">
+                                            Di chuyển lên ô số lượng của sản phẩm phía trên
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="head2">
+                <label>Thông tin chung</label>
+            </div>
+            <div class="right-content-infor right-content-infor-tra-hang nopadding">
+                <div class="detail-infor  floatleft  " style="position:relative; margin-bottom:5px;">
+                    <div class=" seach-supplier floatleft" style="position:relative">
+                        <jqauto-customer params="showDiv: true,
+                          loaiDoiTuong :2,
+                          roleAdd: true,
+                          showDiary: false,
+                          changeCus: ChangeCus,
+                          addCustomer: showPopupNCC"></jqauto-customer>
+                    </div>
+                    <a class="iptBtn" data-bind="click: showPopupNCC"><i class="fa fa-plus"></i></a>
+                    <div class="floatleft">
+                        <div class="form-left">
+                            <!--table hideshow-->
+                            <ul data-bind="foreach: ChiTietDoiTuong">
+                                <li>
+                                    <div class="flex flex-between" style="align-items:center">
+                                        <div class="flex flex-column" style="width:calc(100% - 33px)">
+                                            <strong class="floatleft text-ellipsis" style="line-height:30px;">
+                                                <a data-bind="text: commonStatisJs.SubStringContent(TenDoiTuong,50), 
+                                                   attr:{title: TenDoiTuong},
+                                               event:{click: $parent.showPopupEditNCC}"></a>
+                                            </strong>
+                                            <span data-bind="text:( DienThoai !== null&&DienThoai !== '') ?'ĐT : '+ DienThoai : ''"></span>
+                                        </div>
+                                        <button class="btn btn-link " style="width:30px; height:30px;padding:3px !important" data-bind="click: $parent.deleteNCC" title="đóng">
+                                            <i class="material-icons text-danger">close</i>
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
+                            <!--end tablehideshow-->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group floatleft  ">
+                    <label class="css-form-label">Mã trả hàng nhập :</label>
+                    <div class="css-form-detail">
+                        <input autocomplete="off" type="text" class="form-control " placeholder="Mã phiếu tự động" id="txtMaHoaDon"
+                               data-bind="value: newHoaDon().MaHoaDon">
+                    </div>
+                </div>
+                <div class="form-group floatleft  ">
+                    <label class="css-form-label">Nhân viên :</label>
+                    <div class="css-form-detail">
+                        <select class="form-control nhanvien" id="selectedNV" data-bind="options: NhanViens ? NhanViens : [],
+                                                optionsText: 'TenNhanVien', optionsValue: 'ID', value: newHoaDon().ID_NhanVien,
+                                                 enable: $root.TraHangNhap_ThayDoiNhanVien()"></select>
+                    </div>
+                </div>
+                <div class="form-group floatleft ">
+                    <label class="css-form-label">Ngày lập phiếu :</label>
+                    <div class="css-form-detail">
+                        <input class="form-control txtNgayLapHD" id="datetimepicker_mask"
+                               data-bind="enable: $root.TraHangNhap_ThayDoiThoiGian(),value: newHoaDon().NgayLapHoaDon()" type="text">
+                    </div>
+                </div>
+                <div class="form-group floatleft  " style="align-items:flex-start">
+                    <label class="css-form-label">Ghi chú :</label>
+                    <div class="css-form-detail">
+                        <textarea id="giveanote" type="text" placeholder="Ghi chú" rows="2"
+                                  data-bind="value: newHoaDon().DienGiai,event:{keyup: UpdateGhiChuHD}"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="group-sum-total group-sum-total-tra-hang  container-fluid  floatleft">
+                <div class="table-reponsive">
+                </div>
+            </div>
+            <table class="table">
+                <tbody>
+                    <tr class="bold border-top-none">
+                        <td>Tổng trả</td>
+                        <td class="text-right">
+                            <span class="sum-price "
+                                  data-bind="text: formatNumber3Digit(newHoaDon().TongTienHang(),2)"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Thuế</td>
+                        <td>
+                            <div style="position:relative; text-align:right">
+                                <div class="import-dropdown floatleft text-right" data-bind="click: ShowDivTax_HD">
+                                    <span data-bind="text: formatNumber3Digit(newHoaDon().TongTienThue(),2)">0</span>
+                                </div>
+                                <div class="import-dropbox drop-box-arrow-up" style="display: none;">
+                                    <div style="display:flex; ">
+                                        <span>Thuế: </span>
+                                        <input class="input-simple width-75" onclick="this.select()" onkeypress="keypressNumber_limitNumber(event, this)" data-bind="value: newHoaDon().PTThueHoaDon() > 0 ? formatNumber3Digit(newHoaDon().PTThueHoaDon()): formatNumber3Digit(newHoaDon().TongTienThue()),
+                                                       event:{keyup:editTax } ">
+                                        <a class="input-options" data-bind="click: HD_ClickTaxVND">VNĐ</a>
+                                        <a class="input-options picked" id="hd_TaxPtram" data-bind="click: HD_ClickTaxPtram">%</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="hidegiamgianhaphang">
+                        <td>
+                            Giảm giá (F8)
+                            <span class="sum-price height-30" id="saleMenuRight"
+                                  data-bind="text: newHoaDon().TongChietKhau() > 0? '(' + formatNumber3Digit(newHoaDon().TongChietKhau()) + ' %)':'' "></span>
+                        </td>
+                        <td id="trGGHD">
+                            <span class="parent-price parent-price-1" id="saleMenuRight"
+                                  data-bind="text: formatNumber3Digit(newHoaDon().TongGiamGia(),2),click: ShowDivSale_HD" style="float:right; background-color:transparent "></span>
+                            <div class="import-dropbox drop-box-arrow-up" style="width:250px; float:left; padding: 3px 7px" id="editGiamGia">
+                                <div style="display:flex; ">
+                                    <span>Giảm giá: </span>
+                                    <input autocomplete="off" type="text" class="input-simple" id="saleNumber"
+                                           data-bind="value: newHoaDon().TongChietKhau() > 0? formatNumber3Digit(newHoaDon().TongChietKhau()):formatNumber3Digit(newHoaDon().TongGiamGia()),
+                                                   event:{keyup: EditGiamGia_HD}"
+                                           onkeypress="keypressNumber_limitNumber(event, this)">
+                                    <a class="input-options" id="vnd" data-bind="click: clickVND_HD">VNĐ</a>
+                                    <a class="input-options" id="noVnd" data-bind="click: clickPtram_HD">%</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-bottom" data-bind="visible: newHoaDon().KhachDaTra() > 0">
+                        <td>Đã thu</td>
+                        <td class="text-right">
+                            <span class="height-30"
+                                  data-bind="text: formatNumber3Digit(newHoaDon().KhachDaTra(),2)">
+                            </span>
+                        </td>
+                    </tr>
+                    <tr class="border-bottom">
+                        <td>Phải thu</td>
+                        <td class="text-right">
+                            <span class="height-30" id="lblTienCanTra"
+                                  data-bind="text: formatNumber3Digit(newHoaDon().PhaiThanhToan(),2)">
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr class="border-bottom bold ">
+                        <td>
+                            <div>
+                                <span class="flex flex-between">
+                                    Tiền thu (F9)
+                                    <img src="/Content/images/iconketchen/m4.png" data-toggle="modal" data-bind="click: $root.showPayBill">
+                                </span>
+                                <p class="money-face"><i id="tenloaitien"></i></p>
+                            </div>
+                        </td>
+                        <td>
+                            <input class="form-control price-pay-end text-right bold" type="text" id="txtPaid"
+                                   autocomplete="off"
+                                   onkeypress="return keypressNumber(event)"
+                                   data-bind="value: formatNumber3Digit(newHoaDon().DaThanhToan(),2), event:{keyup: EditDaThanhToan}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-bind="text: newHoaDon().ConThieu() > 0?'Còn thiếu':'Tiền thừa'">
+                        </td>
+                        <td class="text-right">
+                            <span class="height-30"
+                                  data-bind="text: formatNumber3Digit(newHoaDon().ConThieu(),2)">
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="bill-control btn-group floatleft ">
+            <button class="bg9" style="width: 64%" data-bind="visible: $root.isLoading()">
+                Đang lưu
+            </button>
+            <button class="bg9" data-bind="click: function(){SaveInvoice(0)}, visible: !$root.isLoading()">
+                Lưu (F10)
+            </button>
+            <button class="bg8" data-bind="click:function(){SaveInvoice(1)}, visible: !$root.isLoading()">
+                Lưu nháp
+            </button>
+            <button class="bg7" data-bind="click: clickBtnHuyHD"> Hủy</button>
+        </div>
+    </div>
+    <div id="menu-mobile" style="display:none">
+        <a id="gohome" class="actived" onclick="navto(1)"><i class="glyphicon glyphicon-home"></i><small>Danh sách</small></a>
+        <a id="gopay" onclick="navto(2)"><i class="glyphicon glyphicon-import"></i><small>Nhập hàng</small></a>
+        <a class="pull-right" id="goback-btn" data-bind="click: clickBtnHuyHD">
+            <i class="glyphicon glyphicon-remove"></i>
+            <small>Hủy</small>
+        </a>
+        <script>
+            function navto(opt) {
+                switch (opt) {
+                    case 1:
+                        $("#gohome").addClass("actived");
+                        $("#gohome").siblings().removeClass("actived")
+                        $(".op-gdct-thongtinphieu").removeClass("op-gdct-mobile-show");
+                        $(".op-gdct-danhsachhang").addClass("op-gdct-mobile-show");
+                        break;
+                    case 2:
+                        $("#gopay").addClass("actived");
+                        $("#gopay").siblings().removeClass("actived")
+                        $(".op-gdct-thongtinphieu").addClass("op-gdct-mobile-show");
+                        $(".op-gdct-danhsachhang").removeClass("op-gdct-mobile-show");
+                        break;
+                    default:
+                        $("#gohome").addClass("actived");
+                        $("#gohome").siblings().removeClass("actived")
+                        $(".op-gdct-thongtinphieu").removeClass("op-gdct-mobile-show");
+                        $(".op-gdct-danhsachhang").addClass("op-gdct-mobile-show");
+                        break;
+                }
+            }
+        </script>
+    </div>
+</div>
+<script src="~/Scripts/Components/Input.js"></script>
+<script src="~/Scripts/Components/NhanVien_KhachHang.js"></script>
+<script src="~/Scripts/Components/TrangThai_NguonKhach.js"></script>
+<script src="~/Scripts/Components/dropdown-search.js"></script>
+@Html.Partial("~/Views/Gara/_ThongTinThanhToanNCC.cshtml")
+@Html.Partial("~/Views/Gara/KhachHang/_ThemNhomNCC.cshtml")
+@Html.Partial("~/Views/Gara/KhachHang/_ThemMoiNCC.cshtml")
+
+<div class="modal fade" id="modalPopuplgDelete">
+    <div class="modal-dialog draggable modal-md">
+        @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+    </div>
+</div>
+<script>
+    function re_direct() {
+        $(".modal-backdrop fade in").css('display', 'none !important;');
+        window.location.href = "#/PurchaseReturns";
+    }
+</script>
+<script>
+    var TeamplateMauIn = '@commonEnum.MauInTeamPlates.TraHangNhap';
+    var funcName = '@RoleKey.TraHangNhap';
+
+    $(document).mouseup(function (e) {
+        var container = $(".import-dropbox");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+    $(function () {
+        $(".draggable").draggable();
+    });
+    $(".parent-price").click(function () {
+        $(this).next(".arrow-left").toggle();
+        $(".arrow-left").mouseup(function () {
+            return false
+        });
+        $(".parent-price").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            $(".arrow-left").hide();
+        });
+    });
+
+    $('.datetimepicker4').datetimepicker({
+        format: 'd/m/Y',
+    });
+
+        $.datetimepicker.setLocale('vi');
+        var time = new Date();
+        $('#datetimepicker_mask').datetimepicker({
+            timepicker: true,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y H:i',
+            value: moment(time).format('DD/MM/YYYY HH:mm'),
+            maxDate: new Date(),
+        });
+</script>
+<script>
+    var loaiHoaDon = 7;
+    $(".bnt-print").click(function () {
+        $(".import-fast").removeClass("colorblue");
+        $(this).addClass("colorblue");
+        $(".function-keys").hide();
+        $(".install-notifi").toggle();
+        $(".install-notifi").mouseup(function () {
+            return false
+        });
+        $(".bnt-print").mouseup(function () {
+            return false;
+        });
+        $(document).mouseup(function () {
+            $(".install-notifi").hide();
+        });
+    });
+    var CheckInHD = localStorage.getItem('CheckInWhenHT');
+    if (CheckInHD === "true") {
+        $('#colorTHN').addClass('flaggOfPrint');
+    }
+    else {
+        $('#colorTHN').removeClass('flaggOfPrint');
+    }
+    $(".main-key").click(function () {
+        $(".install-notifi").hide();
+        $(".function-keys").toggle();
+        $(".function-keys").mouseup(function () {
+            return false
+        });
+        $(".main-key").mouseup(function () {
+            return false;
+        });
+        $(document).mouseup(function () {
+            $(".function-keys").hide();
+            $(".import-fast").removeClass("colorblue");
+        });
+    });
+    $(".table_h1 tbody").on('mouseenter', 'tr', function () {
+        $('._ghi-chu-nhap-hang').hide();
+        $(this).find('td').each(function () {
+            $(this).find('._ghi-chu-nhap-hang').show();
+        })
+    });
+    $(".table_h1 tbody").on('mouseleave', 'tr', function () {
+        $('._ghi-chu-nhap-hang').hide();
+    });
+</script>
+<script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/TraHangNhapChiTiet"))" type="text/javascript"></script>
+
+<script>
+    function showOpDropbox(ele) {
+        $(ele).next().toggle();
+    }
+    function changeType(ele) {
+        $(ele).parent().toggleClass("vnd")
+    }
+    $(document).mouseup(function (e) {
+        var container = $(".op-dropbox-container");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+    $(document).mouseup(function (e) {
+        var container = $(".op-dropdialog");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+    $(document).ready(function () {
+        $('button[data-type="dropdown"').click(function () {
+            $(this).next().toggle();
+        })
+    })
+</script>

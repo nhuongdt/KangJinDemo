@@ -1,0 +1,241 @@
+﻿<div id="vmHDSC_chitietXuat" class="modal fade">
+    <div class="modal-dialog draggable modal-lg modal-lgmax ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    Chi tiết {{$root.txtNhapXuat}} kho
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-12 col-md-12 col-xs12">
+                    <div class="container-fluid  flex" style="padding:0 0 15px 0">
+                        <div class="col-md-12 col-xs-12 col-sm-12 nopadding" style="line-height:24px; padding:3px; text-align:left; color:red">
+                            <i class="fa fa-info-circle"></i>
+                            <span v-if="DichVu_isDoing">  {{DichVu_isDoing.TenHangHoa}}</span>
+                        </div>
+                    </div>
+                    <div class="container-fluid  flex" style="padding:0 0 15px 0">
+                        <div class="col-md-12 col-xs-12 col-sm-12 nopadding" style="line-height:24px; padding:3px; text-align:left;">
+                            <span v-if="DichVu_isDoing && $root.LoaiChiTiet === 0">
+                                <i>
+                                    (*): Là định lượng bổ sung khi xuất kho
+                                </i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="container-fluid row">
+                        <div class="table-frame">
+                            <table class=" table-hover table table-striped  ">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" colspan="4"
+                                            v-if="!DichVu_isDoing.LaHangHoa">Hàng hóa định lượng</th>
+                                        <th class="text-center" colspan="5">Đã {{$root.txtNhapXuat}} thực tế</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-center" v-if="!DichVu_isDoing.LaHangHoa">
+                                            Mã hàng
+                                        </th>
+                                        <th class="text-center" v-if="!DichVu_isDoing.LaHangHoa">
+                                            Tên hàng
+                                        </th>
+
+                                        <th class="text-center" v-if="!DichVu_isDoing.LaHangHoa">
+                                            Số lượng
+                                        </th>
+                                        <th class="text-center" v-if="!DichVu_isDoing.LaHangHoa">
+                                            Giá trị
+                                        </th>
+                                        <th class="text-center">
+                                            Mã phiếu
+                                        </th>
+                                        <th class="text-center">
+                                            Ngày {{$root.txtNhapXuat}}
+                                        </th>
+
+                                        <th class="text-center">
+                                            Số lượng
+                                        </th>
+                                        <th class="text-center">
+                                            Giá trị
+                                        </th>
+                                        <th class="text-center">
+                                            Ghi chú
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <template v-for="(hd, index) in ListHDXuatKho" v-if="!DichVu_isDoing.LaHangHoa">
+                                    <tr>
+                                        <td v-bind:rowspan="hd.CTXuats.length +1"
+                                            class="bold">
+                                            <span>
+                                                {{hd.MaHangHoa}}
+                                            </span>
+                                            <span v-if="hd.LaDinhLuongBoSung === 1" style="color:red">
+                                                (*)
+                                            </span>
+                                        </td>
+                                        <td v-bind:rowspan="hd.CTXuats.length +1">
+                                            <span>
+                                                {{hd.TenHangHoa}}
+                                            </span>
+                                            <span v-if="hd.TenDonViTinh" class="blue">
+                                                ({{hd.TenDonViTinh}})
+                                            </span>
+                                            <span v-if="hd.MaLoHang" style="color: brown">
+                                                (Lô: {{hd.MaLoHang}})
+                                            </span>
+                                        </td>
+                                        <td v-bind:rowspan="hd.CTXuats.length +1"
+                                            class="text-center">
+                                            <span v-if="hd.LaDinhLuongBoSung=== 1">0</span>
+                                            <span v-else>
+                                                {{formatNumber3Digit(hd.SoLuongDinhLuong_BanDau)}}
+                                            </span>
+                                        </td>
+                                        <td v-bind:rowspan="hd.CTXuats.length +1"
+                                            class="text-right">
+                                            <span v-if="hd.LaDinhLuongBoSung=== 1">0</span>
+                                            <span v-else>
+                                                {{formatNumber3Digit(hd.GiaTriDinhLuong_BanDau)}}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <template v-for="(tpdl, index2) in hd.CTXuats">
+                                        <tr>
+                                            <td class="text-center">
+                                                <a href="javascript:void(0)">
+                                                    {{tpdl.MaHoaDon}}
+                                                </a>
+                                            </td>
+                                            <td class="text-center">
+                                                {{tpdl.NgayLapHoaDon? moment(tpdl.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''}}
+                                            </td>
+                                            <td class="text-center">
+
+                                                {{formatNumber3Digit(tpdl.SoLuong)}}
+                                            </td>
+                                            <td class="text-right">
+                                                {{formatNumber3Digit(tpdl.GiaVon,3)}}
+                                            </td>
+                                            <td>
+                                                {{tpdl.GhiChu}}
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </template>
+                                <template v-if="DichVu_isDoing.LaHangHoa"
+                                          v-for="(tpdl, index) in ListHDXuatKho">
+                                    <tr>
+                                        <td class="text-center">
+                                            <a href="javascript:void(0)">
+                                                {{tpdl.MaHoaDon}}
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            {{tpdl.NgayLapHoaDon? moment(tpdl.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''}}
+                                        </td>
+                                        <td class="text-center">
+                                            {{formatNumber3Digit(tpdl.SoLuong)}}
+                                        </td>
+                                        <td class="text-right">
+                                            {{formatNumber3Digit(tpdl.GiaVon,3)}}
+                                        </td>
+                                        <td>
+                                            {{tpdl.GhiChu}}
+                                        </td>
+                                    </tr>
+                                </template>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button href="javascript:void(0)" data-dismiss="modal" class="btn btn-cancel">
+                        <i class="fa fa-times"></i> Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmHDSC_chitietXuat = new Vue({
+        el: '#vmHDSC_chitietXuat',
+        data: {
+            DichVu_isDoing: {},
+            ListHDXuatKho: [],
+            LoaiChiTiet: 0,
+        },
+        computed: {
+            txtNhapXuat: function () {
+                return this.LoaiChiTiet == 1 ? 'nhập' : 'xuất';
+            },
+        },
+
+        methods: {
+            showModal: function (item) {
+                var self = this;
+                self.DichVu_isDoing = item;
+                self.ListHDXuatKho = [];
+                if (!commonStatisJs.CheckNull(item.ChatLieu)) {
+                    self.LoaiChiTiet = parseInt(item.ChatLieu);
+                }
+
+                var loaiHang = 0;
+                if (item.LaHangHoa) {
+                    loaiHang = 1;
+                }
+                $.getJSON("/api/DanhMuc/BH_HoaDonAPI/HDSC_GetChiTietXuatKho?idHoaDon=" + item.ID_HoaDon
+                    + '&idChiTietHD=' + item.ID + '&loaiHang=' + loaiHang, function (x) {
+                        if (x.res) {
+                            if (self.LoaiChiTiet === 1) {
+                                let arr = [];
+                                 // trahang (nhap laikho)
+                                for (let i = 0; i < x.dataSoure.length; i++) {
+                                    let for1 = x.dataSoure[i];
+                                    if (!commonStatisJs.CheckNull(for1.CTXuats)) {
+                                        let isTra = false;
+                                        for (let j = 0; j < for1.CTXuats.length; j++) {
+                                            let for2 = for1.CTXuats[j];
+                                            if (parseInt(for2.ChatLieu) === 1) {
+                                                isTra = true;
+                                            }
+                                        }
+                                        if (isTra) {
+                                            arr.push(for1);
+                                        }
+                                    }
+                                    else {
+                                        if (!commonStatisJs.CheckNull(for1.ChatLieu)) {
+                                            if (parseInt(for1.ChatLieu) === 1) {
+                                                arr.push(for1);
+                                            }
+                                        }
+                                    }
+                                }
+                                x.dataSoure = arr;
+                            }
+                            else {
+                                // hoadon (xuatkho)
+                                x.dataSoure = $.grep(x.dataSoure, function (x) {
+                                    return x.ChatLieu !== '1';
+                                })
+                            }
+                            self.ListHDXuatKho = x.dataSoure;
+                        }
+                    });
+                $('#vmHDSC_chitietXuat').modal('show');
+            },
+        }
+    })
+</script>
+

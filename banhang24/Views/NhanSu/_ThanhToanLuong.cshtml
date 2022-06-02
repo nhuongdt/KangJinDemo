@@ -1,0 +1,291 @@
+﻿@using banhang24.Hellper;
+<style>
+    .col-md-4 col-xs-12 {
+        font-weight: bold;
+    }
+    .col-md-4 col-xs-12 {
+        width: 160px;
+    }
+    .span-price {
+        line-height: 30px;
+        font-weight: bold;
+        float: right;
+    }
+    .information-payment, .foot-phieu-thu {
+        background: #c7dadf;
+    }
+    .thanh-toan-the-gia-tri {
+        color: var(--color-main);
+        font-size: 16px;
+        margin-left: 10px;
+    }
+    .col-md-4 col-xs-12 .input-group {
+        width: 100%;
+    }
+</style>
+<div class="modal fade" id="modalCashSalary">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">Thanh toán bảng lương</h4>
+            </div>
+            <div class="modal-body thanhtoan">
+                <div class="floatleft">
+                    <div class="col-xs-12 col-md-6 no-padding-left  border-bottom-group">
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label ">Khoản chi:</label>
+                            <div class="form-news ">
+                                <select class="form-control" v-model="defaultValue.ID_KhoanThuChi" v-on:change="ChoseKhoanChi($event)">
+                                    <option v-for="item in listdata.KhoanChi" v-bind:value="item.ID">
+                                        {{item.NoiDungThuChi}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label ">Người lập phiếu:</label>
+                            <div class="form-news ">
+                                <select class="form-control" v-model="defaultValue.ID_NhanVien" v-on:change="ChoseNhanVien($event)">
+                                    <option v-for="nv in listdata.NhanVienLapPhieu" v-bind:value="nv.ID">
+                                        {{nv.TenNhanVien}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 nopading-right  border-bottom-group">
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label ">
+                                Thời gian
+                            </label>
+                            <div class="form-news form-icon-input add-icon-date">
+                                <input type="text" class="form-control datepicker_mask"
+                                       v-on:click="ClickDatetime"
+                                       v-model="newPhieuChi.NgayLapHoaDon" />
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label ">Ghi chú:</label>
+                            <div class="form-news">
+                                <textarea rows="2" v-model="newPhieuChi.NoiDungThu">        </textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 tab-col-12">
+                        <div class="information-payment floatleft">
+                            <div class="col-sm-12 col-md-12 col-xs-12">
+                                <i>
+                                    Chỉ được chọn thanh toán 1 trong 2 hình thức (tiền mặt/ chuyển khoản)
+                                </i>
+                            </div>
+                            <div class="col-md-12 nopadding item-payment floatleft">
+                                <div class="col-md-4 col-xs-12">
+                                    Tiền chi
+                                </div>
+                                <div class="col-md-4 col-xs-12">
+                                </div>
+                                <div class="col-md-4 col-xs-12 bold text-right">
+                                    <span>Nợ hiện tại:</span>
+                                    <span>{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongCanTra)}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 " style=" padding-right:0px;border-bottom:1px solid white">
+                                <div class="item-payment floatleft">
+                                    <div class="col-md-4 col-xs-12">
+                                        Tiền mặt
+                                    </div>
+                                    <div class="col-md-4 col-xs-12">
+                                    </div>
+                                    <div class="col-md-4 col-xs-12">
+                                        <input v-if="newPhieuChi.ID_TaiKhoanNganHang === null" type="text" class="form-control text-right" id="txtTienMat" autofocus onclick="this.select()" autocomplete="off"
+                                               v-model="newPhieuChi.TienMat"
+                                               v-on:keyup="EditTienMat">
+                                        <span v-if="newPhieuChi.ID_TaiKhoanNganHang !== null" class="form-control text-right">
+                                            {{newPhieuChi.TienMat}}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="item-payment floatleft">
+                                    <div class="col-md-4 col-xs-12">
+                                        Tiền chuyển khoản
+                                    </div>
+                                    <div class="col-md-4 col-xs-12 nopadding">
+                                        <div class="input-group">
+                                            <div class="outselect add-customer">
+                                                <div class=" choose-person  " data-toggle="dropdown" aria-expanded="false">
+                                                    <div class="form-control " id="divAccountCK">{{newPhieuChi.TenTaiKhoanChosing}}</div>
+                                                </div>
+                                                <div class="selec-person dropdown-menu floatleft">
+                                                    <div class="seach-nhomhang">
+                                                        <input type="text" class="seach-nhomhang"
+                                                               v-on:keyup="filterAcCK">
+                                                        <i class="fa fa-search"></i>
+                                                    </div>
+                                                    <ul id="lstAccountCK">
+                                                        <li v-on:click="ChoseAccountCK">
+                                                            <a href="javascript:void(0)">---Chọn tài khoản---</a>
+                                                        </li>
+                                                        <li v-for="tk in listdata.TaiKhoanNganHang">
+                                                            <a href="javascript:void(0)" v-on:click="ChoseAccountCK(tk)">
+                                                                <span class="tit-seach">{{tk.TenChuThe}}</span><br />
+                                                                <span class="seach-hh">{{tk.TenNganHang}}</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-xs-12">
+                                        <input type="text"  v-if="newPhieuChi.ID_TaiKhoanNganHang !== null" class="form-control text-right" id="txtTienGui" onkeypress="return keypressNumber(event)" onclick="this.select()"
+                                               autocomplete="off"
+                                               v-model="newPhieuChi.TienGui"
+                                               v-on:keyup="EditTienCK" />
+                                        <span class="form-control text-right" v-if="newPhieuChi.ID_TaiKhoanNganHang === null">
+                                            {{newPhieuChi.TienGui}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 tab-col-12">
+                        <h5 style="font-weight: bold;" class="no-magrin">Nội dung thu</h5>
+                        <div class="table-reponsive" style="margin-top:8px">
+                            <div class="table-res">
+                                <table class='table'>
+                                    <thead>
+                                        <tr>
+                                            <th>Mã phiếu</th>
+                                            <th>Nhân viên</th>
+                                            <th class="text-right">Tổng lương</th>
+                                            <th class="text-right">Đã trả</th>
+                                            <th class="text-right">Cần trả</th>
+                                            <th class="text-right" v-if="hideShowTamUng">Ứng trước</th>
+                                            <th class="text-right" v-if="hideShowTamUng">Trừ tạm ứng</th>
+                                            <th class="text-right">Phải trả</th>
+                                            <th class="text-right">Tiền trả</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody v-for="(ctluong, index) in listdata.BangLuongChiTiet">
+                                        <tr>
+                                            <td>{{ctluong.MaBangLuongChiTiet}}</td>
+                                            <td>{{ctluong.TenNhanVien}}</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ctluong.LuongThucNhan)}}</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ctluong.DaTra)}}</td>
+                                            <td class="text-right">
+                                                {{commonStatisJs.FormatNumber3Digit(ctluong.ConCanTra)}}
+                                            </td>
+                                            <td class="text-right" v-if="$root.hideShowTamUng">{{commonStatisJs.FormatNumber3Digit(ctluong.TamUngLuong)}}</td>
+                                            <td class="text-right" v-if="$root.hideShowTamUng">
+                                                <input class="form-control text-right " onkeypress="return keypressNumber_limitNumber(event, this)" autocomplete="off"
+                                                       v-if="ctluong.TamUngLuong > 0"
+                                                       v-model="ctluong.TienTamUng"
+                                                       v-on:keyup="EditTienTamUng(ctluong,index)" />
+                                                <span v-if="ctluong.TamUngLuong === 0">
+                                                    {{ctluong.TamUngLuong}}
+                                                </span>
+                                            </td>
+                                            <td class="text-right" >{{commonStatisJs.FormatNumber3Digit(ctluong.CanTraSauTamUng)}}</td>
+                                            <td class="text-right">
+                                                <input class="form-control text-right " onkeypress="return keypressNumber(event)" autocomplete="off"
+                                                       v-model="ctluong.TienTra"
+                                                       v-on:keyup="EditDetailTienTra(ctluong,index)" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="foot-phieu-thu">
+                                        <tr class="bold">
+                                            <td colspan="2"> Tổng</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongLuongNhan,3)}}</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongDaTra)}}</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongCanTra)}}</td>
+                                            <td class="text-right" v-if="$root.hideShowTamUng">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongTamUng)}}</td>
+                                            <td class="text-right" v-if="$root.hideShowTamUng">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongTruTamUngThucTe)}}</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongCanTraSauTamUng)}}</td>
+                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(newPhieuChi.TongTienThu)}}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-3 col-sm-offset-7 bold">
+                                        {{newPhieuChi.LblTienThua}}
+                                    </div>
+                                    <div class="col-sm-2 text-right bold">
+                                        {{commonStatisJs.FormatNumber3Digit(newPhieuChi.TienThua)}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 tab-col-12">
+                        <div class="group-btn pull-right modal-footer" id="divBtnSave">
+                            <button class="btn btn-main" v-if="!loading" v-on:click="ThanhToan">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="color:white"></i>  Lưu
+                            </button>
+                            <button class="btn btn-main" v-if="loading">
+                                <i class="fa fa-floppy-o" aria-hidden="true" style="color:white"></i>  Đang lưu
+                            </button>
+                            <button class="btn btn-cancel" data-dismiss="modal">
+                                <i class="fa fa-ban"></i> Bỏ qua
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/NhanSu/_ThanhToanLuong.js"></script>
+<script>
+    function keypressNumber(e) {
+        var keypressed = null;
+        if (window.event) {
+            keypressed = window.event.keyCode; //IE
+        }
+        else {
+            keypressed = e.which; //NON-IE, Standard
+        }
+        if (keypressed < 48 || keypressed > 57) {
+            if (keypressed == 8 || keypressed == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    $.fn.getCursorPosition = function () {
+        var el = $(this).get(0);
+        var pos = 0;
+        if ('selectionStart' in el) {
+            pos = el.selectionStart;
+        } else if ('selection' in document) {
+            el.focus();
+            var Sel = document.selection.createRange();
+            var SelLength = document.selection.createRange().text.length;
+            Sel.moveStart('character', -el.value.length);
+            pos = Sel.text.length - SelLength;
+        }
+        return pos;
+    };
+    function keypressNumber_limitNumber(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode !== 46 || $(obj).val().indexOf('.') !== -1) && (keyCode < 48 || keyCode > 57)) {
+            if (event.which !== 46 || $this.indexOf('.') !== -1) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        // get postion current of cursor
+        var pos = $(obj).getCursorPosition();
+        if ($this.indexOf(".") > -1 && $this.split('.')[1].length > 2) {
+            var lenNumber = $this.length;
+            // if pos nam sau chu so thap phan --> khong cho add them so nua
+            if (pos > lenNumber - 3) {
+                event.preventDefault();
+            }
+        }
+    }
+</script>

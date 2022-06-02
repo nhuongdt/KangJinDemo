@@ -1,0 +1,151 @@
+﻿@model SoftWareSsoft.Models.ThemeSsoft.RecruitmentModel
+@{
+    Layout = "~/Views/ThemeSsoft/_LayoutSsoft.cshtml";
+}
+@section scripts{
+<script src="~/Content/daterangepicker/daterangepicker.js"></script>
+
+<script>
+    $(function () {
+        $('input[name="birthday"]').daterangepicker({
+            singleDatePicker: true, showDropdowns: true,
+            locale: {
+                format: 'DD/MM/YYYY',
+                cancelLabel: 'Hủy',
+                applyLabel: 'Áp dụng',
+                monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12 "]
+            }
+        }, function (start, end, label) {
+            vmbody.ObjSendReq.NgaySinh = start.format('MM/DD/YYYY');
+        });
+        $('input[name="birthday"]').val(null);
+    });
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            $('#blah').text(input.files[0].name);
+                var reader = new FileReader();
+                reader.readAsDataURL(input.files[0]);
+            
+        }
+    }
+    function chooseimg() {
+        $('#imageUploadForm').click();
+    }
+    vmbody.GetRecruitmentDetailGroup(@Model.ID_nhombaiviet,@Model.ID);
+    vmbody.ObjSendReq.ID_TuyenDung = @Model.ID;
+    </script>
+    }
+<link href="~/Content/daterangepicker/daterangepicker.css" rel="stylesheet" />
+<div class="banner-page banner-recruitment fl ">
+    <div class="container">
+        <div class="row">
+            <div class="fl">
+                <div class="banner-text-left">
+                    @*<h1>
+                            <span class="recruitment-title1">Có cơ hội trúng tuyển </span>
+                            <br />
+                            <span>Các vị trí <span style="color:#f8d56e"> hấp</span> <span style="color:#c0f4ff"> dẫn</span> !</span>
+                        </h1>*@
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fl recruitment-detail">
+    <div class="container">
+        <p class="title-req-link"> Tuyển dụng <i class="fa fa-caret-right" aria-hidden="true"></i> <span>@Model.TenNhom</span> </p>
+        <div class="col-md-12 row req-de-content">
+            <div class="col-md-8 col-sm-8 col-xs-12 req-left">
+                <div class="rede-title">
+                    @Model.TieuDe
+                    <span>(@Model.MucLuong)</span>
+                </div>
+                <div class="rede-time-adress">@Model.ThoiGian - Khu vực: @Model.TinhThanh</div>
+                @if(!Model.ConHan)
+                {
+                    <p class="recruitment-color-ssoft">(Hết hạn)</p>
+                }
+                <div class="rede-descriptions">
+                        <p >SỐ LƯỢNG: @Model.SoLuong</p>
+                        <p> @Html.Raw(Model.Mota)</p>
+                    </div>
+            </div>
+            <div class="col-md-4 col-sm-4 col-xs-12 recruitment-contact">
+                <h4> Thông tin ứng viên</h4>
+                <div class="form-group ">
+                    <input placeholder="Họ và tên" class="form-control "v-model="ObjSendReq.HoTen">
+                </div>
+                <div class="form-group ">
+                    <input type="text" name="birthday" class="form-control" placeholder="Ngày sinh"/>
+                </div>
+                <div class="form-group ">
+                  <select class="form-control" id="gioitinhsl">
+                      <option value="">-- Giới tính --</option>
+                      <option value="true">Nam</option>
+                      <option value="false">Nữ</option>
+                      </select>
+                </div>
+                <div class="form-group ">
+                    <input placeholder="Email" class="form-control "v-model="ObjSendReq.Email">
+                </div>
+                <div class="form-group ">
+                    <input placeholder="Số điện thoại" class="form-control "v-model="ObjSendReq.SoDienThoai">
+                </div>
+                <div class="form-group ">
+                    <input placeholder="Địa chỉ" class="form-control "v-model="ObjSendReq.DiaChi">
+                </div>
+                <div class="form-group ">
+                    <input placeholder="Tốt nghiệp trường" class="form-control "v-model="ObjSendReq.TruongTotNghiep">
+                </div>
+                <div class="form-group ">
+                    <input placeholder="Chuyên nghành" class="form-control "v-model="ObjSendReq.ChuyenNganh">
+                </div>
+                <div class="form-group ">
+                    <input placeholder="Hệ đào tạo" class="form-control "v-model="ObjSendReq.HeDaoTao">
+                </div>
+                <div class="form-group ">
+                    <a href="javascript:void(0)" class="recruitment-file" onclick="chooseimg()"> Đính kèm</a> <p id="blah" class="file-name"></p>
+                    <input type='file' id="imageUploadForm" style="display:none"  name="image" onchange="readURL(this);" />
+                </div>
+                <div class="form-group ">
+                    <textarea rows="4" placeholder="Kỹ năng và kinh nghiệm"v-model="ObjSendReq.KyNang"></textarea>
+                </div>
+                <div class="form-group ">
+                    <p style="color:red">{{error}}</p>
+                    <button class="recruitment-send form-control" v-on:click="SendRecruitment"> Nộp hồ sơ</button>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 row recruitment-relate ">
+            <h4> Tuyển dụng liên quan</h4>
+            <ul class="fl ">
+
+                <li v-for="(item, index) in listRecruitment">
+                    <a v-bind:href="item.Link">
+                    <div class="tree-recruitment-title fl">
+                        <div class="fl">
+                            <div class="col-md-6 col-sm-12 req-left">
+                                <span>{{item.TieuDe}}</span><br />
+                                <span class="recruitment-color-ssoft">{{'Lương: '+item.MucLuong}}</span>
+                            </div>
+                            <div class="col-md-4 col-sm-7 ">
+                                <span>{{item.ThoiGian}}</span><br />
+                                <span class="recruitment-color-ssoft" v-show="!item.ConHan">Hết hạn</span>
+                            </div>
+                            <div class="col-md-2 col-sm-5">
+                                {{item.TinhThanh}}
+                            </div>
+                        </div>
+                    </div>
+                        </a>
+                    </li>
+                </ul>
+
+        </div>
+    </div>
+</div>
+@Html.Partial("_HotroPartial")

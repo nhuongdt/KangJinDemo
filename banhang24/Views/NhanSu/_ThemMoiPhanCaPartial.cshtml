@@ -1,0 +1,609 @@
+﻿@using Model;
+<style>
+    .model-phan-ca {
+        width: 1118px;
+    }
+
+    .seleted-img {
+        padding-left: 130px;
+    }
+
+        .seleted-img .img-user-contact img {
+            border: 1px dotted #ccc;
+            width: 190px;
+        }
+
+        .seleted-img .choose-img {
+            width: 190px;
+        }
+
+    .modal-footer-user {
+        padding-top: 20px;
+        padding-right: 45px;
+        text-align: right;
+    }
+
+    .li-text-show {
+        float: left;
+    }
+
+    .treename {
+        line-height: 30px;
+        width: 100%;
+        float: left;
+    }
+
+    .icon-tree-li {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        width: 10px;
+        font-size: 14px;
+        color: var(--color-main);
+    }
+
+    /*.btn-main {
+        margin-left: 0px;
+    }*/
+    /*.dropdown-menu li:hover {
+        background-color:white;
+    }*/
+    .dropdown-menu li > span:hover {
+        background-color: rgba(0,0,0,.15);
+    }
+
+    table tbody tr td a .fa-times {
+        color: red;
+        font-size: 16px;
+        margin-left: 10px;
+    }
+
+    #selectPhongBan li div {
+        padding-left: 15px;
+    }
+
+        #selectPhongBan li div:hover {
+            color: #0097c4 !important;
+        }
+
+    #selectPhongBan ul {
+        margin-left: 15px;
+    }
+
+    #selectPhongBan li:hover {
+        background: white !important;
+    }
+
+    .thead-boder tr th {
+        border: 1px solid white !important;
+    }
+
+    .ss-li ul {
+        display: inherit;
+    }
+
+    ._ca-tuan-thu {
+        width: 25%;
+        float: left;
+    }
+
+    ._ca-tuan-list {
+        width: 75%;
+        float: left;
+        padding-left: 15px;
+    }
+
+    .op-list-350 {
+        max-height: 350px;
+        overflow-y: auto
+    }
+</style>
+<div id="modalEditPhieuPhanca">
+    <div class="modal fade in" id="modalThemMoiPhieuPhanCa">
+        <div class="modal-dialog draggable modal-lg  ">
+            <div class="modal-content ">
+                <div class="modal-header ">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        {{TitlePopup}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <ul class="nav nav-tabs ">
+                        <li class="active"><a data-toggle="tab" href="#ThongTinPhanCa">Tổng quát</a></li>
+                        <li><a data-toggle="tab" href="#ChiTietPhanca">Chi tiết</a></li>
+                        <li>
+                            <a href="javascript:void(0)" v-if="error" style="color:red!important; font-size: 12px">
+                                {{error}}
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content tab-them-ca-lam-viec floatleft">
+                        <div class="tab-pane active" id="ThongTinPhanCa">
+
+                            <div class="col-md-6 col-sm-6 col-xs-12 ">
+                                <div class="form-group ">
+                                    <label class="css-form-label"> Mã phiếu</label>
+                                    <div class="form-news">
+                                        <input class="form-control" type="text" v-model="data.MaPhieu" :disabled="!isNew" />
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class="css-form-label">Loại ca</label>
+                                    <div class="form-news">
+                                        <select class="form-control seleted-page" v-model="data.LoaiPhanCa" :disabled="!data.TrangThai">
+                                            @foreach (var item in commonEnumHellper.ListLoaiCa)
+                                            {
+                                                <option value="@item.Key">
+                                                    @item.Value
+                                                </option>
+                                            }
+                                        </select>
+                                        <select class="form-control seleted-page" disabled v-else>
+                                            @foreach (var item in commonEnumHellper.ListLoaiCa.Where(o => o.Key == (int)commonEnumHellper.LoaiCa.cacodinh))
+                                            {
+                                                <option value="@item.Key">
+                                                    @item.Value
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12 ">
+                                <div class="form-group ">
+                                    <label class="css-form-label"> Từ ngày <span style="color:red">(*)</span></label>
+                                    <div class="form-news">
+                                        <input class="form-control   datetime" type="text" v-bind:value="commonStatisJs.convertDateTime(data.TuNgay)" data-id="1">
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class="css-form-label"> Đến ngày</label>
+                                    <div class="form-news ">
+                                        <input class="form-control   datetime" type="text" v-bind:value="commonStatisJs.convertDateTime(data.DenNgay)" data-id="2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12 ">
+                                <div class="form-group ">
+                                    <label class="css-form-label">
+                                        Ghi chú
+                                    </label>
+                                    <div class="form-news  ">
+                                        <textarea rows="2" v-model="data.GhiChu"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="tab-pane " id="ChiTietPhanca">
+                            <div class="flex flex-between" style="margin-bottom:5px">
+                                <div class="flex">
+                                    <div class="flex flex-row" style="align-items:center">
+                                        <label>Loại ca &nbsp;</label>
+                                        <div>
+                                            <select class="form-control seleted-page" v-model="data.LoaiPhanCa" :disabled="data.TrangThai===2">
+                                                @foreach (var item in commonEnumHellper.ListLoaiCa)
+                                                {
+                                                    <option value="@item.Key">
+                                                        @item.Value
+                                                    </option>
+                                                }
+                                            </select>
+                                            <select class="form-control seleted-page" disabled v-else>
+                                                @foreach (var item in commonEnumHellper.ListLoaiCa.Where(o => o.Key == (int)commonEnumHellper.LoaiCa.cacodinh))
+                                                {
+                                                    <option value="@item.Key">
+                                                        @item.Value
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row" style="align-items:center">
+                                        <label>&nbsp; Chi nhánh &nbsp;</label>
+                                        <div>
+                                            <select class="form-control seleted-page" id="selectchinhanh" v-model="listdata.chinhanhid" :disabled="data.TrangThai===2" v-on:change="SelectChiNhanh">
+                                                <option v-for="item in listdata.chinhanh" :value="item.Id" :key="item.Id">
+                                                    {{ item.Ten }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row" style="align-items:center">
+                                    <label style="margin-right:5px">
+                                        Phòng ban
+                                    </label>
+
+
+                                    <div class=" dropdown">
+                                        <div data-toggle="dropdown">
+                                            <input type="text" placeholder="Tìm kiếm phòng ban" autofocus="autofocus" class="form-control" style="width:275px;" autocomplete="off" v-model="listdata.searchpb">
+                                            <button hidden style="position: absolute; right: 0px; top: 0; color: red;" class="btn btn-link" v-show="listdata.searchpb!==''" v-on:click="ClearSearchPB()">
+                                                <i class="fa fa-close"></i>
+                                            </button>
+                                        </div>
+                                        <ul class=" dropdown-menu op-js-chinhanh">
+                                            <li class="tatca">
+                                                <span>
+                                                    <a v-on:click="SelectNhanVienByPhongBan(listdata.chinhanhid, true)"> Tất cả</a>
+                                                </span>
+                                            </li>
+                                            <li v-for="(item, index) in   ListPhongBan">
+                                                <span>
+                                                    <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(item.id)">
+                                                        <span>{{item.text}}</span>
+                                                    </a>
+                                                </span>
+                                                <ul v-if="item.children.length>0" v-show="item.active" style="padding-left:15px">
+                                                    <li v-for="(item1, index) in   item.children">
+                                                        <span>
+                                                            <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(item1.id)">
+                                                                <span>{{item1.text}}</span>
+                                                            </a>
+                                                        </span>
+                                                        <ul v-if="item1.children.length>0" v-show="item1.active" style="padding-left:15px">
+                                                            <li class="floatleft" v-for="(item2, index) in   item1.children">
+                                                                <span>
+                                                                    <a href="javascript:void(0)" v-on:click="SelectNhanVienByPhongBan(item2.id)">
+                                                                        <span>{{item2.text}}</span>
+                                                                    </a>
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="flex flex-column">
+                                <div class="floatleft">
+                                    <div class="ctc-ca-tuan" v-show="data.LoaiPhanCa===typeloaicachar.CaTuan">
+                                        <div class="ctc-12">
+                                            <div class="_ca-tuan-thu">
+                                                <select class="form-control seleted-page" v-model="data.CaTuanId" v-on:change="ChangePhanCaTuan">
+                                                    @foreach (var item in commonEnumHellper.ListWeek)
+                                                    {
+                                                        <option value="@item.Key">
+                                                            @item.Value
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="_ca-tuan-list">
+                                                <div class="op-tag-picker dropdown">
+                                                    <div class="" data-toggle="dropdown" aria-expanded="true">
+                                                        <ul>
+                                                            <li v-for="(item, index) in   listdata.calamviec.filter(o=>o.Checked)">
+                                                                <span>{{item.Ma +' - '+ item.Ten}}</span>
+                                                                <span v-on:click="ChangeCaNhanVien(item)" v-if="data.TrangThai!==2 || isNew">
+                                                                    <i class="fa fa-times"></i>
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                        <input type="text" class="dropdown " v-show=" listdata.calamviec.filter(o=>o.Checked).length===0">
+                                                    </div>
+                                                    <ul class=" dropdown-menu" v-if="data.TrangThai!==2 ||isNew">
+                                                        <li v-for="(item, index) in   listdata.calamviec.filter(o=>!o.Checked)" v-on:click="ChangeCaNhanVien(item)">
+                                                            <span>{{item.Ma +' - '+ item.Ten}}</span>
+                                                        </li>
+                                                    </ul>
+                                                    <ul class=" dropdown-menu" v-else>
+                                                        <li v-for="(item, index) in   listdata.calamviec.filter(o=>!o.Checked)">
+                                                            <span>{{item.Ma +' - '+ item.Ten}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-frame">
+                                            <div class="table-reponsive">
+                                                <table class=" table-hover ">
+                                                    <thead class="table-border">
+                                                        <tr>
+                                                            <th class="text-center">
+                                                                <span>Thứ 2</span>
+                                                            </th>
+                                                            <th class="text-center">Thứ 3</th>
+                                                            <th class="text-center">Thứ 4</th>
+                                                            <th class="text-center">Thứ 5</th>
+                                                            <th class="text-center">Thứ 6</th>
+                                                            <th class="text-center">Thứ 7</th>
+                                                            <th class="text-center">Chủ nhật</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-center  ">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[0].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[0].key,item)" v-if="data.TrangThai!==2 || isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center ">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[1].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[1].key,item)" v-if="data.TrangThai!==2 || isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center td-list-ca">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[2].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[2].key,item)" v-if="data.TrangThai!==2 || isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center td-list-ca">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[3].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[3].key,item)" v-if="data.TrangThai!==2 || isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center td-list-ca">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[4].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[4].key,item)" v-if="data.TrangThai!==2 ||isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center td-list-ca">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[5].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[5].key,item)" v-if="data.TrangThai!==2 || isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center td-list-ca">
+                                                                <div class="list-ca">
+                                                                    <div class="sp-ca" v-for="(item, index) in   listcatuan[6].value">
+                                                                        <span> {{item.Ten}}</span>
+                                                                        <a href="javascript:void(0)" v-on:click="RemoveCaNhanVien(listcatuan[6].key,item)" v-if="data.TrangThai!==2 || isNew">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ctc-ca-co-dinh flex" v-show="data.LoaiPhanCa===typeloaicachar.CaCoDinh">
+                                        <div class="list-ca-co-dinh form-group">
+                                            <label class="css-form-label">Ca làm việc<span style="color:red">(*)</span></label>
+                                            <div class="form-list-ca css-form-detail">
+                                                <div class="op-tag-picker dropdown">
+                                                    <div data-toggle="dropdown" aria-expanded="true">
+                                                        <ul>
+                                                            <li class="li-input-span" v-for="(item, index) in   listdata.calamvieccodinh.filter(o=>o.Checked)">
+                                                                <span>{{item.Ma +' - '+ item.Ten}}</span>
+                                                                <span v-on:click="item.Checked=!item.Checked" v-if="data.TrangThai!==2 || isNew">
+                                                                    <i class="fa fa-times"></i>
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                        <input type="text" class="dropdown " v-show=" listdata.calamvieccodinh.filter(o=>o.Checked).length===0">
+                                                    </div>
+                                                    <ul class="dropdown-menu" style="width:100%" v-if="data.TrangThai!==2 || isNew">
+                                                        <li class="flex flex-between" v-for="(item, index) in   listdata.calamvieccodinh.filter(o=>!o.Checked)" v-on:click="ClickSelectCaCoDinh(item)">
+                                                            <a>{{item.Ma +' - '+ item.Ten}}</a>
+                                                        </li>
+                                                    </ul>
+                                                    <ul class="dropdown-menu" v-else>
+                                                        <li class="flex flex-between" v-for="(item, index) in   listdata.calamvieccodinh.filter(o=>!o.Checked)">
+                                                            <a>{{item.Ma +' - '+ item.Ten}}</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row floatleft">
+                                    <div class="ctc-40">
+                                        <div class="cai-dat-hoa-hong-r">
+                                            <div class="form-group floatleft  title-table-ck">
+                                                <input type="checkbox" class="checkbox-modal" style="margin-right:5px" v-model="listdata.checkallnv" :checked="selectAllNv">
+                                                <label>Nhân viên</label>
+                                            </div>
+                                            <div class="">
+                                                <div class="seach-nhomhang form-group">
+                                                    <input type="text" placeholder="Tìm kiếm nhân viên" autofocus="autofocus" class="form-control number-price-new" v-model="listdata.searchnv">
+                                                    <i class="fa fa-search" style="position:absolute; left:7px; top:7px; "></i>
+                                                </div>
+                                                <ul class="floatleft ul-cai-dat-hoa-hong-r op-list-350">
+                                                    <li class="floatleft flex flex-between" v-for="(item, index) in   ListNhanVien" style="border-bottom:1px solid #ccc">
+                                                        <label class="flex flex-between" style="align-items:center;font-style:normal; width:unset">
+                                                            <input type="checkbox" v-model="item.Checked" style="margin-right:15px">
+                                                            <span>
+                                                                <span style="line-height:14px">{{item.Ten}}</span>
+                                                                <br />
+                                                                <span style="line-height:14px">Mã: {{item.Ma}}</span>
+                                                            </span>
+                                                        </label>
+                                                        <button class="btn btn-default" v-on:click="NextNhanVien(item)"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ctc-10">
+                                        <div class="btn-chon-nhan-vien">
+                                            <a href="javascript:void(0)" v-on:click="NextListNhanVien"><div>Chọn <i class="fa fa-angle-double-right" aria-hidden="true"></i></div></a>
+                                            <a href="javascript:void(0)" v-on:click="PrevListNhanVien"> <div><i class="fa fa-angle-double-left" aria-hidden="true"></i>Bỏ chọn</div></a>
+                                        </div>
+                                    </div>
+                                    <div class="ctc-40">
+                                        <div class="cai-dat-hoa-hong-r">
+                                            <div class="form-group floatleft  title-table-ck flex flex-between">
+                                                <span>Nhân viên áp dụng</span>
+                                                <input type="checkbox" class="checkbox-modal" style=" float: right;margin-right: 5px;" v-model="listdata.checkallnvac" :checked="selectAllNvAc">
+                                            </div>
+                                            <div class="">
+                                                <div class="seach-nhomhang form-group">
+                                                    <input type="text" placeholder="Tìm kiếm nhân viên" autofocus="autofocus"
+                                                           class="form-control number-price-new" autocomplete="off" v-model="listdata.searchnvac">
+                                                    <i class="fa fa-search" style="position:absolute; left:7px ;top:7px; "></i>
+                                                </div>
+                                                <ul class="floatleft ul-nhan-vien-ap-dung op-list-350">
+                                                    <li v-for="(item, index) in   ListNhanVienAc" style="align-items:center" class="flex flex-between">
+                                                        <button class="btn btn-default " style="float:left" v-on:click="PrevNhanVien(item)">
+                                                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                                        </button>
+                                                        <label class="flex flex-between" style="align-items:center;font-style:normal; width:calc(100% - 50px)">
+                                                            <span class="nhan-vien-text">
+                                                                <span style="line-height:14px; ">
+                                                                    {{item.Ten}}
+                                                                </span>
+                                                                <br />
+                                                                <span style="line-height:14px">Mã: {{item.Ma}}</span>
+                                                            </span>
+                                                            <input type="checkbox" v-model="item.Checked" style="margin-right:15px">
+                                                        </label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="flex flex-end">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SavePhanCa" v-show="!loadding">
+                            <i class="fa fa-floppy-o" aria-hidden="true"></i> Lưu
+                        </button>
+                        <button type="button" class="btn btn-save" v-show="loadding">
+                            <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopupDeletePhieuPhanCa">
+    <div id="modalContainer_delete" class="modal-sm">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <div class="title-delete">
+                    <span id="header-confirm-delete">Xóa phiếu phân ca</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>v<button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                Bạn có chắc chắn muốn xóa phiếu phân ca : <span style="font-weight:bold">{{data.MaPhieu}}</span> ?
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" v-on:click="DeletePhanCa"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban" tabindex="2"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $.datetimepicker.setLocale('vi');
+        $('.datetime').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+        });
+    });
+    $('#ChiTietPhanca ').on('click', '.or-tr .td-list-ca', function () {
+        var css = $(this).find('.droup-ca').css('display');
+        $('.droup-ca').hide();
+        if (css === 'none') {
+            $(this).find('.droup-ca').toggle();
+        }
+        $(" .td-list-ca").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            $('.droup-ca').hide();
+        });
+    });
+    $('#ChiTietPhanca ').on('click', '.list-ca a', function () {
+        $('.droup-ca').show();
+    });
+    $('.checkall input[type=checkbox]').on('change', function () {
+        if ($(this).is(':checked')) {
+            $(this).closest('tr').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('td').each(function () {
+                    if ($(this).hasClass('tr-check')) {
+                        $(this).find('input').prop('checked', true);
+                    }
+                });
+            });
+        }
+        else {
+            $(this).closest('tr').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('td').each(function () {
+                    if ($(this).hasClass('tr-check')) {
+                        $(this).find('input').prop('checked', false);
+                    }
+                });
+            });
+        }
+    });
+</script>
+<style>
+    .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline;
+    }
+</style>
+<script src="~/Scripts/NhanSu/edit-phancanhanvien.js"></script>

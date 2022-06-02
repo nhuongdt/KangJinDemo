@@ -1,0 +1,182 @@
+﻿
+@{
+    ViewBag.Title = "Menu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+<script src="~/Assets/Admin/Home.js"></script>
+    <script>
+        vmMain.GetSearchMenu();
+    </script>
+}
+<div class="" id="mainHome">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>Menu Tags</h3>
+        </div>
+
+        <div class="title_right">
+            <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search  btn-filter">
+                <button class="btn btn-dark pull-right"  v-on:click="InsertMenu"><i class="fa fa-plus" aria-hidden="true"></i>Thêm mới</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <div class="col-md-8 col-sm-8 col-xs-12  form-input">
+                        <div class="form-group">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                            <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Tìm kiếm menu" v-model="modelGridSearch.text" v-on:keyup="keySearchMenu">
+
+                            <!-- /btn-group -->
+                        </div>
+                    </div>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+
+                        </li>
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="x_content" style="display: block;">
+
+                    <div class="table-responsive">
+                        <table class="table table-striped jambo_table bulk_action">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title" style="display: table-cell;">Link</th>
+                                    <th class="column-title" style="display: table-cell;    min-width: 90px;">Tên menu </th>
+                                    <th class="column-title" style="display: table-cell;    min-width: 90px;">Title</th>
+                                    <th class="column-title" style="display: table-cell;">Description</th>
+                                    <th class="column-title" style="display: table-cell;">Keyword</th>
+                                    <th class="column-title" style="display: table-cell;    width: 90px;">Trạng thái</th>
+                                    <th class="column-title no-link last" style="display: table-cell;">
+                                        <span class="nobr">#</span>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr class="even pointer" v-for="(item, index) in dataResult">
+                                    <td class=""><a v-bind:href="item.Link" target="_blank">{{item.Link }}</a></td>
+                                    <td class=" ">{{item.DuongDan}}</td>
+                                    <td class=" ">{{item.Title}}</td>
+                                    <td class=" ">{{item.Description}}</td>
+                                    <td class=" ">{{item.KeyWord }}</td>
+                                    <td class=" ">{{item.TrangThai==true?'Hiện thị':'Ẩn' }}</td>
+                                    <td class=" last">
+                                        <a href="javascript:void(0)" v-on:click="UpdateMenu(item)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> |
+                                        <a href="javascript:void(0)" v-on:click="RemoveMenu(item)"><i class="fa fa-times" aria-hidden="true" style="color:red;"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="width:100%">
+                        <ul class="pagination news-paper">
+                            <li style="float: left; padding:6px 12px;">
+                                {{modelGridSearch.pageItem}}
+
+                            </li>
+                            <li><a href="javascript:void(0)" id="Previouspage" v-on:click="ClickPreviousMenu">&laquo;</a></li>
+                            <li class="page-item">
+                                <div class="page-link" style="float: left;width: 50px;">
+                                    <input type="text" v-model="modelGridSearch.page" v-on:keyup="keySearchMenu" class="form-control" style="height:32px" min="1">
+                                </div>
+                            </li>
+                            <li class="page-item"><span class="page-link"> /</span></li>
+                            <li class="page-item"><span class="page-link">{{modelGridSearch.pageCount}}</span></li>
+                            <li><a href="javascript:void(0)" id="Nextpage" v-on:click="ClickNextMenu"> &raquo;</a></li>
+
+                        </ul>
+                        <div class="pull-right recost">
+                            <span>Số bản ghi</span>
+                            <select required="required" class="form-control" id="SelectedLimit">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal thêm sửa xóa-->
+<div class="modal fade" id="exampleModalMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content modal-news-ssoft">
+            <div class="modal-header">
+                <h4 class="modal-title" >{{titile}}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 row">
+                    <div class="form-group form-text">
+                        <label for="fullname">Tên menu <span style="color: red;">*</span></label>
+                        <div class="form-news">
+                            <input type="text" autocomplete="off" class="form-control" v-model="menu.DuongDan">
+                        </div>
+                    </div>
+                    <div class="form-group form-text">
+                        <label for="fullname">Link <span style="color: red;">*</span></label>
+                        <div class="form-news">
+                            <input type="text" autocomplete="off" class="form-control" v-model="menu.Link">
+                        </div>
+                    </div>
+                    <div class="form-group form-text">
+                        <label for="fullname">MetaTitle </label>
+                        <div class="form-news">
+                            <textarea class="resizable_textarea form-control" rows="2" v-model="menu.Title"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group form-text">
+                        <label for="fullname">MetaDescription </label>
+                        <div class="form-news">
+                            <textarea class="resizable_textarea form-control" rows="2" v-model="menu.Description"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group form-text">
+                        <label for="fullname">Keyword </label>
+                        <div class="form-news">
+                            <textarea class="resizable_textarea form-control" rows="2" v-model="menu.KeyWord"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group form-text">
+                        <label for="fullname">Trạng thái </label>
+                        <div class="form-Check">
+                                <span class="radio-checkbox">
+                                    <input type="radio" name="trangthai" value="true" class="flat" v-model="menu.TrangThai">  Hiện thị
+                                </span> <span class="radio-checkbox">
+                                    <input type="radio" name="trangthai" value="false" class="flat" v-model="menu.TrangThai"> Ẩn
+                                </span>
+                          @*<input type="checkbox" class="check-switch"> <span style="    margin-left: 35px;">Hiện thị</span>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="modal-footer">
+                <button class="btn btn-success pull-right" v-on:click="SaveMenu"><i aria-hidden="true" class="fa fa-floppy-o"></i>Lưu </button>
+            </div>
+        </div>
+    </div>
+</div>

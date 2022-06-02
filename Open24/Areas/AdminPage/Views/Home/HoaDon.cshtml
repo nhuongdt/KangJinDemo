@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "Mẫu hóa đơn";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Content/CkEditor/ckeditor.js"></script>
+<script src="~/Content/ckfinder/ckfinder.js"></script>
+<div class="right_col" role="main">
+    <div class="addnews fl">
+        <div class="content-addnews fl">
+
+            <div class="fl form-addnews">
+                    <div class="row">
+                        <div style="width:50%; float:left">
+                            <textarea class="form-control" rows="4" id="txtDescription1"></textarea>
+                        </div>
+                        <div style="width:48%;margin-left:2%;float:right">
+                            <div id="Input" />
+                        </div>
+                    </div>
+            </div>
+        </div> 
+    </div>
+</div>
+<script type="text/javascript">
+    CKEDITOR.replace('txtDescription1', {
+        toolbar: [
+            ['Bold', 'Italic', 'Underline', 'Subscript',
+                'Superscript', 'Image', 'Table', 'NumberedList',
+                'BulletedList', '-', 'Outdent', 'Indent', 'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link', 'Unlink','Templates', 'FontSize',
+                'Format', 'Font', 'Source']
+        ],
+    },
+        { height: 550 }, { width: 500 },
+        {
+            entermode: CKEDITOR.ENTER_BR,
+        });
+   
+    CKEDITOR.instances['txtDescription1'].on('change', function () { $('#Input').html(CKEDITOR.instances['txtDescription1'].getData()); });
+    CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+
+    $.getJSON("/AdminPage/Home/LoadValueCkeditor", function (data) {
+        CKEDITOR.instances['txtDescription1'].setData(data);
+        $('#Input').html(data);
+    });
+</script>

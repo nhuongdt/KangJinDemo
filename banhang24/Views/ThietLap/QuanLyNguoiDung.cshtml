@@ -1,0 +1,851 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Quản lý người dùng";
+}
+<link href="~/Content/SetupUser.css" rel="stylesheet" />
+<style>
+    a.arrow-up i {
+        transform: rotate(180deg);
+    }
+
+    .expand > i {
+        transform: rotate(180deg)
+    }
+
+    .permission-choose {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap
+    }
+
+    a.more-permission {
+        position: absolute;
+        top: 4px;
+        left: -15px;
+        width: 15px;
+        height: 15px;
+        padding: 2px;
+        line-height: 14px;
+        text-align: center;
+        transform: rotate(90deg);
+    }
+</style>
+@Html.Hidden("shopCookies", (string)ViewBag.ShopCookies, new { id = "shopCookies" })
+<div id="IdQuanLyNguoiDung">
+    <div class="container-fluid  padding-15" id="main-content" style="display:flex">
+        <div class="op-role-left" style="padding:3px; border:1px solid #ccc">
+            @*<h5 style="padding:5px 0">
+                    <label>
+                        @banhang24.Resources.ResourceTexts.Personnel / Quản lý người dùng
+                    </label>
+                </h5>*@
+            <div class="op-header-title ">
+                <h2 class="pull-left title title--user-manage"> @banhang24.Resources.ResourceTexts.Personnel / Quản lý người dùng</h2>
+            </div>
+            <ul class="nav nav-pills" style="padding:10px;" id="quanlynguoidungTab">
+                <li class="active"><a data-toggle="tab" href="#user-pane">Người dùng</a></li>
+                <li><a data-toggle="tab" href="#role-pane">Vai trò</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade in active" id="user-pane">
+                    <div class="flex flex-column floatleft">
+                        <div class="flex flex-row position-relative">
+                            <div class="op-search" style="min-width:unset">
+                                <i class="material-icons op-search-icon">search</i>
+                                <input type="text" class="op-search-input" id="textFindND"
+                                       placeholder="Tìm kiếm người dùng" data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off" />
+                            </div>
+                            <button class="btn-right" id="add_user" data-bind="click: showPopupAddND" title="Thêm mới người dùng"><i class="material-icons"> add</i></button>
+                        </div>
+                        <div class="flex flex-row flex-between">
+                            <span class="sts-label">Trạng thái</span>
+                            <div class="dropdown">
+                                <button data-toggle="dropdown" class="btn btn-link" id="currentstate">
+                                    Tất cả
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a>
+                                            <input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="0" hidden id="all_sss" />
+                                            <label for="all_sss" id="allstate">Tất cả</label>
+                                        </a>
+                                    </li>
+                                    <li>
+
+                                        <a>
+                                            <input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="1" hidden id="active_sss" />
+                                            <label for="active_sss" id="activestate"> Đang hoạt động</label>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a>
+                                            <input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="2" hidden id="deactive_sss" />
+                                            <label for="deactive_sss" id="deactivestate">Ngừng hoạt động</label>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <ul data-bind="foreach: NguoiDung" style="   height: calc(100vh - 275px);overflow: auto;"
+                            id="listNV" class="user-list-left">
+                            <li style="position:relative"
+                                data-bind="style:{background: ($root.currentUser() !== undefined && ID == $root.currentUser().ID)?'#ccc':'none'}">
+                                <div class="user-placement" data-bind="click:$root.clickLoadHD, ">
+                                    <div class="user-dot" data-bind="style:{ background:(DangHoatDong==true)?'green':'gray'},"></div>
+                                    <div class="user-name" data-bind="text: TaiKhoan,">--</div>
+                                    <div class="user-status">    <small class="user-status" data-bind="text: (DangHoatDong==true)?'(Đang hoạt động)':'(Ngừng hoạt động)'"></small></div>
+                                </div>
+                                <a class="user-edit" data-bind="click: $parent.editND" onclick="editNguoidung(this)">
+                                    <i class="material-icons md-16">open_in_new</i>
+                                </a>
+                            </li>
+                        </ul>
+                        <!---chuyen ngoai-->
+                    </div>
+                </div>
+                <div class="tab-pane" id="role-pane">
+                    <div class="op-search" style="min-width:unset">
+                        <i class="material-icons op-search-icon">search</i>
+                        <input type="text" class="input-simple" placeholder="Tìm kiếm vai trò"
+                               data-bind="value: txtSearchRole, valueUpdate:'afterkeydown',
+                               event:{keyup: $root.SearchRole}" />
+                        <button class="op-search-button btn-link" id="add_role" title="Thêm mới vai trò"
+                                data-bind="click: showpopupvaitro">
+                            <i class="material-icons"> add</i>
+                        </button>
+                    </div>
+                    <ul data-bind="foreach: arrRole_filter" class="RoleList">
+                        <li data-bind=" click: $root.editVaiTro,attr:{value:ID, },
+                        style:{background: ($root.selectedChange() !== undefined && ID == $root.selectedChange())?'#ccc':'none'}"
+                            style="position:relative">
+                            <span data-bind="text: TenNhom"></span>
+                        </li>
+                    </ul>
+                    <div class="userByRole" data-bind="visible : $root.NguoiDungFilterbyRole()">
+                        <span>Danh sách người dùng</span>
+                        <ul data-bind="foreach: $root.NguoiDungFilterbyRole">
+                            <li onclick="coppyname(this) ">
+                                <a data-bind="text:TenNguoiDung" title="click để coppy tên nhân viên" style="cursor:pointer"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="op-role-right" style="z-index:2">
+            <div class=" content-holder " id="dummy-content"
+                 @*data-bind="style: {display: ($root.currentUser() == undefined || $root.currentVaiTro() == undefined) ?'flex':'none'}"*@>
+                <img class="dummy-img" src="~/Content/images/update-img.png" />
+                <h4 style="text-align:center;margin-top:15px;padding-left: 37px;">
+                    Chào mừng đến với quản lý người dùng !
+                </h4>
+            </div>
+            <div class="content-holder flex flex-column" id="role_edit"
+                 data-bind="style: {display: $root.currentVaiTro() !== undefined ?'flex':'none'}">
+                <div class=" op-js-loadsuavt   flex flex-column">
+                    <div class="flex flex-between floatleft" style="margin-bottom:15px">
+                        <div class="flex flex-row" data-bind="with : newVaiTro" style="align-items:center">
+                            <b style="width:70px">Vai trò</b>
+                            <input type="text" class="form-control" data-bind="value: TenNhom" />
+                        </div>
+                        <div class="flex flex-row">
+                            <button class="btn btn-link js-toggle-all" onclick="HideAllPane('role',this)">
+                                <div>
+                                    Thu gọn
+                                </div>
+                            </button>
+                            <button class="btn btn-link js-toggle-all" style="display:none" onclick="ShowAllPane('role',this)">
+                                <div>
+                                    mở rộng
+                                </div>
+                            </button>
+                            <button type="button" class="btn btn-save" data-bind="click: SuaVaiTro">
+                                <i class="fa fa-save"></i>Lưu
+                            </button>
+                            <button class="btn btn-delete" data-bind="click: xoaNhomND">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                            <button id="close_role_edit" onclick="closePaneContent()" type="button" class="btn btn-delete" data-dismiss="modal">
+                                <i class="fa fa-close"></i>
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                    <div class="op-role-list" style="width:100%" data-bind="foreach : $root.QuyenEdit">
+                        <!-- ko if: TenQuyen !== ""-->
+                        <div class="flex flex-column  op-role-lvl-1 ">
+                            <h3 class="flex flex-between expanded">
+                                <label>
+                                    <input type="checkbox" data-bind="attr:{id:MaQuyen}" value="checked" onclick="checkAllRole(this)" class="maincheck" />
+                                    <span data-bind="text: TenQuyen"></span>
+                                </label>
+                                <button class="btn btn-link height-24" onclick="HideRolePermission(this)">
+                                    <i class="material-icons">keyboard_arrow_up</i>
+                                </button>
+                            </h3>
+                            <ul data-bind="foreach: Childs">
+                                <li class="flex flex-column op-role-lvl-2">
+                                    <h3 class="flex flex-between">
+                                        <label class="list-permission">
+                                            <input type="checkbox" class="subcheck op-checkbox-lvl-2" value="checked" data-bind="checked: DuocSuDung == true, checkedValue: true,attr:{id:'editcheck' + MaQuyen}"
+                                                   onclick="CheckAllRoleLvl3(this)" />
+                                            <span data-bind="text: TenQuyen"></span>
+                                        </label>
+                                        <button onclick="HideRolePermission(this)" class="btn btn-link" data-bind="visible: Child2s.length > 0">
+                                            <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </button>
+                                    </h3>
+                                    <ul data-bind="foreach: Child2s">
+                                        <li class="flex flex-column  op-role-lvl-3">
+                                            <label class="list-permission op-js-checkall">
+                                                <input type="checkbox" value="checked" data-bind="checked: DuocSuDung == true, checkedValue: true,attr:{id: MaQuyen}" onclick="getMaQuyenlvl3(this)" />
+                                                <span data-bind="text: TenQuyen"></span>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- /ko-->
+                    </div>
+                </div>
+            </div>
+            <div class="user-detail clickNgungHD" id="user_edit"
+                 data-bind="visible: $root.roleUpdateUser() && ($root.currentUser() !== undefined || $root.currentVaiTro() !== undefined)">
+                <div class="op-object-detail tab-width" style="width:100%">
+                    <div class="content-holder">
+                        <div class="user-content-left">
+                            <div data-bind="with: $root.currentUser()">
+                                <div class="form-group">
+                                    <span class="css-form-label">Tên đăng nhập:</span>
+                                    <div class="css-form-detail">
+                                        <span data-bind=" text:TaiKhoan"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <span class="css-form-label">Tên người dùng:</span>
+                                    <div class="css-form-detail">
+                                        <span data-bind="text: TenNguoiDung">
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <span class="css-form-label">Số dư tài khoản:</span>
+                                    <div class="css-form-detail">
+                                        <span data-bind="text: formatNumber(SoDuTaiKhoan)">
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row" style="margin:5px 0">
+                                    <button title="sửa đổi" class="btn btn-main" style="margin-right:5px;" data-bind="click: $root.editND">
+                                        Sửa đổi
+                                    </button>
+                                    <button class=" btn btn-main clickChoHD" style="margin-right:5px;"
+                                            data-bind="click: $parent.ChoPhepHoatDong, visible: DangHoatDong ==false">
+                                        Cho phép hoạt động
+                                    </button>
+                                    <button class=" btn btn-cancel" style="margin-right:5px;"
+                                            data-bind="click: $parent.NgungHoatDong, visible: DangHoatDong ==true ">
+                                        Ngừng hoạt động
+                                    </button>
+                                    <button class=" btn btn-delete" style="margin-right:5px; display:none" data-bind="click: $parent.modalDelete">
+                                        <i class="fa fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                            <div class=" container-fluid nopadding">
+                                <div class="op-search" style="min-width:unset">
+                                    <input type="text" class="op-search-container input-simple" placeholder="Tìm kiếm chi nhánh"
+                                           data-bind="value: txtSearchCN, valueUpdate:'afterkeydown', event:{keyup: $root.FilterChiNhanh}" />
+                                    <i class="fa fa-search op-search-icon"></i>
+                                </div>
+                                <ul data-bind="foreach: $root.arrChiNhanh_filter" style="overflow:auto; max-height:450px">
+                                    <li data-bind="attr:{id: 'checkvaitro' + ID_DonVi} , click: $root.LoadQuyenByIDChiNhanh"
+                                        class="select-brand" onclick="selectedChinhanh($(this))">
+                                        <div class="flex flex-column ">
+                                            <label data-bind="text: TenDonVi, click: $root.LoadQuyenByIDChiNhanh">
+                                            </label>
+                                            <div class="flex flex-between">
+                                                <label class="form-label control-label  permission-title-right pull-left">
+                                                    Vai trò
+                                                </label>
+                                                <select id="ddlNhomHH1" name="ddlNhomHH" class="form-control" style="width:calc(100% - 75px)"
+                                                        data-bind="options: $root.NhomNguoiDungs ? $root.NhomNguoiDungs : [],
+                                                                    optionsText: 'TenNhom', optionsCaption :'Tất cả vai trò',
+                                                                    optionsValue: 'ID', optionsCaption: 'Không phân quyền',
+                                                                    value: ID_VaiTro, event: {click: $root.arrVaiTroDonVi}"></select>
+                                            </div>
+                                        </div>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="user-content-right">
+                            <div class=" flex flex-row flex-between">
+                                <div class="list-permission op-js-checkall">
+                                    <label>
+                                        <input type="checkbox" value="checked" data-bind="checked: $root.XemGiaVonND, checkedValue: false, event:{change: $root.ShowPopupCapNhat}">
+                                        <span style="margin-left:5px" class="notcheck">Xem giá vốn và lợi nhuận</span>
+                                    </label>
+                                </div>
+                                <div class="flex flex-row">
+                                    <button class="btn btn-link js-toggle-all" onclick="HideAllPane('user',this)">
+                                        <div>
+                                            Thu gọn
+                                        </div>
+                                    </button>
+                                    <button class="btn btn-link js-toggle-all" style="display:none" onclick="ShowAllPane('user',this)">
+                                        <div>
+                                            mở rộng
+                                        </div>
+                                    </button>
+                                    <button onclick="closePaneContent()" class="btn btn-cancel">
+                                        Đóng
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="container-fluid nopadding">
+                                <div class="op-role-list loadgetallquyen" data-bind="foreach : $root.QuyenEdit">
+                                    <div class="op-main-role op-role-lvl-1" data-bind="visible: DuocSuDung == true">
+                                        <h3 class="flex flex-between expanded">
+                                            <span class="notcheck" data-bind="text: TenQuyen"></span>
+                                            <button class="btn btn-link" onclick="HideRolePermission(this)">
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                        </h3>
+                                        <ul data-bind="foreach: Childs " class="">
+                                            <li class="flex flex-column op-role-lvl-2" data-bind="visible: DuocSuDung == true && Child2s.length > 0">
+                                                <h3 class="flex flex-between expanded">
+                                                    <label style="font-weight:normal" data-bind="text: TenQuyen"></label>
+                                                    <button onclick="HideRolePermission(this)" class="btn btn-link height-24" data-bind="visible: Child2s.length > 0">
+                                                        <i class="material-icons ">keyboard_arrow_up</i>
+                                                    </button>
+                                                </h3>
+                                                <ul class="op-role-lvl-3" data-bind="foreach: Child2s, visible:  DuocSuDung == true">
+                                                    <li data-bind="visible: DuocSuDung == true">
+                                                        <div class="list-permission op-js-checkall">
+                                                            <span data-bind="text: TenQuyen"></span>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="not-partition floatleft khongphanquyencn" style="display: none">
+                                    Không phân quyền cho chi nhánh này
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="close_all" hidden><i class="material-icons">close</i></button>
+        </div>
+    </div>
+    <!-- Button trigger modal -->
+    <div class="modal fade" id="modalpopup_deleteND">
+        <div id="modalContainer_delete" class="modal-dialog draggable modal-sm">
+            <div class="modal-content ">
+                <div class="modal-body">
+                    <div class="title-delete">
+                        <span>Xóa người dùng</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    Bạn có chắc chắn muốn xóa người dùng này không.
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaND"><i class="fa fa-save"></i> Đồng ý</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalPopuplg_VaiTro">
+        <div class="modal-dialog draggable modal-md">
+            @Html.Action("_themmoicapnhatvaitro", new { area = "", Controller = "ThietLap" })
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModalCenterTrue" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class=" modal-dialog draggable modal-md" role="document">
+            <div class="modal-content popup-thongbao">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle" style="    font-weight: bold;">Thông báo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                <div class="modal-body">
+                    Bạn muốn cho người dùng xem giá vốn và lợi nhuận?
+                </div>
+                <div class="modal-footer" style="padding:10px !important">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Bỏ qua</button>
+                    <button type="button" class="btn btn-save btn-save" data-bind="click: $root.CapNhatQuyenXemGiaVon">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal " id="modalPopuplgDelete">
+    <div class="modal-dialog">
+        <div class="modal-sm">
+            @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Components/NhanVien_KhachHang.js"></script>
+@Html.Partial("~/Views/ThietLap/_themmoinguoidung.cshtml")
+<script>
+    function selectedChinhanh($this) {
+        //$('.permission-left ul li').each(function (i) {
+        //    $(this).removeClass('active-chinhanh');
+        //});
+        $(".select-brand").removeClass('active-chinhanh');
+        $this.siblings().removeClass('active-chinhanh');
+        $this.addClass('active-chinhanh');
+    }
+    function ShowHideVaiTro($this) {
+        var check = $this.next(".list-kv").is(':hidden');
+        hidecombobox();
+        if (check) {
+            $this.parent().css('border', '1px solid #00a69c')
+            $this.next(".list-kv").toggle();
+        }
+        $(".kv1").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            hidecombobox();
+        });
+    };
+    function hidecombobox() {
+        $('.list-kv').hide();
+        $('.choose-kv').css('border', '1px solid #bcbec0')
+    }
+    $(".item-time ul li .checkbox-item ").click(function () {
+        $(this).find(".form-control").attr('disabled', false);
+    });
+    $(document).on('click', '.open-li', function () {
+        $(".op-filter-container ul li").css("display", "block");
+        $(this).toggle();
+        $(this).next(".close-li").toggle();
+    });
+    $(document).on('click', '.close-li', function () {
+        $(".op-filter-container ul li").css("display", "none");
+        $(this).toggle();
+        $(this).prev(".open-li").toggle();
+        $(".op-filter-container ul li").eq(0).css("display", "block");
+        $(".op-filter-container ul li").eq(1).css("display", "block");
+    });
+    function LoadGetHeight() {
+        sleep(100).then(() => { setHeight(); });
+        hidecombobox();
+    };
+    function setHeight() {
+        heigth = heigth - heightold;
+        $('#tb tr').each(function () {
+            if ($(this).hasClass('ac')) {
+                heightold = $(this).height();
+            }
+        });
+        heigth += heightold;
+        $('.line-right').css("margin-top", setTop + "px").height(heigth);
+    }
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    $('#tb').on('click', '.prev-tr-hide', function () {
+        setTop = $('#tb thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+        $(this).parents(".table-reponsive").toggleClass("table_re");
+        var t = $(this).next(".tr-hide-delproduct").css("display");
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        if (t == "none") {
+            $(".tr-hide-delproduct").removeClass("ac");
+            $(this).next(".tr-hide-delproduct").addClass("ac");
+            heightold = $(this).next().height();
+            heigth = parseInt($(this).height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            $(this).next(".tr-hide-delproduct").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            $(".tr-hide-delproduct").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+    });
+    $(function () {
+        $('.datetimepicker4').datetimepicker({
+            datepicker: false,
+            format: 'H:i',
+            step: 5
+        });
+    });
+</script>
+<script>
+    var height_table = $("#td").height();
+    var width_table = $(".table-hover").width();
+    if (height_table > 500) {
+        $(".table-reponsive").addClass("table_h");
+    }
+    if (width_table > 900) {
+        $(".table-reponsive").addClass("table_h");
+    };
+    $(document).ready(function () {
+        $(".name-bill1").click(function () {
+            $(".select-user2").hide();
+            $(this).next(".select-user").slideToggle();
+            $(this).find("i").toggle();
+            $(".name-bill1").mouseup(function () {
+                return false
+            });
+            $(".select-user").mouseup(function () {
+                return false;
+            });
+            $(document).mouseup(function () {
+                $(".select-user").hide();
+            });
+        });
+    });
+    function ShowPermission($this) {
+        $this.next("ul").toggle();
+        $this.toggleClass("expand");
+    }
+</script>
+<script>
+    var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+    if ($.inArray('NguoiDung_ThemMoi', lc_CTQuyen) > -1) {
+        $('.clickaddND').css('display', 'block');
+        $('.addVT').show();
+    }
+    if ($.inArray('NguoiDung_CapNhat', lc_CTQuyen) > -1) {
+        $('.clickeditND').show();
+        $('.clickeditVT').show();
+    }
+    if ($.inArray('NguoiDung_Xoa', lc_CTQuyen) > -1) {
+        $('.clickxoaND').show();
+    }
+</script>
+<script>
+    function ShowDetailpermission($this) {
+        $this.next("ul").toggle();
+        $this.find("i").toggle();
+        $this.parent().toggleClass("opened")
+    }
+
+    $(document).on('click', ' ul li .item-es', function () {
+        $(this).find(".setup-cheack").toggleClass('cl');
+        $(this).next(".datail-TH ").toggle();
+        $(this).find(".icon-es").find("span").toggleClass("cl");
+        var t = $(this).find('input:checkbox').is(':checked');
+        if (t == false) {
+            $(this).find('input:checkbox').attr('checked', true);
+        }
+        else {
+            $(this).find('input:checkbox').attr('checked', false);
+        }
+    });
+</script>
+<script src="~/Scripts/Thietlap/QLNguoiDung.js"></script>
+<script>
+    $("#ddlNhomND ").click(function () {
+        if (($(this).val() == null) || $(this).val() == "") {
+            $("#role_edit").hide();
+            $("#role-content").hide();
+            $("#user-content").hide();
+            $("#dummy-content").show();
+        } else {
+            $("#role_edit").show();
+            $("#role-content").hide();
+            $("#user-content").hide();
+            $("#dummy-content").hide();
+        }
+    }
+    )
+    function eventFire(el, etype) {
+        if (el.fireEvent) {
+            el.fireEvent('on' + etype);
+        } else {
+            var evObj = document.createEvent('Events');
+            evObj.initEvent(etype, true, false);
+            el.dispatchEvent(evObj);
+        }
+    }
+    function redirectID(ele) {
+        var posID = $(ele).index();
+        document.getElementById("ddlNhomND").selectedIndex = posID + 1;
+        var x = document.getElementById("ddlNhomND").selectedIndex;
+        eventFire(document.getElementById('ddlNhomND'), 'click');
+    }
+    function showallrole() {
+        $(".main-role-view").show();
+        $(".main-role-view").addClass("showallprop");
+        $(".togleroleview").toggle();
+    }
+    function hideallrole() {
+        $(".main-role-view").hide();
+        $(".main-role-view").removeClass("showallprop");
+        $(".togleroleview").toggle();
+    }
+    $("#close_all").click(function () {
+        $("#dummy-content").show();
+        $("#role-content").hide();
+        $("#user-content").hide();
+    })
+    $("#currentstate").click(function () {
+        $("#statelist").toggle();
+    })
+    $("#allstate").click(function () {
+        $("#currentstate").html("Tất cả"); $("#statelist").hide();
+    })
+    $("#activestate").click(function () {
+        $("#currentstate").html("Đang hoạt động"); $("#statelist").hide();
+    })
+    $("#deactivestate").click(function () {
+        $("#currentstate").html("Ngừng hoạt động"); $("#statelist").hide();
+    })
+    //$("#add_role").click(function () {
+    //    $("#role-content").show();
+    //    $("#dummy-content").hide();
+    //})
+    function showdetail(ele) {
+        $("#dummy-content").hide();
+        $(ele).parent().find('.user-detail').show();
+    }
+    function showuser() {
+        $(this).addClass("active");
+        $(this).siblings().removeClass("active");
+        $("#role_edit").show();
+        $("#role_edit").siblings().hide();
+        $(".user-holder").hide()
+        $(".role-holder").show()
+    };
+    function showrole() {
+        $(this).addClass("active");
+        $(this).siblings().removeClass("active");
+        $("#user_edit").siblings().hide();
+        $("#user_edit").show();
+        $(".user-holder").show()
+        $(".role-holder").hide()
+    }
+    //$("#role_search").keyup(function () {
+    //    var keysearch = $(this).val();
+    //    keysearch = locdau(keysearch);
+    //    console.log(keysearch);
+    //    $("#ddlNhomND option").each(function () {
+    //        var compare = locdau($(this).text());
+    //        if (compare.search(keysearch) != -1) {
+    //            $(this).show();
+    //        } else {
+    //            $(this).hide()
+    //        }
+    //    });
+    //})
+    function locdau(obj) {
+        if (!obj)
+            return "";
+        var str = obj;
+        str = str.toLowerCase();
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+        str = str.replace(/đ/g, "d");
+        str = str.replace(/^\-+|\-+$/g, "");
+        // Some system encode vietnamese combining accent as individual utf-8 characters
+        str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
+        str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
+        return str;
+    }
+</script>
+<script>
+    function editNguoidung(ele) {
+        $(ele).parent().next().find(".avatar-button-user").click()
+    }
+    function tieptuc(ele) {
+        var picker = $(".tieptuclink-func")
+        chonvaitro(picker);
+    }
+    function showrole(ele) {
+        $(ele).hide(); $(ele).siblings("i").show()
+        $(ele).parent().next().show();
+    }
+    function hiderole(ele) {
+        $(ele).hide(); $(ele).siblings("i").show()
+        $(ele).parent().next().hide();
+    }
+    function dattenvaitro(ele) {
+        $(".anhien").hide()
+        $(".tab-progress").removeClass("tomtat").removeClass("chonvaitro").addClass("tenvaitro");
+        $(".naming").show();
+        $(".roling").hide();
+        $(ele).addClass("active");
+        $(ele).siblings().removeClass("active")
+        $(".add-permission").removeClass("summary")
+        $(".col3 h3").find("i").removeClass("summary");
+    }
+    function chonvaitro(ele) {
+        $(".anhien").show()
+        $(".tab-progress").removeClass("tomtat").removeClass("tenvaitro").addClass("chonvaitro");
+        $(".add-permissiom").removeClass("summary")
+        $(".naming").hide();
+        $(".roling").show();
+        $(ele).addClass("active");
+        $(ele).siblings().removeClass("active");
+        $(".maincheck").show();
+        $(".list-permission").removeClass("sort");
+        $(".col3 h3").find("i").removeClass("summary");
+        $(".col3 h3").find("i.up").show();
+        $(".col3 h3").find("i.down").hide();
+    }
+    function tomtat(ele) {
+        $(".anhien").hide()
+        $(".col3 h3").find("i").addClass("summary");
+        $(".add-permission").addClass("summary");
+        $(".tab-progress").removeClass("chonvaitro").removeClass("tenvaitro").addClass("tomtat");
+        $(".naming").show();
+        $(".roling").show();
+        $(".col3 ul").show();
+        if ($(".showchilds").is(":hidden")) {
+            $(".showchilds").show();
+            $(".showchilds").hide();
+        }
+        $(ele).addClass("active");
+        $(ele).siblings().removeClass("active");
+        $(".maincheck").hide();
+        $(".list-permission").addClass("sort");
+    }
+    function hidechilds(ele) {
+        $(ele).parent().next().find("ul").hide();
+        $(ele).parent().next().find("h3 i.Up").hide();
+        $(ele).parent().next().find("h3 i.Down").show();
+        $(ele).hide();
+        $(ele).next().show();
+    }
+    function showchilds(ele) {
+        $(ele).parent().next().find("ul").show();
+        $(ele).parent().next().find("h3 i.Up").show();
+        $(ele).parent().next().find("h3 i.Down").hide();
+        $(ele).hide();
+        $(ele).prev().show();
+    }
+    $("#close_role_add").click(function () {
+        document.getElementById("txtTenNhomVaiTro").value = "";
+        $("#modalPopuplg_VaiTro input[type='checkbox']").prop('checked', false);
+        $("#role-content").hide();
+        $("#dummy-content").show();
+    })
+    $(".addvaitro").click(function () {
+        $(this).toggleClass("check");
+        if ($(this).hasClass("check")) {
+            $("#modalContainerlg_VaiTro .col3 ul").hide();
+        }
+        else {
+            $("#modalContainerlg_VaiTro .col3 ul").show();
+        }
+    });
+    function showuserPanel() {
+        $(".userByRole").fadeIn()
+        console.log("hit");
+        setTimeout(function () {
+            $(".userByRole").fadeOut()
+        }, 10000);
+    }
+    $(document).mouseup(function (e) {
+        var container = $(".userByRole");
+        // if the target of the click isn't the container nor a descendant of the container
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.fadeOut();
+        }
+    });
+    function coppyname(ele) {
+        var value = $(ele).find("a").html();
+        console.log(value)
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(value).select();
+        document.execCommand("copy");
+        $temp.remove();
+    }
+    function toogleRolePanel(ele) {
+        $(ele).toggleClass("arrow-up");
+        $(ele).parent().next().toggle();
+    }
+    function ShowAllPane(opt, ele) {
+        console.log("hit")
+        switch (opt) {
+            case 'role':
+                $("#role_edit h3").addClass('expanded')
+                console.log("hit role_edit")
+                break;
+            case 'user':
+                $("#user_edit h3").addClass('expanded');
+                console.log("hit user_edit")
+                break;
+            default:
+                $("h3").addClass('expanded')
+                break;
+        }
+        $(ele).parent().children('.js-toggle-all').toggle()
+    }
+    function HideAllPane(opt, ele) {
+        console.log("hit")
+        switch (opt) {
+            case 'role':
+                $("#role_edit h3").removeClass('expanded')
+                console.log("hit role_edit")
+                break;
+            case 'user':
+                $("#user_edit h3").removeClass('expanded');
+                $(ele).find('.js-toggle-all').toggle()
+                break;
+            default:
+                $("h3").removeClass('expanded')
+                break;
+        }
+        $(ele).parent().children('.js-toggle-all').toggle()
+    }
+    function HideRolePermission(ele) {
+        $(ele).parent().toggleClass("expanded");
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $("#close_role_edit").click(function () {
+            document.getElementById("txtTenNhomVaiTro").value = "";
+            $("#modalPopuplg_VaiTro input[type='checkbox']").prop('checked', false);
+            $("#role-content").hide();
+            $("#dummy-content").show();
+        })
+        $(".editcheck").click(function () {
+            $(this).toggleClass("check");
+            $(this).toggleClass("check1");
+            if ($(this).hasClass("check1")) {
+                $("#modalContainerlg_EditVaiTro .col3 ul").hide();
+            }
+            else {
+                $("#modalContainerlg_EditVaiTro .col3 ul").show();
+            }
+        });
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $('.expand-panel').click(function () {
+            $(".hide-panel").show();
+            $(".expand-panel").hide();
+            $(".list-permission").parent().parent().show()
+        });
+        $('.hide-panel').click(function () {
+            $(".hide-panel").hide();
+            $(".expand-panel").show();
+            $(".list-permission").parent().parent().hide()
+        })
+    })
+</script>

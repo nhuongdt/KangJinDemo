@@ -1,0 +1,218 @@
+﻿<div class="modal fade in" id="vmSendSMS">
+    <div class="modal-dialog draggable modal-lg ui-draggable">
+        <div class="modal-content ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">Thêm mới SMS</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nopadding form-modal-send-sms">
+                    <div class="form-group floatleft">
+                        <label>BrandName (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+                            <dropdown :text-search="newSMS.txtBrandName" placeholder="Chọn brand name"
+                                      :list-all="listData.BrandName"
+                                      :list-search="listData.BrandName"
+                                      :colshow="1"
+                                      :id-chosing="newSMS.ID_BrandName"
+                                      v-on:on-select-item="ChoseBrandName">
+                            </dropdown>
+                        </div>
+
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Loại tin</label>
+                        <div class="form-news">
+                            <dropdown :text-search="newSMS.txtLoaiTin" placeholder="Chọn loại tin"
+                                      :list-all="listData.LoaiTin"
+                                      :list-search="listData.LoaiTin"
+                                      :id-chosing="newSMS.ID_LoaiTin"
+                                      :colshow="2"
+                                      v-on:on-select-item="ChoseLoaiTin">
+                            </dropdown>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" v-if="newSMS.ID_LoaiTin === 3">
+                        <label>Gửi đến (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" v-if="newSMS.ID_LoaiTin !== 3">
+                        <div class="form-group floatleft">
+                            <label>{{txtSendTo}}</label>
+                            <div class="form-news">
+                                <div class="form-date-singer add-icon-date" style="width:28%!important">
+                                    <date-range id="txtDaterangeSMS"
+                                                :date-range="filter.txtDate"
+                                                v-on:daterange-change="ChangeDateRange">
+                                    </date-range>
+                                </div>
+                                <div class="outselectmodalsms">
+                                    <dropdown-multiple :text-search="filter.txtSearchCus" placeholder="Chọn khách hàng"
+                                                       :list-all="listData.Customer"
+                                                       :list-search="listData.Customer"
+                                                       :list-chosed="listData.listCusChosed"
+                                                       :colshow="2"
+                                                       :type-data="1"
+                                                       :have-condition="true"
+                                                       :show-item-all="true"
+                                                       v-on:on-select-item="ChoseKhachHang">
+                                    </dropdown-multiple>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Mẫu SMS</label>
+                        <div class="form-news">
+                            <dropdown :text-search="newSMS.txtMauTin" placeholder="Chọn mẫu tin"
+                                      :list-all="listData.MauTin"
+                                      :list-search="listData.MauTin"
+                                      :id-chosing="newSMS.ID_MauTin"
+                                      :colshow="1"
+                                      v-on:on-select-item="ChoseMauTin">
+                            </dropdown>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung</label>
+                        <div class="form-news">
+                            <textarea type="text" rows="4" v-model="newSMS.NoiDung"
+                                      v-on:keyup="countTinNhan"></textarea>
+                            <span v-if="newSMS.CountChar > 1">
+                                {{newSMS.CountChar}}/{{newSMS.MaxChar}} ({{newSMS.SoTinGui}} tin nhắn)
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số dư hiện tại</label>
+                        <label> {{formatNumber(newSMS.SoDuTaiKhoan)}}</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-main" v-on:click="GuiTinNhan">
+                        <i class="fa fa-paper-plane-o" aria-hidden="true"></i> Gửi
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade in" id="vmSendEmail">
+    <div class="modal-dialog draggable modal-lg ui-draggable">
+        <div class="modal-content ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">Gửi email</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nopadding form-modal-send-sms">
+                    <div class="form-group floatleft">
+                        <label>Tiêu đề</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" v-model="newEmail.TieuDe" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" v-if="newEmail.ID_LoaiTin === 3">
+                        <label>Gửi đến (<span style="color:red">*</span>) </label>
+                        <div class="form-news">
+
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" v-if="newEmail.ID_LoaiTin !== 3">
+                        <div class="form-group floatleft">
+                            <label>{{txtSendTo}}</label>
+                            <div class="form-news">
+                                <div class="form-date-singer add-icon-date" style="width:28%!important">
+                                    <date-range id="txtDaterangeEmail"
+                                                :date-range="filter.txtDate"
+                                                v-on:daterange-change="ChangeDateRange">
+                                    </date-range>
+                                </div>
+                                <div class="outselectmodalsms">
+                                    <dropdown-multiple :text-search="filter.txtSearchCus" placeholder="Chọn khách hàng"
+                                                       :list-all="listData.Customer"
+                                                       :list-search="listData.Customer"
+                                                       :list-chosed="listData.listCusChosed"
+                                                       :colshow="2"
+                                                       :type-data="1"
+                                                       :have-condition="true"
+                                                       :show-item-all="true"
+                                                       v-on:on-select-item="ChoseKhachHang">
+                                    </dropdown-multiple>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung</label>
+                        <div class="form-news">
+                            @*<textarea type="text" rows="4" v-model="newEmail.NoiDung"
+                                ></textarea>*@
+                            <div id="email_ckeditor"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-main" v-on:click="GuiEmail">
+                        <i class="fa fa-paper-plane-o" aria-hidden="true"></i> Gửi
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Components/NhanVien_KhachHang.js"></script>
+<script src="~/Scripts/Components/Input.js"></script>
+<script src="~/Scripts/Marketing/_SendSMS.js"></script>
+<script src="~/Scripts/Marketing/_SendEmail.js"></script>
+@*<script src="~/Content/ckeditor5/build/ckeditor.js"></script>
+<script>
+    //ClassicEditor
+    DecoupledEditor
+        .create(document.querySelector('#email_ckeditor'),
+            {
+                toolbar: ['bold', 'italic','underline','bulletedList', 'numberedList'],
+            }
+    ).then(editor => {
+    })
+        .catch(error => {
+            console.error(error);
+        });
+</script>*@
+<style>
+    .componentsBg {
+        background-color: #eee
+    }
+
+    .outselectmodalsms {
+        float: left;
+        width: 68%;
+    }
+
+        .outselectmodalsms li {
+            padding: 3px 15px;
+            border-bottom: 1px solid #ccc;
+        }
+</style>

@@ -1,0 +1,225 @@
+﻿<div class="modal fade" id="TiepNhanXeHoatDong">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Tiếp nhận xe
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body" style="padding:15px">
+                <div class="container-fluid flex flex-between">
+                    <div class="flex flex-column gara-detail-sections">
+                        <div class="flex flex-row floatleft" style="border-bottom: 1px solid #ccc; width: 100%; padding: 5px 0 5px 10px;">
+                            <label style="margin-right:5px; width:150px;">Thông tin tiếp nhận xe</label>
+                        </div>
+                        <div class="row padding-10">
+                            <div class="floatleft">
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Thời gian nhận<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <cp-ngaynhan :date-chose="ThongTinNhanXe.ThoiGianNhan"
+                                                         :role-change-date="true"
+                                                         v-on:change-date="ChangeNgayNhan">
+                                            </cp-ngaynhan>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Nhân viên nhận<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <nhanviennhan :text-search="NhanVienNhan.TenNhanVien"
+                                                          :staffs="NhanVienNhan.ListNhanVien"
+                                                          :search-list="NhanVienNhan.ListNhanVien"
+                                                          v-on:reset-item-chose="ResetNhanVienNhan"
+                                                          v-on:change-staff-parent="ChangeNhanVienNhan">
+                                            </nhanviennhan>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft">
+                                <div class="col-lg-12 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Ghi chú</label>
+                                        <div class="form-news">
+                                            <textarea rows="2" style="resize:none" v-model="ThongTinNhanXe.GhiChu"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-save" v-on:click="SaveData"
+                            @*v-if="role.PhieuTiepNhan.CapNhat"*@>
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vTiepNhanXeHoatDong = new Vue({
+        el: "#TiepNhanXeHoatDong",
+        components: {
+            'cp-ngaynhan': cpmDatetime,
+            'nhanviennhan': ComponentChoseStaff,
+        },
+        data: {
+            UrlApi: {
+                GaraApi: '/api/GaraAPI/'
+            },
+            NhanVienNhan: {
+                ID: null,
+                MaNhanVien: '',
+                TenNhanVien: '',
+                ListNhanVien: []
+            },
+            ThongTinNhanXe: {
+                Id: null,
+                MaPhieuBanGiao: '',
+                IdNhanVienNhan: null,
+                ThoiGianNhan: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                GhiChu: ''
+            },
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+                TenNhanVien: '',
+            },
+            isNew: true,
+            isSaving: false
+        },
+        methods: {
+            ChangeNhanVienNhan: function (item) {
+                let self = this;
+                self.ThongTinNhanXe.IdNhanVienNhan = item.ID;
+                self.NhanVienNhan.ID = item.ID;
+                self.NhanVienNhan.TenNhanVien = item.TenNhanVien;
+                self.NhanVienNhan.MaNhanVien = item.MaNhanVien;
+            },
+            ResetNhanVienNhan: function () {
+                let self = this;
+                self.NhanVienNhan.ID = null;
+                self.NhanVienNhan.TenNhanVien = '';
+                self.NhanVienNhan.MaNhanVien = '';
+            },
+            ChangeNgayNhan: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                self.ThongTinNhanXe.ThoiGianNhan = dt;
+            },
+            showModal: function (isNew = true) {
+                let self = this;
+                self.isNew = isNew;
+                if (self.isNew) {
+                    self.ResetThongTinNhanXe();
+                    self.ResetNhanVienNhan();
+                }
+                $("#TiepNhanXeHoatDong").modal('show');
+            },
+            ResetThongTinNhanXe: function () {
+                let self = this;
+                self.ThongTinNhanXe.IdNhanVienNhan = null;
+                self.ThongTinNhanXe.ThoiGianNhan = moment(new Date()).format('YYYY-MM-DD HH:mm');
+                self.ThongTinNhanXe.GhiChu = '';
+            },
+            SaveData: function () {
+                let self = this;
+                let mydata = {};
+                mydata.Id = self.ThongTinNhanXe.Id;
+                mydata.IdNhanVienNhan = self.ThongTinNhanXe.IdNhanVienNhan;
+                mydata.ThoiGianNhan = self.ThongTinNhanXe.ThoiGianNhan;
+                mydata.GhiChu = self.ThongTinNhanXe.GhiChu;
+                mydata.UserName = self.inforLogin.UserLogin;
+                mydata.isNew = self.isNew;
+                console.log(mydata);
+                $.ajax({
+                    url: self.UrlApi.GaraApi + "PUT_HoanThanhPhieuBanGiao",
+                    type: "POST",
+                    dataType: "JSON",
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: mydata
+                }).done(function (result) {
+                    if (result.res) {
+                        self.SaveNhatKy();
+                        if (self.isNew) {
+                            commonStatisJs.ShowMessageSuccess('Thêm mới hoàn thành phiếu bàn giao thành công.');
+                        }
+                        else {
+                            commonStatisJs.ShowMessageSuccess('Cập nhật hoàn thành phiếu bàn giao thành công.');
+                        }
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger(result.mess);
+                    }
+                }).fail(function (jqXHR, textStatus) {
+                    console.log(textStatus);
+                    if (self.isNew) {
+                        commonStatisJs.ShowMessageDanger('Thêm mới hoàn thành phiếu bàn giao thất bại.');
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger('Cập nhật hoàn thành phiếu bàn giao thất bại.');
+                    }
+                }).always(function () {
+                    $("#TiepNhanXeHoatDong").modal('hide');
+                    VueBanGiaoXe.LoadData();
+                });
+            },
+            SaveNhatKy: function () {
+                let self = this;
+                let nhatky = {};
+                nhatky.ID_NhanVien = self.inforLogin.ID_NhanVien;
+                nhatky.ChucNang = "Phiếu bàn giao xe";
+                if (self.isNew) {
+                    nhatky.NoiDung = "Hoàn thành phiếu bàn giao: " + self.ThongTinNhanXe.MaPhieuBanGiao;
+                    nhatky.NoiDungChiTiet = "Hoàn thành phiếu bàn giao: " + self.ThongTinNhanXe.MaPhieuBanGiao + "<br/>"
+                        + "Thời gian: " + self.ThongTinNhanXe.ThoiGianNhan + "<br/>"
+                        + "Người thực hiện: " + self.NhanVienNhan.MaNhanVien + " - " + self.NhanVienNhan.TenNhanVien + "<br/>"
+                        + "Ghi chú: " + self.ThongTinNhanXe.GhiChu + "<br/>"
+                        + "Người cập nhật: " + self.inforLogin.UserLogin;
+                    nhatky.LoaiNhatKy = 1;
+                }
+                else {
+                    nhatky.NoiDung = "Cập nhật hoàn thành phiếu bàn giao: " + self.ThongTinNhanXe.MaPhieuBanGiao;
+                    nhatky.NoiDungChiTiet = "Cập nhật hoàn thành phiếu bàn giao: " + self.ThongTinNhanXe.MaPhieuBanGiao + " theo thông tin mới<br/>"
+                        + "Thời gian: " + self.ThongTinNhanXe.ThoiGianNhan + "<br/>"
+                        + "Người thực hiện: " + self.NhanVienNhan.MaNhanVien + " - " + self.NhanVienNhan.TenNhanVien + "<br/>"
+                        + "Ghi chú: " + self.ThongTinNhanXe.GhiChu + "<br/>"
+                        + "Người cập nhật: " + self.inforLogin.UserLogin;
+                    nhatky.LoaiNhatKy = 2;
+                }
+                nhatky.ID_DonVi = self.inforLogin.ID_DonVi;
+                Insert_NhatKyThaoTac_1Param(nhatky);
+            }
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_User: VHeader.IdNguoiDung,
+                UserLogin: VHeader.UserLogin,
+                ID_DonVi: VHeader.IdDonVi,
+                TenNhanVien: VHeader.TenNhanVien,
+            };
+            ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + self.inforLogin.ID_DonVi, 'GET').done(function (data) {
+                self.NhanVienNhan.ListNhanVien = data;
+            });
+        }
+    })
+</script>

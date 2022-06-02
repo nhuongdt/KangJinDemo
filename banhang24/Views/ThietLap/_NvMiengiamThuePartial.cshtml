@@ -1,0 +1,179 @@
+﻿<div class="modal fade" id="modalmiengiamthue">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Khoản miễn giảm (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="tenmiengiam" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số tiền (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control currency text-right" type="text"onkeypress="return keypressNumber(event)" v-model="sotien" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày áp dụng(<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateTNMienGiam" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày kết thúc </label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateDNMienGiam" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ghi chú </label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="ghichu"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveTax">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmMienGiamThue = new Vue({
+        el: '#modalmiengiamthue',
+        data: {
+            nhanvienId: null,
+            ID: null,
+            tenmiengiam: "",
+            sotien: "",
+            ghichu: "",
+            title: "",
+            error: '',
+            Isnew: true,
+        },
+        methods: {
+            messageError: function (input) {
+                this.error = input;
+            },
+            Insert: function (id) {
+                $('#modalmiengiamthue').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.tenmiengiam = model.KhoanMienGiam;
+                    this.sotien = this.convertMoney(model.SoTien);
+                    this.ghichu = model.GhiChu;
+                    this.Isnew = false;
+                    this.error = "";
+                    $('#dateTNMienGiam').val(this.convertDate(model.NgayApDung));
+                    $('#dateDNMienGiam').val(this.convertDate(model.NgayKetThuc));
+                    this.title = "Cập nhật miễn giảm thuế";
+                    $('#modalmiengiamthue').modal("show");
+                }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.Isnew = true;
+                this.ID = null;
+                this.tenmiengiam = "";
+                this.ghichu = "";
+                this.sotien = "";
+                this.error = '';
+                this.title = "Thêm mới miễn giảm thuế";
+                $('#dateTNMienGiam').val(null);
+                $('#dateDNMienGiam').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            convertMoney: function (input) {
+                if (commonStatisJs.CheckNull(input))
+                    return "";
+                return input.toString().replace(/,/g, '').replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+            },
+            SaveTax: function (event) {
+                var self = this;
+                self.sotien = commonStatisJs.InputFormatVnd(self.sotien)
+                if (commonStatisJs.CheckNull(self.tenmiengiam)) {
+                    self.messageError("Vui lòng nhập khoản miễn giảm");
+                }
+                else if (commonStatisJs.CheckNull(self.sotien)) {
+                    self.messageError("Vui lòng nhập số tiền");
+                }
+                else if (commonStatisJs.CheckNull($('#dateTNMienGiam').val())) {
+                    self.messageError("Vui lòng nhập ngày áp dụng");
+                }
+                else {
+                    var model = {
+                        ID: self.ID,
+                        ID_NhanVien: self.nhanvienId,
+                        KhoanMienGiam: self.tenmiengiam,
+                        SoTien: parseInt(self.sotien.replace(/,/g, '')),
+                        NgayApDung: commonStatisJs.convertDateToServer($('#dateTNMienGiam').val()),
+                        NgayKetThuc: commonStatisJs.convertDateToServer($('#dateDNMienGiam').val()),
+                        GhiChu: self.ghichu,
+                    };
+                    $.ajax({
+                        data: model,
+                        url: "/api/DanhMuc/NS_NhanVienAPI/SaveMienGiamthue?Isnew=" + self.Isnew,
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (item) {
+                            if (item.res === true) {
+                                $('#modalmiengiamthue').modal("hide");
+                                bottomrightnotify(item.mess, "success");
+                                $('body').trigger("InsertNvMienGiamThueSuccess");
+                            }
+                            else {
+                                self.messageError(item.mess);
+                            }
+                        }
+                    });
+                }
+            }
+        },
+        computed: {
+        }
+    });
+    $('.currency').focus(function () {
+        vmMienGiamThue.sotien = $(this).val().replace(/,/g, '');
+    });
+    $('.currency').focusout(function () {
+        vmMienGiamThue.sotien = vmMienGiamThue.convertMoney($(this).val());
+    });
+    $('#dateTNMienGiam').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    $('#dateDNMienGiam').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+</script>

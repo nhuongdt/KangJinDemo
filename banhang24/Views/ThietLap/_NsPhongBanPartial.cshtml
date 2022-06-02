@@ -1,0 +1,293 @@
+﻿<style>
+    #lstphongbancha li {
+        padding-left: 15px !important;
+    }
+        #lstphongbancha li div {
+            width: 100%;
+            height: 30px;
+        }
+        #lstphongbancha li i {
+            position: absolute;
+            left: 5px;
+            top: 7px;
+            font-size: 16px;
+            color: var(--color-main);
+            width: 10px;
+        }
+            #lstphongbancha li:hover {
+                background: white !important;
+            }
+        #lstphongbancha li div:hover {
+            color: #0097c4 !important;
+        }
+    </style>
+<div class="modal fade" id="modalNsPhongBan">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Tên phòng (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="tenphongban" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Chi nhánh(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <select class="form-control" id="chinhanh_phongban" v-on:change="SeletecChiNhanh">
+                                <option v-for="(item, index) in listChiNhanh" v-bind:value="item.ID">{{item.TenDonVi}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Phòng ban cha</label>
+                        <div class="form-news">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" style="cursor:pointer"> {{tenphongbancha}}</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" v-model="textsearch">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstphongbancha" class="group-parent">
+                                        <li class="p-left10" data-id="0">
+                                            <div class="text-tree">--- Chọn phòng ban cấp cha ---</div>
+                                        </li>
+                                        <li v-for="item in ListPhongbanNew" v-bind:data-id="item.id">
+                                            <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                            <div class="text-tree">{{ item.text }}</div>
+                                            <ul class="group-parent">
+                                                <li v-for="item1 in item.children" v-bind:data-id="item1.id">
+                                                    <div class="text-tree">{{ item1.text }}</div>
+
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel " v-show="Isnew==false" v-on:click="Deleteroom">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                    <button type="button" class="btn btn-save" v-on:click="Saveroom" v-show="IsRole==true">
+                        <i class="fa fa-save"></i>&nbsp; Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmNsPhongBan = new Vue({
+        el: '#modalNsPhongBan',
+        data: {
+            ID: null,
+            tenphongban: "",
+            phongbanchaID: 0,
+            tenphongbancha:'',
+            listPhongBan: [],
+            listChiNhanh: [],
+            Isnew: true,
+            IsRole:true,
+            textsearch:"",
+            title: "",
+            error: '',
+            ChinhanhId:null,
+        },
+        methods: {
+            messageError: function (input) {
+                this.error = input;
+            },
+            Insert: function (id=null) {
+                $('#modalNsPhongBan').modal("show");
+                var self = this;
+                self.IsRole = true;
+                self.ID = null;
+                self.Isnew = true;
+                self.error = '';
+                self.textsearch = '';
+                self.phongbanchaID = 0;
+                self.tenphongban = "";
+                self.tenphongbancha = "--- Chọn phòng ban cấp cha ---";
+                self.title = "Thêm mới phòng ban";
+                $('#chinhanh_phongban').prop('disabled', false);
+                sleep(500).then(() => {
+                    if (id != null)
+                    {
+                        self.ChinhanhId = id;
+                    }
+                    else {
+                        self.ChinhanhId = $('#hd_IDdDonVi').val();
+                    }
+                    $('#chinhanh_phongban').val(self.ChinhanhId);
+                    self.loadphongban();
+                });
+            },
+            edit: function (model,IsroleUpdate,IsRoleDelete) {
+                if (model !== null && !commonStatisJs.CheckNull(model.id)) {
+                    if (IsroleUpdate === '1') {
+                        this.IsRole = true;
+                    }
+                    else {
+                        this.IsRole = false;
+                    }
+                    if (IsRoleDelete === '1') {
+                        this.Isnew = false;
+                    }
+                    else {
+                        this.Isnew = true;
+                    }
+                    this.ID = model.id;
+                    this.tenphongban = model.text;
+                    this.phongbanchaID = model.parentId;
+                    if (model.parentId === null) {
+                        this.tenphongbancha = "--- Chọn phòng ban cấp cha ---";
+                    }
+                    else {
+                        this.tenphongbancha = model.parentText;
+                    }
+                    this.error = "";
+                    this.textsearch = '';
+                    this.title = "Cập nhật phòng ban";
+                    $('#modalNsPhongBan').modal("show");
+                    sleep(500).then(() => {
+                        $('#chinhanh_phongban').val(model.ID_DonVi);
+                        $('#chinhanh_phongban').prop('disabled', true);
+                        this.loadphongban();
+                    });
+                }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            findBy: function (value) {
+                var self = this;
+                if (commonStatisJs.CheckNull(value)) return self.listPhongBan;
+                return self.listPhongBan.filter(function (item) {
+                    return self.fintercontainsAll(value.split(" "), item['text']) === true;
+                });
+            },
+            fintercontainsAll: function (needles, haystack) {
+                for (var i = 0, len = needles.length; i < len; i++) {
+                    if (needles[i] === '') continue;
+                    if (commonStatisJs.convertVieToEng(haystack).search(new RegExp(commonStatisJs.convertVieToEng(needles[i]), "i")) < 0) return false;
+                }
+                return true;
+            },
+            evensearch1 : function (o) {
+                return commonStatisJs.convertVieToEng(o.text).indexOf(commonStatisJs.convertVieToEng(this.textsearch)) >= 0;
+            },
+            evensearch2 : function (o) {
+                return o.children.length > 0 && o.children.some(evensearch1);
+            },
+            Saveroom: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull(self.tenphongban)) {
+                    self.messageError("Vui lòng nhập tên phòng ban");
+                }
+                else if (self.ID!==null && self.phongbanchaID===self.ID) {
+                    self.messageError("Không thể chọn phòng ban cha là phong ban hiện tại ");
+                }
+                else if (self.phongbanchaID ===0 &&($('#chinhanh_phongban').val() === null || $('#chinhanh_phongban').val()==='')) {
+                    self.messageError("Vui lòng chọn đơn vị");
+                }
+                else {
+                    if (self.phongbanchaID === 0) {
+                        self.phongbanchaID = null;
+                    }
+                    var url = "SaveNsPhongBan";
+                    if (!self.Isnew) {
+                        url = "EditNsPhongBan";
+                    }
+                    var model = {
+                        ID: self.ID,
+                        TenPhongBan: self.tenphongban,
+                        ID_PhongBanCha: self.phongbanchaID,
+                        ID_DonVi: $('#chinhanh_phongban').val()
+                    };
+                    $.ajax({
+                        data: model,
+                        url: "/api/DanhMuc/NS_NhanVienAPI/" + url,
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (item) {
+                            if (item.res === true) {
+                                $('#modalNsPhongBan').modal("hide");
+                                bottomrightnotify(item.mess, "success");
+                                $('body').trigger("InsertNsPhongBanSuccess");
+                            }
+                            else {
+                                self.messageError(item.mess);
+                            }
+                        }
+                    });
+                }
+            },
+            Deleteroom: function () {
+                vmModalRemove.show("/api/DanhMuc/NS_NhanVienAPI/deletePhongBanNv?id=" + this.ID, "Xác nhận",
+                    "Bạn có chắc chắn muốn xóa phòng ban không", "InsertNsPhongBanSuccess");
+                $('#modalNsPhongBan').modal("hide");
+            },
+            loadphongban: function () {
+                var self = this;
+                self.ChinhanhId = $('#chinhanh_phongban').val();
+                $.getJSON('/api/DanhMuc/NS_NhanVienAPI/' + "GetTreePhongBan?chinhanhId=" + $('#chinhanh_phongban').val(), function (data) {
+                    self.listPhongBan = data;
+                });
+            },
+            SeletecChiNhanh: function () {
+                this.loadphongban();
+            }
+        },
+        computed: {
+            ListPhongbanNew: function () {
+                var self = this;
+                if (self.phongbanchaID === null) {
+                    if (commonStatisJs.CheckNull(self.textsearch)) {
+                        return self.listPhongBan.filter(o => o.id !== self.ID);
+                    }
+                    var data = $.grep(self.listPhongBan.filter(o => o.id !== self.ID), function (e) {
+                        var result = (commonStatisJs.convertVieToEng(e.text).indexOf(commonStatisJs.convertVieToEng(self.textsearch)) >= 0
+                            || (e.children.length > 0 && (e.children.some(self.evensearch1) || e.children.some(self.evensearch2))));
+                        return result;
+                    });
+                    return data;
+                }
+                else {
+                    if (commonStatisJs.CheckNull(self.textsearch)) {
+                        return self.listPhongBan;
+                    }
+                    var data = $.grep(self.listPhongBan, function (e) {
+                        var result = (commonStatisJs.convertVieToEng(e.text).indexOf(commonStatisJs.convertVieToEng(self.textsearch)) >= 0
+                            || (e.children.length > 0 && (e.children.some(self.evensearch1) || e.children.some(self.evensearch2))));
+                        return result;
+                    });
+                    return data;
+                }
+            }
+        }
+    });
+    $('#lstphongbancha ').on('click', 'li .text-tree', function () {
+        vmNsPhongBan.phongbanchaID = $(this).closest('li').data('id');
+        vmNsPhongBan.tenphongbancha = $(this).text();
+    });
+</script>

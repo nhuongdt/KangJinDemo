@@ -1,0 +1,1231 @@
+﻿@using banhang24.Hellper
+<style>
+    .color-red {
+        color: #eb4923;
+    }
+
+    .table-dich-vu {
+        width: 100%;
+        border: 1px solid #ccc;
+        margin-bottom: 15px !important;
+        /*min-width: 868px;*/
+    }
+
+        .table-dich-vu tbody > tr > td {
+            border: 1px solid #e6e6e6;
+        }
+
+        .table-dich-vu .tr-title {
+            background-color: #eeeeee;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .table-dich-vu .tr-thead {
+            background-color: #d2f0ef;
+            font-weight: bold;
+        }
+
+    .nhat-ky-dv-chi-tiet {
+        margin-top: 15px;
+    }
+
+
+    .table-dich-vu .css-form-detail li {
+        border-bottom: 1px solid #ccc;
+        padding: 7px;
+    }
+
+    #vmNKGoiBaoDuong thead td {
+        text-align: center;
+    }
+</style>
+<div class="modal fade" id="vmNKGoiBaoDuong">
+    <div class="modal-dialog draggable   modal-lg " role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nhat-ky-dv">
+                    <div class="row tab-news-modal" id="tab-diary-service">
+                        <ul class="nav nav-tabs" style="width:100%;">
+                            <li class="active">
+                                <a data-toggle="tab" href="#goidichvu">
+                                    {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}
+                                </a>
+                            </li>
+                            <li><a data-toggle="tab" href="#nhatkydichvu">Nhật ký sử dụng</a></li>
+                            <li>
+                                <a data-toggle="tab" href="#nhatkygiaodichdv">Nhật ký giao dịch</a>
+                            </li>
+                            <li><a data-toggle="tab" href="#nhatkythegiatri">Nhật ký thẻ giá trị</a></li>
+                            <li v-if="LoaiNganhNghe!==1 && $root.roleUpdateImg"><a data-toggle="tab" href="#anhLieuTrinh">Ảnh liệu trình</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="goidichvu">
+                                <div class="container-fluid  header-dv">
+                                    <div class="form-check form-check-inline"
+                                         v-on:click="GDV_ChangeStatus(1)">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                               value="1"
+                                               v-model="filterGDV.Status">
+                                        <label class="form-check-label" for="goidichvu1">Còn hạn</label>
+                                    </div>
+                                    <div class="form-check form-check-inline"
+                                         v-on:click="GDV_ChangeStatus(2)">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                               value="2"
+                                               v-model="filterGDV.Status">
+                                        <label class="form-check-label" for="goidichvu2">Hết hạn</label>
+                                    </div>
+                                    <div class="form-check form-check-inline"
+                                         v-on:click="GDV_ChangeStatus(0)">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                               value="0"
+                                               v-model="filterGDV.Status">
+                                        <label class="form-check-label" for="goidichvu3">Tất cả</label>
+                                    </div>
+                                </div>
+                                <div class="container-fluid tab-col-12 ">
+                                    <button type="button" class=" btn-search-modal-icon">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-search-modal-icon" autofocus
+                                           placeholder="Tìm kiếm mã gói, mã dịch vụ, tên dịch vụ" autocomplete="off"
+                                           v-model="filterGDV.txtSearch"
+                                           v-on:keyup="searchGDV">
+                                </div>
+                                <div class="container-fluid nopadding nhat-ky-dv-chi-tiet">
+                                    <table class="table-dich-vu" v-for="(item, index) in listData.GoiDichVu">
+                                        <thead>
+                                            <tr class="tr-title tr-goi-dich-vu">
+                                                <td colspan="8">
+                                                    {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}:
+                                                    <span>{{item.MaHoaDon}}</span>
+                                                    - Ngày mua:
+                                                    <span>{{item.NgayLapHoaDon}}</span>
+                                                    - Áp dụng:
+                                                    <span>{{item.NgayApDungGoiDV}}</span>
+                                                    - Hết hạn:
+                                                    <span>{{item.HanSuDungGoiDV}}</span>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="item.BienSo">
+                                                <td colspan="8">
+                                                    <span> Biển số xe: </span>
+                                                    <span>{{item.BienSo}}</span>
+                                                </td>
+                                            </tr>
+                                            <tr class="tr-thead tr-goi-dich-vu">
+                                                <td>Mã dịch vụ </td>
+                                                <td>Tên dịch vụ </td>
+                                                <td>Số lượng </td>
+                                                <td>Đơn giá</td>
+                                                <td>Chiết khấu</td>
+                                                <td class="color-red">Đã sử dụng</td>
+                                                <td class="color-red">Còn lại</td>
+                                                <td>
+                                                    <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                                           v-on:change="GVD_ChangeCheckAll(item)">
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template v-for="(ct, index2) in item.lstDetail">
+                                                <template v-for="(combo, index3) in ct.ComBo">
+                                                    <tr v-if="combo.SoThuTu == 0">
+                                                        <td colspan="8" style="background: #eee" class="bold">
+                                                            {{combo.TenHangHoa}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr v-if="index3 == 0 && combo.ID_ParentCombo == null && ct.ComBo.filter(x=>x.SoThuTu===0).length == 0 && item.lstDetail.length > 1">
+                                                        <td colspan="8" style="background: #eee" class="bold">
+                                                            Hàng ngoài combo
+                                                        </td>
+                                                    </tr>
+                                                    <tr v-if="combo.ID_ParentCombo !== combo.ID_ChiTietGoiDV">
+                                                        <td>
+                                                            <span>
+                                                                {{combo.MaHangHoa}}
+                                                            </span>
+                                                            <span class="bg-pink" style="display:none">
+                                                                (KM)
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span>
+                                                                {{combo.TenHangHoa}}
+                                                            </span><br />
+                                                            <span v-if="combo.GhiChu">
+                                                                (<i>{{combo.GhiChu}}</i>)
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-right">{{combo.TangKem?combo.SoLuongTang:combo.SoLuongMua}}</td>
+                                                        <td class="text-right">{{formatNumber3Digit(combo.GiaBan)}}</td>
+                                                        <td class="text-right">{{formatNumber3Digit(combo.TienChietKhau)}}</td>
+                                                        <td class="text-right"> {{combo.SoLuongDung}}</td>
+                                                        <td class="text-right"> {{combo.SoLuongConLai}}</td>
+                                                        <td style="width:40px">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   v-bind:id="combo.ID_ChiTietGoiDV"
+                                                                   v-on:change="GVD_ChangeCheckItem(combo, item)">
+                                                        </td>
+                                                    </tr>
+                                                </template>
+
+                                            </template>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="tr-title tr-goi-dich-vu">
+                                                <td>Tổng</td>
+                                                <td></td>
+                                                <td class="text-right">{{item.TongSLMua}}</td>
+                                                <td colspan="2"></td>
+                                                <td class="text-right">{{item.TongSLDaDung}}</td>
+                                                <td class="text-right">{{item.TongSLConLai}}</td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane " id="nhatkydichvu">
+                                <div class="container-fluid tab-col-12 ">
+                                    <button type="button" class=" btn-search-modal-icon">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-search-modal-icon"
+                                           placeholder="Tìm kiếm mã hóa đơn, mã dịch vụ, tên dịch vụ" autocomplete="off"
+                                           v-model="filterNKy.txtSearch"
+                                           v-on:keyup="NKSD_search">
+                                </div>
+                                <div class="container-fluid tab-col-12">
+                                    <div style="overflow-x:auto!important">
+                                        <table class="table-dich-vu">
+                                            <thead>
+                                                <tr class="tr-thead">
+                                                    <td>Ngày sử dụng</td>
+                                                    <td>Mã hóa đơn</td>
+                                                    <td>Mã dịch vụ </td>
+                                                    <td>Tên dịch vụ </td>
+                                                    <td>Số lượng </td>
+                                                    <td>Hoa hồng</td>
+                                                    <td>Nhân viên tư vấn, thực hiện</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item,index) in filterNKy.ListFilter">
+                                                    <td>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                                    <td>{{item.MaHoaDon}}</td>
+                                                    <td>{{item.MaHangHoa}}</td>
+                                                    <td style="text-align:left">{{item.TenHangHoa}}</td>
+                                                    <td class="text-right">{{item.SoLuong}}</td>
+                                                    <td style="text-align:right">{{formatNumber3Digit(item.TongChietKhau)}}</td>
+                                                    <td style="text-align:left">{{Remove_LastComma(item.NhanVienThucHien)}}</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="tr-title tr-goi-dich-vu" v-if="filterNKy.ListFilter.length > 0">
+                                                    <td>Tổng:</td>
+                                                    <td colspan="3"></td>
+                                                    <td class="text-right">{{filterNKy.ListFilter[0].TongSoLuong}}</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+
+
+                                    </div>
+                                    <page-list v-bind:currentpage="filterNKy.currentPage + 1"
+                                               v-bind:pagesize="filterNKy.pageSize"
+                                               v-bind:listpage="filterNKy.ListPage"
+                                               v-bind:pageview="filterNKy.PageView"
+                                               v-bind:numberofpage="filterNKy.totalPage"
+                                               v-on:pageselected="NKSD_ChangePage"></page-list>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane " id="nhatkygiaodichdv">
+                                <div class="container-fluid tab-col-12 ">
+                                    <button type="button" class=" btn-search-modal-icon">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-search-modal-icon"
+                                           placeholder="Tìm kiếm mã chứng từ, phiếu thu/chi" autocomplete="off"
+                                           v-model="filterTrans.txtSearch"
+                                           v-on:keyup="NKGD_search">
+                                </div>
+                                <div class="container-fluid  tab-col-12">
+                                    <div style="overflow:auto">
+                                        <table class="table-dich-vu floatleft">
+                                            <thead>
+                                                <tr class="tr-thead">
+                                                    <td>Ngày lập HĐ</td>
+                                                    <td>Mã chứng từ </td>
+                                                    <td>Mã phiếu thu </td>
+                                                    <td>Tổng mua </td>
+                                                    <td>Tổng trả </td>
+                                                    <td>Phải thanh toán</td>
+                                                    <td>Đã thanh toán</td>
+                                                    <td>Còn nợ</td>
+                                                    <td>Ghi chú</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in filterTrans.ListFilter">
+                                                    <td class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                                    <td>
+                                                        <a class="bold" href="javascript:void(0)"
+                                                           v-on:click="$root.showInforHoaDon(item.ID)">
+                                                            {{item.MaHoaDon}}
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        {{item.MaPhieuThu}}
+                                                    </td>
+                                                    <td class="text-right"> {{formatNumber3Digit(item.TongMua)}}</td>
+                                                    <td class="text-right">{{formatNumber3Digit(item.TongTra)}}</td>
+                                                    <td class="text-right">{{formatNumber3Digit(item.PhaiThanhToan)}}</td>
+                                                    <td class="text-right">{{formatNumber3Digit(item.DaThanhToan)}}</td>
+                                                    <td class="text-right">{{formatNumber3Digit(item.ConNo)}}</td>
+                                                    <td>{{item.GhiChu}}</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot v-if="filterTrans.ListFilter.length > 0">
+                                                <tr class="tr-title tr-goi-dich-vu">
+                                                    <td>Tổng</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td class="text-right"> {{formatNumber3Digit(filterTrans.ListFilter[0].SumTongMua)}}</td>
+                                                    <td class="text-right"> {{formatNumber3Digit(filterTrans.ListFilter[0].SumTongTra)}}</td>
+                                                    <td class="text-right"> {{formatNumber3Digit(filterTrans.ListFilter[0].SumPhaiThanhToan)}}</td>
+                                                    <td class="text-right"> {{formatNumber3Digit(filterTrans.ListFilter[0].SumDaThanhToan)}}</td>
+                                                    <td class="text-right"> {{formatNumber3Digit(filterTrans.ListFilter[0].SumConNo)}}</td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <page-list v-bind:currentpage="filterTrans.currentPage + 1"
+                                               v-bind:pagesize="filterTrans.pageSize"
+                                               v-bind:listpage="filterTrans.ListPage"
+                                               v-bind:pageview="filterTrans.PageView"
+                                               v-bind:numberofpage="filterTrans.totalPage"
+                                               v-on:pageselected="NKGD_ChangePage"></page-list>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane " id="nhatkythegiatri">
+                                <div class="container-fluid  nhat-ky-dv-giao-dich">
+                                    <div style="overflow:auto">
+                                        <label> Lịch sử nạp tiền
+                                        <span class="blue">(Số dư hiện tại:<span class="red">{{formatNumber($root.soduTheGiaTri)}}</span></span>)</label>
+                                        <table class="table-dich-vu" style="width:100%!important">
+                                            <thead>
+                                                <tr class="tr-thead tr-goi-dich-vu">
+                                                    <td>Mã phiếu </td>
+                                                    <td>Ngày nạp</td>
+                                                    <td>Mức nạp </td>
+                                                    <td>Khuyến mãi</td>
+                                                    <td>Chiết khấu</td>
+                                                    <td>Tổng tiền nạp</td>
+                                                    <td>Đã thanh toán</td>
+                                                    <td>Ghi chú</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in listData.LichSuNapThe">
+                                                    <td>
+                                                        <span class="bold"
+                                                              href="javascript:void(0)">
+                                                            {{item.MaHoaDon}}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.MucNap)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.KhuyenMaiVND)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.ChietKhauVND)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.TongTienNap)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.KhachDaTra)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{item.DienGiai}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div style="overflow:auto">
+                                        <label>Nhật ký sử dụng</label>
+                                        <table class="table-dich-vu" style="width:100%!important">
+                                            <thead>
+                                                <tr class="tr-thead">
+                                                    <td>Ngày</td>
+                                                    <td>Hoạt động</td>
+                                                    <td>Hóa đơn liên quan</td>
+                                                    <td>Số dư trước phát sinh</td>
+                                                    <td>Phát sinh giảm</td>
+                                                    <td>Phát sinh tăng</td>
+                                                    <td>Số dư sau phát sinh</td>
+                                                    <td>Ghi chú</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody v-for="(item, index) in listData.NhatKySuDungThe">
+                                                <tr>
+                                                    <td class="text-center">
+                                                        {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                    </td>
+                                                    <td>
+                                                        {{item.SLoaiHoaDon}}
+                                                    </td>
+                                                    <td>
+                                                        <span class="bold">
+                                                            {{item.MaHoaDon}}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.SoDuTruoc)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{item.LoaiHoaDonSQ== 11?formatNumber3Digit(item.TienThe):0}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{item.LoaiHoaDonSQ== 12?formatNumber3Digit(item.TienThe):0}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(item.SoDuSau)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{item.DienGiai}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="tr-title tr-goi-dich-vu" v-if="listData.NhatKySuDungThe.length > 0">
+                                                    <td>Tổng</td>
+                                                    <td colspan="3"></td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(listData.NhatKySuDungThe[0].TongPhatSinhGiam)}}
+                                                    </td>
+                                                    <td class="text-right">
+                                                        {{formatNumber3Digit(listData.NhatKySuDungThe[0].TongPhatSinhTang)}}
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <page-list v-bind:currentpage="filterThe.currentPage + 1"
+                                               v-bind:pagesize="filterThe.pageSize"
+                                               v-bind:listpage="filterThe.ListPage"
+                                               v-bind:pageview="filterThe.PageView"
+                                               v-bind:numberofpage="filterThe.totalPage"
+                                               v-on:pageselected="NKTGT_ChangePage"></page-list>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane " id="anhLieuTrinh">
+                                <div class="container-fluid tab-col-12 ">
+                                    <button type="button" class=" btn-search-modal-icon">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-search-modal-icon"
+                                           placeholder="Tìm kiếm mã chứng từ" autocomplete="off"
+                                           v-model="filterImg.txtSearch"
+                                           v-on:keyup="GetListImgInvoice_byCus">
+                                </div>
+                                <div class="container-fluid  tab-col-12">
+                                    <div style="overflow:auto">
+                                        <table class="table-dich-vu floatleft">
+                                            <thead>
+                                                <tr class="tr-thead">
+                                                    <td>Ngày lập hóa đơn</td>
+                                                    <td>Mã gói dịch vụ </td>
+                                                    <td>Mã hóa đơn </td>
+                                                    <td>Ghi chú</td>
+                                                    <td>Ảnh</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in filterImg.data">
+                                                    <td class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                                    <td>
+                                                        {{item.MaPhieuThu}}
+                                                    </td>
+                                                    <td>
+                                                        <a class="bold" href="javascript:void(0)"
+                                                           v-on:click="$root.showInforHoaDon(item.ID)">
+                                                            {{item.MaHoaDon}}
+                                                        </a>
+                                                    </td>
+                                                    <td> {{item.GhiChu}}</td>
+                                                    <td class="text-center">
+                                                        <a href="javascript:void(0)" v-on:click="$root.ShowImg(item)">
+                                                            <i class="fa fa-image"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <page-list v-bind:currentpage="filterImg.currentPage + 1"
+                                               v-bind:pagesize="filterImg.pageSize"
+                                               v-bind:listpage="filterImg.ListPage"
+                                               v-bind:pageview="filterImg.PageView"
+                                               v-bind:numberofpage="filterImg.totalPage"
+                                               v-on:pageselected="ListImg_ChangePage"></page-list>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
+                <button type="button" class="btn btn-main" v-on:click="Agree">
+                    <i class="fa fa-check-square"></i>Xác nhận
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(".table-dich-vu .tr-thead .form-check-input").change(function () {
+        if (this.checked) {
+            $(this).closest('.tr-thead').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('.form-check-input').prop("checked", true);
+            });
+        }
+        else {
+            $(this).closest('.tr-thead').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('.form-check-input').prop("checked", false);
+            });
+        }
+    });
+
+    $(".table-dich-vu tbody .form-check-input").change(function () {
+        var boolcheck = 0;
+        var trlength = $(this).closest('tr').closest('tbody').find('tr').length;
+        $(this).closest('tr').closest('tbody').find('tr').each(function (i) {
+            if ($(this).find('.form-check-input').is(":checked")) {
+                boolcheck += 1;
+            }
+            if (i === trlength - 1) {
+                if (trlength === boolcheck)
+                    $(this).closest('tr').closest('tbody').prev('thead').find('.tr-thead').find('.form-check-input').prop("checked", true);
+                else
+                    $(this).closest('tr').closest('tbody').prev('thead').find('.tr-thead').find('.form-check-input').prop("checked", false);
+            }
+        });
+    });
+</script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+<script>
+    var vmNKGoiBaoDuong = new Vue({
+        el: "#vmNKGoiBaoDuong",
+        components: {
+        },
+        created: function () {
+            let self = this;
+            self.Today = moment(new Date()).format('YYYY-MM-DD');
+        },
+        data: {
+            ID_DonVi: $('#txtDonVi').val(),
+            saveOK: false,
+            LoaiNganhNghe: 0,// 0.spa, 1.gara, 2.nhahang
+            ID_Customer: null,
+            ID_Car: null,
+            ListDichVuChosed: [],
+            ListIDCarChosed: [],
+
+            roleUpdateImg: false,
+            soduTheGiaTri: false,
+
+            filterGDV: {
+                Status: 1,
+                timmer: null,
+                txtSearch: '',
+                ListFilter: [],
+            },
+            filterNKy: {
+                txtSearch: '',
+                currentPage: 0,
+                pageSize: 20,
+                totalPage: 0,
+                isPrev: false,
+                isNext: false,
+                ListPage: [],
+                PageView: '',
+                SumSoLuong: 0,
+                ListFilter: [],
+            },
+            filterTrans: {
+                txtSearch: '',
+                currentPage: 0,
+                pageSize: 20,
+                totalPage: 0,
+                isPrev: false,
+                isNext: false,
+                ListPage: [],
+                PageView: '',
+                ListFilter: [],
+                SumTongMua: 0,
+                SumTongTra: 0,
+                SumPhaiThanhToan: 0,
+                SumDaThanhToan: 0,
+                SumConNo: 0,
+            },
+            filterThe: {
+                txtSearch: '',
+                currentPage: 0,
+                pageSize: 20,
+                totalPage: 0,
+                isPrev: false,
+                isNext: false,
+                ListPage: [],
+                PageView: '',
+            },
+            filterImg: {
+                data: [],
+                currentPage: 0,
+                pageSize: 20,
+                totalPage: 0,
+                isPrev: false,
+                isNext: false,
+                ListPage: [],
+                PageView: '',
+            },
+            listData: {
+                GoiDichVu: [],
+                NhatKySuDung: [],
+                NhatKyGiaoDich: [],
+                NhatKyTheGiaTri: [],
+                LichSuNapThe: [],
+                NhatKySuDungThe: [],
+                GDV_ThanhPhanDinhLuong: [],
+            }
+        },
+        methods: {
+            GetGoiDichVu_ofKhachHang: function (idCus, idCar = null) {
+                let self = this;
+                self.ID_Customer = idCus;
+                self.ID_Car = idCar;
+                self.GetLisGoiDV_fromDB();
+            },
+            GetNhatKySuDung_GDV: function () {
+                let self = this;
+                if (navigator.onLine) {
+                    // xem all chinhanh (hadt)
+                    let param = {
+                        IDCars: [self.ID_Car],
+                        CurrentPage: self.filterNKy.currentPage,
+                        PageSize: self.filterNKy.pageSize,
+                    }
+                    // neu chua chon xe--> lay nky theo khachhang
+                    if (commonStatisJs.CheckNull(self.ID_Car)) {
+                        param.IDCustomers = [self.ID_Customer];
+                    }
+                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetNhatKySuDung_GDV', 'POST', param).done(function (x) {
+                        let dataS = x.dataSoure;
+                        if (x.res && dataS.data !== null) {
+                            self.listData.NhatKySuDung = dataS.data;
+                            self.filterNKy.ListFilter = dataS.data;
+                            self.filterNKy.ListPage = dataS.listpage;
+                            self.filterNKy.isPrev = dataS.isprev;
+                            self.filterNKy.isNext = dataS.isnext;
+                            self.filterNKy.totalPage = dataS.countpage;
+                            self.filterNKy.PageView = dataS.pageview;
+                        }
+                    });
+                }
+            },
+            ResetNhatKyGiaoDich: function () {
+                let self = this;
+                self.listData.NhatKyGiaoDich = [];
+                self.filterTrans.ListFilter = [];
+                self.filterTrans.ListPage = [];
+                self.filterTrans.isPrev = false;
+                self.filterTrans.isNext = false;
+                self.filterTrans.totalPage = 0;
+                self.filterTrans.PageView = '';
+            },
+            GetNhatKyGiaoDich_ofCus: function () {
+                let self = this;
+                let param = {
+                    IDCars: [self.ID_Car],
+                    LoaiHoaDons: '1,19,25',
+                    CurrentPage: self.filterTrans.currentPage,
+                    PageSize: self.filterTrans.pageSize,
+                }
+                // neu chua chon xe--> lay nky theo khachhang
+                if (commonStatisJs.CheckNull(self.ID_Car)) {
+                    param.IDCustomers = [self.ID_Customer];
+                }
+                if (commonStatisJs.CheckNull(self.ID_Customer)) {
+                    self.ResetNhatKyGiaoDich();
+                    return;
+                }
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetNhatKyGiaoDich_ofCus', 'POST', param).done(function (x) {
+                    let dataS = x.dataSoure;
+                    if (x.res && dataS.data !== null) {
+                        self.listData.NhatKyGiaoDich = dataS.data;
+                        self.filterTrans.ListFilter = dataS.data;
+                        self.filterTrans.ListPage = dataS.listpage;
+                        self.filterTrans.isPrev = dataS.isprev;
+                        self.filterTrans.isNext = dataS.isnext;
+                        self.filterTrans.totalPage = dataS.countpage;
+                        self.filterTrans.PageView = dataS.pageview;
+                    }
+                });
+            },
+            GetLichSuNapTien_ofCus: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.ID_Customer)) {
+                    self.listData.LichSuNapThe = [];
+                    return;
+                }
+                let param = {
+                    IDCustomers: [self.ID_Customer],
+                }
+
+                ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'GetList_LichSuNapTien', 'POST', param).done(function (obj) {
+                    if (obj.res === true) {
+                        self.listData.LichSuNapThe = obj.data;
+                    }
+                });
+            },
+            ResetNKySuDungThe: function () {
+                let self = this;
+                self.listData.NhatKySuDungThe = [];
+                self.filterThe.ListPage = [];
+                self.filterThe.isPrev = false;
+                self.filterThe.isNext = false;
+                self.filterThe.totalPage = 0;
+                self.filterThe.PageView = '';
+            },
+            GetNKy_SuDungTheGiaTri: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.ID_Customer)) {
+                    self.ResetNKySuDungThe();
+                    return;
+                }
+                let param = {
+                    IDChiNhanhs: [self.ID_DonVi],
+                    IDCustomers: [self.ID_Customer],
+                    DateFrom: '2016-01-01',
+                    DateTo: moment(new Date()).format('YYYY-MM-DD'),
+                    CurrentPage: self.filterThe.currentPage,
+                    PageSize: self.filterThe.pageSize,
+                }
+                if (navigator.onLine) {
+                    ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'GetListHisUsed_ValueCard', 'POST', param).done(function (obj) {
+                        if (obj.res === true) {
+                            let dataS = obj.dataSoure;
+                            self.listData.NhatKySuDungThe = dataS.data;
+                            self.filterThe.ListPage = dataS.listpage;
+                            self.filterThe.isPrev = dataS.isprev;
+                            self.filterThe.isNext = dataS.isnext;
+                            self.filterThe.totalPage = dataS.countpage;
+                            self.filterThe.PageView = dataS.pageview;
+
+                            let tongSD = 0, tongnap = 0;
+                            if (self.listData.LichSuNapThe.length > 0) {
+                                tongnap = self.listData.LichSuNapThe[0].SoDuSauNap;
+                            }
+                            if (self.listData.NhatKySuDungThe.length> 0) {
+                                tongSD = self.listData.NhatKySuDungThe[0].TongPhatSinhGiam;
+                            }
+                            self.soduTheGiaTri = tongnap - tongSD;
+                        }
+                    })
+                }
+            },
+
+            GetListImgInvoice_byCus: function () {
+                let self = this;
+                let param = {
+                    TextSearch: self.filterImg.txtSearch,
+                    IDCustomers: [self.ID_Customer],
+                    CurrentPage: self.filterImg.currentPage,
+                    PageSize: self.filterImg.pageSize,
+                }
+
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListImgInvoice_byCus', 'POST', param).done(function (x) {
+                    if (x.res) {
+                        console.log(x)
+                        let dataS = x.dataSoure;
+                        self.filterImg.data = dataS.data;
+                        self.filterImg.ListPage = dataS.listpage;
+                        self.filterImg.isPrev = dataS.isprev;
+                        self.filterImg.isNext = dataS.isnext;
+                        self.filterImg.totalPage = dataS.countpage;
+                        self.filterImg.PageView = dataS.pageview;
+                    }
+                });
+            },
+
+            ListImg_ChangePage: function (value) {
+                let self = this;
+                let currentPage = value.currentPage - 1;
+                if (self.filterImg.currentPage !== currentPage) {
+                    self.filterImg.currentPage = currentPage;
+                    self.GetListImgInvoice_byCus();
+                } else if (self.filterImg.pageSize !== value.pageSize) {
+                    self.filterImg.currentPage = 0;
+                    self.filterImg.pageSize = value.pageSize;
+                    self.GetListImgInvoice_byCus();
+                }
+            },
+            ShowImg: function (item) {
+                vmUpAnhHoaDon.isSaveToTemp = false;
+                vmUpAnhHoaDon.isView = true;
+                vmUpAnhHoaDon.GetListImgInvoiceDB(item.ID, "123");
+                vmUpAnhHoaDon.showModalInsert();
+            },
+
+            GDV_ChangeStatus: function (status) {
+                var self = this;
+                self.filterGDV.Status = status;
+                self.GetLisGoiDV_fromDB();
+            },
+            searchGDV: function () {
+                var self = this;
+                clearTimeout(self.filterGDV.timmer);
+                self.filterGDV.timmer = setTimeout(function () {
+                    self.GetLisGoiDV_fromDB();
+                }, 300);
+            },
+            GetLisGoiDV_fromDB: function () {
+                let self = this;
+                let filter = self.filterGDV.txtSearch;
+                let status = parseInt(self.filterGDV.Status);
+                let from = null, to = null;
+                switch (status) {
+                    case 1:
+                        from = self.Today;
+                        break;
+                    case 2:
+                        to = self.Today;
+                        break;
+                }
+                let param = {
+                    IDCars: [self.ID_Car],
+                    DateFrom: from,
+                    DateTo: to,
+                    TextSearch: filter,
+                }
+                // neu chua chon xe--> lay nky theo khachhang
+                if (commonStatisJs.CheckNull(self.ID_Car)) {
+                    param.IDCustomers = [self.ID_Customer];
+                    param.IDCars = [];
+
+                    if (commonStatisJs.CheckNull(self.ID_Customer)) {
+                        self.listData.GoiDichVu = [];
+                        newModelBanLe.TongGoiDV(0);
+                        return;
+                    }
+                }
+                ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'GetDSGoiDichVu_ofKhachHang', 'POST', param).done(function (x) {
+                    if (x.res) {
+                        let data = x.dataSoure;
+                        self.listData.GoiDichVu = data;
+                        newModelBanLe.TongGoiDV(data.length);
+                        self.GetTPDinhLuong_ofHoaDon();
+                    }
+                });
+            },
+            GetTPDinhLuong_ofHoaDon: function () {
+                let self = this;
+                var lstIDGDV = self.listData.GoiDichVu.map(function (x) {
+                    return x.ID_GoiDV;
+                });
+                let myData = {
+                    lstIDHoaDon: lstIDGDV,
+                }
+                if (lstIDGDV.length > 0) {
+                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetTPDinhLuong_ofHoaDon', 'POST', myData).done(function (x) {
+                        if (x.res) {
+                            let data = x.dataSoure;
+                            self.listData.GDV_ThanhPhanDinhLuong = data;
+                        }
+                    });
+                }
+                else {
+                    self.listData.GDV_ThanhPhanDinhLuong = [];
+                }
+            },
+
+            GVD_ChangeCheckAll: async function (gdv) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+
+                if (isCheck) {
+                    if (self.LoaiNganhNghe === 1) {
+                        let check = self.GDV_CheckUsefromOtherCar(gdv);
+                        if (check) {
+                            ShowMessage_Danger('Vui lòng chỉ sử gói bảo dưỡng trong cùng 1 xe');
+                            return false;
+                        }
+                        check = await self.CheckNotChosePTN(gdv);
+                        if (check === 1) {
+                            ShowMessage_Danger('Vui lòng chọn xe để thực hiện bảo dưỡng');
+                            return false;
+                        }
+                        if (check === 2) {
+                            ShowMessage_Danger('Xe ' + gdv.BienSo + ' hiện tại không có trong xưởng');
+                            return false;
+                        }
+                        if (check == 3) {
+                            ShowMessage_Danger('Gói ' + gdv.MaHoaDon + ' chưa khai báo xe');
+                            return false;
+                        }
+                    }
+                }
+
+                let $tr = $this.closest('table').find('tbody tr');
+                $tr.each(function () {
+                    let chk = $(this).find('input[type=checkbox]');
+                    $(chk).prop('checked', isCheck);
+                })
+
+                if (!isCheck) {
+                    self.ListIDCarChosed = self.ListIDCarChosed.filter(x => x !== gdv.ID_Xe);
+                }
+            },
+            GVD_ChangeCheckItem: async function (item, gdv) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                if (isCheck) {
+                    if (self.LoaiNganhNghe === 1) {
+                        let check = self.GDV_CheckUsefromOtherCar(gdv);
+                        if (check) {
+                            ShowMessage_Danger('Vui lòng chỉ sử gói bảo dưỡng trong cùng 1 xe');
+                            return false;
+                        }
+                        check = await self.CheckNotChosePTN(gdv);
+                        console.log('check ', check)
+                        if (check == 1) {
+                            ShowMessage_Danger('Vui lòng chọn xe để thực hiện bảo dưỡng');
+                            return false;
+                        }
+                        if (check == 2) {
+                            ShowMessage_Danger('Xe ' + gdv.BienSo + ' hiện tại không có trong xưởng');
+                            return false;
+                        }
+                        if (check == 3) {
+                            ShowMessage_Danger('Gói ' + gdv.MaHoaDon + ' chưa khai báo xe');
+                            return false;
+                        }
+                    }
+                    if (item.SoLuongConLai <= 0) {
+                        ShowMessage_Danger('Dịch vụ "' + item.TenHangHoa + '" đã dùng hết số buổi');
+                        return false;
+                    }
+                }
+
+                // count check in this gdv
+                let count = 0;
+                let $tr = $this.closest('table').find('tbody tr');
+                $tr.each(function () {
+                    let chk = $(this).find('input[type=checkbox]');
+                    if (chk.is(':checked')) {
+                        count += 1;
+                    }
+                })
+                if (count === 0) {
+                    self.ListIDCarChosed = self.ListIDCarChosed.filter(x => x !== gdv.ID_Xe);
+                }
+            },
+            GDV_CheckUsefromOtherCar: function (gdv) {
+                let self = this;
+                if ($.inArray(gdv.ID_Xe, self.ListIDCarChosed) === -1) {
+                    if (self.ListIDCarChosed.length > 0) {
+                        return true;
+                    }
+                    self.ListIDCarChosed.push(gdv.ID_Xe);
+                }
+                return false;
+            },
+            CheckNotChosePTN: async function (gdv) {
+                let self = this;
+                if (commonStatisJs.CheckNull(gdv.ID_Xe)) {
+                    return 3;
+                }
+                // 0. thoaman dk, 1.chua chonxe, 2.chua tiepnhan
+                if (!commonStatisJs.CheckNull(gdv.ID_Xe) && commonStatisJs.CheckNull(self.ID_Car)) {
+                    return 1;
+                }
+
+                // xe chua tiep nhan
+                var xx = await $.getJSON('/api/DanhMuc/GaraAPI/' + 'GDV_CheckXeDangTiepNhan?idXe=' + gdv.ID_Xe
+                    + '&idDonVi=' + self.ID_DonVi).done(function (x) {
+                    }).then(function (x) {
+                        if (x.res) {
+                            if (x.dataSoure.length === 0) {
+                                return 2;
+                            }
+                            else {
+                                return 0;
+                            }
+                        }
+                    })
+                return xx;
+            },
+
+            NKSD_search: function () {
+                let self = this;
+                let txt = locdau(self.filterNKy.txtSearch);
+                if (txt === '') {
+                    self.filterNKy.ListFilter = $.extend([], true, self.listData.NhatKySuDung);
+                }
+                let arr = $.grep(self.listData.NhatKySuDung, function (x) {
+                    return locdau(x.MaHoaDon).indexOf(txt) > -1
+                        || locdau(x.MaHangHoa).indexOf(txt) > -1
+                        || locdau(x.TenHangHoa).indexOf(txt) > -1
+                        || locdau(x.TenHangHoa_KhongDau).indexOf(txt) > -1
+
+                })
+
+                let sumSLuong = 0, sumHoaHong = 0;
+                for (let i = 0; i < arr.length; i++) {
+                    sumSLuong += arr[i].SoLuong;
+                    sumHoaHong += arr[i].TongChietKhau;
+                }
+                if (arr.length > 0) {
+                    arr[0].TongSoLuong = sumSLuong;
+                    arr[0].SumHoaHong = sumHoaHong;
+                }
+                self.filterNKy.ListFilter = arr;
+            },
+            NKSD_ChangePage: function (value) {
+                let self = this;
+                let currentPage = value.currentPage - 1;
+                if (self.filterNKy.currentPage !== currentPage) {
+                    self.filterNKy.currentPage = currentPage;
+                    self.GetNhatKySuDung_GDV();
+                } else if (self.filterNKy.pageSize !== value.pageSize) {
+                    self.filterNKy.pageSize = value.pageSize;
+                    self.GetNhatKySuDung_GDV();
+                }
+            },
+
+            NKGD_search: function () {
+                let self = this;
+                let txt = locdau(self.filterTrans.txtSearch);
+                if (txt === '') {
+                    self.filterTrans.ListFilter = $.extend([], true, self.listData.NhatKyGiaoDich);
+                }
+                let arr = $.grep(self.listData.NhatKyGiaoDich, function (x) {
+                    return locdau(x.MaHoaDon).indexOf(txt) > -1
+                        || locdau(x.MaPhieuThu).indexOf(txt) > -1
+                })
+
+                let sumTongMua = 0, sumTongTra = 0, sumPhaiTT = 0, sumDaTT = 0, sumConNo = 0;
+                for (let i = 0; i < arr.length; i++) {
+                    sumTongMua += arr[i].TongMua;
+                    sumTongTra += arr[i].TongTra;
+                    sumPhaiTT += arr[i].PhaiThanhToan;
+                    sumDaTT += arr[i].DaThanhToan;
+                }
+                sumConNo = sumPhaiTT - sumDaTT;
+
+                if (arr.length > 0) {
+                    arr[0].SumTongMua = sumTongMua;
+                    arr[0].SumTongTra = sumTongTra;
+                    arr[0].SumPhaiThanhToan = sumPhaiTT;
+                    arr[0].SumDaThanhToan = sumDaTT;
+                    arr[0].SumConNo = sumConNo;
+                }
+                self.filterTrans.ListFilter = arr;
+            },
+            NKGD_ChangePage: function (value) {
+                let self = this;
+                let currentPage = value.currentPage - 1;
+                if (self.filterTrans.currentPage !== currentPage) {
+                    self.filterTrans.currentPage = currentPage;
+                    self.GetNhatKyGiaoDich_ofCus();
+                } else if (self.filterTrans.pageSize !== value.pageSize) {
+                    self.filterTrans.pageSize = value.pageSize;
+                    self.GetNhatKyGiaoDich_ofCus();
+                }
+            },
+            NKTGT_ChangePage: function (value) {
+                let self = this;
+                let currentPage = value.currentPage - 1;
+                if (self.filterThe.currentPage !== currentPage) {
+                    self.filterThe.currentPage = currentPage;
+                    self.GetNKy_SuDungTheGiaTri();
+                } else if (self.filterThe.pageSize !== value.pageSize) {
+                    self.filterThe.pageSize = value.pageSize;
+                    self.GetNKy_SuDungTheGiaTri();
+                }
+            },
+
+            showModal: function (idCus, idCar = null, nganhnghe = 0) {
+                let self = this;
+                self.saveOK = false;
+                self.LoaiNganhNghe = nganhnghe;
+                self.ID_Customer = idCus;
+                self.ID_Car = idCar;
+                self.ListDichVuChosed = [];
+                self.ListIDCarChosed = [];
+                self.GetNhatKySuDung_GDV();
+                self.GetNhatKyGiaoDich_ofCus();
+                self.GetLichSuNapTien_ofCus();
+                self.GetNKy_SuDungTheGiaTri();
+                self.GetListImgInvoice_byCus();
+                $('#vmNKGoiBaoDuong').modal('show');
+            },
+            Agree: function () {
+                let self = this;
+                self.saveOK = true;
+                let arrID = [];
+                $('.table-dich-vu tbody input[type=checkbox]').each(function (index) {
+                    if ($(this).is(":checked")) {
+                        arrID.push($(this).attr('id'));
+                    }
+                });
+                for (let i = 0; i < self.listData.GoiDichVu.length; i++) {
+                    let for1 = self.listData.GoiDichVu[i];
+                    for (let j = 0; j < for1.lstDetail.length; j++) {
+                        let for2 = for1.lstDetail[j];
+                        for (let k = 0; k < for2.ComBo.length; k++) {
+                            let for3 = for2.ComBo[k];
+                            if ($.inArray(for3.ID_ChiTietGoiDV, arrID) > -1) {
+                                let tpdluong = $.grep(self.listData.GDV_ThanhPhanDinhLuong, function (x) {
+                                    return x.ID_ChiTietDinhLuong === for3.ID_ChiTietGoiDV;
+                                });
+
+                                if (for3.LoaiHangHoa === 3) {
+                                    let lstComBo = [];
+                                    // combo lồng combo (tpdl la combo)
+                                    for (let m = 0; m < tpdluong.length; m++) {
+                                        let combo = $.extend({}, true, tpdluong[m]);
+                                        combo.SoThuTu = k + 1;
+                                        combo.LoaiHoaDon = self.LoaiNganhNghe === 0 ? 1 : 25;
+                                        combo.IDRandom = CreateIDRandom('Combo_');
+                                        combo.DonGia = combo.GiaBan;
+                                        combo.GhiChuHH = combo.GhiChu;
+                                        combo.QuanLyTheoLoHang = combo.ID_LoHang !== null;
+                                        combo.LoaiHangHoa = combo.LaHangHoa ? 1 : 2;
+                                        combo.SoLuongQuyCach = RoundDecimal(combo.SoLuong * combo.QuyCach, 3);
+                                        combo.SoLuongMacDinh = RoundDecimal(tpdluong[m].SoLuong / for3.SoLuongMua, 3);
+                                        combo.SoLuong = combo.SoLuongMacDinh;
+                                        combo.ThoiGian = moment(new Date()).format('YYYY-MM-DD HH:mm')
+
+                                        combo.TonKho = 0;
+                                        combo.PTChietKhau = 0;
+                                        combo.TienChietKhau = 0;
+                                        combo.PTThue = 0;
+                                        combo.TienThue = 0;
+                                        combo.ThanhTien = 0;
+                                        combo.ThanhToan = 0;
+                                        combo.SoLuongDaMua = 0;
+                                        combo.PhiDichVu = 0;
+                                        combo.LaPTPhiDichVu = false;
+                                        combo.TongPhiDichVu = 0;
+                                        combo.ThoiGianThucHien = 0;
+                                        combo.ChatLieu = '4';
+
+                                        combo.TyLeChuyenDoi = 1;
+                                        combo.DiemKhuyenMai = 0;
+                                        combo.LaDonViChuan = true;
+                                        combo.ThoiGianBaoHanh = 0;
+                                        combo.LoaiThoiGianBH = 0;
+                                        combo.TimeStart = 0;
+                                        combo.QuaThoiGian = 0;
+                                        combo.TimeRemain = 0;
+                                        combo.DonGiaBaoHiem = 0;
+
+                                        combo.GhiChu_NVThucHien = '';
+                                        combo.GhiChu_NVTuVan = '';
+                                        combo.GhiChu_NVThucHienPrint = '';
+                                        combo.GhiChu_NVTuVanPrint = '';
+                                        combo.TenNhomHangHoa = '';
+                                        combo.ThuocTinh_GiaTri = '';
+                                        combo.TenHangHoaThayThe = '';
+                                        combo.TenViTri = '';
+
+                                        combo.ID_ChiTietDinhLuong = null;
+                                        combo.ID_KhuyenMai = null;
+                                        combo.ID_TangKem = null;
+                                        combo.ID_HangHoa = null;
+                                        combo.ID_NhomHangHoa = null;
+                                        combo.ID_BaoDuong = null;
+                                        combo.ID_ViTri = null;
+
+                                        combo.CssWarning = false;
+                                        combo.IsKhuyenMai = false;
+                                        combo.IsOpeningKMai = false;
+                                        combo.TangKem = false;
+                                        combo.LotParent = false;
+                                        combo.LaConCungLoai = false;
+                                        combo.ShowWarningQuyCach = false;
+                                        combo.DuocTichDiem = false;
+                                        combo.DichVuTheoGio = false;
+
+                                        combo.HangHoa_KM = [];
+                                        combo.DM_LoHang = [];
+                                        combo.BH_NhanVienThucHien = [];
+                                        combo.ListDonViTinh = [];
+                                        combo.ThanhPhan_DinhLuong = [];
+                                        combo.HangCungLoais = [];
+                                        lstComBo.push(combo);
+                                    }
+                                    for3.ThanhPhanComBo = lstComBo;
+                                    for3.ThanhPhan_DinhLuong = [];
+                                    console.log('tpcombo_longcombo ', tpdluong)
+                                }
+                                else {
+                                    for (let m = 0; m < tpdluong.length; m++) {
+                                        tpdluong[m].STT = k + 1;
+                                        tpdluong[m].isDefault = false;
+                                        tpdluong[m].IDRandom = CreateIDRandom('TPDL_');
+                                        tpdluong[m].SoLuongQuyCach = RoundDecimal(tpdluong[m].SoLuong * tpdluong[m].QuyCach, 3);
+                                        tpdluong[m].SoLuongDinhLuong_BanDau = RoundDecimal(tpdluong[m].SoLuong / for3.SoLuongMua, 3);
+                                        tpdluong[m].SoLuongMacDinh = RoundDecimal(tpdluong[m].SoLuong / for3.SoLuongMua, 3);
+                                        tpdluong[m].GiaVonAfter = RoundDecimal(tpdluong[m].SoLuong * tpdluong[m].GiaVon, 3);
+                                    }
+                                    for3.ThanhPhan_DinhLuong = tpdluong;
+                                    for3.ThanhPhanComBo = [];
+                                }
+                                self.ListDichVuChosed.push(for3);
+                            }
+                        }
+                    }
+                }
+                $('#vmNKGoiBaoDuong').modal('hide');
+            },
+            showInforHoaDon: function (id) {
+                vmChiTietHoaDon.showModalChiTietHoaDon(id, 3);// 3.open from gara, banle
+            },
+        },
+        computed: {
+
+        }
+    })
+</script>
+

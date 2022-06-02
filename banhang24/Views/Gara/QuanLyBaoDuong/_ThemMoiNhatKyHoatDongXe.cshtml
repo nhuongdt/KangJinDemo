@@ -1,0 +1,313 @@
+﻿<div class="modal fade" id="ThemMoiNhatKyHoatDong">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{isNew ? "Thêm mới" : "Cập nhật" }} nhật ký hoạt động
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body" style="padding:15px">
+                <div class="container-fluid flex flex-between">
+                    <div class="flex flex-column gara-detail-sections">
+                        <div class="flex flex-row floatleft" style="border-bottom: 1px solid #ccc; width: 100%; padding: 5px 0 5px 10px;">
+                            <label style="margin-right:5px; width:150px;">Thông tin hoạt động</label>
+                            <label class="control-label ">
+                                <input type="checkbox" v-model="NhatKyHoatDong.LaNhanVien" style="position:relative" disabled>
+                                Là nhân viên
+                            </label>
+                        </div>
+                        <div class="row padding-10">
+                            <div class="floatleft">
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft" v-if="NhatKyHoatDong.LaNhanVien">
+                                        <label class="control-label">NV thực hiện<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <nhanviens :text-search="NhanVien.TenNhanVien"
+                                                       :staffs="NhanVien.ListNhanVien"
+                                                       :search-list="NhanVien.ListNhanVien"
+                                                       v-on:reset-item-chose="ResetNhanVien"
+                                                       v-on:change-staff-parent="ChangeNhanVienNhan">
+                                            </nhanviens>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group floatleft" v-if="!NhatKyHoatDong.LaNhanVien">
+                                        <label class="control-label">Khách hàng <span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <input class="form-control" v-model="NhatKyHoatDong.TenKhachHang" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Thời gian<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <cp-ngaygiao :date-chose="NhatKyHoatDong.ThoiGian"
+                                                         :role-change-date="true"
+                                                         v-on:change-date="ChangeThoiGian">
+                                            </cp-ngaygiao>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft">
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Số giờ hoạt động</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" v-model="NhatKyHoatDong.SoGioHoatDong" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Số km hiện tại</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" v-model="NhatKyHoatDong.SoKmHienTai" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft">
+                                <div class="col-lg-12 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Ghi chú</label>
+                                        <div class="form-news">
+                                            <textarea rows="2" style="resize:none" v-model="NhatKyHoatDong.GhiChu"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-save" v-on:click="SaveData()" v-bind:disabled="isSaving">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-on:click="SaveData(true)" v-if="isNew" v-bind:disabled="isSaving">
+                        <i class="fa fa-save"></i>
+                        Lưu và hoàn thành
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vNhatKyHoatDongXe = new Vue({
+        el: "#ThemMoiNhatKyHoatDong",
+        components: {
+            'cp-ngaygiao': cpmDatetime,
+            'nhanviens': ComponentChoseStaff,
+        },
+        data: {
+            UrlApi: {
+                GaraApi: '/api/GaraAPI/'
+            },
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+                TenNhanVien: '',
+            },
+            NhatKyHoatDong: {
+                Id: null,
+                LaNhanVien: false,
+                IdKhachHang: null,
+                IdNhanVien: null,
+                ThoiGian: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                SoGioHoatDong: 0,
+                SoKmHienTai: 0,
+                MaKhachHang: '',
+                TenKhachHang: '',
+                IdPhieuBanGiao: null,
+                GhiChu: '',
+                MaPhieuBanGiao: ''
+            },
+            NhanVien: {
+                Id: null,
+                MaNhanVien: '',
+                TenNhanVien: '',
+                ListNhanVien: []
+            },
+            isNew: true,
+            isSaving: false
+        },
+        methods: {
+            showModal: function (isNew = true) {
+                let self = this;
+                self.isNew = isNew;
+                if (isNew) {
+                    self.NhatKyHoatDong.SoGioHoatDong = 0;
+                    self.NhatKyHoatDong.SoKmHienTai = 0;
+                    self.NhatKyHoatDong.ThoiGian = moment(new Date()).format('YYYY-MM-DD HH:mm');
+                    self.NhatKyHoatDong.GhiChu = '';
+                }
+                $("#ThemMoiNhatKyHoatDong").modal('show');
+            },
+            ChangeThoiGian: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                self.NhatKyHoatDong.ThoiGian = dt;
+            },
+            ChangeNhanVienNhan: function (item) {
+                let self = this;
+                self.NhatKyHoatDong.IdNhanVien = item.ID;
+                self.NhanVien.Id = item.ID;
+                self.NhanVien.MaNhanVien = item.MaNhanVien;
+                self.NhanVien.TenNhanVien = item.TenNhanVien;
+            },
+            ResetNhanVien: function () {
+                let self = this;
+                self.NhanVien.Id = null;
+                self.NhanVien.TenNhanVien = "";
+                self.NhanVien.SoDienThoai = "";
+                self.NhatKyHoatDong.IdNhanVien = null;
+            },
+            SaveData: function (hoanthanh = false) {
+                //savedata
+                let self = this;
+                if (self.NhatKyHoatDong.LaNhanVien) {
+                    if (self.NhatKyHoatDong.IdNhanVien === null || self.NhatKyHoatDong.IdNhanVien === '' || self.NhatKyHoatDong.IdNhanVien === undefined) {
+                        commonStatisJs.ShowMessageDanger('Chưa chọn nhân viên nhận, vui lòng thử lại.');
+                        return false;
+                    }
+                }
+                else {
+                    if (self.NhatKyHoatDong.IdKhachHang === null || self.NhatKyHoatDong.IdKhachHang === '' || self.NhatKyHoatDong.IdKhachHang === undefined) {
+                        commonStatisJs.ShowMessageDanger('Chưa chọn khách hàng nhận, vui lòng thử lại.');
+                        return false;
+                    }
+                }
+                if (self.NhatKyHoatDong.ThoiGian === null || self.NhatKyHoatDong.ThoiGian === '' || self.NhatKyHoatDong.ThoiGian === undefined) {
+                    commonStatisJs.ShowMessageDanger('Chưa chọn thời gian, vui lòng thử lại.');
+                    return false;
+                }
+                self.isSaving = true;
+                let mydata = {};
+                mydata.IdPhieuBanGiao = self.NhatKyHoatDong.IdPhieuBanGiao;
+                mydata.IdNhanVienThucHien = self.NhatKyHoatDong.IdNhanVien;
+                mydata.IdKhachHang = self.NhatKyHoatDong.IdKhachHang;
+                mydata.LaNhanVien = self.NhatKyHoatDong.LaNhanVien;
+                mydata.ThoiGianHoatDong = self.NhatKyHoatDong.ThoiGian;
+                mydata.SoGioHoatDong = self.NhatKyHoatDong.SoGioHoatDong;
+                mydata.SoKmHienTai = self.NhatKyHoatDong.SoKmHienTai;
+                mydata.GhiChu = self.NhatKyHoatDong.GhiChu;
+                mydata.UserName = self.inforLogin.UserLogin;
+                if (self.isNew) {
+                    $.ajax({
+                        url: self.UrlApi.GaraApi + "POST_NhatKyHoatDong",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: mydata,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+                    }).done(function (result) {
+                        if (result.res) {
+                            self.NhatKyHoatDong.Id = result.dataSoure.Id;
+                            self.SaveNhatKy();
+                            VueBanGiaoXe.LoadNhatKyHoatDongByPhieuBanGiao();
+                            commonStatisJs.ShowMessageSuccess('Thêm mới nhật ký hoạt động thành công.');
+                            if (hoanthanh) {
+                                vTiepNhanXeHoatDong.ThongTinNhanXe.Id = self.NhatKyHoatDong.IdPhieuBanGiao;
+                                vTiepNhanXeHoatDong.ThongTinNhanXe.MaPhieuBanGiao = self.NhatKyHoatDong.MaPhieuBanGiao;
+                                vTiepNhanXeHoatDong.showModal();
+                            }
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger(result.mess);
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Thêm mới nhật ký hoạt động thất bại.');
+                    }).always(function () {
+                        self.isSaving = false;
+                        $("#ThemMoiNhatKyHoatDong").modal('hide');
+                    });
+                }
+                else {
+                    mydata.Id = self.NhatKyHoatDong.Id;
+                    $.ajax({
+                        url: self.UrlApi.GaraApi + "PUT_NhatKyHoatDong",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: mydata,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+                    }).done(function (result) {
+                        if (result.res) {
+                            self.SaveNhatKy();
+                            VueBanGiaoXe.LoadNhatKyHoatDongByPhieuBanGiao();
+                            commonStatisJs.ShowMessageSuccess('Cập nhật nhật ký hoạt động thành công.');
+                            if (hoanthanh) {
+                                vTiepNhanXeHoatDong.ThongTinNhanXe.Id = self.NhatKyHoatDong.IdPhieuBanGiao;
+                                vTiepNhanXeHoatDong.ThongTinNhanXe.MaPhieuBanGiao = self.NhatKyHoatDong.MaPhieuBanGiao;
+                                vTiepNhanXeHoatDong.showModal();
+                            }
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger(result.mess);
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Cập nhật nhật ký hoạt động thất bại.');
+                    }).always(function () {
+                        self.isSaving = false;
+                        $("#ThemMoiNhatKyHoatDong").modal('hide');
+                    });
+                }
+            },
+            SaveNhatKy: function () {
+                let self = this;
+                let nhatky = {};
+                nhatky.ID_NhanVien = self.inforLogin.ID_NhanVien;
+                nhatky.ChucNang = "Phiếu bàn giao xe";
+                if (self.isNew) {
+                    nhatky.NoiDung = "Thêm mới nhật ký hoạt động: " + self.NhatKyHoatDong.Id;
+                    nhatky.NoiDungChiTiet = "Thêm mới phiếu bàn giao: " + self.NhatKyHoatDong.Id + "<br/>"
+                        + "Thời gian: " + self.NhatKyHoatDong.ThoiGian + "<br/>"
+                        + "Người thực hiện: " + (self.NhatKyHoatDong.LaNhanVien ? "Nhân viên " + self.NhanVien.MaNhanVien + " - " + self.NhanVien.TenNhanVien : "Khách hàng " + self.NhatKyHoatDong.MaDoiTuong + " - " + self.NhatKyHoatDong.TenDoiTuong) + "<br/>"
+                        + "Số km hiện tại: " + self.NhatKyHoatDong.SoKmHienTai + "<br/>"
+                        + "Số giờ hoạt động: " + self.NhatKyHoatDong.SoGioHoatDong + "<br/>"
+                        + "Ghi chú: " + self.NhatKyHoatDong.GhiChu + "<br/>"
+                        + "Người thêm mới: " + self.inforLogin.UserLogin;
+                    nhatky.LoaiNhatKy = 1;
+                }
+                else {
+                    nhatky.NoiDung = "Cập nhật nhật ký hoạt động: " + self.NhatKyHoatDong.Id;
+                    nhatky.NoiDungChiTiet = "Cập nhật nhật ký hoạt động: " + self.NhatKyHoatDong.Id + " theo thông tin mới<br/>"
+                        + "Thời gian: " + self.NhatKyHoatDong.ThoiGian + "<br/>"
+                        + "Người thực hiện: " + (self.NhatKyHoatDong.LaNhanVien ? "Nhân viên " + self.NhanVien.MaNhanVien + " - " + self.NhanVien.TenNhanVien : "Khách hàng " + self.NhatKyHoatDong.MaDoiTuong + " - " + self.NhatKyHoatDong.TenDoiTuong) + "<br/>"
+                        + "Số km hiện tại: " + self.NhatKyHoatDong.SoKmHienTai + "<br/>"
+                        + "Số giờ hoạt động: " + self.NhatKyHoatDong.SoGioHoatDong + "<br/>"
+                        + "Ghi chú: " + self.NhatKyHoatDong.GhiChu + "<br/>"
+                        + "Người cập nhật: " + self.inforLogin.UserLogin;
+                    nhatky.LoaiNhatKy = 2;
+                }
+                nhatky.ID_DonVi = self.inforLogin.ID_DonVi;
+                Insert_NhatKyThaoTac_1Param(nhatky);
+            }
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_User: VHeader.IdNguoiDung,
+                UserLogin: VHeader.UserLogin,
+                ID_DonVi: VHeader.IdDonVi,
+                TenNhanVien: VHeader.TenNhanVien,
+            };
+            ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + self.inforLogin.ID_DonVi, 'GET').done(function (data) {
+                self.NhanVien.ListNhanVien = data;
+            });
+        }
+    })
+</script>

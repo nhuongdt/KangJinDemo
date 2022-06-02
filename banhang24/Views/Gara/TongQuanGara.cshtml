@@ -1,0 +1,1360 @@
+﻿@{
+    Layout = null;
+}
+<head>
+    <script src="~/Content/js/Chart.bundle.js"></script>
+    <title>Open24- Tổng quan Gara</title>
+    <link rel="stylesheet" type="text/css" href="~/Content/dcalendar.picker.css">
+    <script type="text/javascript" src="~/Content/js/dcalendar.picker.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        html {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .gara-dropdown-picker.dropdown-menu > a {
+            line-height: 24px;
+            color: #686868;
+        }
+        #optionsChartType + .dropdown-menu {
+            overflow: initial;
+        }
+        span.date.in-range {
+            background: pink;
+        }
+
+        #optionsByDay ul label {
+            padding-left: 5px;
+        }
+
+        .calendar {
+            width: 100%;
+        }
+
+        .calendar-wrapper {
+            width: 100%;
+        }
+
+        .calendar-container {
+            border-radius: 5px;
+            padding: 5px;
+            height: 280px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-date-holder {
+            width: 100% !important;
+        }
+
+        .calendar-wrapper[data-theme='blue'] .calendar-date-holder .calendar-dates .date.selected a {
+            background-color: var(--color-primary);
+        }
+
+        .calendar-date-holder .calendar-dates .date:not(.disabled):not(.selected) a:hover {
+            border-color: var(--color-primary);
+        }
+
+        .calendar-wrapper[data-theme='blue'] .calendar-date-holder .calendar-dates .date.current a {
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    @Html.Action("_PopupNotificationPartial", "Shared")
+    <div class="container-fluid" id="Gara_Tongquan"
+         v-if="VHeader.Quyen.indexOf('TongQuan_XemDS_PhongBan') > -1 || VHeader.Quyen.indexOf('TongQuan_XemDS_HeThong') > -1">
+        <div class="flex container-fluid op-header-title">
+            <i class="font-14 lineHeight-24">
+                <b>Xin chào:</b>
+                <span class="font-main-color">{{TenNhanVien}}</span>
+            </i>
+        </div>
+        <div class="container-fluid gara-tongquan-body row">
+            <div class="col-md-9 col-xs-12">
+                <div class="gara-tongquan-summary flex flex-row flex-wrap">
+                    <div class="gara-tongquan-chart position-relative padding-20">
+                        <div class="flex flex-between">
+                            <b class="font-14">Trạng thái xưởng</b>
+                            <div>
+                                <div class="gara-dropdown">
+                                    <a class="gara-dropwdown-toggle" aria-haspopup="true" aria-expanded="false" v-on:click="SelectTarget('TrangThai')">
+                                        {{ ChiNhanhTrangThai.filter(p=>p.Checked === true).length === 1 ? ChiNhanhTrangThai.filter(p=>p.Checked === true)[0].Value2 : ChiNhanhTrangThai.filter(p=>p.Checked === true).length === 0 ? 'Chi nhánh' : 'Chi nhánh (' + ChiNhanhTrangThai.filter(p=>p.Checked === true).length + ')' }}
+                                        <i class="fa fa-chevron-down"></i>
+                                    </a>
+                                    <dropdown-picker placeholder="Tìm chi nhánh" v-bind:listdata="ChiNhanhTrangThai"></dropdown-picker>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="position-relative">
+                            <img src="~/Content/images/Gara/op-gara-summary.png" alt="Trạng thái xưởng" style="width:100%; padding:40px 15px 15px 15px; object-fit:scale-down" />
+                            <div class="font-32 text-align-centet">
+                                <b class="font-42 ">{{dataTrangThaiXuong.DangSua + dataTrangThaiXuong.ChoXuatXuong}}</b>
+                                <span class="font-12">xe</span>
+                            </div>
+                        </div>
+                        <div class="gara-tongquan-status" style="padding: 15px 20px">
+                            <div class="component flex flex-column">
+                                <div>
+                                    <span>Đang sửa</span><label class="font-main-color">{{dataTrangThaiXuong.DangSua}}</label>
+                                </div>
+                            </div>
+                            <div class="component flex flex-column">
+                                <div>
+                                    <span>Chờ xuất xưởng</span><label class="font-main-color">{{dataTrangThaiXuong.ChoXuatXuong}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" gara-tongquan-report">
+                        <div class="flex flex-between">
+                            <label class="font-14">Doanh thu / Công nợ / Thu chi</label>
+                            <div class="flex">
+                                <div class="gara-dropdown">
+                                    <a class="gara-dropwdown-toggle" aria-haspopup="true" aria-expanded="false" v-on:click="SelectTarget('CongNo')">
+                                        {{ ChiNhanhCongNo.filter(p=>p.Checked === true).length === 1 ? ChiNhanhCongNo.filter(p=>p.Checked === true)[0].Value2 : ChiNhanhCongNo.filter(p=>p.Checked === true).length === 0 ? 'Chi nhánh' : 'Chi nhánh (' + ChiNhanhCongNo.filter(p=>p.Checked === true).length + ')' }}
+                                        <i class="fa fa-chevron-down"></i>
+                                    </a>
+                                    <dropdown-picker placeholder="Tìm chi nhánh" v-bind:listdata="ChiNhanhCongNo"></dropdown-picker>
+                                </div>
+                                <div class="gara-dropdown">
+                                    <a class="gara-dropwdown-toggle" aria-haspopup="true" aria-expanded="false">
+                                        {{TongQuanDoanhThuCongNo.Text}}
+                                        <i class="fa fa-chevron-down"></i>
+                                    </a>
+                                    <div class="gara-dropdown-picker gara-timer">
+                                        <div class="gara-timer-panel flex " style="display:flex !important">
+                                            <div>
+                                                <label>
+                                                    Theo ngày và tuần
+                                                </label>
+                                                <ul class="gara-dropdown-picker-list">
+                                                    <li class="dropdown-item" v-on:click="SelectDate(1)">
+                                                        <a>Hôm nay</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(2)">
+                                                        <a>Hôm qua</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(3)">
+                                                        <a>Tuần này</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(4)">
+                                                        <a>Tuần trước</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <label>
+                                                    Theo tháng và quý
+                                                </label>
+                                                <ul class="gara-dropdown-picker-list">
+                                                    <li class="dropdown-item" v-on:click="SelectDate(5)">
+                                                        <a>Tháng này</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(6)">
+                                                        <a>Tháng trước</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(7)">
+                                                        <a>Quý này</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(8)">
+                                                        <a>Quý trước</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <label>
+                                                    Theo năm
+                                                </label>
+                                                <ul class="gara-dropdown-picker-list">
+                                                    <li class="dropdown-item" v-on:click="SelectDate(9)">
+                                                        <a>Năm này</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(10)">
+                                                        <a>Năm trước</a>
+                                                    </li>
+                                                    <li class="dropdown-item" v-on:click="SelectDate(0)">
+                                                        <a>Toàn thời gian</a>
+                                                    </li>
+                                                    <li class="dropdown-item" onclick="GaraShowCustomTimer()">
+                                                        <a>Tùy chọn</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="gara-timer-panel gara-timer-custom" style="display:none" hidden id="garaCustomeDatePicker">
+                                            <div style="width:unset;" class="flex flex-column">
+                                                <div class="flex flex-between align-items-center border-bottom-default">
+                                                    <a style=" display: inline-flex; align-items: center;" onclick="GaraHideCustomTimer()"><i class="material-icons">chevron_left</i>Quay lại</a>
+                                                    <label>Chọn ngày</label>
+                                                    <a style="width:auto" v-on:click="SelectDate(11)">Xong</a>
+                                                </div>
+                                                <div class="flex flex-between flex-row" style="width:600px">
+                                                    <table id="dateStart" data-rangeto="#dateEnd" style="width:50%"></table>
+                                                    <table id="dateEnd" data-rangefrom="#dateStart" style="width:50%"></table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gara-panel col-md-6 col-sm-6 col-xs-12">
+                            <div class="gara-panel-container">
+                                <div class="gara-panel-main flex">
+                                    <div>
+                                        <img src="~/Content/images/Gara/DoanhThuIcon.svg" alt="Doanh Thu Icon">
+                                    </div>
+                                    <div class="min-width-100px">
+                                        <label>Doanh thu</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.DoanhThu.TongDoanhThu)}}</h4>
+                                    </div>
+                                    <div v-if="TongQuanDoanhThuCongNo.DoanhThu.PhanTram !== 0">
+                                        <label></label>
+                                    </div>
+                                </div>
+                                <div class="gara-panel-sub">
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Sửa chữa</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.DoanhThu.SuaChua.DoanhThu)}}</h4>
+                                    </div>
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Bán hàng</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.DoanhThu.BanHang.DoanhThu)}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gara-panel col-md-6 col-sm-6 col-xs-12">
+                            <div class="gara-panel-container">
+                                <div class="gara-panel-main flex">
+                                    <div>
+                                        <img src="~/Content/images/Gara/CongnoIcon.svg" alt="Công nợ Icon">
+                                    </div>
+                                    <div class="min-width-100px">
+                                        <label>Công nợ</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.CongNo.TongCongNo)}}</h4>
+                                    </div>
+                                    <div v-if="TongQuanDoanhThuCongNo.CongNo.PhanTram !== 0">
+                                        <label></label>
+                                    </div>
+                                </div>
+                                <div class="gara-panel-sub">
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Phải thu</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.CongNo.PhaiThu.CongNo)}}</h4>
+                                    </div>
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Phải trả</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.CongNo.PhaiTra.CongNo)}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gara-panel col-md-6 col-sm-6 col-xs-12">
+                            <div class="gara-panel-container">
+                                <div class="gara-panel-main">
+                                    <div>
+                                        <img src="~/Content/images/Gara/TienThuIcon.svg" alt="Tiền thu icon">
+                                    </div>
+                                    <div class="min-width-100px">
+                                        <label>Tiền thu</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.TienThu.TongTienThu)}}</h4>
+                                    </div>
+                                    <div v-if="TongQuanDoanhThuCongNo.TienThu.PhanTram !== 0">
+                                        <label></label>
+                                    </div>
+                                </div>
+                                <div class="gara-panel-sub">
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Tiền mặt</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.TienThu.TienMat.TienThu)}}</h4>
+                                    </div>
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Ngân hàng</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.TienThu.NganHang.TienThu)}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gara-panel col-md-6 col-sm-6 col-xs-12">
+                            <div class="gara-panel-container">
+                                <div class="gara-panel-main">
+                                    <div>
+                                        <img src="~/Content/images/Gara/TienChiIcon.svg" alt="Tiền chi Icon">
+                                    </div>
+                                    <div>
+                                        <label class="min-width-100px">Tiền chi</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.TienChi.TongTienChi)}}</h4>
+                                    </div>
+                                    <div v-if="TongQuanDoanhThuCongNo.TienChi.PhanTram !== 0">
+                                        <label></label>
+                                    </div>
+                                </div>
+                                <div class="gara-panel-sub">
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Tiền mặt</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.TienChi.TienMat.TienChi)}}</h4>
+                                    </div>
+                                    <div class="col-md-6 col-xs-6">
+                                        <label>Ngân hàng</label>
+                                        <h4>{{commonStatisJs.FormatNumber3Digit(TongQuanDoanhThuCongNo.TienChi.NganHang.TienChi)}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gara-tongquan-graph">
+                        <div class="flex flex-between" style="flex-wrap:wrap">
+                            <div class="flex flex-row">
+                                <label class="active">
+                                    <a onclick="garaGraph(this,1)">Doanh thu thuần </a>
+                                </label>
+                                <label>
+                                    <a onclick="garaGraph(this, 2)">Doanh thu thực </a>
+                                </label>
+                            </div>
+                            <script>
+                                function garaGraph(ele, options) {
+                                    if (vGaraTongQuan.BieuDo.ThuanThuc !== options) {
+                                        vGaraTongQuan.BieuDo.ThuanThuc = options;
+                                        $(ele).parent().siblings().removeClass('active');
+                                        $(ele).parent().addClass('active');
+                                        switch (options) {
+                                            case 1:
+                                                vGaraTongQuan.LoadBieuDoDoanhThu();
+                                                $("#DoanhThuThuanChart").siblings().hide();
+                                                $("#DoanhThuThuanChart").show();
+                                                break;
+                                            case 2:
+                                                vGaraTongQuan.LoadBieuDoThucThu();
+                                                $("#DoanhThuThucChart").siblings().hide();
+                                                $("#DoanhThuThucChart").show();
+                                                break;
+                                        }
+                                    }
+                                }
+                            </script>
+                            <div class="flex">
+                                <div class="gara-dropdown">
+                                    <a class="gara-dropwdown-toggle" aria-haspopup="true" aria-expanded="false" v-on:click="SelectTarget('BieuDoDoanhThu')">
+                                        {{ ChiNhanhDoanhThu.filter(p=>p.Checked === true).length === 1 ? ChiNhanhDoanhThu.filter(p=>p.Checked === true)[0].Value2 : ChiNhanhDoanhThu.filter(p=>p.Checked === true).length === 0 ? 'Chi nhánh' : 'Chi nhánh (' + ChiNhanhDoanhThu.filter(p=>p.Checked === true).length + ')' }}
+                                        <i class="fa fa-chevron-down"></i>
+                                    </a>
+                                    <dropdown-picker placeholder="Tìm chi nhánh" v-bind:listdata="ChiNhanhDoanhThu"></dropdown-picker>
+                                </div>
+                                <div class="gara-dropdown">
+                                    <a class="gara-dropwdown-toggle" aria-haspopup="true" aria-expanded="false" id="optionsChartType">
+                                        <span>Theo ngày</span>
+                                        <i class="fa fa-chevron-down"></i>
+                                    </a>
+                                    <div class="gara-dropdown-picker dropdown-menu">
+                                        <a onclick="selectChartBy(1)">Theo ngày</a>
+                                        <a onclick="selectChartBy(2)">Theo tháng</a>
+                                        <a onclick="selectChartBy(3)">Theo quý</a>
+                                        <a onclick="selectChartBy(4)">Theo năm</a>
+                                    </div>
+                                </div>
+                                <div class="gara-dropdown">
+                                    <a class="gara-dropwdown-toggle" aria-haspopup="true" aria-expanded="false" v-on:click="SelectTarget('BieuDoDoanhThuNam')">
+                                        {{BieuDoGetText()}}
+                                        <i class="fa fa-chevron-down"></i>
+                                    </a>
+                                    <div class="gara-dropdown-picker">
+                                        <div>
+                                            <div id="optionsByDay">
+                                                <div class="gara-dropdown-picker-searchholder flex flex-between flex-row align-items-center" style="margin-bottom:5px;">
+                                                    <label style="color:black; width:100px;margin:0; text-align:left">Năm :</label>
+                                                    <input min="2000" max="2020" v-model="BieuDo.Nam" type="number" v-on:keyup="EnterPress" style="width:calc(100% - 100px) " />
+                                                </div>
+                                                <ul class="gara-dropdown-picker-list" style="width:200px">
+                                                    <li class="dropdown-item" v-for="itemThang in ListMonth" v-on:click="BieuDoSelectMonth(itemThang.Value)">
+                                                        <label>{{itemThang.Text}}</label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div hidden id="optionsByQuater">
+                                                <ul class="gara-dropdown-picker-list" style="width:200px">
+                                                    <li class="dropdown-item" v-for="itemNam in ListYear" v-on:click="BieuDoSelectYear(itemNam.Value)">
+                                                        <label style="padding-left:5px">Năm {{itemNam.Value}}</label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div hidden id="optionsByYears">
+                                                <ul class="gara-dropdown-picker-list" style="width:200px">
+                                                    <li class="dropdown-item" v-for="itemNam in ListYear">
+                                                        <label><input type="checkbox" v-model="itemNam.Checked" />Năm {{itemNam.Value}}</label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container position-relative" style="   overflow:auto;     min-height: 350px;        width: 100%;        padding-top: 20px;">
+                            <div id="DoanhThuThuanChart" style="min-width:700px; min-height:400px;">
+                                <canvas id="ChartMixed1" height="110"></canvas>
+                            </div>
+                            <div id="DoanhThuThucChart" style="min-width:700px; min-height:400px;" hidden>
+                                <canvas id="ChartMixed2" height="110" hidden></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-xs-12 flex flex-column ">
+                <div class="" style="margin:7px">
+                    <div class="gara-tongquan-event">
+                        <table id="datein" class="calendar"></table>
+                        <div class="border-bottom-default magin-15" style="margin-bottom:15px"></div>
+                        <div v-if="SuKienToDay.KhachHangMoi" v-on:click="LoadKhachHangTaoMoi">
+                            <img src="~/Content/images/Gara/KhachHangIcon.svg" alt="Khách hàng mới " />
+                            <span class="bold font-main-color">{{SuKienToDay.KhachHangMoi}}</span><span>Khách hàng mới</span>
+                        </div>
+                        <div v-if="SuKienToDay.SinhNhat" v-on:click="LoadKhachHangSinhNhat">
+                            <img src="~/Content/images/Gara/SinhNhatIcon.svg" alt="Sinh nhật " />
+                            <span class="bold font-main-color">{{SuKienToDay.SinhNhat}}</span><span>Khách hàng sinh nhật</span>
+                        </div>
+                        <div v-if="SuKienToDay.CongViec" v-on:click="LoadCongViec">
+                            <img src="~/Content/images/Gara/CongViecIcon.svg" alt="aaaa" />
+                            <span class="bold font-main-color">{{SuKienToDay.CongViec}}</span><span>Công việc</span>
+                        </div>
+                        <div v-if="SuKienToDay.LichHen" v-on:click="LoadLichHen">
+                            <img src="~/Content/images/Gara/LichHenIcon.svg" alt="aaaa" />
+                            <span class="bold font-main-color">{{SuKienToDay.LichHen}}</span><span>Lịch hẹn</span>
+                        </div>
+                        <div v-if="SuKienToDay.SoLoSapHetHan" v-on:click="LoadLoHangSapHetHan">
+                            <img src="~/Content/images/Gara/SapHetHanIcon.svg" alt="aaaa" />
+                            <span class="bold font-main-color">{{SuKienToDay.SoLoSapHetHan}}</span><span>Lô sắp hết hạn</span>
+                        </div>
+                        <div v-if="SuKienToDay.SoLoHetHan" v-on:click="LoadLoHangDaHetHan">
+                            <img src="~/Content/images/Gara/LoHetHanIcon.svg" alt="aaaa" />
+                            <span class="bold font-main-color">{{SuKienToDay.SoLoHetHan}}</span><span>Lô hết hạn</span>
+                        </div>
+                        <div  v-if="SuKienToDay.XeMoiTiepNhan" v-on:click="LoadXeMoiTiepNhan">
+                            <img src="~/Content/images/Gara/XeMoiTiepNhanIcon.svg" alt="aaaa" />
+                            <span class="bold font-main-color">{{SuKienToDay.XeMoiTiepNhan}}</span><span>Xe mới tiếp nhận</span>
+                        </div>
+                        <div v-if="SuKienToDay.XeXuatXuong" v-on:click="LoadXeXuatXuong">
+                            <img src="~/Content/images/Gara/XeXuatXuongIcon.svg" alt="aaaa" />
+                            <span class="bold font-main-color">{{SuKienToDay.XeXuatXuong}}</span><span>Xe xuất xưởng</span>
+                        </div>
+                        <div v-if="(SuKienToDay.KhachHangMoi + SuKienToDay.SinhNhat + SuKienToDay.CongViec + SuKienToDay.LichHen + SuKienToDay.XeMoiTiepNhan + SuKienToDay.XeXuatXuong + SuKienToDay.SoLoHetHan + SuKienToDay.SoLoSapHetHan) === 0">
+                            <img src="~/Content/images/Gara/BlankIcon.svg" alt="aaaa" /> <span>Không có thông tin</span>
+                        </div>
+                    </div>
+                    <div class="gara-tongquan-daily">
+                        <label class="font-14">Hoạt động gần đây</label>
+                        <div>
+                            <ul>
+                                <li v-for="itemNhatKy in NhatKyHoatDong" class="gara-tongquan-daily__item">
+                                    <div style=" flex-direction:row; align-items:center; " class="flex flex-between">
+                                        <span style=" margin:5px 0" class="bold font-14">{{commonStatisJs.FormatNumber3Digit(itemNhatKy.ThanhTien)}} VNĐ</span>
+                                        <div class="font-10 flex  flex-center font-main-color" style="align-items:center">
+                                            <i class="material-icons font-14" style="margin-right:5px">timer</i>
+                                            {{moment(itemNhatKy.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span>{{itemNhatKy.TenNhanVien}} vừa {{itemNhatKy.TenLoaiChungTu}}  </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/Components/dropdown-picker.js"></script>
+    <script>
+        var vGaraTongQuan = new Vue({
+            el: '#Gara_Tongquan',
+            data:
+            {
+                urlApi: {
+                    GaraApi: '/api/DanhMuc/GaraAPI/',
+                    DonViApi: '/api/DanhMuc/DM_DonViAPI/',
+                    TongQuanApi: '/api/DanhMuc/TQ_DoanhThuAPI/'
+                },
+                TenNhanVien: '',
+                ChiNhanhTrangThai: [],
+                ChiNhanhCongNo: [],
+                ChiNhanhDoanhThu: [],
+                ChiNhanhTarget: '',
+                dataTrangThaiXuong: {
+                    DangSua: 0,
+                    ChoXuatXuong: 0
+                },
+                dateSelected: moment(new Date()).format('YYYY-MM-DD'),
+                SuKienToDay: {
+                    SinhNhat: 0,
+                    CongViec: 0,
+                    LichHen: 0,
+                    SoLoSapHetHan: 0,
+                    SoLoHetHan: 0,
+                    XeMoiTiepNhan: 0,
+                    XeXuatXuong: 0,
+                    KhachHangMoi: 0
+                },
+                NhatKyHoatDong: [],
+                TongQuanDoanhThuCongNo:
+                {
+                    DateFrom: moment(new Date()).format('YYYY-MM-DD'),
+                    DateTo: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
+                    Text: 'Hôm nay',
+                    LoaiThoiGian: 1,
+                    DoanhThu: {
+                        TongDoanhThu: 0,
+                        PhanTram: 0,
+                        SuaChua: {
+                            DoanhThu: 0,
+                            PhanTram: 0
+                        },
+                        BanHang: {
+                            DoanhThu: 0,
+                            PhanTram: 0
+                        }
+                    },
+                    CongNo: {
+                        TongCongNo: 0,
+                        PhanTram: 0,
+                        PhaiThu: {
+                            CongNo: 0,
+                            PhanTram: 0
+                        },
+                        PhaiTra: {
+                            CongNo: 0,
+                            PhanTram: 0
+                        }
+                    },
+                    TienThu: {
+                        TongTienThu: 0,
+                        PhanTram: 0,
+                        TienMat: {
+                            TienThu: 0,
+                            PhanTram: 0
+                        },
+                        NganHang: {
+                            TienThu: 0,
+                            PhanTram: 0
+                        }
+                    },
+                    TienChi: {
+                        TongTienChi: 0,
+                        PhanTram: 0,
+                        TienMat: {
+                            TienChi: 0,
+                            PhanTram: 0
+                        },
+                        NganHang: {
+                            TienChi: 0,
+                            PhanTram: 0
+                        }
+                    }
+                },
+                BieuDo: {
+                    ThuanThuc: 1, //1 Doanh thu thuần, 2 Thực thu
+                    Type: 1, //1 - ngày, 2 - tháng, 3 - quý, 4 - năm
+                    Thang: (new Date()).getMonth() + 1,
+                    Nam: (new Date()).getFullYear()
+                },
+                ListMonth: [{ Value: 1, Text: 'Tháng 1', Checked: false },
+                { Value: 2, Text: 'Tháng 2', Checked: false },
+                { Value: 3, Text: 'Tháng 3', Checked: false },
+                { Value: 4, Text: 'Tháng 4', Checked: false },
+                { Value: 5, Text: 'Tháng 5', Checked: false },
+                { Value: 6, Text: 'Tháng 6', Checked: false },
+                { Value: 7, Text: 'Tháng 7', Checked: false },
+                { Value: 8, Text: 'Tháng 8', Checked: false },
+                { Value: 9, Text: 'Tháng 9', Checked: false },
+                { Value: 10, Text: 'Tháng 10', Checked: false },
+                { Value: 11, Text: 'Tháng 11', Checked: false },
+                { Value: 12, Text: 'Tháng 12', Checked: false },],
+                ListYear: [],
+                MinYear: 2017
+            },
+            methods: {
+                Gara_GetListPhieuTiepNhan: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.ChiNhanhTrangThai.filter(p => p.Checked === true).map(p => p.ID);
+                    myData.CurrentPage = 1;
+                    myData.TrangThais = ["1", "2"];
+                    myData.PageSize = 100000;
+                    $.ajax({
+                        url: self.urlApi.GaraApi + "GetListPhieuTiepNhan_v2",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.dataTrangThaiXuong.DangSua = data.dataSoure.data.filter(p => p.TrangThaiPhieuTiepNhan === 1).length;
+                                self.dataTrangThaiXuong.ChoXuatXuong = data.dataSoure.data.filter(p => p.TrangThaiPhieuTiepNhan === 2).length;
+                           
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                LoadChiNhanh: function () {
+                    let self = this;
+                    $.ajax({
+                        url: self.urlApi.DonViApi + "GetListDonVi_User",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data !== null) {
+                                self.ChiNhanhTrangThai = data.map(p => ({
+                                    ID: p.ID,
+                                    Value1: p.MaDonVi,
+                                    Value2: p.TenDonVi,
+                                    Checked: $('#hd_IDdDonVi').val() === p.ID
+                                }));
+                                self.ChiNhanhCongNo = data.map(p => ({
+                                    ID: p.ID,
+                                    Value1: p.MaDonVi,
+                                    Value2: p.TenDonVi,
+                                    Checked: $('#hd_IDdDonVi').val() === p.ID
+                                }));
+                                self.ChiNhanhDoanhThu = data.map(p => ({
+                                    ID: p.ID,
+                                    Value1: p.MaDonVi,
+                                    Value2: p.TenDonVi,
+                                    Checked: $('#hd_IDdDonVi').val() === p.ID
+                                }));
+                                self.Gara_GetListPhieuTiepNhan();
+                                self.LoadTongQuanDoanhThuCongNo();
+                                self.LoadBieuDoDoanhThu();
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                SelectTarget: function (value) {
+                    this.ChiNhanhTarget = value;
+                },
+                GetListSuKien: function () {
+                    let self = this;
+                    var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+                    if ($.inArray('TongQuan', lc_CTQuyen) > -1) {
+                        ajaxHelper(self.urlApi.TongQuanApi + "getList_SuKienToDay_v2?ID_DonVi=" + $('#hd_IDdDonVi').val() + '&date=' + self.dateSelected, "GET").done(function (data) {
+                            if (data.res === true) {
+                                self.SuKienToDay = data.dataSoure.data;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        });
+                    }
+                },
+                getDiary: function () {
+                    let self = this;
+                    var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+                    var TongQuan_XemDS_HeThong = $.inArray('TongQuan_XemDS_HeThong', lc_CTQuyen) > -1 ? 'TongQuan_XemDS_HeThong' : 'false';
+                    var TongQuan_XemDS_PhongBan = $.inArray('TongQuan_XemDS_PhongBan', lc_CTQuyen) > -1 ? 'TongQuan_XemDS_PhongBan' : 'false';
+                    if ($.inArray('TongQuan', lc_CTQuyen) > -1) {
+                        ajaxHelper(self.urlApi.TongQuanApi + "getDiary?&IDchinhanh=" + $('#hd_IDdDonVi').val() +
+                            '&TongQuan_XemDS_PhongBan=' + TongQuan_XemDS_PhongBan + '&TongQuan_XemDS_HeThong=' + TongQuan_XemDS_HeThong + '&ID_NguoiDung=' + $('.idnguoidung').text(), "GET").done(function (data) {
+                             
+                                self.NhatKyHoatDong = data;
+                            });
+                    }
+                },
+                SelectDate: function (value) {
+                    $(".gara-dropwdown-toggle").removeClass("open");
+                    let self = this;
+                    self.TongQuanDoanhThuCongNo.LoaiThoiGian = value;
+                    let datevalue = GetDateFromTo(self.TongQuanDoanhThuCongNo.LoaiThoiGian);
+                    self.TongQuanDoanhThuCongNo.DateFrom = datevalue.fromdate;
+                    self.TongQuanDoanhThuCongNo.DateTo = datevalue.todate;
+                    self.TongQuanDoanhThuCongNo.Text = datevalue.displaytext;
+                    self.LoadTongQuanDoanhThuCongNo();
+                },
+                LoadTongQuanDoanhThuCongNo: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.ChiNhanhCongNo.filter(p => p.Checked === true).map(p => p.ID);
+                    myData.DateFrom = self.TongQuanDoanhThuCongNo.DateFrom;
+                    myData.DateTo = self.TongQuanDoanhThuCongNo.DateTo;
+                    myData.LoaiThoiGian = self.TongQuanDoanhThuCongNo.LoaiThoiGian;
+                    $.ajax({
+                        url: self.urlApi.TongQuanApi + "TongQuanDoanhThuCongNo",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.TongQuanDoanhThuCongNo.DoanhThu = data.dataSoure.DoanhThu;
+                                self.TongQuanDoanhThuCongNo.CongNo = data.dataSoure.CongNo;
+                                self.TongQuanDoanhThuCongNo.TienThu = data.dataSoure.TienThu;
+                                self.TongQuanDoanhThuCongNo.TienChi = data.dataSoure.TienChi;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                GetTenNhanVien: function () {
+                    let self = this;
+                    ajaxHelper(self.urlApi.TongQuanApi + "getNameNhanVien?ID_NhanVien=" + $('.idnhanvien').text(), "GET").done(function (data) {
+                        self.TenNhanVien = data;
+                    });
+                },
+                BieuDoGetText: function () {
+                    let self = this;
+                    if (self.BieuDo.Type === 1) {
+                        return 'Tháng ' + self.BieuDo.Thang + '/' + self.BieuDo.Nam;
+                    }
+                    else if (self.BieuDo.Type === 2 || self.BieuDo.Type === 3) {
+                        return 'Năm ' + self.BieuDo.Nam;
+                    }
+                    else {
+                        if (self.ListYear.filter(p => p.Checked === true).length === 0) {
+                            return 'Năm';
+                        }
+                        else if (self.ListYear.filter(p => p.Checked === true).length === 1) {
+                            return 'Năm ' + self.ListYear.filter(p => p.Checked == true)[0].Value;
+                        }
+                        else {
+                            return 'Năm (' + self.ListYear.filter(p => p.Checked === true).length + ')';
+                        }
+                    }
+                },
+                BieuDoSelectMonth: function (value) {
+                    let self = this;
+                    if (value !== self.BieuDo.Thang) {
+                        self.ListMonth.find(p => p.Value === self.BieuDo.Thang).Checked = false;
+                        self.ListMonth.find(p => p.Value === value).Checked = true;
+                        self.BieuDo.Thang = value;
+                        if (self.BieuDo.ThuanThuc === 1) {
+                            self.LoadBieuDoDoanhThu();
+                        }
+                        else {
+                            self.LoadBieuDoThucThu();
+                        }
+                    }
+                },
+                BieuDoSelectYear: function (value) {
+                    let self = this;
+                    if (value !== self.BieuDo.Nam) {
+                        self.BieuDo.Nam = value;
+                        if (self.BieuDo.ThuanThuc === 1) {
+                            self.LoadBieuDoDoanhThu();
+                        }
+                        else {
+                            self.LoadBieuDoThucThu();
+                        }
+                    }
+                },
+                LoadBieuDoDoanhThu: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.ChiNhanhDoanhThu.filter(p => p.Checked === true).map(p => p.ID);
+                    myData.Thang = self.BieuDo.Thang;
+                    myData.LoaiBieuDo = self.BieuDo.Type;
+                    if (self.BieuDo.Type === 4) {
+                        myData.Nam = self.ListYear.filter(p => p.Checked === true).map(p => p.Value);
+                    }
+                    else {
+                        myData.Nam = [self.BieuDo.Nam];
+                    }
+                    $.ajax({
+                        url: self.urlApi.TongQuanApi + "GetBieuDoDoanhThu",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.UpdateBieuDoDoanhThuThuan(data.dataSoure);
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                UpdateBieuDoDoanhThuThuan: function (data) {
+                    let self = this;
+                    let dataset = [];
+                    chartDoanhThuThuan.data.labels = data.Label;
+                    for (let i = 0; i < data.DoanhThu.length; i++) {
+                        dataset.push({
+                            label: self.ChiNhanhDoanhThu.find(p => p.ID === data.DoanhThu[i].ID_DonVi).Value2,
+                            data: data.DoanhThu[i].dataBieuDo,
+                            backgroundColor: color(i),
+                            order: 2,
+                            maxBarThickness: 25,
+                        });
+                    }
+                    dataset.push(
+                        {
+                            label: 'Lợi nhuận',
+                            data: data.LoiNhuan,
+                            lineTension: 0,
+                            type: 'line',
+                            borderColor: '#a6a6a6',
+                            backgroundColor: "rgba(0,0,0,0)",
+                            order: 1
+                        }
+                    )
+                    chartDoanhThuThuan.data.datasets = dataset;
+                    chartDoanhThuThuan.update();
+                },
+                //Biểu đồ thực thu
+                LoadBieuDoThucThu: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdChiNhanhs = self.ChiNhanhDoanhThu.filter(p => p.Checked === true).map(p => p.ID);
+                    myData.Thang = self.BieuDo.Thang;
+                    myData.LoaiBieuDo = self.BieuDo.Type;
+                    if (self.BieuDo.Type === 4) {
+                        myData.Nam = self.ListYear.filter(p => p.Checked === true).map(p => p.Value);
+                    }
+                    else {
+                        myData.Nam = [self.BieuDo.Nam];
+                    }
+                    $.ajax({
+                        url: self.urlApi.TongQuanApi + "GetBieuDoThucThu",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.UpdateBieuDoThucThu(data.dataSoure);
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                UpdateBieuDoThucThu: function (data) {
+                    let self = this;
+                    let dataset = [];
+                    chartThucThu.data.labels = data.Label;
+                    for (let i = 0; i < data.ThucThu.length; i++) {
+                        dataset.push({
+                            label: self.ChiNhanhDoanhThu.find(p => p.ID === data.ThucThu[i].ID_DonVi).Value2,
+                            data: data.ThucThu[i].dataBieuDo,
+                            backgroundColor: color(i),
+                            order: 2,
+                            maxBarThickness: 25,
+                        });
+                    }
+                    chartThucThu.data.datasets = dataset;
+                    chartThucThu.update();
+                },
+                EnterPress: function (e) {
+                    let self = this;
+                    if (e.keyCode === 13) {
+                        if (self.BieuDo.ThuanThuc === 1) {
+                            self.LoadBieuDoDoanhThu();
+                        }
+                        else {
+                            self.LoadBieuDoThucThu();
+                        }
+                    }
+                },
+                LoadKhachHangSinhNhat: function (item) {
+                    let self = this;
+                    localStorage.setItem('SinhNhatKhachHang', self.SetObj_Localstore());
+                    var url = "/#/Customers";
+                    window.open(url);
+                },
+                SetObj_Localstore: function () {
+                    let self = this;
+                    return JSON.stringify(
+                        {
+                            FromDate: moment(self.dateSelected, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+                            ToDate: moment(self.dateSelected, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                        });
+                },
+                LoadKhachHangTaoMoi: function (item) {
+                    let self = this;
+                    localStorage.setItem('KhachHangTaoMoi', self.SetObj_Localstore());
+                    var url = "/#/Customers";
+                    window.open(url);
+                },
+                LoadCongViec: function (item) {
+                    let self = this;
+                    localStorage.setItem('calendarKieuBang', 1);
+                    localStorage.setItem('CongViecKhachHang', self.SetObj_Localstore());
+                    var url = "/#/Work";
+                    window.open(url);
+                },
+                LoadLichHen: function (item) {
+                    let self = this;
+                    localStorage.setItem('calendarKieuBang', 1);
+                    localStorage.setItem('LichHenKhachHang', self.SetObj_Localstore());
+                    var url = "/#/Work";
+                    window.open(url);
+                },
+                LoadLoHangSapHetHan: function (item) {
+                    localStorage.setItem('ThongBaoLoHangSapHetHan', "");
+                    var url = "/#/Shipment";
+                    window.open(url);
+                },
+                LoadLoHangDaHetHan: function (item) {
+                    localStorage.setItem('ThongBaoLoHangDaHetHan', "");
+                    var url = "/#/Shipment";
+                    window.open(url);
+                },
+                LoadXeMoiTiepNhan: function (item) {
+                    let self = this;
+                    localStorage.setItem('ThongBaoXeMoiTiepNhan', self.SetObj_Localstore());
+                    var url = "/#/DanhSachPhieuTiepNhan";
+                    window.open(url);
+                },
+                LoadXeXuatXuong: function (item) {
+                    let self = this;
+                    localStorage.setItem('ThongBaoXeXuatXuong', self.SetObj_Localstore());
+                    var url = "/#/DanhSachPhieuTiepNhan";
+                    window.open(url);
+                },
+                InitListYear: function () {
+                    let self = this;
+                    for (let i = self.BieuDo.Nam; i >= self.MinYear; i--) {
+                        self.ListYear.push({ Value: i, Checked: false });
+                    }
+                }
+            },
+            created: function () {
+                let self = this;
+                self.LoadChiNhanh();
+                self.GetListSuKien();
+                self.getDiary();
+                self.GetTenNhanVien();
+                self.InitListYear();
+                self.ListMonth.find(p => p.Value === self.BieuDo.Thang).Checked = true;
+                self.ListYear.find(p => p.Value === self.BieuDo.Nam).Checked = true;
+            },
+            watch: {
+                dateSelected: function () {
+                    this.GetListSuKien();
+                }
+            }
+        });
+    </script>
+    <script>
+      
+        Chart.pluginService.register({
+            beforeDraw: function (chart) {
+                if (chart.config.options.elements.center) {
+                    var ctx = chart.chart.ctx;
+                    var centerConfig = chart.config.options.elements.center;
+                    var fontStyle = centerConfig.fontStyle || 'Arial';
+                    var txt = centerConfig.text;
+                    var color = centerConfig.color || '#000';
+                    var maxFontSize = centerConfig.maxFontSize || 75;
+                    var sidePadding = centerConfig.sidePadding || 20;
+                    var sidePaddingCalculated = (sidePadding / 100) * (chart.innerRadius * 2)
+                    ctx.font = "30px " + fontStyle;
+                    var stringWidth = ctx.measureText(txt).width;
+                    var elementWidth = (chart.innerRadius * 2) - sidePaddingCalculated;
+                    var widthRatio = elementWidth / stringWidth;
+                    var newFontSize = Math.floor(30 * widthRatio);
+                    var elementHeight = (chart.innerRadius * 2);
+                    var fontSizeToUse = Math.min(newFontSize, elementHeight, maxFontSize);
+                    var minFontSize = centerConfig.minFontSize;
+                    var lineHeight = centerConfig.lineHeight || 25;
+                    var wrapText = false;
+                    if (minFontSize === undefined) {
+                        minFontSize = 20;
+                    }
+                    if (minFontSize && fontSizeToUse < minFontSize) {
+                        fontSizeToUse = minFontSize;
+                        wrapText = true;
+                    }
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    var centerX = ((chart.chartArea.left + chart.chartArea.right) / 2);
+                    var centerY = ((chart.chartArea.top + chart.chartArea.bottom) / 2);
+                    ctx.font = fontSizeToUse + "px " + fontStyle;
+                    ctx.fillStyle = color;
+                    if (!wrapText) {
+                        ctx.fillText(txt, centerX, centerY);
+                        return;
+                    }
+                    var words = txt.split(' ');
+                    var line = '';
+                    var lines = [];
+                    for (var n = 0; n < words.length; n++) {
+                        var testLine = line + words[n] + ' ';
+                        var metrics = ctx.measureText(testLine);
+                        var testWidth = metrics.width;
+                        if (testWidth > elementWidth && n > 0) {
+                            lines.push(line);
+                            line = words[n] + ' ';
+                        } else {
+                            line = testLine;
+                        }
+                    }
+                    centerY -= (lines.length / 2) * lineHeight;
+                    for (var n = 0; n < lines.length; n++) {
+                        ctx.fillText(lines[n], centerX, centerY);
+                        centerY += lineHeight;
+                    }
+                    ctx.fillText(line, centerX, centerY);
+                }
+            }
+        });
+        var ArrayColor =
+            ["2799e6", "2c699a", "048ba8", "0db39e", "16db93", "83e377", "b9e769", "efea5a", "f1c453", "f29e4c", "1c50c4", "7c4097", "db3069", "475b63", "f9844a", "f9c74f", "90be6d", "43aa8b", "277da1"];
+        function color(index) {
+            return ('#' + ArrayColor[index]);
+        };
+      
+        var item = [13, 49, 29, 26, 20, 1, 41, 38, 15, -22, 14, 39, 3, 4, 21];
+        var item2 = [3, 17, 12, 13, 19, 43, 26, 50, 18, 36, 29, 23, 5, 44, 21,];
+        var bieudodoanhthuthuan = document.getElementById('ChartMixed1');
+        var bieudothucthu = document.getElementById('ChartMixed2');
+        var dangSua = vGaraTongQuan.dataTrangThaiXuong.DangSua;
+        var choXuatXuong = vGaraTongQuan.dataTrangThaiXuong.ChoXuatXuong;
+        var data = {
+            labels: ['Xe đang sửa', 'Xe chờ xuất xưởng'],
+            datasets: [{
+                label: '',
+                data: [vGaraTongQuan.dataTrangThaiXuong.DangSua, vGaraTongQuan.dataTrangThaiXuong.ChoXuatXuong],
+                backgroundColor: [
+                    '#1374adaa',
+                    '#ff4000aa'
+                ],
+                borderWidth: 1
+            }]
+        };
+        var options = {
+            circumference: 1 * Math.PI,
+            rotation: 1 * Math.PI,
+            tooltips: {
+            },
+            height: 300,
+            cutoutPercentage: 65,
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 15,
+                    bottom: 15
+                }
+            },
+            legend: {
+                display: false,
+                labels: {
+                    fontColor: 'rgb(255, 99, 132)'
+                }
+            },
+        }
+        console.log(bieudodoanhthuthuan);
+        var chartDoanhThuThuan = new Chart(bieudodoanhthuthuan, {
+            type: 'bar',
+            data: {
+                datasets: [],
+                labels: [],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                legend: {
+                    position: "bottom",
+                    align: "center",
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 9,
+                        fontstyle: 'bold',
+                        padding: 15,
+                    }
+                },
+                bezierCurve: false,
+                scales: {
+                    xAxes: [{
+                        stacked: true,
+                        gridLines: {
+                            display: false
+                        }
+                    }],
+                    yAxes: [{
+                        stacked: true,
+                        ticks: {
+                            callback: function (value, index, values) {
+                                return commonStatisJs.FormatNumber3Digit(value);
+                            }
+                        }
+                    }]
+                },
+                parsing: {
+                    xAxisKey: 'x',
+                    yAxisKey: 'y'
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var datasetLabel = data.datasets[tooltipItem.datasetIndex].label;
+                            return datasetLabel + ': ' + commonStatisJs.FormatNumber3Digit(tooltipItem.yLabel);
+                        },
+                        title: function (tooltipItem, data) {
+                            let sTitle = '';
+                            if (vGaraTongQuan.BieuDo.Type === 1)
+                                sTitle = 'Ngày ';
+                            else if (vGaraTongQuan.BieuDo.Type === 2)
+                                sTitle = 'Tháng ';
+                            else if (vGaraTongQuan.BieuDo.Type === 3)
+                                sTitle = 'Quý ';
+                            else if (vGaraTongQuan.BieuDo.Type === 4)
+                                sTitle = 'Năm ';
+                            return sTitle + tooltipItem[0].xLabel;
+                        }
+                    }
+                }
+            },
+        });
+        var chartThucThu = new Chart(bieudothucthu, {
+            type: 'bar',
+            data: {
+                datasets: [],
+                labels: [],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                legend: {
+                    position: "bottom",
+                    align: "center",
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 9,
+                        fontstyle: 'bold',
+                        padding: 15,
+                    }
+                },
+                bezierCurve: false,
+                scales: {
+                    xAxes: [{
+                        stacked: true,
+                        gridLines: {
+                            display: false
+                        }
+                    }],
+                    yAxes: [{
+                        stacked: true,
+                        ticks: {
+                            callback: function (value, index, values) {
+                                return commonStatisJs.FormatNumber3Digit(value);
+                            }
+                        }
+                    }]
+                },
+                parsing: {
+                    xAxisKey: 'x',
+                    yAxisKey: 'y'
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var datasetLabel = data.datasets[tooltipItem.datasetIndex].label;
+                            return datasetLabel + ': ' + commonStatisJs.FormatNumber3Digit(tooltipItem.yLabel);
+                        },
+                        title: function (tooltipItem, data) {
+                            let sTitle = '';
+                            if (vGaraTongQuan.BieuDo.Type === 1)
+                                sTitle = 'Ngày ';
+                            else if (vGaraTongQuan.BieuDo.Type === 2)
+                                sTitle = 'Tháng ';
+                            else if (vGaraTongQuan.BieuDo.Type === 3)
+                                sTitle = 'Quý ';
+                            else if (vGaraTongQuan.BieuDo.Type === 4)
+                                sTitle = 'Năm ';
+                            return sTitle + tooltipItem[0].xLabel;
+                        }
+                    }
+                }
+            }
+        });
+
+        $(".gara-dropwdown-toggle").click(function () {
+            $(this).next().toggle();
+            $(this).toggleClass("open");
+        })
+        $(document).mouseup(function (e) {
+            var container = $(".gara-dropdown-picker");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                if (container.filter(":visible").length !== 0) {
+                    if (vGaraTongQuan.ChiNhanhTarget === 'TrangThai') {
+                        vGaraTongQuan.Gara_GetListPhieuTiepNhan();
+                    }
+                    else if (vGaraTongQuan.ChiNhanhTarget === 'CongNo') {
+                        vGaraTongQuan.LoadTongQuanDoanhThuCongNo();
+                    }
+                    else if (vGaraTongQuan.ChiNhanhTarget === 'BieuDoDoanhThu') {
+                        if (vGaraTongQuan.BieuDo.ThuanThuc === 1) {
+                            vGaraTongQuan.LoadBieuDoDoanhThu();
+                        }
+                        else {
+                            vGaraTongQuan.LoadBieuDoThucThu();
+                        }
+                    }
+                    else if (vGaraTongQuan.ChiNhanhTarget === 'BieuDoDoanhThuNam') {
+                        if (vGaraTongQuan.BieuDo.Type === 4) {
+                            if (vGaraTongQuan.BieuDo.ThuanThuc === 1) {
+                                vGaraTongQuan.LoadBieuDoDoanhThu();
+                            }
+                            else {
+                                vGaraTongQuan.LoadBieuDoThucThu();
+                            }
+                        }
+                    }
+                    vGaraTongQuan.ChiNhanhTarget = '';
+                }
+                container.hide();
+                container.prev().removeClass("open");
+            }
+        });
+    </script>
+    <script>
+        var dcalendarStart = new Date();
+        var dcalendarEnd = new Date();
+        $(document).ready(function () {
+            var dDateStart = $('#dateStart').dcalendar();
+            dDateStart.on("dateselected", function (e) { dcalendarStart = e.date; });
+            var dDateEnd = $('#dateEnd').dcalendar();
+            dDateEnd.on("dateselected", function (e) { dcalendarEnd = e.date; });
+            $('#datein').dcalendar().on('dateselected', function (e) {
+                if (moment(e.date).format('YYYY-MM-DD') !== vGaraTongQuan.dateSelected) {
+                    vGaraTongQuan.dateSelected = moment(e.date).format('YYYY-MM-DD');
+                }
+            });
+        });
+        function GetDateFromTo(val) {
+            var _now = new Date();
+            var fromdate = '';
+            var todate = '';
+            let displaytext = '';
+            switch (val) {
+                case 0:
+                    var nextYear = moment().year() + 1;
+                    fromdate = '2016-01-01';
+                    todate = moment().year(nextYear).endOf('year').format('YYYY-MM-DD');
+                    displaytext = 'Toàn thời gian'
+                    break;
+                case 1:
+                    fromdate = moment(_now).format('YYYY-MM-DD');
+                    todate = fromdate;
+                    displaytext = 'Hôm nay'
+                    break;
+                case 2:
+                    fromdate = moment(_now).add(-1, 'days').format('YYYY-MM-DD');
+                    todate = fromdate;
+                    displaytext = 'Hôm qua'
+                    break;
+                case 3:
+                    fromdate = moment().startOf('week').add(1, 'days').format('YYYY-MM-DD');
+                    todate = moment().endOf('week').add(1, 'days').format('YYYY-MM-DD');
+                    displaytext = 'Tuần này'
+                    break;
+                case 4:
+                    fromdate = moment().startOf('week').subtract(6, 'days').format('YYYY-MM-DD');
+                    todate = moment().startOf('week').format('YYYY-MM-DD');
+                    displaytext = 'Tuần trước'
+                    break;
+                case 5:
+                    fromdate = moment().startOf('month').format('YYYY-MM-DD');
+                    todate = moment().endOf('month').format('YYYY-MM-DD');
+                    displaytext = 'Tháng này'
+                    break;
+                case 6:
+                    fromdate = moment().subtract(1, 'months').startOf('month').format('YYYY-MM-DD');
+                    todate = moment().subtract(1, 'months').endOf('month').format('YYYY-MM-DD');
+                    displaytext = 'Tháng trước'
+                    break;
+                case 7:
+                    fromdate = moment().startOf('quarter').format('YYYY-MM-DD');
+                    todate = moment().endOf('quarter').format('YYYY-MM-DD');
+                    displaytext = 'Quý này'
+                    break;
+                case 8://quy truoc
+                    var prevQuarter = moment().quarter() - 1;
+                    if (prevQuarter === 0) {
+                        fromdate = moment().year(moment().year() - 1).quarter(4).startOf('quarter').format('YYYY-MM-DD');
+                        todate = moment().year(moment().year() - 1).quarter(4).endOf('quarter').format('YYYY-MM-DD');
+                    }
+                    else {
+                        fromdate = moment().quarter(prevQuarter).startOf('quarter').format('YYYY-MM-DD');
+                        todate = moment().quarter(prevQuarter).endOf('quarter').format('YYYY-MM-DD');
+                    }
+                    displaytext = 'Quý trước'
+                    break;
+                case 9://nam nay
+                    fromdate = moment().startOf('year').format('YYYY-MM-DD');
+                    todate = moment().endOf('year').format('YYYY-MM-DD');
+                    displaytext = 'Năm nay'
+                    break;
+                case 10:// nam truoc
+                    var prevYear = moment().year() - 1;
+                    fromdate = moment().year(prevYear).startOf('year').format('YYYY-MM-DD');
+                    todate = moment().year(prevYear).endOf('year').format('YYYY-MM-DD');
+                    displaytext = 'Năm trước'
+                    break;
+                case 11:
+                    fromdate = moment(dcalendarStart).format('YYYY-MM-DD');
+                    todate = moment(dcalendarEnd).format('YYYY-MM-DD');
+                    displaytext = moment(dcalendarStart).format('DD-MM-YYYY') + ' đến ' + moment(dcalendarEnd).format('DD-MM-YYYY');
+                    break;
+            }
+            todate = moment(todate).add('days', 1).format('YYYY-MM-DD');
+            GaraHideCustomTimer();
+            $(".gara-dropdown-picker").hide();
+            return { fromdate, todate, displaytext };
+        }
+        function selectChartBy(options) {
+            if (vGaraTongQuan.BieuDo.Type !== options) {
+                vGaraTongQuan.BieuDo.Type = options;
+                if (vGaraTongQuan.BieuDo.ThuanThuc === 1) {
+                    vGaraTongQuan.LoadBieuDoDoanhThu();
+                }
+                else {
+                    vGaraTongQuan.LoadBieuDoThucThu();
+                }
+                switch (options) {
+                    case 1:
+                        $("#optionsChartType span").html("Theo ngày");
+                        $("#optionsByDay").siblings().hide()
+                        $("#optionsByDay").show()
+                        break;
+                    case 2:
+                        $("#optionsByQuater").siblings().hide()
+                        $("#optionsByQuater").show()
+                        $("#optionsChartType span").html("Theo tháng");
+                        break;
+                    case 3:
+                        $("#optionsByQuater").siblings().hide()
+                        $("#optionsByQuater").show()
+                        $("#optionsChartType span").html("Theo quý");
+                        break;
+                    case 4:
+                        $("#optionsByYears").siblings().hide()
+                        $("#optionsByYears").show()
+                        $("#optionsChartType span").html("Theo năm");
+                        break;
+                }
+            }
+        }
+        function GaraShowCustomTimer() {
+            $("#garaCustomeDatePicker").show("fast");
+            $("#garaCustomeDatePicker").siblings().hide("fast");
+        }
+        function GaraHideCustomTimer() {
+            $("#garaCustomeDatePicker").hide("fast");
+            $("#garaCustomeDatePicker").siblings().show("fast");
+        }
+    </script>
+</body>

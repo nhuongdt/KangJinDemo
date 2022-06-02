@@ -1,0 +1,1526 @@
+﻿@{
+    /**/
+    Layout = null;
+}
+@using banhang24.Hellper
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="~/Scripts/Components/HangLoaiXe.js"></script>
+    <script src="~/Content/Framework/Jquery/JqueryUI/jquery-ui.js"></script>
+    <style>
+
+        .modal-backdrop.in {
+            opacity: 0.3;
+        }
+
+        .table-bao-duong {
+            padding: 15px;
+        }
+
+            .table-bao-duong th,
+            .table-bao-duong td {
+                padding: 6px;
+                text-align: center;
+            }
+    </style>
+</head>
+<body>
+    <div class="op-container" id="vDanhSachXe">
+        <div class="col-left">
+            <div class=" op-filter filter-left-report">
+                <section class="op-filter-body">
+                    <article class="boxLeft ">
+                        <a class="op-js-themmoinhomhang add-new-hh " title="Thêm nhóm hàng" href="javascript:void(0)"
+                           v-if="vmThemMoiXe.role.ThemMoi"
+                           v-on:click="vmHangXe.ShowModalAddNew()">
+                            <i class="plus_not fa fa-plus" style="font-size:15px"></i>
+                        </a>
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            Hãng xe
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="seach-nhomhang">
+                                <i class="fa fa-search" style="display:inline-block"></i>
+                                <input type="text" class="seach-nhomhang" placeholder=" Tìm kiếm hãng xe" style="display:inline-block; width: calc(100% - 15px)" v-model="listHangXe.TextSearch" />
+                            </div>
+                            <div id="tatcanhh" class="treename" v-on:click="SelectHangXe('')">
+                                Tất cả
+                                <!--<a class="op-js-themmoinhomhang" href="javascript:void(0)">--><!--</a>-->
+                            </div>
+                            <ul class="treeview floatleft max-height-100">
+                                <li class="ss-li" v-for="itemHangXe in listHangXe.data.filter(p=>commonStatisJs.convertVieToEng(p.TenHangXe).match(commonStatisJs.convertVieToEng(listHangXe.TextSearch)))">
+                                    <div class="li-top li-oo" v-bind:class="{'yellow': itemHangXe.ID === listHangXe.HangXeSelected}">
+                                        <span class="treename" v-on:click="SelectHangXe(itemHangXe.ID)">{{itemHangXe.TenHangXe}}</span>
+                                        <a class="square" v-on:click="vmHangXe.ShowModalUpdate(itemHangXe)" v-if="itemHangXe.ID !== '00000000-0000-0000-0000-000000000000'"><i class="fa fa-pencil-square-o"></i></a>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="close-goods">
+                                <a class="add-goods" href="javascript:void(0)"><em>Xem thêm </em><i class="fa fa-caret-down "></i></a>
+                                <a class="c-goods" href="javascript:void(0)"><em>Thu gọn</em> <i class="fa fa-caret-up "></i></a>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft ">
+                        <a class="op-js-themmoinhomhang add-new-hh " title="Thêm nhóm hàng" href="javascript:void(0)"
+                           v-if="vmThemMoiXe.role.ThemMoi"
+                           v-on:click="vmLoaiXe.ShowModalAddNew()">
+                            <i class="plus_not fa fa-plus" style="font-size:15px"></i>
+                        </a>
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            Loại xe
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="seach-nhomhang">
+                                <i class="fa fa-search" style="display:inline-block"></i>
+                                <input type="text" class="seach-nhomhang" placeholder=" Tìm kiếm loại xe" style="display:inline-block; width: calc(100% - 15px)" v-model="listLoaiXe.TextSearch" />
+                            </div>
+                            <div id="tatcanhh" class="treename" v-on:click="SelectLoaiXe('')">
+                                Tất cả
+                                <!--<a class="op-js-themmoinhomhang" href="javascript:void(0)">--><!--</a>-->
+                            </div>
+                            <ul class="treeview floatleft max-height-100">
+                                <li class="ss-li" v-for="itemLoaiXe in listLoaiXe.data.filter(p=>commonStatisJs.convertVieToEng(p.TenLoaiXe).match(commonStatisJs.convertVieToEng(listLoaiXe.TextSearch)))">
+                                    <div class="li-top li-oo" v-bind:class="{'yellow': itemLoaiXe.ID === listLoaiXe.LoaiXeSelected}">
+                                        <span class="treename" v-on:click="SelectLoaiXe(itemLoaiXe.ID)">{{itemLoaiXe.TenLoaiXe}}</span>
+                                        <a v-on:click="vmLoaiXe.ShowModalUpdate(itemLoaiXe)" class="square" v-if="itemLoaiXe.ID !== '00000000-0000-0000-0000-000000000000'"><i class="fa fa-pencil-square-o"></i></a>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="close-goods">
+                                <a class="add-goods" href="javascript:void(0)"><em>Xem thêm </em><i class="fa fa-caret-down "></i></a>
+                                <a class="c-goods" href="javascript:void(0)"><em>Thu gọn</em> <i class="fa fa-caret-up "></i></a>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft ">
+                        <a class="op-js-themmoinhomhang add-new-hh " title="Thêm nhóm hàng" href="javascript:void(0)"
+                           v-if="vmThemMoiXe.role.ThemMoi"
+                           v-on:click="vmMauXe.ShowModalAddNew()">
+                            <i class="plus_not fa fa-plus" style="font-size:15px"></i>
+                        </a>
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            Mẫu xe
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="seach-nhomhang">
+                                <i class="fa fa-search" style="display:inline-block"></i>
+                                <input type="text" class="seach-nhomhang" placeholder=" Tìm kiếm mẫu xe" style="display:inline-block; width: calc(100% - 15px)" v-model="listMauXe.TextSearch" />
+                            </div>
+                            <div id="tatcanhh" class="treename" v-on:click="SelectMauXe('')">
+                                Tất cả
+                            </div>
+                            <ul class="treeview floatleft max-height-100">
+                                <li class="ss-li"
+                                    v-for="itemMauXe in listMauXe.data.filter(p=>commonStatisJs.convertVieToEng(p.TenMauXe).match(commonStatisJs.convertVieToEng(listMauXe.TextSearch)) && p.ID_HangXe.match(listHangXe.HangXeSelected) && p.ID_LoaiXe.match(listLoaiXe.LoaiXeSelected))">
+                                    <div class="li-top li-oo" v-bind:class="{'yellow': itemMauXe.ID === listMauXe.MauXeSelected}">
+                                        <span class="treename" v-on:click="SelectMauXe(itemMauXe.ID)">{{itemMauXe.TenMauXe}}</span>
+                                        <a v-on:click="vmMauXe.ShowModalUpdate(itemMauXe)" class="square" v-if="itemMauXe.ID !== '00000000-0000-0000-0000-000000000000'"><i class="fa fa-pencil-square-o"></i></a>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="close-goods">
+                                <a class="add-goods" href="javascript:void(0)"><em>Xem thêm </em><i class="fa fa-caret-down "></i></a>
+                                <a class="c-goods" href="javascript:void(0)"><em>Thu gọn</em> <i class="fa fa-caret-up "></i></a>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/ngaytao.png" />
+                            Trạng thái
+                        </h3>
+                        <filter-checkbox v-bind:listitem="ListTrangThai" v-on:callfunctionloaddata="LoadData"></filter-checkbox>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">Danh mục xe </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <button class="btn btn-main"
+                                    v-if="vmThemMoiXe.role.ThemMoi"
+                                    v-on:click="vmThemMoiXe.ShowModalNewCar()">
+                                <i class="fa fa-plus"></i>
+                                Thêm mới
+                            </button>
+                            <button class="btn btn-main" data-toggle="modal" data-target="#modalImport"
+                                    v-if="vmThemMoiXe.role.ThemMoi">
+                                <i class="fa fa-download"></i>
+                                Nhập file
+                            </button>
+                            <button class="btn btn-main" v-on:click="ExportDanhSachXe"
+                                    v-if="vmThemMoiXe.role.XuatFile">
+                                <i class="fa fa-file-excel-o"></i>
+                                Xuất file
+                            </button>
+                            <div class="btn-dropdown" id="button-filter" style="position:relative;">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)">
+                                    <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list dropdown-menu filter-list-2">
+                                    <ul>
+                                        <li v-for="item in ListHeader">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                    <span></span>{{item.colText}}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm" v-model="dataDanhMucXe.TextSearch" v-on:keyup="TextSearchEnterKeyup">
+                            <button type="button" class=" op-search-button" v-on:click="LoadData">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button onclick="showFilter()" title="Hiển thị bộ lọc" class="btn btn-main op-filter-toggle">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table ">
+                <div class="table-frame" style="transition: all 0.4s ease;" v-bind:style="{'height': ((dataDanhMucXe.data.length <= 0 ? 1 : dataDanhMucXe.data.length) * 31 + 30) + 'px'}">
+                    <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                        <thead>
+                            <tr>
+                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(item, index) in dataDanhMucXe.data">
+                                <tr class="tr-prev-hide" v-bind:class="[index%2 === 1? 'bggray' : '']" onclick="commonStatisJs.TableRowFocus(this)" v-on:click="RowSelected(item)">
+                                    <td v-if="ListHeader.find(p => p.colName === 'colBienSo').colShow"
+                                        v-bind:style="{ color: item.TrangThai != 1 ? 'red' : '' }">
+                                        {{item.BienSo}}
+                                    </td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colMaChuXe').colShow">{{item.MaDoiTuong}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colChuXe').colShow">{{item.TenDoiTuong}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colDienThoai').colShow">{{item.DienThoai}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colHangXe').colShow">{{item.TenHangXe}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colLoaiXe').colShow">{{item.TenLoaiXe}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colMauXe').colShow">{{item.TenMauXe}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colNamSanXuat').colShow">{{item.NamSanXuat === 0? '' : item.NamSanXuat}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colSoKhung').colShow">{{item.SoKhung}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colSoMay').colShow">{{item.SoMay}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colMauSon').colShow">{{item.MauSon}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colDungTich').colShow">{{item.DungTich}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colHopSo').colShow">{{item.HopSo}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colGhiChu').colShow">{{item.GhiChu === null? "" : item.GhiChu.length < 10 ? item.GhiChu : item.GhiChu.substring(0, 10) + "..."}}</td>
+                                    <td v-if="ListHeader.find(p => p.colName === 'colTrangThai').colShow">{{item.TrangThai === 1 ? 'Đang sử dụng' : 'Hủy'}}</td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length" style="padding:0">
+                                        <div class="gara-tab">
+                                            <div class="gara-tab-title">
+                                                <a class="enable-detail active" onclick="toggleTab(this, 1)">Thông tin</a>
+                                                <a class="enable-content" onclick="toggleTab(this, 2)">Lịch sử sửa chữa</a>
+                                                <a onclick="toggleTab(this, 3)">Nhật ký bảo dưỡng</a>
+                                                <a onclick="toggleTab(this, 4)">Lịch bảo dưỡng</a>
+                                                <a onclick="toggleTab(this, 5)" v-if="item.NguoiSoHuu === 1">Phụ tùng theo dõi</a>
+                                            </div>
+                                            <div class="gara-tab-detail active" hidden>
+                                                <div>
+                                                    <div class="col-md-4 gara-tab-detail-panel">
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Biển số xe:</label>
+                                                            <span class="css-form-detail">{{item.BienSo}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Hãng xe:</label>
+                                                            <span class="css-form-detail">{{item.TenHangXe}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Loại xe:</label>
+                                                            <span class="css-form-detail">{{item.TenLoaiXe}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Mẫu xe:</label>
+                                                            <span class="css-form-detail">{{item.TenMauXe}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Màu sơn:</label>
+                                                            <span class="css-form-detail">{{item.MauSon}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Số khung:</label>
+                                                            <span class="css-form-detail">{{item.SoKhung}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Số máy:</label>
+                                                            <span class="css-form-detail">{{item.SoMay}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Dung tích:</label>
+                                                            <span class="css-form-detail">{{item.DungTich}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Hộp số:</label>
+                                                            <span class="css-form-detail">{{item.HopSo}}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 gara-tab-detail-panel">
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Mã chủ xe:</label>
+                                                            <span class="css-form-detail">{{item.MaDoiTuong}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Tên chủ xe:</label>
+                                                            <span class="css-form-detail">{{item.TenDoiTuong}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Ngày sinh:</label>
+                                                            <span class="css-form-detail">{{item.NgaySinh_NgayTLap !== null ? moment(item.NgaySinh_NgayTLap).format('DD/MM/YYYY') : '' }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Điện thoại:</label>
+                                                            <span class="css-form-detail">{{item.DienThoai}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Mã số thuế:</label>
+                                                            <span class="css-form-detail">{{item.MaSoThue}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Email:</label>
+                                                            <span class="css-form-detail">{{item.Email}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Địa chỉ:</label>
+                                                            <span class="css-form-detail">{{item.DiaChi}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Quận/huyện:</label>
+                                                            <span class="css-form-detail">{{item.TenQuanHuyen}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Tỉnh/thành:</label>
+                                                            <span class="css-form-detail">{{item.TenTinhTHanh}}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 gara-tab-detail-panel">
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Ngày tạo:</label>
+                                                            <span class="css-form-detail">{{moment(item.NgayTao).format('DD/MM/YYYY HH:mm')}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Người tạo:</label>
+                                                            <span class="css-form-detail">{{item.NguoiTao}}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label"> Ghi chú:</label>
+                                                            <span class="css-form-detail" style="white-space: pre-wrap;">{{item.GhiChu}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="container-fluid row" style="margin-top:15px">
+                                                    <div style="float:right">
+                                                        <button class="btn btn-main"
+                                                                v-if="item.TrangThai === 1 "
+                                                                v-on:click="vmThemMoiXe.ShowModalUpdate(item)">
+                                                            <i class="fa fa-edit"></i>
+                                                            Sửa đổi
+                                                        </button>
+                                                        <button class="btn" style=" background: #FF7208; color:white"
+                                                                v-if="item.TrangThai === 0 "
+                                                                v-on:click="KhoiPhucXe(item)">
+                                                            <i class="fa fa-recycle"></i>
+                                                            Khôi phục
+                                                        </button>
+                                                        <button class="btn btn-cancel "
+                                                                v-if="item.TrangThai === 1"
+                                                                v-on:click="RemoveDanhMucXe(item)" style="border:none">
+                                                            <i class="fa fa-trash"></i>
+                                                            Xóa
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="gara-tab-content" hidden>
+                                                <div class="table-frame" style="width:100%">
+                                                    <table class='table'>
+                                                        <thead>
+                                                            <tr style="background:#ccc">
+                                                                <th rowspan="2">Mã hóa đơn</th>
+                                                                <th rowspan="2">Mã báo giá</th>
+                                                                <th rowspan="2">Ngày lập hóa đơn</th>
+                                                                <th colspan="2" style="text-align:center; border-bottom: 1px solid white">Phải thanh toán</th>
+                                                                <th colspan="2" style="text-align:center; border-bottom: 1px solid white">Đã thanh toán</th>
+                                                                <th colspan="2" style="text-align:center; border-bottom: 1px solid white">Còn thiếu</th>
+                                                                <th rowspan="2">Ghi chú</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Khách hàng</th>
+                                                                <th>Bảo hiểm</th>
+                                                                <th>Khách hàng</th>
+                                                                <th>Bảo hiểm</th>
+                                                                <th>Khách hàng</th>
+                                                                <th>Bảo hiểm</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-if="idXeRowSelected == item.ID" v-for="itemHoaDon in dataHoaDon.data">
+                                                                <td><a v-on:click="showModalChiTietHoaDon(itemHoaDon.ID)"><span>{{itemHoaDon.MaHoaDon}}</span></a></td>
+                                                                <td><a v-on:click="showModalChiTietHoaDon(itemHoaDon.ID_HoaDon)"><span>{{itemHoaDon.MaBaoGia}}</span></a></td>
+                                                                <td>{{moment(itemHoaDon.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                                                <td>{{commonStatisJs.FormatNumber3Digit(itemHoaDon.PhaiThanhToan)}}</td>
+                                                                <td>{{commonStatisJs.FormatNumber3Digit(itemHoaDon.PhaiThanhToanBaoHiem)}}</td>
+                                                                <td>{{commonStatisJs.FormatNumber3Digit(itemHoaDon.KhachDaTra)}}</td>
+                                                                <td>{{commonStatisJs.FormatNumber3Digit(itemHoaDon.BaoHiemDaTra)}}</td>
+                                                                <td>{{commonStatisJs.FormatNumber3Digit(itemHoaDon.PhaiThanhToan - itemHoaDon.KhachDaTra)}}</td>
+                                                                <td>{{commonStatisJs.FormatNumber3Digit(itemHoaDon.PhaiThanhToanBaoHiem - itemHoaDon.BaoHiemDaTra)}}</td>
+                                                                <td>{{itemHoaDon.DienGiai}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                        <tfoot v-show="dataHoaDon.data.length<=0 || isLoading">
+                                                            <tr>
+                                                                <td class="text-center" v-bind:colspan="10"><i>Không có dữ liệu</i></td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                                <page-list v-bind:pagesize="dataHoaDon.PageSize"
+                                                           v-bind:listpage="dataHoaDon.ListPage" v-bind:currentpage="dataHoaDon.currentPage" v-bind:pageview="dataHoaDon.PageView"
+                                                           v-bind:numberofpage="dataHoaDon.NumberOfPage"
+                                                           v-on:pageselected="HoaDonPageChange"></page-list>
+                                                <div class="container-fluid row" style="margin-top:15px">
+                                                    <div style="float:right">
+                                                        <button class="btn btn-save" v-on:click="ExportLichSuSuaChua"
+                                                                v-if="$root.role.HoaDon.XuatFile">
+                                                            <i class="fa fa-file-excel-o"></i>
+                                                            Xuất file
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="gara-tab-diary" hidden>
+                                                <div class="table-frame">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Mã hóa đơn</th>
+                                                                <th>Ngày bảo dưỡng</th>
+                                                                <th>Số km bảo dưỡng</th>
+                                                                <th>Mã hàng hóa</th>
+                                                                <th>Tên hàng hóa</th>
+                                                                <th>Số lượng</th>
+                                                                <th>Lần bảo dưỡng</th>
+                                                                <th>Trạng thái</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-if="idXeRowSelected == item.ID" v-for="itemNhatKyBaoDuong in dataNhatKyBaoDuong.data">
+                                                                <td>{{ itemNhatKyBaoDuong.MaHoaDon }}</td>
+                                                                <td>{{moment(itemNhatKyBaoDuong.NgayLapHoaDon).format('DD/MM/YYYY')}}</td>
+                                                                <td>{{formatNumber(itemNhatKyBaoDuong.SoKmVao,0)}}</td>
+                                                                <td>{{itemNhatKyBaoDuong.MaHangHoa}}</td>
+                                                                <td>{{itemNhatKyBaoDuong.TenHangHoa}}</td>
+                                                                <td>{{formatNumber(itemNhatKyBaoDuong.SoLuong)}}</td>
+                                                                <td>{{itemNhatKyBaoDuong.LanBaoDuong}}</td>
+                                                                <td>{{itemNhatKyBaoDuong.TrangThai === 2 ? 'Đã bảo dưỡng' : 'Quá hạn'}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <page-list v-bind:pagesize="dataNhatKyBaoDuong.PageSize"
+                                                           v-bind:listpage="dataNhatKyBaoDuong.ListPage" v-bind:currentpage="dataNhatKyBaoDuong.currentPage" v-bind:pageview="dataNhatKyBaoDuong.PageView"
+                                                           v-bind:numberofpage="dataNhatKyBaoDuong.NumberOfPage"
+                                                           v-on:pageselected="NhatKyBaoDuongPageChange"></page-list>
+                                            </div>
+                                            <div class="gara-tab-calender" hidden>
+                                                <div class="flex flex-end">
+                                                    <label v-on:click="LoadLichBaoDuong">
+                                                        <input type="checkbox" id="cbChuaXuLy" value="1" v-model="dataLichBaoDuong.TrangThaiFilter" />
+                                                        Chưa xử lý
+                                                    </label>
+                                                    <label v-on:click="LoadLichBaoDuong">
+                                                        <input type="checkbox" id="cbDaNhac" value="3" v-model="dataLichBaoDuong.TrangThaiFilter" />
+                                                        Đã nhắc
+                                                    </label>
+                                                </div>
+
+                                                <div class="table-frame">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Mã hàng hóa</th>
+                                                                <th>Tên hàng hóa</th>
+                                                                <th>Lần bảo dưỡng</th>
+                                                                <th>Số km bảo dưỡng</th>
+                                                                <th>Ngày bảo dưỡng</th>
+                                                                <th>Trạng thái</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-for="(lich, index) in dataLichBaoDuong.data">
+                                                                <td>{{lich.MaHangHoa}}</td>
+                                                                <td>{{lich.TenHangHoa}}</td>
+                                                                <td>{{lich.LanBaoDuong}}</td>
+                                                                <td>{{formatNumber(lich.SoKmBaoDuong)}}</td>
+                                                                <td>{{moment(lich.NgayBaoDuongDuKien).format('DD/MM/YYYY')}}</td>
+                                                                <td>{{lich.sTrangThai}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <page-list v-bind:pagesize="dataLichBaoDuong.PageSize"
+                                                           v-bind:listpage="dataLichBaoDuong.ListPage" v-bind:currentpage="dataLichBaoDuong.currentPage" v-bind:pageview="dataLichBaoDuong.PageView"
+                                                           v-bind:numberofpage="dataLichBaoDuong.NumberOfPage"
+                                                           v-on:pageselected="LichBaoDuongPageChange"></page-list>
+                                            </div>
+                                            <div class="gara-tab-phutung" hidden>
+                                                <div class="flex flex-end" style="padding-bottom:10px;">
+                                                    <button class="btn btn-main" v-on:click="ThemMoiPhuTungTheoDoiModal(item)">
+                                                        <i class="fa fa-plus"></i>
+                                                        Thêm mới
+                                                    </button>
+                                                </div>
+
+                                                <div class="table-frame">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Mã hàng hóa</th>
+                                                                <th>Tên hàng hóa</th>
+                                                                <th>Định mức bảo dưỡng</th>
+                                                                <th>Ngày theo dõi</th>
+                                                                <th>Thời gian hoạt động</th>
+                                                                <th>Thời gian còn lại</th>
+                                                                <th>#</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-for="(itemphutung, index) in dataPhuTungTheoDoi">
+                                                                <td>{{itemphutung.MaHangHoa}}</td>
+                                                                <td>{{itemphutung.TenHangHoa}}</td>
+                                                                <td>{{itemphutung.DinhMucBaoDuong}}</td>
+                                                                <td>{{moment(itemphutung.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                                                <td>{{itemphutung.ThoiGianHoatDong}}</td>
+                                                                <td>{{itemphutung.ThoiGianConLai}}</td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-link" v-if="itemphutung.LoaiHoaDon === 29" v-on:click="EditPhuTungTheoDoi(item, itemphutung)">
+                                                                        <i class="far fa-edit"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                        <tfoot v-show="dataDanhMucXe.data.length<=0 || isLoading">
+                            <tr>
+                                <td v-show="!isLoading" class="  text-center" v-bind:colspan="ListHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div v-show="isLoading" class="table-loading">
+                        <div class="loading">
+                        </div>
+                        <div style="text-align: center;">
+                            Đang tải dữ liệu, vui lòng chờ ...
+                        </div>
+                    </div>
+                </div>
+                <page-list v-bind:pagesize="dataDanhMucXe.PageSize"
+                           v-bind:listpage="dataDanhMucXe.ListPage" v-bind:currentpage="dataDanhMucXe.currentPage" v-bind:pageview="dataDanhMucXe.PageView"
+                           v-bind:numberofpage="dataDanhMucXe.NumberOfPage"
+                           v-on:pageselected="PageChange"></page-list>
+            </div>
+        </div>
+        <div id="modalImport" class="modal fade">
+            <div id="modalContainer_NhomHHDV" class="modal-dialog draggable modal-lg">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title">Nhập danh mục xe từ file dữ liệu</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 printinport">
+                                <div class="floatleft excel-file nopadding" id="importNhapHang">
+                                    <div v-if="ImportFile.FileName === ''">
+                                        <h5 class="no-magrin">Nhập danh mục xe từ file Excel - <a href="#" class="link-text" style="float:none;"> Hướng dẫn </a></h5>
+                                        <div class="title-inport "> Tải về File mẫu <span class="blue " v-on:click="DownloadFileTeamplate('xls')"> Excel 2003</span>  hoặc<span class="blue" v-on:click="DownloadFileTeamplate('xlsx')"> bản cao hơn</span></div>
+                                    </div>
+                                    <div class="choose-file">
+                                        <span class="btn btn-import ClickSelectFile btn-file form-control no-magrin" v-if="ImportFile.FileName === ''">
+                                            Chọn file dữ liệu
+                                            <input type='file' id="imageUploadFormKH" name="image" v-on:change="FileSelected"
+                                                   accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                                        </span>
+                                        @*<div class="btn-modal-file ClickSelectFile" v-if="ImportFile.FileName === ''">
+                                                <div class="pull-right ClickSelectFile ">
+                                                    <div class="k-button floatleft table_h">
+                                                        <span class="btn btn-import btn-file form-control no-magrin">
+                                                            Chọn file dữ liệu
+                                                            <input type='file' id="imageUploadFormKH" name="image" v-on:change="FileSelected"
+                                                                                     accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>*@
+                                        <div class="list-file flex " v-if="ImportFile.FileName !== ''">
+                                            <ul class="" style="width:calc(100% - 50px)">
+                                                <li class="filterFileSelect flex flex-between">
+                                                    <span>{{ImportFile.FileName}}</span>
+                                                    <button class="btn btn-link height-24" v-on:click="RemoveFile">
+                                                        <i class="fa fa-close text-danger"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                            <button class="btn btn-main height-30 imgUploadClick" data-bind="visible:notvisibleImport">
+                                                <i class="material-icons">folder</i>
+                                            </button>
+                                        </div>
+                                        <div class="flex flex-center">
+                                            <button class="btn btn-main btnImportExcel" v-if="ImportFile.FileName !== ''" v-on:click="DoImport" v-bind:style="{ 'pointer-events': ImportFile.isImporting === true ? 'none' : '' }"><i class="fa fa-floppy-o"></i>{{ImportFile.isImporting === true ? 'Đang nhập dữ liệu' : 'Thực hiện'}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="warning-content floatleft NoteImport">
+                                    <h5 class="title-alert"><i class="fa fa-warning"></i> Lưu ý</h5>
+                                    <p>Bạn vui lòng nhập đúng định dạng hàng cột theo file Excel mẫu .</p>
+                                    <p>Hệ thống cho phép nhập tối đa 6000 xe mỗi lần từ file Excel 2003 hoặc bản cao hơn .</p>
+                                    <p>Click vào checkbook "đồng ý..." nếu bạn muốn tiếp tục import dữ liệu bằng cách bỏ qua dữ liệu sai.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="BangBaoLoi" v-if="ImportFile.ErrorLog.length !== 0">
+                            <div class="error-data">
+                                <h2 class="pull-left title">Bảng thông báo lỗi</h2>
+                            </div>
+                            <div class="table-reponsive table_error">
+                                <table class="table table-striped table-hover table-wh table_h3">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Vị trí</th>
+                                            <th>Diễn giải<span class="pull-right red " v-on:click="RemoveFile"><i class="fa fa-refresh fa-lg" aria-hidden="true"></i></span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(itemError, index) in ImportFile.ErrorLog">
+                                            <td>{{index + 1}}</td>
+                                            <td v-html="itemError.ViTri"></td>
+                                            <td v-html="itemError.MoTa"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer ">
+                                <div class="flex flex-between">
+                                    <label class="flex  continue-hh choseContinue" style="align-items:center">
+                                        <input type="checkbox" v-model="ImportFile.WithoutError" />
+                                        <span style="line-height:17px;">
+                                            Đồng ý bỏ qua lỗi và tiếp tục
+                                        </span>
+                                    </label>
+                                    <button type="button" class="btn btn-main pull-right startImport" v-bind:style="{ 'pointer-events': ImportFile.isImporting === true ? 'none' : '' }" v-bind:disabled="!ImportFile.WithoutError" v-on:click="DoImportWithoutError">
+                                        <i class="fa fa-save"></i>&nbsp; Tiếp tục
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<script src="~/Scripts/Components/Input.js"></script>*@
+
+    <script src="@Url.ContentVersioned("~/Scripts/Components/NhanVien_KhachHang.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/Input.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-datetime.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-chinhanh.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/Components/filter-checkbox.js")"></script>
+    <script src="@Url.ContentVersioned("~/Content/js/Common.js")"></script>
+    <script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiHangXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiLoaiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiMauXe.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_ThemMoiKhachHang.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_ThemNhomKhachHang.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_vmTrangThai_NguonKhach.cshtml")
+    @Html.Partial("~/Views/Gara/HoaDon/_ThongTinHoaDon.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLyBaoDuong/_ThemMoiPhuTungTheoDoi.cshtml")
+    <div class="modal fade" id="modalPopuplgDelete">
+        <div class="modal-dialog draggable modal-sm " role="document">
+            @Html.Partial("~/Views/GiaoDich/_modalDelete.cshtml")
+        </div>
+    </div>
+    <script>
+        var urlApiGara = '/api/DanhMuc/GaraAPI/';
+        var VueDanhSachXe = new Vue({
+            el: '#vDanhSachXe',
+            data: {
+                urlApi: {
+                    GaraApi: '/api/DanhMuc/GaraAPI/',
+                    HangHoaApi: '/api/DanhMuc/DM_HangHoaAPI/'
+                },
+                LichBaoDuong: [],
+                listLoaiXe: {
+                    data: [],
+                    LoaiXeSelected: '',
+                    TextSearch: ''
+                },
+                listMauXe: {
+                    data: [],
+                    MauXeSelected: '',
+                    TextSearch: ''
+                },
+                listHangXe: {
+                    data: [],
+                    HangXeSelected: '',
+                    TextSearch: ''
+                },
+                listNamSanXuat: [],
+                dataDanhMucXe: {
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                    TextSearch: ''
+                },
+                dataHoaDon: {
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10
+                },
+                dataNhatKyBaoDuong: {
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10
+                },
+                dataLichBaoDuong: {
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                    TrangThaiFilter: [1, 3]
+                },
+                dataPhuTungTheoDoi: [],
+                ListTrangThai: [{ Text: 'Đang sử dụng', Value: 1, Checked: true }, { Text: 'Hủy', Value: 0, Checked: false }],
+                isLoading: true,
+                onRefresh: true,
+                ListHeader: [],
+                idXeRowSelected: '',
+                isPageSelect: false,
+                ImportFile: {
+                    FileName: '',
+                    FileData: null,
+                    ErrorLog: [],
+                    WithoutError: false,
+                    isImporting: false
+                },
+                role: {
+                    HoaDon: {},
+                }
+            },
+            methods: {
+                GetInfor_Login: function () {
+                    $.getJSON("/api/DanhMuc/NS_NhanVienAPI/" + 'GetUserCookies', function (nv_nd) {
+                        vmThemMoiXe.inforLogin = {
+                            ID_NhanVien: nv_nd.ID_NhanVien,
+                            ID_User: nv_nd.ID,
+                            UserLogin: nv_nd.TaiKhoan,
+                            ID_DonVi: nv_nd.ID_DonVi,
+                        }
+
+                        vmThemMoiNhomKhach.inforLogin = {
+                            ID_NhanVien: nv_nd.ID_NhanVien,
+                            ID_User: nv_nd.ID,
+                            UserLogin: nv_nd.TaiKhoan,
+                            ID_DonVi: nv_nd.ID_DonVi,
+                        };
+                        // list chinhanh (used to at form themNhomKhachHang)
+                        ajaxHelper('/api/DanhMuc/DM_DonViAPI/' + 'GetListDonVi_User?ID_NguoiDung=' + nv_nd.ID, 'GET').done(function (dataDV) {
+                            if (dataDV !== null && dataDV.length > 0) {
+                                vmThemMoiNhomKhach.listData.ChiNhanhs = dataDV;
+                            }
+                        });
+                        ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + nv_nd.ID_DonVi, 'GET').done(function (dataNV) {
+                            vmThemMoiKhach.listData.NhanViens = dataNV;
+                        });
+                        // nhomkhach
+                        ajaxHelper('/api/DanhMuc/HT_ThietLapAPI/' + "GetCauHinhHeThong/" + nv_nd.ID_DonVi).done(function (data) {
+                            if (data !== null) {
+                                $.getJSON('/api/DanhMuc/DM_DoiTuongAPI/' + 'GetNhomDoiTuong_DonVi?loaiDT=1').done(function (obj) {
+                                    if (obj.res === true) {
+                                        let data = obj.data;
+                                        for (let i = 0; i < data.length; i++) {
+                                            let tenNhom = data[i].TenNhomDoiTuong;
+                                            tenNhom = tenNhom.concat(' ', locdau(tenNhom), ' ', GetChartStart(tenNhom));
+                                            data[i].Text_Search = tenNhom;
+                                        }
+                                        if (data.QuanLyKhachHangTheoDonVi) {
+                                            // only get Nhom chua cai dat ChiNhanh or in this ChiNhanh
+                                            var arrNhom = [];
+                                            for (let i = 0; i < data.length; i++) {
+                                                if (data[i].NhomDT_DonVi.length > 0) {
+                                                    let ex = $.grep(data[i].NhomDT_DonVi, function (x) {
+                                                        return x.ID === idDonVi;
+                                                    });
+                                                    if (ex.length) {
+                                                        arrNhom.push(data[i]);
+                                                    }
+                                                }
+                                                else {
+                                                    arrNhom.push(data[i]);
+                                                }
+                                            }
+                                            vmThemMoiKhach.listData.NhomKhachs = arrNhom;
+                                        }
+                                        else {
+                                            vmThemMoiKhach.listData.NhomKhachs = data;
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+                },
+                GetInfor_FormNewCustomer: function () {
+                    // trangthaikhach
+                    $.getJSON('/api/DanhMuc/ChamSocKhachHangAPI/' + 'GetTrangThaiTimKiem').done(function (data) {
+                        if (data.res === true) {
+                            vmThemMoiKhach.listData.TrangThaiKhachs = data.dataSoure.ttkhachhang;
+                        }
+                    });
+                    // nguonkhach
+                    $.getJSON('/api/DanhMuc/DM_NguonKhachAPI/' + 'GetDM_NguonKhach').done(function (data) {
+                        vmThemMoiKhach.listData.NguonKhachs = data;
+                    });
+                    // tinhthanh, quanhuyen
+                    $.getJSON('/api/DanhMuc/BaseApi/' + "GetAllTinhThanh").done(function (x) {
+                        var data = x.map(p => ({
+                            ID: p.Key,
+                            val2: p.Value
+                        }));
+                        vmThemMoiKhach.listData.TinhThanhs = data;
+                        vmThemMoiKhach.listData.ListTinhThanhSearch = data;
+                    });
+                    $.getJSON('/api/DanhMuc/DM_DoiTuongAPI/' + 'getList_VungMien').done(function (data) {
+                        vmThemMoiNhomKhach.listData.VungMiens = data;
+                    });
+                    // ds nhanvien
+                    ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + VHeader.IdDonVi, 'GET').done(function (data) {
+                        vmHoaHongDV.listData.NhanViens = data;
+                    });
+                },
+                LoadData: function () {
+                    CloseRow();// đóng các dòng đang mở khi load lại data
+                    let self = this;
+                    self.idXeRowSelected = '';
+                    self.isLoading = true;
+                    if (!self.isPageSelect) {
+                        self.dataDanhMucXe.currentPage = 1;
+                    }
+                    else {
+                        self.isPageSelect = false;
+                    }
+                    let myData = {};
+                    myData.IdHangXe = self.listHangXe.HangXeSelected;
+                    myData.IdLoaiXe = self.listLoaiXe.LoaiXeSelected;
+                    myData.IdMauXe = self.listMauXe.MauXeSelected;
+                    myData.CurrentPage = self.dataDanhMucXe.currentPage;
+                    myData.TrangThais = [""];
+                    myData.TextSearch = self.dataDanhMucXe.TextSearch;
+                    this.ListTrangThai.filter(p => p.Checked === true).forEach(p => myData.TrangThais.push(p.Value));
+                    myData.TrangThais.shift();
+                    myData.PageSize = self.dataDanhMucXe.PageSize;
+                    $.ajax({
+                        url: urlApiGara + "GetListGaraDanhMucXe_v1",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+
+                            if (data.res === true) {
+                                self.dataDanhMucXe.data = data.dataSoure.data;
+                                self.dataDanhMucXe.ListPage = data.dataSoure.ListPage;
+                                self.dataDanhMucXe.PageView = data.dataSoure.PageView;
+                                self.dataDanhMucXe.NumberOfPage = data.dataSoure.NumberOfPage;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                    self.onRefresh = false;
+                    self.isLoading = false;
+                },
+                PageChange: function (value) {
+                    if (this.dataDanhMucXe.currentPage !== value.currentPage) {
+                        this.dataDanhMucXe.currentPage = value.currentPage;
+                        commonStatisJs.TableRowRemoveFocus();
+                        this.isPageSelect = true;
+                        this.LoadData();
+                    } else if (this.dataDanhMucXe.PageSize !== value.pageSize) {
+                        this.dataDanhMucXe.PageSize = value.pageSize;
+                        commonStatisJs.TableRowRemoveFocus();
+                        this.LoadData();
+                    }
+                },
+                TextSearchEnterKeyup: function (e) {
+                    if (e.keyCode === 13) {
+                        this.LoadData();
+                    }
+                },
+                RowSelected: function (value) {
+                    let self = this;
+                    if (value.ID !== self.idXeRowSelected) {
+                        self.idXeRowSelected = value.ID;
+                        self.LoadHoaDonByIdXe();
+                        self.LoadNhatKyBaoDuong();
+                        self.LoadLichBaoDuong();
+                        if (value.NguoiSoHuu === 1) {
+                            self.LoadPhuTungTheoDoi();
+                        }
+                    }
+                },
+                RemoveDanhMucXe: function (item) {
+                    var self = this;
+                    commonStatisJs.ConfirmDialog_OKCancel('Xóa xe',
+                        'Bạn có chắc chắn muốn xóa xe <b>'.concat(item.BienSo, ' </b> không ? '), function () {
+                            self.CapNhatTrangThaiXe(item, 0);
+                        });
+                },
+                CapNhatTrangThaiXe: function (item, trangthai) {
+                    var self = this;
+                    var sLoai = 'Xóa';
+                    if (trangthai === 1) {
+                        sLoai = 'Khôi phục';
+                    }
+                    $.getJSON(urlApiGara + 'DeleteDanhMucXe_v1?id=' + item.ID + '&trangthai=' + trangthai).done(function (x) {
+                        if (x.res) {
+                            commonStatisJs.ShowMessageSuccess(sLoai + " xe thành công");
+                            var diary = {
+                                ID_DonVi: VHeader.IdDonVi,
+                                ID_NhanVien: VHeader.IdNhanVien,
+                                LoaiNhatKy: trangthai === 0 ? 3 : 2,
+                                ChucNang: 'Danh sách xe',
+                                NoiDung: sLoai.concat(' xe ', item.BienSo),
+                                NoiDungChiTiet: sLoai.concat(' xe ', item.BienSo),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                            self.LoadData();
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger(sLoai + " xe thất bại");
+                        }
+                    })
+                },
+                KhoiPhucXe: function (item) {
+                    var self = this;
+                    self.CapNhatTrangThaiXe(item, 1);
+                },
+                //Begin Hãng xe
+                LoadHangXe: function () {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiGara + "GetAllHangXes",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.listHangXe.data = data.dataSoure;
+                                //vmMauXe.listData.HangXe = self.listHangXe.data;
+                                vmThemMoiXe.listData.HangXe = data.dataSoure;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                SelectHangXe: function (value) {
+                    if (value !== this.listHangXe.HangXeSelected) {
+                        this.listHangXe.HangXeSelected = value;
+                        this.LoadData();
+                    }
+                },
+                //End Hãng xe
+                //Begin Loại xe
+                LoadLoaiXe: function () {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiGara + "GetAllLoaiXes",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.listLoaiXe.data = data.dataSoure;
+                                //vmMauXe.listData.LoaiXe = self.listLoaiXe.data;
+                                vmThemMoiXe.listData.LoaiXe = self.listLoaiXe.data;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                SelectLoaiXe: function (value) {
+                    if (value !== this.listLoaiXe.LoaiXeSelected) {
+                        this.listLoaiXe.LoaiXeSelected = value;
+                        this.LoadData();
+                    }
+                },
+                //End Loại xe
+                //Begin Mẫu xe
+                LoadMauXe: function () {
+                    let self = this;
+                    $.ajax({
+                        url: urlApiGara + "GetAllDanhMucMauXe",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                self.listMauXe.data = data.dataSoure;
+                                vmThemMoiXe.listData.MauXe = self.listMauXe.data;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                SelectMauXe: function (value) {
+                    if (value !== this.listMauXe.MauXeSelected) {
+                        this.listMauXe.MauXeSelected = value;
+                        this.LoadData();
+                    }
+                },
+                //End Mẫu xe
+                //Begin Hóa đơn
+                LoadHoaDonByIdXe: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdChiNhanhs = [$('#hd_IDdDonVi').val()];
+                    myData.BaoGiaDateFrom = '2016-01-01';
+                    myData.BaoGiaDateTo = moment(new Date()).add('days', 1).format('YYYY-MM-DD');
+                    myData.IDXe = self.idXeRowSelected;
+                    myData.CurrentPage = self.dataHoaDon.currentPage;
+                    myData.TrangThais = [0, 1];
+                    myData.TextSearch = '';
+                    myData.PageSize = self.dataHoaDon.PageSize;
+                    if (myData.IDXe !== "") {
+                        $.ajax({
+                            url: urlApiGara + "Gara_GetListHoaDonSuaChua_v2",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.dataHoaDon.data = data.dataSoure.data;
+                                    self.dataHoaDon.ListPage = data.dataSoure.ListPage;
+                                    self.dataHoaDon.PageView = data.dataSoure.PageView;
+                                    self.dataHoaDon.NumberOfPage = data.dataSoure.NumberOfPage;
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                            }
+                        });
+                    }
+                },
+                HoaDonPageChange: function (value) {
+                    if (this.dataHoaDon.currentPage !== value.currentPage) {
+                        this.dataHoaDon.currentPage = value.currentPage;
+                        this.LoadHoaDonByIdXe();
+                    } else if (this.dataHoaDon.PageSize !== value.pageSize) {
+                        this.dataHoaDon.PageSize = value.pageSize;
+                        this.LoadHoaDonByIdXe();
+                    }
+                },
+                //End Hóa đơn
+                //Begin Nhật ký bảo dưỡng
+                LoadNhatKyBaoDuong: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IDXe = self.idXeRowSelected;
+                    myData.CurrentPage = self.dataNhatKyBaoDuong.currentPage;
+                    myData.PageSize = self.dataNhatKyBaoDuong.PageSize;
+                    if (myData.IDXe !== "") {
+                        $.ajax({
+                            url: urlApiGara + "Gara_GetListNhatKyBaoDuongTheoXe",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.dataNhatKyBaoDuong.data = data.dataSoure.data;
+                                    self.dataNhatKyBaoDuong.ListPage = data.dataSoure.ListPage;
+                                    self.dataNhatKyBaoDuong.PageView = data.dataSoure.PageView;
+                                    self.dataNhatKyBaoDuong.NumberOfPage = data.dataSoure.NumberOfPage;
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                            }
+                        });
+                    }
+                },
+                NhatKyBaoDuongPageChange: function (value) {
+                    if (this.dataNhatKyBaoDuong.currentPage !== value.currentPage) {
+                        this.dataNhatKyBaoDuong.currentPage = value.currentPage;
+                        this.LoadNhatKyBaoDuong();
+                    } else if (this.dataNhatKyBaoDuong.PageSize !== value.pageSize) {
+                        this.dataNhatKyBaoDuong.PageSize = value.pageSize;
+                        this.LoadNhatKyBaoDuong();
+                    }
+                },
+                //End nhật ký bảo dưỡng
+                //Begin Lịch bảo dưỡng
+                LoadLichBaoDuong: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IDXe = self.idXeRowSelected;
+                    myData.CurrentPage = self.dataLichBaoDuong.currentPage;
+                    myData.PageSize = self.dataLichBaoDuong.PageSize;
+                    myData.TrangThai = self.dataLichBaoDuong.TrangThaiFilter.toString();
+                    if (myData.IDXe !== "") {
+                        $.ajax({
+                            url: urlApiGara + "Gara_GetListLichBaoDuongTheoXe",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.dataLichBaoDuong.data = data.dataSoure.data;
+                                    self.dataLichBaoDuong.ListPage = data.dataSoure.ListPage;
+                                    self.dataLichBaoDuong.PageView = data.dataSoure.PageView;
+                                    self.dataLichBaoDuong.NumberOfPage = data.dataSoure.NumberOfPage;
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                            }
+                        });
+                    }
+                },
+                LichBaoDuongPageChange: function (value) {
+                    if (this.dataLichBaoDuong.currentPage !== value.currentPage) {
+                        this.dataLichBaoDuong.currentPage = value.currentPage;
+                        this.LoadLichBaoDuong();
+                    } else if (this.dataLichBaoDuong.PageSize !== value.pageSize) {
+                        this.dataLichBaoDuong.PageSize = value.pageSize;
+                        this.LoadLichBaoDuong();
+                    }
+                },
+                //End Lịch bảo dưỡng
+                DownloadFileTeamplate: function (file) {
+                    let self = this;
+                    var url = self.urlApi.HangHoaApi + "Download_TeamplateImport?fileSave=" + "FileImport_DanhSachXe." + file;
+                    window.open(url)
+                },
+                ReLoadAllData: function () {
+                    let self = this;
+                    self.LoadHangXe();
+                    self.LoadLoaiXe();
+                    self.LoadMauXe();
+                    self.LoadData();
+                },
+                //Begin Import file
+                FileSelected: function (evt) {
+                    let self = this;
+                    self.ImportFile.FileName = evt.target.files[0].name;
+                    self.ImportFile.FileData = evt.target.files[0];
+                },
+                RemoveFile: function () {
+                    let self = this;
+                    self.ImportFile.FileName = '';
+                    self.ImportFile.FileData = null;
+                    self.ImportFile.ErrorLog = [];
+                },
+                DoImport: function () {
+                    let self = this;
+                    self.ImportFile.isImporting = true;
+                    let formData = new FormData();
+                    formData.append("fileUpload", self.ImportFile.FileData);
+                    formData.append("header", self.ListHeader);
+                    $.ajax({
+                        url: self.urlApi.GaraApi + "ImportDanhSachXe",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            if (data.res === true) {
+                                $('#modalImport').modal('hide');
+                                self.RemoveFile();
+                                self.ReLoadAllData();
+                                commonStatisJs.ShowMessageSuccess(data.mess);
+                            }
+                            else {
+                                if (data.dataSoure.Message !== "") {
+                                    commonStatisJs.ShowMessageDanger(data.dataSoure.Message);
+                                    self.ImportFile.ErrorLog = data.dataSoure.ErrorList;
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                            }
+                            self.ImportFile.isImporting = false;
+                        }
+                    });
+                },
+                DoImportWithoutError: function () {
+                    let self = this;
+                    self.ImportFile.isImporting = true;
+                    let formData = new FormData();
+                    formData.append("fileUpload", self.ImportFile.FileData);
+                    formData.append("errorList", self.ImportFile.ErrorLog.map(p => p.index));
+                    $.ajax({
+                        url: self.urlApi.GaraApi + "ImportDanhSachXeWithoutError",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            if (data.res === true) {
+                                $('#modalImport').modal('hide');
+                                self.RemoveFile();
+                                self.ReLoadAllData();
+                                commonStatisJs.ShowMessageSuccess(data.mess);
+                            }
+                            else {
+                                if (data.dataSoure.Message !== "") {
+                                    commonStatisJs.ShowMessageDanger(data.dataSoure.Message);
+                                    self.ImportFile.ErrorLog = data.dataSoure.ErrorList;
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                            }
+                            self.ImportFile.isImporting = false;
+                        }
+                    });
+                },
+                //End Import file
+                //Begin ExportFile
+                ExportDanhSachXe: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdHangXe = self.listHangXe.HangXeSelected;
+                    myData.IdLoaiXe = self.listLoaiXe.LoaiXeSelected;
+                    myData.IdMauXe = self.listMauXe.MauXeSelected;
+                    myData.CurrentPage = self.dataDanhMucXe.currentPage;
+                    myData.TrangThais = self.ListTrangThai.filter(p => p.Checked === true).map(p => p.Value);
+                    myData.TextSearch = self.dataDanhMucXe.TextSearch;
+                    myData.ColHide = self.ListHeader.filter(p => p.colShow === false).map(p => p.index);
+
+                    $.ajax({
+                        url: urlApiGara + "ExportExcel_GetListGaraDanhMucXe_v1",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                var url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + data.mess;
+                                window.location.href = url;
+                                commonStatisJs.ShowMessageSuccess("Xuất file thành công.");
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                ExportLichSuSuaChua: function () {
+                    let self = this;
+                    let myData = {};
+                    myData.IdChiNhanhs = [$('#hd_IDdDonVi').val()];
+                    myData.BaoGiaDateFrom = '2016-01-01';
+                    myData.BaoGiaDateTo = moment(new Date()).add('days', 1).format('YYYY-MM-DD');
+                    myData.IDXe = self.idXeRowSelected;
+                    myData.CurrentPage = self.dataHoaDon.currentPage;
+                    myData.TrangThais = [0, 1];
+                    myData.TextSearch = '';
+                    if (myData.IDXe !== "") {
+                        $.ajax({
+                            url: urlApiGara + "ExportExcel_Gara_GetListHoaDonSuaChua_v2",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    var url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + data.mess;
+                                    window.location.href = url;
+                                    commonStatisJs.ShowMessageSuccess("Xuất file thành công.");
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                            }
+                        });
+                    }
+                },
+                //End ExportFile
+                showModalChiTietHoaDon: function (id) {
+                    vmChiTietHoaDon.showModalChiTietHoaDon(id);
+                },
+                //Begin Phụ tùng theo dõi
+                LoadPhuTungTheoDoi: function () {
+                    let self = this;
+                    let mydata = {};
+                    mydata.IdXe = self.idXeRowSelected;
+                    $.ajax({
+                        url: self.urlApi.GaraApi + "GetListPhuTungTheoDoiByIdXe_v1",
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        data: mydata
+                    }).done(function (result) {
+                        if (result.res) {
+                            self.dataPhuTungTheoDoi = result.dataSoure.data;
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Không thể tải dữ liệu phụ tùng theo dõi!');
+                    }).always(function () {
+
+                    });
+                },
+                EditPhuTungTheoDoi: function (item, itemphutung) {
+                    let self = this;
+                    vmThemMoiPhuTungTheoDoi.ListPhuTungExist = self.dataPhuTungTheoDoi.map(p => ({
+                        Id: p.Id,
+                        IdDonViQuiDoi: p.IdDonViQuiDoi,
+                        TrangThai: 1
+                    }));
+                    vmThemMoiPhuTungTheoDoi.ListPhuTung = self.dataPhuTungTheoDoi.filter(p => p.IdHoaDon === itemphutung.IdHoaDon).map(p => ({
+                        ID: p.IdHangHoa,
+                        ID_DonViQuiDoi: p.IdDonViQuiDoi,
+                        MaHangHoa: p.MaHangHoa,
+                        TenHangHoa: p.TenHangHoa,
+                        DinhMucBaoDuong: p.DinhMucBaoDuong
+                    }));
+                    vmThemMoiPhuTungTheoDoi.NgayTheoDoi = itemphutung.NgayLapHoaDon;
+                    vmThemMoiPhuTungTheoDoi.IdHoaDon = itemphutung.IdHoaDon;
+                    vmThemMoiPhuTungTheoDoi.IdXe = item.ID;
+                    vmThemMoiPhuTungTheoDoi.showModal(false);
+                },
+                ThemMoiPhuTungTheoDoiModal: function (item) {
+                    let self = this;
+                    vmThemMoiPhuTungTheoDoi.ListPhuTungExist = self.dataPhuTungTheoDoi.map(p => ({
+                        Id: p.Id,
+                        IdDonViQuiDoi: p.IdDonViQuiDoi,
+                        TrangThai: 1
+                    }));
+                    vmThemMoiPhuTungTheoDoi.IdXe = item.ID;
+                    vmThemMoiPhuTungTheoDoi.showModal(true);
+                }
+                //End Phụ tùng theo dõi
+            },
+            created: function () {
+                let self = this;
+                let localtionTemp = window.location.href.substring(window.location.href.lastIndexOf("/") + 1, window.location.href.length);
+                if (localtionTemp.indexOf('?') > 0) {
+                    self.dataDanhMucXe.TextSearch = localtionTemp.substring(localtionTemp.indexOf('?') + 1, localtionTemp.length);
+                }
+
+                self.LoadHangXe();
+                self.LoadLoaiXe();
+                self.LoadMauXe();
+                self.GetInfor_Login();
+                self.GetInfor_FormNewCustomer();
+                if (localStorage.getItem('DMXe') === null) {
+                    self.ListHeader = [{ colName: 'colBienSo', colText: 'Biển số', colShow: true, index: 0 },
+                    { colName: 'colMaChuXe', colText: 'Mã chủ xe', colShow: true, index: 1 },
+                    { colName: 'colChuXe', colText: 'Chủ xe', colShow: true, index: 2 },
+                    { colName: 'colDienThoai', colText: 'Điện thoại', colShow: true, index: 3 },
+                    { colName: 'colHangXe', colText: 'Hãng xe', colShow: true, index: 4 },
+                    { colName: 'colLoaiXe', colText: 'Loại xe', colShow: true, index: 5 },
+                    { colName: 'colMauXe', colText: 'Mẫu xe', colShow: true, index: 6 },
+                    { colName: 'colNamSanXuat', colText: 'Năm sản xuất', colShow: true, index: 7 },
+                    { colName: 'colSoKhung', colText: 'Số khung', colShow: true, index: 8 },
+                    { colName: 'colSoMay', colText: 'Số máy', colShow: true, index: 9 },
+                    { colName: 'colMauSon', colText: 'Màu sơn', colShow: true, index: 10 },
+                    { colName: 'colDungTich', colText: 'Dung tích', colShow: true, index: 11 },
+                    { colName: 'colHopSo', colText: 'Hộp số', colShow: true, index: 12 },
+                    { colName: 'colGhiChu', colText: 'Ghi chú', colShow: false, index: 13 },
+                    { colName: 'colTrangThai', colText: 'Trạng thái', colShow: true, index: 14 }];
+                    localStorage.setItem('DMXe', JSON.stringify(this.ListHeader));
+                }
+                else {
+
+                    self.ListHeader = JSON.parse(localStorage.getItem('DMXe'));
+                    if (self.ListHeader.length != 15 || self.ListHeader[0].index === undefined) {
+                        self.ListHeader = [{ colName: 'colBienSo', colText: 'Biển số', colShow: true, index: 0 },
+                        { colName: 'colMaChuXe', colText: 'Mã chủ xe', colShow: true, index: 1 },
+                        { colName: 'colChuXe', colText: 'Chủ xe', colShow: true, index: 2 },
+                        { colName: 'colDienThoai', colText: 'Điện thoại', colShow: true, index: 3 },
+                        { colName: 'colHangXe', colText: 'Hãng xe', colShow: true, index: 4 },
+                        { colName: 'colLoaiXe', colText: 'Loại xe', colShow: true, index: 5 },
+                        { colName: 'colMauXe', colText: 'Mẫu xe', colShow: true, index: 6 },
+                        { colName: 'colNamSanXuat', colText: 'Năm sản xuất', colShow: true, index: 7 },
+                        { colName: 'colSoKhung', colText: 'Số khung', colShow: true, index: 8 },
+                        { colName: 'colSoMay', colText: 'Số máy', colShow: true, index: 9 },
+                        { colName: 'colMauSon', colText: 'Màu sơn', colShow: true, index: 10 },
+                        { colName: 'colDungTich', colText: 'Dung tích', colShow: true, index: 11 },
+                        { colName: 'colHopSo', colText: 'Hộp số', colShow: true, index: 12 },
+                        { colName: 'colGhiChu', colText: 'Ghi chú', colShow: false, index: 13 },
+                        { colName: 'colTrangThai', colText: 'Trạng thái', colShow: true, index: 14 }];
+                        localStorage.setItem('DMXe', JSON.stringify(this.ListHeader));
+                    }
+                }
+                self.LoadData();
+                // check role
+                self.role.HoaDon.XuatFile = vmThemMoiXe.CheckRole('HoaDon_XuatFile');
+                vmThemMoiKhach.role.KhachHang.ThemMoi = vmThemMoiXe.CheckRole('KhachHang_ThemMoi');
+                vmThemMoiKhach.role.KhachHang.CapNhat = vmThemMoiXe.CheckRole('KhachHang_CapNhat');
+            },
+            watch: {
+                ListHeader: {
+                    handler: function () {
+                        localStorage.setItem('DMXe', JSON.stringify(this.ListHeader));
+                    },
+                    deep: true
+                }
+            }
+        });
+        var btn = document.querySelector('.btn.btn-main')
+        var list = document.querySelector('.dropdown-list')
+        btn.addEventListener('click', (e) => {
+            list.classList.toggle('open')
+        });
+        window.addEventListener('click', (e) => {
+            if (list.contains(e.target)) {
+                list.classList.add('open')
+            }
+            else {
+                list.classList.remove('open')
+            }
+        });
+        function toggleTab(ele, options) {
+            var menu = $(ele).parent();
+            $(ele).siblings().removeClass("active")
+            $(ele).addClass("active")
+            menu.siblings().removeClass("active")
+            switch (options) {
+                case 1:
+                    menu.siblings(".gara-tab-detail").addClass("active");
+                    break;
+                case 2:
+                    menu.siblings(".gara-tab-content").addClass("active");
+                    break;
+                case 3:
+                    menu.siblings(".gara-tab-diary").addClass("active");
+                    break;
+                case 4:
+                    menu.siblings(".gara-tab-calender").addClass("active");
+                    break;
+                case 5:
+                    menu.siblings(".gara-tab-phutung").addClass("active");
+                    break;
+            }
+        };
+        //Begin Show/hide dropbox
+        $(".gara-search-HH").click(
+            function () {
+                $(this).siblings(".gara-search-dropbox").show();
+                $(this).select().focus();
+            });
+        $(document).mouseup(function (e) {
+            var container = $(".gara-search-dropbox");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.hide();
+            }
+        });
+        //End Show/hide dropbox
+        //Begin reload data when modal close
+        $('#ThemMoiXemModal').on('hidden.bs.modal', function () {
+            if (vmThemMoiXe.saveOK) {
+                VueDanhSachXe.LoadData();
+            }
+        });
+        $('#ThemMoiHangXe').on('hidden.bs.modal', function () {
+            if (vmHangXe.saveOK) {
+
+                VueDanhSachXe.LoadHangXe();
+            }
+        });
+        $('#ThemMoiLoaiXe').on('hidden.bs.modal', function () {
+            if (vmLoaiXe.saveOK) {
+                VueDanhSachXe.LoadLoaiXe();
+            }
+        });
+        $('#ThemMoiMauXe').on('hidden.bs.modal', function () {
+            if (vmMauXe.saveOK) {
+                VueDanhSachXe.LoadMauXe();
+            }
+        });
+        //toggle filter;
+        function CloseRow() {
+            $(".table-frame").find("tr").removeClass("active");
+            $(".table-frame").removeClass("table-active");
+        }
+        $(window.document).on('shown.bs.modal', '.modal', function () {
+            window.setTimeout(function () {
+                $('[autofocus]', this).focus();
+                $('[autofocus]').select();
+            }.bind(this), 100);
+        });
+        //End reload data
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.modal-dialog').draggable({
+                handle: ".modal-header"
+            });
+        })
+    </script>
+</body>
+</html>

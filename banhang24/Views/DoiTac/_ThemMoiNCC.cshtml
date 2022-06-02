@@ -1,0 +1,128 @@
+﻿<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title" id="lblTitleNCC"></h4>
+    </div>
+    <div class="modal-body ">
+       
+            <div class="col-md-6 col-xs-12 nopadding">
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label>Mã nhà cung cấp</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" required="" placeholder="Mã mặc định"
+                               data-bind="value: MaDoiTuong">
+                    </div>
+                </div>
+                <div class="form-group floatleft hideCode">
+                    <span>
+                        &nbsp;&nbsp; <span id="lblCode" class="red"></span>&nbsp;&nbsp;
+                        <a id="aCode" data-bind="click: " style="display:none">Xem chi tiết</a>
+                    </span>
+                </div>
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label style="letter-spacing:-1px">Tên nhà cung cấp <span style="color:red">(*)</span></label>
+                    <div class="form-news"><input type="text" id="txtTenDoiTuong" class="form-control" autofocus="" required="" data-bind="value: TenDoiTuong"></div>
+                </div>
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label>Điện thoại</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" required="" data-bind="value: DienThoai, event:{blur: $parent.checkExist}"
+                               onkeypress="return chekPhone(event)" maxlength="15">
+                    </div>
+                </div>
+                <div class="form-group floatleft hidePhone">
+                    <span>
+                        &nbsp;&nbsp; <span id="lblPhone" class="red"></span>&nbsp;&nbsp;
+                        <a id="aPhone" data-bind="click: " style="display:none">Xem chi tiết</a>
+                    </span>
+                </div>
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label>Địa chỉ</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" data-bind="value: DiaChi">
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label class="form-label control-label ">Tỉnh thành</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" placeholder="Chọn tỉnh thành"
+                               data-bind="jqAuto:{source:TinhThanhs,value: newDoiTuong().ID_TinhThanh, inputProp:'TenTinhThanh', valueProp:'ID',labelProp:'TenTinhThanh', filter: filterProvince}">
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label class="form-label control-label req ng-binding">Quận/ Huyện</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" placeholder="Chọn quận huyện"
+                               data-bind="jqAuto:{source:QuanHuyens,value: newDoiTuong().ID_QuanHuyen, inputProp:'TenQuanHuyen', valueProp:'ID',labelProp:'TenQuanHuyen',filter: filterDistrict}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xs-12 nopadding-right">
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label class="form-label control-label req ng-binding">Email</label>
+                    <div class="form-news"><input type="text" class="form-control " required="" data-bind="value: Email"></div>
+                </div>
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label class="form-label control-label ">Mã số thuế</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" required="" placeholder="" data-bind="value: MaSoThue"
+                               onkeypress="return keypressNumber(event)" maxlength="13">
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label class="form-label control-label">Nhóm  NCC</label>
+                    <div class="input-group form-news">
+                        <select class="form-control" data-bind="options:NhomDoiTuongs, value: newDoiTuong().ID_NhomDoiTuong,
+                                                 optionsText: 'TenNhomDoiTuong', optionsValue: 'ID'"></select>
+                        <div class="input-group-btn">
+                            <button class="btn btn-default op-js-themmoinhomhang" id="btnThemMoiNhom" href="javascript:void(0)" style="height:30px"
+                                    data-bind="click: showpopAddNhomNCC_popup">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                    <label>Ghi chú</label><div class="form-news">
+                        <textarea rows="3" data-bind="value: GhiChu">  </textarea>
+                    </div>
+                </div>
+
+            </div>
+
+        
+
+    </div> 
+    <div class="modal-footer ">
+        <div class="flex flex-end">
+            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+            <button type="button" class="btn btn-save" id="btnLuuDoiTuong" data-bind="click: $root.addKH_NCC"><i class="fa fa-save"></i> Lưu</button>
+        </div>
+       
+    </div>
+</div>
+<script>
+    function chekPhone(e) {
+        var keyCode = window.event.keyCode || e.which;
+        var arrAscii = [32, 40, 41, 43, 45]; // space,(,),+, -,
+        if (keyCode < 48 || keyCode > 57) {
+            // 8: tab; 127: delete
+            if (keyCode == 8 || keyCode == 127 || arrAscii.indexOf(keyCode) > -1) {
+                return;
+            }
+            return false;
+        }
+    }
+    function keypressNumber(e) {
+        var keyCode = window.event.keyCode || e.which;
+        if (keyCode < 48 || keyCode > 57) {
+            // 8: tab; 127: delete
+            if (keyCode == 8 || keyCode == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    var loginUser = '@Session["user"]';
+</script>

@@ -1,0 +1,1321 @@
+﻿@using System.Web.Optimization;
+@using banhang24.Hellper;
+@using Model
+@{
+    ViewBag.Title = "Bảng lương chi tiết";
+    Layout = null;
+}
+<style>
+    .table-frame {
+        min-height: 150px;
+    }
+    .apply-all::after {
+        margin-left: 7px !important;
+        margin-right: 5px !important;
+    }
+    .apply-all2::after {
+        margin-left: 15px !important;
+        margin-right: 5px !important;
+    }
+    .phucapattr {
+        float: inherit;
+        background: none;
+        border: 1px solid var(--color-primary);
+        color: #686868
+    }
+        .phucapattr.active {
+            background: var(--color-primary);
+            color: white;
+        }
+    .popup {
+        position: absolute;
+        width: 375px;
+        height: auto;
+        padding: 15px;
+        left: 0;
+        border: 1px solid var(--color-primary);
+        border-radius: 5px;
+        box-shadow: 3px 3px 3px rgba(0,0,0,0.25);
+        z-index: 1;
+        background: white;
+        right: unset;
+        left: -270px;
+        top: -15px;
+        z-index: 9999
+    }
+    .change-phucap button:hover {
+        background: var(--color-primary);
+        color: white;
+    }
+    .hover-li-ddl {
+        background: #e6e6e6;
+    }
+    .modal-chi-tiet-luong-tr-title {
+        padding-left: 30px;
+    }
+    .modal-chi-tiet-luong-p-title {
+        font-size: 13px;
+        color: var(--color-main);
+        margin-top: 15px;
+        border-bottom: 1px solid;
+    }
+    button.btn-ok {
+        margin-right: 5px;
+        display: inline-block;
+        height: 25px;
+        width: auto;
+        padding: 5px 12px;
+        background: var(--color-primary);
+        color: white;
+        font-weight: 600;
+    }
+    .change-hesoluong {
+        position: absolute;
+        z-index: 9999;
+        width: 250px;
+        background-color: white;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-shadow: 3px 3px 6px rgba(0,0,0,0.05);
+        padding: 7px;
+    }
+        .change-hesoluong::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 10px;
+            border-bottom: 5px solid;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+        }
+    .header-r .btn-func i {
+        padding-right: 7px;
+    }
+    .header-tiltle {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        background: #ccc;
+        font-weight: 700;
+    }
+    .tbl-tenca {
+        background: rgba(0,0,0,0.05);
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+    .tbl-row {
+        padding-top: 7px;
+        padding-bottom: 7px;
+        display: flex; /* nếu dùng trên thiết bị di động --> nên remove display: flex (vì nó không tự động co dãn theo col-sm*/
+        align-items: center;
+    }
+    .toogleButton a {
+        width: 50px;
+        border: 1px solid;
+        padding: 5px;
+        font-weight: 700;
+    }
+        .toogleButton a.active {
+            background: var(--color-primary);
+            color: white;
+        }
+</style>
+<link href="~/Content/bangluongchitiet.css" rel="stylesheet" />
+<div class="op-layout-6-4" id="salarydetail">
+    @*nội dụng bên trái*@
+    <div class="op-layout-6" id="left-div">
+        <div class="h-30 h-header">
+            <div class="header-l" style="    width: 400px;    margin: 0 calc(50% - 416px) 0 0;">
+                <input type="text" class="search-nv-input" placeholder="Thêm nhân viên vào bảng lương" v-on:keyup="seachStaff(event)" v-model="txtSearchStaff" />
+                <button class="search-nv-btn">
+                    <i class="material-icons">search</i>
+                </button>
+            </div>
+            <div class="header-l" style="width:250px; vertical-align:middle">
+                <label style="float:left; padding:7px;">Kiểu tính lương</label>
+                <a class="select-func" style="    height: 30px;    display: inline-block;    padding: 7px;    border: 1px solid #ccc;    border-radius: 3px;    color: #686868;" data-toggle="dropdown"><span>Xem tất cả</span><i class="fa fa-angle-down pull-right"></i></a>
+                <div class="dropdown-menu" style="    left: unset;    right: 0; padding:0">
+                    <ul>
+                        <li class="func-options">
+                            <label>
+                                <input type="checkbox" v-model="filter.isCheckAll" v-on:change="filter_checkAll" />
+                                <span>Xem tất cả</span>
+                            </label>
+                        </li>
+                        @foreach (var item in commonEnumHellper.KieuTinhLuong)
+                        {
+                            <li class="func-options" id="@item.Key">
+                                <label>
+                                    <input type="checkbox" v-model="filter.arrFilter.filter(x=>x.ID=== @item.Key)[0].Value" v-on:change="filter_checkOne()" />
+                                    <span>@item.Value</span>
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="header-r">
+                <div class="pull-right" v-if="luongot.arrIDNhanVien.length > 1 || phucap.arrIDNhanVien.length > 1 || giamtru.arrIDNhanVien.length > 1">
+                    @if (Model.View)
+                    {
+                        <a href="javascript:void(0)" class="btn-func" v-on:click="showmany_luongOT" v-if="luongot.arrIDNhanVien.length > 0 ">
+                            <i class="fa fa-edit"></i>Thay đổi lương OT
+                        </a>
+                        <a href="javascript:void(0)" class="btn-func" v-on:click="showmany_PhuCap" v-if="phucap.arrIDNhanVien.length > 0 ">
+                            <i class="fa fa-edit"></i>Thay đổi phụ cấp
+                        </a>
+                        <a href="javascript:void(0)" class="btn-func" v-on:click="showmany_GiamTru" v-if="giamtru.arrIDNhanVien.length > 0 ">
+                            <i class="fa fa-edit"></i>Thay đổi giảm trừ
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="drop-list-nv" hidden>
+                <ul class="list-group list-group-flush" style="max-height:345px; overflow:auto">
+                    <li class="list-group-item" v-for="(nvien, index) in listdata.StaffSearchs" v-on:click="choseStaff(nvien,1)">
+                        <div>
+                            <p>{{nvien.MaNhanVien}}</p>
+                            <label>{{nvien.TenNhanVien}}</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="h-content">
+            <div class="table-frame">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã nhân viên</th>
+                            <th>Tên Nhân viên</th>
+                            <th>Lương chính</th>
+                            <th>
+                                <span>Làm thêm</span>
+                                <input type="checkbox" v-model="luongot.isCheckAll" v-on:change="luongOT_checkAll" />
+                            </th>
+                            <th>Hoa hồng</th>
+                            <th>
+                                <span>Phụ cấp</span>
+                                <input type="checkbox" v-model="phucap.isCheckAll" v-on:change="phucap_checkAll" />
+                            </th>
+                            <th>
+                                <span>Giảm trừ</span>
+                                <input type="checkbox" v-model="giamtru.isCheckAll" v-on:change="giamtru_checkAll" />
+                            </th>
+                            <th>Tổng lương</th>
+                            <th> <i class="material-icons del-icon" v-on:click="ctluong_removeAll">delete</i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(ctluong,index) in bangluongchitiet" :key="ctluong.ID_NhanVien">
+                            <td>{{index + 1}} </td>
+                            <td>{{ctluong.MaNhanVien}}</td>
+                            <td>{{ctluong.TenNhanVien}}</td>
+                            <td class="text-right" v-on:click="showModalLuongChinh(ctluong)">
+                                <a class="form-control input-noborder" data-toggle="modal">{{commonStatisJs.FormatNumber3Digit(ctluong.LuongChinh)}}</a>
+                            </td>
+                            <td class="text-right">
+                                <a class="form-control input-noborder"
+                                   v-on:click="showModalLuongOT(ctluong)">{{commonStatisJs.FormatNumber3Digit(ctluong.LuongOT)}}</a>
+                                <input type="checkbox" style="display:inline" v-model="ctluong.LuongOT_isCheck" v-on:change="luongOT_changeCheck(ctluong)" />
+                            </td>
+                            <td class="text-right"><span>{{commonStatisJs.FormatNumber3Digit(ctluong.ChietKhau)}}</span></td>
+                            <td class="text-right">
+                                <a class="form-control input-noborder" v-on:click="showModalPhuCap(ctluong)">{{commonStatisJs.FormatNumber3Digit(ctluong.PhuCap)}}</a>
+                                <input type="checkbox" style="display:inline" v-model="ctluong.PhuCap_isCheck" v-on:change="phucap_changeCheck(ctluong)" />
+                            </td>
+
+                            <td class="text-right">
+                                <a class="form-control input-noborder" v-on:click="showModalGiamTru(ctluong)">{{commonStatisJs.FormatNumber3Digit(ctluong.TongTienPhat + ctluong.GiamTruCoDinh_TheoPTram)}}</a>
+                                <input type="checkbox" style="display:inline" v-model="ctluong.GiamTru_isCheck" v-on:change="giamtru_changeCheck(ctluong)" />
+                            </td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ctluong.LuongThucNhan)}}</td>
+                            <td v-on:click="ctluong_removeItem(index)">
+                                <a><i class="material-icons del-icon">delete</i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="tr-summary">
+                            <td colspan="3">Tổng </td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(bangluong.LuongChinh)}}</td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(bangluong.LuongOT)}}</td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(bangluong.HoaHong)}}</td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(bangluong.PhuCap)}}</td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(bangluong.GiamTru)}}</td>
+                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(bangluong.TongLuong)}}</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    @*Nội dung bên phải*@
+    <div class="op-layout-4 op-tablet-hide" id="right-div">
+        <div class="main-infor">
+            <div class="header-all">
+                Bảng tính lương chi tiết
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Người tạo</label>
+                </div>
+                <div class="content-r">
+                    <input class="form-control" type="text" placeholder="Tìm kiếm theo tên hoặc nhân viên" id="creator"
+                           v-on:keyup="seachUserLogin(event)" v-model="txtSearchUser" />
+                    @*Thay thế hộp tìm kiếm bằng thẻ div này*@
+                    <div class="replace-input input-noborder form-control" hidden></div>
+                </div>
+            </div>
+            <div class="drop-list-creator header-l" hidden>
+                <ul class="list-group list-group-flush" style="max-height: 300px; overflow: auto;">
+                    <li class="list-group-item" v-for="(nvien, index) in listdata.UserSearchs" :key="nvien.ID" v-on:click="choseStaff(nvien,2)">
+                        <div>
+                            <p>{{nvien.MaNhanVien}}</p>
+                            <label>{{nvien.TenNhanVien}}</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Mã bảng lương</label>
+                </div>
+                <div class="content-r">
+                    <input class="form-control" type="text" placeholder="Mã mặc định" v-model="bangluong.MaBangLuong" />
+                </div>
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Tên bảng lương</label>
+                </div>
+                <div class="content-r">
+                    <input class="form-control" type="text" placeholder="Nhập tên bảng lương" v-model="bangluong.TenBangLuong" />
+                </div>
+            </div>
+            <div class=" h-30" style="display:none">
+                <div class="name-l">
+                    <label>Kỳ hạn trả</label>
+                </div>
+                <div class="content-r">
+                    <input class="form-control" type="text" placeholder="Kỳ hạn trả" />
+                </div>
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Kỳ làm việc</label>
+                </div>
+                <div class="content-r">
+                    <input class="form-control date-form" data-id="1" v-model="bangluong.TuNgay" />
+                    <span style="display:inline-block"> - </span>
+                    <input class="form-control date-form" data-id="2" v-model="bangluong.DenNgay" />
+                </div>
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Ngày công chuẩn</label>
+                </div>
+                <div class="content-r">
+                    <span>{{bangluong.NgayCongChuan}}</span>
+                </div>
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Trạng thái</label>
+                </div>
+                <div class="content-r">
+                    <span>Tạm tính</span>
+                </div>
+            </div>
+            <div class=" h-30">
+                <div class="name-l">
+                    <label>Chi nhánh</label>
+                </div>
+                <div class="content-r">
+                    <span>{{bangluong.TenChiNhanh}}</span>
+                </div>
+            </div>
+            <div class="h-30">
+                <textarea rows="3" class=" input-noborder" type="text" placeholder="Ghi chú" v-model="bangluong.GhiChu" />
+            </div>
+            <div class="h-60 btn-function-right">
+                @if (Model.Insert)
+                {
+                    <button class="w-30 h-60  btn-save " v-on:click="SaveSalary(1)">
+                        <i class="material-icons">save</i><p>Lưu tạm</p>
+                    </button>
+                }
+                @if (Model.Update)
+                {
+                    <button class="w-30 h-60 btn-confirm " v-on:click="SaveSalary(3)">
+                        <i class="material-icons">done</i> <p>Chốt lương</p>
+                    </button>
+                }
+                <button class="w-30 h-60 btn-confirm btn-pink " style="margin-right:0; background:#ff6464" v-on:click="GotoListBangLuong">
+                    <i class="material-icons">close</i> <p>Hủy</p>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="navigation-bottom select-1">
+        <a class="nav-list selected" id="dr_table"><span>Bảng lương</span></a>
+        <a class="nav-list " id="dr_detail"><span>Thông tin</span></a>
+        <a class="nav-list " id="cancle_task"><span>Hủy</span></a>
+    </div>
+    <div id="menu-mobile">
+        <a id="gohome" class="actived" onclick="navto(1)"><i class="glyphicon glyphicon-th-list"></i><small>Bảng lương</small></a>
+        <a id="gopay" onclick="navto(2)"><i class="glyphicon glyphicon-link"></i><small>Thông tin</small></a>
+        <a class="pull-right" id="goback-btn">
+            <i class="glyphicon glyphicon-remove"></i>
+            <small>Hủy</small>
+        </a>
+        <script>
+            function navto(opt) {
+                switch (opt) {
+                    case 1:
+                        $("#gohome").addClass("actived");
+                        $("#gohome").siblings().removeClass("actived");
+                        $(".op-layout-4").addClass("op-tablet-hide");
+                        $(".op-layout-6").removeClass("op-tablet-hide");
+                        break;
+                    case 2:
+                        $("#gopay").addClass("actived");
+                        $("#gopay").siblings().removeClass("actived");
+                        $(".op-layout-6").addClass("op-tablet-hide");
+                        $(".op-layout-4").removeClass("op-tablet-hide");
+                        break;
+                }
+            }
+        </script>
+    </div>
+    @*Lương chính*@<!-- Modal -->
+    <div class="modal " id="luongchinh_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog draggable modal-lg" role="document">
+            <div class="modal-content dragable ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <h4 class="modal-title" id="exampleModalLabel">Lương chính</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+                </div>
+                <div class="modal-body">
+                    <div class="table-frame" v-for="(ot, index) in listdata.LuongChinh">
+                        <div class="col-sm-12">
+                            <h3>{{ot.MaNhanVien}} - {{ot.TenNhanVien}}</h3>
+                        </div>
+                        <div class="col-sm-12" v-for="(ct, index2) in ot.LstLuongChinh">
+                            <div v-for="(ca, index3) in ct.ListCa">
+                                <div v-for="(otloai, index4) in ca.LstDetail">
+                                    <div class="col-sm-12 nopadding-left" v-if="(otloai.LoaiLuong === 1 || otloai.LoaiLuong === 2) && index3 === 0  && index4 === 0">
+                                        <p class="modal-chi-tiet-luong-p-title" v-if="otloai.LoaiLuong === 1">
+                                            Lương cố định
+                                        </p>
+                                        <p class="modal-chi-tiet-luong-p-title" v-if="otloai.LoaiLuong === 2">
+                                            Lương theo ngày
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left header-tiltle" v-if="(otloai.LoaiLuong === 1 || otloai.LoaiLuong === 2) && index3 === 0 && index4 === 0">
+                                        <div class="col-sm-2">Ngày công chuẩn</div>
+                                        <div class="col-sm-2 text-right">Công thực tế</div>
+                                        <div class="col-sm-2">Công áp dụng</div>
+                                        <div class="col-sm-3 text-right">Mức lương</div>
+                                        <div class="col-sm-3 text-right">Thành tiền</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="(otloai.LoaiLuong === 1 || otloai.LoaiLuong === 2)">
+                                        <div class="col-sm-2 text-right">
+                                            {{otloai.NgayCongChuan}}
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            {{commonStatisJs.FormatNumber3Digit(otloai.SoNgayDiLam)}}
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoCaApDung"
+                                                   v-on:keyup="luongchinh_EditSoGioApDung(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <span>{{otloai.LuongCoBan}}</span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">{{commonStatisJs.FormatNumber3Digit(otloai.ThanhTien,2)}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left" v-if="(otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4) && index3 === 0 && index4 == 0">
+                                        <p class="modal-chi-tiet-luong-p-title" v-if="otloai.LoaiLuong === 3">
+                                            Theo ca
+                                        </p>
+                                        <p class="modal-chi-tiet-luong-p-title" v-if="otloai.LoaiLuong === 4">
+                                            Theo giờ
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-12 header-tiltle" v-if="(otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4) && index3 === 0  && index4 == 0">
+                                        <div class="col-sm-3">Tên ca</div>
+                                        <div class="col-sm-2" v-if="otloai.LoaiLuong === 3">Lương 1 ca</div>
+                                        <div class="col-sm-2" v-if="otloai.LoaiLuong === 4">Lương 1 giờ</div>
+                                        <div class="col-sm-2 text-right" v-if="otloai.LoaiLuong === 3">Số ca làm</div>
+                                        <div class="col-sm-2 text-right" v-if="otloai.LoaiLuong === 4">Số giờ làm</div>
+                                        <div class="col-sm-2 text-right" v-if="otloai.LoaiLuong === 3">Số ca áp dụng</div>
+                                        <div class="col-sm-2 text-right" v-if="otloai.LoaiLuong === 4">Số giờ áp dụng</div>
+                                        <div class="col-sm-3 text-right">Thành tiền</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-tenca" v-if="(otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4) && index4 === 0 ">
+                                        {{otloai.TenCa}} : {{otloai.LuongCoBan}}
+                                        <span v-if="otloai.LoaiLuong === 3"> / ca</span>
+                                        <span v-if="otloai.LoaiLuong === 4"> / giờ</span>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 3 && (otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4)">
+                                        <div class="col-sm-3">
+                                            <span> Ngày thường</span>
+                                            <span v-if="otloai.LaPhanTram==1">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.LuongCoBanQuyDoi" v-on:keyup="luongchinh_EditLuongCoBan(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{commonStatisJs.FormatNumber3Digit(otloai.SoNgayDiLam)}}</span>
+                                        </div>
+                                        <div class="col-sm-2 ">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoCaApDung"
+                                                   v-on:keyup="luongchinh_EditSoGioApDung(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-3 text-right">{{commonStatisJs.FormatNumber3Digit(otloai.ThanhTien,2)}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 6 && (otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4)">
+                                        <div class="col-sm-3">
+                                            <span> Thứ 7</span>
+                                            <span v-if="otloai.LaPhanTram==1">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.LuongCoBanQuyDoi" v-on:keyup="luongchinh_EditLuongCoBan(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{commonStatisJs.FormatNumber3Digit(otloai.SoNgayDiLam)}}</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoCaApDung" v-on:keyup="luongchinh_EditSoGioApDung(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-3 text-right">{{commonStatisJs.FormatNumber3Digit(otloai.ThanhTien,2)}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 0 && (otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4)">
+                                        <div class="col-sm-3">
+                                            <span>Chủ nhật</span>
+                                            <span v-if="otloai.LaPhanTram==1">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.LuongCoBanQuyDoi" v-on:keyup="luongchinh_EditLuongCoBan(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{commonStatisJs.FormatNumber3Digit(otloai.SoNgayDiLam)}}</span>
+                                        </div>
+                                        <div class="col-sm-2 ">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoCaApDung" v-on:keyup="luongchinh_EditSoGioApDung(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-3 text-right">{{commonStatisJs.FormatNumber3Digit(otloai.ThanhTien,2)}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 1 && (otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4)">
+                                        <div class="col-sm-3">
+                                            <span>  Ngày nghỉ</span>
+                                            <span v-if="otloai.LaPhanTram==1">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.LuongCoBanQuyDoi" v-on:keyup="luongchinh_EditLuongCoBan(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{commonStatisJs.FormatNumber3Digit(otloai.SoNgayDiLam)}}</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoCaApDung"
+                                                   v-on:keyup="luongchinh_EditSoGioApDung(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-3 text-right">{{commonStatisJs.FormatNumber3Digit(otloai.ThanhTien,2)}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 2 &&(otloai.LoaiLuong === 3 || otloai.LoaiLuong === 4)">
+                                        <div class="col-sm-3">
+                                            <span> Ngày lễ</span>
+                                            <span v-if="otloai.LaPhanTram==1">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.LuongCoBanQuyDoi" v-on:keyup="luongchinh_EditLuongCoBan(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{commonStatisJs.FormatNumber3Digit(otloai.SoNgayDiLam)}}</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control text-right"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoCaApDung" v-on:keyup="luongchinh_EditSoGioApDung(index4,otloai)" />
+                                        </div>
+                                        <div class="col-sm-3 text-right">{{commonStatisJs.FormatNumber3Digit(otloai.ThanhTien,2)}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid" style="margin-bottom:15px;">
+                        <div class="flex flex-end">
+                            @*@if (Model.Update)
+                            {
+                                <button type="button" class="btn" style="background: var(--color-primary); color: white;">
+                                    Lưu
+                                </button>
+                            }*@
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Làm thêm*@<!-- Modal -->
+    <div class="modal fade" id="lamthem_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog draggable modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Lương làm thêm</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                <div class="change-hesoluong" hidden>
+                    <div>
+                        <input placeholder="Hệ số lương mới" class="form-control" onkeypress="keypressNumber_limitNumber(event, this)"
+                               style="width:120px !important; display:inline-block"
+                               v-model="luongot.hesoluong" v-on:keyup="luongot_EditHeSoLuong" />
+                        <span class="toogleButton">
+                            <a href="javascript:void(0)" class="tooglevnd"
+                               v-bind:class="{active: !luongot.LaPhanTram}"
+                               v-on:click="thietLapOT_ClickVND">VND</a>
+                            <a href="javascript:void(0)" class="tooglevnd"
+                               v-bind:class="{active: luongot.LaPhanTram}"
+                               v-on:click="thietLapOT_ClickPtram">%</a>
+                        </span>
+                    </div>
+                    <div v-if="luongot.arrIDNhanVien.length === 1">
+                        <input type="checkbox" checked class="apply-all" v-model="luongot.applyAllCa" />
+                        <span style="margin-left: 5px;display: inline-block;">Áp dụng với toàn bộ ca</span>
+                    </div>
+                    <div v-if="luongot.arrIDNhanVien.length > 1">
+                        <input type="checkbox" checked class="apply-all" v-model="luongot.applyAllNVien" />
+                        <span style="margin-left: 5px;display: inline-block;">Áp dụng với toàn bộ nhân viên</span>
+                    </div>
+                    <div class="flex flex-end"><button class="btn-ok" v-on:click="Agree_HeSoLuong">OK</button></div>
+                </div>
+                <div class="modal-body" style="overflow: auto; max-height: 1000px;">
+                    <div class="table-frame" v-for="(ot, index) in listdata.LuongOT">
+                        <div class="col-sm-12">
+                            <h3>{{ot.MaNhanVien}} - {{ot.TenNhanVien}}</h3>
+                        </div>
+                        <div class="col-sm-12 forRoot" v-for="(ct, index2) in ot.LstLuongOT">
+                            <div v-for="(ca, index22) in ct.ListCa">
+                                <div v-for="(otloai, index3) in ca.LstDetail">
+                                    <div class="col-sm-12 nopadding-left" v-if="otloai.LoaiLuong === 2 && index22 === 0  && index3 === 0">
+                                        <p class="modal-chi-tiet-luong-p-title">
+                                            Theo ngày
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left header-tiltle" v-if="otloai.LoaiLuong === 2 && index22 === 0 && index3 === 0">
+                                        <div class="col-sm-3">Mặc định</div>
+                                        <div class="col-sm-3">Lương 1 giờ công</div>
+                                        <div class="col-sm-2 text-right">Số giờ OT</div>
+                                        <div class="col-sm-2 text-right">Số giờ áp dụng</div>
+                                        <div class="col-sm-2 text-right">Thành tiền</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 3 && otloai.LoaiLuong === 2">
+                                        <div class="col-sm-3">
+                                            <span> Ngày thường</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 6 && otloai.LoaiLuong === 2">
+                                        <div class="col-sm-3">
+                                            <span> Thứ 7</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control" v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 0 && otloai.LoaiLuong === 2">
+                                        <div class="col-sm-3">
+                                            <span> Chủ nhật</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control" v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 1 && otloai.LoaiLuong === 2">
+                                        <div class="col-sm-3">
+                                            <span>Ngày nghỉ</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control" v-model="otloai.SoGioOTApDung"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 2 && otloai.LoaiLuong === 2">
+                                        <div class="col-sm-3">
+                                            <span>Ngày lễ</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left" v-if="otloai.LoaiLuong === 3 && index22 === 0 && index3 == 0">
+                                        <p class="modal-chi-tiet-luong-p-title">
+                                            Theo ca
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-12 header-tiltle" v-if="otloai.LoaiLuong === 3 && index22 === 0  && index3 == 0">
+                                        <div class="col-sm-3">Tên ca</div>
+                                        <div class="col-sm-3">Lương 1 giờ công</div>
+                                        <div class="col-sm-2 text-right">Số giờ OT</div>
+                                        <div class="col-sm-2 text-right">Số giờ OT áp dụng</div>
+                                        <div class="col-sm-2 text-right">Thành tiền</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-tenca" v-if="otloai.LoaiLuong === 3 && index3 === 0 ">
+                                        {{otloai.TenCa}} : {{commonStatisJs.FormatNumber3Digit( otloai.Luong1GioCongCoBan)}}/giờ
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 3 && otloai.LoaiLuong === 3">
+                                        <div class="col-sm-3">
+                                            <span> Ngày thường</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 6 && otloai.LoaiLuong === 3">
+                                        <div class="col-sm-3">
+                                            <span> Thứ 7</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 0 && otloai.LoaiLuong === 3">
+                                        <div class="col-sm-3">
+                                            <span>Chủ nhật</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 1 && otloai.LoaiLuong === 3">
+                                        <div class="col-sm-3">
+                                            <span>  Ngày nghỉ</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                    <div class="col-sm-12 nopadding-left tbl-row" v-if="otloai.LoaiNgayThuong_Nghi === 2 && otloai.LoaiLuong === 3">
+                                        <div class="col-sm-3">
+                                            <span> Ngày lễ</span>
+                                            <span v-if="otloai.LaPhanTram==1" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{otloai.HeSoLuong}} %)
+                                                </a>
+                                            </span>
+                                            <span v-if="otloai.LaPhanTram==0" v-on:click="ShowDiv_HeSoLuong(index3, otloai, event)">
+                                                <a href="javascript:void(0)">
+                                                    ({{commonStatisJs.FormatNumber3Digit(otloai.HeSoLuong)}})
+                                                </a>
+                                            </span>
+                                        </div>
+                                        <div class="col-sm-3 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber(event)"
+                                                   v-model="otloai.Luong1GioCongQuyDoi" v-on:keyup="luongot_EditLuongCoBan(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <span>{{otloai.SoGioOT}}</span>
+                                        </div>
+                                        <div class="col-sm-2 text-right">
+                                            <input class="form-control"
+                                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                                   v-model="otloai.SoGioOTApDung" v-on:keyup="luongot_EditSoGioApDung(index3,otloai)" />
+                                        </div>
+                                        <div class="col-sm-2 text-right">{{otloai.ThanhTien}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid" style="margin-bottom:15px;">
+                        <div class="flex flex-end">
+                            @*@if (Model.Update)
+                            {
+                                <button type="button" class="btn" style="background: var(--color-primary); color: white;" v-on:click="AgreeChangeLuongOT">
+                                    Lưu
+                                </button>
+                            }*@
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Phụ cấp*@<!-- Modal -->
+    <div class="modal fade" id="phucap_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Phụ cấp</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                <div class="change-phucap popup arrow-box" hidden>
+                    <input placeholder="Nhập giá trị" class="form-control" style="width:150px !important; display:inline-block"
+                           onkeypress="keypressNumber_limitNumber(event, this)"
+                           v-model="phucap.giatri" v-on:keyup="phucap_EditMucPhuCap" />
+                    <button class="btn btn-main phucapattr" style="display:inline-block"
+                            v-bind:class="{ active: phucap.isPTramLuong === false}"
+                            v-on:click="phucap_PtramOrVND">
+                        VND
+                    </button>
+                    <button class="btn btn-main phucapattr" style=" display:inline-block"
+                            v-bind:class="{ active: phucap.isPTramLuong }"
+                            v-on:click="phucap_PtramOrVND">
+                        % Lương chính
+                    </button>
+                    <div>
+                        <input type="checkbox" checked class="apply-all2" v-model="phucap.LaPhuCapTheoNgay" v-on:change="OnOff_PhuCapTheoNgay" />
+                        <span>Là phụ cấp theo ngày công</span>
+                    </div>
+                    <div style="margin :3px 0" v-if="phucap.arrIDNhanVien.length > 1">
+                        <input type="checkbox" checked class="apply-all2" v-model="phucap.applyAllNVien" />
+                        <span style="margin-left: 5px;  display: inline-block;">Áp dụng với toàn bộ nhân viên</span>
+                        <div class="flex flex-end"><button class="btn-ok" v-on:click="phucap_applyAllNhanVien">OK</button></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="table-frame" v-for="(pc, indexOut) in listdata.PhuCap" :key="pc.ID_NhanVien">
+                        <div class="col-sm-12">
+                            <h3>{{pc.MaNhanVien}} - {{pc.TenNhanVien}}</h3>
+                        </div>
+                        <div class="col-sm-12 col-xs-12 header-tiltle">
+                            <div class="col-sm-4 col-xs-6">Tên</div>
+                            <div class="col-sm-4 col-xs-6">Thời gian áp dụng</div>
+                            <div class="col-sm-2 col-xs-6">Mức</div>
+                            <div class="col-sm-2 col-xs-6">Thành tiền</div>
+                        </div>
+                        <div v-for="loai in pc.LstLoaiPhuCap">
+                            <div v-for="(ct, index) in loai.LstDetail">
+                                <div class="col-sm-12 col-xs-12 tbl-tenca" v-if="index === 0 && formatNumberToFloat(ct.PhuCapCoDinh) > 0">
+                                    Phụ cấp cố định
+                                </div>
+                                <div class="col-sm-12 col-xs-12 tbl-row" v-if="formatNumberToFloat(ct.PhuCapCoDinh) > 0">
+                                    <div class="col-sm-4 col-xs-6">{{ct.TenPhuCap}}</div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <span>{{commonStatisJs.convertDateTime(ct.NgayApDung)}} </span>
+                                        <span>
+                                            - {{commonStatisJs.convertDateTime(ct.NgayKetThuc)}}
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <input class="form-control" v-model="ct.PhuCapCoDinh"
+                                               v-on:click="showdiv_PhuCapLuong(index, ct, event)" />
+                                    </div>
+                                    <div class="col-sm-2 col-xs-6 text-right" style="border-bottom:1px solid #ccc">
+                                        <span>{{ct.ThanhTien}}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-xs-12 tbl-tenca" v-if="index === 0 && formatNumberToFloat(ct.ThanhTienPC_TheoNgay) > 0">
+                                    Phụ cấp theo ngày
+                                </div>
+                                <div class="col-sm-12 col-xs-12 tbl-row" v-if="formatNumberToFloat(ct.ThanhTienPC_TheoNgay) > 0">
+                                    <div class="col-sm-4 col-xs-6"><span>{{ct.TenPhuCap}}</span><span>({{ct.SoNgayDiLam}})</span></div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <span>{{commonStatisJs.convertDateTime(ct.NgayApDung)}} </span>
+                                        <span>
+                                            - {{commonStatisJs.convertDateTime(ct.NgayKetThuc)}}
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <input class="form-control" v-model="ct.PhuCapTheoNgay"
+                                               v-on:click="showdiv_PhuCapLuong(index, ct, event)" />
+                                    </div>
+                                    <div class="col-sm-2 col-xs-6 text-right">{{ct.ThanhTienPC_TheoNgay}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid" style="margin-bottom:15px;">
+                        <div class="flex flex-end">
+                            @*@if (Model.Update)
+                            {
+                                <button type="button" class="btn" v-on:click="phucap_AgreeChange" style="background: var(--color-primary); color: white;">
+                                    Lưu
+                                </button>
+                            }*@
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Giảm trừ*@<!-- Modal -->
+    <div class="modal fade" id="giamtru_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Giảm trừ</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                <div class="change-giamtru popup arrow-box" hidden style="width:396px!important">
+                    <input placeholder="Nhập giá trị" class="form-control" style="width:150px !important; display:inline-block"
+                           onkeypress="keypressNumber_limitNumber(event, this)"
+                           v-model="giamtru.giatri" v-on:keyup="giamtru_EditMucGiamTru" />
+                    <button class="btn btn-main phucapattr" style="display:inline-block"
+                            v-bind:class="{ active: giamtru.isPTramLuong === false}"
+                            v-on:click="giamtru_PtramOrVND">
+                        VND
+                    </button>
+                    <button class="btn btn-main phucapattr" style=" display:inline-block"
+                            v-bind:class="{ active: giamtru.isPTramLuong }"
+                            v-on:click="giamtru_PtramOrVND">
+                        % Tổng lương nhận
+                    </button>
+                    <div>
+                        <input type="checkbox" checked class="apply-all2" v-model="giamtru.LaGiamTruTheoLan" v-on:change="OnOff_GiamTruTheoLan" />
+                        <span style="margin-left: 5px;  display: inline-block;">Là giảm trừ theo lần</span>
+                    </div>
+                    <div style="margin :3px 0" v-if="giamtru.arrIDNhanVien.length > 1">
+                        <input type="checkbox" checked class="apply-all2" v-model="giamtru.applyAllNVien" />
+                        <span style="margin-left: 5px;  display: inline-block;">Áp dụng với toàn bộ nhân viên</span>
+                        <div class="flex flex-end"><button class="btn-ok" v-on:click="giamtru_applyAllNhanVien">OK</button></div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="table-frame" v-for="(pc, indexOut) in listdata.GiamTru" :key="pc.ID_NhanVien">
+                        <div class="col-sm-12">
+                            <h3>{{pc.MaNhanVien}} - {{pc.TenNhanVien}}</h3>
+                        </div>
+                        <div class="col-sm-12 col-xs-12 header-tiltle">
+                            <div class="col-sm-4 col-xs-6">Tên</div>
+                            <div class="col-sm-4 col-xs-6">Thời gian áp dụng</div>
+                            <div class="col-sm-2 col-xs-6">Mức</div>
+                            <div class="col-sm-2 col-xs-6">Thành tiền</div>
+                        </div>
+                        <div v-for="loai in pc.LstLoaiGiamTru">
+                            <div v-for="(ct, index) in loai.LstDetail">
+                                <div class="col-sm-12 col-xs-12 tbl-tenca" v-if="index === 0 && formatNumberToFloat(ct.GiamTruCoDinh) > 0">
+                                    Giảm trừ cố định
+                                </div>
+                                <div class="col-sm-12 col-xs-12 tbl-row" v-if="formatNumberToFloat(ct.GiamTruCoDinh) > 0">
+                                    <div class="col-sm-4 col-xs-6">{{ct.TenPhuCap}}</div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <span>{{commonStatisJs.convertDateTime(ct.NgayApDung)}} </span>
+                                        <span>
+                                            - {{commonStatisJs.convertDateTime(ct.NgayKetThuc)}}
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <input class="form-control" v-model="ct.GiamTruCoDinh"
+                                               onkeypress="keypressNumber(event)"
+                                               v-on:click="showdiv_GiamTruLuong(index, ct, event)"
+                                               v-on:keyup="giamtru_EditLuongCoBan(index,ct)" />
+                                    </div>
+                                    <div class="col-sm-2 col-xs-6 text-right" style="border-bottom:1px solid #ccc">
+                                        <span>{{ct.ThanhTien}}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-xs-12 tbl-tenca" v-if="index === 0 && formatNumberToFloat(ct.ThanhTienGiamTruTheoLan) > 0">
+                                    Giảm trừ theo lần
+                                </div>
+                                <div class="col-sm-12 col-xs-12 tbl-row" v-if="formatNumberToFloat(ct.ThanhTienGiamTruTheoLan) > 0">
+                                    <div class="col-sm-4 col-xs-6"><span>{{ct.TenPhuCap}}</span><span>({{ct.SoLanDiMuon}})</span></div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <span>{{commonStatisJs.convertDateTime(ct.NgayApDung)}} </span>
+                                        <span>
+                                            - {{commonStatisJs.convertDateTime(ct.NgayKetThuc)}}
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <input class="form-control" v-model="ct.GiamTruTheoLan"
+                                               v-on:keyup="giamtru_EditLuongCoBan(index,ct)"
+                                               v-on:click="showdiv_GiamTruLuong(index, ct, event)" />
+                                    </div>
+                                    <div class="col-sm-2 col-xs-6 text-right">{{ct.ThanhTienGiamTruTheoLan}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid" style="margin-bottom:15px;">
+                        <div class="flex flex-end">
+                            @*<button type="button" class="btn" style="background: var(--color-primary); color: white;" v-on:click="giamtru_AgreeChange">
+                                Lưu
+                            </button>*@
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/NhanSu/BangLuongChiTiet.js"></script>
+<script>
+    $("#dr_table").click(function () {
+        //document.getElementById("left-div").scrollIntoView();
+        $(this).parent().removeClass("select-2");
+        $(this).parent().addClass("select-1");
+        $(this).addClass("selected");
+        $(this).siblings().removeClass("selected");
+        $("#right-div").hide();
+        $("#left-div").show();
+    })
+    $("#dr_detail").click(function () {
+        $(this).parent().removeClass("select-1");
+        $(this).parent().addClass("select-2");
+        $(this).addClass("selected");
+        $(this).siblings().removeClass("selected");
+        //document.getElementById("right-div").scrollIntoView();
+        $("#left-div").hide();
+        $("#right-div").show();
+    })
+    $("#cancle_task").click(function () {
+        //document.getElementById("").scrollIntoView();
+        return;
+    })
+    $("#goback-btn").click(function () {
+        window.location.href = '/#/payroll';
+    })
+    $(".search-nv-input").click(function () {
+        if ($(".drop-list-nv").css("display") == ("block")) {
+            $(".drop-list-nv").css("display", "none")
+        } else {
+            $(".drop-list-nv").css("display", "block");
+        } $(document).mouseup(function () {
+            $(".drop-list-nv").css("display", "none");
+        });
+    })
+    $("#creator").click(function () {
+        if ($(".drop-list-creator").css("display") == ("block")) {
+            $(".drop-list-creator").css("display", "none")
+        } else {
+            $(".drop-list-creator").css("display", "block");
+        } $(document).mouseup(function () {
+            $(".drop-list-creator").css("display", "none");
+        });
+    })
+    $("#branch").click(function () {
+        if ($(".drop-list-branch").css("display") == ("block")) {
+            $(".drop-list-branch").css("display", "none")
+        } else {
+            $(".drop-list-branch").css("display", "block");
+        } $(document).mouseup(function () {
+            $(".drop-list-branch").css("display", "none");
+        });
+    });
+    $(".phucapattr").click(function () {
+        $(this).addClass("active");
+        $(this).siblings("phucapattr").removeClass("active");
+    })
+    function keypressNumber(e) {
+        var keypressed = null;
+        if (window.event) {
+            keypressed = window.event.keyCode; //IE
+        }
+        else {
+            keypressed = e.which; //NON-IE, Standard
+        }
+        if (keypressed < 48 || keypressed > 57) {
+            if (keypressed == 8 || keypressed == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    $.fn.getCursorPosition = function () {
+        var el = $(this).get(0);
+        var pos = 0;
+        if ('selectionStart' in el) {
+            pos = el.selectionStart;
+        } else if ('selection' in document) {
+            el.focus();
+            var Sel = document.selection.createRange();
+            var SelLength = document.selection.createRange().text.length;
+            Sel.moveStart('character', -el.value.length);
+            pos = Sel.text.length - SelLength;
+        }
+        return pos;
+    };
+    function keypressNumber_limitNumber(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode !== 46 || $(obj).val().indexOf('.') !== -1) && (keyCode < 48 || keyCode > 57)) {
+            if (event.which !== 46 || $this.indexOf('.') !== -1) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        // get postion current of cursor
+        var pos = $(obj).getCursorPosition();
+        if ($this.indexOf(".") > -1 && $this.split('.')[1].length > 2) {
+            var lenNumber = $this.length;
+            // if pos nam sau chu so thap phan --> khong cho add them so nua
+            if (pos > lenNumber - 3) {
+                event.preventDefault();
+            }
+        }
+    }
+    $(".dropdown-menu ").click(function () {
+        $(this).parent().addClass("open");
+        $(document).mouseup(function () { $(".dropdown-menu ").parent().removeClass("open"); })
+    })
+</script>

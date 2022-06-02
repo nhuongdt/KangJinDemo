@@ -1,0 +1,236 @@
+﻿
+@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "Danh sách người dùng";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+
+
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Assets/js/Admin/NewsUser.js"></script>
+    <script>
+        $(function () {
+            $("#datetimepicker").datetimepicker({
+                format: 'MM/DD/YYYY'
+            });
+        });
+    </script>
+
+}
+
+<div class="right_col">
+    <h3>Danh sách người dùng</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleInsert)
+                {
+                    <button class="btn-updata btn-green" data-bind="click: AddNewUser"><i class="fa fa-pencil-square-o"></i> Thêm mới người dùng</button>
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-reponsive">
+                <table id="example" class=" table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th id="sortName">Họ tên</th>
+                            <th id="sortUsename">Tài khoản</th>
+                            <th id="sortBir">Ngày sinh</th>
+                            <th id="sortAdress">Địa chỉ</th>
+                            <th id="sortemail">Email</th>
+                            <th id="sortPhone">SĐT</th>
+                            <th id="sortCearedate">Ngày tạo</th>
+                            <th id="sortCreateBy">Người tạo</th>
+                            <th id="sortStatus">Trạng thái</th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th>Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: LisstUser">
+                        <tr>
+                            <td data-bind="text: Name"></td>
+                            <td data-bind="text: UserName"></td>
+                            <td data-bind="text: ConvertDate(BirthDay)"></td>
+                            <td data-bind="text: Address"></td>
+                            <td data-bind="text: Email"></td>
+                            <td data-bind="text: Phone"></td>
+                            <td data-bind="text:ConvertDate(CreatDate)"></td>
+                            <td data-bind="text:CreatedBy"></td>
+                            <td data-bind="text: ConvertStatuts(Status)"></td>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <td>
+                                    <div class="edit-delete">
+                                        @if (Model.RoleUpdate)
+                                        {
+                                            <a class="red" href="#" data-bind="click: $parent.btnUpdateUser">
+                                                <i class="ace-icon fa fa-pencil "></i>
+                                            </a>
+                                        }
+                                        @if (Model.RoleDelete)
+                                        {
+                                            <a class="blue" href="#" data-bind="click: $parent.deleteUser">
+                                                <i class="ace-icon fa fa-trash-o "></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageIten">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;">Cập nhật người dùng</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="content-addnews fl">
+                    <span style="display:none" data-bind="value: koId"></span>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Tài khoản</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" disabled data-bind="value: koUserName" />
+                            <div id="validateTitleNews" style="color:red"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Mật khẩu</Span></div>
+                        <div class="col-md-9">
+                            <input type="password" class="form-control" data-bind="value: koPassword" />
+                            <div id="validateTitleNews" style="color:red"></div>
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Nhóm quyền</Span></div>
+                        <div class="col-md-9">
+                            <select class="form-control" id="selCategoryNews" data-bind="options:UserGroupList, optionsText: 'GroupName', optionsValue: 'ID'"></select>
+
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Họ tên</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" data-bind="value: koName" />
+                            <div id="validateTagNews" style="color:red"></div>
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Ngày sinh</Span></div>
+                        <div class="col-md-9">
+                            <div class="container">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class='col-sm-6'>
+                                            <input type='text' class="form-control" id='datetimepicker' placeholder="mm/dd/yyyy" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Địa chỉ</Span></div>
+                        <div class="col-md-9">
+                            <textarea class="form-control" rows="4" id="valSummaryNews" data-bind="value: koAddress"></textarea>
+                            <div id="validateSummaryNews" style="color:red"></div>
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Email</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" data-bind="value: koEmail" />
+                            <div id="validateTitleNews" style="color:red"></div>
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Số điện thọai</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" data-bind="value: koPhone" />
+                            <div id="validateTagNews" style="color:red"></div>
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Trạng thái</Span></div>
+                        <div class="col-md-9">
+                            <form id='form-id'>
+                                <input id='watch-me' name='star' type='radio' data-bind="checked: koStatus, checkedValue: true" /> Hoạt động
+                                <input id='see-me' name='star' type='radio' data-bind="checked: koStatus, checkedValue: false" />  Không hoạt động
+                            </form>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: SaveUpdateUser"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

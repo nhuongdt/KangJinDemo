@@ -1,0 +1,176 @@
+﻿<div class="modal fade" id="myModalnapTienDichVu">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;"> {{TitleDichvu}}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="content-addnews fl">
+                    <div class="fl form-addnews">
+                        <label>
+                            Tên khách hàng
+                        </label>
+                        <div class="form-wrap">
+                            <input class="form-control" type="text" v-model="model.TenKhachNap">
+                        </div>
+                    </div>
+                    <div class="fl form-addnews" >
+                        <label>Tên gian hàng</label>
+                        <div class="form-wrap">
+                            <input class="form-control" type="text" v-model="model.TenCuaHang" :disabled="IsNew">
+                        </div>
+                    </div>
+                    <div class="fl form-addnews ">
+                        <label>Số tiền</label>
+                        <div class="form-wrap">
+                            <input class="form-control" type="number" v-model="model.SoTien">
+                        </div>
+                    </div>
+                    <div class="fl form-addnews ">
+                        <label>Trạng thái</label>
+                        <div class="form-wrap">
+                            <select class="form-control seleted-page" id="selectchinhanh" v-model="model.TrangThai" >
+                                <option v-for="item in listTrangThai" :value="item.Key" :key="item.Key">
+                                    {{ item.Value }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="fl form-addnews " >
+                        <label>Ghi chú</label>
+                        <div class="form-wrap">
+                         <textarea class="form-control" v-model="model.GhiChu"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" v-on:click="SaveDichvu"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    var vmdichvunaptien = new Vue({
+        el: '#myModalnapTienDichVu',
+        data: {
+            model: {
+                ID: null,
+                TenCuaHang:"",
+                TenKhachNap: "",
+                SoDienThoai: "",
+                SoTien: 0,
+                GhiChu: '',
+                TrangThai:'1'
+            },
+            TitleDichvu: "",
+            IsNew: false,
+            listTrangThai:[]
+        },
+        methods: {
+            GetTrangThai: function () {
+                var self = this;
+                $.getJSON('/Open24Api/ApiHome/GetAllTrangThaiNapTien', function (data) {
+                    if (data.res) {
+                        self.listTrangThai = data.DataSoure;
+                    }
+                    else {
+                        console.log(data.mess);
+                    }
+                   
+                });
+            },
+            Insert: function (sodienthoai,tengianhang) {
+                this.model = {
+                    ID: null,
+                    TenCuaHang: tengianhang,
+                    TenKhachNap: "",
+                    SoDienThoai: sodienthoai,
+                    SoTien: 0,
+                    GhiChu: '',
+                    TrangThai:'1'
+                };
+                this.IsNew = false;
+                this.TitleDichvu = "Tạo mới phiếu nạp tiền";
+                $('#myModalnapTienDichVu').modal("show");
+
+            },
+            Update: function (Item) {
+                this.model = {
+                    ID: Item.ID,
+                    TenKhachNap: Item.TenKhachNap,
+                    SoDienThoai: Item.SoDienThoai,
+                    SoTien: Item.SoTien,
+                    GhiChu: Item.GhiChu,
+                    TenCuaHang: Item.TenCuaHang,
+                    TrangThai: Item.TrangThai.toString()
+                };
+                this.IsNew = true;
+                this.TitleDichvu = "Cập nhật phiếu nạp tiền";
+                $('#myModalnapTienDichVu').modal("show");
+            },
+            SaveDichvu: function () {
+                var self = this;
+                if (localValidate.CheckNull(self.model.TenCuaHang)) {
+                    AlertError("Vui lòng nhập địa chỉ gian hàng");
+                }
+                else if (self.model.SoTien === '' || self.model.SoTien === null || self.model.SoTien === undefined) {
+                    AlertError("Vui lòng nhập số tiền");
+                }
+                else {
+                    $.ajax({
+                        data: self.model,
+                        url: '/Open24Api/ApiHome/EditPhieuNapTien',
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res === true) {
+                                if (self.model.ID === null || result.DataSoure.ID_PhieuNhan === null || result.DataSoure.ID_PhieuNhan === undefined) {
+                                    AlertNotice(result.mess);
+                                    $('#myModalnapTienDichVu').modal('hide');
+                                    $('body').trigger("SucsessPhieuNapTien");
+                                }
+                                else if (result.DataSoure.Subdomain !== '') {
+                                    debugger
+                                    $.getJSON('https://' + result.DataSoure.Subdomain + '.open24.vn/api/DanhMuc/ThietlapApi/UpdateTrangThaiTaiKhoanSMS?str=' + result.DataSoure.Subdomain +
+                                        '&id=' + result.DataSoure.ID_PhieuNhan +
+                                        '&trangthai=' + result.DataSoure.TrangThai, function (data) {
+                                            $('#myModalnapTienDichVu').modal('hide');
+                                            $('body').trigger("SucsessPhieuNapTien");
+                                        if (data.res) {
+                                            AlertNotice(result.mess);
+                                        }
+                                        else {
+                                            console.log(data.log);
+                                            AlertError(data.mess);
+                                        }
+
+                                    });
+                                }
+                            }
+                            else {
+                                AlertError(result.mess);
+                            }
+                        }
+                    });
+                }
+           
+            }
+
+        }
+    });
+    vmdichvunaptien.GetTrangThai();
+    </script>

@@ -1,0 +1,517 @@
+﻿<div class="modal fade in" id="vmThemMoiNCC">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới nhà cung cấp':'Cập nhật nhà cung cấp'}}
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <div class="col-md-6 col-xs-12 ">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Mã nhà cung cấp</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" placeholder="Mã mặc định"
+                                   v-model="newVendor.MaDoiTuong">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label style="letter-spacing:-1px">Tên nhà cung cấp <span style="color:red">(*)</span></label>
+                        <div class="css-form-detail">
+                            <input type="text"
+                                   id="txtTenDoiTuong" class="form-control" autofocus=""
+                                   v-model="newVendor.TenDoiTuong">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Điện thoại</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control"
+                                   onkeypress="return chekPhone(event)" maxlength="15"
+                                   v-model="newVendor.DienThoai">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Địa chỉ</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control"
+                                   v-model="newVendor.DiaChi">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Tỉnh thành</label>
+                        <div class="css-form-detail">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn tỉnh thành"
+                                             v-bind:listdata="listData.ListTinhThanhSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="ChoseTinhThanh"
+                                             v-bind:valueselected="newVendor.ID_TinhThanh"
+                                             v-on:onsearch="SearchTinhThanh"></dropdown-search>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Quận/ Huyện</label>
+                        <div class="css-form-detail">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn quận huyện"
+                                             v-bind:listdata="listData.ListQuanHuyenSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="ChoseQuanHuyen"
+                                             v-bind:valueselected="newVendor.ID_QuanHuyen"
+                                             v-on:onsearch="SearchQuanHuyen"></dropdown-search>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12 ">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Email</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control "
+                                   autocomplete="off"
+                                   v-model="newVendor.Email">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Mã số thuế</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control"
+                                   autocomplete="off"
+                                   v-model="newVendor.MaSoThue"
+                                   onkeypress="return keypressNumber(event)" maxlength="13">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Nhóm  NCC</label>
+                        <div class="css-form-detail">
+                            <nhom :text-search="newVendor.TenNhomKhachs"
+                                  :showbutton="true"
+                                  :list-all="listData.NhomKhachs"
+                                  :list-search="listData.NhomKhachs"
+                                  v-on:on-select-item="ChoseNhomNCC"
+                                  v-on:show-modal-add-group="ShowModalAddNhomNCC">
+                            </nhom>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Ghi chú</label>
+                        <div class="css-form-detail">
+                            <textarea rows="2" v-model="newVendor.GhiChu">  </textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer ">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i> Bỏ qua
+                </button>
+                <button type="button" class="btn btn-save"
+                         v-if="!isLoading"
+                        v-on:click="SaveVendor">
+                    <i class="fa fa-save"></i> Lưu
+                </button>
+                <button type="button" class="btn btn-save"
+                        v-if="isLoading">
+                    <i class="fa fa-save"></i> Đang lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var vmThemMoiNCC = new Vue({
+        el: '#vmThemMoiNCC',
+        components: {
+            'Nhom': cmpNhomNCC,
+        },
+        created: function () {
+            this.UrlDoiTuongAPI = '/api/DanhMuc/DM_DoiTuongAPI/';
+            this.ToDay = new Date();
+        },
+        data: {
+            saveOK: false,
+            isNew: true,
+            typeUpdate: 1,
+            isLoading: false,
+            error: '',
+
+            role: {
+                Delete: true,
+                Insert: true,
+                Update: true,
+            },
+            customerDoing: {},
+            customerOld: {},
+
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+            },
+            listData: {
+                NhomKhachs: [],
+                TinhThanhs: [],
+                QuanHuyens: [],
+                ListTinhThanhSearch: [],
+                ListQuanHuyenSearch: [],
+            },
+            newVendor: {
+                ID: null,
+                LoaiDoiTuong: 2,
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                LaCaNhan: false,
+                GioiTinhNam: true,
+                NgaySinh_NgayTLap: null,
+                DinhDang_NgaySinh: 'dd/MM/yyyy',
+                Email: '',
+                DiaChi: '',
+                DienThoai: '',
+                ID_TinhThanh: null,
+                ID_QuanHuyen: null,
+                ID_NguonKhach: null,
+                ID_TrangThai: null,
+                ID_NguoiGioiThieu: null,
+                ID_NhanVienPhuTrach: null,
+                IDNhomKhachs: '',
+                TheoDoi: true,
+                ChiaSe: false,
+                ID_Index: 0,
+
+                TenNguoiGioiThieu: '',
+                TenTrangThai: '',
+                TenNhomKhachs: '',
+                TenNguonKhach: '',
+                TenNhanVienPhuTrach: '',
+                TenTinhThanh: '',
+                TenQuanHuyen: '',
+            },
+        },
+        methods: {
+            showModalAdd: function () {
+                var self = this;
+                self.isNew = true;
+                self.saveOK = false;
+                self.typeUpdate = 1;
+                self.isLoading = false;
+
+                self.newVendor = {
+                    ID: null,
+                    LoaiDoiTuong: 2,
+                    MaDoiTuong: '',
+                    TenDoiTuong: '',
+                    LaCaNhan: false,
+                    GioiTinhNam: true,
+                    NgaySinh_NgayTLap: null,
+                    DinhDang_NgaySinh: 'dd/MM/yyyy',
+                    Email: '',
+                    DiaChi: '',
+                    DienThoai: '',
+                    ID_TinhThanh: null,
+                    ID_QuanHuyen: null,
+                    ID_NguonKhach: null,
+                    ID_TrangThai: null,
+                    ID_NguoiGioiThieu: null,
+                    ID_NhanVienPhuTrach: self.inforLogin.ID_NhanVien,
+                    IDNhomKhachs: '',
+                    TheoDoi: true,
+                    ChiaSe: false,
+                    ID_Index: 0,
+                    TongBanTruTraHang: 0,
+                    TongBan: 0,
+                    TongMua: 0,
+                    TongTichDiem: 0,
+                    SoLanMuaHang: 0,
+                    NoHienTai: 0,
+                    NguoiTao: self.inforLogin.UserLogin,
+                    GhiChu: '',
+                    MaSoThue: '',
+                    NgayTao: new Date(),
+
+                    TenNguoiGioiThieu: '',
+                    TenTrangThai: '',
+                    TenNhomKhachs: '',
+                    TenNguonKhach: '',
+                    TenNhanVienPhuTrach: '',
+                    TenTinhThanh: '',
+                    TenQuanHuyen: '',
+                };
+                $('#vmThemMoiNCC').modal('show');
+            },
+            showModalUpdate: function (item) {
+                if (!commonStatisJs.CheckNull(item.ID_NhomDoiTuong)) {
+                    item.ID_NhomDoiTuong = Remove_LastComma(item.ID_NhomDoiTuong);
+                }
+                console.log('vmKH_update ', item)
+                var self = this;
+                self.isNew = false;
+                self.saveOK = false;
+                self.typeUpdate = 2;
+                self.isLoading = false;
+                item.LoaiDoiTuong = 2;
+
+                self.newVendor = item;
+                self.customerOld = $.extend({}, item);
+                self.customerDoing = item;
+
+                var tentinh = '';
+                if (!commonStatisJs.CheckNull(item.ID_TinhThanh)) {
+                    let province = $.grep(self.listData.TinhThanhs, function (x) {
+                        return x.ID === item.ID_TinhThanh;
+                    });
+                    if (province.length > 0) {
+                        tentinh = province[0].val2;
+                    }
+                    self.LoadQuanHuyen();
+                }
+                self.newVendor.TenTinhThanh = tentinh;
+                $('#vmThemMoiNCC').modal('show');
+            },
+
+            ChoseNhomNCC: function (item) {
+                let self = this;
+                if (item === null) {
+                    self.newVendor.ID_NhomDoiTuong = null;
+                    self.newVendor.TenNhomKhachs = 'Nhóm mặc định';
+                }
+                else {
+                    self.newVendor.ID_NhomDoiTuong = item.ID;
+                    self.newVendor.TenNhomKhachs = item.TenNhomDoiTuong;
+                }
+            },
+
+            SearchTinhThanh: function (value) {
+                let self = this;
+                var txt = commonStatisJs.convertVieToEng(value.searchkey);
+                if (txt === '') {
+                    self.newVendor.ID_TinhThanh = '';
+                    self.newVendor.ID_QuanHuyen = '';
+                    self.listData.ListQuanHuyenSearch = [];
+                }
+
+                self.listData.ListTinhThanhSearch = self.listData.TinhThanhs
+                    .filter(p => commonStatisJs.convertVieToEng(p.val1).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val2).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val3).match(txt));
+
+            },
+            SearchQuanHuyen: function (value) {
+                let self = this;
+                var txt = commonStatisJs.convertVieToEng(value.searchkey);
+                if (txt === '') {
+                    self.newVendor.ID_QuanHuyen = '';
+                }
+                self.listData.ListQuanHuyenSearch = self.listData.QuanHuyens
+                    .filter(p => commonStatisJs.convertVieToEng(p.val1).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val2).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val3).match(txt));
+
+            },
+
+            ChoseTinhThanh: function (item) {
+                var self = this;
+                var $this = $(event.currentTarget);
+                var tenTinhThanh = $this.find('.seach-hh').text();
+                self.newVendor.ID_TinhThanh = item.id;
+                self.newVendor.TenTinhThanh = tenTinhThanh;
+                self.LoadQuanHuyen();
+            },
+            ChoseQuanHuyen: function (item) {
+                var self = this;
+                var $this = $(event.currentTarget);
+                var tenquanhuyen = $this.find('.seach-hh').text();
+                self.newVendor.ID_QuanHuyen = item.id;
+                self.newVendor.TenQuanHuyen = tenquanhuyen;
+            },
+            LoadQuanHuyen: async function (isUpdate = false) {
+                let self = this;
+                await $.getJSON('/api/DanhMuc/BaseApi/' + "GetQuanHuyen?tinhthanhID=" + self.newVendor.ID_TinhThanh).done(function (x) {
+                    let data = x.map(p => ({
+                        ID: p.Key,
+                        val2: p.Value
+                    }));
+                    self.listData.QuanHuyens = data;
+                    self.listData.ListQuanHuyenSearch = data;
+
+                });
+            },
+
+            SaveVendor: function () {
+                var self = this;
+
+                var _id = self.newVendor.ID;
+                if (commonStatisJs.CheckNull(_id)) {
+                    self.newVendor.ID = '00000000-0000-0000-0000-000000000000';
+                }
+                var _idNhomDT = self.newVendor.ID_NhomDoiTuong;
+                if (_idNhomDT === '00000000-0000-0000-0000-000000000000' || commonStatisJs.CheckNull(_idNhomDT)) {
+                    self.newVendor.ID_NhomDoiTuong = null;
+                }
+                self.newVendor.TenDoiTuong_ChuCaiDau = GetChartStart(self.newVendor.TenDoiTuong);
+                self.newVendor.TenDoiTuong_KhongDau = locdau(self.newVendor.TenDoiTuong);
+
+                self.isLoading = true;
+                if (navigator.onLine) {
+                    // insert Nha cung cap
+                    if (self.isNew) {
+                        ajaxHelper(self.UrlDoiTuongAPI + "PostDM_DoiTuong", 'POST', self.newVendor).done(function (obj) {
+                            if (obj.res === true) {
+                                ShowMessage_Success("Thêm mới nhà cung cấp thành công");
+
+                                self.saveOK = true;
+                                self.newVendor.ID = obj.data.ID;
+                                self.newVendor.MaDoiTuong = obj.data.MaDoiTuong;
+
+                                if (_idNhomDT !== '00000000-0000-0000-0000-000000000000') {
+                                    var objDTNhom = {
+                                        ID_DoiTuong: self.newVendor.ID,
+                                        ID_NhomDoiTuong: _idNhomDT,
+                                    }
+                                    self.UpdateNhomKhachHang([objDTNhom]);
+                                }
+
+                                var diary = {
+                                    ID_DonVi: self.inforLogin.ID_DonVi,
+                                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                    LoaiNhatKy: 1,
+                                    ChucNang: 'Nhà cung cấp',
+                                    NoiDung: 'Thêm mới nhà cung cấp '.concat(self.newVendor.TenDoiTuong, ' (', obj.data.MaDoiTuong, ')'),
+                                    NoiDungChiTiet: 'Thêm mới nhà cung cấp '.concat(self.newVendor.TenDoiTuong, ' (', self.newVendor.MaDoiTuong,
+                                        ') <br /> Điện thoại: ', self.newVendor.DienThoai ? self.newVendor.DienThoai : '',
+                                        ' <br /> Địa chỉ: ', self.newVendor.DiaChi,
+                                        ' <br /> Nhóm khách: ', self.newVendor.TenNhomKhachs)
+                                }
+                                Insert_NhatKyThaoTac_1Param(diary);
+                            }
+                            else {
+                                ShowMessage_Danger(obj.mes);
+                            }
+                            $("#vmThemMoiNCC").modal("hide");
+                            self.isLoading = false;
+                        })
+                    }
+                    // update Nha cung cap
+                    else {
+                        self.newVendor.NguoiSua = self.inforLogin.UserLogin;
+                        var myData = {
+                            id: _id,
+                            objDoiTuong: self.newVendor,
+                        };
+                        ajaxHelper(self.UrlDoiTuongAPI + "PutDM_DoiTuong", 'PUT', myData).done(function (obj) {
+                            if (obj.res === true) {
+                                ShowMessage_Success("Cập nhật nhà cung cấp thành công");
+
+                                self.saveOK = true;
+                                if (_idNhomDT !== null && _idNhomDT !== undefined && _idNhomDT !== 0) {
+                                    let objDTNhom = {
+                                        ID_DoiTuong: _id,
+                                        ID: _idNhomDT,
+                                    }
+                                    self.UpdateNhomKhachHang([objDTNhom]);
+                                }
+                                var diary = {
+                                    ID_DonVi: self.inforLogin.ID_DonVi,
+                                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                    LoaiNhatKy: 2,
+                                    ChucNang: 'Nhà cung cấp',
+                                    NoiDung: 'Cập nhật nhà cung cấp '.concat(self.newVendor.TenDoiTuong, ' (', obj.data.MaDoiTuong, ')'),
+                                    NoiDungChiTiet: 'Cập nhật nhà cung cấp '.concat(self.newVendor.TenDoiTuong, ' (', self.newVendor.MaDoiTuong
+                                        , ') <br /> Điện thoại: ', self.newVendor.DienThoai,
+                                        ' <br /> Địa chỉ: ', self.newVendor.DiaChi,
+                                        ' <br /> Nhóm khách: ', self.newVendor.TenNhomKhachs,
+                                        ' <br /> <b> Thông tin cũ: </b>',
+                                        ' <br /> - Tên đối tượng: ', self.customerOld.TenDoiTuong, ' ( ', self.customerOld.MaDoiTuong, ') ',
+                                        '<br /> - Điện thoại: ', self.customerOld.DienThoai,
+                                        ' <br /> - Nhóm cũ: ', self.customerOld.TenNhomDT)
+                                };
+                                Insert_NhatKyThaoTac_1Param(diary);
+                            }
+                            else {
+                                ShowMessage_Danger(obj.mes);
+                            }
+                            $("#vmThemMoiNCC").modal("hide");
+                            self.isLoading = false;
+                        })
+                    }
+                }
+            },
+
+            UpdateNhomKhachHang: function (lstNhom, isChuyenNhom = false) {
+                var self = this;
+                var lst = [];
+                for (let i = 0; i < lstNhom.length; i++) {
+                    let itFor = lstNhom[i];
+                    if (!commonStatisJs.CheckNull(itFor.ID) && itFor.ID.trim() !== '00000000-0000-0000-0000-000000000000') {
+                        let obj = {
+                            ID_DoiTuong: itFor.ID_DoiTuong,
+                            ID_NhomDoiTuong: itFor.ID,
+                        }
+                        lst.push(obj);
+                    }
+                }
+                if (lst.length > 0) {
+                    var myData = {
+                        lstDM_DoiTuong_Nhom: lst
+                    };
+
+                    ajaxHelper(self.UrlDoiTuongAPI + 'PutDM_DoiTuong_Nhom', 'POST', myData).done(function (x) {
+                        console.log('PutDM_DoiTuong_Nhom ', x)
+
+                        if (isChuyenNhom) {
+                            var diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: 2,
+                                ChucNang: 'Nhà cung cấp',
+                                NoiDung: 'Chuyển '.concat(lst.length, ' nhà cung cấp đến nhóm mới'),
+                                NoiDungChiTiet: 'Chuyển '.concat(lst.length, ' nhà cung cấp đến nhóm mới'),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+
+                    }).fail(function (x) {
+                        console.log('PutDM_DoiTuong_Nhom ', x)
+                    })
+                }
+            },
+            ShowModalAddNhomNCC: function () {
+                var self = this;
+                vmThemMoiNhomNCC.inforLogin = self.inforLogin;
+                vmThemMoiNhomNCC.showModalAdd();
+            },
+        }
+    })
+
+    $(function () {
+        $('#vmThemNhomNCC').on('hidden.bs.modal', function () {
+            if (vmThemMoiNhomNCC.saveOK) {
+                if (vmThemMoiNhomNCC.typeUpdate !== 0) {
+                    var idNhomDT = vmThemMoiNhomNCC.newGroup.ID;
+                    for (let i = 0; i < vmThemMoiNCC.listData.NhomKhachs.length; i++) {
+                        let itFor = vmThemMoiNCC.listData.NhomKhachs[i];
+                        if (itFor.ID === idNhomDT) {
+                            vmThemMoiNCC.listData.NhomKhachs.splice(i, 1);
+                            break;
+                        }
+                    }
+                    vmThemMoiNCC.listData.NhomKhachs.unshift(vmThemMoiNhomNCC.newGroup);
+
+                }
+                if ($('#vmThemMoiNCC').hasClass('in')) {
+                    vmThemMoiNCC.newVendor.ID_NhomDoiTuong = idNhomDT;
+                    vmThemMoiNCC.newVendor.TenNhomKhachs = vmThemMoiNhomNCC.newGroup.TenNhomDoiTuong;
+                }
+            }
+        })
+    })
+    $(window.document).on('shown.bs.modal', '.modal', function () {
+        window.setTimeout(function () {
+            $('[autofocus]', this).focus();
+            $('[autofocus]').select();
+        }.bind(this), 100);
+    });
+</script>

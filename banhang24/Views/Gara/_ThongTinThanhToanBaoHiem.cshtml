@@ -1,0 +1,255 @@
+﻿@using banhang24.Hellper
+<script>
+    function expandFormular() {
+        $('#KhautruTheoVu').slideDown();
+    }
+    function hideFormular() {
+        $('#KhautruTheoVu').slideUp();
+    }
+</script>
+<div class="modal fade" id="ThongTinThanhToanBaoHiem">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">Bảo hiểm thanh toán</h4>
+            </div>
+
+        </div>
+        <div class="modal-body">
+            <div class="flex flex-row">
+                <div class="col-md-6 col-xs-12 no-padding-left">
+                    <div class="flex flex-row">
+                        <label class="height-30">Khấu trừ : &nbsp;</label>
+                        <div class="dropdown" style="width:calc(100%  - 60px)">
+                            <div class="form-control" data-toggle="dropdown">{{txtKhauTru}} </div>
+                            <ul class="dropdown-menu">
+                                <li v-for="(item, index) in KhauTrus"
+                                    v-on:click="ChonKhauTru(item)">
+                                    <a class="flex flex-between" style="display:flex; flex-wrap:nowrap">
+                                        <div>{{item.Text}} </div>
+                                        <i class="fa fa-check" v-if="parseInt(item.ID) === parseInt(RdoKhauTru)"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12 no-padding-left">
+                    <div class="flex flex-between">
+                        <label class="height-30">
+                            Chế tài: &nbsp;
+                        </label>
+                        <div class="dropdown" style="width:calc(100%  - 60px)">
+                            <div class="form-control" data-toggle="dropdown">{{txtCheTai}}</div>
+                            <ul class="dropdown-menu">
+                                <li v-for="(item, index) in CheTais"
+                                    v-show="(item.ID !== 4 && parseInt(RdoKhauTru)===1) || (item.ID !== 5 && parseInt(RdoKhauTru)===2)"
+                                    v-on:click="ChonCheTai(item)">
+                                    <a class="flex flex-between" style="display:flex; flex-wrap:nowrap">
+                                        <span> {{item.Text}}</span>
+                                        <i class="fa fa-check" v-if="parseInt(item.ID) === parseInt(RdoCheTai)"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div style="margin:15px 0; border-bottom:1px solid #ccc"></div>
+            <div>
+                <div class="flex flex-column ">
+                    <div class="flex flex-between">
+                        <label>Tổng tiền bảo hiểm duyệt</label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   autofocus
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-on:keyup="editTongTienBHDuyet"
+                                   v-model="TongTienBHDuyet" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-between" v-if="parseInt(RdoKhauTru)===1 && (parseInt(RdoCheTai) === 5 || parseInt(RdoCheTai) === 6)">
+                        <label class="flex">
+                            <span class="lineHeight-30">Khấu trừ theo vụ &nbsp;&nbsp;(</span>
+                            <input class="input-simple width-75" onclick="this.select()" style="padding-left:20px"
+                                   v-model="SoVuBaoHiem" />
+                            <span class="lineHeight-30">vụ)</span>
+                        </label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-model="KhauTruTheoVu"
+                                   v-on:keyup="editKhauTruTheoVu" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between" v-if="parseInt(RdoCheTai) === 3 || parseInt(RdoCheTai) === 5">
+                        <label>
+                            Chế tài
+                            <span v-if="PTGiamTruBoiThuong > 0">
+                                ({{GiamTruBoiThuong}})
+                            </span>
+                        </label>
+                        <div class="flex" style="align-items:flex-end">
+                            <div class="op-js-css-toggle-option flex"
+                                 v-bind:class="clGiamTru">
+                                <a class="" v-on:click="GiamTruBoiThuong_ClickVND">VNĐ</a>
+                                <a class="" v-on:click="GiamTruBoiThuong_ClickPtram">%</a>
+                            </div>
+                            &nbsp;
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-if="isPtramGiamTru"
+                                   v-on:keyup="editGiamTruBoiThuong"
+                                   v-model="PTGiamTruBoiThuong" />
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-else="!isPtramGiamTru"
+                                   v-on:keyup="editGiamTruBoiThuong"
+                                   v-model="GiamTruBoiThuong" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between" v-if="parseInt(RdoKhauTru)===1 && parseInt(RdoCheTai) === 3">
+                        <label class="flex">
+                            <span class="lineHeight-30">Khấu trừ theo vụ  &nbsp;&nbsp;(</span>
+                            <input class="input-simple width-75" onclick="this.select()" style="padding-left:20px"
+                                   v-model="SoVuBaoHiem" />
+                            <span class="lineHeight-30">vụ)</span>
+                        </label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-model="KhauTruTheoVu"
+                                   v-on:keyup="editKhauTruTheoVu" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between">
+                        <label>Bảo hiểm chi trả trước thuế</label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0" readonly
+                                   v-model="formatNumber3Digit(BHThanhToanTruocThue)" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between">
+                        <label>
+                            Thuế
+                            <span v-if="PTThueBaoHiem > 0">
+                                ({{TongTienThueBaoHiem}})
+                            </span>
+                        </label>
+                        <div class="flex" style="align-items:flex-end">
+
+                            <div class="op-js-css-toggle-option flex"
+                                 v-bind:class="clThue">
+                                <a class="" v-on:click="BaoHiem_ClickTaxVND">VNĐ</a>
+                                <a class="" v-on:click="BaoHiem_ClickTaxPtram">%</a>
+                            </div>
+                            &nbsp;
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-if="isPtramThue"
+                                   v-on:keyup="BaoHiem_editTax"
+                                   v-model="PTThueBaoHiem" />
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-else="!isPtramThue"
+                                   v-on:keyup="BaoHiem_editTax"
+                                   v-model="TongTienThueBaoHiem" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between">
+                        <label>Bảo hiểm chi trả sau thuế</label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0" readonly
+                                   v-model="formatNumber3Digit(TongGiaTriSauThue,0)" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between" v-if="parseInt(RdoKhauTru)===2 && (parseInt(RdoCheTai) === 6 || parseInt(RdoCheTai) === 3)">
+                        <label class="flex">
+                            <span class="lineHeight-30">Khấu trừ theo vụ  &nbsp;&nbsp;(</span>
+                            <input class="input-simple width-75" onclick="this.select()"
+                                   style="padding-left:20px"
+                                   v-model="SoVuBaoHiem" />
+                            <span class="lineHeight-30">vụ)</span>
+                        </label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-model="KhauTruTheoVu"
+                                   v-on:keyup="editKhauTruTheoVu" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between" v-if="parseInt(RdoCheTai) === 4 || parseInt(RdoCheTai) === 6">
+                        <label>
+                            Chế tài
+                            <span v-if="PTGiamTruBoiThuong > 0">
+                                ({{GiamTruBoiThuong}})
+                            </span>
+                        </label>
+                        <div class="flex" style="align-items:flex-end">
+                            <div class="op-js-css-toggle-option flex"
+                                 v-bind:class="clGiamTru">
+                                <a class="" v-on:click="GiamTruBoiThuong_ClickVND">VNĐ</a>
+                                <a class="" v-on:click="GiamTruBoiThuong_ClickPtram">%</a>
+                            </div>
+                            &nbsp;
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-if="isPtramGiamTru"
+                                   v-on:keyup="editGiamTruBoiThuong"
+                                   v-model="PTGiamTruBoiThuong" />
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-else="!isPtramGiamTru"
+                                   v-on:keyup="editGiamTruBoiThuong"
+                                   v-model="GiamTruBoiThuong" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between" v-if="parseInt(RdoKhauTru)===2 && parseInt(RdoCheTai) === 4">
+                        <label class="flex">
+                            <span class="lineHeight-30">Khấu trừ theo vụ  &nbsp;&nbsp;(</span>
+                            <input class="input-simple width-75" onclick="this.select()"
+                                   style="padding-left:20px"
+                                   v-model="SoVuBaoHiem" />
+                            <span class="lineHeight-30">vụ)</span>
+                        </label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   onclick="this.select()"
+                                   onkeypress="keypressNumber_limitNumber(event, this)"
+                                   v-model="KhauTruTheoVu"
+                                   v-on:keyup="editKhauTruTheoVu" />
+                        </div>
+                    </div>
+                    <div class="flex flex-between">
+                        <label>Tổng tiền bảo hiểm thanh toán</label>
+                        <div class="flex">
+                            <input class="input-simple width-100 text-right" placeholder="0"
+                                   readonly
+                                   v-model="formatNumber3Digit(PhaiThanhToanBaoHiem,0)" />
+                        </div>
+                    </div>
+                    <div class="flex flex-end">
+                        <button class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-close"></i>Đóng</button>
+                        <button class="btn btn-main" v-if="isNew" v-on:click="Agree"><i class="fa fa-save"></i>Đồng ý</button>
+                        <button class="btn btn-main" v-if="!isNew" v-on:click="Agree"><i class="fa fa-save"></i>Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/_ThongTinThanhToanBaoHiem.js")"></script>

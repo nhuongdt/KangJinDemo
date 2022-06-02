@@ -1,0 +1,342 @@
+﻿
+<div class="modal fade in" id="vmApplyGroupProduct">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">Cài đặt theo nhóm/ loại hàng</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 col-sm-12">
+                    <div class="col-sm-12 col-xs-12 col-md-12">
+                        <label>
+                            <input type="checkbox" v-model="valUpdate" />
+                            {{sProp}}
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xs-12 col-sm-12" style="padding-top:10px!important">
+                    <div class="col-sm-4 col-xs-12 col-md-2">
+                        <label>Áp dụng</label>
+                    </div>
+                    <div class="col-sm-4 col-xs-12 col-md-5">
+                        <label style="display:flex">
+                            <input type="radio" v-model="typeChose"
+                                   v-on:change="ChangeTypeChose('0')" value="0" />  Theo nhóm hàng
+                        </label>
+                    </div>
+                    <div class="col-sm-4 col-xs-12 col-md-5">
+                        <label style="display:flex">
+                            <input type="radio" v-model="typeChose"
+                                   v-on:change="ChangeTypeChose('1')" value="1" /> Theo loại hàng
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xs-12 col-sm-12">
+                    <div style="padding-top:20px">
+                        <div class="col-sm-12 col-xs-12 col-md-12" v-if="typeChose==='0'">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-default" type="submit">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Tìm kiếm tên nhóm"
+                                       v-model="textSearch"
+                                       v-on:keyup="searchTree">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-xs-12 col-md-12" style="padding-top:10px" v-if="typeChose==='0'">
+                            <input type="checkbox" v-model="checkAll" v-on:change="changeCheckAll" /> Chọn tất cả
+                        </div>
+                        <div class="col-sm-12 col-xs-12 col-md-12"
+                             v-bind:style=" [typeChose =='1'?{'display': 'none'}:{'display': 'block'}]">
+                            <div id="vmTreeProductgroup" style="overflow:auto;max-height:400px">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="typeChose==='1'">
+                        <div class="col-sm-4 col-xs-12 col-md-4"
+                             v-for="(item, index) in listData.ProductType">
+                            <label style="display:flex" v-on:click="ChoseType(item)">
+                                <input type="checkbox" v-model="item.Check" />&nbsp;  {{item.Text}}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel " data-dismiss="modal"><i class="fa fa-ban"></i>Bỏ qua</button>
+                    <button type="button" class="btn btn-main"
+                            v-if="!isLoading"
+                            v-on:click="Apply">
+                        <i class="fa fa-floppy-o"></i>
+                        Áp dụng
+                    </button>
+                    <button type="button" class="btn btn-main" v-if="isLoading">
+                        <i class="fa fa-floppy-o"></i>
+                        Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var treeX = '';
+    var vmApplyGroupProduct = new Vue({
+        el: '#vmApplyGroupProduct',
+        created: function () {
+            let self = this;
+            self.GetAll_ProductGroup();
+            console.log('vmGroup')
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            typeProp: 1,// Áp dụng theo nhóm (1.Hoa hồng trước CK)
+            valUpdate: 0,
+            textSearch: '',
+            checkAll: false,
+            typeChose: '0',//'0'.nhom, '1'.loaihang
+
+            listData: {
+                ProductGroup: [],
+                ProductType: [
+                    { ID: 1, Text: 'Hàng hóa', Check: false },
+                    { ID: 2, Text: 'Dịch vụ', Check: false },
+                    { ID: 3, Text: 'Combo', Check: false },
+                ]
+            }
+        },
+        computed: {
+            sProp: function () {
+                let self = this;
+                let stext = '';
+                switch (parseInt(self.typeProp)) {
+                    case 1:
+                        stext = 'Tính hoa hồng trước chiết khấu';
+                        break;
+                    case 2:
+                        stext = 'Được tích điểm';
+                        break;
+                    case 3:
+                        stext = 'Được bán trực tiếp';
+                        break;
+                    case 4:
+                        stext = 'Quản lý bảo dưỡng';
+                        break;
+                }
+                return stext;
+            }
+        },
+        methods: {
+            GetAll_ProductGroup: function () {
+                let self = this;
+                ajaxHelper('/api/DanhMuc/DM_NhomHangHoaAPI/' + 'GetTree_NhomHangHoa', 'GET').done(function (obj) {
+                    if (obj.res === true) {
+                        let data = obj.data;
+                        if (data.length > 0) {
+                            data = data.sort((a, b) => a.text.localeCompare(b.text, undefined, { caseFirst: "upper" }));
+                        }
+                        self.listData.ProductGroup = data;
+
+                        //// bind data on tree
+                        treeX = $('#vmTreeProductgroup').tree({
+                            primaryKey: 'id',
+                            uiLibrary: 'bootstrap',
+                            dataSource: data,
+                            checkboxes: true,
+                        });
+                    }
+                })
+            },
+            showModal: function (type = 0, valUpdate = 0, idNhomHang = null) {
+                let self = this;
+                self.typeProp = type;
+                self.valUpdate = valUpdate;
+                self.typeChose = '0';// nhom/loai
+                self.checkAll = false;
+                self.saveOK = false;
+                self.isLoading = false;
+
+                if (!commonStatisJs.CheckNull(idNhomHang)) {
+                    let dataItem = treeX.getDataById(idNhomHang);
+                    if (dataItem !== undefined) {
+                        self.textSearch = dataItem.text;
+                    }
+
+                    self.searchTree();
+
+                    let nodeItem = treeX.getNodeById(idNhomHang);
+                    if (nodeItem !== undefined) {
+                        treeX.check(nodeItem);
+                    }
+                }
+                else {
+                    self.textSearch = '';
+                }
+
+                $('#vmApplyGroupProduct').modal('show');
+            },
+            changeCheckAll: function () {
+                let self = this;
+                if (self.checkAll) {
+                    treeX.checkAll();
+                }
+                else {
+                    treeX.uncheckAll();
+                }
+            },
+            ChangeTypeChose: function (val) {
+                let self = this;
+                self.typeChose = val;
+            },
+            GetChildren: function (arrParent, arrJson, txtSearch, arr, isRoot) {
+                let self = this;
+                if (commonStatisJs.CheckNull(txtSearch)) {
+                    return self.listData.ProductGroup;
+                }
+                for (let i = 0; i < arrJson.length; i++) {
+                    let tenNhom = locdau(arrJson[i].text);
+                    if (tenNhom.indexOf(txtSearch) > -1) {
+                        if (isRoot) {
+                            arr.push(arrJson[i]);
+                        }
+                        else {
+                            var ex = $.grep(arr, function (x) {
+                                return x.id === arrParent.id;
+                            })
+                            if (ex.length === 0) {
+                                arr.push(arrParent);
+                            }
+                            else {
+                                // neu da ton tai, thoat vong for of children
+                                return;
+                            }
+                        }
+                    }
+                    if (arrJson[i].children.length > 0) {
+                        self.GetChildren(arrJson[i], arrJson[i].children, txtSearch, arr, false);
+                    }
+                }
+                return arr;
+            },
+            searchTree: function () {
+                let self = this;
+                treeX.destroy();
+                if (commonStatisJs.CheckNull(self.textSearch)) {
+                    treeX = $('#vmTreeProductgroup').tree({
+                        primaryKey: 'id',
+                        uiLibrary: 'bootstrap',
+                        dataSource: self.listData.ProductGroup,
+                        checkboxes: true,
+                    });
+                }
+                else {
+                    let txt = locdau(self.textSearch);
+                    var arr = self.GetChildren([], self.listData.ProductGroup, txt, [], true);
+                    treeX = $('#vmTreeProductgroup').tree({
+                        primaryKey: 'id',
+                        uiLibrary: 'bootstrap',
+                        dataSource: arr,
+                        checkboxes: true,
+                    });
+                }
+            },
+            ChoseType: function (item) {
+                let self = this;
+                console.log(self.listData.ProductType)
+            },
+            Apply: function () {
+                let self = this;
+                let arrType = [], arrID = [];
+
+                let sApply = '';
+                let applyAll = false;
+                let valUpdate = self.valUpdate;
+                valUpdate = valUpdate === true ? 1 : valUpdate === false ? 0 : valUpdate;
+
+                if (parseInt(self.typeChose) === 0) {
+                    applyAll = self.checkAll && commonStatisJs.CheckNull(self.textSearch);
+                    if (applyAll) {
+                        sApply = '<br /> Áp dụng cho tất cả hàng hóa/dịch vụ';
+                    }
+                    else {
+                        arrID = treeX.getCheckedNodes();// get id all checked
+                        if (arrID.length === 0) {
+                            ShowMessage_Danger('Vui lòng chọn nhóm áp dụng');
+                            return;
+                        }
+                        // get data each node by id
+                        let sNhom = '';
+                        for (let i = 0; i < arrID.length; i++) {
+                            let dataItem = treeX.getDataById(arrID[i]);
+                            sNhom += dataItem.text + ', ';
+                        }
+                        sApply = '<br /> Áp dụng cho các nhóm: ' + Remove_LastComma(sNhom);
+                    }
+                }
+                else {
+                    arrType = self.listData.ProductType.filter(x => x.Check).map(function (x) { return x.ID });
+                    if (arrType.length === 0) {
+                        ShowMessage_Danger('Vui lòng chọn loại hàng hóa áp dụng');
+                        return;
+                    }
+                    let sLoai = '';
+                    for (let i = 0; i < arrType.length; i++) {
+                        switch (parseInt(arrType[i])) {
+                            case 1:
+                                sLoai += 'Hàng hóa, ';
+                                break;
+                            case 2:
+                                sLoai += 'Dịch vụ, ';
+                                break;
+                            case 3:
+                                sLoai += 'Combo, ';
+                                break;
+                        }
+                    }
+                    sApply = '<br /> Áp dụng theo loại hàng: ' + Remove_LastComma(sLoai);
+                }
+                self.isLoading = true;
+
+                let myData = {
+                    typeProp: self.typeProp,
+                    valUpdate: valUpdate,
+                    checkAll: applyAll,
+                    arrType: arrType,
+                    arrID: arrID,
+                }
+
+                ajaxHelper('/api/DanhMuc/DM_HangHoaAPI/ApplyByGroup', 'POST', myData).done(function (x) {
+                    if (x.res) {
+                        ShowMessage_Success('Cài đặt ' + self.sProp + ' thành công');
+
+                        let sYesNo = parseInt(valUpdate) === 0 ? 'không' : 'có';
+                        let diary = {
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            LoaiNhatKy: 2,
+                            ChucNang: 'Danh mục hàng hóa',
+                            NoiDung: 'Danh mục hàng hóa - Cài đặt ' + self.sProp,
+                            NoiDungChiTiet: 'Danh mục hàng hóa - Cài đặt '.concat(self.sProp,
+                                '<br /> Thông tin chi tiết:',
+                                '<br /> ', self.sProp, ': ', sYesNo, sApply)
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }
+                    else {
+                        ShowMessage_Danger(x.mess);
+                    }
+                }).always(function () {
+                    self.isLoading = false;
+                    $('#vmApplyGroupProduct').modal('hide');
+                })
+            },
+        }
+    })
+</script>

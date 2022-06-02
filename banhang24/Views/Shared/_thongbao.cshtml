@@ -1,0 +1,382 @@
+﻿<style>
+    .notifi-right {
+        width: calc(100% - 56px);
+        float: right;
+        padding-left: 18px;
+        text-align: right;
+    }
+    .cl-notifi >a{
+        font-size:16px;
+    }
+    .notifi-general {
+        position: absolute;
+        background: white;
+        width: 391px;
+        right: 0;
+        top: 50px;
+        border: 1px solid #ccc;
+        /* border-top: none; */
+        display: none;
+        z-index: 99999;
+    }
+    .li-notifi .fa-bell {
+        font-size: 20px;
+    }
+    .cl-notifi {
+        padding: 14px 10px;
+        line-height: 20px;
+        font-size:26px !important;
+    }
+    .notifi-general ul {
+        display: block !important;
+        background: white !important;
+        position: relative !important;
+        top: 0px !important;
+        border-right: none;
+        /* background: #d0f5f2 !important; */
+        overflow: scroll;
+        overflow-x: hidden;
+        max-height: 400px;
+        width: 100% !important;
+    }
+</style>
+
+<div id="thongbao" >
+    <div class="cl-notifi"onclick="show_popup(this)" >
+        <a >
+            <i class="material-icons" style="color:white">
+                notifications
+            </i>
+        </a>
+        <span class="sum-notifi" v-if="Count > 0">{{ Count }}</span>
+    </div>
+    <div class="notifi-general main-drop">
+        <div class="borderb floatleft">
+            <div class="tong-notifi pull-left">
+                <font style="font-weight:bold; font-size:13px;"> Thông báo mới</font>   ({{ Count }})
+            </div>
+            <div class="tong-notifi pull-right open-install" onclick="showsetting()">
+                <i class="material-icons" style="padding-top:10px !important; color: #686868 !important;">settings</i>
+            </div>
+            <div class="tong-notifi pull-right" onclick="doctatca()">
+                Đánh dấu đã đọc
+            </div>
+            <div class="install-notifi remind-onoff">
+                <div class="form-group floatleft checked-thong-bao">
+                    <label class="form-label  control-label req ng-binding checkhanghoaxoa">
+                        Nhắc sinh nhật
+                    </label>
+                    <input type="checkbox" id="nhacsinhnhat" v-on:click="clickBirth()" />
+                   
+                </div>
+                <div class="form-group floatleft checked-thong-bao">
+                    <label class="form-label  control-label req ng-binding checkhanghoaxoa">
+                        Nhắc tồn kho
+                    </label>
+                    <input type="checkbox" id="nhactonkho" v-on:click="clickTonKho()" />
+                   
+                </div>
+                <div class="form-group floatleft checked-thong-bao">
+                    <label class="form-label  control-label req ng-binding checkhanghoaxoa">
+                        Nhắc duyệt phiếu điều chuyển
+                    </label>
+                    <input type="checkbox" id="nhacdieuchuyen" v-on:click="clickDieuChuyen()" />
+                </div>
+                <div class="form-group floatleft checked-thong-bao">
+                    <label class="form-label  control-label req ng-binding checkhanghoaxoa">
+                        Nhắc nhở lô hạn sử dụng
+                    </label>
+                    <input type="checkbox" id="nhaclohethan"  v-on:click ="clickLoHetHan()"/>
+                </div>
+            </div>
+        </div>
+        <div class="op-thong-bao">
+            <ul >
+                <li v-for="item of searchResult" :style="'background-color:'+ SetStyle(item)">
+                    <div class="notifi-left">
+                        <span v-html="item.Image"></span>
+                    </div>
+                    <div class="notifi-right">
+                        <span v-html="item.NoiDungThongBao"></span>
+                        <span class="date-notifi">{{ item.NgayTao }}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+       
+    </div>
+</div>
+<script>
+    $(function () {
+        var vm = new Vue({
+            el: '#thongbao',
+            data: function () {
+                return {
+                    numberPage: 0,
+                    resultModel: [],
+                    Count: 0
+                }
+            },
+            methods: {
+                findBy: function () {
+                    var self = this;
+                    var NotifyBirth = localStorage.getItem('NotifyBirth');
+                    var NotifyTonKho = localStorage.getItem('NotifyTonKho');
+                    var NotifyDieuChuyen = localStorage.getItem('NotifyDieuChuyen');
+                    var NotifyLoHang = localStorage.getItem('NotifyLoHang');
+                    $.ajax({
+                        url: "/Shared/SearchPageMessage?numberPage=" + self.numberPage + '&notifyBirth=' + NotifyBirth + '&notifyTonKho=' + NotifyTonKho + '&notifyDieuChuyen=' + NotifyDieuChuyen + '&notifyLoHang=' + NotifyLoHang,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res != true) {
+                            }
+                            else {
+                                self.numberPage = self.numberPage + 1;
+                            }
+                            var item = self.resultModel;
+                            self.Count = result.CountTB;
+                            loadCountThongBao(result.CountTB);
+                            item.push.apply(item, result.data);
+                            self.resultModel = item;
+                            return self.resultModel;
+                        }
+                    });
+                },
+                findByBirth: function () {
+                    var self = this;
+                    var NotifyBirth = localStorage.getItem('NotifyBirth');
+                    var NotifyTonKho = localStorage.getItem('NotifyTonKho');
+                    var NotifyDieuChuyen = localStorage.getItem('NotifyDieuChuyen');
+                    var NotifyLoHang = localStorage.getItem('NotifyLoHang');
+                    $.ajax({
+                        url: "/Shared/SearchPageMessage?numberPage=" + 0 + '&notifyBirth=' + NotifyBirth + '&notifyTonKho=' + NotifyTonKho + '&notifyDieuChuyen=' + NotifyDieuChuyen + '&notifyLoHang=' + NotifyLoHang,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res != true) {
+                            }
+                            else {
+                                self.numberPage = 0;
+                            }
+                            self.resultModel = [];
+                            self.Count = result.CountTB;
+                            loadCountThongBao(result.CountTB);
+                            var item = self.resultModel;
+                            item.push.apply(item, result.data);
+                            self.resultModel = item;
+                            return self.resultModel;
+                        }
+                    });
+                },
+                findByTonKho: function () {
+                    var self = this;
+                    var NotifyBirth = localStorage.getItem('NotifyBirth');
+                    var NotifyTonKho = localStorage.getItem('NotifyTonKho');
+                    var NotifyDieuChuyen = localStorage.getItem('NotifyDieuChuyen');
+                    var NotifyLoHang = localStorage.getItem('NotifyLoHang');
+                    $.ajax({
+                        url: "/Shared/SearchPageMessage?numberPage=" + 0 + '&notifyBirth=' + NotifyBirth + '&notifyTonKho=' + NotifyTonKho + '&notifyDieuChuyen=' + NotifyDieuChuyen + '&notifyLoHang=' + NotifyLoHang,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res != true) {
+                            }
+                            else {
+                                self.numberPage = 0;
+                            }
+                            self.resultModel = [];
+                            self.Count = result.CountTB;
+                            loadCountThongBao(result.CountTB);
+                            var item = self.resultModel;
+                            item.push.apply(item, result.data);
+                            self.resultModel = item;
+                            return self.resultModel;
+                        }
+                    });
+                },
+                findByDieuChuyen: function () {
+                    var self = this;
+                    var NotifyBirth = localStorage.getItem('NotifyBirth');
+                    var NotifyTonKho = localStorage.getItem('NotifyTonKho');
+                    var NotifyDieuChuyen = localStorage.getItem('NotifyDieuChuyen');
+                    var NotifyLoHang = localStorage.getItem('NotifyLoHang');
+                    $.ajax({
+                        url: "/Shared/SearchPageMessage?numberPage=" + 0 + '&notifyBirth=' + NotifyBirth + '&notifyTonKho=' + NotifyTonKho + '&notifyDieuChuyen=' + NotifyDieuChuyen + '&notifyLoHang=' + NotifyLoHang,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res != true) {
+                            }
+                            else {
+                                self.numberPage = 0;
+                            }
+                            self.resultModel = [];
+                            self.Count = result.CountTB;
+                            loadCountThongBao(result.CountTB);
+                            var item = self.resultModel;
+                            item.push.apply(item, result.data);
+                            self.resultModel = item;
+                            return self.resultModel;
+                        }
+                    });
+                },
+                findByLoHang: function () {
+                    var self = this;
+                    var NotifyBirth = localStorage.getItem('NotifyBirth');
+                    var NotifyTonKho = localStorage.getItem('NotifyTonKho');
+                    var NotifyDieuChuyen = localStorage.getItem('NotifyDieuChuyen');
+                    var NotifyLoHang = localStorage.getItem('NotifyLoHang');
+                    $.ajax({
+                        url: "/Shared/SearchPageMessage?numberPage=" + 0 + '&notifyBirth=' + NotifyBirth + '&notifyTonKho=' + NotifyTonKho + '&notifyDieuChuyen=' + NotifyDieuChuyen + '&notifyLoHang=' + NotifyLoHang,
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res != true) {
+                            }
+                            else {
+                                self.numberPage = 0;
+                            }
+                            self.resultModel = [];
+                            self.Count = result.CountTB;
+                            loadCountThongBao(result.CountTB);
+                            var item = self.resultModel;
+                            item.push.apply(item, result.data);
+                            self.resultModel = item;
+                            return self.resultModel;
+                        }
+                    });
+                },
+                click: function () {
+                    this.findBy();
+                },
+                clickBirth: function () {
+                    var checked = $('#nhacsinhnhat').is(':checked');
+                    if (checked === true) {
+                        notifyBirth = true;
+                    }
+                    else {
+                        notifyBirth = false;
+                    }
+                    localStorage.setItem('NotifyBirth', notifyBirth);
+                    ReturnLoadThongBaoSetting();
+                    this.findByBirth();
+                },
+                clickTonKho: function () {
+                    var check = $('#nhactonkho').is(':checked');
+                    if (check === true) {
+                        notifyTonKho = true;
+                    }
+                    else {
+                        notifyTonKho = false;
+                    }
+                    localStorage.setItem('NotifyTonKho', notifyTonKho);
+                    ReturnLoadThongBaoSetting();
+                    this.findByTonKho();
+                },
+                clickDieuChuyen: function () {
+                    var check = $('#nhacdieuchuyen').is(':checked');
+                    if (check === true) {
+                        notifyDieuChuyen = true;
+                    }
+                    else {
+                        notifyDieuChuyen = false;
+                    }
+                    localStorage.setItem('NotifyDieuChuyen', notifyDieuChuyen);
+                    ReturnLoadThongBaoSetting();
+                    this.findByDieuChuyen();
+                },
+                clickLoHetHan: function () {
+                    var check = $('#nhaclohethan').is(':checked');
+                    if (check === true) {
+                        notifyLoHang = true;
+                    }
+                    else {
+                        notifyLoHang = false;
+                    }
+                    localStorage.setItem('NotifyLoHang', notifyLoHang);
+                    ReturnLoadThongBaoSetting();
+                    this.findByLoHang();
+                },
+                SetStyle: function (item) {
+                    return item.DaDoc == false ? "#d0f5f2" : "white";
+                },
+            },
+            computed: {
+                searchResult: function () {
+                    return this.resultModel;
+                }
+            }
+        });
+        vm.findBy();
+        function loadCountThongBao(Count) {
+            document.title = document.title.split(')').length > 1 ? (Count > 0 ? "(" + Count + ") " + document.title.split(')')[1] : document.title.split(')')[1])
+                : (Count > 0 ? "(" + Count + ") " + document.title : document.title);
+        }
+        //$(".li-notifi").on("click", function () {
+        //    if ($(this).find(".notifi-general").css("display") == ("block")) {
+        //        $(this).find(".notifi-general").css("display", "none")
+        //    } else {
+        //        $(this).find(".notifi-general").css("display", "block");
+        //    }
+        //    $(document).mouseup(function () {
+        //        $(".notifi-general").css("display", "none");
+        //    });
+        //})
+    });
+    function showsetting() {
+        $(".remind-onoff").toggle();
+        clickhide();
+    }
+    function clickhide() {
+        $.ajax({
+            url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'GetCaiDatThongBao?id_nguoidung=' + $('.idnguoidung').text(),
+            type: 'GET',
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (data) {
+                if (data.NhacSinhNhat === true) {
+                    $('#nhacsinhnhat').prop("checked", true);
+                }
+                if (data.NhacTonKho === true) {
+                    $('#nhactonkho').prop("checked", true);
+                }
+                if (data.NhacDieuChuyen === true) {
+                    $('#nhacdieuchuyen').prop("checked", true);
+                }
+                if (data.NhacLoHang === true) {
+                    $('#nhaclohethan').prop("checked", true);
+                }
+            }
+        });
+    }
+</script>
+
+<script>
+   //$(".cl-notifi").click(function() {
+   //     if ($(this).next().is(":hidden")) {
+   //         $(".main-drop").fadeOut();
+   //         $(this).next().show();
+   //         console.log("hit2")
+   //     } else {
+   //         $(this).next().hide();
+   //         console.log("hide")
+   //     }
+   // })
+    function show_popup(ele) {
+        //$(".main-drop").fadeOut();
+        $(ele).next(".main-drop").toggle();
+        if ($(this).next(".main-drop").is(":hidden")) {
+            $(".main-drop").fadeOut();
+            $(this).next().show();
+        } else {
+            $(this).next().hide();
+            console.log("hide")
+        }
+    }
+</script>

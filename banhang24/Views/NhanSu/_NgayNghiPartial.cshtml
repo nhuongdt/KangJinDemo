@@ -1,0 +1,195 @@
+﻿@using Model;
+<style>
+    .btn-group:hover {
+        background: var(--color-table);
+        color: black;
+    }
+    #NgayNghiLe .dropdown-menu li:hover {
+        background: var(--color-table);
+    }
+    #NgayNghiLe .dropdown-menu li {
+        border-bottom: 1px solid #ccc;
+    }
+</style>
+<div id="NgayNghiLe" class="modal-nhan-su">
+    <div class="modal fade in" id="modalNgayNghiLe">
+        <div class="modal-dialog draggable modal-lg  ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        {{TitleForm}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12  row">
+                        <div class=" col-md-12  tab-news-modal ">
+                            <div class="row">
+                                <div class="table-reponsive table-HH banghh">
+                                    <table class=" table-hover op-table">
+                                        <thead class="table-border">
+                                            <tr>
+                                                <th class="text-center " style="width:50px">STT</th>
+                                                <th class="text-center">Ngày</th>
+                                                <th class="text-left ">Mô tả</th>
+                                                <th class="text-center ">Loại ngày</th>
+                                                <th class="text-center " style="width:50px">#</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody v-for="(item, index) in   databind.data">
+                                            <tr class="op-tr-show">
+                                                <td class="text-center ">{{index + 1}}</td>
+                                                <td class="text-center ">
+                                                    <span v-if="item.Thu>=0">
+                                                        {{item.ThuText}}
+                                                    </span>
+                                                    <span v-else>
+                                                        {{commonStatisJs.convertDateTime(item.Ngay)}}
+                                                    </span>
+                                                </td>
+                                                <td class="text-left ">
+                                                    {{ item.MoTa}}
+                                                </td>
+                                                <td class="text-center ">
+                                                    {{item.LoaiNgayText}}
+                                                </td>
+                                                <td class="text-left td-icon-edit">
+                                                    <a href="javascript:void(0)" title="Cập nhật ngày nghỉ lễ" v-if="Role.Update" v-on:click="Edit(item)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                                    <a href="javascript:void(0)" title="Xóa ngày nghỉ lễ" v-if="Role.Delete && item.Thu<0" style="color:red" v-on:click="Delete(item)"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" ><i>Bạn không có quyền!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                                            <tr>
+                                                <td class="bg12 bhma text-center" ><i>Không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="modal-footer nopadding">
+                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="modal" class="btn btn-main addHHH btn-main no-magrin" v-if="Role.Insert" v-on:click="AddNew">
+                                <i aria-hidden="true" class="fa fa-plus"></i> <font>Thêm mới</font>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="modalthemmoingaynghile">
+        <div class="modal-dialog draggable  modal-md ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        {{TitlePopup}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group fl "
+                         v-show=" (isNew && data.LoaiNgay==0 && databind.data.filter(x=>x.Thu!=-1).length < 7) ">
+                        <label> Thứ <span style="color:red">(*)</span></label>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-main" data-toggle="dropdown" style="background:var(--color-table)!important; color:black">
+                                {{data.ThuText}}
+                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                @foreach (var item in commonEnumHellper.ListWeek)
+                                {
+                                    <li class="func-options" id="@item.Key" v-on:click="ChoseDateOfWeek('@item.Key','@item.Value')">
+                                        <a href="javascript:void(0)">
+                                            <span>@item.Value</span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group fl" v-show="data.Thu >= 0">
+                        <label> Thứ <span style="color:red">(*)</span></label>
+                        <div class="form-news">
+                            {{data.ThuText}}
+                        </div>
+                    </div>
+                    <div class="form-group fl" v-show="data.Thu < 0 || isNew">
+                        <label> Ngày <span style="color:red">(*)</span></label>
+                        <div class="form-news">
+                            <input class="form-control   " id="_NgayNghiLeDateTime" type="text" v-bind:value="commonStatisJs.convertDateTime(data.Ngay)">
+                        </div>
+                    </div>
+                    <div class="form-group fl">
+                        <label> Loại ngày <span style="color:red">(*)</span></label>
+                        <div class="form-news">
+                            <select class="form-control " v-model="data.LoaiNgay" id="ddlLoaiNgay">
+                                @foreach (var item in commonEnumHellper.ListLoaiNgaynghiLe)
+                                {
+                                    <option value="@item.Key">
+                                        @item.Value
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group fl">
+                        <label>Mô tả</label>
+                        <div class="form-news">
+                            <textarea rows="2" v-model="data.MoTa"> </textarea>
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-save" v-on:click="Save" v-show="!loadding">
+                        <i class="fa fa-save" aria-hidden="true"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-show="loadding">
+                        <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modaldeletengaynghile">
+        <div id="modalContainer_delete" class="modal-sm">
+            <div class="modal-content ">
+                <div class="modal-body">
+                    <div class="title-delete">
+                        <span id="header-confirm-delete">Xóa ký hiệu công</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    Bạn có chắc chắn muốn xóa ngày nghỉ lễ:  <span style="font-weight:bold">{{commonStatisJs.convertDateTime(data.Ngay)}} </span> ?
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-main" v-on:click="DeleteNgayNghiLe"><i class="fa fa-check"></i> Đồng ý</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban" tabindex="2"></i> Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/NhanSu/NgayNghiLe.js"></script>
+<script>
+    $(function () {
+        $.datetimepicker.setLocale('vi');
+        $('#_NgayNghiLeDateTime').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+        });
+    });
+</script>

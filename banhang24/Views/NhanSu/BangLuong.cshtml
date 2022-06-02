@@ -1,0 +1,495 @@
+﻿@using System.Web.Optimization
+@using banhang24.Hellper;
+@using Model;
+@model RoleKyTinhCongModel
+@{
+    Layout = null;
+}
+<link href="~/Content/NhanSu.css" rel="stylesheet" />
+<div class="op-container" id="BangLuongNhanSu">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class="op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)" v-on:click="ClickFilter.ThoiGian=!ClickFilter.ThoiGian">
+                            <img src="~/Content/images/icon/thoi-gian.png" height="14" />
+                            Kỳ tính lương
+                        </h3>
+                        <aside class="op-filter-container" v-show="ClickFilter.ThoiGian">
+                            <div class="menuCheckbox" id="SinhNhatSL">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="sinhnhat" data-id="1" checked />
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date ">
+                                            <div data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show" v-model="curentpage.textdate">
+                                            </div>
+                                            <div class="dropdown-menu " id="SelectNgaySinh">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.homnay)"><a href="javascript:void(0);">hôm nay</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.homqua)"><a href="javascript:void(0);">hôm qua</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.tuannay)"><a href="javascript:void(0);">Tuần này</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.tuantruoc)"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.thangnay)"><a href="javascript:void(0);">Tháng này</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.thangtruoc)"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.quynay)"><a href="javascript:void(0);">Quý này</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.quytruoc)"><a href="javascript:void(0);">Quý trước</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.namnay)"><a href="javascript:void(0);">Năm này</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.namtruoc)"><a href="javascript:void(0);">Năm trước</a></li>
+                                                        <li value="@((int)commonEnumHellper.TypeBirthDay.toanthoigian)"><a href="javascript:void(0);">Toàn thời gian</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="sinhnhat" data-id="0" />
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap ">
+                                            <input type='text' class="form-control daterange newDateTime" disabled
+                                                   placeholder="Lựa chọn khác" name="daterange" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" v-on:click="ClickFilter.TrangThai=!ClickFilter.TrangThai">
+                            <img src="/Content/images/icon/trangthai-black.png"> Trạng thái
+                        </h3>
+                        <aside class="op-filter-container" v-show="ClickFilter.TrangThai">
+                            <div class="menuCheckbox choose_TrangThai">
+                                <ul>
+                                    <li>
+                                        <input value="@((int)commonEnumHellper.eBangLuong.tamluu)" type="checkbox" checked v-on:click="AddTrangThai"> Tạm lưu
+                                    </li>
+                                    <li>
+                                        <input value="@((int)commonEnumHellper.eBangLuong.cantinhlai)" type="checkbox" checked v-on:click="AddTrangThai"> Cần tính lại
+                                    </li>
+                                    <li>
+                                        <input value="@((int)commonEnumHellper.eBangLuong.daduyet)" type="checkbox" checked v-on:click="AddTrangThai"> Đã chốt lương
+                                    </li>
+                                    <li>
+                                        <input value="@((int)commonEnumHellper.eBangLuong.dathanhtoan)" type="checkbox" checked v-on:click="AddTrangThai"> Đã thanh toán
+                                    </li>
+                                    <li>
+                                        <input value="@((int)commonEnumHellper.eBangLuong.xoa)" type="checkbox" v-on:click="AddTrangThai"> Đã hủy
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title"> @banhang24.Resources.ResourceTexts.Personnel / Bảng lương </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class=" header-button-left">
+                            @if (Model.Insert)
+                            {
+                                <div class="btn-group pull-left">
+                                    <button type="button" class="btn btn-main addHHH btn-main" aria-haspopup="true" aria-expanded="false" data-toggle="modal"
+                                            v-on:click="AddBangLuong">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>     <font>Thêm hồ sơ Tính lương</font>
+                                    </button>
+                                </div>
+                            }
+                            <div class="btn-dropdown pull-right" style="position: relative;">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        onclick="showCollumnFilter(this)">
+                                    <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list dropdown-menu filter-list-2">
+                                    <ul>
+                                        <li v-for="(item, index) in ListHeader">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                    <span></span>{{item.colText}}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control " v-on:keyup="keymonitor" v-model="curentpage.text" placeholder="Nhập mã, tên bảng lương">
+                            <button type="button" class=" op-search-button" v-on:click="GetForSearchBangLuong(true)">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table content-table" style="top: 48px;position: sticky;">
+                <div class="table-reponsive table-HH banghh tablescroll table-frame" id="table-reponsive">
+                    <table class=" table-hover op-table">
+                        <thead class="table-border">
+                            <tr>
+                                <th class="text-center" v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="(item, index) in   databind.data">
+                            <tr class="op-tr-show" v-on:click="SelectRow(item,event)">
+                                <td v-if="CheckColShow('MaBangLuong')" class="text-left">{{item.MaBangLuong}}</td>
+                                <td v-if="CheckColShow('TenBangLuong')" class="text-left">{{item.TenBangLuong}}</td>
+                                <td v-if="CheckColShow('KyTinhLuong')" class="text-left">{{commonStatisJs.convertDateTime(item.TuNgay)}} - {{commonStatisJs.convertDateTime(item.DenNgay)}} </td>
+                                <td v-if="CheckColShow('NVLapPhieu')" class="text-left">{{item.NguoiDuyet}}</td>
+                                <td v-if="CheckColShow('PhaiThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.LuongThucNhan)}}</td>
+                                <td v-if="CheckColShow('TruTamUng')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.TruTamUngLuong)}}</td>
+                                <td v-if="CheckColShow('TongThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ThanhToan)}}</td>
+                                <td v-if="CheckColShow('ConLai')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ConLai)}}</td>
+                                <td v-if="CheckColShow('NgayThanhToan')" class="text-center">{{commonStatisJs.convertDateTime(item.NgayThanhToanLuong)}}</td>
+                                <td v-if="CheckColShow('NgayTao')" class="text-center">{{commonStatisJs.convertDateTime(item.NgayTao)}}</td>
+                                <td v-if="CheckColShow('NguoiTao')" class="text-left">{{item.NguoiTao}}</td>
+                                <td v-if="CheckColShow('TrangThai')" class="text-center">{{item.TrangThai===1?"Tạo mới": item.TrangThai===2?"Cần tính lại lương":item.TrangThai===3?"Đã chốt lương":item.TrangThai===4?"Đã thanh toán":"Đã hủy"}}</td>
+                                <td v-if="CheckColShow('GhiChu')" class="text-left">{{item.GhiChu}}</td>
+                            </tr>
+                            <tr class="op-tr-hide">
+                                <td colspan="14" class="op-td">
+                                    <div class="tab-nhan-su-with100 tab-detail-bang-luong">
+                                        <div class="table-grid-detail">
+                                            <div class="table-reponsive  ">
+                                                <table class=" table-hover op-table">
+                                                    <thead class="table-border">
+                                                        <tr>
+                                                            <th class="text-center">Phiếu lương</th>
+                                                            <th class="text-center">Mã nhân viên</th>
+                                                            <th>
+                                                                <div class="col-md-3 header-title-filter">
+                                                                    Tên nhân viên  <span class="fa fa-search icon-filter"></span>
+                                                                </div>
+                                                                <div class="col-md-8">
+                                                                    <div class="right-inner-addon" style="display: none;">
+                                                                        <span class="fa fa-search"></span>
+                                                                        <input type="text" class="form-control"
+                                                                               placeholder="Tìm nhân viên">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1">
+                                                                    <span class="glyphicon glyphicon-chevron-left icon-filter2" style="display: none;"></span>
+                                                                </div>
+                                                                <script>
+                                                                    $('#tab-detail-bang-luong').on('click', ' .icon-filter2', function () {
+                                                                        $(this).hide();
+                                                                        $(this).closest('th').find('.icon-filter').show();
+                                                                        $(this).closest('th').next().toggle();
+                                                                        if ($(this).closest('th').find('.right-inner-addon').css('display') === 'none') {
+                                                                            $(this).closest('th').attr('colspan', 2).addClass('actioveFilter');
+                                                                        }
+                                                                        else {
+                                                                            $(this).closest('th').attr('colspan', 1).removeClass('actioveFilter');
+                                                                        }
+                                                                        $(this).closest('th').find('.right-inner-addon').toggle();
+                                                                    });
+                                                                </script>
+                                                            </th>
+
+                                                            <th class="text-center">Ngày công<br /> hành chính</th>
+                                                            <th class="text-center">Ngày công<br /> chuẩn</th>
+                                                            <th class="text-center">Lương cơ bản</th>
+                                                            <th class="text-center">Lương chính</th>
+                                                            <th class="text-center">Lương OT</th>
+                                                            <th class="text-center">Phụ cấp cố định</th>
+                                                            <th class="text-center">Phụ cấp khác</th>
+                                                            <th class="text-center">Chiết khấu bán hàng</th>
+                                                            <th class="text-center">Tổng giảm trừ</th>
+                                                            <th class="text-center">Tổng lương</th>
+                                                            <th class="text-center">Trừ tạm ứng</th>
+                                                            <th class="text-center">Thanh toán</th>
+                                                            <th class="text-center">Còn lại</th>
+                                                            <th class="text-center">#</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody v-for="(iteam1, key) in   datachitiet.data">
+                                                        <tr class="op-tr-show" v-for="(ct, key1) in   iteam1.data">
+                                                            <td class="text-center">
+                                                                <a href="javascript:void(0)" v-on:click="ShowModalChiTietLuong(ct)">
+                                                                    {{ct.MaBangLuongChiTiet}}
+                                                                </a>
+                                                            </td>
+                                                            <td class="text-center">{{iteam1.MaNhanVien}}</td>
+                                                            <td class="text-left">
+                                                                <span>{{iteam1.TenNhanVien}}</span>
+                                                                <span class="red">{{iteam1.DaNghiViec?'{DEL}':''}}</span>
+                                                            </td>
+                                                            <td class="text-center">{{commonStatisJs.FormatNumber3Digit(ct.NgayCongThuc,3)}}</td>
+                                                            <td class="text-center">{{ct.NgayCongChuan}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongCoBan,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongChinh,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongOT,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.PhuCapCoBan,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.PhuCapKhac)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.ChietKhau,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.TongTienPhat,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.LuongSauGiamTru,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.TruTamUngLuong,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(ct.ThanhToan,0)}}</td>
+                                                            <td class="text-right"
+                                                                :style="[ct.ConLai > 0?{'color':'red'}:{'color':'black'}]">
+                                                                {{commonStatisJs.FormatNumber3Digit(ct.ConLai,0)}}
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:void(0)" v-on:click="InBangluong(1, item, ct)">
+                                                                    <i class="fal fa-print"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr style="background:#e3e4e8;font-weight: 700">
+                                                            <td colspan="3">Tổng cộng</td>
+                                                            <td class="text-center">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongNgayCongThuc)}}</td>
+                                                            <td colspan="2"></td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongLuongChinh,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongLuongOT,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongPhuCapCoBan,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongPhuCapKhac,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongChietKhau,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongTienPhatAll,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongLuongSauGiamTru,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(item.TruTamUngLuong,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ThanhToan,0)}}</td>
+                                                            <td class="text-right">{{commonStatisJs.FormatNumber3Digit(datachitiet.TongConLai,0)}}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                            <div class="page">
+                                                <div class="col-md-12 nopadding">
+                                                    <div class="flex flex-end">
+                                                        <a href="javascript:void(0)" v-show="datachitiet.isprev" v-on:click="ButtonDetailSelectPage(0,true)"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" v-show="datachitiet.isprev" v-on:click="ButtonDetailSelectPage(-1)"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" v-show="!datachitiet.isprev" class="a-disable"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" v-show="!datachitiet.isprev" class="a-disable"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                                        <ul class="list-page">
+                                                            <li v-for="(item, index) in datachitiet.listpage" v-show="datachitiet.listpage.length>0">
+                                                                <a href="javascript:void(0)" v-on:click="SelectDetailPage(item)" v-bind:class="[item==datachitiet.pagenow ? 'click' : '']">{{item}}</a>
+                                                            </li>
+                                                        </ul>
+                                                        <a href="javascript:void(0)" v-show="!datachitiet.isnext" class="a-disable"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" v-show="!datachitiet.isnext" class="a-disable"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" v-show="datachitiet.isnext" v-on:click="ButtonDetailSelectPage(1)"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                                        <a href="javascript:void(0)" v-show="datachitiet.isnext" v-on:click="ButtonDetailSelectPage(0,false)"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                                        <div class="total-recos" style="    margin-top: 4px;">
+                                                            {{datachitiet.pageview}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 group-btn-edit-user">
+                                            <div class="row">
+                                                <div class="group-btn floatleft text-right">
+                                                    @if (Model.ChotCong)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-main " v-if="item.TrangThai === 1" v-on:click="PheDuyetbangLuong(item)">
+                                                            <i class="fa fa-check" aria-hidden="true"></i> Chốt lương
+                                                        </a>
+                                                    }
+                                                    @if (Model.MoLaiBangLuong)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-main " v-if="item.TrangThai === 3" v-on:click="MoLaiBangLuongDaChot(item)">
+                                                            <i class="fa fa-check" aria-hidden="true"></i> Mở lại bảng lương đã chốt
+                                                        </a>
+                                                    }
+                                                    @if (Model.Update)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-main " v-if="item.TrangThai === 2" v-on:click="TinhLaiBangLuong(item)">
+                                                            <i class="fa fa-calculator" aria-hidden="true"></i>Tính lại bảng lương
+                                                        </a>
+                                                    }
+                                                    @if (Model.Update)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-main " v-if="item.TrangThai === 1" v-on:click="UpdatebangLuong(item)">
+                                                            <i class="fa fa-check-square"></i> Sửa đổi
+                                                        </a>
+                                                    }
+                                                    @if (Model.ThanhToan)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-main "
+                                                           v-on:click="showmodalThanhToan(item)" v-if="item.TrangThai > 2 && item.ConLai != 0">
+                                                            <i aria-hidden="true" class="fa fa-file-excel-o"></i> Thanh toán
+                                                        </a>
+                                                    }
+                                                    @if (Model.Export)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-main " v-on:click="ExportChiTietNhanVien(item)">
+                                                            <i aria-hidden="true" class="fa fa-file-excel-o"></i> Xuất Excel
+                                                        </a>
+                                                        <div class="btn-group dropdown-mauin" style="position:relative">
+                                                            <button href="javascript:void(0)" class="btn btn-main btnPrint" v-on:click="InBangluong(2,item)">
+                                                                <i class="fal fa-print"></i> In
+                                                            </button>
+                                                            <button class="btn btn-main  dropdown-toggle dropdown-toggle-split" role="button" data-toggle="dropdown">
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" data-bind="foreach:$root.ListTypeMauIn ">
+                                                                <li v-for="(mi, idx3) in listdata.ListMauIn">
+                                                                    <a v-on:click="InBangluong(3,item,mi)">{{mi.Value}}</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+
+                                                    }
+                                                    @if (Model.Delete)
+                                                    {
+                                                        <a href="javascript:void(0)" class="btn btn-cancel " v-if="item.TrangThai !==3 && item.TrangThai !==0" v-on:click="HuyBangLuong(item)">
+                                                            <i aria-hidden="true" class="fa fa-trash"></i> Hủy bỏ
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot v-if="databind.data.length > 0">
+                            <tr style="background:#e3e4e8;font-weight: 700">
+                                <td v-if="CheckColShow('MaBangLuong')">Tổng cộng</td>
+                                <td v-if="CheckColShow('TenBangLuong')"></td>
+                                <td v-if="CheckColShow('KyTinhLuong')"></td>
+                                <td v-if="CheckColShow('NVLapPhieu')"></td>
+                                <td v-if="CheckColShow('PhaiThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(databind.PhaiThanhToan)}}</td>
+                                <td v-if="CheckColShow('TruTamUng')" class="text-right">{{commonStatisJs.FormatNumber3Digit(databind.TongTamUng)}}</td>
+                                <td v-if="CheckColShow('TongThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(databind.TongThanhToan)}}</td>
+                                <td v-if="CheckColShow('ConLai')" class="text-right">{{commonStatisJs.FormatNumber3Digit(databind.TongConLai)}}</td>
+                                <td v-if="CheckColShow('NgayThanhToan')"></td>
+                                <td v-if="CheckColShow('NgayTao')"></td>
+                                <td v-if="CheckColShow('NguoiTao')"></td>
+                                <td v-if="CheckColShow('TrangThai')"></td>
+                                <td v-if="CheckColShow('GhiChu')"></td>
+                            </tr>
+                        </tfoot>
+                        <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                            <tr>
+                                <td class="bg12 text-center" colspan="14"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="page">
+                    <div class="flex flex-row">
+                        <label>Số bản ghi:</label>
+                        <select class="form-control seleted-page" v-model="curentpage.pagesize" v-on:change="SelectPageSize">
+                            <option v-for="(item, index) in listpagesize" v-bind:value="item">
+                                {{item}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="flex flex-end">
+                        <a href="javascript:void(0)" v-show="databind.isprev" v-on:click="ButtonSelectPage(0,true)"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-show="databind.isprev" v-on:click="ButtonSelectPage(-1)"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-show="!databind.isprev" class="a-disable"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-show="!databind.isprev" class="a-disable"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <ul class="list-page">
+                            <li v-for="(item, index) in databind.listpage" v-show="databind.listpage.length>0">
+                                <a href="javascript:void(0)" v-on:click="SelectPage(item)" v-bind:class="[item==databind.pagenow ? 'click' : '']">{{item}}</a>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" v-show="!databind.isnext" class="a-disable"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-show="!databind.isnext" class="a-disable"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-show="databind.isnext" v-on:click="ButtonSelectPage(1)"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" v-show="databind.isnext" v-on:click="ButtonSelectPage(0,false)"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <div class="total-recos" style="    margin-top: 4px;">
+                            {{databind.pageview}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("_ThemMoiBangLuong")
+</div>
+@Html.Partial("_ThanhToanLuong")
+<div class="modal fade" id="modalPopuplgDelete">
+    <div class="modal-dialog draggable modal-md " role="document">
+        @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+    </div>
+</div>
+<script>
+    $.datetimepicker.setLocale('vi');
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tạo báo cáo",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        })
+    })
+</script>
+<script src="@Url.ContentVersioned("~/Scripts/NhanSu/BangLuong2_1.js")"></script>
+
+<script>
+    vmBangLuong.SetRole('@Model.ChotCong')
+</script>

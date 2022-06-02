@@ -1,0 +1,340 @@
+﻿<style>
+    .tpdl-left-item {
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 0;
+        padding: 5px;
+    }
+
+    .icon-left-toogle {
+        z-index: 11;
+        position: absolute;
+        bottom: 150px;
+        left: -15px;
+        height: 28px;
+        width: 28px;
+        border-radius: 50%;
+        background: #fff;
+        color: #fff;
+        border: 1px solid #686868;
+        padding: 3px;
+        float: left;
+        border: 1px solid;
+        text-align: center;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        background: #fff;
+        outline: none;
+        color: #DDE0EB;
+        transition: left 0.4s cubic-bezier(.4,0,.2,1);
+    }
+    #vmDichVu_ofThanhPhanDL table input {
+        float: revert;
+        text-align: center;
+        overflow: hidden;
+        height: 29px;
+        padding: 1px 4px;
+        border: none;
+        outline: none;
+        border-bottom:1px solid #ccc;
+    }
+</style>
+<div id="vmDichVu_ofThanhPhanDL" class="modal fade">
+    <div class="modal-dialog draggable modal-lg modal-lgmax ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    Chi tiết dịch vụ sử dụng
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-4 col-md-4 col-xs-1 12"
+                     v-if="showLeft">
+                    <div class="floatleft" style="position:relative">
+                        <input type="text" class="form-control" placeholder="Tìm dịch vụ" autofocus
+                               v-model="txtSearchLeft"
+                               v-on:keyup="SearchLeft">
+                        <button type="button" class=" btn btn-right ">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="floatleft" style="max-height:350px;overflow-y:auto; overflow-x:hidden">
+                        <div class="form-group tpdl-left-item"
+                             v-for="(item,index) in ListSearch_DichVu"
+                             v-on:click="AddDichVu(item)">
+                            <div class="detail-user-discount" style="width:100%">
+                                <div>
+                                    <span class="bold">{{item.TenHangHoa}}</span>
+                                    <span style="color:#ff6a00">{{item.ThuocTinh_GiaTri}}</span>
+                                    <span style="font-style:italic" v-if="item.TenDonViTinh">({{item.TenHangHoa}})</span>
+                                </div>
+                                <div>
+                                    Mã hàng: <span class="seach-hh">{{item.MaHangHoa}}</span>
+                                </div>
+                                <div>
+                                    Giá bán: <span>
+                                        {{formatNumber3Digit(item.GiaBan)}}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a v-on:click="HideShow_SearchLeft" href="javascript:void(0)"
+                   style="display:none"
+                   class="icon-left-toogle">
+                    <i class="fa fa-angle-right" v-if="showLeft"></i>
+                    <i class="fa fa-angle-left" v-else></i>
+                </a>
+                <div 
+                       v-bind:class="[showLeft?'col-sm-8 col-md-8 col-xs12':'col-sm-12 col-md-12 col-xs12']"
+                   >
+                    <div class="container-fluid  flex flex-between " style="padding:0 0 15px 0">
+                        <div class="col-md-6 col-xs-12 nopadding">
+                            <input type="text" class="form-control" autocomplete="off" placeholder="Tìm dịch vụ đã chọn"
+                                   v-model="txtSearchTop" />
+                        </div>
+                        <div class="col-md-6 col-xs-12 nopadding" style="line-height:24px; padding:3px; text-align:right; color:red">
+                            <i class="fa fa-info-circle"></i>
+                            <span v-if="DichVu_isDoing">  {{DichVu_isDoing.TenHangHoa}}</span>
+                        </div>
+                    </div>
+                    <div class="container-fluid row">
+                        <div class="table-frame">
+                            <table class=" table-hover table table-striped  ">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            STT
+                                        </th>
+                                        <th>
+                                            Mã dịch vụ (hàng hóa)
+                                        </th>
+                                        <th>
+                                            Tên dịch vụ (hàng hóa)
+                                        </th>
+                                        <th class="text-center" style="width: 80px">
+                                            Số lượng dùng
+                                        </th>
+                                        <th class="text-center">
+                                            Ghi chú
+                                        </th>
+                                        <th style="width:30px" >
+                                            #
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in Grid_TPDinhLuongChosed">
+                                        <td>{{index + 1}}</td>
+                                        <td>{{item.MaHangHoa}}</td>
+                                        <td>
+                                            <span>{{item.TenHangHoa}}</span>
+                                            <span style="font-style:italic;color:cornflowerblue" v-if="item.TenDonViTinh">
+                                                ({{item.TenDonViTinh}})
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center">
+                                            <input  onclick="this.select()" style="width:80px"
+                                                   onkeypress="return keypressNumber_limitNumber(event, this)"
+                                                   v-model="item.SoLuong"
+                                                   v-on:keyup="EditSoLuong_TPDinhLuong(item, index)"
+                                                   v-on:keyup.13="EnterDetail_TPDinhLuong(3)" />
+                                        </td>
+                                        <td class="text-center">
+                                            <input  onclick="this.select()"
+                                                   v-model="item.GhiChu"
+                                                   v-on:keyup="EditGhiChu_TPDinhLuong(index)"
+                                                   v-on:keyup.13="EnterDetail_TPDinhLuong(4)" />
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-link height-24" v-on:click="Delete_TPDinhLuong(index)">
+                                                <i class="fa fa-close text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-on:click="Agree_TPDinhLuong">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmDichVu_ofThanhPhanDL = new Vue({
+        el: '#vmDichVu_ofThanhPhanDL',
+        data: {
+            txtSearchLeft: '',
+            txtSearchTop: '',
+            showLeft: false,
+            saveOK: false,
+            DichVu_isDoing: {},
+            ListAll_DichVu: [],
+            ListSearch_DichVu: [],
+            Grid_TPDinhLuongChosed: [],
+        },
+        methods: {
+            showModal: function (item) {
+                var self = this;
+                console.log('modaldl')
+                self.saveOK = false;
+                self.txtSearchLeft = '';
+                self.txtSearchTop = '';
+                self.showLeft = !item.HasTPDinhLuong;
+                self.Grid_TPDinhLuongChosed = item.ThanhPhan_DinhLuong;
+                self.DichVu_isDoing = item;
+                self.ListSearch_DichVu = self.ListAll_DichVu;
+                $('#vmDichVu_ofThanhPhanDL').modal('show');
+            },
+            HideShow_SearchLeft: function () {
+                var self = this;
+                if (!self.DichVu_isDoing.HasTPDinhLuong) {
+                    self.showLeft = !self.showLeft;
+                }
+            },
+            SearchLeft: function () {
+                var self = this;
+                if (!self.txtSearchLeft) {
+                    self.ListSearch_DichVu = self.ListAll_DichVu;
+                    return;
+                }
+                var txt = locdau(self.txtSearchLeft);
+                var arr = $.grep(self.ListAll_DichVu, function (x) {
+                    return locdau(x.MaHangHoa).indexOf(txt) > 0
+                        || locdau(x.TenHangHoa).indexOf(txt) > 0
+                });
+                self.ListSearch_DichVu = arr;
+            },
+            AddDichVu: function (item) {
+                var self = this;
+                var itemEx = $.grep(self.Grid_TPDinhLuongChosed, function (x) {
+                    return x.ID_ChiTietDinhLuong === item.ID_ChiTietDinhLuong;
+                })
+                // quycach, giavon: get of hanghoa
+                if (itemEx.length > 0) {
+                    for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                        let itFor = self.Grid_TPDinhLuongChosed[i];
+                        if (itFor.ID_ChiTietDinhLuong === item.ID_ChiTietDinhLuong) {
+                            self.Grid_TPDinhLuongChosed[i].SoLuong = self.Grid_TPDinhLuongChosed[i].SoLuong + 1;
+                            break;
+                        }
+                    }
+                    self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
+                }
+                else {
+                    var len = self.Grid_TPDinhLuongChosed.length;
+                    item.STT = len + 1;
+                    // nếu xuât thêm và chọn dịch vụ: set default soluongDV = soluong hang xuat
+                    if (!self.DichVu_isDoing.HasTPDinhLuong) {
+                        item.SoLuong = self.DichVu_isDoing.SoLuong;
+                        item.ID_ChiTietGoiDV = item.IDChiTietDichVu;
+                    }
+                    else {
+                        item.SoLuong = 1;
+                    }
+                    item.GhiChu = '';
+                    item.QuyCach = self.DichVu_isDoing.QuyCach;
+                    item.GiaVon = self.DichVu_isDoing.GiaVon;
+                    self.Grid_TPDinhLuongChosed.push(item);
+                }
+            },
+            Delete_TPDinhLuong: function (index) {
+                var self = this;
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed.splice(i, 1);
+                    }
+                }
+                // update again STT in grid
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    self.Grid_TPDinhLuongChosed[i].STT = i + 1;
+                }
+            },
+            EditGhiChu_TPDinhLuong: function (index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var thisObj = event.currentTarget;
+                // update GhiChu in grid TPDL
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].GhiChu = $(thisObj).val();
+                        break;
+                    }
+                }
+            },
+            EditQuyCach_Modal: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var thisObj = event.currentTarget;
+                formatNumberObj(thisObj);
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].SoLuongQuyCach = $(thisObj).val();
+                        break;
+                    }
+                }
+                self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
+            },
+            EditSoLuong_TPDinhLuong: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var thisObj = event.currentTarget;
+                formatNumberObj(thisObj);
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].SoLuong = $(thisObj).val();
+                        break;
+                    }
+                }
+            },
+            EnterDetail_TPDinhLuong: function (columnEdit) {
+                var thisObj = $(event.currentTarget);
+                var trClosest = $(thisObj).closest('tr');
+                var tdNext = trClosest.next().find('td');
+                $(tdNext).eq(columnEdit).find('input').focus().select(); 
+            },
+            Agree_TPDinhLuong: function () {
+                var self = this;
+                self.saveOK = true;
+                $('#vmDichVu_ofThanhPhanDL').modal('hide');
+            },
+        }
+    })
+
+    function formatNumber(number) {
+        if (number === undefined || number === null) {
+            return 0;
+        }
+        else {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    }
+</script>

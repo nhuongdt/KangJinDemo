@@ -1,0 +1,1011 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        span.close-ul {
+            font-size: 21px;
+            top: 0px;
+            left: 5px;
+            text-align: center;
+            width: 20px;
+            font-family: Menlo, Consolas, monospace;
+        }
+
+        #vmNhatKyHoatDongXe thead th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="vmNhatKyHoatDongXe" class="op-container" style="position:relative">
+        <div class="container-fluid nopadding" style="position:relative">
+            <div class="op-baocao-type">
+                <ul>
+                    <li v-if="VHeader.Quyen.filter(p => p === 'BCChiTiet_HoatDongXe').length > 0">
+                        <input type="radio"  id="baocaochitiet"  name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                        <label for="baocaochitiet">
+                            Chi tiết
+                        </label>
+                    </li>
+                    <li v-if="VHeader.Quyen.filter(p => p === 'BCTongHop_HoatDongXe').length > 0">
+                        <input type="radio" id="baocaotonghop" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                        <label for="baocaotonghop">
+                            Tổng hợp
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-left">
+                <div class=" op-filter">
+
+                    <section class="op-filter-body ">
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                Loại báo cáo
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="floatleft  gara-loaibaocao">
+                                        <ul>
+                                            <li v-if="VHeader.Quyen.filter(p => p === 'BCChiTiet_HoatDongXe').length > 0">
+                                                <input type="radio"  id="baocaochitiet" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                                                <label for="baocaochitiet">
+                                                    Chi tiết
+                                                </label>
+                                            </li>
+                                            <li v-if="VHeader.Quyen.filter(p => p === 'BCTongHop_HoatDongXe').length > 0">
+                                                <input type="radio" id="baocaotonghop" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                                                <label for="baocaotonghop">
+                                                    Tổng hợp
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft ">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                            </h3>
+                            <aside class="op-filter-container">
+                                <filter-chinhanh v-bind:listchinhanh="listChiNhanh" v-on:callfunctionloaddata="BeforeLoadData"></filter-chinhanh>
+                            </aside>
+                        </article>
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 1 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-calendar"></i>
+                                Đến ngày
+                            </h3>
+                            <my-date :format="dateFormat"
+                                     :date-chose="BCTongHop_ToDate"
+                                     :role-change-date="true"
+                                     v-on:change-date="ChangeDate"></my-date>
+                        </article>
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 2 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-calendar"></i>
+                                Thời gian
+                            </h3>
+                            <filter-datetime radioname="rdThoiGian" v-bind:typetime="ThoiGianTypeTime"
+                                             v-on:callfunction="onCallThoiGian"
+                                             v-bind:selectvalue="5"></filter-datetime>
+                        </article>
+
+                        <article class="boxLeft ">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-user"></i> Nhân viên
+                            </h3>
+                            <aside class="op-filter-container">
+                                <nhanviens :text-search="txtStaff"
+                                           :staffs="listNhanVien"
+                                           :search-list="listNhanVien"
+                                           :id-chosing="IDNhanVienChosed"
+                                           v-on:change-staff-parent="ChoseNhanVien">
+                                </nhanviens>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-object-group"></i>
+                                Nhóm hàng hóa
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="seach-nhomhang">
+                                    <i class="fa fa-search" style="display:inline-block"></i>
+                                    <input type="text" class="seach-nhomhang" v-model="NhomHangHoaSearch" placeholder="Tìm kiếm nhóm hàng" style="display:inline-block; width: calc(100% - 15px)" />
+                                </div>
+                                <div class="treename"
+                                     v-on:click="SelectNhomHangHoa('')">
+                                    <i class="fa fa-angle-right" aria-hidden="true" style="opacity:0"></i> Tất cả
+                                </div>
+                                <treeview style="overflow:auto; max-height:200px"
+                                          v-bind:list="TreeFilter(NhomHangHoa, commonStatisJs.convertVieToEng(NhomHangHoaSearch))"
+                                          class="treeview floatleft" v-bind:onselectvalue="SelectNhomHangHoa"></treeview>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-object-group"></i>
+                                Nhóm phụ tùng
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="seach-nhomhang">
+                                    <i class="fa fa-search" style="display:inline-block"></i>
+                                    <input type="text" class="seach-nhomhang" v-model="NhomPhuTungSearch"
+                                           placeholder="Tìm kiếm nhóm phụ tùng"
+                                           style="display:inline-block; width: calc(100% - 15px)" />
+                                </div>
+                                <div class="treename"
+                                     v-on:click="SelectNhomPhuTung('')">
+                                    <i class="fa fa-angle-right" aria-hidden="true" style="opacity:0"></i> Tất cả
+                                </div>
+                                <treeview style="overflow:auto; max-height:200px"
+                                          v-bind:list="TreeFilterNhomPhuTung(NhomHangHoa, commonStatisJs.convertVieToEng(NhomPhuTungSearch))"
+                                          class="treeview floatleft" v-bind:onselectvalue="SelectNhomPhuTung"></treeview>
+                            </aside>
+                        </article>
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 2 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-clock"></i>
+                                Số giờ hoạt động
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Từ</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="SoGioHoatDongFrom" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Đến</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="SoGioHoatDongTo" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 1 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <i class="fa fa-acorn"></i>
+                                Trạng thái
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="floatleft  gara-loaibaocao">
+                                        <ul>
+                                            <li>
+                                                <input type="radio" id="filterTrangThai0" name="rdoTrangThai" value="0" v-model="filterTrangThai" class="radio-option" />
+                                                <label for="filterTrangThai0">
+                                                    Tất cả
+                                                </label>
+                                            </li>
+                                            <li>
+                                                <input type="radio" name="rdoTrangThai" id="filterTrangThai1" value="1" v-model="filterTrangThai" class="radio-option" />
+                                                <label for="filterTrangThai1">
+                                                    Đến hạn bảo hành
+                                                </label>
+                                            </li>
+                                            <li>
+                                                <input type="radio" name="rdoTrangThai" id="filterTrangThai2" value="2" v-model="filterTrangThai" class="radio-option" />
+                                                <label for="filterTrangThai2">
+                                                    Chưa đến hạn bảo hành
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+
+                    </section>
+                    <div class="op-filter-footer">
+                        <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                        <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                            <span>Thu gọn</span>
+                        </button>
+                        <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                            <span>Mở rộng</span>
+                        </button>
+                        <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-right">
+                <div class="op-header">
+                    <div class="op-header-title op-baocao-title">
+                        <h2 class="title" onclick="showTypeBc()">Báo cáo sửa chữa</h2>
+                    </div>
+                    <div class="" style="height:unset; text-align:center">
+                        <h4 class="floatleft flex  flex-center">
+                            <label class="floatleft" style="text-align:center">{{BaoCaoTieuDe}}</label>
+                        </h4>
+                        <span class="floatleft" v-if="LoaiBaoCao == 1">{{BaoCaoTongHop_ThoiGianText}}</span>
+                        <span class="floatleft" v-if="LoaiBaoCao == 2">{{BaoCaoThoiGianText}}</span>
+                        <span class="floatleft">Chi nhánh: {{listChiNhanh.filter(p => p.CNChecked === true).map(p=>p.TenDonVi).toString()}}</span>
+                    </div>
+                    <div class="flex flex-between">
+                        <div class="op-header-button">
+                            <div class=" header-button-left" data-toggle="modal">
+                                <button class="btn btn-main" style="margin-right:5px" v-on:click="showModalAdd">
+                                    <i class="fa fa-plus" aria-hidden="true"></i> Thêm mới
+                                </button>
+                                <button class="btn btn-main" style="margin-right:5px" v-on:click="ExportExcel">
+                                    <i class="fa fa-file-excel-o" aria-hidden="true"></i> Xuất file
+                                </button>
+                                <div>
+                                    <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-angle-double-down"></i>
+                                    </button>
+                                    <div class="dropdown-list dropdown-menu dropdown-menu-split" style="right:0; display:none">
+                                        <ul style="width:340px; flex-direction:row; flex-wrap:wrap; display:flex">
+                                            <li v-for="item in GetListHeader()" style="width:170px">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                        <span></span>{{item.colText}}
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="op-search">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm xe, phụ tùng" v-model="TextSearch" v-on:keyup="EnterKeyup">
+                                <button type="button" class=" op-search-button" v-on:click="BeforeLoadData">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                                <i class="material-icons">sort</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-table  tab-content">
+                    <!---------------Tổng hợp--------------->
+                    <div class="result tab-pane " id="tonghop" v-bind:class="{ active: LoaiBaoCao==1 }">
+                        <div class="table-frame">
+                            <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in BaoCaoTongHopHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="(item, index) in BaoCaoTongHop.data">
+                                        <tr>
+                                            <td v-bind:rowspan="item.details.length +1"
+                                                v-if="TongHop_CheckColShow('colTenChiNhanh')">
+                                                {{item.TenDonVi}}
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="TongHop_CheckColShow('colTenNhomHangHoa')">
+                                                {{item.TenNhomHangHoa}}
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="TongHop_CheckColShow('colMaHangHoa')">
+                                                <a v-on:click="gotoPage(item,2)">{{item.MaHangHoa}}</a>
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="TongHop_CheckColShow('colTenHangHoa')">
+                                                {{item.TenHangHoa}}
+                                            </td>
+                                            <td class="text-center" v-bind:rowspan="item.details.length +1"
+                                                v-if="TongHop_CheckColShow('colBienSo')">
+                                                <a>
+                                                    {{item.BienSo}}
+                                                </a>
+                                            </td>
+                                            <td class="text-right" v-bind:rowspan="item.details.length +1"
+                                                v-if="TongHop_CheckColShow('colTongSoGioThucHien')">
+                                                {{formatNumber3Digit(item.SoGioHoatDong)}}
+                                            </td>
+                                        </tr>
+                                        <template v-for="(ct, index2) in item.details">
+                                            <tr>
+                                                <td v-if="TongHop_CheckColShow('colNhomPhuTung')">
+                                                    {{ct.TenNhomPhuTung}}
+                                                </td>
+                                                <td class="text-center" v-if="TongHop_CheckColShow('colMaPhuTung')">
+                                                    <a v-on:click="gotoPage(ct,1)">{{ct.MaPhuTung}}</a>
+                                                </td>
+                                                <td v-if="TongHop_CheckColShow('colTenPhuTung')">
+                                                    {{ct.TenPhuTung}}
+                                                </td>
+                                                <td v-if="TongHop_CheckColShow('colDonViTinh')">
+                                                    {{ct.TenDonViTinh}}
+                                                </td>
+                                                <td class="text-right" v-if="TongHop_CheckColShow('colMocBaoHanh')">
+                                                    {{formatNumber3Digit(ct.MocBaoHanh)}}
+                                                </td>
+                                                <td class="text-right" v-if="TongHop_CheckColShow('colBHConLai')">
+                                                    {{formatNumber3Digit(ct.BHConLai)}}
+                                                </td>
+                                                <td v-if="TongHop_CheckColShow('colBHTrangThai')">
+                                                    {{ct.BHTrangThai}}
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </template>
+                                </tbody>
+                                <tfoot v-if="BaoCaoTongHop.data.length > 0" style="background-color: #d1d2d9;">
+                                    <tr style="font-weight: bold;">
+                                        <td v-bind:colspan="BaoCaoTongHopHeader.filter(p=>p.colShow === true && p.index < 5).length">Tổng cộng</td>
+                                        <td class="text-right" v-if="TongHop_CheckColShow('colTongSoGioThucHien')">
+                                            {{formatNumber3Digit(BaoCaoTongHop.data[0].TongSoGioHoatDong)}}
+                                        </td>
+                                        <td v-bind:colspan="BaoCaoTongHopHeader.filter(p=>p.colShow === true && p.index > 5).length">
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoTongHop.data.length<=0">
+                                    <tr>
+                                        <td class="text-center" v-bind:colspan="BaoCaoTongHopHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <page-list v-bind:pagesize="BaoCaoTongHop.PageSize"
+                                   v-bind:listpage="BaoCaoTongHop.ListPage"
+                                   v-bind:currentpage="BaoCaoTongHop.currentPage"
+                                   v-bind:pageview="BaoCaoTongHop.PageView"
+                                   v-bind:numberofpage="BaoCaoTongHop.NumberOfPage"
+                                   v-on:pageselected="BaoCaoTongHopPageChange"></page-list>
+                    </div>
+                    <!---------------Chi tiết--------------->
+                    <div class="result tab-pane " id="chitiet" v-bind:class="{ active: LoaiBaoCao==2 }">
+                        <div class="table-frame">
+                            <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in BaoCaoChiTietHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="(item, index) in BaoCaoChiTiet.data">
+                                        <tr>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colTenChiNhanh')">
+                                                {{item.TenDonVi}}
+                                            </td>
+                                            <td class="text-center" v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colMaTiepNhan')">
+                                                <a v-on:click="showModalUpdatePTN(item)">{{item.MaPhieuTiepNhan}}</a>
+                                            </td>
+                                            <td class="text-center" v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colNgayTiepNhan')">
+                                                {{moment(item.NgayVaoXuong).format('DD/MM/YYYY HH:mm')}}
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colTenNhomHangHoa')">
+                                                {{item.TenNhomHangHoa}}
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colMaHangHoa')">
+                                                <a v-on:click="gotoPage(item,2)">{{item.MaHangHoa}}</a>
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1"
+                                                v-if="ChiTiet_CheckColShow('colTenHangHoa')">
+                                                {{item.TenHangHoa}}
+                                            </td>
+                                            <td class="text-center" v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colBienSo')">
+                                                <a v-on:click="showModalUpdateXe(item)">{{item.BienSo}}</a>
+                                            </td>
+                                            <td class="text-right"
+                                                v-bind:rowspan="item.details.length +1"
+                                                v-if="ChiTiet_CheckColShow('colSoGioHoatDong')">
+                                                {{formatNumber3Digit(item.SoGioHoatDong)}}
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colNVThucHien')">
+                                                {{item.TenNhanVien}}
+                                            </td>
+                                            <td v-bind:rowspan="item.details.length +1" v-if="ChiTiet_CheckColShow('colGhiChu')">
+                                                {{item.GhiChu}}
+                                            </td>
+                                        </tr>
+                                        <template>
+                                            <tr v-for="(ct, key) in item.details">
+                                                <td v-if="ChiTiet_CheckColShow('colNhomPhuTung')">
+                                                    {{ct.TenNhomPhuTung}}
+                                                </td>
+                                                <td class="text-center"
+                                                    v-if="ChiTiet_CheckColShow('colMaPhuTung')">
+                                                    <a v-on:click="gotoPage(ct,1)">{{ct.MaPhuTung}}</a>
+                                                </td>
+                                                <td v-if="ChiTiet_CheckColShow('colTenPhuTung')">
+                                                    {{ct.TenPhuTung}}
+                                                </td>
+                                                <td v-if="ChiTiet_CheckColShow('colDonViTinh')">
+                                                    {{ct.TenDonViTinh}}
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </template>
+                                </tbody>
+                                <tfoot v-if="BaoCaoChiTiet.data.length > 0" style="background-color: #d1d2d9;">
+                                    <tr style="font-weight: bold;">
+                                        <td v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true && p.index < 7).length">Tổng cộng</td>
+                                        <td class="text-right" v-if="ChiTiet_CheckColShow('colSoGioHoatDong')">
+                                            {{formatNumber3Digit(BaoCaoChiTiet.data[0].TongSoGioHoatDong)}}
+                                        </td>
+                                        <td v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true && p.index > 7).length">
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoChiTiet.data.length<=0">
+                                    <tr>
+                                        <td class="text-center" v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <page-list v-bind:pagesize="BaoCaoChiTiet.PageSize"
+                                   v-bind:listpage="BaoCaoChiTiet.ListPage" v-bind:currentpage="BaoCaoChiTiet.currentPage" v-bind:pageview="BaoCaoChiTiet.PageView"
+                                   v-bind:numberofpage="BaoCaoChiTiet.NumberOfPage"
+                                   v-on:pageselected="BaoCaoChiTietPageChange"></page-list>
+                    </div>
+
+                    <div class="table-loading" style="top:calc(50% - 25px)" v-if="isLoading === true">
+                        <div class="loading">
+                        </div>
+                        <div style="text-align: center;font-size: 18px;padding: 5px;">
+                            Đang tải dữ liệu, vui lòng chờ ...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/Components/filter-chinhanh.js"></script>
+    <script src="~/Scripts/Components/filter-datetime.js"></script>
+    <script src="~/Scripts/Components/page-list.js"></script>
+    <script src="~/Scripts/BanHang/Public.js"></script>
+    <script src="~/Scripts/Components/treeview.js"></script>
+    <script src="~/Scripts/Components/Input.js"></script>
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemPhieuHoatDongXe.cshtml")
+    @Html.Partial("~/Views/HangHoa/_vmNewProduct.cshtml")
+
+    <script>
+        var vmBaoCaoHoatDongXe = new Vue({
+            el: '#vmNhatKyHoatDongXe',
+            components: {
+                'my-date': cpmDatetime,
+                'nhanviens': ComponentChoseStaff,
+            },
+            data: {
+                urlApi: {
+                    ChiNhanhApi: '/api/DanhMuc/DM_DonViAPI/',
+                    DoiTuongApi: '/api/DanhMuc/DM_DoiTuongAPI/',
+                    GaraApi: '/api/DanhMuc/GaraAPI/',
+                    ReportApi: '/api/DanhMuc/ReportAPI/',
+                    NhomHangHoaApi: '/api/DanhMuc/DM_NhomHangHoaAPI/'
+                },
+                LoaiBaoCao: '2',
+                BaoCaoTieuDe: 'Báo cáo tổng hợp nhật ký hoạt động của xe',
+                BaoCaoThoiGianText: '',
+                BaoCaoTongHop_ThoiGianText: '',
+                listChiNhanh: [],
+                listNhanVien: [],
+                ThoiGianTypeTime: 0,
+                ThoiGianFrom: '',
+                ThoiGianTo: moment(new Date()).format('YYYY-MM-DD'),
+                BCTongHop_ToDate: moment(new Date()).format('YYYY-MM-DD'),
+                SoGioHoatDongFrom: '',
+                SoGioHoatDongTo: '',
+                TextSearch: '',
+                filterTrangThai: '0',
+                txtStaff: '',
+                BaoCaoTongHopHeader: [],
+                BaoCaoTongHop: {
+                    dataAll: [],
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                },
+                BaoCaoChiTietHeader: [],
+                BaoCaoChiTiet: {
+                    dataAll: [],
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                },
+
+                isLoading: true,
+                onRefresh: true,
+                NhomHangHoa: [],
+                NhomHangHoaSearch: '',
+                IdNhomHangHoaSelected: '',
+                NhomPhuTungSearch: '',
+                IdNhomPhuTungSelected: '',
+
+                dateFormat: 'DD/MM/YYYY',
+                IDNhanVienChosed: '',
+            },
+            methods: {
+                ChoseNhanVien: function (item) {
+                    let self = this;
+                    self.txtStaff = item.TenNhanVien;
+                    self.IDNhanVienChosed = item.ID;
+                    self.LoadData();
+                },
+                getListNhanVien: function () {
+                    let self = this;
+                    ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + VHeader.IdDonVi, 'GET').done(function (data) {
+                        self.listNhanVien = data;
+                        vmNKyHoatDongXe.listData.NhanViens = data;
+                    });
+                },
+                LoadChiNhanh: function () {
+                    let self = this;
+                    $.ajax({
+                        url: self.urlApi.ChiNhanhApi + "GetListDonVi_User",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data !== null) {
+                                data.map(function (item) {
+                                    if (item['ID'] === VHeader.IdDonVi) {
+                                        item['CNChecked'] = true;
+                                    }
+                                    else {
+                                        item['CNChecked'] = false;
+                                    }
+                                });
+                                self.listChiNhanh = data;
+                                self.LoadData();
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                LoadNhomHangHoa: function () {
+                    let self = this;
+                    $.ajax({
+                        url: self.urlApi.NhomHangHoaApi + "GetAllDMNhomHangHoa",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data !== null) {
+                                self.NhomHangHoa = data.dataSoure.data;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                TongHop_CheckColShow: function (colName) {
+                    let self = this;
+                    return self.BaoCaoTongHopHeader.find(x => x.colName === colName).colShow;
+                },
+                ChiTiet_CheckColShow: function (colName) {
+                    let self = this;
+                    let data = self.BaoCaoChiTietHeader.find(x => x.colName === colName);
+                    if (data != undefined) {
+                        return data.colShow;
+                    }
+                    return true;
+                },
+                SelectNhomHangHoa: function (value) {
+                    let self = this;
+                    self.IdNhomHangHoaSelected = value;
+                    self.LoadData();
+                },
+                TreeFilter: function (data, text) {
+                    let self = this;
+                    var r = data.filter(function (o) {
+                        if (o.children) o.children = self.TreeFilter(o.children, text);
+                        return commonStatisJs.convertVieToEng(o.Item.Text).match(text);
+                    })
+                    return r;
+                },
+                SelectNhomPhuTung: function (value) {
+                    let self = this;
+                    self.IdNhomPhuTungSelected = value;
+                    self.LoadData();
+                },
+                TreeFilterNhomPhuTung: function (data, text) {
+                    let self = this;
+                    var r = data.filter(function (o) {
+                        if (o.children) o.children = self.TreeFilterNhomPhuTung(o.children, text);
+                        return commonStatisJs.convertVieToEng(o.Item.Text).match(text);
+                    })
+                    return r;
+                },
+                BeforeLoadData: function () {
+                    let self = this;
+                    self.LoadData();
+                },
+                LoadData: function () {
+                    let self = this;
+                    self.isLoading = false;
+                    switch (parseInt(self.LoaiBaoCao)) {
+                        case 1:
+                            self.BaoCaoTieuDe = 'Báo cáo tổng hợp nhật ký hoạt động của xe';
+                            self.LoadBaoCaoTongHop();
+                            break;
+                        case 2:
+                            self.BaoCaoTieuDe = 'Báo cáo chi tiết nhật ký hoạt động của xe';
+                            self.LoadBaoCaoChiTiet();
+                            break;
+                    }
+                },
+                LoadBaoCaoTongHop: function () {
+                    let self = this;
+                    self.isLoading = true;
+                    let myData = {
+                        IDChiNhanhs: self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID),
+                        DateTo: self.BCTongHop_ToDate,
+                        IDNhomHangs: [self.IdNhomHangHoaSelected],
+                        IDNhanViens: [self.IDNhanVienChosed],
+                        IDNhomPhuTungs: [self.IdNhomPhuTungSelected],
+                        TrangThai: self.filterTrangThai,
+                        TextSearch: self.TextSearch,
+                        CurrentPage: self.BaoCaoTongHop.currentPage - 1,
+                        PageSize: self.BaoCaoTongHop.PageSize,
+                    };
+                    ajaxHelper(self.urlApi.ReportApi + "BaoCaoHoatDongXe_TongHop", 'POST', myData).done(function (data) {
+                        console.log(data)
+                        if (data.res === true) {
+                            let obj = data.dataSoure;
+                            self.BaoCaoTongHop.data = obj.data;
+                            self.BaoCaoTongHop.ListPage = obj.listpage;
+                            self.BaoCaoTongHop.PageView = obj.pageview;
+                            self.BaoCaoTongHop.TotalRow = obj.totalRow;
+                        }
+                    }).always(function () {
+                        self.isLoading = false;
+                        self.onRefresh = false;
+                    })
+                },
+                LoadBaoCaoChiTiet: function () {
+                    let self = this;
+                    self.isLoading = true;
+
+                    let myData = {
+                        IDChiNhanhs: self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID),
+                        DateFrom: self.ThoiGianFrom,
+                        DateTo: self.ThoiGianTo,
+                        IDNhomHangs: [self.IdNhomHangHoaSelected],
+                        IDNhanViens: [self.IDNhanVienChosed],
+                        IDNhomPhuTungs: [self.IdNhomPhuTungSelected],
+                        TrangThai: self.filterTrangThai,
+                        SoGioHoaDongTu: self.SoGioHoatDongFrom,
+                        SoGioHoaDongDen: self.SoGioHoatDongTo,
+                        TextSearch: self.TextSearch,
+                        CurrentPage: self.BaoCaoChiTiet.currentPage - 1,
+                        PageSize: self.BaoCaoChiTiet.PageSize,
+                    };
+                    ajaxHelper(self.urlApi.ReportApi + "BaoCaoHoatDongXe_ChiTiet", 'POST', myData).done(function (data) {
+                        console.log(data)
+                        if (data.res === true) {
+                            let obj = data.dataSoure;
+                            self.BaoCaoChiTiet.data = obj.data;
+                            self.BaoCaoChiTiet.ListPage = obj.listpage;
+                            self.BaoCaoChiTiet.PageView = obj.pageview;
+                            self.BaoCaoChiTiet.TotalRow = obj.totalRow;
+                        }
+                    }).always(function () {
+                        self.isLoading = false;
+                        self.onRefresh = false;
+                    })
+                },
+                BaoCaoTongHopPageChange: function (value) {
+                    let self = this;
+                    if (self.BaoCaoTongHop.currentPage !== value.currentPage) {
+                        self.BaoCaoTongHop.currentPage = value.currentPage;
+                        self.LoadBaoCaoTongHop();
+                    } else if (self.BaoCaoTongHop.PageSize !== value.pageSize) {
+                        self.BaoCaoTongHop.currentPage = 1;
+                        self.LoadBaoCaoTongHop();
+                    }
+                },
+                BaoCaoChiTietPageChange: function (value) {
+                    let self = this;
+                    if (self.BaoCaoChiTiet.currentPage !== value.currentPage) {
+                        self.BaoCaoChiTiet.currentPage = value.currentPage;
+                        self.LoadBaoCaoChiTiet();
+                    } else if (self.BaoCaoChiTiet.PageSize !== value.pageSize) {
+                        self.BaoCaoChiTiet.currentPage = 1;
+                        self.LoadBaoCaoChiTiet();
+                    }
+                },
+                ChangeDate: function (e) {
+                    var self = this;
+                    var dt = moment(e).format('YYYY-MM-DD');
+                    self.BCTongHop_ToDate = dt;
+                    self.BaoCaoTongHop.currentPage = 1;
+                    self.BaoCaoTongHop_ThoiGianText = 'Đến ngày: ' + moment(e).format('DD/MM/YYYY');
+                    self.LoadData();
+                },
+
+                onCallThoiGian: function (value) {
+                    let self = this;
+                    if (self.ThoiGianFrom !== value.fromdate || self.ThoiGianTo !== value.todate) {
+                        if (value.fromdate !== '2016-01-01') {
+                            self.ThoiGianFrom = value.fromdate;
+                            self.ThoiGianTo = value.todate;
+                            self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.ThoiGianFrom).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.ThoiGianTo).add(-1, 'days').format('DD/MM/YYYY');
+                        }
+                        else {
+                            self.ThoiGianFrom = '';
+                            self.ThoiGianTo = '';
+                            self.BaoCaoThoiGianText = 'Toàn thời gian';
+                        }
+                        if (self.onRefresh === false) {
+                            self.LoadData();
+                        }
+                    }
+                    self.ThoiGianTypeTime = value.radioselect;
+                    self.BaoCaoTongHop_ThoiGianText = 'Đến ngày: ' + moment(self.ThoiGianTo, 'YYYY-MM-DD').format('DD/MM/YYYY');
+                },
+                InitBaoCaoTongHopHeader: function () {
+                    return [{ colName: 'colTenChiNhanh', colText: 'Tên chi nhánh', colShow: false, index: 0 },
+                    { colName: 'colTenNhomHangHoa', colText: 'Tên nhóm hàng', colShow: false, index: 1 },
+                    { colName: 'colMaHangHoa', colText: 'Mã hàng hóa', colShow: false, index: 2 },
+                    { colName: 'colTenHangHoa', colText: 'Tên hàng hóa', colShow: false, index: 3 },
+                    { colName: 'colBienSo', colText: 'Biển số xe', colShow: true, index: 4 },
+                    { colName: 'colTongSoGioThucHien', colText: 'Số giờ hoạt động', colShow: true, index: 5 },
+                    { colName: 'colNhomPhuTung', colText: 'Nhóm phụ tùng', colShow: false, index: 6 },
+                    { colName: 'colMaPhuTung', colText: 'Mã phụ tùng', colShow: true, index: 7 },
+                    { colName: 'colTenPhuTung', colText: 'Tên phụ tùng', colShow: true, index: 8 },
+                    { colName: 'colDonViTinh', colText: 'ĐVT', colShow: false, index: 9 },
+                    { colName: 'colMocBaoHanh', colText: 'Mốc bảo hành', colShow: true, index: 10 },
+                    { colName: 'colBHConLai', colText: 'Còn lại', colShow: true, index: 11 },
+                    { colName: 'colBHTrangThai', colText: 'Trạng thái BH', colShow: true, index: 12 }];
+                },
+                InitBaoCaoChiTietHeader: function () {
+                    return [{ colName: 'colTenChiNhanh', colText: 'Tên chi nhánh', colShow: false, index: 0 },
+                    { colName: 'colMaTiepNhan', colText: 'Mã phiếu', colShow: true, index: 1 },
+                    { colName: 'colNgayTiepNhan', colText: 'Thời gian', colShow: true, index: 2 },
+                    { colName: 'colTenNhomHangHoa', colText: 'Tên nhóm hàng', colShow: false, index: 3 },
+                    { colName: 'colMaHangHoa', colText: 'Mã hàng hóa', colShow: false, index: 4 },
+                    { colName: 'colTenHangHoa', colText: 'Tên hàng hóa', colShow: false, index: 5 },
+                    { colName: 'colBienSo', colText: 'Biển số xe', colShow: true, index: 6 },
+                    { colName: 'colSoGioHoatDong', colText: 'Số giờ hoạt động', colShow: true, index: 7 },
+                    { colName: 'colNVThucHien', colText: 'Nhân viên thực hiện', colShow: true, index: 8 },
+                    { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 9 },
+                    { colName: 'colNhomPhuTung', colText: 'Nhóm phụ tùng', colShow: false, index: 10 },
+                    { colName: 'colMaPhuTung', colText: 'Mã phụ tùng', colShow: true, index: 11 },
+                    { colName: 'colTenPhuTung', colText: 'Tên phụ tùng', colShow: true, index: 12 },
+                    { colName: 'colDonViTinh', colText: 'ĐVT', colShow: false, index: 13 },
+                    ];
+                },
+
+                GetListHeader: function () {
+                    let self = this;
+                    switch (parseInt(self.LoaiBaoCao)) {
+                        case 1:
+                            return self.BaoCaoTongHopHeader;
+                            break;
+                        case 2:
+                            return self.BaoCaoChiTietHeader;
+                            break;
+                    }
+                },
+                EnterKeyup: function (e) {
+                    if (e.keyCode === 13) {
+                        this.LoadData();
+                    }
+                },
+                ExportExcel: function () {
+                    let self = this;
+                    let urlExport = '';
+                    let myData = {
+                        IDChiNhanhs: self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID),
+                        DateTo: self.ThoiGianTo,
+                        IDNhomHangs: [self.IdNhomHangHoaSelected],
+                        IDNhanViens: [self.IDNhanVienChosed],
+                        TrangThai: self.filterTrangThai,
+                        TextSearch: self.TextSearch,
+                        CurrentPage: 0,
+                        PageSize: 0,
+                        ReportText: {
+                            ColumnHide: [],
+                            ReportTime: '',
+                            ReportName: self.BaoCaoTieuDe,
+                            ReportBranch: 'Chi nhánh: '.concat(self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString()),
+                        }
+                    };
+                    switch (parseInt(self.LoaiBaoCao)) {
+                        case 1:
+                            myData.DateTo = self.BCTongHop_ToDate;
+                            myData.PageSize = self.BaoCaoTongHop.TotalRow;
+                            myData.ReportText.ColumnHide = self.BaoCaoTongHopHeader.filter(p => p.colShow === false).map(p => p.index);
+                            myData.ReportText.ReportTime = self.BaoCaoTongHop_ThoiGianText;
+                            urlExport = 'ExportExcel_BaoCaoHoatDongXe_TongHop';
+                            break;
+                        case 2:
+                            myData.PageSize = self.BaoCaoChiTiet.TotalRow;
+                            myData.ReportText.ColumnHide = self.BaoCaoChiTietHeader.filter(p => p.colShow === false).map(p => p.index);
+                            myData.ReportText.ReportTime = self.BaoCaoThoiGianText;
+                            urlExport = 'ExportExcel_BaoCaoHoatDongXe_ChiTiet';
+                            break;
+                    }
+                    ajaxHelper(self.urlApi.ReportApi + urlExport, 'POST', myData).done(function (x) {
+                        if (x.res === true) {
+                            let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + x.mess;
+                            window.location.href = url;
+                            commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+
+                            let diary = {
+                                ID_DonVi: VHeader.IdDonVi,
+                                ID_NhanVien: VHeader.IdNhanVien,
+                                LoaiNhatKy: 6,
+                                ChucNang: 'Báo cáo hoạt động xe',
+                                NoiDung: 'Xuất file báo cáo hoạt động xe',
+                                NoiDungChiTiet: 'Xuất file báo cáo hoạt động xe '.
+                                    concat(parseInt(self.LoaiBaoCao) == 1 ? ' - tổng hợp' : ' - chi tiết',
+                                        '<br /> Người xuất: ', VHeader.UserLogin),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger("Xuất file thất bại");
+                        }
+                    })
+                },
+
+                showModalAdd: function () {
+                    vmNKyHoatDongXe.showModalTiepNhanXe();
+                },
+                showModalUpdatePTN: function (item) {
+                    vmNKyHoatDongXe.GetInforPhieuTiepNhan_byID(item.ID_PhieuTiepNhan);
+                },
+                showModalUpdateXe: function (item) {
+                    vmNKyHoatDongXe.GetInforCar_byID(item.ID_Xe, 2);
+                },
+                showModalUpdateHangHoa: function (item) {
+                    vmNewProduct.GetInforProduct_byID(item.ID_HangHoa, 1);
+                },
+                gotoPage: function (item, typePage = 0) {
+                    let url = '';
+                    switch (typePage) {
+                        case 1:
+                            localStorage.setItem('loadMaHang', item.MaPhuTung);
+                            url = "/#/Product";
+                            break;
+                        case 2:
+                            localStorage.setItem('loadMaHang', item.MaHangHoa);
+                            url = "/#/Product";
+                            break;
+                    }
+                    window.open(url);
+                }
+            },
+            created: function () {
+                var self = this;
+                self.LoadChiNhanh();
+                self.getListNhanVien();
+                self.LoadNhomHangHoa();
+                if (localStorage.getItem('RpNKyXe_TongHop') === null) {
+                    self.BaoCaoTongHopHeader = self.InitBaoCaoTongHopHeader();
+                }
+                else {
+                    let localHeader = JSON.parse(localStorage.getItem('RpNKyXe_TongHop'));
+                    let initHeader = self.InitBaoCaoTongHopHeader();
+                    if (initHeader.length !== localHeader.length) {
+                        self.BaoCaoTongHopHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            self.BaoCaoTongHopHeader = initHeader;
+                        }
+                        else {
+                            self.BaoCaoTongHopHeader = JSON.parse(localStorage.getItem('RpNKyXe_TongHop'));
+                        }
+                    }
+                }
+                if (localStorage.getItem('RpNKyXe_ChiTiet') === null) {
+                    self.BaoCaoChiTietHeader = self.InitBaoCaoChiTietHeader();
+                }
+                else {
+                    let localHeader = JSON.parse(localStorage.getItem('RpNKyXe_ChiTiet'));
+                    let initHeader = self.InitBaoCaoChiTietHeader();
+                    if (initHeader.length !== localHeader.length) {
+                        self.BaoCaoChiTietHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            self.BaoCaoChiTietHeader = initHeader;
+                        }
+                        else {
+                            self.BaoCaoChiTietHeader = JSON.parse(localStorage.getItem('RpNKyXe_ChiTiet'));
+                        }
+                    }
+                }
+            },
+            watch: {
+                LoaiBaoCao: {
+                    handler: function () {
+                        this.LoadData();
+                    },
+                    deep: true
+                },
+                filterTrangThai: {
+                    handler: function () {
+                        this.LoadData();
+                    },
+                    deep: true
+                },
+                BaoCaoTongHopHeader: {
+                    handler: function () {
+                        localStorage.setItem('RpNKyXe_TongHop', JSON.stringify(this.BaoCaoTongHopHeader));
+                    },
+                    deep: true
+                },
+                BaoCaoChiTietHeader: {
+                    handler: function () {
+                        localStorage.setItem('RpNKyXe_ChiTiet', JSON.stringify(this.BaoCaoChiTietHeader));
+                    },
+                    deep: true
+                },
+            },
+        });
+
+        $('#vmNKyHoatDongXe').on('hidden.bs.modal', function () {
+            if (vmNKyHoatDongXe.saveOK) {
+                vmBaoCaoHoatDongXe.LoadData();
+            }
+        })
+    </script>
+    <script>
+        $(function () {
+            $('.daterange').daterangepicker({
+                drop: "up",
+                locale: {
+                    "format": 'DD/MM/YYYY',
+                    "separator": " - ",
+                    "applyLabel": "Tìm kiếm",
+                    "cancelLabel": "Hủy",
+                    "fromLabel": "Từ",
+                    "toLabel": "Đến",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "CN",
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7"
+                    ],
+                    "monthNames": [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ],
+                    "firstDay": 1
+                }
+            });
+        });
+    </script>
+</body>
+</html>

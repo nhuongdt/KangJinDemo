@@ -1,0 +1,252 @@
+﻿<div class="modal fade" id="ThemMoiPhuTungTheoDoi">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Thêm mới phụ tùng
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body" style="padding:15px">
+                <div class="container-fluid flex flex-between">
+                    <div class="col-md-6 col-xs-12 nopadding">
+                        <products :con-ton-kho="0"
+                                  :show-gia-von="false"
+                                  :show-image="false"
+                                  :show-ton-kho="false"
+                                  :loai-hang-hoa="typeSearchProduct"
+                                  :id-chi-nhanh="inforLogin.ID_DonVi"
+                                  v-on:chose-product="ChoseItemCombo">
+                        </products>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Ngày bắt đầu</label>
+                            <div class="form-news">
+                                <cp-ngaytheodoi :date-chose="NgayTheoDoi"
+                                                :role-change-date="true"
+                                                v-on:change-date="ChangeNgayTheoDoi">
+                                </cp-ngaytheodoi>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-fluid row">
+                    <div class="table-frame">
+                        <table class=" table-hover table table-striped  ">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">
+                                        STT
+                                    </th>
+                                    <th>
+                                        Mã hàng hóa
+                                    </th>
+                                    <th>
+                                        Tên hàng hóa
+                                    </th>
+                                    <th>
+                                        Định mức bảo dưỡng
+                                    </th>
+                                    <th style="width:30px" class="text-center">
+                                        #
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in ListPhuTung">
+                                    <td class="text-center">{{index + 1}}</td>
+                                    <td>{{item.MaHangHoa}}</td>
+                                    <td>{{item.TenHangHoa}}</td>
+                                    <td class="text-right">{{formatNumber3Digit(item.DinhMucBaoDuong)}}</td>
+                                    <td>
+                                        <button class="btn btn-link height-24" v-on:click="RemoveItemListPhuTung(item.ID_DonViQuiDoi)">
+                                            <i class="fa fa-times text-danger"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal" v-if="!isSaving">
+                        <i class="fa fa-ban"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-save" v-bind:disabled="isSaving" v-on:click="SaveData"
+                            @*v-if="role.PhieuTiepNhan.CapNhat"*@>
+                        <i class="fa fa-save"></i>
+                        {{isSaving ? 'Đang lưu' : 'Lưu'}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmThemMoiPhuTungTheoDoi = new Vue({
+        el: '#ThemMoiPhuTungTheoDoi',
+        components: {
+            'products': cmpChoseProduct,
+            'cp-ngaytheodoi': cpmDatetime
+        },
+        data: {
+            UrlApi: {
+                DMHangHoa: '/api/DM_HangHoaAPI/',
+                BHHoaDon: "/api/BH_HoaDonAPI/"
+            },
+            typeSearchProduct: '%11%',
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+                TenNhanVien: '',
+            },
+            NgayTheoDoi: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+            ListPhuTung: [],
+            ListPhuTungExist: [],
+            isSaving: false,
+            IdXe: null,
+            isNew: true,
+            IdHoaDon: null
+        },
+        methods: {
+            showModal: function (isNew = true) {
+                let self = this;
+                self.isNew = isNew;
+                if (isNew) {
+                    self.NgayTheoDoi = moment(new Date()).format('YYYY-MM-DD HH:mm');
+                    self.isSaving = false;
+                    self.ListPhuTung = [];
+                }
+                $("#ThemMoiPhuTungTheoDoi").modal('show');
+            },
+            closeModal: function () {
+                $("#ThemMoiPhuTungTheoDoi").modal('hide');
+            },
+            ChoseItemCombo: function (item) {
+                let self = this;
+                if (item.LaHangHoa & item.LaDonViChuan) {
+                    if (self.ListPhuTung.filter(p => p.ID_DonViQuiDoi === item.ID_DonViQuiDoi).length === 0 && self.ListPhuTungExist.filter(p => p.IdDonViQuiDoi === item.ID_DonViQuiDoi && p.TrangThai === 1).length === 0) {
+                        let dinhmucbaoduong = 0;
+                        $.ajax({
+                            url: self.UrlApi.DMHangHoa + "GetChiTietBaoDuong_TheoHangHoa?idHangHoa=" + item.ID,
+                            type: 'GET',
+                            dataType: 'json',
+                            async: false,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.dataSoure.length > 0) {
+                                    dinhmucbaoduong = data.dataSoure[0].GiaTri;
+                                }
+                            }
+                        });
+                        let itemhh = {
+                            ID: item.ID,
+                            ID_DonViQuiDoi: item.ID_DonViQuiDoi,
+                            MaHangHoa: item.MaHangHoa,
+                            TenHangHoa: item.TenHangHoa,
+                            DinhMucBaoDuong: dinhmucbaoduong
+                        }
+                        self.ListPhuTungExist.filter(p => p.IdDonViQuiDoi === item.ID_DonViQuiDoi).map(p => p.TrangThai = 1)
+                        self.ListPhuTung.push(itemhh);
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger('Phụ tùng theo dõi đã tồn tại.');
+                    }
+                }
+                else {
+                    commonStatisJs.ShowMessageDanger('Phụ tùng theo dõi chỉ được chọn mã hàng đơn vị chuẩn.');
+                }
+            },
+            ChangeNgayTheoDoi: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                self.NgayTheoDoi = dt;
+            },
+            RemoveItemListPhuTung: function (id) {
+                let self = this;
+                self.ListPhuTung = self.ListPhuTung.filter(p => p.ID_DonViQuiDoi !== id);
+                self.ListPhuTungExist.filter(p => p.IdDonViQuiDoi === id).map(p => p.TrangThai = 0)
+            },
+            SaveData: function () {
+                let self = this;
+                self.isSaving = true;
+                let mydata = {};
+                mydata.NgayTheoDoi = self.NgayTheoDoi;
+                mydata.UserName = self.inforLogin.UserLogin;
+                mydata.IdDonVi = self.inforLogin.ID_DonVi;
+                mydata.IdDonViQuiDois = self.ListPhuTung.map(p => p.ID_DonViQuiDoi);
+                mydata.IdXe = self.IdXe;
+                if (self.isNew) {
+                    $.ajax({
+                        url: self.UrlApi.BHHoaDon + "PostHdPhuTungTheoDoi",
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        data: mydata
+                    }).done(function (result) {
+                        VueDanhSachXe.LoadPhuTungTheoDoi();
+                        console.log(result);
+                        if (result.res === true) {
+                            commonStatisJs.ShowMessageSuccess('Cập nhật phụ tùng thành công.');
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger('Cập nhật phụ tùng thất bại.');
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Cập nhật phụ tùng thất bại.');
+                    }).always(function () {
+                        self.isSaving = false;
+                        self.closeModal();
+                    });
+                }
+                else {
+                    let lstRemove = self.ListPhuTungExist.filter(p => p.TrangThai === 0).map(p => p.Id);
+                    let lstAdd = self.ListPhuTung.filter(p => !self.ListPhuTungExist.map(p => p.IdDonViQuiDoi).includes(p.ID_DonViQuiDoi)).map(p=>p.ID_DonViQuiDoi);
+                    mydata.IdHoaDon = self.IdHoaDon;
+                    mydata.IdRemove = lstRemove;
+                    mydata.IdAdd = lstAdd;
+
+                    $.ajax({
+                        url: self.UrlApi.BHHoaDon + "PutHdPhuTungTheoDoi",
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        data: mydata
+                    }).done(function (result) {
+                        VueDanhSachXe.LoadPhuTungTheoDoi();
+                        if (result.res === true) {
+                            commonStatisJs.ShowMessageSuccess('Cập nhật phụ tùng thành công.');
+                        }
+                        else {
+                            console.log(result);
+                            commonStatisJs.ShowMessageDanger('Cập nhật phụ tùng thất bại.');
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Cập nhật phụ tùng thất bại.');
+                    }).always(function () {
+                        self.isSaving = false;
+                        self.closeModal();
+                    });
+                }
+            }
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_User: VHeader.IdNguoiDung,
+                UserLogin: VHeader.UserLogin,
+                ID_DonVi: VHeader.IdDonVi,
+                TenNhanVien: VHeader.TenNhanVien,
+            };
+        }
+    });
+</script>

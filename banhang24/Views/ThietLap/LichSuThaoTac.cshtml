@@ -1,0 +1,524 @@
+﻿@using Model
+@using banhang24.Hellper;
+@model DM_DonVi
+@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Lịch sử thao tác";
+}
+<div class="op-container">
+    <div class="container-fluid nopadding position-relative">
+        <div class="col-left">
+            <div class=" op-filter">
+                <section class="op-filter-body supplier">
+                    <article class="boxLeft sortTime">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/chucnang.png" />
+                            Chức năng
+                        </h3>
+                        <a ></a>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <input type="tel" class="form-control" placeholder="Nhập từ khóa" id="txtChucNang" data-bind="event: {keyup: SelectChucNang}">
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/nhanvien.png" />      Nhân viên
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown" id="choose_NguoiBan">
+                                    <ul data-bind="foreach: MangNguoiBan">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenNhanVien">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseNguoiBan">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown" id="NoteNameNguoiBan" data-bind="event:{keyup: NoteNameNhanVien}" placeholder="Chọn nhân viên..." />
+                                </div>
+                                <div class="selec-person dropdown-menu" id="selec-all-NguoiBan">
+                                    <ul data-bind="foreach: NguoiBans">
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedNguoiBan">
+                                            <span data-bind="text: TenNhanVien "></span>
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft thaotac">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thaotac.png" />    Thao tác
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="form-group">
+                                <label><input id="checkThaoTac1" value="1" type="checkbox"> Thêm mới</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input id="checkThaoTac2" value="2" type="checkbox"> Cập nhật</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input id="checkThaoTac3" value="3" type="checkbox"> Xóa</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input id="checkThaoTac4" value="4" type="checkbox"> Hủy</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input id="checkThaoTac5" value="5" type="checkbox"> Import</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input id="checkThaoTac6" value="6" type="checkbox"> Export</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input id="checkThaoTac7" value="7" type="checkbox"> Đăng nhập</label>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />       Thời gian
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="rdThoiGian" data-bind="checked: filterNgayPhieuHuy" value="0">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date ">
+                                            <div class="dr_TimeReport" data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show ip_TimeReport" placeholder="Hôm nay" value="Hôm nay">
+                                            </div>
+                                            <div class="dropdown-menu choseNgayTaoPhieuHuy">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="1"><a href="javascript:void(0);" class="ng-binding">Hôm nay</a></li>
+                                                        <li value="2"><a href="javascript:void(0);" class="ng-binding">Hôm qua</a></li>
+                                                        <li value="3"><a href="javascript:void(0);" class="ng-binding">Tuần này</a></li>
+                                                        <li value="4"><a href="javascript:void(0);" class="ng-binding">Tuần trước</a></li>
+                                                        <li value="5"><a href="javascript:void(0);" class="ng-binding">7 ngày qua</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="6"><a href="javascript:void(0);" class="ng-binding">Tháng này</a></li>
+                                                        <li value="7"><a href="javascript:void(0);" class="ng-binding">Tháng trước</a></li>
+                                                        <li value="10"><a href="javascript:void(0);" class="ng-binding">30 ngày qua</a></li>
+                                                        <li value="11"><a href="javascript:void(0);" class="ng-binding">Quý này</a></li>
+                                                        <li value="12"><a href="javascript:void(0);" class="ng-binding">Quý trước</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="13"><a href="javascript:void(0);" class="ng-binding">Năm này</a></li>
+                                                        <li value="14"><a href="javascript:void(0);" class="ng-binding">Năm trước</a></li>
+                                                        <li value="17"><a href="javascript:void(0);" class="ng-binding">Toàn thời gian</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="rdThoiGian" data-bind="checked: filterNgayPhieuHuy" value="1">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap ">
+                                            <input type="text" class="form-control ip_DateReport newDateTime" name="daterange" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title" >
+                    <h2 class="pull-left title">
+                        @banhang24.Resources.ResourceTexts.Setup / Lịch sử thao tác
+                    </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="header-button">
+                        <div class="header-button-left " style="margin-bottom:5px">
+                            <div class="btn-group">
+                                <button class="btn btn-main xuatfile no-magrin" id="btnExport" name="btnExport" data-bind="click: exportToExcelHangHoas"><span class="glyphicon glyphicon-export"></span>Xuất file</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" placeholder="Nhập từ khóa" id="txtNoiDung" data-bind="event: {keyup: SelectNoiDung}" autocomplete="off">
+                            <button type="button" class="op-search-button " data-bind="click: ClickIconSearch">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table " id="myScrollspy" style="top: 48px;position: sticky;">
+                <div class="table-reponsive table-frame">
+                    <table id="tb">
+                        <thead>
+                            <tr id="table">
+                                <th class="m0">Tên nhân viên</th>
+                                <th class="m1">Chức năng</th>
+                                <th class="m2">Thời gian</th>
+                                <th class="m3">Nội dung</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: ListLichSuThaoTac">
+                            <tr class="prev-tr-hide" id="table">
+                                <td class="m0" data-bind="text: TenNhanVien"></td>
+                                <td class="m1" data-bind="text: ChucNang"></td>
+                                <td class="m2" data-bind="text: moment(ThoiGian).format('DD/MM/YYYY')!='Invalid date'? moment(ThoiGian).format('DD/MM/YYYY HH:mm'):''"></td>
+                                <td class="m3 lenght-binding" data-bind="html: NoiDung_MR" style=" white-space: nowrap;overflow: hidden; text-overflow:ellipsis"></td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="4">
+                                    <div class="op-object-detail  floatleft">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active"><a href="#home" data-toggle="tab">Thông tin</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="home" style="padding:15px">
+                                                <p data-bind="html: NoiDungChiTiet"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page">
+                            <div class="flex flex-row">
+                                <label>Số bản ghi:</label>
+                                <select class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}" id="txtRowSelec"></select>
+                            </div>
+                        <div class="flex flex-end">
+                            <a href="javascript:void(0)" data-bind="click: $root.StartPage" id="StartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                            <a href="javascript:void(0)" data-bind="click: $root.BackPage" id="BackPage"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                            <ul data-bind="foreach: SumNumberPageReport">
+                                <li data-bind="click: $parent.gotoNextPage">
+                                    <a href="javascript:void(0)" data-bind="text: SoTrang,css: $root.GetClass($data)"></a>
+                                </li>
+                            </ul>
+                            <a href="javascript:void(0)" data-bind="click: $root.NextPage" id="NextPage"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                            <a href="javascript:void(0)" data-bind="click: $root.EndPage" id="EndPage"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                            <div class="total-recos">
+                                Hiển thị <span data-bind="text: RowsStart"></span> - <span data-bind="text: RowsEnd"></span> trên tổng số
+                                <span data-bind="text: SumRowsHangHoa"></span> thao tác
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Button trigger modal -->
+<script>
+    function GotoBangLuongByMa(mabangluong) {
+        localStorage.setItem('findBangLuong', mabangluong);
+        var url = "/#/payroll";
+        window.open(url);
+    }
+    function loadHangHoabyMaHH(maload) {
+        localStorage.setItem('loadMaHang', maload);
+        //clickloadForm('Product');
+        sleep(500).then(() => {
+            var url = "/#/Product";
+            window.open(url);
+        });
+    }
+    function FindMaHangHoa(maload) {
+        localStorage.setItem('loadMaHang', maload);
+        var url = "/#/Product";
+        window.open(url);
+    }
+    function loadXuatKhobyMaPH(maload) {
+        localStorage.setItem('FindHD', maload);
+        //clickloadForm('DamageItems');
+        sleep(500).then(() => {
+            var url = "/#/DamageItems";
+            window.open(url);
+        });
+    }
+    function FindDieuChinh(maload) {
+        localStorage.setItem('FindDieuChinh', maload);
+        var url = "/#/CouponAdjustment";
+        window.open(url);
+    }
+    function FindKiemKho(maload) {
+        localStorage.setItem('FindKiemKho', maload);
+        var url = "/#/StockTakes";
+        window.open(url);
+    }
+    function FindMaHD(maload) {
+        localStorage.setItem('FindHD', maload);
+        var url = "/#/PurchaseOrder";
+        window.open(url);
+    }
+    function FindMaHDTHN(maload) {
+        localStorage.setItem('FindHD', maload);
+        var url = "/#/PurchaseReturns";
+        window.open(url);
+    }
+    function FindMaHDCH(maload) {
+        localStorage.setItem('FindHD', maload);
+        var url = "/#/Transfers";
+        window.open(url);
+    }
+    function FindSoQuy(maload) {
+        localStorage.setItem('FindMaPhieuChi', maload);
+        var url = "/#/CashFlow";
+        window.open(url);
+    }
+    function loadNhanVienbyMaKM(maload) {
+        localStorage.setItem('Ls_NhanVien', maload);
+        //clickloadForm('DamageItems');
+        sleep(500).then(() => {
+            var url = "/#/User";
+            window.open(url);
+        });
+    }
+    function loadKhuyenMaibyMaKM(maload) {
+        localStorage.setItem('Ls_KhuyenMai', maload);
+        //clickloadForm('DamageItems');
+        sleep(500).then(() => {
+            var url = "/#/Promotion";
+            window.open(url);
+        });
+    }
+    function clickloadForm($newUrl) {
+        sleep(500).then(() => {
+            var url = "/#/DamageItems";
+            window.open(url);
+        });
+    };
+    function LoadKhachHang_byMaKH(maKH) {
+        localStorage.setItem('FindKhachHang', maKH);
+        var url = "/#/Customers";
+        window.open(url);
+    }
+    function LoadHoaDon_byMaHD(maHD) {
+        var loaiHD = 1;
+        if (maHD.indexOf('TT') > -1) {
+            localStorage.setItem('FindMaPhieuChi', maHD);
+            url = "/#/CashFlow"; // soquy
+        }
+        else {
+            localStorage.setItem('FindHD', maHD);
+            if (maHD.indexOf('HD') > -1) {
+                url = "/#/Invoices"; // hoadon
+            }
+            else if (maHD.indexOf('GDV') > -1) {
+                url = "/#/Invoices"; // hoadon
+            }
+            else {
+                if (maHD.indexOf('TH') > -1) {
+                    url = "/#/Returns"; // trahang
+                }
+                else {
+                    url = "/#/Order"; // dathang
+                }
+            }
+        }
+        window.open(url);
+    }
+    $(".op-filter-container ul li").eq(0).css("display", "block");
+    $(".op-filter-container ul li").eq(1).css("display", "block");
+    $(document).on('click', '.open-li', function () {
+        $(".op-filter-container ul li").css("display", "block");
+        $(this).toggle();
+        $(this).next(".close-li").toggle();
+    });
+    $(document).on('click', '.close-li', function () {
+        // $(".op-filter-container ul li").css("display", "none");
+        $(this).toggle();
+        $(this).prev(".open-li").toggle();
+        $(".op-filter-container ul li").eq(0).css("display", "block");
+        $(".op-filter-container ul li").eq(1).css("display", "block");
+    });
+    $('.selec-person').on('click', 'li', function () {
+        var check = $(this).find(".fa-check").css("display");
+        //console.log('check ' + check);
+        if (check == "none") {
+            var per = $(this).html();
+            $(this).parents(".selec-person").prev(".choose-person").find("ul").append("<li></li>");
+            $(this).parents(".selec-person").prev(".choose-person").find("ul li:last").html(per);
+            $(this).parents(".selec-person").prev(".choose-person").find("input").addClass("per_ac");
+            $(this).parents(".selec-person").prev(".choose-person").find("ul").addClass("per_ac1");
+            $(this).find(".fa-check").toggle();
+        }
+        else {
+            var k = $(this).index();
+        }
+    });
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $("#e0").click(function () {
+        $(".m0").toggle();
+    });
+    $("#e1").click(function () {
+        $(".m1").toggle();
+    });
+    $("#e2").click(function () {
+        $(".m2").toggle();
+    });
+    $("#e3").click(function () {
+        $(".m3").toggle();
+    });
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    $('#tb').on('click', '.prev-tr-hide', function () {
+        setTop = $('#tb thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $(this).find("td").toggleClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        if (t == "none") {
+            if (parseInt($('#txtRowSelec').val()) >= 20) {
+                $(".table-reponsive").removeClass('height470');
+            }
+            $(".op-js-tr-hide").removeClass("ac");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+            heightold = $(this).next().height();
+            heigth = parseInt($(this).height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            if (parseInt($('#txtRowSelec').val()) >= 20) {
+                $(".table-reponsive").addClass('height470');
+            }
+            $(this).next(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            if (parseInt($('#txtRowSelec').val()) >= 20) {
+                $(".table-reponsive").addClass('height470');
+            }
+            $(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+    });
+    var t = $(".table-reponsive").width();
+    $(".op-object-detail .tab-content").width(t - 20);
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            drops: "up",
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tìm kiếm",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+    });
+</script>
+<style>
+    .StartImport {
+        margin-right: 5px;
+        z-index: 0;
+        display: inline-block;
+        background: #808080;
+        color: #fff;
+        font-weight: bold;
+        font-size: 12px;
+        padding: 7px 15px;
+        white-space: nowrap;
+        border: none;
+        vertical-align: middle;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+    .SelectReport {
+        background: #bee69f;
+        color: #000000;
+    }
+    .li-input-span {
+        background: #bee69f;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline !important;
+    }
+</style>
+@Scripts.Render("~/bundles/LichSuThaoTac")

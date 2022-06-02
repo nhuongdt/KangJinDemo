@@ -1,0 +1,318 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "open24.vn - Quản lý chi nhánh";
+}
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/trangthai (1).png" />         Trạng thái
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="0" />Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="1" /> Đang hoạt động</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="2" /> Ngừng hoạt động</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title" >
+                    <h2 class="pull-left title">
+                        @banhang24.Resources.ResourceTexts.Personnel / Quản lý chi nhánh
+                    </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <button type="button" class="btn btn-main dropdown-toggle addChiNhanh  btn-main" style="display:none" data-bind="click: showPopupAddCN">
+                                <i class="fa fa-plus" aria-hidden="true"></i> <span>Thêm mới</span>
+                            </button>
+                            <div class="btn-dropdown  ">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)">
+                                     <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class=" dropdown-list " style="right:0">
+                                    <ul>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e4" checked="checked"><span></span>Mã chi nhánh</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e0" checked="checked"><span></span>Tên chi nhánh</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e1" checked="checked"><span></span>Địa chỉ</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e2" checked="checked"><span></span>Điện thoại</label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" placeholder="Tên chi nhánh"
+                                   data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off">
+                            <button type="button" class=" op-search-button">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table " id="myScrollspy" style="top: 48px;position: sticky;">
+                <div class="table-reponsive table_h bangchung table-frame">
+                    <table class=" table-striped table-hover" id="tb">
+                        <thead>
+                            <tr id="table">
+                                <th class="m4">Mã chi nhánh</th>
+                                <th class="m0">Tên chi nhánh</th>
+                                <th class="m1">Địa chỉ</th>
+                                <th class="m2">Điện thoại</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: filteredDM_DonVi">
+                            <tr class="prev-tr-hide" id="table" data-bind="click: $parent.getNDbyID_DonVi" >
+                                <td class="m4" data-bind="text: MaDonVi"></td>
+                                <td class="m0" data-bind="text: TenDonVi"></td>
+                                <td class="m1" data-bind="text: DiaChi"></td>
+                                <td class="m2" data-bind="text: SoDienThoai"></td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="5">
+                                    <div class="op-object-detail " style="width:100%">
+                                        <ul class="nav nav-tabs" style="width:100%">
+                                            <li class="active" onclick="LoadGetHeight()"><a data-bind="attr:{href:'#home' + ID}" data-toggle="tab">Thông tin</a></li>
+                                            <li onclick="LoadGetHeight()"><a data-bind="attr:{href:'#infor' + ID}" data-toggle="tab">Người dùng</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" data-bind="attr:{id:'home' + ID}">
+                                                <div >
+                                                    <div class="col-md-6">
+                                                        <div class="detail-content floatleft">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Tên chi nhánh:</label>
+                                                                <div class="css-form-detail">
+                                                                    <span  data-bind="text: TenDonVi"></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Điện thoại:</label>
+                                                                <div class="css-form-detail">
+                                                                    <span data-bind="text: SoDienThoai"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="detail-content">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label"> Địa chỉ:</label>
+                                                                <div class="css-form-detail">
+                                                                    <span data-bind="text: DiaChi"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="group-btn floatleft text-right">
+                                                            <a  class="btn btn-main editCN" style="display:none" data-toggle="modal" data-bind="click: $parent.editCN">
+                                                                <i class="fa fa-check-square"></i>Sửa đổi
+                                                            </a>
+                                                            <!-- ko if: IPAddress = true-->
+                                                            <a href="javascript: void(0)" class="btn btn-main clickChoHDCN" style="display:none" data-bind="click: $parent.ChoPhepHoatDong, visible: TrangThai ==false">
+                                                                <i class="fa fa-check-square"></i> Cho phép hoạt động
+                                                            </a>
+                                                            <!-- /ko-->
+                                                            <a href="javascript: void(0)" class="btn btn-cancel clickNgungHDCN" style="display:none" data-bind="click: $parent.NgungHoatDong, visible: TrangThai == true || TrangThai == null ">
+                                                                <i class="fa fa-lock"></i> Ngừng hoạt động
+                                                            </a>
+                                                            <a  class="btn btn-cancel xoaCN" style="display:none" data-bind="click: $parent.modalDelete">
+                                                                <i class="fa fa-trash"></i> Xóa
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" data-bind="attr:{id:'infor' + ID}">
+                                                <div class="table-res">
+                                                    <table class='table'>
+                                                        <tr>
+                                                            <th>Người dùng</th>
+                                                            <th>Tên đăng nhập</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach : $root.NDDonVi">
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="javascript: void(0)" data-bind="text: TenNguoiDung, click: $root.clickFindND"></a>
+                                                                </td>
+                                                                <td data-bind="text: TaiKhoan">Nhân viên</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="page">
+                                <div class="flex flex-row">
+                                    <label>Số bản ghi:</label>
+                                    <select class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                                </div>
+                            <div class="flex flex-end">
+                                <ul data-bind="foreach: PageList">
+                                    <li>
+                                        <a href="javascript:void(0)" data-bind="text: $data+1, click: $root.GoToPage, css: $root.GetClass($data)"></a>
+                                    </li>
+                                </ul>
+                                <div class="total-recos">Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số <span data-bind="text: $root.DonVis().length"></span> chi nhánh.</div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+    </div>
+</div>
+@*Xóa*@
+<div class="modal fade" id="modalpopup_deleteCN">
+    <div id="modalContainer_delete" class="modal-dialog draggable modal-sm">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <div class="title-delete">
+                    <span id="header-confirm-delete">Xóa chi nhánh</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                Bạn có chắc chắn muốn xóa chi nhánh này không.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaCN"><i class="fa fa-save"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPopuplg_ChiNhanh">
+    <div id="modalContainerlg_ChiNhanh" class=" modal-dialog draggable modal-md">
+           @Html.Action("_themchinhanh", new { area = "", Controller = "ThietLap" })
+    </div>
+</div>
+<!-- Button trigger modal -->
+<script>
+    $(".item-time ul li .checkbox-item ").click(function () {
+        $(this).find(".form-control").attr('disabled', false);
+    });
+    $(document).on('click', '.open-li', function () {
+        $(".op-filter-container ul li").css("display", "block");
+        $(this).toggle();
+        $(this).next(".close-li").toggle();
+    });
+    $(document).on('click', '.close-li', function () {
+        $(".op-filter-container ul li").css("display", "none");
+        $(this).toggle();
+        $(this).prev(".open-li").toggle();
+        $(".op-filter-container ul li").eq(0).css("display", "block");
+        $(".op-filter-container ul li").eq(1).css("display", "block");
+    });
+    function LoadGetHeight() {
+        sleep(100).then(() => { setHeight(); });
+    };
+    function setHeight() {
+        heigth = heigth - heightold;
+        $('#tb tr').each(function () {
+            if ($(this).hasClass('ac')) {
+                heightold = $(this).height();
+            }
+        });
+        heigth += heightold;
+        $('.line-right').css("margin-top", setTop + "px").height(heigth);
+    }
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    $('#tb').on('click', '.prev-tr-hide', function () {
+        setTop = $('#tb thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+        $(this).parents(".table-reponsive").toggleClass("table_re");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        if (t == "none") {
+            $(".op-js-tr-hide").removeClass("ac");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+            heightold = $(this).next().height();
+            heigth = parseInt($(this).height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            $(this).next(".op-js-tr-hide").removeClass("ac"); $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            $(".op-js-tr-hide").removeClass("ac"); $('.line-right').height(0).css("margin-top", "0px");
+        }
+    });
+    $(function () {
+        $('.datetimepicker4').datetimepicker();
+    });
+</script>
+<script>
+    var t = $(".table-reponsive").width();
+    $(".op-object-detail .tab-content").width(t - 20);
+</script>
+<script>
+    $(document).ready(function () {
+        var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+        if ($.inArray('ChiNhanh_ThemMoi', lc_CTQuyen) > -1) {
+            $('.addChiNhanh').css('display', 'block');
+        }
+    });
+</script>
+<script src="~/Scripts/knockout-3.4.2.js"></script>
+<script src="~/Scripts/Thietlap/QLChiNhanh.js"></script>

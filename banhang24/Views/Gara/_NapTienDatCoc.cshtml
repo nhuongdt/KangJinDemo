@@ -1,0 +1,265 @@
+﻿@using banhang24.Hellper
+<style>
+    #NapTienDatCoc .gara-detail-information > div {
+        display: inline-block;
+        width: calc(100% - 130px);
+        line-height: 18px;
+    }
+
+    .gara-absolute-button {
+        position: absolute;
+        z-index: 9;
+        right: 3px;
+    }
+
+    .gara-search-HH + .gara-search-dropbox.drop-search {
+        margin: 0 0;
+        width: calc(100% );
+    }
+
+    .gara-search-HH + .gara-search-dropbox {
+        top: 30px;
+        left: 0;
+        overflow: auto;
+        position: absolute;
+    }
+
+    .gara-search-dropbox ul {
+        max-height: 250px !important;
+        overflow: auto;
+        width: 100%;
+    }
+
+    .gara-search-dropbox li {
+        padding: 7px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .gara-search-dropbox.drop-search > ul > li > a {
+        width: 100%;
+        display: block;
+    }
+
+        .gara-search-dropbox.drop-search > ul > li > a > span {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+</style>
+<div class="modal fade" id="NapTienDatCoc">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content  ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <h5 class="modal-title">
+                    {{isNapTien?'Nạp tiền cọc':'Trả lại tiền cọc'}}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+            </div>
+            <div class="modal-body" style="padding:15px">
+                <div class="container-fluid nopadding">
+                    <div style="display:inline-block; width:100%">
+                        <div class="col-lg-6 col-xs-12 nopadding-left">
+                            <div class="gara-detail-information nopadding">
+                                <label>Mã phiếu {{$root.sLoaiThuChi}}</label>
+                                <input type="text" class="form-control search-line"
+                                       placeholder="Mã tự động"
+                                       v-model="newPhieuThu.MaHoaDon" />
+                            </div>
+                            <div class="gara-detail-information gara-addcar-brand nopadding">
+                                <label>NV lập phiếu</label>
+                                <nhanviens :text-search="newPhieuThu.TenNhanVien"
+                                           :staffs="listData.NhanViens"
+                                           :search-list="listData.NhanViens"
+                                           :id-chosing="newPhieuThu.ID_NhanVien"
+                                           v-on:change-staff-parent="ChangeCreator">
+                                </nhanviens>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-xs-12 ">
+                            <div class="gara-detail-information nopadding">
+                                <label>Thời gian</label>
+                                <my-date-time :date-chose="newPhieuThu.NgayLapHoaDon"
+                                              :role-change-date="role.SoQuy.ChangeNgayLap && !$root.isKhoaSo"
+                                              v-on:change-date="ChangeNgayLapPhieu">
+                                </my-date-time>
+                            </div>
+                            <div class="gara-detail-information nopadding">
+                                <label>Khoản {{$root.sLoaiThuChi}}</label>
+                                <khoan-thu-chi :text-search="ddl_textVal.khoanthu"
+                                               :la-khoan-thu="newPhieuThu.LoaiHoaDon === 11"
+                                               :list-all="listData.AllKhoanThuChis"
+                                               :id-chosing="newPhieuThu.ID_KhoanThuChi"
+                                               v-on:change-khoan-thu="ChangeKhoanThu"
+                                               v-on:reset-khoan-thu="ResetKhoanThu">
+                                </khoan-thu-chi>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gara-detail-information">
+                        <label>Người nộp</label>
+                        <div class="form-news">
+
+                            <ul class="nav nav-tabs  " role="tablist">
+                                <li role="presentation" class="khachhang"
+                                    v-on:click="ChangeTab(1)"
+                                    v-bind:class="{active: newPhieuThu.LoaiDoiTuong ===1}"
+                                    v-if="($root.loaiMenu == 0 && isNapTien)
+                                    || ($root.loaiMenu == 1 && !isNapTien)">
+                                    <a role="tab" style="margin:0" data-toggle="tab" class="title-tab" ria-expanded="true" aria-expanded="true">Khách hàng</a>
+                                </li>
+                                <li role="presentation" class="nhacungcap"
+                                    v-on:click="ChangeTab(2)"
+                                    v-bind:class="{active: newPhieuThu.LoaiDoiTuong ===2}"
+                                    v-if="($root.loaiMenu == 0 && !isNapTien)
+                                    || ($root.loaiMenu == 1 && isNapTien)">
+                                    <a role="tab" style="margin:0" data-toggle="tab" class="title-tab" aria-expanded="false">Nhà cung cấp</a>
+                                </li>
+                                <li role="presentation" class="nhacungcap"
+                                    v-on:click="ChangeTab(3)"
+                                    v-bind:class="{active: newPhieuThu.LoaiDoiTuong ===3}"
+                                    v-if="($root.loaiMenu == 0 && isNapTien)
+                                    || ($root.loaiMenu == 1 && !isNapTien)">
+                                    <a role="tab" style="margin:0" data-toggle="tab" class="title-tab" aria-expanded="false">Bảo hiểm</a>
+                                </li>
+                            </ul>
+                            <div role="tabpanel" class="tab-pane active">
+                                <div class="gara-detail-information">
+                                    <customers :text-search="newPhieuThu.NguoiNopTien"
+                                               :loai-doi-tuong="newPhieuThu.LoaiDoiTuong"
+                                               :disable-search="false"
+                                               :showbutton="false"
+                                               :id-chi-nhanh="inforLogin.ID_DonVi"
+                                               v-on:change-customer-parent="ChoseNguoiNopTien">
+                                    </customers>
+                                </div>
+                                <div v-if="newPhieuThu.ID_DoiTuong !==null">
+                                    <div class="form-group floatleft no-magrin">
+                                        <label> Mã {{sLoaiDoiTuong}}:</label>
+                                        <div class="css-form-detail">{{inforNguoiNop.MaDoiTuong}}</div>
+                                    </div>
+                                    <div class="form-group floatleft no-magrin">
+                                        <label> Tên  {{sLoaiDoiTuong}}:</label>
+                                        <div class="css-form-detail">{{inforNguoiNop.TenDoiTuong}}</div>
+                                    </div>
+                                    <div class="form-group floatleft no-magrin">
+                                        <label> Số điện thoại:</label>
+                                        <div class="css-form-detail">{{inforNguoiNop.SoDienThoai}}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                    <div class="gara-detail-information">
+                        <label>&nbsp;</label>   <div style="padding:15px; padding-left:0; background:#ccc; display:inline-block; ">
+                            <div class="floatleft form-group">
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <div style="display:flex; justify-content:space-between">
+                                        <label>Số dư hiện tại</label>
+                                        <span class="bold text-right">{{formatNumber3Digit(inforNguoiNop.SoDuDatCoc)}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft form-group">
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    @*<label>Tiền thu</label>*@
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <div style="display:flex; justify-content:space-between">
+                                        <label>Tổng nạp</label>
+                                        <span class="bold text-right">{{formatNumber3Digit(newPhieuThu.TongTienThu)}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft form-group">
+
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"><label>Tiền mặt</label></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <input type="text" class="form-control text-right" onclick="this.select()"
+                                           onkeypress="return keypressNumber(event)"
+                                           v-model="newPhieuThu.TienMat"
+                                           v-on:keyup="EditTienMat" />
+                                </div>
+                            </div>
+                            <div class="floatleft form-group">
+
+                                <div class="col-md-4 col-sm-4 col-xs-12  nopadding-right">  <label>Tiền chuyển khoản</label></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <account-bank :text-search="ddl_textVal.accountCKName"
+                                                  :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
+                                                  :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
+                                                  :id-chosing="newPhieuThu.ID_TaiKhoanChuyenKhoan"
+                                                  v-on:change-account-parent="ChangeAccountCK"
+                                                  v-on:reset-account="ResetAccountCK">
+                                    </account-bank>
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <input type="text" class="form-control text-right" onclick="this.select()"
+                                           onkeypress="return keypressNumber(event)"
+                                           v-model="newPhieuThu.TienCK"
+                                           v-on:keyup="EditTienCK"
+                                           v-bind:disabled="newPhieuThu.ID_TaiKhoanChuyenKhoan==null" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="gara-detail-information">
+                        <label>Nội dung {{$root.sLoaiThuChi}}</label>
+                        <div class="form-news">
+                            <textarea rows="3" v-model="newPhieuThu.NoiDungThu"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Đóng
+                    </button>
+                    <button type="button" class="btn btn-cancel"
+                            v-if="!isNew && newPhieuThu.TrangThai && $root.role.SoQuy.Delete && !$root.isKhoaSo"
+                            v-on:click="$root.HuyPhieu">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew" v-on:click="SavePhieuThu(false)">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="!$root.isLoading && !isNew && newPhieuThu.TrangThai && $root.role.SoQuy.Update && !$root.isKhoaSo"
+                            v-on:click="SavePhieuThu(false)">
+                        <i class="fa fa-save"></i>
+                        Cập nhật
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew" v-on:click="SavePhieuThu(true)">
+                        <i class="fa fa-print"></i>
+                        Lưu và in
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="$root.isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Components/Input.js"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/NhanVien_KhachHang.js")"></script>
+<script src="~/Scripts/Components/TrangThai_NguonKhach.js"></script>
+<script src="~/Scripts/BanHang/Public.js"></script>
+<script src="~/Scripts/Gara/_NapTienDatCoc.js"></script>

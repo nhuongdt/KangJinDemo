@@ -1,0 +1,2306 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Quản lý chi nhánh";
+}
+<style>
+    /*#BangHinhthucKM tr td:nth-child(2n+1), #BangHinhthucKM tr th:nth-child(2n+1) {
+        display: none;
+    }*/
+    ul.op-list-tree li ul > li:last-child:before {
+        height: calc(94% - 30px);
+        min-height: 30px;
+    }
+    ul.op-list-tree li > div.showed + ul {
+        display: block;
+    }
+    ul.op-list-tree li > div.showed > button > i {
+        transform: rotate(-180deg);
+    }
+    ul.op-list-tree li > div > button > i {
+        transform: rotate(0);
+        transition:all 0.4s ease;
+    }
+    ul.op-list-tree li > div > button {
+        position: absolute;
+        left: unset;
+        right: 0;
+        width: 30px;
+        height: 30px;
+        background: none;
+        font-size: 16px;
+    }
+    ul.op-list-tree ul {
+        padding-left: 20px;
+    }
+
+    ul.op-list-tree li > div {
+        line-height: 18px;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        width: inherit;
+    }
+
+        ul.op-list-tree li > div > input[type='radio'] {
+            width: 20px;
+            /* display: flex; */
+            /* align-items: center; */
+            /* background: red; */
+            margin-right: 5px;
+            display: inline-block;
+        }
+    ul.op-list-tree li:before {
+        content: '';
+        height: calc(100% - 1px);
+        left: -7px;
+        position: absolute;
+        top: -12px;
+        width: 1px;
+        border-left: 1px dotted #ccc;
+    }
+   
+    ul.op-list-tree li:after {
+        content: '';
+        width: 15px;
+        left: -7px;
+        position: absolute;
+        top: 17px;
+        /* width: 1px; */
+        border-bottom: 1px dotted #ccc;
+    }
+    ul.op-list-tree > li::after, ul.op-list-tree > li:before {
+        content: none
+    }
+    ul.op-list-tree li {
+        position: relative;
+    }
+    ul.op-list-tree li ul {
+        position: relative;
+        display:none
+    }
+
+    .table-option {
+        height: 300px;
+        overflow: auto;
+    }
+
+    #khuyenmaip .modal-lg {
+        width: 1000px;
+    }
+
+    .giamgiahoadon th, .giamgiahoadon td,
+    .tanghang th, .tanghang td,
+    .giamgiahang th, .giamgiahang td,
+    .tangdiem th, .tangdiem td,
+    .HangHoa th, .HangHoa td {
+        border: none !important;
+    }
+
+    .toggle {
+        background: #CACACA;
+        padding: 3px;
+        width: 57px;
+        height: 27px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        border-radius: 15px;
+        overflow: visible;
+    }
+    .toggle-line {
+        background: var(--color-main);
+        position: absolute;
+        left: 0;
+        height: 100%;
+        width: 36px;
+        transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+        border-radius: 15px;
+    }
+    .toggle.active-re .toggle-line {
+        left: 30px;
+        width: 26px;
+    }
+    .toggle-element {
+        padding: 3px;
+        line-height: initial;
+        z-index: 2;
+        font-size: 11px;
+        min-width: 24px;
+        text-align: center;
+        color: white;
+    }
+    .toggle-element-percent {
+        font-size: 13px;
+        color: #686868;
+    }
+    .toggle.active-re .toggle-element {
+        color: #686868;
+    }
+    .toggle.active-re .toggle-element-percent {
+        color: white;
+    }
+    
+    .symptoms #hinhthuc thead th {
+        padding: 6px;
+        background-color: var(--color-main);
+        color: var(--color-main-font);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .add-promotion-condition {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
+    .label-come {
+        margin-left: 30px;
+    }
+
+    .SelectID_NhomHangKM input::after {
+        font-weight: bold;
+    }
+
+</style>
+<div class="op-container" data-bind="visible: KhuyenMai_XemDs()==='KhuyenMai_XemDS'">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft showChiNhanh">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/loaithuchi.png" />  Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="dropdown op-tag-picker">
+                                <div data-toggle="dropdown" id="choose_DonVi_Use" aria-expanded="true">
+                                    <ul data-bind="foreach: MangChiNhanh_Use">
+                                        <li>
+                                            <span data-bind="text: TenDonVi">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseDonVi_Use">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown nameDonVi" id="NoteNameDonVi_Use" data-bind="event:{keyup: NoteNameDonVi_Use}" placeholder="Chọn chi nhánh..." />
+                                </div>
+                                <ul class="dropdown-menu" id="selec-all-DonVi_Use" data-bind="foreach: DonVis">
+
+                                    <li data-bind="attr:{id_use: ID}, click: $parent.SelectedDonVi_Use">
+                                        <a data-bind="text: TenDonVi "></a>
+
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fa fa-adjust"></i> Loại khuyến mại
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio floatleft">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="typePro" data-bind="checked: Filter_TypePromotion, checkedValue: 0 " />  Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="typePro" data-bind="checked: Filter_TypePromotion, checkedValue: 1 " />  Hóa đơn</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="typePro" data-bind="checked: Filter_TypePromotion, checkedValue: 2 " />  Hàng hóa</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fa fa-calendar"> </i> Hạn sử dụng
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio floatleft">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="Expired" data-bind="checked: Filter_Expired, checkedValue: 0 " />  Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="Expired" data-bind="checked: Filter_Expired, checkedValue: 2 " />  Còn hạn</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="Expired" data-bind="checked: Filter_Expired, checkedValue: 1 " />  Hết hạn</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/trangthai (1).png" />         Trạng thái
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio floatleft">
+                                <ul>
+                                    <li class=" choseAllKM">
+                                        <label><input type="radio" name="TrangThai" data-bind="checked: StatusActive, checkedValue: 2 " />  Tất cả</label>
+                                    </li>
+                                    <li class=" choseHoatDong">
+                                        <label><input type="radio" name="TrangThai" data-bind="checked: StatusActive, checkedValue: 1 " />  Kích hoạt</label>
+                                    </li>
+                                    <li class=" choseKhongHoatDong">
+                                        <label><input type="radio" name="TrangThai" data-bind="checked: StatusActive, checkedValue: 0 " /> Chưa áp dụng</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class=" title">
+                        @banhang24.Resources.ResourceTexts.Setup / Chương trình khuyến mại
+                    </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <div class="btn-group khuyenmaiparent" style="display:none" data-bind="visible: KhuyenMai_ThemMoi()==='KhuyenMai_ThemMoi'">
+                                <button type="button" class="btn btn-main  dropdown-toggle  btn-main" data-target="#khuyenmaip" data-toggle="modal" data-bind="click: $root.TaoMoi">
+                                    <i class="fa fa-plus" aria-hidden="true"></i> <span>Thêm mới</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class=" header-button-right">
+                            <div class="btn-dropdown ">
+                                <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-angle-double-down"></i></button>
+                                <div class=" dropdown-list ">
+                                    <ul>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e7" checked="checked"><span></span>Mã chương trình</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e0" checked="checked"><span></span>Tên chương trình</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e1" checked="checked"><span></span>Từ ngày</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e2" checked="checked"><span></span>Đến ngày</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e3" checked="checked"><span></span>Hình thức</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e4"><span></span>Người tạo</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e5"><span></span>Ghi chú</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" id="e6" checked="checked"><span></span>Trạng thái</label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-search-filter">
+                        <button type="button" class=" btn-search-icon" data-bind="click: Click_IconSearch">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <input type="text" class="form-control" placeholder="Theo mã, tên chương trình" data-bind="event: {keyup: NoteMaKM}" id="EnterMaKM" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="content-table " id="myScrollspy" style="top: 48px;position: sticky;">
+                <div class=" table-frame">
+                    <table class="table " id="tb">
+                        <thead>
+                            <tr id="table">
+                                <th class="m7">Mã chương trình</th>
+                                <th class="m0">Tên chương trình</th>
+                                <th class="m1">Từ ngày</th>
+                                <th class="m2">Đến ngày</th>
+                                <th class="m3">Hình thức</th>
+                                <th class="m4 ">Người tạo</th>
+                                <th class="m5 ">Ghi chú</th>
+                                <th class="m6">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: filteredDM_KhuyenMai">
+                            <tr class="prev-tr-hide" id="table" data-bind="click: $parent.loadDieuKienKM,css:{bggray : $index()%2 == 1}">
+                                <td class="m7" data-bind="text: MaKhuyenMai"></td>
+                                <td class="m0" data-bind="text: TenKhuyenMai"></td>
+                                <td class="m1" data-bind="text: moment(ThoiGianBatDau).format('DD/MM/YYYY')!='Invalid date'? moment(ThoiGianBatDau).format('DD/MM/YYYY HH:mm'):''"></td>
+                                <td class="m2" data-bind="text: moment(ThoiGianKetThuc).format('DD/MM/YYYY')!='Invalid date'? moment(ThoiGianKetThuc).format('DD/MM/YYYY HH:mm'):''"></td>
+                                <td class="m3" data-bind="text: HinhThuc"></td>
+                                <td class="m4 " data-bind="text: NguoiTao"></td>
+                                <td class="m5 " data-bind="text: GhiChu"></td>
+                                <td class="m6" data-bind="text: TrangThai"></td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="8">
+                                    <div class="op-object-detail ">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active" onclick="LoadGetHeight()"><a href="#thongtin" data-toggle="tab" data-bind="attr:{href:'#thongtin' + ID}">Thông tin</a></li> @*Truyền id vào tab*@
+                                            <li onclick="LoadGetHeight()"><a href="#dieukien" data-toggle="tab" data-bind="attr:{href:'#dieukien' + ID}">Điều kiện khuyến mại</a></li>
+                                            <li onclick="LoadGetHeight()"><a href="#lichsu" data-toggle="tab" data-bind="attr:{href:'#lichsu' + ID}, click: $parent.getList_LichSuKhuyenMai">Nhật ký khuyến mại</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" data-bind="attr:{id:'thongtin' + ID}">
+                                                @*Lấy tên của tab để truyền dữ liệu*@
+                                                <div>
+                                                    <div class="col-md-4 col-lg-4 col-sm-6 col-xs-12">
+                                                        <div class="detail-content floatleft">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Mã chương trình:</label>
+                                                                <div class="css-form-detail">
+                                                                    <span data-bind="text: MaKhuyenMai"></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Thời gian:</label>
+                                                                <div class="css-form-detail ">
+                                                                    <div>
+                                                                        <span data-bind="text: moment(ThoiGianBatDau).format('DD/MM/YYYY')!='Invalid date'? moment(ThoiGianBatDau).format('DD/MM/YYYY HH:mm'):''"></span>
+                                                                        <span> - </span>
+                                                                        <span data-bind="text: moment(ThoiGianKetThuc).format('DD/MM/YYYY')!='Invalid date'? moment(ThoiGianKetThuc).format('DD/MM/YYYY HH:mm'):''"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 col-lg-4 col-sm-6 col-xs-12 ">
+                                                        <div class="detail-content">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Theo tháng:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label style="white-space:pre-wrap" data-bind="text: ThangApDung"></label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Theo ngày:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label class="css-form-label" data-bind="text: NgayApDung"></label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Theo thứ:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label class="css-form-label" data-bind="text: ThuApDung"></label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label">Theo giờ:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label class="css-form-label" data-bind="text: GioApDung"></label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 col-lg-4 col-sm-6 col-xs-12">
+                                                        <div class="detail-content">
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label"> Tên chương trình:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label class="css-form-label" data-bind="text: TenKhuyenMai"></label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label"> Trạng thái:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label class="css-form-label" data-bind="text: TrangThai"></label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group floatleft">
+                                                                <label class="css-form-label"> Ghi chú:</label>
+                                                                <div class="css-form-detail">
+                                                                    <label class="css-form-label" data-bind="text: GhiChu"></label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="floatleft">
+                                                        <div type="hidden" data-bind="visible: ApDungNgaySinhNhat !=''">
+                                                            <i class="fa fa-check blue"></i>
+                                                            <span data-bind="text: ApDungNgaySinhNhat"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="group-btn floatleft text-right">
+                                                        <a type="button" class="btn btn-main capnhatkm" style="display:none" data-target="#khuyenmaip" data-toggle="modal" data-bind="click: $parent.UpdateKhuyenMai, visible: $parent.KhuyenMai_CapNhat()==='KhuyenMai_CapNhat'">
+                                                            <i class="fa fa-check-square"></i>Cập nhật
+                                                        </a>
+                                                        <a class="btn btn-main saochepkm" style="display:none" data-target="#khuyenmaip" data-toggle="modal" data-bind="click: $parent.CopyKhuyenMai, visible: $parent.KhuyenMai_SaoChep()==='KhuyenMai_SaoChep'">
+                                                            <i class="fa fa-check-square"></i>Sao chép
+                                                        </a>
+                                                        <a class="btn btn-cancel xoakm" style="display:none" data-bind="click: $parent.modalDelete, visible: $parent.KhuyenMai_Xoa()==='KhuyenMai_Xoa'">
+                                                            <i class="fa fa-close"></i> Xóa
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" data-bind="attr:{id:'dieukien' + ID}">
+                                                <div class="table-res">
+                                                    <label class="font-16 " style="color:var(--color-primary)" data-bind="text: HinhThuc"></label>
+                                                    <table class="table table tableDK HD_11">
+                                                        <tr>
+                                                            <th>Tổng tiền hàng từ</th>
+                                                            <th>Giảm giá hóa đơn</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td data-bind="text: formatNumber(TongTienHang)"></td>
+                                                                <td><span data-bind="text: formatNumber(GiamGia)"></span><span data-bind="text: GiamGiaTheoPhanTram == true? ' %': ' VNĐ'"></span></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class="table table tableDK HD_12">
+                                                        <tr>
+                                                            <th>Tổng tiền hàng từ</th>
+                                                            <th>Tặng hàng/Nhóm hàng</th>
+                                                            <th>Số lượng</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td data-bind="text: formatNumber(TongTienHang)"></td>
+                                                                <td data-bind="text: TenHangHoa==null?TenNhomHangHoa: TenHangHoa"></td>
+                                                                <td data-bind="text: formatNumber(SoLuong)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class=" table tableDK HD_13">
+                                                        <tr>
+                                                            <th>Tổng tiền hàng từ</th>
+                                                            <th>Giảm giá</th>
+                                                            <th>Hàng/Nhóm hàng giảm giá</th>
+                                                            <th>Số lượng</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td data-bind="text: formatNumber(TongTienHang)"></td>
+                                                                <td><span data-bind="text: formatNumber(GiamGia)"></span><span data-bind="text: GiamGiaTheoPhanTram == true? ' %': ' VNĐ'"></span></td>
+                                                                <td data-bind="text: TenHangHoa==null?TenNhomHangHoa: TenHangHoa"></td>
+                                                                <td data-bind="text: formatNumber(SoLuong)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class=" table tableDK HD_14">
+                                                        <tr>
+                                                            <th>Tổng tiền hàng từ</th>
+                                                            <th>Điểm cộng</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td data-bind="text: formatNumber(TongTienHang)"></td>
+                                                                <td><span data-bind="text: DiemCong"></span><span data-bind="text: GiamGiaTheoPhanTram == true? ' %': ' Điểm'"></span></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class=" table tableDK HH_21">
+                                                        <tr>
+                                                            <th>Hàng/Nhóm hàng mua</th>
+                                                            <th>SL mua từ</th>
+                                                            <th>Giảm giá</th>
+                                                            <th>Hàng/Nhóm hàng giảm giá</th>
+                                                            <th>SL giảm</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td>
+                                                                    <span data-bind="text: TenHangHoaMua==null?TenNhomHangHoaMua: TenHangHoaMua"></span>
+                                                                    <span data-bind="visible: TenHangHoaMua!=null,text: '('+ MaHangHoaMua + ')'"></span>
+                                                                </td>
+                                                                <td data-bind="text: formatNumber(SoLuongMua)"></td>
+                                                                <td><span data-bind="text: formatNumber(GiamGia)"></span><span data-bind="text: GiamGiaTheoPhanTram == true? ' %': ' VNĐ'"></span></td>
+                                                                <td data-bind="text: TenHangHoa==null?TenNhomHangHoa: TenHangHoa"></td>
+                                                                <td data-bind="text: formatNumber(SoLuong)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class=" table tableDK HH_22">
+                                                        <tr>
+                                                            <th>Hàng/Nhóm hàng mua</th>
+                                                            <th>SL mua từ</th>
+                                                            <th>Tặng hàng/Nhóm hàng</th>
+                                                            <th>SL tặng</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td>
+                                                                    <span data-bind="text: TenHangHoaMua==null?TenNhomHangHoaMua: TenHangHoaMua"></span>
+                                                                    <span class="blue" data-bind="visible: TenHangHoaMua!=null,text: '('+ MaHangHoaMua + ')'"></span>
+                                                                </td>
+                                                                <td data-bind="text: formatNumber(SoLuongMua)"></td>
+                                                                <td data-bind="text: TenHangHoa==null?TenNhomHangHoa: TenHangHoa"></td>
+                                                                <td data-bind="text: formatNumber(SoLuong)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class=" table tableDK HH_23">
+                                                        <tr>
+                                                            <th>Hàng/Nhóm hàng mua</th>
+                                                            <th>SL mua từ</th>
+                                                            <th>Điểm cộng</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td data-bind="text: TenHangHoaMua==null?TenNhomHangHoaMua: TenHangHoaMua"></td>
+                                                                <td data-bind="text: formatNumber(SoLuongMua)"></td>
+                                                                <td><span data-bind="text: formatNumber(DiemCong)"></span><span data-bind="text: GiamGiaTheoPhanTram == true? ' %': ' Điểm'"></span></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table class=" table tableDK HH_24">
+                                                        <tr>
+                                                            <th>Hàng/Nhóm hàng mua</th>
+                                                            <th>SL mua từ</th>
+                                                            <th>Giá bán khuyến mại</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $parent.BH_KhuyenMai_ChiTiet">
+                                                            <tr>
+                                                                <td data-bind="text: TenHangHoaMua==null?TenNhomHangHoaMua: TenHangHoaMua"></td>
+                                                                <td data-bind="text: formatNumber(SoLuongMua)"></td>
+                                                                <td data-bind="text: formatNumber(GiaKhuyenMai)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" data-bind="attr:{id:'lichsu' + ID}">
+                                                <div data-bind="visible: $root.BH_LichSuKhuyenMai().length >0">
+                                                    <div class="table-res">
+                                                        <table class='table'>
+                                                            <tr>
+                                                                <th>Mã phiếu</th>
+                                                                <th>Thời gian</th>
+                                                                <th>Người bán</th>
+                                                                <th>Doanh thu</th>
+                                                                <th>Giá trị khuyến mãi</th>
+                                                            </tr>
+                                                            <tbody data-bind="foreach: $root.BH_LichSuKhuyenMai()">
+                                                                <tr>
+                                                                    <td data-bind="text: MaHoaDon"></td>
+                                                                    <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></td>
+                                                                    <td data-bind="text: TenNhanVien"></td>
+                                                                    <td data-bind="text:  formatNumber(DoanhThu)"></td>
+                                                                    <td data-bind="text: formatNumber(GiaTriKhuyenMai)"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                    <div class="page">
+                                                        <div class="flex flex-end">
+                                                            <a href="javascript:void(0)" data-bind="click: $parent.StartPage_LS, attr:{id: 'StartPage_LS'+ID}"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                                            <a href="javascript:void(0)" data-bind="click: $parent.BackPage_LS, attr:{id: 'BackPage_LS'+ID}"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                                            <ul data-bind="foreach: $parent.Pages_LichSuKhuyenMai()">
+                                                                <li>
+                                                                    <a href="javascript:void(0)" data-bind="text: SoTrang, click: $root.gotoNextPage_LS, css: $root.GetClass_LS($data)"></a>
+                                                                </li>
+                                                            </ul>
+                                                            <a href="javascript:void(0)" data-bind="click: $parent.NextPage_LS, attr:{id: 'NextPage_LS'+ID}"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                                            <a href="javascript:void(0)" data-bind="click: $parent.EndPage_LS, attr:{id: 'EndPage_LS'+ID}"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                                            <div class="total-recos">Hiển thị <span data-bind="text: $parent.RowsStart_LS"></span> - <span data-bind="text: $parent.RowsEnd_LS"></span> trên tổng số <span data-bind="text: $parent.Rows_LichSuKhuyenMai() !==null? $parent.Rows_LichSuKhuyenMai(): 0"></span> hóa đơn.</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="padding-10 bg-warning text-center" data-bind="visible: $root.BH_LichSuKhuyenMai().length <=0">
+                                                    <i>   Không có nhật ký khuyển mại</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> 
+                <div class="page">
+                    <div class="flex flex-row">
+                        <label>Số bản ghi:</label>
+                        <select class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: EventPageSize}" id="txtRownSelect"></select>
+                    </div>
+                    <div class="flex flex-end">
+                        <a href="javascript:void(0)" data-bind="click: $root.StartPage" id="StartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.BackPage" id="BackPage"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <ul data-bind="foreach: PagesKhuyenMai">
+                            <li>
+                                <a href="javascript:void(0)" data-bind="text: SoTrang, click: $root.gotoNextPage, css: $root.GetClass($data)"></a>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" data-bind="click: $root.NextPage" id="NextPage"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.EndPage" id="EndPage"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <div class="total-recos">Hiển thị <span data-bind="text: RowsStart"></span> - <span data-bind="text: RowsEnd"></span> trên tổng số <span data-bind="text: $root.RowsKhuyenMai() !==null? $root.RowsKhuyenMai(): 0"></span> Chương trình khuyến mại.</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_deleteHD">
+    <div id="modalContainer_delete" class="modal-dialog modal-sm">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <div class="title-delete">
+                    <span id="header-confirm-delete">Xóa khuyến mại</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                Bạn có chắc chắn muốn xóa bỏ chương trình khuyến mại <span style="font-weight:bold" data-bind="text: maKhuyenMaiDelete"></span> ?
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-bind="click: $root.xoaKhuyenMai"> <i class="fa fa-save"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>  Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="khuyenmaip">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title" id="myModalLabel" data-bind="text: TieuDe()"></h4>
+            </div>
+            <div class="modal-body promotionkm">
+                <div class="container-fluid row">
+                    <div class="col-xs-12 col-sm-6  col-md-6 col-lg-6 ">
+                        <div class="form-group floatleft">
+                            <label class=" consultantt">Mã chương trình</label>
+                            <div class="form-news">
+                                <input class="form-control" type="text" placeholder="Mã tự động" data-bind="event:{keyup: Note_MaKhuyenMai}, value: CN_maKM" id="txt_NoteMaKM">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class=" consultantt" style="letter-spacing:-1px">Tên chương trình <span style="color:red">(*)</span></label>
+                            <div class="form-news">
+                                <input class="form-control" type="text" placeholder="Tên chương trình khuyến mại" data-bind="event: {keyup: SelectNameKM}, value: CN_TenKM" id="txtNameKM" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft flex" style="align-items:center; margin-top: 12px;">
+                            <label class=" consultantt">Trạng thái</label>
+                            <div class="form-news choseSuKienKM">
+                                <label class="flex" style="margin-right: 12px"><input type="radio" data-bind="checked: CN_TrangThaiKM" value="1" name="t"> Kích hoạt</label>
+                                <label class="flex"><input type="radio" data-bind="checked: CN_TrangThaiKM" value="2" name="t"> Chưa áp dụng </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6  col-md-6 col-lg-6 ">
+                        <div class="form-group floatleft" style="align-items:flex-start">
+                            <label style="width: 90px;">Ghi chú</label>
+                            <div class="form-news" style="width: calc(100% - 90px)">
+                                <textarea data-bind="event:{keyup: NoteKM}, text: CN_Ghichu" id="txtNoteKM"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="symptoms floatleft">
+                    <ul class="trade-tabb" style="padding-top:5px;">
+                        <li class="active" id="htKM"><a href="#hinhthuc" data-toggle="tab">Hình thức khuyến mại</a><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></li>
+                        <li><a href="#thoigian" data-toggle="tab">Thời gian áp dụng</a><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></li>
+                        <li><a href="#phamviapdung" data-toggle="tab">Phạm vi áp dụng</a><span><i class="fa fa-angle-right" aria-hidden="true"></i></span></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="hinhthuc">
+                            <div>
+                                <div class="col-md-6 col-xs-12 ">
+                                    <div class="form-group">
+                                        <label>Khuyến mại theo</label>
+                                        <div class="css-form-detail">
+                                            <div class="dropdown ">
+                                                <button class="form-control text-left" data-toggle="dropdown">
+                                                    <span data-bind="text: txtKhuyenMai"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" style="width:100%;">
+                                                    <li class="bill-click" id="txtSelectKM" value="1" data-bind="click: selectedHD">
+                                                        <a>
+                                                            Hóa đơn
+                                                            <i class="fa fa-check"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li class="goods-click" id="txtSelectKM1" value="2" data-bind="click: selectedHH">
+                                                        <a>
+                                                            Hàng hóa
+                                                            <i class="fa fa-check"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xs-12 ">
+                                    <div class="form-group">
+                                        <label>Hình thức</label>
+                                        <div class="css-form-detail">
+                                            <select class="form-control" data-bind="value: SelectHT,
+                                                options: HinhthucKM(), event: {change: selectedHinhThuc}" id="txtSelectHT"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft" style="border: 1px solid #ccc">
+                                <div class="table-option">
+                                    <table class="table table-reduced giamgiahoadon">
+                                        <thead>
+                                            <tr>
+                                                <th>Tổng tiền hàng</th>
+                                                <th>Giảm giá</th>
+                                                <th>&nbsp;</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: HD_GiamGiaHD">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex">
+                                                        <span style="margin-right:10px;">Từ</span>
+                                                        <div class="form-news">
+                                                            <input type="text" class="form-control width-200 text-right" data-bind="value: TongTienHang, value: formatNumber(TongTienHang)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control width-200 text-right" data-bind="value: GiamGia, value: formatNumber(GiamGia)" onkeyup="formatNumberObj(this)" onkeypress="return keypressNumber_limitNumber(event, this)" />
+                                                </td>
+                                                <td>
+                                                    <div class="toggle active-re" data-bind="click: $parent.SelectedDVT, attr:{id: 'dvt_'+ID}">
+                                                        <div class="toggle-line"></div>
+                                                        <span class="toggle-element" data-bind="text: $parent.DonViTinhKM" id="txtDVT"></span>
+                                                        <span class="toggle-element toggle-element-percent selected" id="txtDVT">%</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger" style="display: block;"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reduced tangdiem">
+                                        <thead>
+                                            <tr>
+                                                <th>Tổng tiền hàng</th>
+                                                <th>Điểm cộng</th>
+                                                <th>&nbsp;</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: HD_TangDiem">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex">
+                                                        <span style="margin-right: 10px;">Từ</span>   <input type="text"class="form-control width-200 text-right" data-bind="value: TongTienHang, value: formatNumber(TongTienHang)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control width-200 text-right" data-bind="value: DiemCong,value: formatNumber(DiemCong)" onkeyup="formatNumberObj(this)" onkeypress="return keypressNumber_limitNumber(event, this)" />
+                                                </td>
+                                                <td>
+                                                    <div class="toggle active-re" data-bind="click: $parent.SelectedDVT, attr:{id: 'Diem_'+ID}">
+                                                        <div class="toggle-line"></div>
+                                                        <span class="toggle-element" data-bind="text: $parent.DonViTinhKM"></span>
+                                                        <span class="toggle-element toggle-element-percent selected">%</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger" style="display: block"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reducedhh HangHoa">
+                                        <thead>
+                                            <tr>
+                                                <th>Hàng/Nhóm hàng mua</th>
+                                                <th>Giảm giá</th>
+                                                <th>&nbsp;</th>
+                                                <th>Hàng/Nhóm hàng được giảm giá</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: HH_MuaHangGiamGia">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex" style="">
+                                                        <input type="text" class="form-control width-75 text-right mr-15" data-bind="value: SoLuongMua, value: formatNumber(SoLuongMua)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        <div class="form-group width-200">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoaMua,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHang}, value: TenHangHoaMua == null? TenNhomHangHoaMua: TenHangHoaMua, attr:{id: 'txtHH21'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn btn-right" data-bind="click: $parent.ShowNhomHangMua">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="vnd2">
+                                                    <input type="text" class="form-control width-100 text-right" data-bind="value: GiamGia,value: formatNumber(GiamGia)" onkeyup="formatNumberObj(this)" onkeypress="return keypressNumber_limitNumber(event, this)" />
+                                                </td>
+                                                <td>
+                                                    <div class="toggle active-re" data-bind="click: $parent.SelectedDVT, attr:{id: 'dvtMuaHangGiamGia_'+ID}">
+                                                        <div class="toggle-line"></div>
+                                                        <span class="toggle-element" data-bind="text: $parent.DonViTinhKM"></span>
+                                                        <span class="toggle-element toggle-element-percent selected">%</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex">
+                                                        <input type="text" class="form-control width-75 text-right mr-15" data-bind="value: SoLuong, value: formatNumber(SoLuong)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        <div class="form-group width-200">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoaMua,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHangMua},value: TenHangHoa == null? TenNhomHangHoa: TenHangHoa, attr:{id: 'txtHH212'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn btn-right" data-bind="click: $parent.ShowNhomHang">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD">
+                                                        <i class=" fa fa-close text-danger" style="display: block"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reducedhh tanghang">
+                                        <thead>
+                                            <tr>
+                                                <th>Tổng tiền hàng</th>
+                                                <th>Tặng hàng/nhóm hàng</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: $root.HD_TangHang">
+                                            <tr data-bind="attr: {id:'HD_TangHang_' + ID}">
+                                                <td>
+                                                    <div class="flex">
+                                                        <span style="margin-right: 10px;">Từ</span>
+                                                        <input type="text" class="form-control width-200 text-right" data-bind="value: TongTienHang, value: formatNumber(TongTienHang)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex floatleft ">
+                                                        <input type="text" class="form-control width-150 text-right" style="width:100px; margin-right: 15px;" data-bind="value: SoLuong, value: formatNumber(SoLuong)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        <div data-bind=" attr: {id:'HD_TangHang_input_'+ ID}" style="width:calc(100% - 100px)" class=" form-group">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoaMua,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHangMua},value: TenHangHoa == null? TenNhomHangHoa: TenHangHoa, attr:{id: 'txtHH12'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class="btn btn-right" data-bind="click: $parent.ShowNhomHang">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger " style="display: block;"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reducedhh giamgiahang">
+                                        <thead>
+                                            <tr>
+                                                <th>Tổng tiền hàng</th>
+                                                <th>Giảm giá</th>
+                                                <th></th>
+                                                <th>Hàng/Nhóm hàng được giảm giá</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: HD_GiamGiaHang">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex">
+                                                        <span>Từ</span>
+                                                        <input type="text" class="form-control width-150 text-right" data-bind="value: TongTienHang, value: formatNumber(TongTienHang)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                    </div>
+                                                </td>
+                                                <td class="vnd2">
+                                                    <input type="text" class="form-control width-100 text-right" data-bind="value: GiamGia, value: formatNumber(GiamGia)" onkeyup="formatNumberObj(this)" onkeypress="return keypressNumber_limitNumber(event, this)" />
+                                                </td>
+                                                <td>
+                                                    <div class="toggle active-re" data-bind="click: $parent.SelectedDVT, attr:{id: 'dvtGiamGiaHang_'+ID}">
+                                                        <div class="toggle-line"></div>
+                                                        <span class="toggle-element" data-bind="text: $parent.DonViTinhKM"></span>
+                                                        <span class="toggle-element toggle-element-percent selected">%</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex ">
+                                                        <input  type="text" class="form-control width-75 text-right" data-bind="value: SoLuong, value :formatNumber(SoLuong)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" style="margin-right: 8px;" />
+                                                        <div class="form-group" style="flex: 1;" data-bind="attr: {id:'HD_GiamGiaHang_input_'+ ID}">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoa,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHangMua},value: TenHangHoa == null? TenNhomHangHoa: TenHangHoa, attr:{id: 'txtHH13'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn  btn-right " data-bind="click: $parent.ShowNhomHang">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger" style="display: block;"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reducedhh muahangtanghang2">
+                                        <thead>
+                                            <tr>
+                                                <th>Hàng/Nhóm hàng mua</th>
+                                                <th>Hàng/Nhóm hàng tặng</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: HH_MuaHangTangHang">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex ">
+                                                        <input type="text" class="form-control width-75 text-right mr-15" data-bind="value: SoLuongMua, value :formatNumber(SoLuongMua)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        <div class="form-group" style="width: calc(100% - 75px)">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoaMua,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHang},value: TenHangHoaMua == null? TenNhomHangHoaMua: TenHangHoaMua, attr:{id: 'txtHH22'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn  btn-right " data-bind="click: $parent.ShowNhomHangMua">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex ">
+                                                        <input type="text" class="form-control width-75 text-right mr-15" data-bind="value: SoLuong, value :formatNumber(SoLuong)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        <div class="form-group" style="width: calc(100% - 75px);">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoa,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHangMua},value: TenHangHoa == null? TenNhomHangHoa: TenHangHoa, attr:{id: 'txtHH222'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn btn-right" data-bind="click: $parent.ShowNhomHang">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger" style="display: block"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reducedhh muahangtangdiem2">
+                                        <thead>
+                                            <tr>
+                                                <th>Hàng/Nhóm hàng mua</th>
+                                                <th>Điểm cộng</th>
+                                                <th>&nbsp;</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: HH_MuaHangTangDiem">
+                                            <tr>
+                                                <td>
+                                                    <div class="flex">
+                                                        <input type="text" class="form-control width-75 text-right mr-15" data-bind="value: SoLuongMua, value :formatNumber(SoLuongMua)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                        <div class="form-group" style="width:calc(100% - 75px)">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoaMua,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHang},value: TenHangHoaMua == null? TenNhomHangHoaMua: TenHangHoaMua, attr:{id: 'txtHH23'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn btn-right" data-bind="click: $parent.ShowNhomHangMua">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="vnd2">
+                                                    <div class="flex">
+                                                        <input type="text" class="form-control width-200 text-right" data-bind="value: DiemCong, value :formatNumber(DiemCong)" onkeyup="formatNumberObj(this)" onkeypress="return keypressNumber_limitNumber(event, this)" />
+                                                    </div>
+                                                </td>
+                                            <td>
+                                                <div class="toggle active-re" data-bind="click: $parent.SelectedDVT, attr:{id: 'dvtMuaHangTangDiem_'+ID}">
+                                                    <div class="toggle-line"></div>
+                                                    <span class="toggle-element" data-bind="text: $parent.DonViTinhKM"></span>
+                                                    <span class="toggle-element toggle-element-percent selected">%</span>
+                                                </div>
+                                            </td>
+                                                <td>
+                                                    <button title="Xóa đơn vị" class="btn btn-close height-30" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger" style="display: block"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-reducedhh tangtheosoluongmua">
+                                        <tbody data-bind="foreach: HH_GiaBanTheoSL">
+                                            <tr>
+                                                <td class="ver-top">Khi mua</td>
+                                                <td class="addHH">
+                                                    <div class="flex">
+                                                        <div class="form-group width-250">
+                                                            <input type="text" class=" form-control number-reduced autocomplete122" data-bind="JqAutoHangHoa: { source: $parent.HangHoas_seach, value: $parent.selectedHangHoaMua,
+                                                         inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',options: {appendTo: [ID]},  template: 'txtrSL'},event: {keyup: $parent.clickTangHang},value: TenHangHoaMua == null? TenNhomHangHoaMua: TenHangHoaMua, attr:{id: 'txtHH24'+ID}"
+                                                                   placeholder="Tìm kiếm mặt hàng" onkeypress="keypressEnterSelected(event)" />
+                                                            <button class=" btn btn-right" data-bind="click: $parent.ShowNhomHangMua">
+                                                                <i class="fa fa-cubes"></i>
+                                                            </button>
+                                                        </div>
+                                                        <button title="Xóa đơn vị" class="btn btn-close height-30 ml-15" data-bind="click: $root.DeleteGiamGiaHD"><i class="fa fa-close text-danger" style="display: block;"></i></button>
+                                                    </div>
+                                                    <div class="floatleft munber-bought" data-bind="foreach: $parent.ThemHangHoa" style="padding-bottom: 0">
+                                                        <div data-bind="if: (ID_addHH == $parent.ID)" style="margin-bottom: 8px;">
+                                                            <div class="flex flex-between">
+                                                                <span>Số lượng từ</span>
+                                                                <input type="text" class="form-control width-100" data-bind="value: SoLuongMua, value :formatNumber(SoLuongMua)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                                <span>Giá bán khuyến mại</span>
+                                                                <input type="text" class="form-control width-150" data-bind="value: GiaKhuyenMai, value :formatNumber(GiaKhuyenMai)" onkeyup="formatNumberObj(this)" onkeypress="return keyPress(event)" />
+                                                                <button title="Xóa đơn vị" class="btn btn-link" data-bind="click: $root.DeleteHH"><i class="fa fa-minus" aria-hidden="true"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="floatleft fs14"><a title="" data-bind="click: $root.addHangHoa">+ Thêm dòng</a></p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="container-fluid add-promotion-condition">
+                                    <button type="button" class="btn-main btn" title="" data-bind="click: ThemDieuKienKM"><span class="fs14">+</span> Thêm điều kiện</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="thoigian" class="tab-pane" style="margin-top: 7px;">
+                            <div class="floatleft">
+                                <div class="form-group floatleft">
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label>Hiệu lực từ ngày </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-9">
+                                        <div class="row">
+                                            <div class="col-sm-5">
+                                                <div class="row">
+                                                    <div class="form-group">
+                                                        <input class="form-control" id="datetimepicker_mask" type="text" data-bind="value: ThoiGianBatDauKM">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <label class="label-come">Đến</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <div class="row">
+                                                    <div class="form-group">
+                                                        <input class="form-control" id="datetimepicker_mask1" type="text" data-bind="value: ThoiGianKetThucKM">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label>Theo tháng</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9 promotion-drop">
+                                        <div class="row">
+                                            <div class="outselect">
+                                                <div class="choose-person floatleft " id="choose-ThangKM" data-toggle="dropdown">
+                                                    <ul data-bind="foreach: mangThangKM">
+                                                        <li class="li-input-span">
+                                                            Tháng <span data-bind="text: $data">
+                                                            </span>&nbsp;
+                                                            <span data-bind="click: $parent.CloseThangKM">
+                                                                <i class="fa fa-times"></i>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                    <input type="text" class="dropdown " id="NoteThangKhuyenMai" data-bind="event:{keyup: NoteThangKM}" />
+                                                </div>
+                                                <div class="selec-person dropdown-menu" id="selec-all-ThangKM">
+                                                    <ul data-bind="foreach: ThangKM">
+                                                        <li class="li-input-select" data-bind="attr:{id: $data}, click: $parent.SelectedThangKM">
+                                                            Tháng <span data-bind="text: $data">
+                                                            </span>&nbsp;
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label>Theo ngày</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9 promotion-drop">
+                                        <div class="row">
+                                            <div class="outselect">
+                                                <div class="choose-person floatleft " id="choose-NgayKM" data-toggle="dropdown">
+                                                    <ul data-bind="foreach: mangNgayKM">
+                                                        <li class="li-input-span">
+                                                            Ngày <span data-bind="text: $data">
+                                                            </span>&nbsp;
+                                                            <span data-bind="click: $parent.CloseNgayKM">
+                                                                <i class="fa fa-times"></i>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                    <input type="text" class="dropdown " id="NoteNgayKhuyenMai" data-bind="event:{keyup: NoteNgayKM}" />
+                                                </div>
+                                                <div class="selec-person dropdown-menu" id="selec-all-NgayKM">
+                                                    <ul data-bind="foreach: NgayKM">
+                                                        <li class="li-input-select" data-bind="attr:{id: $data}, click: $parent.SelectedNgayKM">
+                                                            Ngày <span data-bind="text: $data">
+                                                            </span>&nbsp;
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label>&nbsp;</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9 checkdram selectApDungSN">
+                                        <div class="row">
+                                            <input type="checkbox" data-bind="checked: CN_CheckApDungSN" /> Áp dụng vào
+                                            <span class="blue" id="choose_NgaySN" data-toggle="dropdown" data-bind="text: KieuApDungSN"></span> của khách hàng
+                                            <ul class="dropdown-menu">
+                                                <li value="1"><a href="javascript:void(0)"><span>Ngày</span> <i class="fa fa-check" aria-hidden="true"></i></a></li>
+                                                <li value="2"><a href="javascript:void(0)"><span>Tuần</span> <i class="fa fa-check" aria-hidden="true"></i></a></li>
+                                                <li value="3"><a href="javascript:void(0)"><span>Tháng</span><i class="fa fa-check" aria-hidden="true"></i></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label>Theo thứ</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9 promotion-drop">
+                                        <div class="row">
+                                            <div class="outselect">
+                                                <div class="choose-person floatleft " id="choose-ThuKM" data-toggle="dropdown">
+                                                    <ul data-bind="foreach: mangThuKM">
+                                                        <li class="li-input-span">
+                                                            <span data-bind="text: $data != '8'? 'Thứ ' + $data :'Chủ nhật'">
+                                                            </span>&nbsp;
+                                                            <span data-bind="click: $parent.CloseThuKM">
+                                                                <i class="fa fa-times"></i>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                    <input type="text" class="dropdown " id="NoteThuKhuyenMai" data-bind="event:{keyup: NoteThuKM}" />
+                                                </div>
+                                                <div class="selec-person dropdown-menu" id="selec-all-ThuKM">
+                                                    <ul data-bind="foreach: ThuKM">
+                                                        <li class="li-input-select" data-bind="attr:{id: $data}, click: $parent.SelectedThuKM">
+                                                            <span data-bind="text: $data != '8'? 'Thứ '+ $data : 'Chủ nhật'">
+                                                            </span>&nbsp;
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="col-md-3">
+                                        <div class="row">
+                                            <label>Theo giờ</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9 promotion-drop">
+                                        <div class="row">
+                                            <div class="outselect">
+                                                <div class="choose-person floatleft " id="choose-GioKM" data-toggle="dropdown">
+                                                    <ul data-bind="foreach: mangGioKM">
+                                                        <li class="li-input-span">
+                                                            <span data-bind="text: $data">
+                                                            </span>&nbsp;
+                                                            <span data-bind="click: $parent.CloseGioKM">
+                                                                <i class="fa fa-times"></i>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                    <input type="text" class="dropdown " />
+                                                </div>
+                                                <div class="selec-person dropdown-menu choseGioKhuyenMai" id="selec-all-GioKM">
+                                                    <ul data-bind="foreach: GioKM">
+                                                        <li class="li-input-select" data-bind="attr:{id: $data}, click: $parent.SelectedGioKM">
+                                                            <span data-bind="text: $data">
+                                                            </span>&nbsp;
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="phamviapdung" class="tab-pane" style="margin-top: 7px;">
+                            <div class="form-group floatleft">
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="row">
+                                        <label class="flex"><input type="radio" data-bind="checked: CN_checkChiNhanh" value="1" name="checkchinhanh" id="chinhanhtrue"> Toàn hệ thống</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="row">
+                                        <label class="flex"><input type="radio" data-bind="checked: CN_checkChiNhanh" value="2" name="checkchinhanh" id="chinhanhfalse"> Chi nhánh</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft mb-15">
+                                <div class="col-sm-12 col-md-12 promotion-drop">
+                                    <div class="row">
+                                        <div class="outselect">
+                                            <div class="choose-person floatleft " id="choose_DonVi" data-toggle="dropdown">
+                                                <ul data-bind="foreach: MangChiNhanh">
+                                                    <li class="li-input-span">
+                                                        <span data-bind="text: TenDonVi">
+                                                        </span>&nbsp;
+                                                        <span data-bind="click: $parent.CloseDonVi">
+                                                            <i class="fa fa-times"></i>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                <input type="text" class="dropdown" placeholder="Chọn chi nhánh áp dụng..." />
+                                            </div>
+                                            <div class="selec-person dropdown-menu" id="selec-all-DonVi">
+                                                <ul data-bind="foreach: DonVis">
+                                                    <li class="li-input-span" data-bind="attr:{id: ID}, click: $parent.SelectedDonVi">
+                                                        <span data-bind="text: TenDonVi">
+                                                        </span>&nbsp;
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="row">
+                                        <label class="flex" style="width:unset"><input type="radio" data-bind="checked: CN_checkNguoiBan" value="1" name="checknguoiban" id="checkNguoiBanTrue">  Toàn bộ người bán</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="row">
+                                        <label class="flex"><input type="radio" data-bind="checked: CN_checkNguoiBan" value="2" name="checknguoiban" id="checkNguoiBanFalse">  Người bán</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft mb-15">
+                                <div class="col-sm-12 col-md-12 promotion-drop">
+                                    <div class="row">
+                                        <div class="outselect">
+                                            <div class="choose-person floatleft " id="choose-NguoiBan" data-toggle="dropdown">
+                                                <ul data-bind="foreach: MangNhanVien">
+                                                    <li class="li-input-span">
+                                                        <span data-bind="text: TenNhanVien">
+                                                        </span>&nbsp;
+                                                        <span data-bind="click: $parent.CloseNhanVien">
+                                                            <i class="fa fa-times"></i>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                <input type="text" class="dropdown " placeholder="Chọn người bán áp dụng..." />
+                                            </div>
+                                            <div class="selec-person dropdown-menu" id="selec-all-NguoiBan">
+                                                <ul data-bind="foreach: NhanViens">
+                                                    <li class="li-input-span" data-bind="attr:{id: ID}, click: $parent.SelectedNhanVien">
+                                                        <span data-bind="text: TenNhanVien">
+                                                        </span>&nbsp;
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="row">
+                                        <label class="flex" style="width:unset"><input type="radio" data-bind="checked: CN_checkNhomKhachHang" value="1" name="checkkhachhang" id="checkKhachHangTrue">  Toàn bộ khách hàng</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="row">
+                                        <label class="flex"><input type="radio" data-bind="checked: CN_checkNhomKhachHang" value="2" name="checkkhachhang" id="checkKhachHangFalse">  Nhóm khách hàng</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <div class="col-sm-12 col-md-12 promotion-drop">
+                                    <div class="row">
+                                        <div class="outselect">
+                                            <div class="choose-person floatleft " id="choose-NhomKhachHang" data-toggle="dropdown">
+                                                <ul data-bind="foreach: MangNhomKhachHang">
+                                                    <li class="li-input-span">
+                                                        <span data-bind="text: TenNhomDoiTuong">
+                                                        </span>&nbsp;
+                                                        <span data-bind="click: $parent.closeNhomKhachHang">
+                                                            <i class="fa fa-times"></i>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                <input type="text" class="dropdown " placeholder="Chọn nhóm khách hàng áp dụng..." />
+                                            </div>
+                                            <div class="selec-person dropdown-menu" id="selec-all-NhomKhachHang">
+                                                <ul data-bind="foreach: NhomDoiTuongs">
+                                                    <li class="li-input-span" data-bind="attr:{id: ID}, click: $parent.SelectedNhomKhachHang">
+                                                        <span data-bind="text: TenNhomDoiTuong">
+                                                        </span>&nbsp;
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                    <button type="button" class="btn btn-save" data-bind="click: SaveKhuyenMai" id="save_KhuyenMai"><i class="fa fa-save"></i> Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalKhuyenMai">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+
+
+                <h4 class="modal-title">Tiêu đề modal khuyến mãi</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="css-form-label">Mã chương trình</label>
+                        <div class="css-form-detail">
+                            <input class="form-control  " placeholder="Mã chương trình" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="css-form-label">Tên chương trình</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="Tên chương trình" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 col-xs-12">
+                    <div class="form-group">
+                        <label class="css-form-label">Trang thái</label>
+                        <div class="css-form-detail">
+                            <label style="line-height:30px">
+                                <input type="radio" name="TrangThaiKhuyenMai" />Kích hoạt
+                            </label>
+                            <label style="line-height:30px">
+
+                                <input type="radio" name="TrangThaiKhuyenMai" />Chưa áp dụng
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="css-form-label">Ghi chú</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="Ghi chú" />
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-md-12 col-xs-12" style="width:100%; border-bottom:1px solid black"></div>*@
+                <div class="col-md-12 col-xs-12" style=" padding:0">
+                    <div class="">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#hinhthucKM" style="white-space:nowrap">Hình thức khuyến mai</a></li>
+                            <li><a data-toggle="tab" href="#thoigianKM">Thời gian áp dụng</a></li>
+                            <li><a data-toggle="tab" href="#phamviKM">Phạm vi áp dụng</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div id="hinhthucKM" class="tab-pane fade in active">
+
+                                <div class="flex flex-between row" style="flex-wrap:wrap">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Khuyến mại theo: &nbsp;</label>
+                                            <div class="css-form-detail">
+                                                <div class="dropdown">
+                                                    <input class="form-control" data-toggle="dropdown" />
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a>Hóa đơn</a>
+                                                        </li>
+                                                        <li>
+                                                            <a>Dịch vụ</a>
+                                                        </li>
+
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Hình thức: &nbsp;</label>
+                                            <div class="css-form-detail">
+                                                <div class="dropdown">
+                                                    <input class="form-control" data-toggle="dropdown" />
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a>Hóa đơn</a>
+                                                        </li>
+                                                        <li>
+                                                            <a>Dịch vụ</a>
+                                                        </li>
+
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <table class="table table-res" id="BangHinhthucKM">
+                                        <thead>
+                                            <tr>
+                                                <th>Tổng tiền hàng từ</th>
+                                                <th>
+                                                    Hàng/Nhóm hàng mua
+                                                </th>
+                                                <th>Giảm giá</th>
+                                                <th>Hàng/Nhóm hàng được giảm giá</th>
+                                                <th>Tăng hàng/nhóm hàng</th>
+                                                <th>Điểm cộng</th>
+                                                <th>#</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="position-relative flex" style="align-items:center">
+                                                        <label>Từ &nbsp;</label>
+                                                        <input class="form-control" placeholder="Tổng tiền hàng" />
+
+                                                    </div>
+
+                                                </td>
+                                                <td>
+                                                    <div class="position-relative">
+                                                        <input class="form-control" placeholder="Nhóm hàng mua" />
+                                                        <button class="btn btn-right"><i class="fa fa-cubes"></i></button>
+                                                    </div>
+
+                                                </td>
+                                                <td>
+                                                    <div class="flex">
+                                                        <input class="form-control width-125 text-right" placeholder="Giảm giá" />
+                                                        <div class="op-toggle">
+                                                            <a>VNĐ</a>
+                                                            <a>%</a>
+                                                        </div>
+ưl                                                  </div>
+  =gẽ                                          </td>
+                                                <td>
+                                                    @*hangff nhóm nhàng được GIẢM GIÁ*@
+                                                    <div class="flex position-relative">
+                                                        <input class="form-control width-75" placeholder="Số hàng" />
+                                                        <input class="form-control" placeholder="Nhóm hàng mua" />
+                                                        <button class="btn btn-right"><i class="fa fa-cubes"></i></button>
+                                                    </div>
+
+                                                </td>
+                                                <td>
+                                                    @*hangff nhóm nhàng được TẶNG*@
+                                                    <div class="flex position-relative">
+                                                        <input class="form-control width-75" placeholder="Số hàng" />
+                                                        <input class="form-control " placeholder="Nhóm hàng mua" />
+                                                        <button class="btn btn-right"><i class="fa fa-cubes"></i></button>
+                                                    </div>
+
+                                                </td>
+                                                <td>
+                                                    <div class="flex">
+                                                        <input class="form-control width-125  text-right" placeholder="Điểm cộng" />
+                                                        <div class="op-toggle">
+                                                            <a>Điểm</a>
+                                                            <a>%</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-link"><i class="fa fa-close"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                    </table>
+
+
+                                </div>
+                                <ul>
+                                    <li class="flex flex-column padding-10">
+                                        <div class="flex flex-row" style="padding-bottom:5px; border-bottom:1px dashed #ccc">
+                                            <div class="form-group flex" style="align-items:center">
+                                                <label class="css-form-label">Khi mua từ</label>
+                                                <div class="css-form-detail position-relative">
+                                                    <input placeholder="Tìm kiếm mặt hàng" class="form-control" />
+                                                    <button class="btn btn-right"><i class="fa fa-cubes"></i></button>
+                                                </div>
+
+                                            </div>
+                                            <button class="btn btn-link height-30 flex" style=" align-items:center">
+                                                <i class="fa fa-close text-danger"></i>
+                                            </button>
+                                        </div>
+                                        <div class="" style="padding:5px 5px 5px 30px">
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">Số lượng từ</label>
+                                                            <div class="css-form-detail">
+                                                                <input class="form-control text-right" placeholder="Số lượng" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <label class="css-form-label">
+                                                                Giá bán khuyến mại
+                                                            </label>
+                                                            <div class="css-form-detail">
+                                                                <input class="form-control text-right" placeholder="Số lượng" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-link">
+                                                            <i class="fa fa-minus text-danger"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <a ><i class="fa fa-plus"></i>Thêm dòng</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <button class="btn btn-main">
+                                    <i class="fa fa-plus"></i>
+                                    Thêm mới điều kiện
+                                </button>
+
+                            </div>
+                            <div id="thoigianKM" class="tab-pane fade">
+                                <div class="">
+                                    <div class="col-md-5 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Hiêu lực từ ngày</label>
+                                            <div class="css-form-detail">
+                                                <input class="form-control" type="date" placeholder="Chọn ngày" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 col-xs-12">
+                                        <div class="form-group">
+                                            <label>đến ngày</label>
+                                            <div class="css-form-detail">
+                                                <input class="form-control" type="date" placeholder="Chọn ngày" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Theo tháng</label>
+                                            <div class="css-form-detail">
+                                                <input class="form-control" type="date" placeholder="Chọn ngày" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Theo ngày</label>
+                                            <div class="css-form-detail">
+                                                <input class="form-control" type="date" placeholder="Chọn ngày" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Theo thứ</label>
+                                            <div class="css-form-detail">
+                                                <input class="form-control" type="date" placeholder="Chọn ngày" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Theo giờ</label>
+                                            <div class="css-form-detail">
+                                                <input class="form-control" type="date" placeholder="Chọn ngày" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+
+                                            <div class="css-form-detail">
+                                                <label><input type="checkbox" />Áp dụng vào ngày sinh nhật của khách hàng</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="phamviKM" class="tab-pane fade">
+                                <div class="col-xs-12 col-md-12" style="margin-bottom:5px">
+                                    <div class="flex" style="align-items:center">
+                                        <input type="radio" id="system" name="whereto" value="1" checked>
+                                        <label class="css-form-label" for="system">Toàn hệ thống</label><br>
+                                        <input type="radio" id="branch" name="whereto" value="2">
+                                        <label class="css-form-label" for="branch">Chi nhánh</label><br>
+                                    </div>
+                                    <div class="op-tag-picker dropdown">
+                                        <div data-toggle="dropdown">
+                                            <ul>
+                                                <li>
+                                                    <span>hahaha</span>
+                                                    <i class="fa fa-close"></i>
+                                                </li>
+                                            </ul>
+                                            <input class="form-control" data-toggle="dropdown" placeholder="Chọn nhóm khách hàng áp dụng" />
+                                        </div>
+                                        <ul class="dropdown-menu" style="width:100%">
+                                            <li>
+                                                <a style="background:none">Chi nhánh nào nào đó</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-12" style="margin-bottom:5px">
+                                    <div class="flex" style="align-items:center">
+                                        <input type="radio" id="allseller" name="whoseto" value="male">
+                                        <label class="css-form-label" for="allseller">Toàn hệ người bán</label><br>
+                                        <input type="radio" id="seller" name="whoseto" value="female">
+                                        <label class="css-form-label" for="seller">Người bán</label><br>
+                                    </div>
+                                   
+                                    <div class="op-tag-picker dropdown">
+                                        <div data-toggle="dropdown">
+                                            <ul>
+                                                <li>
+                                                    <span>hahaha</span>
+                                                    <i class="fa fa-close"></i>
+                                                </li>
+                                            </ul>
+                                            <input class="form-control" data-toggle="dropdown" placeholder="Chọn nhóm khách hàng áp dụng" />
+                                        </div>
+                                        <ul class="dropdown-menu" style="width:100%">
+                                            <li>
+                                                <a style="background:none">Chi nhánh nào nào đó</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-12" style="margin-bottom:5px">
+                                    <div class="flex" style="align-items:center">
+                                        <input type="radio" id="allcustomer" name="whichon" value="male">
+                                        <label class="css-form-label" for="allcustomer">Toàn hệ khách hàng</label><br>
+                                        <input type="radio" id="customer" name="whichon" value="female">
+                                        <label class="css-form-label" for="customer">Nhóm khách hàng</label><br>
+                                    </div>
+                                    <div class="op-tag-picker dropdown">
+                                        <div data-toggle="dropdown">
+                                            <ul>
+                                                <li>
+                                                    <span>hahaha</span>
+                                                    <i class="fa fa-close"></i>
+                                                </li>
+                                            </ul>
+                                            <input class="form-control" data-toggle="dropdown" placeholder="Chọn nhóm khách hàng áp dụng" />
+                                        </div>
+                                        <ul class="dropdown-menu" style="width:100%">
+                                            <li>
+                                                <a style="background:none">Chi nhánh nào nào đó</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                <button type="button" class="btn btn-save"  ><i class="fa fa-save"></i> Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal"id="modalNhomHangKM">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Chọn nhóm hàng hóa</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body">
+                <div class=" position-relative op-search" style="width:100%;max-width:unset">
+                    <input class="form-control" placeholder="tìm kiếm nhóm hàng hóa" />
+                    <i class="fa fa-search op-search-icon"></i>
+                    <button class="op-search-button">
+                        <i class="fa fa-plus" title="Thêm nhóm hàng hóa"></i>
+                    </button>
+                </div>
+                <div style="max-height:500px; overflow:auto">
+                    <ul class="op-list-tree">
+                        <li>
+                            <div class="flex flex-row">
+                                <input class='' type="radio" id="NhomHH1" name="NhomHHKM_lvl" />
+                                <label for="NhomHH1">Nhóm hàng hóa 1</label>
+                                <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                            </div>
+                            <ul>
+                                <li>
+                                    <div class="flex flex-row">
+                                        <input class='' type="radio" id="NhomHH1_1" name="NhomHHKM_lvl1" />
+                                        <label for="NhomHH1_1">Nhóm hàng hóa 2</label>
+                                        <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+
+                                        
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="flex flex-row">
+                                        <input class='' type="radio" id="NhomHH1_1" name="NhomHHKM_lvl1" />
+                                        <label for="NhomHH1_1">Nhóm hàng hóa 2</label>
+                                        <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+
+
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="flex flex-row">
+                                        <input class='' type="radio" id="NhomHH1_1" name="NhomHHKM_lvl1" />
+                                        <label for="NhomHH1_1">Nhóm hàng hóa 2</label>
+                                        <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="flex flex-row">
+                                <input class='' type="radio" id="NhomHH1" name="NhomHHKM_lvl" />
+                                <label for="NhomHH1">Nhóm hàng hóa 1</label>
+                                <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                            </div>
+                            <ul>
+                                <li>
+                                    <div class="flex flex-row">
+                                        <input class='' type="radio" id="NhomHH1_1" name="NhomHHKM_lvl1" />
+                                        <label for="NhomHH1_1">Nhóm hàng hóa 2</label>
+                                        <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="flex flex-row">
+                                        <input class='' type="radio" id="NhomHH1_1" name="NhomHHKM_lvl1" />
+                                        <label for="NhomHH1_1">Nhóm hàng hóa 2</label>
+                                        <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                    
+                                </li>
+                                <li>
+                                    <div class="flex flex-row">
+                                        <input class='' type="radio" id="NhomHH1_1" name="NhomHHKM_lvl1" />
+                                        <label for="NhomHH1_1">Nhóm hàng hóa 2</label>
+                                        <button onclick="showlistTree(this)"><i class="fa fa-angle-down"></i></button>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="flex flex-row">
+                                                <input class='' type="radio" id="NhomHH1_1_1" name="NhomHHKM_lvl2" />
+                                                <label for="NhomHH1_1_1">Nhóm hàng hóa 3</label>
+                                            </div>
+                                        </li>
+
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" data-dismiss="modal" >
+                    <i class="fa fa-close"></i>Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="listgroupkm">
+    <div class="modal-dialog draggable modal-md">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close close-modal" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Chọn nhóm hàng
+                </h4>
+            </div>
+            <div class="modal-body floatleft ">
+                <div class="seach-hhchoose">
+                    <i class="fa fa-search"></i>
+                    <input type="text" data-bind="event:{keyup: NoteNhomHang}" id="SeachNhomHang" placeholder="Tìm kiếm nhóm hàng hóa">
+                </div>
+                <div class="list-choose floatleft" style="overflow:hidden">
+                    <ul class="treeview floatleft SelectNhomHang" id="treeviewnhomhang" data-bind="foreach: NhomHangHoas">
+                        <li>
+                            <div data-bind="click: $root.SelectID_NhomHangHoa, attr:{id: 'input_NhomHang_' + ID}">
+                                <label class="flex align-items-center">
+                                    <input type="radio" name="rdNhomHang" />
+                                    <span class="treename" data-bind="text: TenNhomHangHoa"></span>
+                                </label>
+                            </div>
+                            <span class="close-ul-km" data-bind="visible: Childs.length >0 ">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </span>
+                            <ul data-bind="foreach: Childs">
+                                <li>
+                                    <div data-bind="click: $root.SelectID_NhomHangHoa, attr:{id: 'input_NhomHang_' + ID}">
+                                        <label class="flex floatleft">
+                                            <input type="radio" name="rdNhomHang" />
+                                            <span data-bind="text: TenNhomHangHoa" class="li-top li-pp"></span>
+                                        </label>
+                                    </div>
+                                    <span class="close-ul-km" data-bind="visible: Child2s.length >0 ">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        <i class="fa fa-minus" aria-hidden="true"></i>
+                                    </span>
+                                    <ul data-bind="foreach: Child2s">
+                                        <li>
+                                            <div data-bind="click: $root.SelectID_NhomHangHoa, attr:{id: 'input_NhomHang_' + ID}">
+                                                <label class="flex floatleft">
+                                                    <input type="radio" name="rdNhomHang" />
+                                                    <span data-bind="text: TenNhomHangHoa" class="li-top li-pp"></span>
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="ma20 floatleft pull-right text-right">
+                    <button type="button" class="btn btn-cancel " data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    <button type="button" class="btn btn-save" data-bind="click: SelectedNhomHH"><i class="fa fa-save"></i> Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="txtrSL" type="text/html">
+    <a>
+        <b><span data-bind="text: TenHangHoa"></span></b>
+        <span data-bind="visible: TenDonViTinh">
+            (<span data-bind="text: TenDonViTinh"></span>)
+        </span>
+        <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+        <br />
+        Mã: <span data-bind="text: MaHangHoa"></span>
+        Giá bán: <span data-bind="text: formatNumber(GiaBan)"></span>
+    </a>
+</script>
+<script>
+    function LoadGetHeight() {
+        sleep(100).then(() => { setHeight(); });
+    };
+    function setHeight() {
+        heigth = heigth - heightold;
+        $('#tb tr').each(function () {
+            if ($(this).hasClass('ac')) {
+                heightold = $(this).height();
+            }
+        });
+        heigth += heightold;
+        $('.line-right').css("margin-top", setTop + "px").height(heigth);
+    }
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    function SetHeightShowDetail($this) {
+        setTop = $('#tb thead').height() + parseInt($this.height() * ($this.index() / 2));
+        var t = $this.next(".op-js-tr-hide").css("display");
+        if (t !== "none") {
+            heightold = $this.next().height();
+            heigth = parseInt($this.height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+    }
+    $('#tb').on('click', '.prev-tr-hide', function () {
+        setTop = $('#tb thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+        $(this).parents(".table").toggleClass("table_re");
+        var t = $(this).next(".op-js-tr-hide").css("display");
+        $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+        $("td").not($(this).find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+        $(this).toggleClass("bor-right");
+        $(this).find("td").toggleClass("bg-gray");
+        $(this).find("td").toggleClass("bor");
+        if (t == "none") {
+            if (parseInt($('#txtRownSelect').val()) >= 20) {
+                $(".table").removeClass('height470');
+            }
+            $(".op-js-tr-hide").removeClass("ac");
+            $(this).next(".op-js-tr-hide").addClass("ac");
+            heightold = $(this).next().height();
+            heigth = parseInt($(this).height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            if (parseInt($('#txtRownSelect').val()) >= 20) {
+                $(".table").addClass('height470');
+            }
+            $(this).next(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            if (parseInt($('#txtRownSelect').val()) >= 20) {
+                $(".table").addClass('height470');
+            }
+            $(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+    });
+    $(function () {
+        $.datetimepicker.setLocale('vi');
+        var time = new Date();
+        $('#datetimepicker_mask').datetimepicker({
+            timepicker: true,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y H:i',
+            value: moment(time).format('DD/MM/YYYY HH:mm')
+        });
+        $('#datetimepicker_mask1').datetimepicker({
+            timepicker: true,
+            mask: true,
+            format: 'd/m/Y H:i',
+        });
+    });
+    $(document).ready(function () {
+        $(".name-bill1").click(function () {
+            $(".select-user2").hide();
+            $(this).find(".select-user").slideToggle();
+            $(this).find("i").toggle();
+        })
+    });
+    $(document).on('click', '.toogle', function () {
+        console.log('i am toggle')
+        //$(this).toggleClass("active-re");
+        //lưu đơn vị tính vào cache
+    });
+    $(document).ready(function () {
+        ToggleTo($('.toggle .toggle-element.selected'));
+        function ToggleTo(item) {
+            console.log('item', item);
+            $(item).siblings('.toggle-line').css('left', $(item).position().left);
+            $(item).siblings('.toggle-line').width($(item).innerWidth());
+            $(item).siblings('.toggle-line').height($(item).innerHeight());
+            $(item).css('color', 'white');
+            $(item).siblings().css('color', 'black');
+        }
+        $('.toggle .toggle-element').click(function () {
+            ToggleTo(this)
+        })
+    });
+    $(".themdonviclick").click(function () {
+        $(".tanghang tbody").append(
+            '<tr>' +
+            '<td >' +
+            '<span>Từ</span>' +
+            '<span > <input type="text" class="form-control "></span>' +
+            '</td > ' +
+            '<td  > ' +
+            '<span > <input type="text" class="form-control "></span>' +
+            '<span > ' +
+            '<input type= "text" class="form-control number-reduced" > ' +
+            '<img src= "/Content/images/icon/Iconbanhanggg-02.png" > ' +
+            '</span > ' +
+            '</td > ' +
+            '<td  > ' +
+            '<button title= "Xóa đơn vị" class="btn btn-link height-30" > <i class="fa fa-close text-danger"></i></btn>' +
+            '</td > ' +
+            '</tr >'
+        );
+    });
+    $(".op-js-themmoinhomhang").click(function () {
+        $(".modal-ontop").show();
+        $(".op-js-modal").modal('show');
+    });
+    $(document).on('click', '.close-modal,.save-modal', function () {
+        $(".modal-ontop").hide();
+        $(".op-js-modal").modal('hide');
+    });
+    $(".modal-ontop").click(function () {
+        $(this).hide();
+        $(".op-js-modal").modal('hide');
+    });
+    $(".tongg-pm").click(function () {
+        $(this).find("i").toggle();
+        $(this).next("ul").toggle();
+    })
+    $(".choose-person").click(function () {
+        $(this).find("input").focus();
+    })
+    function keypressNumber_limitNumber(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        // 46(.), 48(0), 57(9)
+        if ((keyCode != 46 || $(obj).val().indexOf('.') != -1) && (keyCode < 48 || keyCode > 57)) {
+            if ((event.which != 46 || $this.indexOf('.') != -1)) {
+                //alert('Chỉ được nhập một dấu .');
+            }
+            event.preventDefault();
+        }
+        if ($this.indexOf(".") > -1 && ($this.split('.')[1].length > 2)) {
+            event.preventDefault();
+        }
+    }
+    function keyPress(e) {
+        var keypressed = null;
+        if (window.event) {
+            keypressed = window.event.keyCode; //IE
+        }
+        else {
+            keypressed = e.which; //NON-IE, Standard
+        }
+        if (keypressed < 48 || keypressed > 57) {
+            if (keypressed == 8 || keypressed == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    $(document).on('click', '.checkdram ul li', function () {
+        var t = $(this).find("span").html() + ' sinh nhật';
+        $(this).parentsUntil(".checkdram ").find(".blue").html(t);
+        $(".checkdram ul li i").hide();
+        $(this).find("i").show();
+    });
+</script>
+<script>
+    var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+    if ($.inArray('KhuyenMai_CapNhat', lc_CTQuyen) > -1) {
+        $('.capnhatkm').show();
+    }
+    if ($.inArray('KhuyenMai_Xoa', lc_CTQuyen) > -1) {
+        $('.xoakm').show();
+    }
+    if ($.inArray('KhuyenMai_SaoChep', lc_CTQuyen) > -1) {
+        $('.saochepkm').show();
+    }
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $("#treeviewnhomhang li").hover(function () {
+        $("#tatcanhh a").css("display", "none");
+    });
+    $('#listgroupkm').on('click', '.close-ul-km', function () {
+        $(this).next("ul").toggleClass("open");
+        $(this).find("i").toggle();
+    });
+    $(document).on('click', '.close-ul', function () {
+        $(this).next("ul").toggleClass("open");
+    });
+    $('#khuyenmaip').on('show.bs.modal', function () {
+        setTimeout(function () {
+            $('#txtNameKM').focus();
+        }, 500);
+    });
+    var t = $(".table").width();
+    $(".op-object-detail .tab-content").width(t - 50);
+</script>
+<style>
+    .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+
+    .SelectReport {
+        background: #bee69f;
+        color: #000000;
+    }
+
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline !important;
+    }
+
+    .nameDonVi input {
+        border: none;
+        height: 30px;
+        outline: none;
+        padding-left: 10px;
+        width: 50%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+        if ($.inArray('KhuyenMai_ThemMoi', lc_CTQuyen) > -1) {
+            $('.khuyenmaiparent').css('display', 'block');
+        }
+        $(window.document).on('shown.bs.modal', '.modal', function () {
+            window.setTimeout(function () {
+                $('[autofocus]', this).focus();
+                $('[autofocus]').select();
+            }.bind(this), 100);
+        });
+    });
+    function showlistTree(ele) {
+        $(ele).parent().toggleClass('showed');
+    }
+    function HideCollum(arr) {
+        $('#BangHinhthucKM td').hide();
+        $('#BangHinhthucKM th').hide();
+        arr.forEach(function (num) {
+            $('#BangHinhthucKM tr td:nth-child(' + num + ')').css('display', 'table-cell');
+            $('#BangHinhthucKM tr th:nth-child(' + num + ')').css('display', 'table-cell');
+        })
+    }
+</script>
+@Scripts.Render("~/bundles/KhuyenMai")

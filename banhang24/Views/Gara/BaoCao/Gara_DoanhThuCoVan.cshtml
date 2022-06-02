@@ -1,0 +1,1521 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        span.close-ul {
+            font-size: 21px;
+            top: 0px;
+            left: 5px;
+            text-align: center;
+            width: 20px;
+            font-family: Menlo, Consolas, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="op-container" style="position:relative" id="garaReport">
+        <div class="container-fluid nopadding" style="position:relative">
+            <div class="op-baocao-type">
+                <ul>
+                    <li  v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_TongHop_XemDS').length > 0">
+                        <input type="radio" id="baocaotonghop" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                        <label for="baocaotonghop">
+                          Tổng hợp
+                        </label>
+                    </li>
+                    <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_ChiTiet_XemDS').length > 0">
+                        <input type="radio" id="baocaochitiet" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                        <label for="baocaochitiet">
+                           Chi tiết
+                        </label>
+                    </li>
+                    <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_TheoXe_XemDS').length > 0">
+                        <input type="radio" id="baocaotheoxe" name="LoaiBaoCao" value="3" v-model="LoaiBaoCao" class="radio-option" />
+                        <label for="baocaotheoxe">
+                           Theo xe
+                        </label>
+                    </li>
+                    <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_TheoCoVan_XemDS').length > 0">
+                        <input type="radio" id="baocaocovan" name="LoaiBaoCao" value="4" v-model="LoaiBaoCao" class="radio-option" />
+                        <label for="baocaocovan">
+                            Theo cố vấn dịch vụ
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-left">
+                <div class=" op-filter">
+                    
+                    <section class="op-filter-body ">
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                Loại báo cáo
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="floatleft  gara-loaibaocao">
+                                        <ul>
+                                            <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_TongHop_XemDS').length > 0">
+                                                <input type="radio" id="baocaotonghop" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                                                <label for="baocaotonghop">
+                                                    Tổng hợp
+                                                </label>
+                                            </li>
+                                            <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_ChiTiet_XemDS').length > 0">
+                                                <input type="radio" id="baocaochitiet" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                                                <label for="baocaochitiet">
+                                                    Chi tiết
+                                                </label>
+                                            </li>
+                                            <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_TheoXe_XemDS').length > 0">
+                                                <input type="radio" id="baocaotheoxe" name="LoaiBaoCao" value="3" v-model="LoaiBaoCao" class="radio-option" />
+                                                <label for="baocaotheoxe">
+                                                    Theo xe
+                                                </label>
+                                            </li>
+                                            <li v-if="VHeader.Quyen.filter(p => p === 'BaoCaoSuaChua_TheoCoVan_XemDS').length > 0">
+                                                <input type="radio" id="baocaocovan" name="LoaiBaoCao" value="4" v-model="LoaiBaoCao" class="radio-option" />
+                                                <label for="baocaocovan">
+                                                    Theo cố vấn dịch vụ
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft ">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
+                            </h3>
+                            <aside class="op-filter-container">
+                                <filter-chinhanh v-bind:listchinhanh="listChiNhanh" v-on:callfunctionloaddata="BeforeLoadData"></filter-chinhanh>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Thời gian
+                            </h3>
+                            <filter-datetime radioname="rdThoiGian" v-bind:typetime="ThoiGianTypeTime"
+                                             v-on:callfunction="onCallThoiGian"
+                                             v-bind:selectvalue="5"></filter-datetime>
+                        </article>
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 2 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Nhóm hàng hóa
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="seach-nhomhang">
+                                    <i class="fa fa-search" style="display:inline-block"></i>
+                                    <input type="text" class="seach-nhomhang" v-model="NhomHangHoaSearch" placeholder="Tìm kiếm nhóm hàng" style="display:inline-block; width: calc(100% - 15px)" />
+                                </div>
+                                <div id="tatcanhh" class="treename" v-on:click="SelectNhomHangHoa('')">
+                                    <i class="fa fa-angle-right" aria-hidden="true" style="opacity:0"></i> Tất cả
+                                    <a class="op-js-themmoinhomhang" href="javascript:void(0)"><i class="fa fa-pencil-square-o"></i></a>
+                                </div>
+                                <treeview v-bind:list="TreeFilter(NhomHangHoa, commonStatisJs.convertVieToEng(NhomHangHoaSearch))" id="treeviewnhomhang" class="treeview floatleft" v-bind:onselectvalue="SelectNhomHangHoa"></treeview>
+                            </aside>
+                        </article>
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 3 || LoaiBaoCao == 4 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Số lần tiếp nhận
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Từ</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="SoLanTiepNhanFrom" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Đến</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="SoLanTiepNhanTo" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft" v-bind:style="{ display: LoaiBaoCao == 3 || LoaiBaoCao == 4 ? '' : 'none' }">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Số lượng hóa dơn
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Từ</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="SoLuongHoaDonFrom" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Đến</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="SoLuongHoaDonTo" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Doanh thu
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Từ</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="DoanhThuFrom" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Đến</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="DoanhThuTo" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="~/Content/images/icon/ngaytao.png" />
+                                Lợi nhuận
+                            </h3>
+                            <aside class="op-filter-container">
+                                <div class="menuCheckbox">
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Từ</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="LoiNhuanFrom" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <div class="radio-menu">
+                                            <p>Đến</p>
+                                        </div>
+                                        <div class="conten-choose">
+                                            <input type="text" class="form-control" placeholder="0" autocomplete="off" v-model="LoiNhuanTo" v-on:keyup="EnterKeyup" onkeyup="return formatNumberObj(this)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </article>
+                    </section>
+                    <div class="op-filter-footer">
+                        <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                        <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                            <span>Thu gọn</span>
+                        </button>
+                        <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                            <span>Mở rộng</span>
+                        </button>
+                        <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-right">
+                <div class="op-header">
+                    <div class="op-header-title op-baocao-title">
+                        <h2 class="title" onclick="showTypeBc()">Báo cáo sửa chữa</h2>
+                    </div>
+                    <div class="" style="height:unset; text-align:center">
+                        <h4 class="floatleft flex  flex-center">
+                            <label class="floatleft" style="text-align:center">{{BaoCaoTieuDe}}</label>
+                        </h4>
+                        <span class="floatleft">{{BaoCaoThoiGianText}}</span>
+                        <span class="floatleft">Chi nhánh: {{listChiNhanh.filter(p => p.CNChecked === true).map(p=>p.TenDonVi).toString()}}</span>
+                    </div>
+                    <div class="flex flex-between">
+                        <div class="op-header-button">
+                            <div class=" header-button-left" data-toggle="modal" data-target="#DoiTacBaoHiem">
+                                <button class="btn btn-main" style="margin-right:5px" v-on:click="ExportExcel"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Xuất file excel</button>
+                                <div>
+                                    <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-angle-double-down"></i>
+                                    </button>
+                                    <div class="dropdown-list dropdown-menu dropdown-menu-split" style="right:0; display:none">
+                                        <ul style="width:340px; flex-direction:row; flex-wrap:wrap; display:flex">
+                                            <li v-for="item in GetListHeader()" style="width:170px">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                        <span></span>{{item.colText}}
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="op-search">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm" v-model="TextSearch" v-on:keyup="EnterKeyup">
+                                <button type="button" class=" op-search-button" v-on:click="BeforeLoadData">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                                <i class="material-icons">sort</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-table  tab-content">
+                    <!---------------Tổng hợp--------------->
+                    <div class="result tab-pane " id="tonghop" v-bind:class="{ active: LoaiBaoCao==1 }">
+                        <div class="table-frame">
+                            <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in BaoCaoTongHopHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(itemBCTongHop, key) in BaoCaoTongHop.data">
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colMaTiepNhan').colShow">
+                                            <a v-bind:href="'#/' + VHeader.UrlPage.DanhSachPhieuTiepNhan + '?'+itemBCTongHop.MaPhieuTiepNhan" target="_blank">{{itemBCTongHop.MaPhieuTiepNhan}}</a>
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colNgayTiepNhan').colShow">
+                                            {{moment(itemBCTongHop.NgayVaoXuong).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colBienSo').colShow">
+                                            <a v-bind:href="'#/' + VHeader.UrlPage.DanhSachXe + '?'+itemBCTongHop.BienSo" target="_blank">{{itemBCTongHop.BienSo}}</a>
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colMaKhachHang').colShow">
+                                            {{itemBCTongHop.MaDoiTuong}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colTenKhachHang').colShow">
+                                            {{itemBCTongHop.TenDoiTuong}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colCoVanDichVu').colShow">
+                                            {{itemBCTongHop.CoVanDichVu}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colMaHoaDon').colShow">
+                                            {{itemBCTongHop.MaHoaDon}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colNgayLapHoaDon').colShow" style="text-align: right">
+                                            {{ itemBCTongHop.NgayLapHoaDon === null ? '' : moment(itemBCTongHop.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colTongTienHang').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.TongTienHang, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colChietKhau').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.TongChietKhau, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colGiamGia').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.TongGiamGia, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.DoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colThue').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.TongTienThue, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.TienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.TongChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTongHop.LoiNhuan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colGhiChu').colShow" style="text-align: right">
+                                            {{itemBCTongHop.GhiChu}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colTenChiNhanh').colShow">
+                                            {{itemBCTongHop.TenDonVi}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-if="BaoCaoTongHop.dataAll.length > 0" style="background-color: #d1d2d9;">
+                                    <tr style="font-weight: bold;">
+                                        <td v-bind:colspan="BaoCaoTongHopHeader.filter(p=>p.colShow === true && p.index <= 7).length">Tổng cộng</td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colTongTienHang').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].STongTienHang, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colChietKhau').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].SChietKhau, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colGiamGia').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].SGiamGia, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].SDoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colThue').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].SThue, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].STongTienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].SChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTongHopHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTongHop.dataAll[0].SLoiNhuan, 0)}}
+                                        </td>
+                                        <td v-bind:colspan="BaoCaoTongHopHeader.filter(p=>p.colShow === true && p.index >= 16).length"></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoTongHop.dataAll.length<=0">
+                                    <tr>
+                                        <td class="text-center" v-bind:colspan="BaoCaoTongHopHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <page-list v-bind:pagesize="BaoCaoTongHop.PageSize"
+                                   v-bind:listpage="BaoCaoTongHop.ListPage" v-bind:currentpage="BaoCaoTongHop.currentPage" v-bind:pageview="BaoCaoTongHop.PageView"
+                                   v-bind:numberofpage="BaoCaoTongHop.NumberOfPage"
+                                   v-on:pageselected="BaoCaoTongHopPageChange"></page-list>
+                    </div>
+                    <!---------------Chi tiết--------------->
+                    <div class="result tab-pane " id="chitiet" v-bind:class="{ active: LoaiBaoCao==2 }">
+                        <div class="table-frame">
+                            <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in BaoCaoChiTietHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(itemBCChiTiet, key) in BaoCaoChiTiet.data">
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colMaTiepNhan').colShow">
+                                            <a v-bind:href="'#/DanhSachPhieuTiepNhan?'+itemBCChiTiet.MaPhieuTiepNhan" target="_blank">{{itemBCChiTiet.MaPhieuTiepNhan}}</a>
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colNgayTiepNhan').colShow">
+                                            {{moment(itemBCChiTiet.NgayVaoXuong).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colBienSo').colShow">
+                                            <a v-bind:href="'#/' + VHeader.UrlPage.DanhSachXe + '?'+itemBCChiTiet.BienSo" target="_blank">{{itemBCChiTiet.BienSo}}</a>
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colMaKhachHang').colShow">
+                                            {{itemBCChiTiet.MaDoiTuong}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTenKhachHang').colShow">
+                                            {{itemBCChiTiet.TenDoiTuong}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colCoVanDichVu').colShow">
+                                            {{itemBCChiTiet.CoVanDichVu}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colMaHoaDon').colShow">
+                                            {{itemBCChiTiet.MaHoaDon}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colNgayLapHoaDon').colShow">
+                                            {{ itemBCChiTiet.NgayLapHoaDon === null ? '' : moment(itemBCChiTiet.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colMaHangHoa').colShow">
+                                            {{itemBCChiTiet.MaHangHoa}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTenHangHoa').colShow">
+                                            {{itemBCChiTiet.TenHangHoa}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colDonViTinh').colShow">
+                                            {{itemBCChiTiet.TenDonViTinh}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colSoLuong').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.SoLuong)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colGiaBan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.DonGia, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colChietKhau').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.TienChietKhau, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colThanhTien').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.ThanhTien, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colGiamGiaHD').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.GiamGia, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.DoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTienThue').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.TienThue, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.TienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.ChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCChiTiet.LoiNhuan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colGhiChu').colShow">
+                                            {{itemBCChiTiet.GhiChu}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTenChiNhanh').colShow">
+                                            {{itemBCChiTiet.TenDonVi}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-if="BaoCaoChiTiet.dataAll.length > 0" style="background-color: #d1d2d9;">
+                                    <tr style="font-weight: bold;">
+                                        <td v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true && p.index <= 12).length">Tổng cộng</td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colChietKhau').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SChietKhau, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colThanhTien').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SThanhTien, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colGiamGiaHD').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SGiamGia, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SDoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTienThue').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SThue, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].STongTienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoChiTietHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoChiTiet.dataAll[0].SLoiNhuan, 0)}}
+                                        </td>
+                                        <td v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true && p.index >= 20).length"></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoChiTiet.dataAll.length<=0">
+                                    <tr>
+                                        <td class="text-center" v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <page-list v-bind:pagesize="BaoCaoChiTiet.PageSize"
+                                   v-bind:listpage="BaoCaoChiTiet.ListPage" v-bind:currentpage="BaoCaoChiTiet.currentPage" v-bind:pageview="BaoCaoChiTiet.PageView"
+                                   v-bind:numberofpage="BaoCaoChiTiet.NumberOfPage"
+                                   v-on:pageselected="BaoCaoChiTietPageChange"></page-list>
+                    </div>
+                    <!---------------Theo xe--------------->
+                    <div class="result tab-pane " id="theoxe" v-bind:class="{ active: LoaiBaoCao==3 }">
+                        <div class="table-frame">
+                            <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in BaoCaoTheoXeHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(itemBCTheoXe, key) in BaoCaoTheoXe.data">
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colBienSo').colShow">
+                                            <a v-bind:href="'#/' + VHeader.UrlPage.DanhSachXe + '?'+itemBCTheoXe.BienSo" target="_blank">{{itemBCTheoXe.BienSo}}</a>
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoKhung').colShow">
+                                            {{itemBCTheoXe.SoKhung}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoMay').colShow">
+                                            {{itemBCTheoXe.SoMay}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colChuXe').colShow">
+                                            {{itemBCTheoXe.TenDoiTuong}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoDienThoai').colShow">
+                                            {{itemBCTheoXe.DienThoai}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoLanTiepNhan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoXe.SoLanTiepNhan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoLuongHoaDon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoXe.SoLuongHoaDon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colTongDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoXe.TongDoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoXe.TongTienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoXe.ChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoXe.LoiNhuan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colNgayGiaoDichGanNhat').colShow">
+                                            {{moment(itemBCTheoXe.NgayGiaoDichGanNhat).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colTenChiNhanh').colShow">
+                                            {{itemBCTheoXe.TenDonVi}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-if="BaoCaoTheoXe.dataAll.length > 0" style="background-color: #d1d2d9;">
+                                    <tr style="font-weight: bold;">
+                                        <td v-bind:colspan="BaoCaoTheoXeHeader.filter(p=>p.colShow === true && p.index <= 4).length">Tổng cộng</td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoLanTiepNhan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoXe.dataAll[0].SSoLanTiepNhan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colSoLuongHoaDon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoXe.dataAll[0].SSoLuongHoaDon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colTongDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoXe.dataAll[0].STongDoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoXe.dataAll[0].STienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoXe.dataAll[0].SChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoXeHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoXe.dataAll[0].SLoiNhuan, 0)}}
+                                        </td>
+                                        <td v-bind:colspan="BaoCaoTheoXeHeader.filter(p=>p.colShow === true && p.index >= 10).length"></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoTheoXe.dataAll.length<=0">
+                                    <tr>
+                                        <td class="text-center" v-bind:colspan="BaoCaoTheoXeHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <page-list v-bind:pagesize="BaoCaoTheoXe.PageSize"
+                                   v-bind:listpage="BaoCaoTheoXe.ListPage" v-bind:currentpage="BaoCaoTheoXe.currentPage" v-bind:pageview="BaoCaoTheoXe.PageView"
+                                   v-bind:numberofpage="BaoCaoTheoXe.NumberOfPage"
+                                   v-on:pageselected="BaoCaoTheoXePageChange"></page-list>
+                    </div>
+                    <!---------------Theo cố vấn dịch vụ--------------->
+                    <div class="result tab-pane " id="covan" v-bind:class="{ active: LoaiBaoCao==4 }">
+                        <div class="table-frame">
+                            <table class="table-res" v-bind:style="{ filter: isLoading === true ? 'blur(3px)' : '' }">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in BaoCaoTheoCoVanHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(itemBCTheoCoVan, key) in BaoCaoTheoCoVan.data">
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colMaCoVan').colShow">
+                                            {{itemBCTheoCoVan.MaNhanVien}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colTenCoVan').colShow">
+                                            {{itemBCTheoCoVan.TenNhanVien}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colSoLanTiepNhan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoCoVan.SoLanTiepNhan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colSoLuongHoaDon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoCoVan.SoLuongHoaDon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colTongDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoCoVan.TongDoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoCoVan.TongTienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoCoVan.ChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(itemBCTheoCoVan.LoiNhuan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colNgayGiaoDichGanNhat').colShow">
+                                            {{moment(itemBCTheoCoVan.NgayGiaoDichGanNhat).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colTenChiNhanh').colShow">
+                                            {{itemBCTheoCoVan.TenDonVi}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-if="BaoCaoTheoCoVan.dataAll.length > 0" style="background-color: #d1d2d9;">
+                                    <tr style="font-weight: bold;">
+                                        <td v-bind:colspan="BaoCaoTheoCoVanHeader.filter(p=>p.colShow === true && p.index <= 1).length">Tổng cộng</td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colSoLanTiepNhan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoCoVan.dataAll[0].SSoLanTiepNhan, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colSoLuongHoaDon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoCoVan.dataAll[0].SSoLuongHoaDon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colTongDoanhThu').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoCoVan.dataAll[0].STongDoanhThu, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colTongTienVon').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoCoVan.dataAll[0].STienVon, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colChiPhi').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoCoVan.dataAll[0].SChiPhi, 0)}}
+                                        </td>
+                                        <td v-if="BaoCaoTheoCoVanHeader.find(p => p.colName === 'colLoiNhuan').colShow" style="text-align: right">
+                                            {{commonStatisJs.FormatNumber3Digit(BaoCaoTheoCoVan.dataAll[0].SLoiNhuan, 0)}}
+                                        </td>
+                                        <td v-bind:colspan="BaoCaoTheoCoVanHeader.filter(p=>p.colShow === true && p.index >= 7).length"></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-show="BaoCaoTheoCoVan.dataAll.length<=0">
+                                    <tr>
+                                        <td class="text-center" v-bind:colspan="BaoCaoTheoCoVanHeader.filter(p=>p.colShow === true).length"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <page-list v-bind:pagesize="BaoCaoTheoCoVan.PageSize"
+                                   v-bind:listpage="BaoCaoTheoCoVan.ListPage" v-bind:currentpage="BaoCaoTheoCoVan.currentPage" v-bind:pageview="BaoCaoTheoCoVan.PageView"
+                                   v-bind:numberofpage="BaoCaoTheoCoVan.NumberOfPage"
+                                   v-on:pageselected="BaoCaoTheoCoVanPageChange"></page-list>
+                    </div>
+                    <div class="table-loading" style="top:calc(50% - 25px)" v-if="isLoading === true">
+                        <div class="loading">
+                        </div>
+                        <div style="text-align: center;font-size: 18px;padding: 5px;">
+                            Đang tải dữ liệu, vui lòng chờ ...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("~/Views/Gara/BaoCao/_Gara_NhatKyGiaoDich.cshtml")
+    <script src="~/Scripts/Components/filter-chinhanh.js"></script>
+    <script src="~/Scripts/Components/filter-datetime.js"></script>
+    <script src="~/Scripts/Components/page-list.js"></script>
+    <script src="~/Scripts/BanHang/Public.js"></script>
+    <script src="~/Scripts/Components/treeview.js"></script>
+    <script>
+        var VueReport = new Vue({
+            el: '#garaReport',
+            data: {
+                urlApi: {
+                    ChiNhanhApi: '/api/DanhMuc/DM_DonViAPI/',
+                    DoiTuongApi: '/api/DanhMuc/DM_DoiTuongAPI/',
+                    GaraApi: '/api/DanhMuc/GaraAPI/',
+                    ReportApi: '/api/DanhMuc/ReportAPI/',
+                    NhomHangHoaApi: '/api/DanhMuc/DM_NhomHangHoaAPI/'
+                },
+                LoaiBaoCao: '1',
+                BaoCaoTieuDe: 'Báo cáo doanh thu sửa chữa tổng hợp',
+                BaoCaoThoiGianText: '',
+                listChiNhanh: [],
+                ThoiGianTypeTime: 0,
+                ThoiGianFrom: '',
+                ThoiGianTo: '',
+                SoLanTiepNhanFrom: '',
+                SoLanTiepNhanTo: '',
+                SoLuongHoaDonFrom: '',
+                SoLuongHoaDonTo: '',
+                DoanhThuFrom: '',
+                DoanhThuTo: '',
+                LoiNhuanFrom: '',
+                LoiNhuanTo: '',
+                TextSearch: '',
+                BaoCaoTongHopHeader: [],
+                BaoCaoTongHop: {
+                    dataAll: [],
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                    reLoad: true
+                },
+                BaoCaoChiTietHeader: [],
+                BaoCaoChiTiet: {
+                    dataAll: [],
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                    reLoad: true
+                },
+                BaoCaoTheoXeHeader: [],
+                BaoCaoTheoXe: {
+                    dataAll: [],
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                    reLoad: true
+                },
+                BaoCaoTheoCoVanHeader: [],
+                BaoCaoTheoCoVan: {
+                    dataAll: [],
+                    data: [],
+                    ListPage: [1],
+                    PageView: "",
+                    NumberOfPage: 1,
+                    currentPage: 1,
+                    PageSize: 10,
+                    reLoad: true
+                },
+                isLoading: true,
+                onRefresh: true,
+                NhomHangHoa: [],
+                NhomHangHoaSearch: '',
+                IdNhomHangHoaSelected: ''
+            },
+            methods: {
+                LoadChiNhanh: function () {
+                    let self = this;
+                    $.ajax({
+                        url: self.urlApi.ChiNhanhApi + "GetListDonVi_User",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data !== null) {
+                                data.map(function (item) {
+                                    if (item['ID'] === VHeader.IdDonVi) {
+                                        item['CNChecked'] = true;
+                                    }
+                                    else {
+                                        item['CNChecked'] = false;
+                                    }
+                                });
+                                self.listChiNhanh = data;
+                                self.LoadData();
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                LoadNhomHangHoa: function () {
+                    let self = this;
+                    $.ajax({
+                        url: self.urlApi.NhomHangHoaApi + "GetAllDMNhomHangHoa",
+                        type: 'GET',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data !== null) {
+                                self.NhomHangHoa = data.dataSoure.data;
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+                SelectNhomHangHoa: function(value){
+                    let self = this;
+                    self.IdNhomHangHoaSelected = value;
+                    self.BaoCaoChiTiet.reLoad = true;
+                    self.LoadData();
+                },
+                TreeFilter: function (data, text) {
+                    let self = this;
+                    var r = data.filter(function (o) {
+                        if (o.children) o.children = self.TreeFilter(o.children, text);
+                        return commonStatisJs.convertVieToEng(o.Item.Text).match(text);
+                    })
+                    return r;
+                },
+                BeforeLoadData: function () {
+                    this.BaoCaoTongHop.reLoad = true;
+                    this.BaoCaoChiTiet.reLoad = true;
+                    this.BaoCaoTheoXe.reLoad = true;
+                    this.BaoCaoTheoCoVan.reLoad = true;
+                    this.LoadData();
+                },
+                LoadData: function () {
+                    let self = this;
+                    self.isLoading = true;
+                    if (self.LoaiBaoCao === '1') {
+                        self.BaoCaoTieuDe = 'Báo cáo doanh thu sửa chữa tổng hợp';
+                        self.LoadBaoCaoTongHop();
+                    }
+                    else if (self.LoaiBaoCao === '2') {
+                        self.BaoCaoTieuDe = 'Báo cáo doanh thu sửa chữa chi tiết';
+                        self.LoadBaoCaoChiTiet();
+                    }
+                    else if (self.LoaiBaoCao === '3') {
+                        self.BaoCaoTieuDe = 'Báo cáo doanh thu theo xe';
+                        self.LoadBaoCaoTheoXe();
+                    }
+                    else if (self.LoaiBaoCao === '4') {
+                        self.BaoCaoTieuDe = 'Báo cáo doanh thu cố vấn dịch vụ';
+                        self.LoadBaoCaoTheoCoVan();
+                    }
+                    self.onRefresh = false;
+                },
+                LoadBaoCaoTongHop: function () {
+                    let self = this;
+                    if (self.BaoCaoTongHop.reLoad) {
+                        let myData = {};
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);;
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        $.ajax({
+                            url: self.urlApi.ReportApi + "GetBaoCaoDoanhThuSuaChuaTongHop",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.BaoCaoTongHop.dataAll = data.dataSoure.data;
+                                    self.BaoCaoTongHop.currentPage = 1;
+                                    self.BaoCaoTongHop.data = self.BaoCaoTongHop.dataAll.slice((self.BaoCaoTongHop.currentPage - 1) * self.BaoCaoTongHop.PageSize, self.BaoCaoTongHop.PageSize);
+                                    self.GetPageValue();
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                                self.isLoading = false;
+                            }
+                        });
+                        self.BaoCaoTongHop.reLoad = false;
+                    }
+                    else {
+                        self.isLoading = false;
+                    }
+                },
+                LoadBaoCaoChiTiet: function () {
+                    let self = this;
+                    if (self.BaoCaoChiTiet.reLoad) {
+                        let myData = {};
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);;
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        myData.IdNhomHangHoa = self.IdNhomHangHoaSelected;
+                        $.ajax({
+                            url: self.urlApi.ReportApi + "GetBaoCaoDoanhThuSuaChuaChiTiet",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.BaoCaoChiTiet.dataAll = data.dataSoure.data;
+                                    self.BaoCaoChiTiet.currentPage = 1;
+                                    self.BaoCaoChiTiet.data = self.BaoCaoChiTiet.dataAll.slice((self.BaoCaoChiTiet.currentPage - 1) * self.BaoCaoChiTiet.PageSize, self.BaoCaoChiTiet.PageSize);
+                                    self.GetPageValue();
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                                self.isLoading = false;
+                            }
+                        });
+                        self.BaoCaoChiTiet.reLoad = false;
+                    }
+                    else {
+                        self.isLoading = false;
+                    }
+                },
+                LoadBaoCaoTheoXe: function () {
+                    let self = this;
+                    if (self.BaoCaoTheoXe.reLoad) {
+                        let myData = {};
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);;
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.SoLanTiepNhanFrom = self.SoLanTiepNhanFrom.replace(/,/gi, '');
+                        myData.SoLanTiepNhanTo = self.SoLanTiepNhanTo.replace(/,/gi, '');
+                        myData.SoLuongHoaDonFrom = self.SoLuongHoaDonFrom.replace(/,/gi, '');
+                        myData.SoLuongHoaDonTo = self.SoLuongHoaDonTo.replace(/,/gi, '');
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        $.ajax({
+                            url: self.urlApi.ReportApi + "GetBaoCaoDoanhThuSuaChuaTheoXe",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.BaoCaoTheoXe.dataAll = data.dataSoure.data;
+                                    self.BaoCaoTheoXe.currentPage = 1;
+                                    self.BaoCaoTheoXe.data = self.BaoCaoTheoXe.dataAll.slice((self.BaoCaoTheoXe.currentPage - 1) * self.BaoCaoTheoXe.PageSize, self.BaoCaoTheoXe.PageSize);
+                                    self.GetPageValue();
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                                self.isLoading = false;
+                            }
+                        });
+                        self.BaoCaoTheoXe.reLoad = false;
+                    }
+                    else {
+                        self.isLoading = false;
+                    }
+                },
+                LoadBaoCaoTheoCoVan: function () {
+                    let self = this;
+                    if (self.BaoCaoTheoCoVan.reLoad) {
+                        let myData = {};
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);;
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.SoLanTiepNhanFrom = self.SoLanTiepNhanFrom.replace(/,/gi, '');
+                        myData.SoLanTiepNhanTo = self.SoLanTiepNhanTo.replace(/,/gi, '');
+                        myData.SoLuongHoaDonFrom = self.SoLuongHoaDonFrom.replace(/,/gi, '');
+                        myData.SoLuongHoaDonTo = self.SoLuongHoaDonTo.replace(/,/gi, '');
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        $.ajax({
+                            url: self.urlApi.ReportApi + "GetBaoCaoDoanhThuSuaChuaTheoCoVan",
+                            type: 'POST',
+                            dataType: 'json',
+                            data: myData,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (data) {
+                                if (data.res === true) {
+                                    self.BaoCaoTheoCoVan.dataAll = data.dataSoure.data;
+                                    self.BaoCaoTheoCoVan.currentPage = 1;
+                                    self.BaoCaoTheoCoVan.data = self.BaoCaoTheoCoVan.dataAll.slice((self.BaoCaoTheoCoVan.currentPage - 1) * self.BaoCaoTheoCoVan.PageSize, self.BaoCaoTheoCoVan.PageSize);
+                                    self.GetPageValue();
+                                }
+                                else {
+                                    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                                }
+                                self.isLoading = false;
+                            }
+                        });
+                        self.BaoCaoTheoCoVan.reLoad = false;
+                    }
+                    else {
+                        self.isLoading = false;
+                    }
+                },
+                BaoCaoTongHopPageChange: function (value) {
+                    let self = this;
+                    if (self.BaoCaoTongHop.currentPage !== value.currentPage) {
+                        self.BaoCaoTongHop.currentPage = value.currentPage;
+                        self.BaoCaoTongHop.data = self.BaoCaoTongHop.dataAll.slice((self.BaoCaoTongHop.currentPage - 1) * self.BaoCaoTongHop.PageSize, self.BaoCaoTongHop.PageSize * self.BaoCaoTongHop.currentPage);
+                        self.GetPageValue();
+                    } else if (self.BaoCaoTongHop.PageSize !== value.pageSize) {
+                        self.BaoCaoTongHop.currentPage = 1;
+                        self.BaoCaoTongHop.PageSize = value.pageSize;
+                        self.BaoCaoTongHop.data = self.BaoCaoTongHop.dataAll.slice((self.BaoCaoTongHop.currentPage - 1) * self.BaoCaoTongHop.PageSize, self.BaoCaoTongHop.PageSize * self.BaoCaoTongHop.currentPage);
+                        self.GetPageValue();
+                    }
+                },
+                BaoCaoChiTietPageChange: function (value) {
+                    let self = this;
+                    if (self.BaoCaoChiTiet.currentPage !== value.currentPage) {
+                        self.BaoCaoChiTiet.currentPage = value.currentPage;
+                        self.BaoCaoChiTiet.data = self.BaoCaoChiTiet.dataAll.slice((self.BaoCaoChiTiet.currentPage - 1) * self.BaoCaoChiTiet.PageSize, self.BaoCaoChiTiet.PageSize * self.BaoCaoChiTiet.currentPage);
+                        self.GetPageValue();
+                    } else if (self.BaoCaoChiTiet.PageSize !== value.pageSize) {
+                        self.BaoCaoChiTiet.currentPage = 1;
+                        self.BaoCaoChiTiet.PageSize = value.pageSize;
+                        self.BaoCaoChiTiet.data = self.BaoCaoChiTiet.dataAll.slice((self.BaoCaoChiTiet.currentPage - 1) * self.BaoCaoChiTiet.PageSize, self.BaoCaoChiTiet.PageSize * self.BaoCaoChiTiet.currentPage);
+                        self.GetPageValue();
+                    }
+                },
+                BaoCaoTheoXePageChange: function (value) {
+                    let self = this;
+                    if (self.BaoCaoTheoXe.currentPage !== value.currentPage) {
+                        self.BaoCaoTheoXe.currentPage = value.currentPage;
+                        self.BaoCaoTheoXe.data = self.BaoCaoTheoXe.dataAll.slice((self.BaoCaoTheoXe.currentPage - 1) * self.BaoCaoTheoXe.PageSize, self.BaoCaoTheoXe.PageSize * self.BaoCaoTheoXe.currentPage);
+                        self.GetPageValue();
+                    } else if (self.BaoCaoTheoXe.PageSize !== value.pageSize) {
+                        self.BaoCaoTheoXe.currentPage = 1;
+                        self.BaoCaoTheoXe.PageSize = value.pageSize;
+                        self.BaoCaoTheoXe.data = self.BaoCaoTheoXe.dataAll.slice((self.BaoCaoTheoXe.currentPage - 1) * self.BaoCaoTheoXe.PageSize, self.BaoCaoTheoXe.PageSize * self.BaoCaoTheoXe.currentPage);
+                        self.GetPageValue();
+                    }
+                },
+                BaoCaoTheoCoVanPageChange: function (value) {
+                    let self = this;
+                    if (self.BaoCaoTheoCoVan.currentPage !== value.currentPage) {
+                        self.BaoCaoTheoCoVan.currentPage = value.currentPage;
+                        self.BaoCaoTheoCoVan.data = self.BaoCaoTheoCoVan.dataAll.slice((self.BaoCaoTheoCoVan.currentPage - 1) * self.BaoCaoTheoCoVan.PageSize, self.BaoCaoTheoCoVan.PageSize * self.BaoCaoTheoCoVan.currentPage);
+                        self.GetPageValue();
+                    } else if (self.BaoCaoTheoCoVan.PageSize !== value.pageSize) {
+                        self.BaoCaoTheoCoVan.currentPage = 1;
+                        self.BaoCaoTheoCoVan.PageSize = value.pageSize;
+                        self.BaoCaoTheoCoVan.data = self.BaoCaoTheoCoVan.dataAll.slice((self.BaoCaoTheoCoVan.currentPage - 1) * self.BaoCaoTheoCoVan.PageSize, self.BaoCaoTheoCoVan.PageSize * self.BaoCaoTheoCoVan.currentPage);
+                        self.GetPageValue();
+                    }
+                },
+                onCallThoiGian: function (value) {
+                    let self = this;
+                    if (self.ThoiGianFrom !== value.fromdate || self.ThoiGianTo !== value.todate) {
+                        this.BaoCaoTongHop.reLoad = true;
+                        this.BaoCaoChiTiet.reLoad = true;
+                        this.BaoCaoTheoXe.reLoad = true;
+                        this.BaoCaoTheoCoVan.reLoad = true;
+                        if (value.fromdate !== '2016-01-01') {
+                            self.ThoiGianFrom = value.fromdate;
+                            self.ThoiGianTo = value.todate;
+                            self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.ThoiGianFrom).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.ThoiGianTo).add(-1, 'days').format('DD/MM/YYYY');
+                        }
+                        else {
+                            self.ThoiGianFrom = '';
+                            self.ThoiGianTo = '';
+                            self.BaoCaoThoiGianText = 'Toàn thời gian';
+                        }
+                        if (self.onRefresh === false)
+                            self.LoadData();
+                    }
+                    self.ThoiGianTypeTime = value.radioselect;
+                },
+                InitBaoCaoTongHopHeader: function () {
+                    return [{ colName: 'colMaTiepNhan', colText: 'Mã tiếp nhận', colShow: true, index: 0 },
+                    { colName: 'colNgayTiepNhan', colText: 'Ngày tiếp nhận', colShow: true, index: 1 },
+                    { colName: 'colBienSo', colText: 'Biển số xe', colShow: true, index: 2 },
+                    { colName: 'colMaKhachHang', colText: 'Mã khách hàng', colShow: true, index: 3 },
+                    { colName: 'colTenKhachHang', colText: 'Tên khách hàng', colShow: true, index: 4 },
+                    { colName: 'colCoVanDichVu', colText: 'Cố vấn dịch vụ', colShow: true, index: 5 },
+                    { colName: 'colMaHoaDon', colText: 'Mã hóa đơn', colShow: true, index: 6 },
+                    { colName: 'colNgayLapHoaDon', colText: 'Ngày lập hóa đơn', colShow: true, index: 7 },
+                    { colName: 'colTongTienHang', colText: 'Tổng tiền hàng', colShow: true, index: 8 },
+                    { colName: 'colChietKhau', colText: 'Chiết khấu', colShow: true, index: 9 },
+                    { colName: 'colGiamGia', colText: 'Giảm giá', colShow: true, index: 10 },
+                        { colName: 'colDoanhThu', colText: 'Doanh thu', colShow: true, index: 11 },
+                        { colName: 'colThue', colText: 'Thuế', colShow: true, index: 12 },
+                        { colName: 'colTongTienVon', colText: 'Tổng tiền vốn', colShow: true, index: 13 },
+                        { colName: 'colChiPhi', colText: 'Chi phí', colShow: true, index: 14 },
+                    { colName: 'colLoiNhuan', colText: 'Lợi nhuận', colShow: true, index: 15 },
+                    { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 16 },
+                    { colName: 'colTenChiNhanh', colText: 'Chi nhánh', colShow: true, index: 17 }];
+                },
+                InitBaoCaoChiTietHeader: function () {
+                    return [{ colName: 'colMaTiepNhan', colText: 'Mã tiếp nhận', colShow: true, index: 0 },
+                    { colName: 'colNgayTiepNhan', colText: 'Ngày tiếp nhận', colShow: true, index: 1 },
+                    { colName: 'colBienSo', colText: 'Biển số xe', colShow: true, index: 2 },
+                    { colName: 'colMaKhachHang', colText: 'Mã khách hàng', colShow: true, index: 3 },
+                    { colName: 'colTenKhachHang', colText: 'Tên khách hàng', colShow: true, index: 4 },
+                    { colName: 'colCoVanDichVu', colText: 'Cố vấn dịch vụ', colShow: true, index: 5 },
+                    { colName: 'colMaHoaDon', colText: 'Mã hóa đơn', colShow: true, index: 6 },
+                    { colName: 'colNgayLapHoaDon', colText: 'Ngày lập hóa đơn', colShow: true, index: 7 },
+                    { colName: 'colMaHangHoa', colText: 'Mã hàng hóa', colShow: true, index: 8 },
+                    { colName: 'colTenHangHoa', colText: 'Tên hàng hóa', colShow: true, index: 9 },
+                    { colName: 'colDonViTinh', colText: 'Đơn vị tính', colShow: true, index: 10 },
+                    { colName: 'colSoLuong', colText: 'Số lượng', colShow: true, index: 11 },
+                    { colName: 'colGiaBan', colText: 'Giá bán', colShow: true, index: 12 },
+                    { colName: 'colChietKhau', colText: 'Chiết khấu', colShow: true, index: 13 },
+                    { colName: 'colThanhTien', colText: 'Thành tiền', colShow: true, index: 14 },
+                    { colName: 'colGiamGiaHD', colText: 'Giảm giá HĐ', colShow: true, index: 15 },
+                        { colName: 'colDoanhThu', colText: 'Doanh thu', colShow: true, index: 16 },
+                        { colName: 'colTienThue', colText: 'Tiền thuế', colShow: true, index: 17 },
+                        { colName: 'colTongTienVon', colText: 'Tổng tiền vốn', colShow: true, index: 18 },
+                        { colName: 'colChiPhi', colText: 'Chi phí', colShow: true, index: 19 },
+                    { colName: 'colLoiNhuan', colText: 'Lợi nhuận', colShow: true, index: 20 },
+                    { colName: 'colGhiChu', colText: 'Ghi chú', colShow: true, index: 21 },
+                    { colName: 'colTenChiNhanh', colText: 'Tên chi nhánh', colShow: true, index: 22 }];
+                },
+                InitBaoCaoTheoXeHeader: function () {
+                    return [{ colName: 'colBienSo', colText: 'Biển số', colShow: true, index: 0 },
+                    { colName: 'colSoKhung', colText: 'Số khung', colShow: true, index: 1 },
+                    { colName: 'colSoMay', colText: 'Số máy', colShow: true, index: 2 },
+                    { colName: 'colChuXe', colText: 'Chủ xe', colShow: true, index: 3 },
+                    { colName: 'colSoDienThoai', colText: 'Số điện thoại', colShow: true, index: 4 },
+                    { colName: 'colSoLanTiepNhan', colText: 'Số lần tiếp nhận', colShow: true, index: 5 },
+                    { colName: 'colSoLuongHoaDon', colText: 'Số lượng hóa đơn', colShow: true, index: 6 },
+                    { colName: 'colTongDoanhThu', colText: 'Tổng doanh thu', colShow: true, index: 7 },
+                        { colName: 'colTongTienVon', colText: 'Tổng tiền vốn', colShow: true, index: 8 },
+                        { colName: 'colChiPhi', colText: 'Chi phí', colShow: true, index: 9 },
+                    { colName: 'colLoiNhuan', colText: 'Lợi nhuận', colShow: true, index: 10 },
+                    { colName: 'colNgayGiaoDichGanNhat', colText: 'Giao dịch gần nhất', colShow: true, index: 11 },
+                    { colName: 'colTenChiNhanh', colText: 'Tên chi nhánh', colShow: true, index: 12 }];
+                },
+                InitBaoCaoTheoCoVanHeader: function () {
+                    return [{ colName: 'colMaCoVan', colText: 'Mã cố vấn', colShow: true, index: 0 },
+                    { colName: 'colTenCoVan', colText: 'Tên cố vấn', colShow: true, index: 1 },
+                    { colName: 'colSoLanTiepNhan', colText: 'Số lần tiếp nhận', colShow: true, index: 2 },
+                    { colName: 'colSoLuongHoaDon', colText: 'Số lượng hóa đơn', colShow: true, index: 3 },
+                    { colName: 'colTongDoanhThu', colText: 'Tổng doanh thu', colShow: true, index: 4 },
+                        { colName: 'colTongTienVon', colText: 'Tổng tiền vốn', colShow: true, index: 5 },
+                        { colName: 'colChiPhi', colText: 'Chi phí', colShow: true, index: 6 },
+                    { colName: 'colLoiNhuan', colText: 'Lợi nhuận', colShow: true, index: 7 },
+                    { colName: 'colNgayGiaoDichGanNhat', colText: 'Giao dịch gần nhất', colShow: true, index: 8 },
+                    { colName: 'colTenChiNhanh', colText: 'Tên chi nhánh', colShow: true, index: 9 }];
+                },
+                GetListHeader: function () {
+                    let self = this;
+                    if (self.LoaiBaoCao === '1') {
+                        return self.BaoCaoTongHopHeader;
+                    }
+                    else if (self.LoaiBaoCao === '2') {
+                        return self.BaoCaoChiTietHeader;
+                    }
+                    else if (self.LoaiBaoCao === '3') {
+                        return self.BaoCaoTheoXeHeader;
+                    }
+                    else if (self.LoaiBaoCao === '4') {
+                        return self.BaoCaoTheoCoVanHeader;
+                    }
+                },
+                GetPageValue: function () {
+                    let self = this;
+                    if (self.LoaiBaoCao === '1') {
+                        var hienthiFrom = ((self.BaoCaoTongHop.currentPage - 1) * self.BaoCaoTongHop.PageSize) + 1;
+                        var hienthiTo = '';
+                        var sobanghi = self.BaoCaoTongHop.dataAll.length;
+                        if (self.BaoCaoTongHop.currentPage * self.BaoCaoTongHop.PageSize < sobanghi) {
+                            hienthiTo = self.BaoCaoTongHop.currentPage * self.BaoCaoTongHop.PageSize;
+                        }
+                        else {
+                            hienthiTo = sobanghi;
+                        }
+                        self.BaoCaoTongHop.PageView = 'Hiển thị ' + hienthiFrom + ' - ' + hienthiTo + ' trên tổng số ' + sobanghi + ' bản ghi';
+                        self.BaoCaoTongHop.NumberOfPage = Math.ceil(sobanghi / self.BaoCaoTongHop.PageSize);
+                        self.BaoCaoTongHop.ListPage = self.GetPageList(self.BaoCaoTongHop.NumberOfPage, self.BaoCaoTongHop.currentPage);
+                    }
+                    else if (self.LoaiBaoCao === '2') {
+                        var hienthiFrom = ((self.BaoCaoChiTiet.currentPage - 1) * self.BaoCaoChiTiet.PageSize) + 1;
+                        var hienthiTo = '';
+                        var sobanghi = self.BaoCaoChiTiet.dataAll.length;
+                        if (self.BaoCaoChiTiet.currentPage * self.BaoCaoChiTiet.PageSize < sobanghi) {
+                            hienthiTo = self.BaoCaoChiTiet.currentPage * self.BaoCaoChiTiet.PageSize;
+                        }
+                        else {
+                            hienthiTo = sobanghi;
+                        }
+                        self.BaoCaoChiTiet.PageView = 'Hiển thị ' + hienthiFrom + ' - ' + hienthiTo + ' trên tổng số ' + sobanghi + ' bản ghi';
+                        self.BaoCaoChiTiet.NumberOfPage = Math.ceil(sobanghi / self.BaoCaoChiTiet.PageSize);
+                        self.BaoCaoChiTiet.ListPage = self.GetPageList(self.BaoCaoChiTiet.NumberOfPage, self.BaoCaoChiTiet.currentPage);
+                    }
+                    else if (self.LoaiBaoCao === '3') {
+                        var hienthiFrom = ((self.BaoCaoTheoXe.currentPage - 1) * self.BaoCaoTheoXe.PageSize) + 1;
+                        var hienthiTo = '';
+                        var sobanghi = self.BaoCaoTheoXe.dataAll.length;
+                        if (self.BaoCaoTheoXe.currentPage * self.BaoCaoTheoXe.PageSize < sobanghi) {
+                            hienthiTo = self.BaoCaoTheoXe.currentPage * self.BaoCaoTheoXe.PageSize;
+                        }
+                        else {
+                            hienthiTo = sobanghi;
+                        }
+                        self.BaoCaoTheoXe.PageView = 'Hiển thị ' + hienthiFrom + ' - ' + hienthiTo + ' trên tổng số ' + sobanghi + ' bản ghi';
+                        self.BaoCaoTheoXe.NumberOfPage = Math.ceil(sobanghi / self.BaoCaoTheoXe.PageSize);
+                        self.BaoCaoTheoXe.ListPage = self.GetPageList(self.BaoCaoTheoXe.NumberOfPage, self.BaoCaoTheoXe.currentPage);
+                    }
+                    else if (self.LoaiBaoCao === '4') {
+                        var hienthiFrom = ((self.BaoCaoTheoCoVan.currentPage - 1) * self.BaoCaoTheoCoVan.PageSize) + 1;
+                        var hienthiTo = '';
+                        var sobanghi = self.BaoCaoTheoCoVan.dataAll.length;
+                        if (self.BaoCaoTheoCoVan.currentPage * self.BaoCaoTheoCoVan.PageSize < sobanghi) {
+                            hienthiTo = self.BaoCaoTheoCoVan.currentPage * self.BaoCaoTheoCoVan.PageSize;
+                        }
+                        else {
+                            hienthiTo = sobanghi;
+                        }
+                        self.BaoCaoTheoCoVan.PageView = 'Hiển thị ' + hienthiFrom + ' - ' + hienthiTo + ' trên tổng số ' + sobanghi + ' bản ghi';
+                        self.BaoCaoTheoCoVan.NumberOfPage = Math.ceil(sobanghi / self.BaoCaoTheoCoVan.PageSize);
+                        self.BaoCaoTheoCoVan.ListPage = self.GetPageList(self.BaoCaoTheoCoVan.NumberOfPage, self.BaoCaoTheoCoVan.currentPage);
+                    }
+                },
+                GetPageList: function (NumberOfPage, currentPage) {
+                    let page = NumberOfPage;
+                    let pagenow = currentPage;
+                    let listpage = [];
+                    if (page > 5) {
+                        if (pagenow > 2 && pagenow < (page - 2)) {
+                            listpage = Array.from({ length: 5 }, (x, i) => i + pagenow - 2);
+                        }
+                        else if (pagenow >= (page - 2)) {
+                            if (pagenow !== page) {
+                                listpage = Array.from({ length: 5 }, (x, i) => i + pagenow - 3);
+                            }
+                            else {
+                                listpage = Array.from({ length: 5 }, (x, i) => i + pagenow - 4);
+                            }
+                        }
+                        else {
+                            listpage = [1, 2, 3, 4, 5];
+                        }
+                    }
+                    else {
+                        if (page != 0) {
+                            listpage = Array.from({ length: page }, (x, i) => i + 1);
+                        }
+                    }
+                    return listpage;
+                },
+                EnterKeyup: function (e) {
+                    if (e.keyCode === 13) {
+                        this.BaoCaoTongHop.reLoad = true;
+                        this.BaoCaoChiTiet.reLoad = true;
+                        this.BaoCaoTheoXe.reLoad = true;
+                        this.BaoCaoTheoCoVan.reLoad = true;
+                        this.LoadData();
+                    }
+                },
+                ExportExcel: function () {
+                    let self = this;
+                    let urlExport = '';
+                    let myData = {};
+                    myData.BaoCaoThoiGian = self.BaoCaoThoiGianText;
+                    myData.BaoCaoChiNhanh = 'Chi nhánh: ' + self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString();
+                    if (self.LoaiBaoCao === '1') {
+                        urlExport = 'ExportExcel_GetBaoCaoDoanhThuSuaChuaTongHop';
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        myData.ColHide = self.BaoCaoTongHopHeader.filter(p => p.colShow === false).map(p => p.index);
+                    }
+                    else if (self.LoaiBaoCao === '2') {
+                        urlExport = 'ExportExcel_GetBaoCaoDoanhThuSuaChuaChiTiet';
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        myData.ColHide = self.BaoCaoChiTietHeader.filter(p => p.colShow === false).map(p => p.index);
+                        myData.IdNhomHangHoa = self.IdNhomHangHoaSelected;
+                    }
+                    else if (self.LoaiBaoCao === '3') {
+                        urlExport = 'ExportExcel_GetBaoCaoDoanhThuSuaChuaTheoXe';
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.SoLanTiepNhanFrom = self.SoLanTiepNhanFrom.replace(/,/gi, '');
+                        myData.SoLanTiepNhanTo = self.SoLanTiepNhanTo.replace(/,/gi, '');
+                        myData.SoLuongHoaDonFrom = self.SoLuongHoaDonFrom.replace(/,/gi, '');
+                        myData.SoLuongHoaDonTo = self.SoLuongHoaDonTo.replace(/,/gi, '');
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        myData.ColHide = self.BaoCaoTheoXeHeader.filter(p => p.colShow === false).map(p => p.index);
+                    }
+                    else if (self.LoaiBaoCao === '4') {
+                        urlExport = 'ExportExcel_GetBaoCaoDoanhThuSuaChuaTheoCoVan';
+                        myData.IdChiNhanhs = self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.ID);
+                        myData.ThoiGianFrom = self.ThoiGianFrom;
+                        myData.ThoiGianTo = self.ThoiGianTo;
+                        myData.SoLanTiepNhanFrom = self.SoLanTiepNhanFrom.replace(/,/gi, '');
+                        myData.SoLanTiepNhanTo = self.SoLanTiepNhanTo.replace(/,/gi, '');
+                        myData.SoLuongHoaDonFrom = self.SoLuongHoaDonFrom.replace(/,/gi, '');
+                        myData.SoLuongHoaDonTo = self.SoLuongHoaDonTo.replace(/,/gi, '');
+                        myData.DoanhThuFrom = self.DoanhThuFrom.replace(/,/gi, '');
+                        myData.DoanhThuTo = self.DoanhThuTo.replace(/,/gi, '');
+                        myData.LoiNhuanFrom = self.LoiNhuanFrom.replace(/,/gi, '');
+                        myData.LoiNhuanTo = self.LoiNhuanTo.replace(/,/gi, '');
+                        myData.TextSearch = self.TextSearch;
+                        myData.ColHide = self.BaoCaoTheoCoVanHeader.filter(p => p.colShow === false).map(p => p.index);
+                    }
+                    $.ajax({
+                        url: self.urlApi.ReportApi + urlExport,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            if (data.res === true) {
+                                var url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + data.mess;
+                                window.location.href = url;
+                                commonStatisJs.ShowMessageSuccess("Xuất file thành công.");
+                            }
+                            else {
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                },
+            },
+            created: function () {
+                var self = this;
+                self.LoadChiNhanh();
+                self.LoadNhomHangHoa();
+                if (localStorage.getItem('BaoCaoTongHopHeader') === null) {
+                    self.BaoCaoTongHopHeader = self.InitBaoCaoTongHopHeader();
+                }
+                else {
+                    var localHeader = JSON.parse(localStorage.getItem('BaoCaoTongHopHeader'));
+                    var initHeader = self.InitBaoCaoTongHopHeader();
+                    if (initHeader.length !== localHeader.length || localHeader[14].colName !== "colChiPhi") {
+                        self.BaoCaoTongHopHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            self.BaoCaoTongHopHeader = initHeader;
+                        }
+                        else {
+                            self.BaoCaoTongHopHeader = JSON.parse(localStorage.getItem('BaoCaoTongHopHeader'));
+                        }
+                    }
+                }
+                if (localStorage.getItem('BaoCaoChiTietHeader') === null) {
+                    self.BaoCaoChiTietHeader = self.InitBaoCaoChiTietHeader();
+                }
+                else {
+                    var localHeader = JSON.parse(localStorage.getItem('BaoCaoChiTietHeader'));
+                    var initHeader = self.InitBaoCaoChiTietHeader();
+                    if (initHeader.length !== localHeader.length) {
+                        self.BaoCaoChiTietHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            self.BaoCaoChiTietHeader = initHeader;
+                        }
+                        else {
+                            self.BaoCaoChiTietHeader = JSON.parse(localStorage.getItem('BaoCaoChiTietHeader'));
+                        }
+                    }
+                }
+                if (localStorage.getItem('BaoCaoTheoXeHeader') === null) {
+                    self.BaoCaoTheoXeHeader = self.InitBaoCaoTheoXeHeader();
+                }
+                else {
+                    var localHeader = JSON.parse(localStorage.getItem('BaoCaoTheoXeHeader'));
+                    var initHeader = self.InitBaoCaoTheoXeHeader();
+                    if (initHeader.length !== localHeader.length) {
+                        self.BaoCaoTheoXeHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            self.BaoCaoTheoXeHeader = initHeader;
+                        }
+                        else {
+                            self.BaoCaoTheoXeHeader = JSON.parse(localStorage.getItem('BaoCaoTheoXeHeader'));
+                        }
+                    }
+                }
+                if (localStorage.getItem('BaoCaoTheoCoVanHeader') === null) {
+                    self.BaoCaoTheoCoVanHeader = self.InitBaoCaoTheoCoVanHeader();
+                }
+                else {
+                    var localHeader = JSON.parse(localStorage.getItem('BaoCaoTheoCoVanHeader'));
+                    var initHeader = self.InitBaoCaoTheoCoVanHeader();
+                    if (initHeader.length !== localHeader.length) {
+                        self.BaoCaoTheoCoVanHeader = initHeader;
+                    }
+                    else {
+                        if (Object.keys(initHeader[0]).length !== Object.keys(localHeader[0]).length) {
+                            self.BaoCaoTheoCoVanHeader = initHeader;
+                        }
+                        else {
+                            self.BaoCaoTheoCoVanHeader = JSON.parse(localStorage.getItem('BaoCaoTheoCoVanHeader'));
+                        }
+                    }
+                }
+            },
+            watch: {
+                LoaiBaoCao: {
+                    handler: function () {
+                        this.LoadData();
+                    },
+                    deep: true
+                },
+                BaoCaoTongHopHeader: {
+                    handler: function () {
+                        localStorage.setItem('BaoCaoTongHopHeader', JSON.stringify(this.BaoCaoTongHopHeader));
+                    },
+                    deep: true
+                },
+                BaoCaoChiTietHeader: {
+                    handler: function () {
+                        localStorage.setItem('BaoCaoChiTietHeader', JSON.stringify(this.BaoCaoChiTietHeader));
+                    },
+                    deep: true
+                },
+                BaoCaoTheoXeHeader: {
+                    handler: function () {
+                        localStorage.setItem('BaoCaoTheoXeHeader', JSON.stringify(this.BaoCaoTheoXeHeader));
+                    },
+                    deep: true
+                },
+                BaoCaoTheoCoVanHeader: {
+                    handler: function () {
+                        localStorage.setItem('BaoCaoTheoCoVanHeader', JSON.stringify(this.BaoCaoTheoCoVanHeader));
+                    },
+                    deep: true
+                },
+            },
+        });
+    </script>
+    <script>
+       
+      
+        $(function () {
+            $('.daterange').daterangepicker({
+                drop:"up",
+                locale: {
+                    "format": 'DD/MM/YYYY',
+                    "separator": " - ",
+                    "applyLabel": "Tìm kiếm",
+                    "cancelLabel": "Hủy",
+                    "fromLabel": "Từ",
+                    "toLabel": "Đến",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "CN",
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7"
+                    ],
+                    "monthNames": [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ],
+                    "firstDay": 1
+                }
+            });
+        });
+    </script>
+    <script src="~/Content/js/GaraUI.js"></script>
+</body>
+</html>

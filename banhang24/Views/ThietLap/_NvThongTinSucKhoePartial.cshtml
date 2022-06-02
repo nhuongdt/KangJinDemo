@@ -1,0 +1,145 @@
+﻿<div class="modal fade" id="modalSucKhoe">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Ngày khám (<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="txtNgayKham" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Chiều cao (m)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="number"  v-model="chieucao" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>
+                           Cân nặng (kg)
+                        </label>
+                        <div class="form-news">
+                            <input class="form-control" type="number"  v-model="cannang" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Tình hình sức khỏe</label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="tinhhinhsuckhoe"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveHealth">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmTTSucKhoe = new Vue({
+        el: '#modalSucKhoe',
+        data: {
+            nhanvienId: null,
+            ID:null,
+            chieucao: "",
+            cannang: "",
+            tinhhinhsuckhoe: "",
+            title: "",
+            error:'',
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                $('#modalSucKhoe').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.chieucao = model.ChieuCao;
+                    this.cannang = model.CanNang;
+                    this.tinhhinhsuckhoe = model.TinhHinhSucKhoe;
+                    this.error = "";
+                    $('#txtNgayKham').val(this.convertDate(model.NgayKham));
+                    this.title = "Cập nhật tình trạng sức khỏe";
+                    $('#modalSucKhoe').modal("show");
+                } else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.chieucao = "";
+                this.cannang = "";
+                this.tinhhinhsuckhoe = "";
+                this.error = '';
+                this.title = "Thêm mới tình trạng sức khỏe";
+                $('#txtNgayKham').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            SaveHealth: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull($('#txtNgayKham').val())) {
+                    self.messageError("Vui lòng nhập ngày khám");
+                }
+                else {
+                        var model = {
+                            ID: self.ID,
+                            ID_NhanVien: self.nhanvienId,
+                            NgayKham: commonStatisJs.convertDateToServer($('#txtNgayKham').val()),
+                            CanNang: self.cannang,
+                            TinhHinhSucKhoe: self.tinhhinhsuckhoe,
+                            ChieuCao: self.chieucao,
+                        };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveTinhTrangSucKhoe",
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modalSucKhoe').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvTTSucKhoeSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+             },
+        computed: {
+        }
+    })
+    $('#txtNgayKham').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+</script>

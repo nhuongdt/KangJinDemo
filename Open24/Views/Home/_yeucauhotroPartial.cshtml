@@ -1,0 +1,163 @@
+﻿
+            <div class="outer ht-phan-mem-ht">
+                <h2>Phần mềm hỗ trợ</h2>
+
+                <div class="group-btn-pm-ht ">
+                    <div class="ht-btn-pm-ht ht-btn-pm-ht-team-view">
+                        <div class="img">
+
+                            <img src="~/Content/images/hotroopen24/i-team-view.png" />
+                        </div>
+                        <div class="ht-pm-tt">
+                            <p>
+                                <span>Teamviewer</span><br />
+                                hỗ trợ máy tính từ xa
+                            </p>
+                            <button class="form-control" type="button" onclick="window.open('/Content/thuvienhotro/TeamViewer_Setup.exe')">
+                                Tải xuống
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ht-btn-pm-ht ht-btn-pm-ht-ultra-view">
+                        <div class="img">
+                            <img src="~/Content/images/hotroopen24/i-untraview.png" />
+                        </div>
+                        <div class="ht-pm-tt">
+                            <p>
+                                <span>Ultraviewer</span><br />
+                                hỗ trợ máy tính từ xa
+                            </p>
+                            <button class="form-control" type="button"  onclick="window.open('/Content/thuvienhotro/UltraViewer_setup_6.2_vi.exe')">
+                                Tải xuống
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ht-btn-pm-ht ht-btn-pm-ht-driver">
+                        <div class="img">
+                            <img src="~/Content/images/hotroopen24/u-driver.png" />
+                        </div>
+                        <div class="ht-pm-tt">
+                            <p>
+                                <span>Driver</span><br />
+                                Máy in
+                            </p>
+                            <button class="form-control" type="button">
+                                Tải xuống
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-phan-trang">
+                    <div class="border-bottom-phan-trang"></div>
+                </div>
+
+            </div>
+            <div class="outer ht-gui-yc">
+                <h2>Gửi yêu cầu hỗ trợ</h2>
+
+                <div class="group-btn-gui-yc " id="_yeucauhotro">
+                    <div class="col-md-12 ">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group fl">
+                                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                                    <input type="text" class="form-control"v-model="model.FullName"  placeholder="Họ tên người gửi yêu cầu">
+                                </div>
+                                <div class="form-group fl">
+                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                    <input type="text" class="form-control"v-model="model.Email" placeholder="Email">
+                                </div>
+                                <div class="form-group fl">
+                                    <i class="fa fa-phone" aria-hidden="true"></i>
+                                    <input type="text" class="form-control"v-model="model.Phone" placeholder="Số điện thoại" onkeypress='return event.charCode >= 48 && event.charCode <= 57' maxlength="11">
+                                </div>
+                                <div class="form-group fl">
+                                    <i aria-hidden="true" class="fa fa-home"></i>
+                                    <input type="text" class="form-control"v-model="model.Address" placeholder="Địa chỉ">
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group fl">
+                                    <i class="fa fa-pencil" aria-hidden="true" style="    top: 8px;"></i>
+                                    <textarea rows="7" v-model="model.Note" placeholder="Nội dung"></textarea>
+                                </div>
+                                <div class="form-group fl">
+                                    <a href="javascript:void(0)" v-on:click="Save" class="btn-gui">Gửi yêu cầu </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+<script src="~/Scripts/vue.min.js"></script>
+<script>
+   
+    var vmPopupmenu = new Vue({
+        el: '#_yeucauhotro',
+        data: {
+            model: {
+                FullName: '',
+                Email: '',
+                Phone: '',
+                Address: '',
+                Note: '',
+            }
+        },
+        methods: {
+            Save: function () {
+                var self = this;
+                if (localValidate.CheckNull(self.model.FullName) ) {
+                    alert("Vui lòng nhập tên người gửi.");
+                }
+
+                else if (localValidate.CheckNull(self.model.Email)) {
+                    alert("Vui lòng nhập email.");
+                }
+                else if (!localValidate.CheckEmail(self.model.Email)) {
+                    alert("Địa chỉ email không hợp lệ.");
+                }
+                else if (localValidate.CheckNull(self.model.Phone) ) {
+                    alert("Vui lòng nhập số điện thoại.");
+                }
+                else if (self.model.Phone.length < 10) {
+                    alert("Số điện thoại không hợp lệ.");
+                }
+                else if (localValidate.CheckNull(self.model.Note)) {
+                    alert("Vui lòng nhập nội dung yêu cầu.");
+                }
+                else {
+
+                    $.ajax({
+                        data: self.model,
+                        url: '/Open24Api/PostAPI/' + "ThemLienHeNew",
+                        type: 'POST',
+                        async: true,
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (item) {
+                            if (item.res === true) {
+                                self.model = {
+                                    ID: null,
+                                    FullName: '',
+                                    Email: '',
+                                    Phone: '',
+                                    Address: '',
+                                    Note: '',
+                                };
+                                alert('Gửi liên hệ thành công');
+                            }
+                            else {
+                                alert(item.mess);
+                            }
+                        }
+                    });
+                }
+            }
+
+        }
+    })
+    </script>
+

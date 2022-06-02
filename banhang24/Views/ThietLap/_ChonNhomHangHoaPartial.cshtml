@@ -1,0 +1,180 @@
+﻿<style>
+    /*/// ----- Tree view chọn nhóm hàng hóa ---/////*/
+    ._chon-hh-tree {
+        max-height: 400px;
+        overflow: auto;
+        width: 100%
+    }
+        ._chon-hh-tree ul {
+            padding-left: 15px;
+            width: 100%;
+            float: left;
+            padding-top: 5px;
+            display: none;
+        }
+        ._chon-hh-tree li ._icon-tree {
+            width: 15px;
+            float: left;
+        }
+            ._chon-hh-tree li ._icon-tree i {
+                font-size: 16px;
+                color: var(--color-main)
+            }
+            ._chon-hh-tree li ._icon-tree .fa-caret-right {
+                line-height: 20px;
+            }
+            ._chon-hh-tree li ._icon-tree .fa-sort-desc {
+                line-height: 15px;
+            }
+        ._chon-hh-tree li ._content-tree {
+            width: calc(100% - 15px);
+            float: right;
+            position: relative
+        }
+    .content-tree-user {
+        max-height: 380px !important;
+    }
+    .content-tree-user ._chon-hh-tree {
+        max-height: 350px;
+    }
+    /*/// ----- end Tree view chọn nhóm hàng hóa ---/////*/
+    .input-filter-nhanvien button{
+        position:absolute;
+        top:0;
+        right:0
+    }
+</style>
+<div class="modal-content  ui-draggable">
+    <div class="modal-header ui-draggable-handle">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button><button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title">
+            Chọn nhóm hàng hóa
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="container-fluid ">
+            <div class="container-fluid" style="height:35px;" >
+                <div class=" ">
+                    <input type="text" class="form-control" placeholder="Theo mã, tên hàng" autocomplete="off" id="txtSearchHH"
+                           data-bind="valueUpdate:'afterkeydown', value: searchAuto_NhomHang"  style="display:inline-block; width: calc(100% - 30px); border-radius:3px 0 0 3px"/>
+                    <button type="button" class="btn btn-main btn-search-icon"  style="display:inline-block;width: 35px;margin: 0;text-align: center;padding: 0;border-radius: 0 3px 0 3px;float: right;position: absolute;">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="container-fluid " style="border-bottom:1px solid #ccc">
+                <div class="col-md-5 nopadding">
+                    <label>
+                        <input type="checkbox" data-bind="event:{change: CheckAll_NhomHangHoa}"> Chọn tất cả
+                    </label>
+                </div>
+                <div class="col-md-7 nopadding tree-title-delete">
+                    <a href="javascript:void(0)" class="pull-right" data-bind="click: RemoveAll_NhomHangHoa">Xóa chọn tất cả</a>
+                </div>
+            </div>
+            <div class="col-md-12 tab-col-12 floatleft content-tree-user" id="divGroupProduct">
+                <div class="col-md-6 col-sm-6 col-xs-12 nopadding-left">
+                    <ul class=" _chon-hh-tree" data-bind="foreach: PageResult_NhomHHs">
+                        <!--ko if: $index() < $root.CountNhomHangHoa() -->
+                        <li>
+                            <div class="form-group floatleft">
+                                <div class="_icon-tree" data-bind="visible: Childs.length > 0">
+                                    <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                    <i class="fa fa-sort-desc" aria-hidden="true" style="display:none"></i>
+                                </div>
+                                <div class="_content-tree">
+                                    <input type="checkbox" data-bind="event: {change: $parent.ChoseNhomHangHoa}">
+                                    <span data-bind="text: TenNhomHangHoa"></span>
+                                    <ul data-bind="foreach: Childs ">
+                                        <li>
+                                            <div class="form-group floatleft">
+                                                <div class="_icon-tree" data-bind="visible: Child2s.length > 0">
+                                                    <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                                    <i class="fa fa-sort-desc" aria-hidden="true" style="display:none"></i>
+                                                </div>
+                                                <div class="_content-tree">
+                                                    <input type="checkbox" data-bind="event: {change: $root.ChoseNhomHangHoa}">
+                                                    <span data-bind="text: TenNhomHangHoa"></span>
+                                                    <ul data-bind="foreach: Child2s ">
+                                                        <li>
+                                                            <div class="form-group floatleft">
+                                                                <input type="checkbox" data-bind="event: {change: $root.ChoseNhomHangHoa}" />
+                                                                <span data-bind="text: TenNhomHangHoa"></span>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        <!--/ko-->
+                    </ul>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12 nopadding-left">
+                    <ul class=" _chon-hh-tree" data-bind="foreach: PageResult_NhomHHs">
+                        <!--ko if: $index() >= $root.CountNhomHangHoa() -->
+                        <li>
+                            <div class="form-group floatleft">
+                                <div class="_icon-tree" data-bind="visible: Childs.length > 0">
+                                    <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                    <i class="fa fa-sort-desc" aria-hidden="true" style="display:none"></i>
+                                </div>
+                                <div class="_content-tree divChild1">
+                                    <input type="checkbox" data-bind="event: {change: $parent.ChoseNhomHangHoa}, attr:{id: ID}">
+                                    <span data-bind="text: TenNhomHangHoa"></span>
+                                    <ul data-bind="foreach: Childs ">
+                                        <li>
+                                            <div class="form-group floatleft">
+                                                <div class="_icon-tree" data-bind="visible: Child2s.length > 0">
+                                                    <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                                    <i class="fa fa-sort-desc" aria-hidden="true" style="display:none"></i>
+                                                </div>
+                                                <div class="_content-tree">
+                                                    <input type="checkbox" data-bind="event: {change: $root.ChoseNhomHangHoa}, attr:{id: ID}">
+                                                    <span data-bind="text: TenNhomHangHoa"></span>
+                                                    <ul data-bind="foreach: Child2s ">
+                                                        <li>
+                                                            <div class="form-group floatleft">
+                                                                <input type="checkbox" data-bind="event: {change: $root.ChoseNhomHangHoa}">
+                                                                <span data-bind="text: TenNhomHangHoa"></span>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        <!--/ko-->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="modal-footer nopadding">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                <button type="button" class="btn btn-save" data-bind="click: AddChietKhau_ByNhomHang">
+                    <i class="fa fa-save"></i>&nbsp; Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    /// ----- Tree view chọn nhóm hàng hóa ---/////
+    $(' ._chon-hh-tree').on('click', ' li ._icon-tree', function () {
+        $(this).next('._content-tree').find('ul').each(function (i) {
+            if (i === 0) {
+                $(this).toggle();
+            }
+        })
+        $(this).find('i').each(function () {
+            $(this).toggle();
+        })
+    });
+</script>

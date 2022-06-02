@@ -1,0 +1,228 @@
+﻿@using banhang24.Hellper
+<style>
+    #vmNhatKyBaoDuong thead td {
+        text-align: center;
+    }
+</style>
+<div class="modal fade" id="vmNhatKyBaoDuong">
+    <div class="modal-dialog draggable   modal-lg " role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    Quản lý bảo dưỡng
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 nhat-ky-dv">
+                    <div class="row tab-news-modal" id="tab-diary-service">
+                        <ul class="nav nav-tabs" style="width:100%;">
+                            <li class="active"><a data-toggle="tab" href="#baoduong_phutung">Phụ tùng</a></li>
+                            <li><a data-toggle="tab" href="#baoduong_nhatky">Nhật ký bảo dưỡng</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="baoduong_phutung">
+                                <div class="container-fluid  header-dv">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="baoduongRdo"
+                                               value="0"
+                                               v-model="statusExpire"
+                                               v-on:change="Change_statusExpire">
+                                        <label class="form-check-label">Tất cả</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="baoduongRdo"
+                                               value="1"
+                                               v-model="statusExpire"
+                                               v-on:change="Change_statusExpire">
+                                        <label class="form-check-label">Còn hạn</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="baoduongRdo"
+                                               value="2"
+                                               v-model="statusExpire"
+                                               v-on:change="Change_statusExpire">
+                                        <label class="form-check-label">Hết hạn</label>
+                                    </div>
+                                </div>
+                                <div class="container-fluid tab-col-12 ">
+                                    <button type="button" class=" btn-search-modal-icon">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-search-modal-icon" autofocus
+                                           v-model="txtPhuTung"
+                                           v-on:keyup="SearchPhuTung"
+                                           placeholder="Tìm kiếm phụ tùng" autocomplete="off">
+                                </div>
+                                <div class="container-fluid nopadding nhat-ky-dv-chi-tiet">
+                                    <table class="table-dich-vu ">
+                                        <thead>
+                                            <tr class="tr-thead tr-goi-dich-vu">
+                                                <td>STT</td>
+                                                <td>Mã hàng hóa </td>
+                                                <td>Tên hàng hóa </td>
+                                                <td>Hạn bảo hành </td>
+                                                <td>Lần bảo dưỡng</td>
+                                                <td>
+                                                    <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                                           value="true"
+                                                           v-model="isCheckAll"
+                                                           v-on:change="ChangeCheckAll">
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(pt, index) in listData.PhuTungs">
+                                                <td class="text-center">
+                                                    {{index + 1}}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{pt.MaHangHoa}}
+                                                </td>
+                                                <td>
+                                                    {{pt.TenHangHoa}}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{pt.HanBaoHanh!=null? moment(pt.HanBaoHanh).format('DD/MM/YYYY'):''}}
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="css-form-detail">
+                                                        <div class="dropdown">
+                                                            <a class="btn btn-link nopadding" data-toggle="dropdown">
+                                                                <span>Lần {{pt.LanBaoDuong}}</span>
+                                                                <i class="fa fa-angle-down"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu">
+                                                                <li v-for="(ct, index2) in pt.CTBaoDuongs"
+                                                                    v-on:click="ChangeLanBaoDuong(index,index2)">
+                                                                    <div>
+                                                                        <span style="color:var(--color-main)">Lần {{ct.LanBaoDuong}}</span>
+                                                                        <span v-if="ct.SoKmBaoDuong > 0 ">({{ct.SoKmBaoDuong}} km)</span>
+                                                                        <span class="span-check" v-if="ct.isCheck">
+                                                                            <i class="fa fa-check">  </i>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span>Dự kiến: {{moment(ct.NgayBaoDuongDuKien).format('DD/MM/YYYY')}}</span>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <input class="form-check-input" title="Chọn" type="checkbox"
+                                                           value="true"
+                                                           v-model="pt.isCheckParent">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane " id="baoduong_nhatky">
+                                <div class="container-fluid tab-col-12 ">
+                                    <button type="button" class=" btn-search-modal-icon">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                    <input type="text" class="form-control input-search-modal-icon"
+                                           placeholder="Tìm kiếm " autocomplete="off"
+                                           v-model="txtDiary"
+                                           v-on:keyup="SearchDiary">
+                                </div>
+                                <div class="container-fluid tab-col-12" style="overflow:auto">
+                                    <table class="table-dich-vu">
+                                        <thead>
+                                            <tr class="tr-thead">
+                                                <td>Lần bảo dưỡng</td>
+                                                <td>Ngày bảo dưỡng</td>
+                                                <td>Mã hóa đơn</td>
+                                                <td>Mã hàng hóa </td>
+                                                <td>Tên hàng hóa </td>
+                                                <td>Nhân viên tư vấn, thực hiện</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(item, index) in listData.Diarys">
+                                                <td class="text-center">{{item.LanBaoDuong}}</td>
+                                                <td class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY')}}</td>
+                                                <td class="bold">
+                                                    {{item.MaHoaDon}}
+                                                </td>
+                                                <td><a title="Mã hóa đơn" href="javascript:void(0)">{{item.MaHangHoa}}</a></td>
+                                                <td>
+                                                    <span>{{item.TenHangHoa}}</span>
+                                                    <span v-if="item.TenDonViTinh">{{item.TenDonViTinh}}</span>
+                                                </td>
+                                                <td style="text-align:left">
+                                                    {{item.NVThucHiens}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="page" style="display:none">
+                                        <div class="flex flex-end">
+                                            <a href="javascript:void(0)">
+                                                <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            </a>
+                                            <ul class="list-page">
+                                                <li>
+                                                    <a href="javascript:void(0)"></a>
+                                                </li>
+                                            </ul>
+                                            <a href="javascript:void(0)">
+                                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            </a>
+                                            <div class="total-recos" style=" margin-top: 4px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i>&nbsp;Hủy bỏ
+                </button>
+                <button type="button" class="btn btn-main"
+                        v-on:click="Agree">
+                    <i class="fa fa-check-square"></i>Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(".table-dich-vu .tr-thead .form-check-input").change(function () {
+        if (this.checked) {
+            $(this).closest('.tr-thead').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('.form-check-input').prop("checked", true);
+            });
+        }
+        else {
+            $(this).closest('.tr-thead').closest('thead').next('tbody').find('tr').each(function () {
+                $(this).find('.form-check-input').prop("checked", false);
+            });
+        }
+    });
+
+    $(".table-dich-vu tbody .form-check-input").change(function () {
+        var boolcheck = 0;
+        var trlength = $(this).closest('tr').closest('tbody').find('tr').length;
+        $(this).closest('tr').closest('tbody').find('tr').each(function (i) {
+            if ($(this).find('.form-check-input').is(":checked")) {
+                boolcheck += 1;
+            }
+            if (i === trlength - 1) {
+                if (trlength === boolcheck)
+                    $(this).closest('tr').closest('tbody').prev('thead').find('.tr-thead').find('.form-check-input').prop("checked", true);
+                else
+                    $(this).closest('tr').closest('tbody').prev('thead').find('.tr-thead').find('.form-check-input').prop("checked", false);
+            }
+        });
+    });
+</script>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/KhachHang/_NhatKyBaoDuong.js")"></script>

@@ -1,0 +1,300 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+
+@{
+    ViewBag.Title = "GoiDichVu";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+
+
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script>
+        function Customer() {
+            var self = this;
+            //===============================
+            // Khai báo chung
+            //===============================
+            self.Title = ko.observable("Thêm mới gói dịch vụ");
+            self.koSearch = ko.observable(null);
+            self.ID = ko.observable();
+            self.TenGoi = ko.observable();
+            self.SLMatHang = ko.observable();
+            self.SLChiNhanh = ko.observable();
+            self.SLNguoiDung = ko.observable();
+            self.Gia = ko.observable();
+            self.Status = ko.observable();
+            self.GhiChu = ko.observable();
+            self.IsNews = ko.observable(true);
+            self.ListGoiDichVu = ko.observableArray();
+
+            //===============================
+            // Click tìm kiếm
+            //===============================
+
+            self.SearchGrid = function (d, e) {
+                if (e.keyCode === 13) {
+                    FilterGrid();
+                }
+            }
+
+            //===============================
+            // Tìm kiếm gridview chung
+            //===============================
+            function FilterGrid() {
+                var model = {
+                    Search: self.koSearch()
+                };
+
+                $.ajax({
+                    url: '/Open24Api/ApiStoreRegistration/SearchGoiDichVu',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: model,
+                    success: function (result) {
+                        if (result.res === true) {
+                            self.ListGoiDichVu(result.DataSoure);
+                        }
+                        else {
+                            alert(result.mess);
+                        }
+                    },
+                    error: function (evt) {
+                        AlertError("Đã xảy ra lỗi.");
+                    }
+                });
+            }
+            self.AddNew = function () {
+                self.Title("Thêm mới gói dịch vụ");
+                self.ID(null);
+                self.IsNews(true);
+                self.TenGoi(null);
+                self.SLMatHang(0);
+                self.SLChiNhanh(0);
+                self.SLNguoiDung(0);
+                self.Gia(0);
+                self.Status(true);
+                self.GhiChu('');
+                $('#myModal').modal("show");
+            }
+            self.btnUpdate = function (item) {
+                self.IsNews(false);
+                self.Title("Cập nhật gói dịch vụ");
+                self.ID(item.ID);
+                self.TenGoi(item.TenGoi);
+                self.SLMatHang(item.SLMatHang);
+                self.SLChiNhanh(item.SLChiNhanh);
+                self.SLNguoiDung(item.SLNguoiDung);
+                self.Gia(item.Gia);
+                self.Status(item.TrangThai);
+                self.GhiChu(item.GhiChu);
+                $('#myModal').modal("show");
+            }
+
+            self.SaveUpdate = function () {
+                if (localValidate.CheckNull(self.TenGoi())) {
+                    AlertError('Vui lòng nhập tên gói');
+                }
+                else if (self.Gia() === null || self.Gia() === undefined) {
+                    AlertError('Vui lòng nhập giá');
+                }
+                else {
+                    model = {
+                        ID: self.ID(),
+                        Gia: self.Gia(),
+                        GhiChu: self.GhiChu(),
+                        SLChiNhanh: self.SLChiNhanh(),
+                        SLMatHang: self.SLMatHang(),
+                        SLNguoiDung: self.SLNguoiDung(),
+                        TenGoi: self.TenGoi(),
+                        TrangThai: self.Status()
+                    };
+                    $.ajax({
+                        data: model,
+                        url: '/Open24Api/ApiStoreRegistration/UpdateGoiDichVu?IsNew=' + self.IsNews(),
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (result) {
+                            if (result.res === true) {
+                                $('#myModal').modal("hide");
+                                AlertNotice(result.mess);
+                                FilterGrid();
+                            }
+                            else {
+                                AlertError(result.mess);
+                            }
+                        },
+                        error: function () {
+                            alert("Đã xảy ra lỗi.");
+                        }
+                    });
+                }
+            }
+            FilterGrid();
+        };
+        ko.applyBindings(new Customer());
+
+        //===============================
+        // Hiện thị Datetime
+        //===============================
+        function ConvertDate(config) {
+            if (config === undefined
+                || config === null
+                || config.replace(/\s+/g, '') === "") {
+                return "";
+            }
+            else {
+                var a = moment(config).format('DD/MM/YYYY');
+                return a;
+            }
+        }
+    </script>
+
+}
+
+<div class="right_col">
+    <h3>Danh sách gói dịch vụ</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleInsert)
+                {
+                    <button class="btn-updata btn-green" data-bind="click: AddNew"><i class="fa fa-pencil-square-o"></i> Thêm mới người dùng</button>
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="">
+                <table id="example" class="table table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên gói</th>
+                            <th>Số mặt hàng</th>
+                            <th>Số chi nhánh</th>
+                            <th>Số người dùng</th>
+                            <th>Giá</th>
+                            <th>Ghi chú</th>
+                            <th>Trạng thái</th>
+                            <th>#</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListGoiDichVu">
+                        <tr>
+                            <td data-bind="text: TenGoi">   </td>
+                            <td data-bind="text: SLMatHang"></td>
+                            <td data-bind="text: SLChiNhanh"></td>
+                            <td data-bind="text:SLNguoiDung"></td>
+                            <td data-bind="text: FormatVND(Gia)"></td>
+                            <td data-bind="text: GhiChu"></td>
+                            <td data-bind="text: ConvertStatuts(TrangThai)">
+                            </td>
+                            <td>
+                                <div class="edit-delete">
+                                    @if (Model.RoleUpdate)
+                                    {
+                                        <a class="red" href="#" data-bind="click: $parent.btnUpdate">
+                                            <i class="ace-icon fa fa-pencil "></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+
+
+
+
+
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;" data-bind="text:Title">Cập nhật gói dịch vụ</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="content-addnews fl">
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Tên gói</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" data-bind="value: TenGoi" />
+                        </div>
+
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Số mặt hàng</Span></div>
+                        <div class="col-md-9">
+                            <input type="number" class="form-control" data-bind="value: SLMatHang" min="0" />
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Số chi nhánh</Span></div>
+                        <div class="col-md-9">
+                            <input type="number" class="form-control" data-bind="value: SLChiNhanh" min="0" />
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Số người dùng</Span></div>
+                        <div class="col-md-9">
+                            <input type="number" class="form-control" data-bind="value: SLNguoiDung" min="0" />
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Giá</Span></div>
+                        <div class="col-md-9">
+                            <input type="number" class="form-control" data-bind="value: Gia" min="0" />
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Ghi chú</Span></div>
+                        <div class="col-md-9">
+                            <textarea rows="3" style="width:100%" data-bind="value: GhiChu"></textarea>
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Trạng thái</Span></div>
+                        <div class="col-md-9">
+                            <form id='form-id'>
+                                <input id='watch-me' name='star' type='radio' data-bind="checked: Status, checkedValue: true" />Hoạt động
+                                <input id='see-me' name='star' type='radio' data-bind="checked: Status, checkedValue: false" /> Không hoạt động
+                            </form>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: SaveUpdate"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

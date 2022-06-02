@@ -1,0 +1,228 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "NhomVaiTro";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+
+
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Assets/js/Admin/TreeView/gijgo.js"></script>
+    <link href="~/Assets/css/Admin/TreeView/gijgo.css" rel="stylesheet" />
+    <script src="~/Assets/js/Admin/NhomVaiTro.js"></script>
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                if (input.files[0].size > 1048576) {
+                    alert("Giới hạn file ảnh không quá 1M !");
+                    return
+                }
+                else {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('.chon-anh').hide();
+                        $('#blah')
+                            .attr('src', e.target.result)
+                            .width("100%")
+                            .height("100%").show();
+                        
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        }
+        function chooseimg() {
+            $('#imageUploadForm').click();
+        }
+
+    </script>
+}
+
+<div class="right_col">
+    <h3>Danh sách nhóm ngành</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleInsert)
+                {
+                    <button class="btn-updata btn-green" data-bind="click: btnInsert"><i class="fa fa-pencil-square-o"></i> Thêm mới</button>
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-reponsive">
+                <table id="example" class=" table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th style="width:60px">Icon</th>
+                            <th>Tên nhóm ngành</th>
+                            <th>Ngày tạo</th>
+                            <th>Vị trí hiện thị</th>
+                            <th>Ghi chú</th>
+                            <th>Trạng thái</th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th style="width:60px">Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListResult">
+                        <tr>
+                            <td style="width:60px"><img data-bind="attr:{src:Icon}" style="width:50px"/></td>
+                            <td data-bind="text:Ten"></td>
+                            <td data-bind="text:ConvertDate(NgayTao)"></td>
+                            <td data-bind="text:ViTri">1</td>
+                            <td data-bind="text:GhiChu">1</td>
+                            <td data-bind="text:TrangThai==true?'Hiện thị':'Ẩn'"></td>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <td style="width:60px">
+                                    <div class="edit-delete">
+                                        @if (Model.RoleUpdate)
+                                        {
+                                            <a class="red" href="javascript:void(0)" data-bind="click: $parent.btnUpdate ">
+                                                <i class="ace-icon fa fa-pencil "></i>
+                                            </a>
+                                        }
+                                        @if (Model.RoleDelete)
+                                        {
+                                            <a class="blue" href="javascript:void(0)" data-bind="click: $parent.btndelete">
+                                                <i class="ace-icon fa fa-trash-o "></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageIten">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade in" id="myModal" aria-hidden="false" >
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" style="color: black;" data-bind="text:TitlePopup"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                    <ul id="myTab" class="nav nav-tabs " role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Thông tin chung</a>
+                        </li>
+                        <li role="presentation" class="">
+                            <a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Tính năng theo ngành</a>
+                        </li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+                            <div class="content-addnews fl">
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><span>Icon </span><span class="red">(*)</span></div>
+                                    <div class="col-md-9">
+                                        <input type='file' id="imageUploadForm" style="display:none" accept=".jpg,.gif,.png" name="image" onchange="readURL(this);" />
+                                        <a href="javascript:void(0)" onclick="chooseimg()">
+                                        
+                                        <div  class="anh-icon"><i aria-hidden="true" class="fa fa-picture-o chon-anh"></i>
+                                            <img hidden id="blah" alt="Ảnh tải lên" />
+                                            </div></a>
+                                       
+                                    </div>
+
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><span>Tên ngành </span><span class="red">(*)</span></div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control"  data-bind="value: TenNganh">
+                                    </div>
+
+                                </div>
+
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><span>Ghi chú</span></div>
+                                    <div class="col-md-9">
+                                        <textarea class="form-control" rows="4" id="valSummaryNews" data-bind="value: GhiChu"></textarea>
+                                    </div>
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><span>Vị trí</span></div>
+                                    <div class="col-md-9">
+                                        <input class="form-control" type="number" data-bind="value:ViTri" />
+                                    </div>
+                                </div>
+                                <div class="fl form-addnews">
+                                    <div class="col-md-3 title-add"><span>Trạng thái</span></div>
+                                    <div class="col-md-9">
+                                        <form id="form-id">
+                                            <input id="watch-me" name="star" type="radio" data-bind="checked: TrangThai, checkedValue: true" value="true"> Hiện thị
+                                            <input id="see-me" name="star" type="radio" data-bind="checked: TrangThai, checkedValue: false" value="false"> Ẩn
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab" style="    max-height: 400px;overflow-x: hidden;">
+                            <div class="row">
+                                <div id="tree"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" data-bind="click:save"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

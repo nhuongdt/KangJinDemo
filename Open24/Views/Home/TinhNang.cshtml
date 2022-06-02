@@ -1,0 +1,242 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        position: relative;
+    }
+</style>
+@section scripts{
+<script src="~/Content/js/moment.js"></script>
+    <script>
+var ClientCustomer = function () {
+    var self = this;
+    self.BisinessDetail = ko.observableArray();
+    self.NganhNghe_Id = ko.observable();
+    self.NganhNghe_Ten = ko.observable();
+    self.Img_NumberCount = ko.observable();
+    self.Img_ListImage = ko.observableArray()
+    self.Img_Image = ko.observable();
+    self.Img_Note = ko.observable();
+    self.Img_count = ko.observable();
+        function GetValue() {
+        $.ajax({
+            url: '/Open24Api/Business/GetDetailForNganhNghe?code=' + '@ViewBag.KeyCode',
+            type: 'GET',
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (result) {
+                if (result.res === true) {
+                    self.NganhNghe_Id(result.DataSoure.Business.Id);
+                    self.NganhNghe_Ten(result.DataSoure.Business.TenNganhNghe);
+                    var urlsrc = 'url(' + result.DataSoure.Business.ImageNganhNghe + ') no-repeat center';
+                    var urlsrcmobile = 'url(' + result.DataSoure.Business.ImageMobile + ')no-repeat top center ';
+                    $('.banner-tinhnang').css('background', urlsrc);
+                    $('.banner-tinhnang-mobile').css('background', urlsrcmobile);
+                    $('.banner-tinhnang').css('background-size', '100% 100%');
+                    self.BisinessDetail(result.DataSoure.BusinessDetail);
+                }
+                else {
+                    console.log(result.mess);
+                }
+            },
+            error: function (result) {
+                console.log(result);
+            }
+        });
+        }
+        GetValue();
+        self.ClickShowListImage = function (model) {
+            self.Img_ListImage(model.AnhTinhNangNghanhNghes);
+            if (model.AnhTinhNangNghanhNghes !== null && model.AnhTinhNangNghanhNghes.length > 0) {
+                self.Img_Image(model.AnhTinhNangNghanhNghes[0].SrcImage);
+                self.Img_count(model.AnhTinhNangNghanhNghes.length);
+                self.Img_NumberCount("1/" + model.AnhTinhNangNghanhNghes.length);
+                self.Img_Note(model.AnhTinhNangNghanhNghes[0].Note)
+                $('#listImageId li').each(function (i) {
+                    if (i == 0) {
+                        $(this).addClass("Active-Img");
+                    }
+                    else {
+                        $(this).removeClass("Active-Img");
+                    }
+                });
+            }
+            else {
+                self.Img_Image(null);
+                self.Img_NumberCount(null);
+                self.Img_Note(null);
+                self.Img_count(null);
+            }
+        }
+        self.SelectetImg = function (model, event) {
+            self.Img_Image(model.SrcImage);
+            self.Img_NumberCount((ko.contextFor(event.target).$index() + 1) + "/" + self.Img_count());
+            self.Img_Note(model.Note);
+
+
+        }
+        }
+        ko.applyBindings(new ClientCustomer());
+        function ConvertDate(config) {
+            if (config === undefined
+                || config === null
+                || config.replace(/\s+/g, '') === "") {
+                return "";
+            }
+            else {
+                var a = moment(config).format('DD/MM/YYYY');
+                return a;
+            }
+        }
+
+        $('#listImageId').on('click', 'li', function () {
+            $('#listImageId li').each(function (i) {
+                $(this).removeClass("Active-Img");
+            });
+            $(this).addClass("Active-Img");
+        });
+        $(".zoom").click(function () {
+            $(".slide-img").toggleClass("zooma")
+        });
+        </script>
+}
+@section FormDangky{
+    @Html.Action("_cuahangdangky", new { area = "", controller = "home" })
+}
+<body data-spy="scroll" data-target="#myScrollspy" data-offset="50">
+    <div class="banner-tn banner-tinhnang">
+        <div class="banner-tinhnang-mobile">
+            <div class="content-banner open24-tinh-nang">
+                <h1>
+                    Phần mềm quản lý <br />
+                    <font  class="tinh-nang-khac1" data-bind="text:NganhNghe_Ten"></font>
+                </h1>
+                <div class="fl">
+                    <a href="/dung-thu-mien-phi" class="bnt-use" @*data-toggle="modal" data-target="#modalPopup_CHDK"*@>Dùng thử miễn phí ngay !</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fl feature-content">
+        <div class="container">
+          
+           
+            @*<nav class="w360" id="myScrollspy" style="top: 30px;position: sticky;">
+
+                <ul class="nav nav-pills nav-stacked">
+                    <!--ko foreach: BisinessDetail -->
+                    <!-- ko if: $index() == 0-->
+                    <li class="active">
+                        <span data-bind="text:$index()+1"></span>
+                        <a data-bind="attr: { href: '#'+ID},text:Name"></a>
+                    </li>
+                    <!--/ko-->
+                    <!-- ko if: $index() > 0-->
+                    <li > <span data-bind="text:$index()+1"></span>
+                    <a data-bind="attr: { href: '#'+ID},text:Name"></a>
+                        </li>
+                  
+                    <!--/ko-->
+                    <!--/ko-->
+                </ul>
+            </nav>*@
+
+            <div class="feature-right">
+                <div class="title-feature">Các tính năng của Open24 <br />giúp bạn quản lý toàn bộ quy trình bán hàng</div>
+                <!--ko foreach: BisinessDetail -->
+                <!-- ko if: $index() %2== 0-->
+                <div data-bind="attr: { id:ID}" class="fl item-feature">
+                    <div class="w50-left tinhnang-right text-center des-tn" @*data-bind="click:$parent.ClickShowListImage"*@>
+                        <div class="icon-tinh-nang-paper">
+                            <img src="~/Content/images/phidv/icon-tinh-nang-paper.png">
+                            <span data-bind="text:$index() +1" />
+                        </div>
+                        <img data-bind="attr: { src:srcImage}"  />
+
+                    </div>
+                    <div class="w50-right tinhnang-left">
+
+                        <div class="title-fa1" data-bind="text:Name"></div>
+                        <div class="fl bold" data-bind="text:Title">
+
+                        </div>
+                        <div class="fl name-feature" data-bind="html:Note">
+
+                        </div>
+                        <div class="w50-left text-center mobile-tn">
+                            <div class="icon-tinh-nang-paper">
+                                <img src="~/Content/images/phidv/icon-tinh-nang-paper.png">
+                                <span data-bind="text:$index() +1" />
+                            </div>
+                            <img data-bind="attr: { src:srcImage}" />
+                        </div>
+                    </div>
+                </div>
+                <!--/ko-->
+                <!-- ko if: $index() %2!=0-->
+                <div data-bind="attr: { id:ID}" class="fl item-feature">
+                    <div class="w50-right tinhnang-left">
+                        <div class="title-fa1" data-bind="text:Name"></div>
+                        <div class="fl bold" data-bind="text:Title">
+
+                        </div>
+                        <div class="fl name-feature" data-bind="html:Note">
+
+
+                        </div>
+                    </div>
+                    <div class="w50-left text-center tinhnang-right  des-tnright" @*data-bind="click:$parent.ClickShowListImage"*@>
+                        <div class="icon-tinh-nang-paper">
+                            <img src="~/Content/images/phidv/icon-tinh-nang-paper.png">
+                            <span data-bind="text:$index() +1" />
+                        </div>
+                        <img data-bind="attr: { src:srcImage}"  />
+
+                    </div>
+
+                </div>
+                <!--/ko-->
+                <!--/ko-->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade in slide-img" id="sder" aria-hidden="false" >
+        <div id="modalContainer_NhomHHDV" class="modal-lgm modal-dialoghh ">
+
+            <div class="modal-content fl">
+                <div class="modal-header">
+                    <span data-bind="text:Img_NumberCount"></span>
+                    <a href="javascript: void(0)" class="pull-right zoom">
+                        <img src="~/Content/images/gioithieu/z.png" />
+                    </a>
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                 
+                </div>
+                <div class="modal-body" >
+                   <div class="img-slide">
+                       <img data-bind="attr: { src:Img_Image}"/>                    
+                   </div>
+                    <div class="detail-slide">
+                        <div class="content-slide" data-bind="html:Img_Note">
+                        </div>
+                        <div class="list-slide">
+                            <ul id="listImageId">
+                                <!--ko foreach: Img_ListImage -->
+                                <li data-bind="click:$parent.SelectetImg">
+                                    <a href="">
+                                        <img data-bind="attr: { src:SrcImage}" />
+                                    </a>
+                                </li>
+                                <!--/ko-->
+                             
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

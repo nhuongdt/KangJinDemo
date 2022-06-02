@@ -1,0 +1,196 @@
+﻿
+@{
+    ViewBag.Title = "EditTinhNang";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Content/CkEditor/ckeditor.js"></script>
+<script src="~/Content/ckfinder/ckfinder.js"></script>
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script>
+        CKEDITOR.replace('noidung',
+        {
+            entermode: CKEDITOR.ENTER_BR,
+            extraAllowedContent: 'ul(format-circle)',
+            toolbar: [[
+                'Bold', 'Italic', 'Underline', 'Subscript',
+                'Superscript', 'Image', 'Table', 'NumberedList',
+                'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link', 'Unlink',
+                'TextColor', 'BGColor', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'CreateDiv', 'Maximize', 'Source', 'FontSize', 'Format', 'Font'
+            ]]
+        });
+    CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+    </script>
+    <script src="~/Assets/js/Admin/HoTroTinhNang.js"></script>
+    <script>
+        ko.applyBindings(new CustomerDetail(2, @ViewBag.ID_TinhNang));
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    if (input.files[0].size > 1048576) {
+                        alert("Giới hạn file ảnh không quá 1M !");
+                        return
+                    }
+                    else {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('.chon-anh').hide();
+                            $('#blah')
+                                .attr('src', e.target.result)
+                                .width("100%")
+                                .height("100%").show();
+
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+            }
+            function chooseimg() {
+                $('#imageUploadForm').click();
+            }
+
+            function back() {
+                window.location.href = "/AdminPage/HoTro/TinhNang";
+            }
+</script>
+}
+<style>
+    .anh-icon {
+        width: 160px;
+        height: 122px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+        .anh-icon i {
+            margin-top: 45px;
+            font-size: 30px;
+            width: 35px;
+        }
+   
+    .ul-combobox {
+        width: 100%;
+        float: left
+    }
+    </style>
+
+<div class="right_col" role="main">
+    <div class="addnews fl">
+        <h3 data-bind="text:title"></h3>
+        <div class="content-addnews fl">
+            <div class="col-md-12 row">
+                <div class="col-md-8">
+
+                    <div class="fl form-addnews">
+                       <label>Tên tính năng   <span class="red">(*)</span></label>
+                        <div class="form-add">
+                                <input type="text" class="form-control" data-bind="value: tentinhnang" />
+                          
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <label>Mô tả</label>
+                        <div class="form-add">
+                            <textarea rows="2"data-bind="value: GhiChu" ></textarea>
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <label>Link video</label>
+                        <div class="form-add">
+                                <input type="text" class="form-control" data-bind="value: video" />
+                          
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                     <label>Mô tả chi tiết</label>
+                        <div class="form-add">
+                      <textarea rows="2" id="noidung"></textarea>
+                            </div>
+                        
+                    </div>
+                    </div>
+                <div class="col-md-4">
+
+
+                    <div class="fl form-addnews ">
+                        <label>Tính năng cha</label>
+                        <div class="form-add ">
+                            <div class="outselect ">
+                                <div data-toggle="dropdown" aria-expanded="true" class="  floatleft ">
+                                    <div class="form-control" style="cursor: pointer; border-radius:0px " data-bind="text:ID_chatext"> </div>
+                                </div>
+
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <ul id="lstNewsGroup" class="group-parent ul-combobox" data-bind="foreach:listGroup">
+                                        <li >
+                                            <div class="text-tree" data-bind="attr: {'data-id': id}"><i class="fa fa-caret-right" aria-hidden="true" data-bind="visible: children.length>0"></i><span data-bind="text:text"></span></div>
+                                            <ul  class="group-parent ul-combobox" data-bind="foreach:children">
+                                                <li >
+                                                    <div class="text-tree" data-bind="attr: {'data-id': id}"><i class="fa fa-caret-right" aria-hidden="true" data-bind="visible: children.length>0"></i><span data-bind="text:text"></span></div>
+                                                    <ul  class="group-parent ul-combobox" data-bind="foreach:children">
+                                                        <li >
+                                                            <div class="text-tree" data-bind="attr: {'data-id': id}"><span data-bind="text:text"></span></div>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                       <label>Vị trí</label>
+                        <div class="form-add">
+                            <input class="form-control" type="number" data-bind="value:ViTri" />
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                       <label class="col-md-4 col-xs-12" style="padding-left:0px">Icon <span class="red">(*)</span></label>
+                        <div class="form-add col-md-8 col-xs-12">
+                            <input type='file' id="imageUploadForm" style="display:none" accept=".jpg,.gif,.png" name="image" onchange="readURL(this);" />
+                            <a href="javascript:void(0)" onclick="chooseimg()">
+
+                                <div class="anh-icon">
+                                    <i aria-hidden="true" class="fa fa-picture-o chon-anh"></i>
+                                    <img hidden id="blah" alt="Ảnh tải lên" />
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-4 nopadding" style="padding-left:0px"><label>Trạng thái</label></div>
+                        <div class="col-md-8">
+                                <form id="form-id">
+                                    <input id="watch-me" name="star" type="radio" data-bind="checked: trangthai, checkedValue: true" value="true"> hiện thị
+                                    <input id="see-me" name="star" type="radio" data-bind="checked: trangthai, checkedValue: false" value="false"> Ẩn
+                                </form>
+                       
+                        </div>
+                    </div>
+
+
+                    <div class="fl form-addnews" style="margin-top:15px;">
+                                <div class="pull-right">
+                                    <button class="btn btn-success" style="margin: 0px;" data-bind="click:save"><i class="fa fa-floppy-o"></i> Lưu</button>
+
+                                </div>
+                                <div class="pull-right">
+                                    <button class="btn btn-default " onclick="back()"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Quay lại</button>
+
+                                </div>
+                               
+
+                    </div>
+                </div>
+                </div>
+     
+        </div>
+    </div>
+</div>
+

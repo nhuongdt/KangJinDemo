@@ -1,0 +1,601 @@
+﻿@using Model;
+<style>
+    .drop-Op {
+        text-decoration: none;
+        color: #686868
+    }
+
+    #modalNvluongphucap table th {
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .ctluong-dsca li {
+        cursor: pointer;
+        position: relative;
+        padding: 5px;
+        border-bottom: 1px solid #ccc;
+    }
+
+        .ctluong-dsca li:last-child {
+            border-bottom: none;
+        }
+
+        .ctluong-dsca li i {
+            position: absolute;
+            top: 8px;
+            right: 8px
+        }
+
+    .formRealtive {
+        position: relative
+    }
+
+    .formAbsolute {
+        position: absolute;
+        display: inline;
+        top: 3px;
+        right: 3px;
+    }
+
+    .btn-side-left {
+        position: absolute;
+        height: 30px;
+        width: 20px;
+        right: -20px;
+        bottom: 8px;
+        top: unset;
+        padding: 3px;
+    }
+
+    .ul-combobox li {
+        padding-left: 15px !important;
+        padding-right: 45px !important;
+        border-bottom: 1px dotted #ccc !important;
+    }
+
+    .icon-edit-combobox {
+        position: absolute;
+        top: 0px;
+        right: 5px;
+    }
+
+        .icon-edit-combobox .fa-times {
+            margin-left: 10px;
+            margin-top: 8px;
+            display: block;
+            color: red !important;
+            font-size: 14px;
+        }
+
+        .icon-edit-combobox a {
+            float: left;
+        }
+
+    .myddl {
+        border: 1px solid #ccc;
+        border-radius: 1px !important;
+    }
+
+        .myddl i {
+            position: absolute;
+            right: 8px;
+            top: 7px;
+        }
+
+        .myddl span {
+            padding-left: 10px;
+        }
+
+    #ddlloailuong {
+        width: 100%;
+    }
+
+        #ddlloailuong li {
+            border-bottom: 1px solid #ddd;
+        }
+
+    .radio-inline {
+        width: 25% !important;
+    }
+
+        .radio-inline input {
+            padding-top: 6px;
+        }
+
+    .jsbtn {
+        background-color: #ccc;
+        color: white !important;
+    }
+
+        .jsbtn.active {
+            background-color: var(--color-primary);
+        }
+
+    .tooglevnd {
+        height: 24px;
+        display: none;
+        border: 1px solid #ccc;
+        padding: 3px 5px;
+        border-radius: 3px;
+        line-height: 18px;
+    }
+        .tooglevnd.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+    a.tooglevnd.active {
+        display: block;
+    }
+
+    .thietlapnangcao-p {
+        border-bottom: 1px;
+        font-size: 13px;
+        color: var(--color-main);
+        margin-top: 15px;
+    }
+
+    .thietlapnangcao-btnadd {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-radius: unset;
+        box-shadow: none;
+        border-bottom: 1px solid var(--color-main);
+        width: 20%;
+    }
+
+    #modalNvluongphucap .modal-footer {
+        margin-bottom: 15px;
+    }
+</style>
+<div class="modal fade" id="modalNvluongphucap">
+    <div class=" modal-dialog draggable modal-lg ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+               
+                    <div class="container-fluid nopadding" style="position:relative">
+                        <div class="floatleft" style="padding:0 0 12px;" v-if="Isnew">
+
+                            <label class="flex" style="padding: 0 15px;">
+                                <input type="radio" name="rdoType" v-model="thietLapCoBan.LoaiLuong" value="1" v-on:change="ChangeLoaiLuong">Lương
+                            </label>
+                            <label class="flex" style="padding: 0 15px;">
+                                <input type="radio" name="rdoType" v-model="thietLapCoBan.LoaiLuong" value="5" v-on:change="ChangeLoaiLuong">Phụ cấp
+                            </label>
+                            <label class="flex" style="padding: 0 15px;">
+                                <input type="radio" name="rdoType" v-model="thietLapCoBan.LoaiLuong" value="6" v-on:change="ChangeLoaiLuong">Giảm trừ
+                            </label>
+
+                        </div>
+                        <div class="col-sm-12 col-md-7  " style="padding:0 5px 0 0">
+                            <div class="form-group floatleft">
+                                <label class="form-label control-label label-1024">{{lbl_SalaryType}}</label>
+                                <div class="form-news">
+                                    <div class="dropdown myddl open">
+                                        <div class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                             style="height:30px; width:95%">
+                                            <span>{{thietLapCoBan.TenLoaiLuong}}</span>
+                                        </div>
+                                        <i class="fa fa-angle-down" v-if="thietLapCoBan.LoaiLuong == 1 "></i>
+                                        <i class="fa fa-plus" v-if="thietLapCoBan.LoaiLuong != 1 && thietLapCoBan.ID_LoaiLuong == null " v-on:click="ShowPop_AddPhuCap"></i>
+                                        <i class="fa fa-edit" v-if="thietLapCoBan.LoaiLuong != 1 && thietLapCoBan.ID_LoaiLuong !== null " v-on:click="EditPhuCap_GiamTru"></i>
+                                        <div class="dropdown-menu" id="ddlloailuong">
+                                            <ul v-if="thietLapCoBan.LoaiLuong == 1 ">
+                                                @foreach (var item in commonEnumHellper.KieuTinhLuong)
+                                                {
+                                                    <li value="@item.Key" class="salary-type" onclick="ChoseKieuTinhLuong('@item.Key', '@item.Value');">
+                                                        <span>@item.Value</span>
+                                                    </li>
+                                                }
+                                            </ul>
+                                            <ul v-if="thietLapCoBan.LoaiLuong == 5" v-for="item in listData.ListLoaiLuong">
+                                                <li :key="item.ID" v-on:click="ChoseLoaiPhuCap(item)">
+                                                    <span>{{item.TenLoaiLuong}}</span>
+                                                </li>
+                                            </ul>
+                                            <ul v-if="thietLapCoBan.LoaiLuong == 6" v-for="item in listData.ListLoaiLuong">
+                                                <li :key="item.ID" v-on:click="ChoseLoaiPhuCap(item)">
+                                                    <span>{{item.TenLoaiLuong}}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft" v-if="showSoTien">
+                                <label>Số tiền (<span style="color:red">*</span>)</label>
+                                <div class="form-news">
+                                    <input class="form-control currency text-left" type="text" 
+                                           onclick="this.select()"
+                                           onkeypress="keypressNumber_limitNumber(event, this)" style="width:100%"
+                                           v-on:keyup="formatNumberSoTien(event)"
+                                           v-model="thietLapCoBan.SoTien" />
+                                    <div class="btn-group" style="width:auto; position:absolute; top:0; right:0" v-if="thietLapCoBan.LoaiPhuCap_GiamTru > 4">
+                                        <button href="javascript:void(0)" class="btn jsbtn"
+                                                v-on:click="PhuCap_ClickVND"
+                                                v-bind:class="{active: thietLapCoBan.LoaiPhuCap_GiamTru !== 53 && thietLapCoBan.LoaiPhuCap_GiamTru !== 63}"
+                                                style=" height:30px;   margin: 0;    border-top-right-radius: 0;    border-bottom-right-radius: 0;outline:none">
+                                            VND
+                                        </button>
+                                        <button href="javascript:void(0)" class="btn jsbtn"
+                                                v-on:click="PhuCap_ClickPtram"
+                                                v-bind:class="{active: thietLapCoBan.LoaiPhuCap_GiamTru === 53 || thietLapCoBan.LoaiPhuCap_GiamTru === 63}"
+                                                style=" height:30px;   margin: 0;    border-top-left-radius: 0;    border-bottom-left-radius: 0;outline:none">
+                                            % Lương chính
+                                        </button>
+                                    </div>
+                                    <label style="width:100%" v-if="thietLapCoBan.LoaiLuong === 5 && thietLapCoBan.LoaiPhuCap_GiamTru !==53">
+                                        <input type="checkbox" name="rdoPhuCap" v-model="thietLapCoBan.LaPhuCap_TheoNgay" v-on:change="ClickPhuCapTheoNgay" /> &nbsp; &nbsp; Là phụ cấp theo ngày công
+                                    </label>
+                                    <label style="width:100%" v-if="thietLapCoBan.LoaiLuong === 6 && thietLapCoBan.LoaiPhuCap_GiamTru !== 63">
+                                        <input type="checkbox" name="rdoPhuCap" v-model="thietLapCoBan.LaGiamTru_TheoLan" v-on:change="ClickGiamTruTheoNgay"> &nbsp; &nbsp; Là giảm trừ theo lần
+                                    </label>
+                                </div>
+                            </div>
+                           
+                        </div>
+                        <div class="col-sm-12 col-md-5 ">
+                            <div class="form-group floatleft">
+                                <label>Ngày áp dụng(<span style="color:red">*</span>)</label>
+                                <div class="form-news add-icon-date">
+                                    <input type="text" id="dateTNLuong" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label>Ngày kết thúc</label>
+                                <div class="form-news add-icon-date">
+                                    <input type="text" id="dateDNLuong" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                            <a class="btn-side-left" v-on:click="HideShow_ThietLapNangCao"  title="Thiết lập nâng cao">
+                                <i class="fa fa-ellipsis-v " style="    font-size: 20px;    color: #686868;"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                    <div class="form-group floatleft" v-if="thietLapNangCao.isShow" id="tblNangCao">
+                        <table class='table'>
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left">
+                                        Mức lương
+                                    </th>
+                                    <th> Ngày thường
+                                    </th>
+                                    <th>
+                                        Thứ 7
+                                    </th>
+                                    <th>
+                                        Chủ nhật
+                                    </th>
+                                    <th>
+                                        Ngày nghỉ
+                                    </th>
+                                    <th>
+                                        Ngày lễ
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(ctluong, index) in listData.NS_ThietLapLuongChiTiet">
+                                    <td style="text-align:left">
+                                        <div class="dropdown">
+                                            <a class="dropdown-toggle btn btn-link drop-Op" data-toggle="dropdown">
+                                                <span>{{ctluong.TenCa}} <i v-if=" index !==0" class="fa fa-angle-down " style="margin-left:5px"></i></span>
+                                            </a>
+                                            <ul class="ctluong-dsca dropdown-menu" v-if="index!==0">
+                                                <li>-- Chọn ca --</li>
+                                                <li v-for="ca in listData.ListCa_ofNhanVien" class="floatleft">
+                                                    <div v-on:click="ctluong_ChoseCaLamViec(index, ca)">
+                                                        {{ca.TenCa}}
+                                                        <i class="fa fa-check" v-if="ctluong.ID_CaLamViec === ca.ID"></i>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="ctluong.LuongNgayThuong"
+                                                   v-on:keyup="ctluong_EditGiaTri(ctluong,index,0)" />
+                                            <span v-if="$root.thietLapCoBan.LoaiPhuCap_GiamTru === 3 ">/ ca</span>
+                                            <span v-if="$root.thietLapCoBan.LoaiPhuCap_GiamTru === 4 ">/ giờ</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="ctluong.Thu7_GiaTri" v-on:keyup="ctluong_EditGiaTri(ctluong,index,1)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.Thu7_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: ctluong.Thu7_LaPhanTramLuong == 0}"
+                                                   v-on:click="ctluong_ClickPtram(index, ctluong,1)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.Thu7_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: ctluong.Thu7_LaPhanTramLuong == 1}"
+                                                   v-on:click="ctluong_ClickVND(index, ctluong,1)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="ctluong.ThCN_GiaTri" v-on:keyup="ctluong_EditGiaTri(ctluong,index,2)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.CN_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: ctluong.CN_LaPhanTramLuong == 0}"
+                                                   v-on:click="ctluong_ClickPtram(index, ctluong,2)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.CN_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: ctluong.CN_LaPhanTramLuong == 1}"
+                                                   v-on:click="ctluong_ClickVND(index, ctluong,2)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="ctluong.NgayNghi_GiaTri" v-on:keyup="ctluong_EditGiaTri(ctluong,index,3)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.NgayNghi_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: ctluong.NgayNghi_LaPhanTramLuong == 0}"
+                                                   v-on:click="ctluong_ClickPtram(index, ctluong,3)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.NgayNghi_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: ctluong.NgayNghi_LaPhanTramLuong == 1}"
+                                                   v-on:click="ctluong_ClickVND(index, ctluong,3)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="ctluong.NgayLe_GiaTri" v-on:keyup="ctluong_EditGiaTri(ctluong,index,4)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.NgayLe_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: ctluong.NgayLe_LaPhanTramLuong == 0}"
+                                                   v-on:click="ctluong_ClickPtram(index, ctluong,4)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="ctluong.NgayLe_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: ctluong.NgayLe_LaPhanTramLuong == 1}"
+                                                   v-on:click="ctluong_ClickVND(index, ctluong,4)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-link" v-on:click="Add_ThietLapChitiet">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-link" v-if="index!==0" v-on:click="ctluong_DeleteRow(index)">
+                                            <i class="fa fa-close text-danger"></i>
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    <div class="form-group floatleft thietlapnangcao-p" style="margin:0; padding:10px 0" v-if="thietLapNangCao.isShowOT">
+                        <label>Làm thêm giờ</label>
+                        <div class="show-table"
+                             v-on:click="thietLapOT_OnOff">
+                            <span class="main-show" v-bind:class="{'main-hide': thietLapOT.isShow}">
+                                <span class="turnon">Bật</span>
+                                <span class="turnoff">Tắt</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft " style="border-top:1px solid #ccc" v-if="thietLapNangCao.isShowOT && thietLapOT.isShow" id="tblOT">
+                        <table class="">
+                            <thead>
+                                <tr>
+                                    <th>
+
+                                    </th>
+                                    <th>
+                                        Ngày thường
+                                    </th>
+                                    <th>
+                                        Thứ 7
+                                    </th>
+                                    <th>
+                                        Chủ nhật
+                                    </th>
+                                    <th>
+                                        Ngày nghỉ
+                                    </th>
+                                    <th>
+                                        Ngày lễ
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            Hệ số OT
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="thietLapOT.LuongNgayThuong" v-on:keyup="thietLapOT_EditGiaTri(0)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.NgayThuong_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: thietLapOT.NgayThuong_LaPhanTramLuong == 0}"
+                                                   v-on:click="thietLapOT_ClickPtram(0)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.NgayThuong_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: thietLapOT.NgayThuong_LaPhanTramLuong == 1}"
+                                                   v-on:click="thietLapOT_ClickVND(0)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="thietLapOT.Thu7_GiaTri" v-on:keyup="thietLapOT_EditGiaTri(1)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.Thu7_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: thietLapOT.Thu7_LaPhanTramLuong == 0}"
+                                                   v-on:click="thietLapOT_ClickPtram(1)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.Thu7_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: thietLapOT.Thu7_LaPhanTramLuong == 1}"
+                                                   v-on:click="thietLapOT_ClickVND(1)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="thietLapOT.ThCN_GiaTri" v-on:keyup="thietLapOT_EditGiaTri(2)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.CN_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: thietLapOT.CN_LaPhanTramLuong == 0}"
+                                                   v-on:click="thietLapOT_ClickPtram(2)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.CN_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: thietLapOT.CN_LaPhanTramLuong == 1}"
+                                                   v-on:click="thietLapOT_ClickVND(2)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="thietLapOT.NgayNghi_GiaTri" v-on:keyup="thietLapOT_EditGiaTri(3)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.NgayNghi_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: thietLapOT.NgayNghi_LaPhanTramLuong == 0}"
+                                                   v-on:click="thietLapOT_ClickPtram(3)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.NgayNghi_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: thietLapOT.NgayNghi_LaPhanTramLuong == 1}"
+                                                   v-on:click="thietLapOT_ClickVND(3)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="formRealtive">
+                                            <input class="form-control" onkeypress="return keypressNumber(event)"
+                                                   v-model="thietLapOT.NgayLe_GiaTri" v-on:keyup="thietLapOT_EditGiaTri(4)" />
+                                            <div class="formAbsolute">
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.NgayLe_LaPhanTramLuong == 0"
+                                                   v-bind:class="{active: thietLapOT.NgayLe_LaPhanTramLuong == 0}"
+                                                   v-on:click="thietLapOT_ClickPtram(4)">VND</a>
+                                                <a href="javascript:void(0)" class="tooglevnd"
+                                                   v-if="thietLapOT.NgayLe_LaPhanTramLuong == 1"
+                                                   v-bind:class="{active: thietLapOT.NgayLe_LaPhanTramLuong == 1}"
+                                                   v-on:click="thietLapOT_ClickVND(4)">%</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>   <i class="fa fa-trash text-danger"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group floatleft" style="display:none">
+                        <label>Hệ số </label>
+                        <div class="form-news">
+                            <input class="form-control text-right" type="number" v-model="thietLapCoBan.HeSo" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" style="display:none">
+                        <label>Bậc</label>
+                        <div class="form-news">
+                            <input class="form-control text-right" type="text" v-model="thietLapCoBan.Bac" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung</label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="thietLapCoBan.NoiDung"></textarea>
+                        </div>
+                    </div>
+                   
+                    <div class="form-group floatleft">
+                        <div class="col-sm-3 col-md-3 col-xs-12"></div>
+                        <div class="col-sm-9 col-md-9 col-xs-12" style="float:right;color:red">
+                            {{error}}
+                        </div>
+                    </div>
+               
+            </div>
+                <div class="modal-footer nopadding">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveTax">
+                            <i class="fa fa-floppy-o"></i>  Lưu
+                        </button>
+                    </div>
+                </div>
+           
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNvloailuong">
+    <div class=" modal-dialog draggable">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{Isnew?'Thêm mới':'Cập nhật'}}
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+
+                <span style="float:right;color:red">{{error}}</span>
+                <div class="form-group floatleft">
+                    <label style="letter-spacing:-1px">Tên {{title}}(<span style="color:red">*</span>)</label>
+                    <div class="form-news">
+                        <input class="form-control" type="text" v-model="TenLoaiLuong" autofocus />
+                    </div>
+                </div>
+                <div class="form-group floatleft" style="margin-bottom:0px!important">
+                    <label>Ghi chú</label>
+                    <div class="form-news">
+                        <textarea rows="2" type="text" v-model="GhiChu"></textarea>
+                    </div>
+                </div>
+
+              
+            </div>
+            <div class="modal-footer ">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                    <button type="button" class="btn btn-save" v-on:click="Save">
+                        <i class="fa fa-save"></i>&nbsp; Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Thietlap/ThietLapLuong_PhuCap.js"></script>

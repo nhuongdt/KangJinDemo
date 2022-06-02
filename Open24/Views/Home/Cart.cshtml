@@ -1,0 +1,278 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Thiết bị bán hàng";
+}
+
+@section FormDangky{
+    @Html.Action("_cuahangdangky", new { area = "", controller = "home" })
+}
+
+@section scripts{
+
+<script>
+    var Cart = function () {
+        var self = this;
+        self.listMenu = ko.observableArray();
+        self.listDataRelated = ko.observableArray();
+        self.DevicesDetail = ko.observableArray();
+        self.ViewImg = ko.observable();
+        self.CountCart = ko.observable();
+        function Loadform() {
+            if (location.pathname.split('/').length > 3) {
+                $.ajax({
+                    url: "/Open24Api/ApiSalesDevice/GetDetailDevice/" + location.pathname.split('/')[2],
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function (result) {
+                        if (result.res === true) {
+                            if (result.DataSoure.detail.SalesImgDevices.length > 0) {
+                                self.ViewImg(result.DataSoure.detail.SalesImgDevices[0].SrcImage);
+                            }
+                            self.DevicesDetail(result.DataSoure.detail);
+                            self.listMenu(result.DataSoure.listMenu);
+                            self.listDataRelated(result.DataSoure.dataRelated);
+                        } else {
+                            console.log(result.mess);
+                        }
+                    },
+                    error: function (result) {
+                        console.log(result);
+                    }
+                });
+            }
+        };
+
+        Loadform();
+        $("body").on('CartOnsuccess', function () {
+            LocalIndexDB.Connect().getAll().onsuccess = function (evt) {
+                self.CountCart(evt.target.result.length);
+            }
+        });
+        self.ChangeImg = function (item) {
+            self.ViewImg(item.SrcImage);
+        }
+        const CartCookieName = "cartId";
+        self.addcart = function () {
+            var CartId = LocalCookies.Get(CartCookieName);
+            if (CartId === null || CartId === undefined) {
+                Cart = Guid.newGuid();
+                LocalCookies.Set(CartCookieName, Cart, 1);
+                LocalIndexDB.Connect().clear().onsuccess = function (evt) {
+                    addCartDevice(CartId);
+                };
+            }
+            else {
+                addCartDevice(CartId);
+            }
+        }
+        function addCartDevice(CartId) {
+            var objectStore = LocalIndexDB.Connect();
+            var request = objectStore.getAll();
+            request.onsuccess = function (evt) {
+                var data = request.result;
+                if (data.some(o => o.salesDevice_Id === self.DevicesDetail().ID && o.Client_Id === CartId)) {
+                   var objectStoreRequest = objectStore.openCursor(data.filter(o => o.salesDevice_Id === self.DevicesDetail().ID && o.Client_Id === CartId)[0].ID);
+                    objectStoreRequest.onsuccess = function (event) {
+                        var cursor = event.target.result;
+                        if (cursor) {
+                            var myRecord = cursor.value;
+                            if (myRecord !== null && myRecord !== undefined) {
+                                myRecord.salesDevice_Quantity += 1;
+                                myRecord.salesDevice_Money = myRecord.salesDevice_Quantity * myRecord.salesDevice_Price;
+                                cursor.update(myRecord);
+                            }
+                        }
+                        window.location.href = "/Gio-hang";
+                    };
+
+                }
+                else {
+                    var price = self.DevicesDetail().IsSalePrice == true ? self.DevicesDetail().PriceSale : self.DevicesDetail().Price;
+                    var model = {
+                        salesDevice_Id: self.DevicesDetail().ID,
+                        salesDevice_Name: self.DevicesDetail().Name,
+                        salesDevice_Price: price,
+                        salesDevice_Quantity: 1,
+                        salesDevice_Img: self.ViewImg(),
+                        salesDevice_Money: (1 * price),
+                        salesDevice_Encoder: self.DevicesDetail().Encoder,
+                        Client_Id: CartId,
+                    };
+                    objectStore.add(model);
+                    window.location.href = "/Gio-hang";
+                }
+            };
+        }
+    }
+    ko.applyBindings(new Cart());
+
+    $(document).on("click", ".menu-devices li", function () {
+        $(this).find("ul").slideToggle();
+        $(this).find(".bnt-up").toggle();
+        $(this).find(".bnt-down").toggle();
+    });
+  
+</script>
+}
+<div class="detail-product fl">
+    <div class="container">
+      
+           <div class="title-product fl">
+               <div class="product-left pull-left">
+                   <a href="/">Trang chủ <i class="fa fa-caret-right"></i></a>
+                   <a href="/bang-gia-phan-mem">Thiết bị bán hàng <i class="fa fa-caret-right"></i></a>
+                   <a href="" data-bind=" attr{href:DevicesDetail().Url},text:DevicesDetail().Name"></a>
+               </div>
+               <div class="product-right pull-right">
+                   <div class="seach-product">
+                       @*<input type="text" class="form-control" placeholder="Tìm kiếm" />
+                       <i class="fa fa-search"></i>*@
+                   </div>
+                   <div class="cart-product">
+                       <a href="/gio-hang">
+                       Giỏ hàng
+                       <img src="~/Content/images/phidv/ca1.png" />
+                       <span data-bind="text:CountCart" />
+                           </a>
+                   </div>
+               </div>
+           </div>
+           <div class="fl">
+               <div class="menu-left">
+                   <ul class="menu-devices">
+                       <!--ko foreach: listMenu -->
+                       <li>
+                           <a href="javascript: void(0)">
+                             <span data-bind="text:Name" ></span>
+                               <img src="~/Content/images/nextdk.png" class="bnt-up" />
+                               <img src="~/Content/images/prevdk.png" class="bnt-down" />
+                           </a>
+                           <ul class="fl" data-bind="foreach: SalesDevices">
+                               <li>
+                                   <a data-bind="attr: { href: Img_Url,alt:Img_Name}"><i class="fa fa-chevron-right"></i> <span data-bind="text:Img_Name" /></a>
+                               </li>
+                           </ul>
+                       </li>
+                       <!--/ko-->
+                   </ul>
+               </div>
+               <div class="menu-right">
+                   <div class="col-md-6">
+                       <div class="row">
+                           <div class="img-detail-product">
+                               <img  data-bind="attr: { src: ViewImg,alt: DevicesDetail().Name}">
+                           </div>
+                           <div class="listimg-detail ">
+                               <ul >
+                                   <!--ko foreach: DevicesDetail().SalesImgDevices -->
+                                   <li>
+                                       <a href="javascript: void(0)">
+                                           <img data-bind="attr: { src: SrcImage,alt: $root.DevicesDetail().Name},click:$parent.ChangeImg" >
+                                       </a>
+                                   </li>
+                                   <!--/ko-->
+                               </ul>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="col-md-6">
+                       <div class="row">
+                           <div class="information-b fl">
+                               <div class="name-product" data-bind="text:DevicesDetail().Name">
+                               </div>
+                               <div class=""  data-bind="visible:DevicesDetail().Trademark!=null">
+                                   <span  data-bind="text:' Thương hiệu: '+DevicesDetail().Trademark" />
+                               </div>
+                               <div class="">
+                                  <span data-bind="text:' Đánh giá ('+DevicesDetail().ViewBuy+' lượt mua)'"></span> 
+                               </div>
+                               <div class="start-detail fl">
+                                   <a href=""><img src="~/Content/images/phidv/st.png" /></a>
+                                   <a href=""><img src="~/Content/images/phidv/st.png" /></a>
+                                   <a href=""><img src="~/Content/images/phidv/st.png" /></a>
+                                   <a href=""><img src="~/Content/images/phidv/st1.png" /></a>
+                               </div>
+                               <div class="price-detail"  data-bind="visible:DevicesDetail().IsSalePrice">
+                                   <div class="price-oll" style="    font-size: 15px;" data-bind="text:FormatVND(DevicesDetail().Price)"></div>
+                                   <span data-bind="text:FormatVND(DevicesDetail().PriceSale)"  />
+                               </div>
+                               <div class="price-detail"  data-bind="visible:!DevicesDetail().IsSalePrice">
+                                   <span data-bind="text:FormatVND(DevicesDetail().Price)" />
+                               </div>
+                               <div class="fl transport">
+
+                                   <span><img src="~/Content/images/phidv/m1.png" /> </span>         <font>Miễn phí vận chuyển</font>
+                               </div>
+                               <div class="fl transport" data-bind="visible:DevicesDetail().TimeGuarantee>0">
+
+                                   <span><img src="~/Content/images/phidv/m3.png" /> </span>           <font data-bind="text:'Bảo hành '+DevicesDetail().TimeGuarantee+' tháng'"> </font>
+                               </div>
+                               <div class="transport fl">
+
+                                   <span><img src="~/Content/images/phidv/m.png" /></span>              <font>Hotline: 0247 303 9333</font>
+                               </div>
+                               <a href="" class="bought-right" data-bind="click:addcart">
+                                   <div class="hand">
+                                       <img src="~/Content/images/phidv/m4.png" />
+
+
+                                   </div>
+                                   <div class="bought-text">
+                                       <font>Mua hàng ngay</font><br />
+                                       Giao tận nơi hoặc nhận tại các cửa hàng
+                                   </div>
+                               </a>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           <div class="infor-detail fl">
+               <ul class="nav nav-tabs">
+                   <li class="active"><a href="#home" data-toggle="tab">Đặc điểm nổi bật</a></li>
+                   <li><a href="#info" data-toggle="tab">Công dụng</a></li>
+                   <li><a href="#contact" data-toggle="tab">Thông số kỹ thuật</a></li>
+               </ul>
+
+               <div class="tab-content">
+                   <div class="tab-pane active" id="home"><span data-bind="html:DevicesDetail().SpecialPoint" /></div>
+                   <div class="tab-pane" id="info"><span data-bind="html:DevicesDetail().ApplicationReal" /></div>
+                   <div class="tab-pane" id="contact"><span data-bind="html:DevicesDetail().DigitalInformation" /></div>
+               </div>
+           </div>
+           <div class="fl text-center title-bought" data-bind="visible:listDataRelated().length>0">
+               Sản phẩm liên quan
+           </div>
+           <ul class="bcc" data-bind="foreach: listDataRelated">
+               <li>
+                   <div class="item-thietbi">
+                       <div class="device-img">
+                           <a data-bind="attr: { href: Url}">
+                           <img data-bind="attr: { src: SrcImg}" /></a>
+                           <div class="sale-product" data-bind="visible:IsSalePrice">
+                               Giảm giá
+                           </div>
+                       </div>
+                       <div class="name-device">
+                           <a data-bind="attr: { href: Url}"> <span data-bind="text:Name" /></a>
+                       </div>
+                       <div class="bh-device"><i><span data-bind="text:TimeGuarantee" /></i></div>
+                       <div class="price-device" data-bind="text:FormatVND(PriceSale),visible: IsSalePrice">
+                       </div>
+                       <div class="price-device" data-bind="text:FormatVND(Price),visible: !IsSalePrice">
+                       </div>
+                       <div class="price-oll" data-bind="text:FormatVND(Price),visible: IsSalePrice">
+                       </div>
+                       @*<div class="add-cart">
+                           <a href=""><i class="fa fa-shopping-cart fa-lg"></i>    Thêm vào giỏ hàng</a>
+                       </div>*@
+                   </div>
+               </li>
+
+
+
+           </ul>
+      
+    </div>
+</div>

@@ -1,0 +1,393 @@
+﻿
+<div class="modal fade in " id="vmDieuChinhCongNo">
+    <div class="modal-dialog draggable modal-md">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    Điều chỉnh công  nợ
+                </h4>
+            </div>
+            <div class="modal-body floatleft">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">
+                                Nợ hiện tại
+                                <i class="fal fa-info-circle"
+                                   title="Công nợ tính theo các chi nhánh được chọn theo điều kiện lọc"></i>
+                            </label>
+                            <div class="form-news">
+                                <span>{{formatNumber3Digit(NoHienTai_toDate)}}</span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">Mã phiếu </label>
+                            <div class="form-news">
+                                <input type="text" autofocus class="form-control" placeholder="Mã tự động"
+                                       v-model="$root.MaHoaDon">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">Ngày điều chỉnh</label>
+                            <div class="form-news">
+                                <date-time :date-chose="NgayDieuChinh"
+                                           :role-change-date="$root.role.ChangeNgayLap && !$root.isKhoaSo"
+                                           v-on:change-date="ChangeNgayDieuChinh">
+                                </date-time>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">Giá trị nợ điều chỉnh </label>
+                            <div class="form-news">
+                                <input type="text" autofocus class="form-control"
+                                       onkeyup="return formatNumberObj(this)"
+                                       onkeypress="return keypressNumberSign(event)"
+                                       v-model="GiaTriDieuChinh">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">Mô tả</label>
+                            <div class="form-news">
+                                <textarea placeholder="Mô tả"
+                                          v-model="NoiDungThu"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i> Bỏ qua
+                </button>
+                <button type="button" class="btn btn-cancel" 
+                        v-if="$root.role.Delete && typeUpdate == 2 && !$root.isKhoaSo" 
+                        v-on:click="$root.HuyPhieu">
+                    <i class="fa fa-trash"></i> Xóa
+                </button>
+                <button type="button" class="btn btn-main" 
+                        v-if="!isLoading && typeUpdate == 1" 
+                        v-on:click="Save">
+                    <i class="fa fa-check-square"></i> Lưu
+                </button>
+                <button type="button" class="btn btn-main"
+                        v-if="!isLoading && typeUpdate == 2 && !$root.isKhoaSo" 
+                        v-on:click="Save">
+                    <i class="fa fa-check-square"></i> Cập nhật
+                </button>
+                <button type="button" class="btn btn-save"
+                        v-if="isLoading">
+                    <i class="fa fa-save"></i>
+                    Đang lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmDieuChinhCongNo = new Vue({
+        el: '#vmDieuChinhCongNo',
+        components: {
+            'date-time': cpmDatetime
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_DonVi: VHeader.IdDonVi,
+                ID_NhanVien: VHeader.IdNhanVien,
+                UserLogin: VHeader.UserLogin,
+            }
+            self.role.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
+            self.role.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+            self.arrChiNhanhChosed = [self.inforLogin.ID_DonVi];
+            self.isKhoaSo = false;
+        },
+        data: {
+            typeUpdate: 1, //1.insert,2.update
+            LoaiDoiTuong: 1, //1.kh, 2.ncc, 3.baohiem
+            saveOK: false,
+            isLoading: false,
+            isKhoaSo: false,
+            arrChiNhanhChosed: [],
+            role: { Delete: false, ChangeNgayLap: true },
+            qhdOld: {},
+
+            ID: const_GuidEmpty,
+            MaNguoiNop: '',
+            NguoiNopTien: '',
+            ID_DoiTuong: null,
+            MaHoaDon: 0,
+            GiaTriDieuChinh: 0,
+            NoHienTai_toDate: 0,
+            NoiDungThu: '',
+            NgayDieuChinh: new Date()
+        },
+        methods: {
+            getQuyHoaDon_byID: function (idQuyHD, isShowModal = false) {
+                let self = this;
+                ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + 'GetQuyChiTiet_byIDQuy/' + idQuyHD, 'GET').done(function (x) {
+                    if (x.res && x.dataSoure.length > 0) {
+                        let obj = x.dataSoure[0];
+                        self.qhdOld = obj;
+
+                        self.typeUpdate = 2;
+                        self.isLoading = false;
+
+                        self.ID = obj.ID;
+                        self.ID_DoiTuong = obj.ID_DoiTuong;
+                        self.MaHoaDon = obj.MaHoaDon;
+                        self.NoHienTai_toDate = 0;
+                        self.NoiDungThu = obj.NoiDungThu;
+                        self.LoaiDoiTuong = obj.LoaiDoiTuong;
+                        self.MaNguoiNop = obj.MaDoiTuong;
+                        self.NguoiNopTien = obj.NguoiNopTien;
+                        self.NgayDieuChinh = moment(obj.NgayLapPhieuThu).format('YYYY-MM-DD HH:mm');
+
+                        self.ChangeNgayDieuChinh();
+                        self.isKhoaSo = VHeader.CheckKhoaSo(moment(obj.NgayLapPhieuThu).format('YYYY-MM-DD'), self.qhdOld.ID_DonVi);
+
+                        if (isShowModal) {
+                            $('#vmDieuChinhCongNo').modal('show');
+                        }
+                    }
+                })
+            },
+
+            showModal: function (item) {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 1;
+                self.isLoading = false;
+                self.isKhoaSo = false;
+
+                self.LoaiDoiTuong = item.LoaiDoiTuong;
+                self.ID_DoiTuong = item.ID_DoiTuong;
+                self.MaNguoiNop = item.MaNguoiNop;
+                self.NguoiNopTien = item.NguoiNopTien;
+
+                self.ID = const_GuidEmpty;
+                self.MaHoaDon = '';
+                self.GiaTriDieuChinh = 0;
+                self.NoHienTai_toDate = 0;
+                self.NoiDungThu = '';
+                self.NgayDieuChinh = moment(new Date()).format('YYYY-MM-DD HH:mm');
+                self.ChangeNgayDieuChinh();
+                $('#vmDieuChinhCongNo').modal('show');
+            },
+           
+            ChangeNgayDieuChinh: function (e) {
+                let self = this;
+                var dtchange = moment(e).format('YYYY-MM-DD HH:mm');
+                if (commonStatisJs.CheckNull(e)) {
+                    if (self.typeUpdate === 2) {
+                        dtchange = moment(self.qhdOld.NgayLapPhieuThu).add(-2, 'miliseconds').format('YYYY-MM-DD HH:mm:ss');
+                    }
+                }
+                else {
+                    let khoaSo = VHeader.CheckKhoaSo(moment(e).format('YYYY-MM-DD'));
+                    if (khoaSo) {
+                        ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                        return;
+                    }
+                    self.NgayDieuChinh = dtchange;
+                }
+
+                let myData = {
+                    TextSearch: self.ID_DoiTuong,// mượn trường
+                    DateTo: dtchange,
+                    IDChiNhanhs: self.arrChiNhanhChosed,
+                }
+                ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'GetNoKhachHang_byDate', 'POST', myData).done(function (x) {
+                    if (x.res) {
+                        if (x.dataSoure.length > 0) {
+                            switch (self.LoaiDoiTuong) {
+                                case 2:
+                                    self.NoHienTai_toDate = - x.dataSoure[0].NoHienTai;
+                                    break;
+                                default:
+                                    self.NoHienTai_toDate = x.dataSoure[0].NoHienTai;
+                                    break;
+                            }
+                        }
+                        else {
+                            self.NoHienTai_toDate = 0;
+                        }
+                    }
+                    else {
+                        self.NoHienTai_toDate = 0;
+                        console.log(x.mess);
+                    }
+                    if (self.typeUpdate === 2) {
+                        // khachang: 11.thu khachhang --> giamno
+                        // nhacungcap: 11.thu cua NCC --> tang no
+                        switch (self.LoaiDoiTuong) {
+                            case 2:// nhacungcap
+                                switch (self.qhdOld.LoaiHoaDon) {
+                                    case 11:
+                                        self.GiaTriDieuChinh = formatNumber3Digit(self.NoHienTai_toDate + self.qhdOld.TongTienThu);
+                                        break;
+                                    case 12:
+                                        self.GiaTriDieuChinh = formatNumber3Digit(self.NoHienTai_toDate - self.qhdOld.TongTienThu);
+                                        break;
+                                }
+                                break;
+                            default:
+                                switch (self.qhdOld.LoaiHoaDon) {
+                                    case 11:
+                                        self.GiaTriDieuChinh = formatNumber3Digit(self.NoHienTai_toDate - self.qhdOld.TongTienThu);
+                                        break;
+                                    case 12:
+                                        self.GiaTriDieuChinh = formatNumber3Digit(self.NoHienTai_toDate + self.qhdOld.TongTienThu);
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                })
+            },
+            HuyPhieu: function () {
+                let self = this;
+                let khoaSo = VHeader.CheckKhoaSo(moment(self.qhdOld.NgayLapPhieuThu).format('YYYY-MM-DD'));
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Delete);
+                    return;
+                }
+                dialogConfirm('Xác nhận xóa', 'Bạn có chắc chắn muốn hủy phiếu điều chỉnh công nợ <b> ' + self.MaHoaDon + ' </b> không?', function () {
+                    ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + "DeleteQuy_HoaDon/" + self.ID, 'DELETE').done(function (x) {
+                        if (x === "") {
+                            ShowMessage_Success("Xóa sổ quỹ thành công");
+                            let diary = {
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                LoaiNhatKy: 3,
+                                ChucNang: 'Phiếu điều chỉnh công nợ',
+                                NoiDung: 'Hủy phiếu điều chỉnh công nợ '.concat(self.MaHoaDon, ', nhân viên hủy: ', self.inforLogin.UserLogin),
+                                NoiDungChiTiet: 'Danh mục khách hàng: hủy phiếu điều chỉnh công nợ '.concat(self.MaHoaDon, ', nhân viên hủy: ', self.inforLogin.UserLogin,
+                                    '<br /><b> Thông tin cũ: </b>',
+                                    '<br /> - Giá trị: ', formatNumber3Digit(self.qhdOld.TongTienThu),
+                                    '<br /> - Ngày điều chỉnh: ', moment(self.qhdOld.NgayLapPhieuThu).format('DD/MM/YYYY HH:mm')),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                        $('#vmDieuChinhCongNo').modal('hide');
+                    });
+                });
+            },
+            Save: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.GiaTriDieuChinh)) {
+                    ShowMessage_Danger('Vui lòng nhập giá trị nợ điều chỉnh ');
+                    return false;
+                }
+                let khoaSo = VHeader.CheckKhoaSo(moment(self.NgayDieuChinh).format('YYYY-MM-DD'));
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                    return;
+                }
+
+                let gtri = formatNumberToFloat(self.GiaTriDieuChinh);
+                let tongThu = self.NoHienTai_toDate - gtri;
+                let loaiThuChi = 11;
+                let sLoai = 'khách hàng';
+                switch (self.LoaiDoiTuong) {
+                    case 2:
+                        sLoai = 'nhà cung cấp';
+                        break;
+                    case 3:
+                        sLoai = 'bảo hiểm';
+                        break;
+                }
+                if (tongThu < 0) {
+                    tongThu = tongThu * (-1);
+                }
+                if (tongThu === 0) {
+                    ShowMessage_Danger('Không cần thiết khi điều chỉnh công nợ từ 0 về 0');
+                    return;
+                }
+
+                if (self.NoHienTai_toDate > gtri) {
+                    if (self.LoaiDoiTuong === 2) {
+                        loaiThuChi = 12;
+                    }
+                    else {
+                        loaiThuChi = 11;
+                    }
+                }
+                else {
+                    if (self.LoaiDoiTuong === 2) {
+                        loaiThuChi = 11;
+                    }
+                    else {
+                        loaiThuChi = 12;
+                    }
+                }
+                let ngayLap = self.NgayDieuChinh;
+                let qhd = {
+                    ID: self.ID,
+                    MaHoaDon: self.MaHoaDon,
+                    NgayLapHoaDon: ngayLap,
+                    TongTienThu: tongThu,
+                    NguoiNopTien: self.NguoiNopTien,
+                    NoiDungThu: self.NoiDungThu,
+                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                    NguoiTao: self.inforLogin.UserLogin,
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    LoaiHoaDon: loaiThuChi,
+                    HachToanKinhDoanh: false,// DieuChinhCongNo: Khong Hach toan vao kinh doanh
+                    PhieuDieuChinhCongNo: 1,
+                    TrangThai: true,
+                }
+                let qct = {
+                    ID_NhanVien: null,
+                    ID_DoiTuong: self.ID_DoiTuong,
+                    TienMat: tongThu,
+                    TienGui: 0,
+                    HinhThucThanhToan: 1,
+                    TienThu: tongThu,
+                    GhiChu: self.NoiDungThu,
+                }
+                let myData = {
+                    objQuyHoaDon: qhd,
+                    objCTQuyHoaDon: qct,
+                };
+                self.isLoading = true;
+                ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/PostQuy_HoaDon_DieuChinh', 'POST', myData).done(function (x) {
+                    if (x.res) {
+                        self.saveOK = true;
+                        ShowMessage_Success("Điều chỉnh công nợ thành công");
+                        let sInforOld = '';
+                        if (self.typeUpdate === 2) {
+                            sInforOld = '<br/> <b> Thông tin cũ </b> '.concat('<br /> - Mã phiếu: ', self.qhdOld.MaHoaDon,
+                                '<br /> - Nợ điều chỉnh: ', formatNumber3Digit(self.qhdOld.TongTienThu),
+                                '<br /> - Ngày điều chỉnh: ', moment(self.qhdOld.NgayLapPhieuThu).format('DD/MM/YYYY HH:mm'),
+                            )
+                        }
+                        let diary = {
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ChucNang: "Điều chỉnh công nợ",
+                            NoiDung: "Điều chỉnh công nợ ".concat(sLoai, ': ', self.NguoiNopTien,
+                                ' (', self.MaNguoiNop, ')'),
+                            NoiDungChiTiet: 'Tạo phiếu điều chỉnh '.concat(x.dataSoure.MaHoaDon,
+                                ' <br /> Mã ', sLoai, ': ', self.MaNguoiNop,
+                                ' <br /> Nợ cũ: ', formatNumber3Digit(self.NoHienTai_toDate),
+                                ' , Nợ điều chỉnh: ', formatNumber3Digit(gtri),
+                                ', Ngày điều chỉnh: ', moment(ngayLap, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY HH:mm'),
+                                '<br/ > Người điều chỉnh: ', self.inforLogin.UserLogin, sInforOld),
+                            LoaiNhatKy: self.typeUpdate,
+                        };
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }
+                    else {
+                        ShowMessage_Danger(x.mess);
+                    }
+                    self.isLoading = false;
+                    $('#vmDieuChinhCongNo').modal('hide');
+                })
+            },
+        }
+    })
+</script>

@@ -1,0 +1,245 @@
+﻿<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title" id="myModalLabel">Nhóm khách hàng</h4>
+    </div>
+    <div class="modal-body cus">
+        <div class=" col-md-12 nopadding tab-news">
+            <ul class="nav nav-tabs">
+                <li class="active" id="tabThongTin">
+                    <a data-toggle="tab" href="#thongtinnhomKH" aria-expanded="true">Thông tin nhóm khách</a>
+                </li>
+                <li hidden id="tabThietLap"><a data-toggle="tab" href="#thietlap" aria-expanded="false">Điều kiện nâng nhóm</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="thongtinnhomKH" class="tab-pane fade active in thongtin">
+                    <div class="col-md-12 ">
+                        <div class="form-group row" data-bind="with: newNhomDoiTuong">
+                            <label class="form-label control-label">Tên nhóm <span style="color:red">(*)</span> :</label>
+                            <div class="form-news" id="txtTenNhomDoiTuong">
+                                <input class="form-control" autofocus="" data-bind="value: TenNhomDoiTuong">
+                            </div>
+                        </div>
+                        <div class="form-group row  pa10 ">
+                            <label class="form-label control-label">Giảm giá :</label>
+                            <div class="form-news">
+                                <div data-bind="with: newNhomDoiTuong" style="width:calc(100% - 70px); display:inline-block;">
+                                    <input class="form-control" id="txtGiamGiaNhomKH" maxlength="15"
+                                           data-bind="value: GiamGia, event:{keyup: $parent.KeyUp_GiamGiaNhomKH}"
+                                           onkeypress="return keypressNumber_limitNumber(event, this)">
+                                </div>
+
+                                <div class="toogle toogle-report" style="margin:0 5px;" id="LaPhanTram" data-bind="click: $root.choose_PhanTram, css:{'active-re': newNhomDoiTuong().GiamGiaTheoPhanTram}">
+                                    <span class="poison">VNĐ</span>
+                                    <span class="transverse">%</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group row" data-bind="visible: QuanLyKhachHangTheoDonVi">
+                            <label class="form-label control-label">Chi nhánh :</label>
+                            <div class="form-news">
+                                <div class="outselect outselectDV ">
+                                    <div class="choose-person floatleft " data-toggle="dropdown" aria-expanded="true" id="popNhomKH_divChiNhanhChosed">
+                                        <ul data-bind="foreach: $root.popNhomKH_ChiNhanhChosed">
+                                            <li class="li-input-span fl-left">
+                                                <span data-bind="text: TenDonVi">
+                                                </span>&nbsp;
+                                                <span data-bind="click: $root.popNhomKH_CloseChiNhanh">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" readonly class="dropdown" placeholder="--- Tất cả ---" id="popNhomKH_txtChiNhanh">
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft" id="popNhomKH_ChiNhanhs">
+                                        <ul>
+                                            <li id="00000000-0000-0000-0000-000000000000" data-bind="click: $root.popNhomKH_choseChiNhanh">
+                                                <span>--- Tất cả ---</span>
+                                            </li>
+                                        </ul>
+                                        <ul data-bind="foreach: $root.ChiNhanhs">
+                                            <li data-bind="click: $root.popNhomKH_choseChiNhanh, attr:{id: ID}">
+                                                <span data-bind="text: TenDonVi"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row" data-bind="with: newNhomDoiTuong">
+                            <label class="form-label control-label">Ghi chú :</label>
+                            <div class="form-news">
+                                <textarea data-bind="value: GhiChu" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="thietlap" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-md-12 ">
+                            <div class="  floatleft">
+                                <p title="" class="txt6 ng-binding" style="color:red">Điều kiện khách hàng nâng nhóm:</p>
+                                <table class='table'>
+                                    <tbody data-bind="foreach: DieuKienNangNhom">
+                                        <tr>
+                                            <td data-bind="attr:{id:'HinhThuc_'+ IDRandom}">
+                                                <div class="outselect">
+                                                    <div class="choose-person floatleft " data-toggle="dropdown">
+                                                        <input type="text" class="dropdown" data-bind="value: HinhThuc, click: $parent.SetCheck_MangDieuKien">
+                                                    </div>
+                                                    <div class="selec-person dropdown-menu floatleft" id="selec-all-DieuKien">
+                                                        <ul data-bind="foreach: $root.MangDieuKien()">
+                                                            <li data-bind="attr:{id: ID}, click: function(){$root.SelectedDieuKien($data, $parent)} ">
+                                                                <span data-bind="text: TenDieuKien"></span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td data-bind="attr:{id:'LoaiSoSanh_'+ IDRandom}">
+                                                <div class="outselect">
+                                                    <div class="choose-person floatleft " data-toggle="dropdown">
+                                                        <input type="text" class="dropdown" data-bind="value: LoaiSoSanh, click: $root.resetCheckSS">
+                                                    </div>
+                                                    <div class="selec-person dropdown-menu floatleft" id="selec-all-SoSanh">
+                                                        <ul data-bind="foreach: $root.MangSoSanh()">
+                                                            <li data-bind="attr:{idss: ID}, click: function (){ $root.SelectedSoSanh($data, $parent)}">
+                                                                <span data-bind="text: KieuSoSanh"></span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input class="form-control" onclick="this.select()"
+                                                       data-bind="value: formatNumber(GiaTri), visible: $.inArray(LoaiHinhThuc,[1,2,4,5,7] ) >-1, event: {keyup: $parent.DieuKienNangNhom_ChangeGiaTri}"
+                                                       onkeypress="return keypressNumber_limitNumber2(event, this)">
+                                                <select id="SelecttedPage" class="form-control" data-bind="value: $parent.pageTS,
+                                                     options: $parent.pageThangSinh, @*event: {change: $parent.ResetCurrentTS},*@ value: ThangSinh, visible: LoaiHinhThuc === 6"></select>
+                                                <div class="outselect" data-bind="visible: LoaiHinhThuc === 9">
+                                                    <div class="form-wrap">
+                                                        <input type="text" class="form-control" placeholder="Chọn tỉnh thành"
+                                                               data-bind="jqAuto:{source:$parent.TinhThanhs,value: $parent.newDoiTuong().ID_KhuVuc, inputProp:'TenTinhThanh', valueProp:'ID',
+                                                         labelProp:'TenTinhThanh',filter: $parent.filterProvince},event: {change: $parent.DKNangNhom_ChangeKhuVuc}, value: KhuVuc">
+                                                    </div>
+                                                </div>
+                                                <div class="outselect" data-bind="attr:{id: 'VungMien_' + IDRandom}, visible: LoaiHinhThuc === 10">
+                                                    <div class="form-wrap">
+                                                        <input type="text" class="form-control" placeholder="Chọn vùng miền"
+                                                               data-bind="jqAuto:{source:$parent.VungMiens, value: $parent.newDoiTuong().ID_VungMien, inputProp:'TenVung', valueProp:'ID',
+                                                         labelProp:'TenVung',filter: $parent.filterProvinceVM},event: {change: $parent.DKNangNhom_ChangeVungMien}, value: VungMien">
+                                                    </div>
+                                                </div>
+                                                <div class="w111" data-bind="attr:{id:'GioiTinh_'+ IDRandom}, visible: LoaiHinhThuc === 8">
+                                                    <label data-bind="click: $parent.SelectedGTNam"><input type="radio" data-bind="checked: GioiTinh, checkedValue: true" /> Nam</label>
+                                                    <label data-bind="click: $parent.SelectedGTNu"><input type="radio" data-bind="checked: GioiTinh, checkedValue: false" /> Nữ</label>
+                                                </div>
+                                                <div class="form-wrap floatleft  " style="width:100%!important" data-bind="attr:{id:'TimeBy_'+ IDRandom}, visible: LoaiHinhThuc === 3">
+                                                    <input type="text" class="form-control datepicker_maskby" placeholder="Từ ngày"
+                                                           data-bind="click: $root.resetTimeBy, value: TimeBy" />
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a title="Xóa nhóm" class="txtRed" data-bind="click: $root.DeleteDKNangNhom"><i class="fa fa-times"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                                <a class="add-dk"  title="" data-bind="click: ThemDieuKienNN"><span class="fs14">+</span> Thêm điều kiện</a>
+                            </div>
+                            <div class="col-md-12 nopadding nhom-khach-hang">
+                                <div style="padding: 0px 15px 0px 15px;">
+                                    <table class='table'>
+                                        <tr>
+                                            <td>Cập nhật lại khách hàng theo điều kiện trên</td>
+                                            <td>
+                                                <div class="form-radio">
+                                                    <span>
+                                                        <label><input type="radio" name="rdcokhong" data-bind="checked: checkCapNhat, checkedValue: '2'"> Có </label>
+                                                    </span>
+                                                    <span>
+                                                        <label><input type="radio" name="rdcokhong" data-bind="checked: checkCapNhat, checkedValue: '3'"> Không</label>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hệ thống tự cập nhật khách hàng mới theo điều kiện trên</td>
+                                            <td>
+                                                <div class="form-radio">
+                                                    <span>
+                                                        <label>
+                                                            <input type="radio" name="rdcokhong1"
+                                                                   data-bind="checked: autoUpdate, checkedValue: true"> Có
+                                                        </label>
+                                                    </span>
+                                                    <span>
+                                                        <label>
+                                                            <input type="radio" name="rdcokhong1"
+                                                                   data-bind="checked: autoUpdate, checkedValue: false"> Không
+                                                        </label>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="capnhap" class="tab-pane fade">
+
+                    <div class="floatleft check-update">
+                        <label class="floatleft"><input type="checkbox" value="1" @*id="checkAutoUD"*@ /> Cho phép hệ thống tự động cập nhật</label>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer ">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-cancel " data-dismiss="modal"><i class="fa fa-ban"></i>Bỏ qua</button>
+            <button type="button" class="btn btn-main " id="btnLuuNhomDoiTuong" hidden
+                    data-bind="click: $root.addNhomDoiTuong_NangNhom">
+                <i class="fa fa-save"></i> Lưu
+            </button>
+            <button type="button" class="btn btn-cancel " id="btnDeleteNhomDT" data-bind="click: $root.xoaNhomDT, visible: booleanAddNhomDT()== false" hidden>
+                <i class="fa fa-trash"></i> Xóa
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    function keypressNumber_limitNumber2(event, obj) {
+        var keyCode = event.keyCode || event.which;
+        var $this = $(obj).val();
+        var keyArray = $this.split('.');
+        if (keyCode != 42 && keyCode != 47 && keyCode > 44 && keyCode < 58) {
+            if (keyCode == 45) {
+                if ($this.split('-').length > 1) {
+                    event.preventDefault();// không cho nhập
+                }
+            }
+            if (keyCode == 46) {
+                if ($this.split('.').length > 1) {
+                    event.preventDefault();// không cho nhập
+                }
+            }
+            if (keyArray.length > 1) {
+                if (keyArray[1].length > 2) {
+                    event.preventDefault();
+                }
+            }
+        }
+        else {
+            event.preventDefault();// không cho nhập
+        }
+    }
+</script>

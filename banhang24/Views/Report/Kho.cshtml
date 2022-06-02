@@ -1,0 +1,1749 @@
+﻿@using System.Web.Optimization;
+@using banhang24.Hellper;
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Báo cáo kho";
+}
+<style>
+    h4 {
+        line-height: 24px;
+        padding: 3px;
+        margin: 0
+    }
+
+    .title-report-center {
+        padding-bottom: 0
+    }
+
+    .outselect {
+        left: 0
+    }
+
+    .treename {
+        line-height: 30px;
+        width: 100%;
+        float: left;
+    }
+
+    .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+        color: #555;
+        cursor: default;
+        background-color: var(--color-table);
+        border: 1px solid #ddd;
+        border-bottom-color: transparent;
+    }
+
+    .xuatthieu {
+        background: red !important;
+        color: white !important;
+    }
+
+    .xuatthua {
+        background: yellow !important;
+    }
+
+    .xuatthem {
+        background: green !important;
+        color: white !important
+    }
+
+    ._border-right {
+        border-right: 1px solid #ccc;
+    }
+</style>
+@Html.Hidden("loaibaocao", (int)commonEnum.GroupReport.kho, new { @id = "ID_loaibaocao" })
+@Html.Hidden("dchh", (int)commonEnum.TypeReport.dieuchuyenhhXC, new { @id = "ID_dieuchuyenhh" })
+@Html.Hidden("thhnk", (int)commonEnum.TypeReport.thnhapkhoHH, new { @id = "ID_thhangnhapkho" })
+@Html.Hidden("thhxk", (int)commonEnum.TypeReport.thxuatkhoHH, new { @id = "ID_thhangxuatkho" })
+@Html.Hidden("chhhct", (int)commonEnum.TypeReport.dieuchuyenhhCT, new { @id = "ID_dieuchuyenchitiet" })
+@Html.Hidden("tonghop", (int)commonEnum.TypeReport.tonghop, new { @id = "ID_tonghop" })
+@Html.Hidden("nhapxuatton", (int)commonEnum.TypeReport.nhapxuatton, new { @id = "ID_nhapxuatton" })
+@Html.Hidden("xuatkhohhtheodinhluong", (int)commonEnum.TypeReport.xuatkhohhtheodinhluong, new { @id = "ID_xuatkhohhtheodinhluong" })
+<div class="op-container ">
+    <div class="container-fluid nopadding position-relative">
+        <div class="op-baocao-type">
+            <ul class=" chose_kieubang ul-radius">
+                <li value="1" class="active" data-id="@((int)commonEnum.TypeReport.tonghop)">
+                    <a href="#home" data-toggle="tab" class="box-tab">
+                        <label>
+                            <input type="radio" name="kieubang" value="1" data-toggle="tab">
+                            Tồn kho
+                        </label>
+                    </a>
+                </li>
+                <li value="2" data-id="@((int)commonEnum.TypeReport.nhapxuatton)">
+                    <a href="#Detail" data-toggle="tab">
+                        <label>
+                            <input type="radio" name="kieubang" value="2" data-toggle="tab">
+                            Nhập xuất tồn
+                        </label>
+                    </a>
+                </li>
+                <li value="3" data-id="@((int)commonEnum.TypeReport.xuattonchitiet)">
+                    <a href="#nhapxuattonchitiet" data-toggle="tab">
+                        <label>
+                            <input type="radio" name="kieubang" value="3" data-toggle="tab">
+                            Nhập xuất tồn chi tiết
+                        </label>
+                    </a>
+                </li>
+                <li value="4" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhXC)">
+                    <a href="#dieuchuyenhanghoa" data-toggle="tab">
+                        <label>
+                            <input type="radio" name="kieubang" value="4" data-toggle="tab">
+                            Điều chuyển hàng hóa
+                        </label>
+                    </a>
+                </li>
+                <li value="5" data-id="@((int)commonEnum.TypeReport.thnhapkhoHH)">
+                    <a href="#tonghophangnhapkho" data-toggle="tab">
+                        <label>
+                            <input type="radio" name="kieubang" value="5" data-toggle="tab">
+                            Tổng hợp hàng nhập kho
+                        </label>
+                    </a>
+                </li>
+                <li value="6" data-id="@((int)commonEnum.TypeReport.thxuatkhoHH)">
+                    <a href="#tonghophangxuatkho" data-toggle="tab">
+                        <label>
+                            <input type="radio" name="kieubang" value="6" data-toggle="tab">
+                            Tổng hợp hàng xuất kho
+                        </label>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-left">
+            <div class=" op-filter ">
+                <section class="op-filter-body">
+                    <article class="boxLeft op-baocao-classic">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/report-loaibaocao.png"> Loại báo cáo
+                        </h3>
+                        <aside class="op-filter-container">
+                            <ul class=" chose_kieubang ul-radius">
+                                <li value="1" class="active" data-id="@((int)commonEnum.TypeReport.tonghop)">
+                                    <a data-target="home" class="box-tab">
+                                        <input type="radio" name="kieubang" value="1" id="TabBCTongHop" checked>
+                                        <label for="TabBCTongHop">Tồn kho</label>
+                                    </a>
+                                </li>
+                                <li value="2" data-id="@((int)commonEnum.TypeReport.nhapxuatton)">
+                                    <a data-target="Detail">
+                                        <input type="radio" name="kieubang" value="2" id="TabBCXuatTon">
+                                        <label for="TabBCXuatTon">Nhập xuất tồn</label>
+                                    </a>
+                                </li>
+                                <li value="3" data-id="@((int)commonEnum.TypeReport.xuattonchitiet)">
+                                    <a data-target="nhapxuattonchitiet">
+                                        <input type="radio" name="kieubang" value="3" id="TabBCXuatTonCT">
+                                        <label for="TabBCXuatTonCT">Nhập xuất tồn chi tiết</label>
+                                    </a>
+                                </li>
+                                <li value="4" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhXC)">
+                                    <a data-target="dieuchuyenhanghoa">
+                                        <input type="radio" name="kieubang" value="4" id="TabBCDieuChuyen">
+                                        <label for="TabBCDieuChuyen">Điều chuyển hàng hóa</label>
+                                    </a>
+                                </li>
+                                <li value="5" data-id="@((int)commonEnum.TypeReport.thnhapkhoHH)">
+                                    <a data-target="tonghophangnhapkho">
+                                        <input type="radio" name="kieubang" value="5" id="TabBCNhapKho">
+                                        <label for="TabBCNhapKho">Tổng hợp hàng nhập kho</label>
+                                    </a>
+                                </li>
+                                <li value="6" data-id="@((int)commonEnum.TypeReport.thxuatkhoHH)">
+                                    <a data-target="tonghophangxuatkho">
+                                        <input type="radio" name="kieubang" value="6" id="TabBCXuatKho">
+                                        <label for="TabBCXuatKho">Tổng hợp hàng xuất kho</label>
+                                    </a>
+                                </li>
+                            </ul>
+                            <script>
+                                $('.chose_kieubang li').on('click', function () {
+                                    var tar = $(this).children('a').attr('data-target');
+                                    $('#' + tar).siblings('.tab-pane').hide();
+                                    $('#' + tar).show();
+                                })
+                            </script>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showChiNhanh" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/chinhanh-black.png">    Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="op-tag-picker dropdown">
+                                <div data-toggle="dropdown" id="choose_DonVi">
+                                    <ul data-bind="foreach: MangChiNhanh">
+                                        <li>
+                                            <span data-bind="text: TenDonVi">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseDonVi">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown nameDonVi" id="NoteNameDonVi" data-bind="event:{keyup: NoteNameDonVi}" placeholder="Chọn chi nhánh..." />
+                                </div>
+                                <ul class="dropdown-menu" id="selec-all-DonVi">
+                                    <li data-bind="click: SelectedDonVi">
+                                        <a>Tất cả chi nhánh</a>
+                                    </li>
+                                    <!--ko foreach: ArrDonVi-->
+                                    <li class="flex flex-between" data-bind="attr:{id: ID}, click: $parent.SelectedDonVi">
+                                        <a data-bind="text: TenDonVi "></a>
+                                    </li>
+                                    <!--/ko-->
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showDateRange" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/thoigian.png">      Thời gian
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="rd_TimeReport" value="1" checked>
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date">
+                                            <div class="dr_TimeReport" data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show ip_TimeReport" placeholder="Hôm nay">
+                                            </div>
+                                            <div class="dropdown-menu choose_txtTime">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="1" style="display: block;"><a href="javascript:void(0);">Hôm nay</a></li>
+                                                        <li value="2" style="display: block;"><a href="javascript:void(0);">Hôm qua</a></li>
+                                                        <li value="3" style="display: block;"><a href="javascript:void(0);">Tuần này</a></li>
+                                                        <li value="4" style="display: block;"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="6" style="display: block;"><a href="javascript:void(0);">Tháng này</a></li>
+                                                        <li value="7" style="display: block;"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                        <li value="9" style="display: block;"><a href="javascript:void(0);">Quý này</a></li>
+                                                        <li value="10" style="display: block;"><a href="javascript:void(0);">Quý trước</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="11" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Năm này</a></li>
+                                                        <li value="12" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Năm trước</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="rd_TimeReport" value="2">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap">
+                                            <input type="text" class="form-control ip_DateReport newDateTime" name="daterange" disabled="disabled">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft DatePK showDate">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />      Đến ngày
+                        </h3>
+                        <aside class="op-filter-container DatePK">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="floatleft form-wrap ">
+                                        <input class="form-control" id="datetimepicker_mask" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showChungTu" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/loaithuchi.png" />  Loại chứng từ
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="nameDonVi choose-person floatleft " data-toggle="dropdown" id="choose_ChungTu">
+                                    <ul data-bind="foreach: MangChungTu">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenChungTu">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseChungTu">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown nameChungTu" id="NoteNameChungTu" data-bind="event:{keyup: NoteNameChungTu}" placeholder="Chọn chứng từ..." />
+                                </div>
+                                <div class="selec-person dropdown-menu" id="selec-all-ChungTu">
+                                    <ul data-bind="foreach: ChungTus">
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedChungTu">
+                                            <span data-bind="text: TenChungTu "></span>
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/nhomhang-black.png">  Nhóm hàng
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="seach-nhomhang">
+                                <i class="fa fa-search" style="display:inline-block"></i>
+                                <input type="text" class="seach-nhomhang" data-bind="event: {keyup: NoteNhomHang}" id="SeachNhomHang" placeholder="Tìm kiếm nhóm hàng" style="display:inline-block; width:calc(100% - 30px)" />
+                            </div>
+                            <div id="tatcanhh" class="treename SelectALLNhomHang yellow" data-bind="click: $root.SelectRepoert_NhomHangHoa">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i> Tất cả
+                            </div>
+                            <ul class="treeview floatleft SelectNhomHang" id="treeviewnhomhang" data-bind="foreach: NhomHangHoas">
+                                <li class="ss-li">
+                                    <div class="li-top li-oo" data-bind="click: $root.SelectRepoert_NhomHangHoa, attr:{id: ID}">
+                                        <span class="treename" data-bind="text: TenNhomHangHoa"></span>
+                                    </div>
+                                    <span class="close-ul" onclick="ShowNhom($(this))" data-bind="visible: Childs.length >0 "><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                    <ul data-bind="foreach: Childs">
+                                        <li>
+                                            <div class="li-top li-oo" data-bind="click: $root.SelectRepoert_NhomHangHoa, attr:{id: ID}">
+                                                <span data-bind="text: TenNhomHangHoa" class="li-top li-pp"></span>
+                                                <a href="javascript:void(0)" data-bind="click: $root.editNhomHangHoa"><i class="fa fa-pencil-square-o"></i></a>
+                                            </div>
+                                            <span class="close-ul" onclick="ShowNhom($(this))" data-bind="visible: Child2s.length >0 "><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                            <ul data-bind="foreach: Child2s">
+                                                <li>
+                                                    <div class="li-top li-oo" data-bind="click: $root.SelectRepoert_NhomHangHoa, attr:{id: ID}">
+                                                        <span data-bind="text: TenNhomHangHoa" class="li-top li-pp"></span>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/trangthai-black.png"> Trạng thái hàng
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_TinhTrangKD">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdTuyChon" data-bind="checked: Loc_TinhTrangKD" value="1" /> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTuyChon" data-bind="checked: Loc_TinhTrangKD" value="2" /> Hàng đang kinh doanh</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTuyChon" data-bind="checked: Loc_TinhTrangKD" value="3" /> Hàng ngừng kinh doanh</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTuyChon" data-bind="checked: Loc_TinhTrangKD" value="4" /> Hàng xóa bỏ</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" data-bind="visible: shouldTrangThai">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/trangthai-black.png"> Trạng thái
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_TrangThai">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdtrangthai" value="1" data-bind="checked: Loc_TrangThai" /> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdtrangthai" value="2" data-bind="checked: Loc_TrangThai" /> Phát sinh trong kỳ</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" data-bind="visible: shouldTonKho">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/Iconbanhanggg-04.png" />       Tồn kho
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_TonKho">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="0" data-bind="checked: Loc_TonKho" /> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="1" data-bind="checked: Loc_TonKho" /> Còn hàng trong kho</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="2" data-bind="checked: Loc_TonKho" /> Hết hàng trong kho</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="3" data-bind="checked: Loc_TonKho" /> Hàng âm kho</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title op-baocao-title">
+                    <h2 class="title" onclick="showTypeBc()">Báo cáo kho</h2>
+                </div>
+                <div class="" style="height:unset; text-align:center">
+                    <h4 class="floatleft flex  flex-center">
+                        <span class="title-report-center"><span data-bind="text: MoiQuanTam"></span></span>
+                    </h4>
+                    <span class="floatleft">
+                        Thời gian:
+                        <span data-bind="text: TodayBC_TK"></span>
+                    </span>
+                    <span class="floatleft">Chi nhánh: <span data-bind="text: TenChiNhanh"></span></span>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class=" header-button-left">
+                            <button class="btn btn-main btn-group btnExport  btn-excel-report" id="btnExport" name="btnExport" data-bind="click: ExportExcel">
+                                <i class="fa fa-file-excel-o"></i> Xuất Excel
+                            </button>
+                            <button class="btn btn-main btn-group btnImport btn-print-report" style="display: none" type="submit" data-toggle="modal" data-target="#myModalinport" onclick="printPage()">
+                                <img src="/Content/images/icon/print-black.png"> In báo cáo
+                            </button>
+                            <div class="btn-dropdown" id="select-column">
+                                <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list" data-bind="css:listCheckbox().length>9?'dropdown-list-two':''" style="display: none;">
+                                    <div data-bind="if:listCheckbox().length <=9">
+                                        <ul data-bind="foreach: listCheckbox">
+                                            <li>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" class="checkbox" checked="checked" data-bind="value:Key"><span></span><label class="nopadding" data-bind="text:Value" /></label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div data-bind="if:listCheckbox().length >9">
+                                        <div class="col-md-6 dropdown-left">
+                                            <ul data-bind="foreach: listCheckbox">
+                                                <!-- ko if: $index() <=($root.listCheckbox().length/2)-->
+                                                <li>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" class="checkbox" checked="checked" data-bind="value:Key"><span></span><label class="nopadding" data-bind="text:Value" /></label>
+                                                    </div>
+                                                </li>
+                                                <!--/ko-->
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6 dropdown-right">
+                                            <ul data-bind="foreach: listCheckbox">
+                                                <!-- ko if: $index() >($root.listCheckbox().length/2)-->
+                                                <li>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" class="checkbox" checked="checked" data-bind="value:Key"><span></span><label class="nopadding" data-bind="text:Value" /></label>
+                                                    </div>
+                                                </li>
+                                                <!--/ko-->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control " id="txt_search" data-bind="event: {keyup: Select_Text}" placeholder="Theo mã, tên hàng, tên nhóm hàng">
+                            <button type="button" class=" op-search-button" data-bind="click: LoadReport">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content  tab-show nopadding">
+                <div class="tab-pane tabmenu Select_TableCH Tab_ChuyenHang" id="home" data-id="@((int)commonEnum.TypeReport.tonghop)">
+                    <ul class="nav nav-tabs ">
+                        <li class="active" value="1" data-id="@((int)commonEnum.TypeReport.tonghop)" id="tabble_TonKhoChiTiet"><a data-toggle="tab" href="#table_TonKho" data-bind="click: select_TonKho">Chi tiết</a></li>
+                        <li value="2" data-id="@((int)commonEnum.TypeReport.tonkhoth)" id="tabble_TonKhoTongHop"><a data-toggle="tab" href="#table_TongHop" data-bind="click: select_TonKho_TongHop">Tổng hợp</a></li>
+                    </ul>
+                    <div class="tab-content floatleft nopadding">
+                        <div class="tab-pane tabmenu active" id="table_TonKho" data-id="@((int)commonEnum.TypeReport.tonghop)">
+                            <div class="col-md-12 content-report">
+                                <div class="table-reponsive table-frame" id="table-reponsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left">Mã chi nhánh</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left">Tên chi nhánh</th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng tồn </th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluongquycach text-right">Số lượng tồn (quy cách) </th>
+                                                <th class="@commonEnum.TypeReportWarehouse.Warehouse_giamgia text-right">Giá trị tồn</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: BaoCaoKho_TonKho_Page">
+                                            <tr class="prev-tr-hide">
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                    <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                    </a>
+                                                </td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                    <span data-bind="text: TenHangHoa"></span>
+                                                    <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                                </td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                    <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                    </a>
+                                                </td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left " data-bind="text: MaDonVi"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonCuoiKy) "></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongquycach cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonQuyCach) "></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_giamgia bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriCuoiKy, 2)"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot data-bind="visible: $root.BaoCaoKho_TonKho().length === 0">
+                                            <tr>
+                                                <td class="bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot  data-bind="visible: $root.BaoCaoKho_TonKho().length > 0">
+                                            <tr class="bg12">
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left bold">Tổng cộng</td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(TK_SoLuongTon(),2)"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongquycach text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(TK_TonQuyCach(),2)"></td>
+                                                <td class="@commonEnum.TypeReportWarehouse.Warehouse_giamgia text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(TK_GiaTriTon(), 2)"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane " data-id="@((int)commonEnum.TypeReport.tonkhoth)" id="table_TongHop">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">Tên chi nhánh</th>
+                                            <th class="text-right">Số lượng</th>
+                                            <th class="text-right">Giá trị</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_TongKho_TongHop_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td>
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenChiNhanh, click: $parent.LoadTonKho_byChiNhanh">
+                                                </a>
+                                            </td>
+                                            <td class="bhsoluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong,2)"></td>
+                                            <td class="bhsoluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTri, 2)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_TongKho_TongHop().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_TongKho_TongHop().length > 0">
+                                        <tr class="bg12">
+                                            <td class="text-left bold">Tổng cộng</td>
+                                            <td class="bhmahh text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TKTH_SoLuongTon(),2)"></td>
+                                            <td class="bhmahh text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TKTH_GiaTriTon(), 3)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane tabmenu" id="Detail" data-id="@((int)commonEnum.TypeReport.nhapxuatton)">
+                    <div class="col-md-12 content-report">
+                        <div class="table-reponsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left">Mã chi nhánh</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left">Tên chi nhánh</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_tondauky text-right">Tồn đầu kỳ</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatridau text-right">Giá trị đầu kỳ</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng nhập</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right">Giá trị nhập</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluongnhan text-right">Số lượng xuất</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatrixuat text-right">Giá trị xuất</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_toncuoiky text-right">Tồn cuối kỳ</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluongquycach text-right">Tồn quy cách</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatricuoi text-right">Giá trị cuối kỳ</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: BaoCaoKho_NhapXuatTon_Page">
+                                    <tr class="prev-tr-hide">
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                            <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                            </a>
+                                        </td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                            <span data-bind="text: TenHangHoa"></span>
+                                            <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                        </td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                            <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                            </a>
+                                        </td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left " data-bind="text: MaDonVi"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tondauky cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonDauKy,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatridau bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriDauKy,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongNhap,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriNhap,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongnhan cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongXuat,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatrixuat bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriXuat,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_toncuoiky cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonCuoiKy,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongquycach cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonQuyCach,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatricuoi bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriCuoiKy,2)"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="PhanQuyen" hidden>
+                                    <tr>
+                                        <td class="bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot data-bind="visible: $root.BaoCaoKho_NhapXuatTon().length === 0">
+                                    <tr>
+                                        <td class="bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot data-bind="visible: $root.BaoCaoKho_NhapXuatTon().length > 0">
+                                    <tr class="bg12">
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left bold">Tổng cộng</td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tondauky text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_TonDauKy(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatridau text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_GiaTriDauKy(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_SoLuongNhap(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_GiaTriNhap(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongnhan text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_SoLuongXuat(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatrixuat text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_GiaTriXuat(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_toncuoiky text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_TonCuoiKy(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongquycach text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_TonQuyCach(),2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatricuoi text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXT_GiaTriCuoiKy(),2)"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane tabmenu" id="nhapxuattonchitiet" data-id="@((int)commonEnum.TypeReport.xuattonchitiet)">
+                    <div class="col-md-12 content-report">
+                        <div class="table-reponsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang mahang xntma middle bg17" rowspan="2">Nhóm hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang mahang xntma middle bg17" rowspan="2">Mã hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang xntname middle bg17" rowspan="2">Tên hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left xntname middle bg17" rowspan="2">Đvt</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left xntname middle bg17" rowspan="2">Lô hàng</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left xntname middle bg17" rowspan="2">Mã chi nhánh</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left xntname middle bg17" rowspan="2">Tên chi nhánh</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_tondauky xntton middle bg17 text-right" rowspan="2">Tồn đầu </th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatri xntgiatri middle bg17 text-right" rowspan="2">Giá trị đầu kỳ</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhap xntslnhap text-center bg18" colspan="4">Nhập</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_xuat xntxuat text-center bg20" colspan="5">Xuất</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_toncuoiky xntoncuoi middle bg17 text-right" rowspan="2"> Tồn cuối</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatricuoi xntgtcuoi doanhthu middle bg17 text-right" rowspan="2">Giá trị cuối kỳ</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhap xntslnhap mahang bg18 text-right">NCC</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhap xntslnhap tenhang bg18 text-right">Kiểm</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhap xntslnhap nhomhang bg18 text-right">Trả </th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhap xntslnhap bg18 text-right">Chuyển</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_xuat xntxuat loaihang bg20 text-right">Bán</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_xuat xntxuat gia bg20 text-right"> Xuất kho</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_xuat xntxuat doanhthu bg20 text-right">NCC</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_xuat xntxuat bg20 text-right">Kiểm</th>
+                                        <th class="@commonEnum.TypeReportWarehouse.Warehouse_xuat xntxuat bg20 text-right">Chuyển</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: BaoCaoKho_NhapXuatTonChiTiet_Page">
+                                    <tr class="prev-tr-hide">
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                            <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                            </a>
+                                        </td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                            <span data-bind="text: TenHangHoa"></span>
+                                            <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                        </td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                            <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                            </a>
+                                        </td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left " data-bind="text: MaDonVi"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tondauky cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonDauKy,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriDauKy,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongNhap_NCC,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongNhap_Kiem,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongNhap_Tra,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongNhap_Chuyen,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongXuat_Ban,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongXuat_Huy,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongXuat_NCC,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongXuat_Kiem,2)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuongXuat_Chuyen,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_toncuoiky cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(TonCuoiKy,2) "></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatricuoi bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTriCuoiKy,2)"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="PhanQuyen" hidden>
+                                    <tr>
+                                        <td class="bhma text-center" colspan="18"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot data-bind="visible: $root.BaoCaoKho_NhapXuatTonChiTiet().length === 0">
+                                    <tr>
+                                        <td class="bhma text-center" colspan="18"><i>Báo cáo không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot data-bind="visible: $root.BaoCaoKho_NhapXuatTonChiTiet().length > 0">
+                                    <tr class="bg12">
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left bold">Tổng cộng</td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_tondauky text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_TonDauKy())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_GiaTriDauKy(),0)"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_NhapNCC())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_NhapKiem())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_NhapTra())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhap text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_NhapChuyen())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_XuatBan())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_XuatHuy())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_XuatNCC())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_XuatKiem())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_xuat text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_XuatChuyen())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_toncuoiky text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_TonCuoiKy())"></td>
+                                        <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatricuoi text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NXTCT_GiaTriCuoiKy(),0)"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane tabmenu Select_TableCH Tab_ChuyenHang" style="float:left; width:100%;" id="dieuchuyenhanghoa" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhXC)">
+                    <div class="flex flex-between">
+                        <ul class="nav nav-tabs ">
+                            <li class="active" value="1" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhXC)"><a data-toggle="tab" href="#table_ChuyenHang" data-bind="click: selectXuatChuyenHang">Xuất hàng chuyển</a></li>
+                            <li value="2" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhNC)"><a data-toggle="tab" href="#table_NhapHang" data-bind="click: selectNhapChuyenHang">Nhập hàng chuyển</a></li>
+                        </ul>
+                        <ul class="flex flex-row">
+                            <li class="">
+                                <label id="radiotongquan" class="flex width-100">
+                                    <input type="radio" name="tongquanch" value="1" data-bind="checked: Select_Table">
+                                    Tổng quan
+                                </label>
+                            </li>
+                            <li data-id="@((int)commonEnum.TypeReport.dieuchuyenhhCT)">
+                                <label id="radiodetail " class="flex width-100">
+                                    <input type="radio" name="tongquanch" value="2" data-bind="checked: Select_Table">
+                                    Chi tiết
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content floatleft nopadding ">
+                        <div class="tab-pane active table_TongQuan1" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhXC)" id="table_ChuyenHang">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left">Mã chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left">Tên chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng chuyển</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right">Giá trị chuyển</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_XuatDieuChuyen_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left " data-bind="text: MaDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,2)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_XuatDieuChuyen().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_XuatDieuChuyen().length > 0">
+                                        <tr class="bg12">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(XDC_SoLuong(),2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(XDC_ThanhTien(),2)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane table_ChiTiet" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhCT)" id="table_ChuyenHangChiTiet">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_maphieu text-left">Mã phiếu</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_ngay text-center">Ngày chuyển</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_chinhanhchuyen text-left">Chi nhánh chuyển</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_chinhanhnhan text-left">Chi nhánh nhận</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_giavon text-right">Giá vốn</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatri  text-right">Giá trị</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_dongia text-right">Đơn giá</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien  text-right">Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_DieuChuyenChiTiet_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_maphieu">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHoaDon, click: $parent.LoadHoaDon_byMaHD">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ngay cls2 text-center">
+                                                <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang ">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_chinhanhchuyen text-left " data-bind="text: ChiNhanhChuyen"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_chinhanhnhan text-left " data-bind="text: ChiNhanhNhan"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giavon cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(GiaVon,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(GiaTri,2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_dongia cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(DonGia,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,2)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_DieuChuyenChiTiet().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_DieuChuyenChiTiet().length > 0">
+                                        <tr class="bg12">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_maphieu text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ngay"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_chinhanhchuyen"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_chinhanhnhan"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(DCCT_SoLuong(),2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giavon"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(DCCT_GiaTri(),2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_dongia"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(DCCT_ThanhTien(),2)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane table_TongQuan2" data-id="@((int)commonEnum.TypeReport.dieuchuyenhhNC)" id="table_NhapHang">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover ">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left">Mã chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left">Tên chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluongnhan text-right">Số lượng nhận</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right">Giá trị nhận</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_NhapDieuChuyen_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left " data-bind="text: MaDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongnhan cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,2)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_NhapDieuChuyen().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_NhapDieuChuyen().length > 0">
+                                        <tr class="bg12">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluongnhan text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(NDC_SoLuong(),2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(NDC_ThanhTien(),2)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane tabmenu Tab_ChuyenHang1" id="tonghophangnhapkho" data-id="@((int)commonEnum.TypeReport.thnhapkhoHH)">
+                    <ul class="nav nav-tabs ">
+                        <li class="active" data-id="@((int)commonEnum.TypeReport.thnhapkhoHH)"><a data-toggle="tab" href="#table_HangHoaNhapKho" data-bind="click: selectHangHoaNhapKho">Tổng hợp</a></li>
+                        <li data-id="@((int)commonEnum.TypeReport.thnhapkhoGD)"><a data-toggle="tab" href="#table_GiaoDichNhapKho" data-bind="click: selectGiaoDichNhapKho">Chi tiết</a></li>
+                    </ul>
+                    <div class="tab-content floatleft nopadding ">
+                        <div class="tab-pane active table_HangHoaNhapKho" data-id="@((int)commonEnum.TypeReport.thnhapkhoHH)" id="table_HangHoaNhapKho">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh  text-left">Mã chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh  text-left">Tên chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng nhập</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right">Giá trị nhập</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_TongHopHangNhap_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh  text-left " data-bind="text: MaDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh  text-left " data-bind="text: TenDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,2)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_TongHopHangNhap().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_TongHopHangNhap().length > 0">
+                                        <tr class="bg12">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(THHN_SoLuong(),2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(THHN_ThanhTien(),2)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane table_GiaoDichNhapKho" data-id="@((int)commonEnum.TypeReport.thnhapkhoGD)" id="table_GiaoDichNhapKho">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_loaichungtu text-left">Loại chứng từ</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_machungtu text-left">Mã chứng từ</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_ngay text-center">Ngày chứng từ</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-center">Nhóm hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh  text-left">Mã chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh  text-left">Tên chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien text-right">Giá trị nhập</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_ghichuct text-right">Ghi chú</th>
+                                            <th class="@commonEnum.ColumnInvoices.ghichu text-right">Ghi chú hóa đơn</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_ChiTietHangNhap_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_loaichungtu text-left " data-bind="text: LoaiHoaDon"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_machungtu">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHoaDon, click: $parent.LoadHoaDon_byMaHD">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ngay cls2 text-center">
+                                                <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left" data-bind="text: TenNhomHang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh  text-left " data-bind="text: MaDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,0)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ghichuct" data-bind="text: GhiChu"></td>
+                                            <td class="@commonEnum.ColumnInvoices.ghichu" data-bind="text: DienGiai"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_ChiTietHangNhap().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_ChiTietHangNhap().length > 0">
+                                        <tr class="bg12">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_loaichungtu text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_machungtu"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ngay"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(CTHN_SoLuong())"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(CTHN_ThanhTien(),0)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ghichuct"></td>
+                                            <td class="@commonEnum.ColumnInvoices.ghichu"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane tabmenu Tab_ChuyenHang2" id="tonghophangxuatkho" data-id="@((int)commonEnum.TypeReport.thxuatkhoHH)">
+                    <ul class="nav nav-tabs ">
+                        <li class="active" data-id="@((int)commonEnum.TypeReport.thxuatkhoHH)"><a data-toggle="tab" href="#table_HangHoaXuatKho" data-bind="click: selectHangHoaXuatKho">Tổng hợp</a></li>
+                        <li data-id="@((int)commonEnum.TypeReport.thxuatkhoGD)"><a data-toggle="tab" href="#table_GiaoDichXuatKho" data-bind="click: selectGiaoDichXuatKho">Chi tiết</a></li>
+                        <li data-id="@((int)commonEnum.TypeReport.xuatkhohhtheodinhluong)"><a data-toggle="tab" href="#table_dichvudinhluong" data-bind="click: selectXuatDichVuDinhLuong">Theo dịch vụ định lượng</a></li>
+                    </ul>
+                    <div class="tab-content floatleft nopadding">
+                        <div class="tab-pane active table_HangHoaXuatKho" data-id="@((int)commonEnum.TypeReport.thxuatkhoHH)" id="table_HangHoaXuatKho">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh  text-left">Mã chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh  text-left">Tên chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng xuất</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_giatrixuat text-right">Giá trị xuất</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_TongHopHangXuat_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left " data-bind="text: TenNhomHang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh  text-left " data-bind="text: MaDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh  text-left " data-bind="text: TenDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatrixuat bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,0)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_TongHopHangXuat().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_TongHopHangXuat().length > 0">
+                                        <tr class="bg12 bold">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(THHX_SoLuong(),2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_giatrixuat text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(THHX_ThanhTien(),2)"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane table_GiaoDichXuatKho" data-id="@((int)commonEnum.TypeReport.thxuatkhoGD)" id="table_GiaoDichXuatKho">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_loaichungtu text-left">Loại chứng từ</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_machungtu text-left">Mã chứng từ</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_ngay text-center">Ngày chứng từ</th>
+                                            <!--ko if: $root.isGara()-->
+                                            <th class="@commonEnum.ColumnInvoices.bienso text-center">Biển số xe</th>
+                                            <!--/ko-->
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left">Nhóm hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_mahang text-left">Mã hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang text-left">Tên hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_lohang text-left">Lô hàng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left">Mã chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left">Tên chi nhánh</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien text-right">Giá trị xuất</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_ghichuct text-right">Ghi chú</th>
+                                            <th class="@commonEnum.ColumnInvoices.ghichu text-right">Ghi chú hóa đơn</th>
+                                            <th class="@commonEnum.TypeReportWarehouse.Warehouse_nhanvien text-right">NV lập hóa đơn</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_ChiTietHangXuat_Page">
+                                        <tr class="prev-tr-hide">
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_loaichungtu text-left " data-bind="text: LoaiHoaDon"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_machungtu">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHoaDon, click: $parent.LoadHoaDon_byMaHD">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ngay cls2 text-center">
+                                                <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                            </td>
+                                            <!--ko if: $root.isGara()-->
+                                            <td class="@commonEnum.ColumnInvoices.bienso text-center bold">
+                                                <a href="javascript:void(0)" data-bind="text: BienSo, click: $root.gotoDanhSachXe"></a>
+                                            </td>
+                                            <!--/ko-->
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang text-left" data-bind="text: TenNhomHang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang bhname cls3 text-left">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh cls4 text-left" data-bind="text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang">
+                                                <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenLoHang, click: $parent.LoadLoHang_byMaLH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh text-left " data-bind="text: MaDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh text-left " data-bind="text: TenDonVi"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong cls4 text-right" data-bind="text: commonStatisJs.FormatNumber3Digit(SoLuong,2) "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien bhgiaban cls5 text-right " data-bind="text: commonStatisJs.FormatNumber3Digit(ThanhTien,2)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ghichuct" data-bind="text: GhiChu"></td>
+                                            <td class="@commonEnum.ColumnInvoices.ghichu" data-bind="text: DienGiai"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhanvien bhgiaban cls5 text-right " data-bind="text: TenNhanVien"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_ChiTietHangXuat().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_ChiTietHangXuat().length > 0">
+                                        <tr>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_loaichungtu text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_machungtu"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ngay"></td>
+                                            <!--ko if: $root.isGara()-->
+                                            <td class="@commonEnum.ColumnInvoices.bienso"></td>
+                                            <!--/ko-->
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhomhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_mahang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_tenhang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_donvitinh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_lohang"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_MaChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_TenChiNhanh"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(CTHX_SoLuong())"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_thanhtien text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(CTHX_ThanhTien(),0)"></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_ghichuct cls5 text-right "></td>
+                                            <td class="@commonEnum.ColumnInvoices.ghichu cls5 text-right "></td>
+                                            <td class="@commonEnum.TypeReportWarehouse.Warehouse_nhanvien cls5 text-right "></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane " data-id="@((int)commonEnum.TypeReport.xuatkhohhtheodinhluong)" id="table_dichvudinhluong">
+                            <div class="table-reponsive ">
+                                <table class="table table-striped table-not-hover">
+                                    <thead class="thead-boder">
+                                        <tr>
+                                            <th class="text-center" id="_dinhluongchungtu"
+                                                data-bind="attr:{colspan: $root.isGara()? 8: 6}">Chứng từ</th>
+                                            <th class="text-center" id="_dinhluongdichvu" colspan="6">Dịch vụ</th>
+                                            <th class="text-center" id="_dinhluonghanghoa" colspan="7">Hàng hóa định lượng</th>
+                                            <th class="text-center" id="_dinhluongthucte" colspan="2">Đã xuất thực tế</th>
+                                            <th class="text-center" id="_dinhluongchenhlech" colspan="3">Chênh lệch</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="@commonEnum.colummReportDinhLuong.loaichungtu text-left ">Loại chứng từ</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.machungtu  text-center">Mã chứng từ</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.ngaychungtu text-center">Ngày chứng từ</th>
+                                            <!--ko if: $root.isGara()-->
+                                            <th class="@commonEnum.colummReportDinhLuong.maphieutiepnhan  text-center">Mã phiếu tiếp nhận</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.biensoxe  text-center">Biển số xe</th>
+                                            <!--/ko-->
+                                            <th class="@commonEnum.colummReportDinhLuong.machinhanh text-center">Mã chi nhánh</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.tenchinhanh text-center">Tên chi nhánh</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.nhanvienlap text-center">NV lập hóa đơn</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.nhomdichvu text-left">Nhóm dịch vụ</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.madichvu text-left">Mã dịch vụ</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.tendichvu text-left">Tên dịch vụ</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.dv_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.dv_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.dv_giatri text-right">Giá trị</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.nhomhang text-left">Nhóm hàng</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.mahanghoa text-left">Mã hàng hóa</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.tenhanghoa text-left">Tên hàng hóa</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.hh_donvitinh text-left">Đvt</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.hh_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.hh_giatri text-right">Giá trị</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.ghichuct text-right">Ghi chú</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.tt_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.tt_giatri text-right">Giá trị</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.cl_soluong text-right">Số lượng</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.cl_giatri text-right">Giá trị</th>
+                                            <th class="@commonEnum.colummReportDinhLuong.trangthai text-right">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoKho_XuatDichVuDinhLuong_Page">
+                                        <tr data-bind="attr: { 'data-id':MaHoaDon+'_'+MaDichVu +'_SLDV'+ SoLuongDichVu}">
+                                            <td class="@commonEnum.colummReportDinhLuong.loaichungtu  vertical-center text-left" data-bind="attr:{id: MaHoaDon + MaDichVu},text: LoaiHoaDon"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.machungtu  vertical-center" data-bind="attr:{id: MaHoaDon + MaDichVu}">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHoaDon, click: $parent.LoadHoaDon_byMaHD">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.colummReportDinhLuong.ngaychungtu  vertical-center text-center" data-bind="attr:{id: MaHoaDon + MaDichVu}">
+                                                <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                            </td>
+                                            <!--ko if: $root.isGara()-->
+                                            <td class="@commonEnum.colummReportDinhLuong.maphieutiepnhan vertical-center text-left"
+                                                data-bind="attr:{id: MaHoaDon + MaDichVu}, visible: $root.isGara()">
+                                                <a href="javascript:void(0)" data-bind="text: MaPhieuTiepNhan"></a>
+                                            </td>
+                                            <td class="@commonEnum.colummReportDinhLuong.biensoxe  vertical-center text-left"
+                                                data-bind="attr:{id: MaHoaDon + MaDichVu}, visible: $root.isGara()">
+                                                <a href="javascript:void(0)" data-bind="text: BienSo, click: $root.gotoDanhSachXe"></a>
+                                            </td>
+                                            <!--/ko-->
+                                            <td class="@commonEnum.colummReportDinhLuong.machinhanh  vertical-center text-left" data-bind="attr:{id: MaHoaDon + MaDichVu},text: MaDonVi"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tenchinhanh  vertical-center text-left" data-bind="attr:{id: MaHoaDon + MaDichVu},text: TenDonVi"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.nhanvienlap  vertical-center text-left" data-bind="text: TenNhanVien"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.nhomdichvu  vertical-center " data-bind="attr:{id: MaHoaDon + MaDichVu},text: NhomDichVu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.madichvu  vertical-center" data-bind="attr:{id: MaHoaDon + MaDichVu}">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind=" text: MaDichVu, click: $parent.LoadHangHoa_byMaDVDL">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tendichvu  vertical-center text-left" data-bind="attr:{id: MaHoaDon + MaDichVu},text: TenDichVu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.dv_donvitinh  vertical-center text-left" data-bind="attr:{id: MaHoaDon + MaDichVu},text: TenDonViDichVu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.dv_soluong  vertical-center text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(SoLuongDichVu)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.dv_giatri _border-right vertical-center text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(GiaTriDichVu,0)"></td>
+                                            <td data-bind="attr:{id: MaHoaDon + MaDichVu},text: TenNhomHang" class="@commonEnum.colummReportDinhLuong.nhomhang "></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.mahanghoa " data-bind="attr:{id: MaHoaDon + MaDichVu}">
+                                                <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaHangHoa, click: $parent.LoadHangHoa_byMaHH">
+                                                </a>
+                                            </td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tenhanghoa  bhname cls3 text-left" data-bind="attr:{id: MaHoaDon + MaDichVu}">
+                                                <span data-bind="text: TenHangHoa"></span>
+                                                <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                            </td>
+                                            <td class="@commonEnum.colummReportDinhLuong.hh_donvitinh  text-left" data-bind="attr:{id: MaHoaDon + MaDichVu},text: TenDonViTinh"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.hh_soluong text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(SoLuongDinhLuongBanDau)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.hh_giatri text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(GiaTriDinhLuongBanDau,0)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.ghichuct" data-bind="text: GhiChu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tt_soluong text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(SoLuongThucTe)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tt_giatri text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(GiaTriThucTe,0)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.cl_soluong text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(SoLuongChenhLech)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.cl_giatri text-right" data-bind="attr:{id: MaHoaDon + MaDichVu},text: commonStatisJs.FormatNumber3Digit(GiaTriChenhLech,0)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.trangthai text-left"
+                                                data-bind="attr:{id: MaHoaDon + MaDichVu}, css:{xuatthieu: TrangThai == 'Xuất thiếu', xuatthua: TrangThai == 'Xuất thừa', xuatthem: TrangThai == 'Xuất thêm'},text: TrangThai"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bhma text-center" colspan="22"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_XuatDichVuDinhLuong().length === 0">
+                                        <tr>
+                                            <td class="bhma text-center" colspan="22"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot data-bind="visible: $root.BaoCaoKho_XuatDichVuDinhLuong().length > 0">
+                                        <tr class="bold">
+                                            <td class="@commonEnum.colummReportDinhLuong.loaichungtu  text-left bold">Tổng cộng</td>
+                                            <td class="@commonEnum.colummReportDinhLuong.machungtu "></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.ngaychungtu"></td>
+                                            <!--ko if: $root.isGara()-->
+                                            <td class="@commonEnum.colummReportDinhLuong.maphieutiepnhan"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.biensoxe"></td>
+                                            <!--/ko -->
+                                            <td class="@commonEnum.colummReportDinhLuong.machinhanh"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tenchinhanh"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.nhanvienlap"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.nhomdichvu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.madichvu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tendichvu"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.dv_donvitinh"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.dv_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_SoLuongDichVu(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.dv_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_GiaTriDichVu(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.nhomhang"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.mahanghoa"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tenhanghoa"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.hh_donvitinh"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.hh_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_SoLuongBanDau(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.hh_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_GiaTriBanDau(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.ghichuct"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tt_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_SoLuongThucTe(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.tt_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_GiaTriThucTe(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.cl_soluong text-right bold" data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_SoLuongChenhLech(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.cl_giatri text-right bold " data-bind="text: commonStatisJs.FormatNumber3Digit(XDVDL_GiaTriChenhLech(),2)"></td>
+                                            <td class="@commonEnum.colummReportDinhLuong.trangthai"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-md-12 margin-page">
+                    <div class="page">
+                        <div class="flex flex-row">
+                            <label>Số bản ghi:</label>
+                            <select class="form-control  seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                        </div>
+                        <div class="flex flex-end">
+                            <a href="javascript:void(0)" data-bind="click: $root.StartPage" id="StartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                            <a href="javascript:void(0)" data-bind="click: $root.BackPage" id="BackPage"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                            <ul data-bind="foreach: SumNumberPageReport">
+                                <li data-bind="click: $parent.gotoNextPage">
+                                    <a href="javascript:void(0)" data-bind="text: SoTrang,css: $root.GetClass($data)"></a>
+                                </li>
+                            </ul>
+                            <a href="javascript:void(0)" data-bind="click: $root.NextPage" id="NextPage"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                            <a href="javascript:void(0)" data-bind="click: $root.EndPage" id="EndPage"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                            <div class="total-recos">
+                                Hiển thị <span data-bind="text: RowsStart"></span> - <span data-bind="text: RowsEnd"></span> trên tổng số
+                                <span data-bind="text: SumRowsHangHoa"></span>
+                                <span data-bind="text: LoaiBaoCao"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        var time = new Date();
+        $.datetimepicker.setLocale('vi');
+        $('#datetimepicker_mask').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+            value: moment(time).format('DD/MM/YYYY'),
+            scrollMonth: false,
+        });
+    });
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tạo báo cáo",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+    });
+    $('#table-tonghophangnhapkho, #table-tonghophangxuatkho').on('click', '.show-tr', function (e) {
+        var t = $(this).closest('tr').next(".tr-hide").css("display");
+        $(".show-tr").find('.fa-plus').show();
+        $(".show-tr").find('.fa-minus').hide();
+        if (t == "none") {
+            $(this).find('.fa-plus').hide();
+            $(this).find('.fa-minus').show();
+            $(".tr-hide").hide();
+            $(this).closest('tr').next(".tr-hide").toggle();
+        }
+        else if (t == "block") {
+            $(this).closest('tr').next(".tr-hide").hide();
+        }
+        else {
+            $(".tr-hide").hide();
+        }
+    });
+    function LoadingForm(IsShow) {
+        var style = "top:" + $('body').height() / 2 + "px; left:" + ($('body').width() / 2) + "px";
+        $('body').gridLoader({ show: IsShow, style: style })
+    }
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $('#table-nhanvien').on('click', '.show-tr', function (e) {
+        var t = $(this).closest('tr').next(".tr-hide").css("display");
+        $(".show-tr").find('.fa-plus').show();
+        $(".show-tr").find('.fa-minus').hide();
+        if (t == "none") {
+            $(this).find('.fa-plus').hide();
+            $(this).find('.fa-minus').show();
+            $(".tr-hide").hide();
+            $(this).closest('tr').next(".tr-hide").toggle();
+        }
+        else if (t == "block") {
+            $(this).closest('tr').next(".tr-hide").hide();
+        }
+        else {
+            $(".tr-hide").hide();
+        }
+    });
+    function printPage() {
+        LoadingForm(true);
+        var strPrint = '';
+        var key_id = "#";
+        var data_id;
+        $('#table-reponsivetr .tabmenu').each(function (i) {
+            if (!$(this).hasClass('active')) {
+                $(this).hide();
+            }
+            else {
+                data_id = $(this).data('id');
+                key_id += $(this).attr('id');
+            }
+        });
+        if (data_id === parseInt($('#ID_thhangnhapkho').val())
+            || data_id === parseInt($('#ID_thhangxuatkho').val())) {
+            $(".tab-show " + key_id + ' .tab-content .tab-pane').each(function () {
+                if ($(this).hasClass('active')) {
+                    var value = $(this).data('id');
+                    $("#table-reponsivetr " + key_id + ' .tab-content .tab-pane').each(function () {
+                        if ($(this).data('id') !== value) {
+                            $(this).hide();
+                        }
+                    });
+                }
+            });
+        }
+        strPrint += document.getElementById('printtable').innerHTML;
+        PrintExtraReportTr(strPrint);
+        $('#table-reponsivetr .tabmenu').each(function () {
+            if (!$(this).hasClass('active')) {
+                $(this).show();
+            }
+        });
+        if (data_id === parseInt($('#ID_thhangnhapkho').val())
+            || data_id === parseInt($('#ID_thhangxuatkho').val())) {
+            $(".tab-show " + key_id + ' .tab-content .tab-pane').each(function () {
+                if ($(this).hasClass('active')) {
+                    var value = $(this).data('id');
+                    $("#table-reponsivetr " + key_id + ' .tab-content .tab-pane').each(function () {
+                        if ($(this).data('id') !== value) {
+                            $(this).show();
+                        }
+                    });
+                }
+            });
+        }
+    }
+    $('body').on('successPrint', function () {
+        LoadingForm(false);
+    })
+    function printPageNhanVienCT() {
+        ;
+        var strPrint = '';
+        strPrint += document.getElementById('printtableNhanVienCT').innerHTML;
+        PrintExtraReportTr(strPrint);
+    }
+    function ShowNhom($this) {
+        $this.next("ul").toggleClass("open");
+    };
+</script>
+<style>
+    .tab-pane {
+        position: relative;
+    }
+
+    .StartImport {
+        margin-right: 5px;
+        z-index: 0;
+        display: inline-block;
+        background: #808080;
+        color: #fff;
+        font-weight: bold;
+        font-size: 12px;
+        padding: 7px 15px;
+        white-space: nowrap;
+        border: none;
+        vertical-align: middle;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    .SelectReport {
+        background: #bee69f;
+        color: #000000;
+    }
+
+    .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline !important;
+    }
+
+    .nameDonVi input {
+        border: none;
+        height: 30px;
+        outline: none;
+        padding-left: 10px;
+        width: 50%;
+    }
+</style>
+<script src="@Scripts.Url("~/bundles/ReportKho")" type="text/javascript"></script>

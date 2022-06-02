@@ -1,0 +1,1586 @@
+﻿@using Model
+@using banhang24.Hellper;
+@model DM_DonVi
+<style>
+    #swapthemeAnimation {
+        position: fixed;
+        bottom: -100vw;
+        right: -100vw;
+        width: 0;
+        height: 100vw;
+        border-top-left-radius: 400vw;
+        background: white;
+        display: block;
+        z-index: 99999;
+        overflow: hidden;
+        background: var(--color-main);
+    }
+
+        #swapthemeAnimation.active {
+            height: 100vw;
+            width: 200vw;
+            border-radius: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        #swapthemeAnimation img {
+            position: fixed;
+            top: calc(50vh - 50px);
+            left: calc(50vw - 50px);
+            width: 100px;
+            height: 100px;
+        }
+
+    ul.main-drop.op-menu-function > li {
+        position: relative;
+    }
+
+    .op-menu-list .fa-car {
+        font-size: 16px;
+    }
+</style>
+<script type="text/javascript">
+    var TitleFirst = "";
+    if (location.hostname.indexOf("open24.vn") > 0 || location.hostname === "localhost") {
+        TitleFirst = "Open24.vn - ";
+    }
+    var listmenu = [
+         // Data Menu
+        { url: '@UrlPage.Danhsachhanghoa', path: "p/danhsachhanghoa", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' }
+        , { url: '@UrlPage.LoHangHoa', path: "p/LoHangHoa", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' + ' - Lô hàng hóa' }
+        , { url: '@UrlPage.TrangChu', path: "Home/DashBoard", title: TitleFirst + '@Html.Raw(UrlPage.Title_TongQuan)' }
+        , { url: '@UrlPage.TrangChuHRM', path: "Home/TongQuan", title: TitleFirst + '@Html.Raw(UrlPage.Title_TongQuan)' }
+        , { url: '@UrlPage.ThietLapGia', path: "p/danhsachgia", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' + " - Bản giá bán" }
+        , { url: '@UrlPage.PhieuDieuChinh', path: "p/phieudieuchinh", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' + " - Điều chỉnh giá vốn" }
+        , { url: '@UrlPage.TaoPhieuDieuChinh', path: "p/dieuchinh", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' + " - Điều chỉnh" }
+        , { url: '@UrlPage.KiemKho', path: "p/kiemkho", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' + " - Kiểm kê hàng hóa" }
+        , { url: '@UrlPage.TonKho', path: "p/TonKho", title: TitleFirst + '@Html.Raw(UrlPage.Title_HangHoa)' + " - Kiểm kê hàng hóa" }
+        , { url: '@UrlPage.HoaDon', path: "e/hoadon/0", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Hóa đơn" }
+        , { url: '@UrlPage.DatHang', path: "e/dathang/0", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Đặt hàng" }
+        , { url: '@UrlPage.BaoGia', path: "e/dathang/1", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Đặt hàng" }
+        , { url: '@UrlPage.NhapHang', path: "e/nhaphang", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Nhập hàng" }
+        , { url: '@UrlPage.NhapHangSanXuat', path: "e/NhapHangSanXuat", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Nhập hàng sản xuất" }
+        , { url: '@UrlPage.NhapHangItem', path: "e/nhaphangitem", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Nhập hàng chi tiết" }
+        , { url: '@UrlPage.NhapHangItem2', path: "e/NhapHangItem1_2", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Nhập hàng chi tiết" }
+        , { url: '@UrlPage.TraHang', path: "e/trahang", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Trả hàng" }
+        , { url: '@UrlPage.TraHangNhap', path: "e/trahangnhap", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Trả hàng nhập" }
+        , { url: '@UrlPage.TraHangNhapChiTiet', path: "e/trahangnhapchitiet", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Trả hàng nhập chi tiết" }
+        , { url: '@UrlPage.TraHangNhapChiTiet2', path: "e/trahangnhapchitiet_2", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Trả hàng nhập chi tiết" }
+        , { url: '@UrlPage.XuatHuy', path: "e/XuatHuy", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Xuất kho" }
+        , { url: '@UrlPage.PhieuXuatHuy', path: "e/PhieuXuatHuy", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Phiếu Xuất kho" }
+        , { url: '@UrlPage.XuatKhoChiTiet', path: "e/XuatKhoChiTiet", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Phiếu Xuất kho" }
+        , { url: '@UrlPage.ChuyenHang', path: "e/ChuyenHang", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Chuyển hàng" }
+        , { url: '@UrlPage.ChuyenHangChiTiet', path: "e/ChuyenHangChiTiet", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Chuyển hàng chi tiết" }
+        , { url: '@UrlPage.ChuyenHangChiTiet2', path: "e/ChuyenHangChiTiet_2", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Chuyển hàng chi tiết" }
+        , { url: '@UrlPage.KhachHang', path: "c/khachhang", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Khách hàng" }
+        , { url: '@UrlPage.NhaCungCap', path: "c/nhacungcap", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Nhà cung cấp" }
+        , { url: '@UrlPage.TuVan', path: "s/tuvan", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Tư vấn khách hàng" }
+        , { url: '@UrlPage.LichHen', path: "s/LichHen", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Lịch hẹn" }
+        , { url: '@UrlPage.PhanHoi', path: "s/PhanHoi", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Phản hồi" }
+        , { url: '@UrlPage.SoQuy', path: "f/soquy", title: TitleFirst + '@Html.Raw(UrlPage.Title_SoQuy)' }
+        , { url: '@UrlPage.SoQuy2', path: "f/soquy2/2", title: TitleFirst + '@Html.Raw(UrlPage.Title_SoQuy)' }
+        , { url: '@UrlPage.PhieuThu', path: "f/soquy2/0", title: TitleFirst + 'Phiếu thu' }
+        , { url: '@UrlPage.PhieuChi', path: "f/soquy2/1", title: TitleFirst + 'Phiếu chi' }
+        , { url: '@UrlPage.BC_BanHang', path: "r/banhang", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Bán hàng" }
+        , { url: '@UrlPage.R_NhapHang', path: "x/nhaphang", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Nhập hàng" }
+        , { url: '@UrlPage.R_TaiChinh', path: "x/taichinh_v2", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Tài chính" }
+        , { url: '@UrlPage.R_DatHang', path: "x/DatHang", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Đặt hàng" }
+        , { url: '@UrlPage.R_ChietKhau', path: "x/chietkhaunhanvien", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Chiết khấu nhân viên" }
+        , { url: '@UrlPage.R_ChietKhau1', path: "x/HoaHong", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Hoa hồng nhân viên" }
+        , { url: '@UrlPage.R_BanHang', path: "x/BanHang", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Bán hàng" }
+        , { url: '@UrlPage.R_Kho', path: "x/Kho", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Kho" }
+        , { url: '@UrlPage.R_GoiDichVu', path: "x/GoiDichVu", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Sử dụng gói dịch vụ" }
+        , { url: '@UrlPage.R_NhanVien', path: "x/NhanVien", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Nhân viên" }
+        , { url: '@UrlPage.NhanVien', path: "t/NhanVien", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Nhân viên" }
+        , { url: '@UrlPage.ChietKhau', path: "t/ChietKhau", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Tài chính" }
+        , { url: '@UrlPage.ChietKhauNew', path: "t/ChietKhauNew", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Tài chính" }
+        , { url: '@UrlPage.CD_ChiNhanh', path: "t/QuanLyChiNhanh", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Chi nhánh" }
+        , { url: '@UrlPage.CD_KhuyenMai', path: "t/KhuyenMai", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Khuyến mại" }
+        , { url: '@UrlPage.CD_LichSuHD', path: "t/LichSuThaoTac", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Lịch sử hoạt động" }
+        , { url: '@UrlPage.CD_NguoiDung', path: "t/QuanLyNguoiDung", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Quản lý người dùng" }
+        , { url: '@UrlPage.CD_NguoiDung_2', path: "t/QuanLyNguoiDung_2", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Quản lý người dùng" }
+        , { url: '@UrlPage.CD_QuanLyMauIn', path: "t/QuanLyMauIn", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Quản lý mẫu in" }
+        , { url: '@UrlPage.CD_SoDo', path: "m/phongban", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Sơ đồ phòng ban" }
+        , { url: '@UrlPage.CD_ThietLapCuaHang', path: "t/ThietLapChung", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Thiết lập cửa hàng" }
+        , { url: '@UrlPage.NguoiLienHe', path: "s/NguoiLienHe", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Người liên hệ" }
+        , { url: '@UrlPage.Congviec', path: "mark/Congviec", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Công việc" }
+        , { url: '@UrlPage.LichHen1', path: "mark/LichHen", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Người liên hệ" }
+        , { url: '@UrlPage.GoiDichVu', path: "e/GoiDichVu", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Gói dịch vụ" }
+        , { url: '@UrlPage.DichVuSMS', path: "s/DanhSachSMS", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Dịch vụ sms" }
+        , { url: '@UrlPage.CD_TaiKhoan', path: "Home/TaiKhoan", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Thông tin tài khoản" }
+        , { url: '@UrlPage.CaLamViec', path: "n/CaLamViec", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Thông tin ca làm việc" }
+        , { url: '@UrlPage.PhanCongCaLamViec', path: "n/PhanCongCaLamViec", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Thông tin phân ca làm việc" }
+        , { url: '@UrlPage.OptinForm', path: "mark/OptinForm", title: TitleFirst + '@Html.Raw(UrlPage.Title_MarKeting)' + " - Optionform" }
+        , { url: '@UrlPage.OptinFormKH', path: "mark/AddOptinFormKH", title: TitleFirst + '@Html.Raw(UrlPage.Title_MarKeting)' + " - Thêm mới biểu mẫu khách hàng" }
+        , { url: '@UrlPage.OptinFormLH', path: "mark/AddOptinFormLH", title: TitleFirst + '@Html.Raw(UrlPage.Title_MarKeting)' + " - Thêm mới biểu mẫu lịch hẹn" }
+        , { url: '@UrlPage.datlich', path: "mark/DatLich", title: TitleFirst + '@Html.Raw(UrlPage.Title_MarKeting)' + " - Danh sách khách hàng đặt lịch" }
+        , { url: '@UrlPage.DanhSachDangKyOptinForm', path: "mark/DanhSachDangKyOptinForm", title: TitleFirst + '@Html.Raw(UrlPage.Title_MarKeting)' + " - Khách hàng đăng ký optinform" }
+        , { url: '@UrlPage.R_TheGiaTri', path: "x/TheGiaTri", title: TitleFirst + '@Html.Raw(UrlPage.Title_BaoCao)' + " - Thẻ giá trị" }
+        , { url: '@UrlPage.NapTienTheGiaTri', path: "e/NapTienTheGiaTri", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Danh sách nạp tiền thẻ giá trị" }
+        , { url: '@UrlPage.Calendar', path: "mark/Calendar", title: TitleFirst + '@Html.Raw(UrlPage.Title_MarKeting)' + " - Thêm mới biểu mẫu khách hàng" }
+        , { url: '@UrlPage.KyTinhCong', path: "n/KyTinhCong", title: TitleFirst + '@Html.Raw(UrlPage.Title_CaiDat)' + " - Thiết lập kỳ tính công" }
+        , { url: '@UrlPage.ChamCong', path: "n/ChamCong", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Chấm công" }
+        , { url: '@UrlPage.ChamCong2_1', path: "n/ChamCong2_1", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Chấm công" }
+        , { url: '@UrlPage.BangLuong', path: "n/BangLuong", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Bảng lương" }
+        , { url: '@UrlPage.BangLuongChiTiet', path: "n/BangLuongChiTiet", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Bảng lương chi tiết" }
+        , { url: '@UrlPage.LoaiBaoHiem', path: "n/LoaiBaoHiem", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Loại bảo hiểm" }
+        , { url: '@UrlPage.KhenThuongKyLuat', path: "n/LoaiKhenThuong", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Khen thưởng, kỷ luật" }
+        , { url: '@UrlPage.TongQuanNhanSu', path: "n/TongQuanNhanSu", title: TitleFirst + '@Html.Raw(UrlPage.Tilte_TongQuanNhanSu)' + " Tổng quan nhân sự" }
+        , { url: '@UrlPage.QuanLyMayChamCong', path: "t/QuanLyMayChamCong", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Quản lý máy chấm công" }
+        , { url: '@UrlPage.TaiDuLieuMayChamCong', path: "t/TaiDuLieuMayChamCong", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhanSu)' + " - Tải dữ liệu máy chấm công" }
+        , { url: '@UrlPage.Nhahang', path: "$/NhaHang", title: TitleFirst + '@Html.Raw(UrlPage.Title_NhaHang)' + " - Quản lý máy chấm công" }
+        , { url: '@UrlPage.DanhMucXe', path: "g/DanhMucXe", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Danh mục xe" }
+        , { url: '@UrlPage.BanLamViec', path: "g/BanLamViec", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Tiếp nhận xe" }
+        , { url: '@UrlPage.Gara', path: "g/Gara", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Gara" }
+        , { url: '@UrlPage.TongQuanGara', path: "#/TongQuanGara", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Tổng quan gara" }
+        , { url: '@UrlPage.BaoHiem', path: "c/NhaBaoHiem", title: TitleFirst + '@Html.Raw(UrlPage.Title_DoiTac)' + " - Đơn vị bảo hiểm" }
+        , { url: '@UrlPage.DanhSachXe', path: "e/DanhSachXe", title: TitleFirst + '@Html.Raw(UrlPage.Title_GiaoDich)' + " - Danh sách xe sửa chữa" }
+        , { url: '@UrlPage.DanhSachPhieuTiepNhan', path: "e/DanhSachPhieuTiepNhan", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Danh sách Phiếu tiếp nhận" }
+        , { url: '@UrlPage.HoaDonSuaChua', path: "e/hoadon/1", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Hóa đơn sửa chữa" }
+        , { url: '@UrlPage.BaoCaoSuaChua', path: "g/Gara_DoanhThuCoVan", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + " - Báo cáo sửa chữa" }
+        , { url: '@UrlPage.Gara_LichNhacBaoDuong', path: "g/Gara_LichNhacBaoDuong", title: TitleFirst + '@Html.Raw(UrlPage.Title_Gara)' + "- Lịch bảo dưỡng" }
+        , { url: '@UrlPage.QuanLyCheckIn', path: "Home/QuanLyCheckIn", title: TitleFirst + " - Check In" }
+        , { url: '@UrlPage.BaoCaoHoatDongXe', path: "x/BaoCaoHoatDongXe", title: TitleFirst + " Nhật ký hoạt động xe" }
+        , { url: '@UrlPage.PhieuBanGiaoXe', path: "g/PhieuBanGiaoXe", title: TitleFirst + " Danh sách phiếu bàn giao xe" }
+    ];
+    //p - hanghoa
+    //e - giaodich
+    //c - doitac
+    //x - report
+    //s - tuvan
+    //f - soquy
+    //mark - marketing
+    //r - baocao
+    //n - nhansu
+    //b - spa
+    //t - thietlap
+    //m - phongban
+    //g - gara
+    function checkGetPageForUrl() {
+        //Link form khi thay đổi url
+        var url;
+        var Urlhash = window.location.hash.split("?");
+        if (Urlhash[0].length > 3) {
+            url = Urlhash[0].substring(2, Urlhash[0].length);
+        }
+        else {
+            url = Urlhash[0];
+        }
+        for (var i = 0; i < listmenu.length; i++) {
+            if (url.toUpperCase().indexOf(listmenu[i].url.toUpperCase()) > -1
+                && url.length === listmenu[i].url.length) {
+                   var title  = document.title.split(')').length > 1 ? document.title.split(')')[0] + ') ' + listmenu[i].title : listmenu[i].title;
+                   readloadUrl(listmenu[i].url, listmenu[i].path, title);
+                break;
+            }
+            if (i === (listmenu.length - 1)) {
+                if ($('#Open24HRM').val() === 'True') {
+                    readloadUrl('@UrlPage.TrangChuHRM', "Home/TongQuan", TitleFirst + "Tổng quan");
+                }
+                else {
+                    readloadUrl('@UrlPage.TrangChu', "Home/DashBoard", TitleFirst + "Tổng quan");
+                }
+            }
+        }
+    }
+    function clickloadForm($newUrl) {
+        // Click link form trước có 1 số form đang dùng
+        for (var i = 0; i < listmenu.length; i++) {
+            if ($newUrl.toUpperCase().indexOf(listmenu[i].url.toUpperCase()) > -1
+                && $newUrl.length === listmenu[i].url.length) {
+                readloadUrl(listmenu[i].url, listmenu[i].path, listmenu[i].title);
+                break;
+            }
+            if (i === (listmenu.length - 1)) {
+                if ($('#Open24HRM').val() === 'True') {
+                    readloadUrl('@UrlPage.TrangChuHRM', "Home/TongQuan", "Open24.vn - Tổng quan");
+                }
+                else {
+                    readloadUrl('@UrlPage.TrangChu', "Home/DashBoard", '@Html.Raw(UrlPage.Title_TongQuan)');
+                }
+            }
+        }
+    };
+    function readloadUrl(url, path, title) {
+// Hàm thực hiện load link form
+        $("#MainLayout").HtmlLoader({ pageName: "/" + path, elementId: 'renderbody', parentContainerId: 'MainLayout', title: title });
+    }
+    function sleep(time) {
+        // Hàm delay thời gian
+        return new Promise((resolve) =>  setTimeout(resolve, time));
+    }
+    function showTypeBc() {
+        $(".op-baocao-type").toggleClass('showed');
+    }
+    $(window).on('popstate', function (event) {
+          //Lúc đầu load form
+        $('.xdsoft_datetimepicker').remove();
+        $('.daterangepicker').remove();
+        checkGetPageForUrl();
+    });
+    window.onload = function () {
+        $(".loading-box").delay(500).fadeOut();
+    };
+    $(document).ready(function () {
+        $('.branch').text('');
+        $('.branch').attr('id', '');
+        loadAny = false;
+        checkGetPageForUrl();
+    });
+</script>
+@{
+    var shop = (ViewBag.ID_NganhKinhDoanh as string).ToUpper();
+    if (shop == "C16EDDA0-F6D0-43E1-A469-844FAB143014")
+    {
+        <link rel="stylesheet" type="text/css" href="~/Content/Gara.css" />
+    }
+}
+<div class="navbar navbar-default navtop " id="op24-nav">
+    <link id="ClassicInterface" href="~/Content/css/op.classic.css" rel="stylesheet" v-if="isBeta ==false" />
+    <link id="BetaInterface" href="~/Content/css/op.beta.css" rel="stylesheet" v-else />
+    <link id="hotfix" href="~/Content/css/Hotfix/huawei-m3.css" />
+    <link href="@Url.ContentVersioned("~/Content/css/open24.responsive.css")" rel="stylesheet" />
+    <div class="container-fluid nopadding menu-horizontal" style="opacity:0;z-index:100; transition:opacity 0.5s ease">
+        <div>
+            <div class="op-menu " id="op-menu">
+                <div style="width:inherit">
+                    <div class="op-menu-logo" style="">
+                        <a hidden class="op-menu-toggle-mobile" onclick="expandMenu()"><i class="material-icons">menu</i></a>
+                        <img src="~/Content/images/logo/op-logo.svg" id="logoBeta" onclick="expandMenu()" title="Open24.vn" v-show="ShowImgLogo" />
+                        <a href="/#/Dashboard" id="logoClassic" onclick="expandMenu()">
+                            <img src="~/Content/images/banhang24.png" title="Open24.vn" v-show="ShowImgLogo" />
+                        </a>
+                        <a class="op-logo-link " onclick="expandMenu()" hidden>Open24</a>
+                    </div>
+                    <ul class="op-menu-list">
+                        <li v-for="itemMenu in Menu" class="op-collapsed">
+                            <a v-bind:href="GetHref(itemMenu.url)" v-bind:title="itemMenu.Title" onclick="collapseMenu(this)" v-bind:target="TargetUrl(GetHref(itemMenu.url))">
+                                <i v-bind:class="itemMenu.ClassName"></i>
+                                <font>{{itemMenu.Title}}</font>
+                                <i class="fa fa-angle-down" v-if="itemMenu.SubMenu.length > 0"></i>
+                            </a>
+                            <ul v-if="itemMenu.SubMenu.length > 0" hidden>
+                                <li v-for="itemSubMenu in itemMenu.SubMenu" v-bind:style="{'border-bottom' : itemSubMenu.EndGroup ? '1px dotted #d8d6d6' : 'none'}" onclick="toggleTabletMenu(this);">
+                                    <a v-bind:href="GetHref(itemSubMenu.url)">
+                                        <i v-bind:class="itemSubMenu.ClassName"></i>
+                                        {{itemSubMenu.Title}}
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-top ">
+            <ul class="chinhanh">
+                <li style="display:none">
+                    <a class="idnhomnguoidung">{{IdNhomNguoiDung}}</a>
+                </li>
+                <li style="display:none">
+                    <a class="idnguoidung">{{IdNguoiDung}}</a>
+                </li>
+                <li style="display:none" class="hover-round">
+                    <a class="idnhanvien">{{IdNhanVien}}</a>
+                </li>
+                <li class="branch-li ">
+                    <input id="hd_IDdDonVi" name="hd_IDdDonVi" type="hidden" v-model="IdDonVi" />
+                    <input id="hd_TenDonVi" name="hd_TenDonVi" type="hidden" v-model="TenDonVi" />
+                    <a href="javascript: void(0)" class="name-store  " style="display:flex; justify-content:flex-start; align-items:center">
+                        <i class="fa fa-map-marker"></i>
+                        <label for="female" style="margin:0" id="_txtTenDonVi">{{TenDonVi}}</label>
+                    </a>
+                    <div class="fillter main-drop" id="divLstChiNhanh" style="padding:5px; background:white">
+                        <div style="position:relative; ">
+                            <form autocomplete="off"><input type="text" class="form-control" style="background:white !important" v-model="ChiNhanhSearch" autocomplete="off" placeholder="Tìm kiếm chi nhánh"></form>
+                            <i class="material-icons " style="position: absolute;top: 12px;left: 7px;font-size: 22px;width: 30px;height: 30px;top: 3px !important;right: 0;left: unset;">search</i>
+                        </div>
+                        <ul>
+                            <li v-for="itemChiNhanh in ListChiNhanh.filter(p=> commonStatisJs.convertVieToEng(p.TenDonVi).match(commonStatisJs.convertVieToEng(ChiNhanhSearch)))"
+                                v-on:click="DoiChiNhanh(itemChiNhanh.ID, itemChiNhanh.TenDonVi)">
+                                <span>{{itemChiNhanh.TenDonVi}}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="hover-round">
+                    <a class="toggle-popup" v-on:click="showPopupThongBao">
+                        <i class="material-icons" style="font-size:18px">notifications</i>
+                        <span v-if="Count > 0" class="icon-badge">{{Count}}</span>
+                    </a>
+                </li>
+                <li class="hover-round op-mobile-hidden">
+                    <a class="btn-drop">
+                        <i class="fa fa-question-circle "></i>
+                    </a>
+                    <ul class="main-drop op-menu-function" hidden>
+                        <li>
+                            <a target="_blank" href="https://get.teamviewer.com/qgvaru2">
+                                <img src="~/Content/images/hotro/iconhotro-10.png" alt="logo teamviewer" />
+                                Tải Teamviewer
+                            </a>
+                        </li>
+                        <li>
+                            <a target="_blank" href="http://dl2.ultraviewer.net/UltraViewer_setup_6.1_vi.exe">
+                                <img src="~/Content/images/hotro/iconhotro-11.png" alt="logo ultraviewer" />
+                                Tải Ultraviewer
+                            </a>
+                        </li>
+                        <li v-if="!isHRM && ShowImgLogo">
+                            <a target="_blank" href="https://open24.vn/huong-dan-su-dung">
+                                <img src="~/Content/images/hotro/iconhotro-12.png" alt="hướng dẫn sử dụng" />
+                                Hướng dẫn sử dụng
+                            </a>
+                        </li>
+                        <li class="xoadlht" v-if="LaAdmin === 'Admin'">
+                            <a href="javascript:void(0)" data-toggle="modal" data-target="#xoadulieu">
+                                <img src="~/Content/images/caidat/caidat-07.png" alt="xóa dữ liệu" />
+                                Xóa dữ liệu hệ thống
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" onclick="createShortcut()">
+                                <img src="~/Content/images/anhhh/th.png" height="18" alt="tạo shortcut" />
+                                Tạo shortcut in nhanh
+                            </a>
+                        </li>
+                        <li v-if="ShowImgLogo">
+                            <a href="https://chat.zalo.me/?phone=0936363069" target="_blank" rel="nofollow">
+                                <img src="~/Content/images/hotro/icon-zalo-cta.svg" height="18" alt="Chat zalo" />
+                                Chat Zalo
+                            </a>
+                        </li>
+                        <li v-if="ShowImgLogo">
+                            <a href="tel:0936363069" target="_blank" rel="nofollow">
+                                <img src="~/Content/images/hotro/icon-phone-cta.svg" height="18" alt="Gọi hotline" />
+                                Gọi hotline
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="hover-round">
+                    <a class="btn-drop">
+                        <div class="op-avatar-holder" style="  border-radius: 20px; overflow: hidden; ">
+                            <img id="op-avatar" v-bind:src="UserAvata" style="height: 30px; width: 30px; object-fit: cover; padding: 0px;" v-bind:title="TenNguoiDung" />
+                            <div style="height: 11px;width: 11px;position: absolute;bottom: 5px;right: 5px;border-radius: 20px;border: 1px solid;"
+                                 v-bind:style="{'background' : SignalrStatus === 'Disconnected'? 'gray' : SignalrStatus === 'Connected' ? '#1e8e3e' : 'orange'}"></div>
+                        </div>
+                    </a>
+                    <ul class="main-drop op-menu-function" hidden>
+                        <li class="show-mobile title-menu">
+                            <a href="javascript:void(0)" style="display:none" hidden>
+                                <font style="text-overflow:ellipsis; overflow:hidden;white-space:nowrap; display:none" id="txtTenTaiKhoan">{{TenNguoiDung}}</font>
+                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:void(0)" data-toggle="modal" onclick="updisable()">
+                                <i class="material-icons">person</i>{{TenNguoiDung}}
+                            </a>
+                        </li>
+                        <li style="border-bottom:1px solid #ccc"></li>
+                        <li class="thietlapchild" v-if="Quyen.indexOf('ThietLapCuaHang') > -1">
+                            <a href="/#/@UrlPage.CD_ThietLapCuaHang">
+                                <i class="material-icons">
+                                    store_mall_directory
+                                </i>
+                                Cài đặt cửa hàng
+                            </a>
+                        </li>
+                        <li class="thietlapchild" v-if="Quyen.indexOf('PhongBan_ThemMoi') > -1">
+                            <a href="/#/@UrlPage.CD_SoDo">
+                                <i class="material-icons">
+                                    room
+                                </i>
+                                Cài đặt sơ đồ
+                            </a>
+                        </li>
+                        <li class="thietlapchild" v-if="Quyen.indexOf('MauIn') > -1">
+                            <a href="/#/@UrlPage.CD_QuanLyMauIn">
+                                <i class="material-icons">
+                                    print
+                                </i>
+                                Cài đặt mẫu in
+                            </a>
+                        </li>
+                        <li class=" chietkhauchild" v-if="Quyen.indexOf('HoaHong_CaiDat') > -1">
+                            <a href="/#/@UrlPage.ChietKhauNew">
+                                <i class="material-icons">
+                                    manage_accounts
+                                </i>
+                                Cài đặt hoa hồng
+                            </a>
+                        </li>
+                        <li class="khuyenmaichild" v-if="Quyen.indexOf('KhuyenMai') > -1">
+                            <a href="/#/@UrlPage.CD_KhuyenMai">
+                                <i class="material-icons">
+                                    card_giftcard
+                                </i>
+                                <span>
+                                    Cài đặt khuyến mại
+                                </span>
+                            </a>
+                        </li>
+                        <li class=" chietkhauchild" v-if="Quyen.indexOf('NhatKySuDung') > -1">
+                            <a href="/#/@UrlPage.CD_LichSuHD">
+                                <i class="material-icons">
+                                    menu_book
+                                </i>
+                                <span>Nhật ký sử dụng</span>
+                            </a>
+                        </li>
+                        <li class=" chietkhauchild op-submenu-1 op-theme" v-on:click="ChangeInterface" v-if="ShowImgLogo">
+                            <a title="Giao diện ">
+                                <i class="material-icons">
+                                    invert_colors
+                                </i>
+                                <span id="changeUIButton">Giao diện Beta</span>
+                            </a>
+                        </li>
+                        <li class=" chietkhauchild op-submenu-1">
+                            <a title="Chủ đề">
+                                <i class="material-icons">
+                                    palette
+                                </i>
+                                <span>Chủ đề</span>
+                            </a>
+                            <div class="op-submenu-2" hidden>
+                                <ul class="op-palette menu-drop-ul-style-color">
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="0" class="bg-1"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="1" class="bg-2"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="2" class="bg-3"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="3" class="bg-4"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="4" class="bg-5"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="5" class="bg-6"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="6" class="bg-7"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="7" class="bg-8"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="8" class="bg-9"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="9" class="bg-10"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="10" class="bg-11"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="11" class="bg-12"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="12" class="bg-13"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="14" class="bg-15"></a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" data-id="15" class="bg-16"></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li style="border-bottom:1px solid #ccc"></li>
+                        <li class="show-mobile">
+                            <a href="/Home/LogOut">
+                                <i class="material-icons">logout</i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="op-popup-thongbao" hidden>
+        <div style="border-bottom:1px solid #ccc; padding:7px; display:flex;justify-content:space-between; align-items:center">
+            <label style="margin:0">Thông báo</label>
+            <div style="display:flex;justify-content:space-between; align-items:center">
+                <a v-on:click="doctatca">Đánh dấu đã đọc</a>
+                <div style="position:relative; margin-left:10px;" class="message-dropdown">
+                    <a class="message-archor"><i class="fa fa-cog"></i></a>
+                    <div class="message-popup" hidden>
+                        <div class="checkbox">
+                            <label><input type="checkbox" v-model="ThongBaoCaiDat.isTonKho">Tồn kho</label>
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" v-model="ThongBaoCaiDat.isDieuChuyen">Điều chuyển</label>
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" v-model="ThongBaoCaiDat.isLoHang">Lô hàng</label>
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" v-model="ThongBaoCaiDat.isSinhNhat">Sinh nhật</label>
+                        </div>
+                        <div class="checkbox" v-if="IdNganhNgheKinhDoanh == 'C16EDDA0-F6D0-43E1-A469-844FAB143014'">
+                            <label><input type="checkbox" v-model="ThongBaoCaiDat.isNhacBaoDuongXe">Bảo dưỡng xe</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="op-thongbao">
+            <ul>
+                <li v-for="item in ListThongBao.data">
+                    <div class="op-thongbao-item" v-bind:class="{ 'op-thongbao-dadoc':  !item.DaDoc }">
+                        <div class="op-thongbao-image" v-html="item.Image"></div>
+                        <div>
+                            <div style="line-height:18px" v-html="item.NoiDungThongBao"></div>
+                            <span style="line-height:18px" class="date-notifi">{{ item.NgayTao }}</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="op-thongbao-more" style="padding:0; background:white" @*v-if="Count>ThongBaoSize"*@ v-on:click="ThongBaoXemThem">
+                    <a style="    background: white;    text-align: center;    color: black;    width: 100%;    height: 30px;    text-align: center;    display: inline-block;    padding: 7px 12px;    border-top: 1px solid rgba(0,0,0,0.15); ">Xem thêm</a>
+                </li>
+            </ul>
+        </div>
+        @*<div v-if="Count==0">
+                <div style="text-align:center;padding:7px;">
+                    <i>Không có thông báo</i>
+                </div>
+            </div>*@
+    </div>
+</div>
+<div class="modal fade  xoadulieu" id="xoadulieu">
+    <div class="modal-md modal-dialog draggable  ">
+        <div class="modal-content  draggable">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Xóa dữ liệu hệ thống
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <div class="container-fluid row">
+                    <div class="form-group floatleft">
+                        <label>Mật khẩu</label>
+                        <div class="form-news">
+                            <input type="password" id="textPassXoaDl" class="form-control textPassXoaDl">
+                            <span class="commodity-note">
+                                <i class="fa fa-info-circle"></i>
+                                <span href="javascript:void(0)" class="materiall">Là mật khẩu bạn đăng nhập phần mềm</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="floatleft checkhanghoaxoa">
+                            <input type="checkbox" /> Giữ lại danh mục Hàng hóa
+                        </label>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="floatleft checkkhachhangxoa">
+                            <input type="checkbox" /> Giữ lại danh mục Khách hàng
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-main" onclick="xoadlhethong()">
+                        <i class="fa fa-check-square"></i> Đồng ý
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade " id="myModal">
+    <div id="modalContainerlg_HH" class="modal-dialog modal-md">
+        <div class="modal-content">
+            <form id="suataikhoan" action="/Shared/CapNhatNguoiDung" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                    <h4 class="modal-title">
+                        @banhang24.Resources.ResourceTexts.User
+                    </h4>
+                </div>
+                <div class="modal-body ">
+                    <div class="container-fluid row">
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label">Tên người dùng</label>
+                            <div class="form-news">
+                                <input class="form-control" value="@ViewBag.TenNhanVien" name="txtTenNhanVien" id="txtTenNhanVien" />
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label">Tên đăng nhập</label>
+                            <div class="form-news">
+                                <input class="form-control" value="@ViewBag.TenTaiKhoan" name="txtTenDangNhap" id="txtTenDangNhap" />
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label">Vai trò</label>
+                            <div class="form-news">
+                                @Html.Label("LaAdmin", (string)ViewBag.LaAdmin)
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="">Mật khẩu hiện tại</label>
+                            <div class="form-news">
+                                <input type="password" class="form-control " placeholder="" name="passOld" id="passOld" onchange="checkpassold()">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="">Mật khẩu mới</label>
+                            <div class="form-news">
+                                <input type="password" class="form-control " placeholder="" name="passNew" id="passNew" onchange="testpass()">
+                                <p class="notyfi-check"></p>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="">Gõ lại mật khẩu mới</label>
+                            <div class="form-news">
+                                <input type="password" class="form-control " placeholder="" name="passRepeat" id="passRepeat" onchange="checkpass()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid ">
+                        <button class="btn btn-save " id="clicksua" onclick="up()">
+                            <i class="fa fa-pencil" aria-hidden="true"></i> Sửa đổi
+                        </button>
+                        <button type="submit" disabled="disabled" id="clickluu" class="btn btn-save">
+                            <i class="fa fa-floppy-o"></i> Lưu
+                        </button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                            <i class="fa fa-ban"></i> Bỏ qua
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="swapthemeAnimation">
+    <img src="~/Content/images/logo/op-logo.svg" style="" hidden title="Open24.vn" />
+</div>
+<script type="text/javascript" src="~/Content/js/Open24FileManager.js"></script>
+<script>
+var VHeader = new Vue({
+    el: '#op24-nav',
+    data:
+    {
+        isBeta: localStorage.getItem('BetaUI_sts')==='true',
+        IdDonVi: '',
+        TenDonVi: '',
+        IdNguoiDung: '',
+        TenNguoiDung: '',
+        IdNhanVien: '',
+        TenNhanVien: '',
+        IdNhomNguoiDung: '',
+        IdNganhNgheKinhDoanh: '',
+        TenNganhNghe: 'Sales',
+        SubDomain: '',
+        UserLogin: '',
+        UserAvata: '',
+        TenCongTy: '',
+        Registered: false,
+        urlApi: {
+            HTApi: '/api/DanhMuc/HT_API/',
+            NguoiDungApi: '/api/DanhMuc/HT_NguoiDungAPI/',
+            ThietLapApi: '/api/DanhMuc/HT_ThietLapAPI/',
+            DonViApi: '/api/DanhMuc/DM_DonViAPI/'
+        },
+        Menu: [],
+        Quyen: [],
+        isHRM: false,
+        LaAdmin: '',
+        ListChiNhanh: [],
+        ChiNhanhSearch: '',
+        numberPage: 0,
+        ListThongBao: {
+            data: [],
+            CurrentPage: 1,
+            PageSize: 50
+        },
+        ThongBaoSize: 20,
+        Count: 0,
+        ThongBaoCaiDat: {
+            isTonKho: false,
+            isDieuChuyen: false,
+            isSinhNhat: false,
+            isLoHang: false,
+            isNhacBaoDuongXe: false
+        },
+        ThietLapCuaHang: [],
+        ThietLapChotSo: [],
+
+        UrlPage: {
+            Danhsachhanghoa: '@UrlPage.Danhsachhanghoa',
+            LoHangHoa: '@UrlPage.LoHangHoa',
+            TrangChu: '@UrlPage.TrangChu',
+            TrangChuHRM: '@UrlPage.TrangChuHRM',
+            ThietLapGia: '@UrlPage.ThietLapGia',
+            PhieuDieuChinh: '@UrlPage.PhieuDieuChinh',
+            TaoPhieuDieuChinh: '@UrlPage.TaoPhieuDieuChinh',
+            KiemKho: '@UrlPage.KiemKho',
+            TonKho: '@UrlPage.TonKho',
+            HoaDon: '@UrlPage.HoaDon',
+            DatHang: '@UrlPage.DatHang',
+            NhapHang: '@UrlPage.NhapHang',
+            NhapHangItem: '@UrlPage.NhapHangItem',
+            NhapHangItem2: '@UrlPage.NhapHangItem2',
+            TraHang: '@UrlPage.TraHang',
+            TraHangNhap: '@UrlPage.TraHangNhap',
+            TraHangNhapChiTiet: '@UrlPage.TraHangNhapChiTiet',
+            TraHangNhapChiTiet2: '@UrlPage.TraHangNhapChiTiet2',
+            XuatHuy: '@UrlPage.XuatHuy',
+            PhieuXuatHuy: '@UrlPage.PhieuXuatHuy',
+            XuatKhoChiTiet: '@UrlPage.XuatKhoChiTiet',
+            ChuyenHang: '@UrlPage.ChuyenHang',
+            ChuyenHangChiTiet: '@UrlPage.ChuyenHangChiTiet',
+            ChuyenHangChiTiet2: '@UrlPage.ChuyenHangChiTiet2',
+            KhachHang: '@UrlPage.KhachHang',
+            NhaCungCap: '@UrlPage.NhaCungCap',
+            TuVan: '@UrlPage.TuVan',
+            LichHen: '@UrlPage.LichHen',
+            PhanHoi: '@UrlPage.PhanHoi',
+            SoQuy: '@UrlPage.SoQuy',
+            SoQuy2: '@UrlPage.SoQuy2',
+            BC_BanHang: '@UrlPage.BC_BanHang',
+            R_NhapHang: '@UrlPage.R_NhapHang',
+            R_TaiChinh: '@UrlPage.R_TaiChinh',
+            R_DatHang: '@UrlPage.R_DatHang',
+            R_ChietKhau: '@UrlPage.R_ChietKhau',
+            R_ChietKhau1: '@UrlPage.R_ChietKhau1',
+            R_BanHang: '@UrlPage.R_BanHang',
+            R_Kho: '@UrlPage.R_Kho',
+            R_GoiDichVu: '@UrlPage.R_GoiDichVu',
+            R_NhanVien: '@UrlPage.R_NhanVien',
+            BaoCaoHoatDongXe: '@UrlPage.BaoCaoHoatDongXe',
+            NhanVien: '@UrlPage.NhanVien',
+            ChietKhau: '@UrlPage.ChietKhau',
+            ChietKhauNew: '@UrlPage.ChietKhauNew',
+            CD_ChiNhanh: '@UrlPage.CD_ChiNhanh',
+            CD_KhuyenMai: '@UrlPage.CD_KhuyenMai',
+            CD_LichSuHD: '@UrlPage.CD_LichSuHD',
+            CD_NguoiDung: '@UrlPage.CD_NguoiDung',
+            CD_NguoiDung_2: '@UrlPage.CD_NguoiDung_2',
+            CD_QuanLyMauIn: '@UrlPage.CD_QuanLyMauIn',
+            CD_SoDo: '@UrlPage.CD_SoDo',
+            CD_ThietLapCuaHang: '@UrlPage.CD_ThietLapCuaHang',
+            NguoiLienHe: '@UrlPage.NguoiLienHe',
+            Congviec: '@UrlPage.Congviec',
+            LichHen1: '@UrlPage.LichHen1',
+            GoiDichVu: '@UrlPage.GoiDichVu',
+            DichVuSMS: '@UrlPage.DichVuSMS',
+            CD_TaiKhoan: '@UrlPage.CD_TaiKhoan',
+            CaLamViec: '@UrlPage.CaLamViec',
+            PhanCongCaLamViec: '@UrlPage.PhanCongCaLamViec',
+            OptinForm: '@UrlPage.OptinForm',
+            OptinFormKH: '@UrlPage.OptinFormKH',
+            OptinFormLH: '@UrlPage.OptinFormLH',
+            datlich: '@UrlPage.datlich',
+            DanhSachDangKyOptinForm: '@UrlPage.DanhSachDangKyOptinForm',
+            R_TheGiaTri: '@UrlPage.R_TheGiaTri',
+            NapTienTheGiaTri: '@UrlPage.NapTienTheGiaTri',
+            Calendar: '@UrlPage.Calendar',
+            KyTinhCong: '@UrlPage.KyTinhCong',
+            ChamCong: '@UrlPage.ChamCong',
+            ChamCong2_1: '@UrlPage.ChamCong2_1',
+            BangLuong: '@UrlPage.BangLuong',
+            BangLuongChiTiet: '@UrlPage.BangLuongChiTiet',
+            LoaiBaoHiem: '@UrlPage.LoaiBaoHiem',
+            KhenThuongKyLuat: '@UrlPage.KhenThuongKyLuat',
+            TongQuanNhanSu: '@UrlPage.TongQuanNhanSu',
+            QuanLyMayChamCong: '@UrlPage.QuanLyMayChamCong',
+            TaiDuLieuMayChamCong: '@UrlPage.TaiDuLieuMayChamCong',
+            Nhahang: '@UrlPage.Nhahang',
+            DanhMucXe: '@UrlPage.DanhMucXe',
+            BanLamViec: '@UrlPage.BanLamViec',
+            Gara: '@UrlPage.Gara',
+            TongQuanGara: '@UrlPage.TongQuanGara',
+            BaoHiem: '@UrlPage.BaoHiem',
+            DanhSachXe: '@UrlPage.DanhSachXe',
+            DanhSachPhieuTiepNhan: '@UrlPage.DanhSachPhieuTiepNhan',
+            HoaDonSuaChua: '@UrlPage.HoaDonSuaChua',
+            BaoCaoSuaChua: '@UrlPage.BaoCaoSuaChua',
+            Gara_LichNhacBaoDuong: '@UrlPage.Gara_LichNhacBaoDuong'
+        },
+        SignalrStatus: "Disconnected",
+        ShowImgLogo: true,
+        DatLichEnable: false,
+
+        warning: {
+            ChotSo: {Update:'', Delete:'', NgayChotSo: ''},
+        }
+    },
+    mounted() {
+        let self=this
+        if (localStorage.BetaUI_sts) {
+            self.isBeta = localStorage.getItem('BetaUI_sts')==='true';
+        }
+    },
+    methods:
+    {
+        ChangeInterface: function () {
+            let self = this;
+            $("#swapthemeAnimation").show();
+            $("#swapthemeAnimation").addClass('active');
+            $("#swapthemeAnimation img").show();
+            setTimeout(function () {
+                self.isBeta = !self.isBeta;
+                setTimeout(function () {
+                    $("#swapthemeAnimation").fadeOut('slow');
+                        $("#swapthemeAnimation img").fadeOut('slow');
+                    }, 1500)
+            }, 1000);
+        },
+        showPopupThongBao: function () {
+            let self = this;
+            if (self.isBeta == true) {
+                $(".bg-op").show();
+                }
+            $(".col-left").removeClass("showed");
+            $("#op-popup-thongbao").removeClass("showed");
+            $("#op-popup-thongbao").toggleClass("showed");
+            Tawk_API.hideWidget();
+        },
+        GetQuyenAndMenu: function () {
+            let self = this;
+            let myData = {};
+            myData.IdNguoiDung = self.IdNguoiDung;
+            myData.IdDonVi = self.IdDonVi;
+            $.ajax({
+                url: self.urlApi.HTApi + "InitHeaderMenu",
+                type: 'POST',
+                dataType: 'json',
+                data: myData,
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+                    if (data.res === true) {
+                        self.Menu = data.dataSoure.Menu;
+                        self.Quyen = data.dataSoure.Quyen;
+                        localStorage.setItem('lc_CTQuyen', JSON.stringify(self.Quyen));
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                    };
+                    $("#op24-nav >div").css("opacity", "1");
+                }
+            });
+        },
+        GetCauHinhHeThong: function () {
+            let self = this;
+            $.ajax({
+                url: self.urlApi.ThietLapApi + 'GetCauHinhAllChiNhanh',
+                success: function (x) {
+                    if (x.res) {
+                        self.ThietLapCuaHang = x.dataSoure;
+                    }
+                }
+            });
+        },
+        GetCaiDatChotSo: function () {
+            let self = this;
+            $.ajax({
+                url: self.urlApi.ThietLapApi + 'GetDataChotSoAll'
+            }).done(function (data) {
+                if (data !== null && data.length > 0) {
+                    self.ThietLapChotSo = data;
+                }
+            });
+        },
+        CheckKhoaSo: function (dtChose, idChiNhanh= null) {
+            let self = this;
+            if (idChiNhanh === null) {
+                idChiNhanh = VHeader.IdDonVi;
+            }
+            let tLap = $.grep(self.ThietLapCuaHang, function (x) {
+                return x.ID_DonVi === idChiNhanh;
+            });
+            if (tLap.length> 0) {
+                if (tLap[0].KhoaSo) {
+                    let chotSo = $.grep(self.ThietLapChotSo, function (x) {
+                        return x.ID_DonVi === idChiNhanh;
+                    });
+                    if (chotSo.length > 0) {
+                        self.warning.ChotSo.NgayChotSo = moment(chotSo[0].NgayChotSo).format('DD/MM/YYYY');
+                        let ngayChot = moment(chotSo[0].NgayChotSo).format('YYYY-MM-DD');
+                        if (dtChose <= ngayChot) {
+                            self.warning.ChotSo.Update = 'Ngày lập phải sau thời gian chốt sổ là ' + self.warning.ChotSo.NgayChotSo;
+                            self.warning.ChotSo.Delete = 'Chi nhánh đã chốt sổ ngày ' + self.warning.ChotSo.NgayChotSo + '. Không thể hủy';
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        },
+        GetHref: function (url) {
+            if (url === "")
+                return 'javascript:void(0)'
+            else {
+                if (url.indexOf('/') > -1) {
+                    return url;
+                }
+                else {
+                    return '/#/' + url;
+                }
+            }
+        },
+        TargetUrl: function (url)
+        {
+            //check run pwas
+            if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator.standalone) || document.referrer.includes('android-app://')) {
+                return '_self'
+            }
+            else {
+                if (url.includes("/$") || url.includes("/g")) {
+                    return '_blank'
+                } else {
+                    return '_self'
+                }
+            }
+        },
+        LoadChiNhanh: function () {
+            let self = this;
+            $.ajax({
+                url: self.urlApi.DonViApi + "GetListDonVi_User",
+                type: 'GET',
+                dataType: 'json',
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+                    if (data !== null) {
+                        self.ListChiNhanh = data;
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                    }
+                }
+            });
+        },
+        DoiChiNhanh: function (iddv, txt) {
+            var rememberme = localStorage.chkbx;
+            $.ajax({
+                url: '/Home/KeepSession?id=' + iddv + '&checkremember=' + rememberme,
+                success: function () {
+                    localStorage.setItem('IdDonVi', iddv);
+                    window.location.reload(true);
+                    //$("#_txtTenDonVi").html(txt).trigger("fnLabelChanged");
+                    //bottomrightnotify('<i class="fa fa-check" aria-hidden="true"></i>' + "Bạn vừa chuyển sang chi nhánh: " + txt + ", màn hình bán hàng sẽ được tải lại theo chi nhánh mới", "success");
+                }
+            });
+        },
+        DownloadFileTeamplateXLS_Export: function (pathFile) {
+            var url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
+            window.location.href = url;
+        },
+        GetInforChiNhanh: function (idChiNhanh) {
+            let self = this;
+            let tenchinhanh='',diachi = '', dienthoai = '';
+            let chinhanh = $.grep(self.ListChiNhanh, function (x) {
+                return x.ID === idChiNhanh;
+            });
+            if (chinhanh.length > 0) {
+                tenchinhanh = chinhanh[0].TenDonVi;
+                diachi = chinhanh[0].DiaChi;
+                dienthoai = chinhanh[0].SoDienThoai;
+            }
+            return {
+                TenChiNhanh: tenchinhanh,
+                DiaChiChiNhanh: diachi,
+                DienThoaiChiNhanh: dienthoai,
+            }
+        },
+        GetThongBao: function () {
+            let self = this;
+            let myData = {};
+            myData.IdDonVi = self.IdDonVi;
+            myData.IdNguoiDung = self.IdNguoiDung;
+            myData.NhacTonKho = self.ThongBaoCaiDat.isTonKho;
+            myData.NhacDieuChuyen = self.ThongBaoCaiDat.isDieuChuyen;
+            myData.NhacSinhNhat = self.ThongBaoCaiDat.isSinhNhat;
+            myData.NhacLoHang = self.ThongBaoCaiDat.isLoHang;
+            myData.NhacBaoDuong = self.ThongBaoCaiDat.isNhacBaoDuongXe;
+            myData.CurrentPage = self.ListThongBao.CurrentPage;
+            myData.PageSize = self.ListThongBao.PageSize;
+            $.ajax({
+                url: self.urlApi.NguoiDungApi + "GetThongBao",
+                type: 'POST',
+                dataType: 'json',
+                data: myData,
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+                    if (data.res === true) {
+                        self.Count = data.dataSoure.CountTB;
+                        loadCountThongBao(data.dataSoure.CountTB);
+                        if (self.ListThongBao.CurrentPage === 1) {
+                            self.ListThongBao.data = data.dataSoure.ListThongBao;
+                        }
+                        else {
+                            self.ListThongBao.data = self.ListThongBao.data.concat(data.dataSoure.ListThongBao);
+                        }
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                    };
+                }
+            });
+            //$.ajax({
+            //    url: "/Shared/SearchPageMessage?numberPage=" + 0 + '&notifyBirth=' + self.ThongBaoCaiDat.isSinhNhat + '&notifyTonKho=' + self.ThongBaoCaiDat.isTonKho + '&notifyDieuChuyen=' + self.ThongBaoCaiDat.isDieuChuyen + '&notifyLoHang=' + self.ThongBaoCaiDat.isLoHang,
+            //    type: 'GET',
+            //    dataType: 'json',
+            //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            //    success: function (result) {
+            //        if (result.res != true) {
+            //        }
+            //        else {
+            //            self.numberPage = 0;
+            //        }
+            //        self.ListThongBao = [];
+            //        self.Count = result.CountTB;
+            //        loadCountThongBao(result.CountTB);
+            //        var item = self.ListThongBao;
+            //        item.push.apply(item, result.data);
+            //        self.ListThongBao = item;
+            //        return self.ListThongBao;
+            //    }
+            //});
+        },
+        LoadCauHinhThongBao: function () {
+            var self = this;
+            $.ajax({
+                url: self.urlApi.NguoiDungApi + 'GetCaiDatThongBao?id_nguoidung=' + self.IdNguoiDung,
+                type: 'GET',
+                dataType: 'json',
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+                    self.ThongBaoCaiDat.isTonKho = data.NhacTonKho;
+                    self.ThongBaoCaiDat.isDieuChuyen = data.NhacDieuChuyen;
+                    self.ThongBaoCaiDat.isSinhNhat = data.NhacSinhNhat;
+                    self.ThongBaoCaiDat.isLoHang = data.NhacLoHang;
+                    self.ThongBaoCaiDat.isNhacBaoDuongXe = data.BaoDuongXe === 1;
+                }
+            });
+        },
+        UpdateCaiDatThongBao: function () {
+            let self = this;
+            let myData = {};
+            myData.IdNguoiDung = self.IdNguoiDung;
+            myData.NhacTonKho = self.ThongBaoCaiDat.isTonKho;
+            myData.NhacDieuChuyen = self.ThongBaoCaiDat.isDieuChuyen;
+            myData.NhacSinhNhat = self.ThongBaoCaiDat.isSinhNhat;
+            myData.NhacLoHang = self.ThongBaoCaiDat.isLoHang;
+            myData.NhacBaoDuong = self.ThongBaoCaiDat.isNhacBaoDuongXe;
+            $.ajax({
+                url: self.urlApi.NguoiDungApi + "UpdateCaiDatThongBao",
+                type: 'POST',
+                dataType: 'json',
+                data: myData,
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function (data) {
+                    if (data.res === true) {
+                        self.ListThongBao.CurrentPage = 1;
+                        self.GetThongBao();
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger("Cập nhật cài đặt thông báo thất bại");
+                    };
+                }
+            });
+        },
+        SetStyle: function (item) {
+            return item.DaDoc == false ? "#d0f5f2" : "white";
+        },
+        ThongBaoXemThem: function ()
+        {
+            let self = this;
+            self.ListThongBao.CurrentPage += 1;
+            self.GetThongBao();
+        },
+        doctatca: function () {
+            let self = this;
+            $.ajax({
+                url: self.urlApi.NguoiDungApi + 'UpdateDaDocAll?nguoidoc=' + self.IdNguoiDung + '&iddonvi=' + self.IdDonVi,
+                success: function (item) {
+                    self.ListThongBao = self.ListThongBao.map(p => ({
+                        DaDoc: true,
+                        Image: p.Image,
+                        NgayTao: p.NgayTao,
+                        NoiDungThongBao: p.NoiDungThongBao
+                    }));
+                    self.Count = 0;
+                }
+            });
+        },
+        UpdateSignalrStatus: function (state) {
+            let self = this;
+            self.SignalrStatus = state;
+        }
+    },
+    created: function () {
+        let self = this;
+        self.IdDonVi = '@ViewBag.ID_DonVi';
+        self.TenDonVi = "@Html.Raw(ViewBag.TenDonVi)";
+        self.IdNguoiDung = '@ViewBag.ID';
+        self.TenNhanVien = "@Html.Raw(ViewBag.TenNhanVien)";
+        self.IdNhomNguoiDung = '@ViewBag.IDNhomNguoiDung';
+        self.IdNhanVien = '@ViewBag.ID_NhanVien';
+        self.TenNguoiDung = "@Html.Raw(ViewBag.TenTaiKhoan)";
+        self.LaAdmin = "@Html.Raw(ViewBag.LaAdmin)";
+        self.IdNganhNgheKinhDoanh = '@ViewBag.ID_NganhKinhDoanh'.toUpperCase();
+        self.UserLogin = '@ViewBag.TenTaiKhoan';
+        self.SubDomain = '@ViewBag.SubDomain';
+        self.TenCongTy = '@ViewBag.TenCongTy';
+        self.Registered = '@ViewBag.Registered';
+        self.UserAvata = Open24FileManager.hostUrl + '@ViewBag.Avatar';
+        self.LoadChiNhanh();
+        self.GetQuyenAndMenu();
+        self.GetCauHinhHeThong();
+        self.GetCaiDatChotSo();
+        self.LoadCauHinhThongBao();
+        self.warning = {
+            ChotSo: {Update:'', Delete:''}
+        }
+
+
+        if (self.IdNganhNgheKinhDoanh === "C16EDDA0-F6D0-43E1-A469-844FAB143014") {
+            self.TenNganhNghe = "Gara";
+        } else if (self.IdNganhNgheKinhDoanh === "AC9DF2ED-FF08-488F-9A64-08433E541020") {
+            self.TenNganhNghe = "Beauty";
+        }
+        else {
+            self.TenNganhNghe = "Sales";
+        }
+        Open24SignalR.CreateConnection({
+            Username: self.UserLogin,
+            Subdomain: self.SubDomain
+        }, self.UpdateSignalrStatus);
+
+        if (location.hostname.indexOf("open24.vn") > 0 || location.hostname === "localhost") {
+            self.ShowImgLogo = true;
+        }
+        else {
+            self.ShowImgLogo = false;
+        }
+
+        window.addEventListener("storage", function () {
+            // do your checks to detect
+            // changes in "e1", "e2" & "e3" here
+            if (localStorage.getItem('IdDonVi') === null) {
+                localStorage.setItem('IdDonVi', VHeader.IdDonVi);
+            }
+            else {
+                if (localStorage.getItem('IdDonVi') !== VHeader.IdDonVi) {
+                    //localStorage.setItem('IdDonVi', VHeader.IdDonVi);
+                    window.location.reload(true);
+                }
+            }
+        }, false);
+    },
+    watch: {
+        isBeta: function (val) {
+            let self = this;
+            switch (self.isBeta) {
+                case true:
+                    $("#changeUIButton").html("Giao diện Classic")
+                    localStorage.setItem('BetaUI_sts', true);
+                    break;
+                case false:
+                    $("#changeUIButton").html("Giao diện Beta")
+                    localStorage.setItem('BetaUI_sts', false);
+                    break;
+                default:
+                    $("#changeUIButton").html("Giao diện Classic")
+                    localStorage.setItem('BetaUI_sts', true);
+                    break;
+            }
+        },
+        ThongBaoCaiDat: {
+            handler(val) {
+                let self = this;
+                self.UpdateCaiDatThongBao();
+            },
+            deep: true
+        }
+    }
+});
+    function loadCountThongBao(Count) {
+        document.title = document.title.split(')').length > 1 ? (Count > 0 ? "(" + Count + ") " + document.title.split(')')[1] : document.title.split(')')[1])
+            : (Count > 0 ? "(" + Count + ") " + document.title : document.title);
+    }
+    function updisable() {
+        var url = "/#/profile";
+        window.open(url);
+    }
+    function xoadlhethong() {
+        var checkxoahanghoa = 0;
+        var checkxoakhachhang = 0;
+        var pass = $('#textPassXoaDl').val();
+        var taikhoan = $('#txtTenTaiKhoan').text();
+        if (pass === "") {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Xin vui lòng điền mật khẩu để xóa dữ liệu!", "danger");
+            $('#textPassXoaDl').focus();
+            return false;
+        }
+        if ($('.checkhanghoaxoa input').is(':checked')) {
+            checkxoahanghoa = 1;
+        }
+        if ($('.checkkhachhangxoa input').is(':checked')) {
+            checkxoakhachhang = 1;
+        }
+        var model = { tenTaiKhoan: taikhoan, pass: pass };
+        $.ajax({
+            url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'CheckMatKhauKhiXoaDL',
+            type: 'POST',
+            data: model,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (item) {
+                if (item === "") {
+                    hidewaitHH('xoadulieu');
+                    $.ajax({
+                        url: '/api/DanhMuc/HT_ThietLapAPI/' + 'DeleteDuLieuHeThong?checkhh=' + checkxoahanghoa + '&checkkh=' + checkxoakhachhang,
+                        success: function (item) {
+                            bottomrightnotify('<i class="fa fa-check" aria-hidden="true"></i>' + "Xóa dữ liệu thành công!", "success");
+                            $('#wait').remove();
+                            var objDiary = {
+                                ID_NhanVien: VHeader.IdNhanVien,
+                                ID_DonVi: $('#hd_IDdDonVi').val(),
+                                ChucNang: "Xóa dữ liệu hệ thống",
+                                NoiDung: "Xóa dữ liệu hệ thống, người xóa:" + taikhoan,
+                                NoiDungChiTiet: "Xóa dữ liệu hệ thống, người xóa:" + taikhoan,
+                                LoaiNhatKy: 21 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                            };
+                            var myData = {};
+                            myData.objDiary = objDiary;
+                            $.ajax({
+                                url: '/api/DanhMuc/SaveDiary/' + "post_NhatKySuDung",
+                                type: 'POST',
+                                async: true,
+                                dataType: 'json',
+                                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                data: myData,
+                                success: function (item) {
+                                },
+                                statusCode: {
+                                    404: function () {
+                                    },
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại!", "danger");
+                                },
+                                complete: function () {
+                                }
+                            })
+                            location.reload();
+                        }
+                    });
+                } else {
+                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Mật khẩu không chính xác xin nhập lại!", "danger");
+                    $('#textPassXoaDl').focus().select();
+                }
+            }
+        });
+    }
+    function loadthongbao(item, maload, id)
+    {
+        if (item == 1) {
+            $.ajax({
+                url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'UpdateNguoiDocTB?idtb=' + id + '&nguoidoc=' + VHeader.IdNguoiDung,
+                success: function (item) {
+                    localStorage.setItem('loadMaHang', maload);
+                    window.location.href = "/#/" + '@UrlPage.Danhsachhanghoa';
+                }
+            });
+        }
+        if (item == 2) {
+            $.ajax({
+                url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'UpdateNguoiDocTB?idtb=' + id + '&nguoidoc=' + VHeader.IdNguoiDung,
+                success: function (item) {
+                    localStorage.setItem('FindHD', maload);
+                    window.location.href = "/#/" + '@UrlPage.ChuyenHang';
+                }
+            });
+        }
+        if (item == 3) {
+            $.ajax({
+                url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'UpdateNguoiDocTB?idtb=' + id + '&nguoidoc=' + VHeader.IdNguoiDung,
+                success: function (item) {
+                    localStorage.setItem('FindKhachHang', maload);
+                    window.location.href = "/#/" + '@UrlPage.KhachHang';
+                }
+            });
+        }
+        if (item == 4) {
+            $.ajax({
+                url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'UpdateNguoiDocTB?idtb=' + id + '&nguoidoc=' + VHeader.IdNguoiDung,
+                success: function (item) {
+                    localStorage.setItem('FindLoHang', maload);
+                    window.location.href = "/#/" + '@UrlPage.LoHangHoa';
+                }
+            });
+        }
+    }
+    function loaddadoc(id) {
+        $.ajax({
+            url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'UpdateNguoiDocTB?idtb=' + id + '&nguoidoc=' + VHeader.IdNguoiDung,
+            success: function (item) {
+                //ReturnLoadThongBao();
+            }
+        });
+    }
+    function unique(array) {
+        return $.grep(array, function (el, index) {
+            return index == $.inArray(el, array);
+        });
+    }
+    function checkpassold() {
+        document.getElementById("clickluu").disabled = true;
+        var passOld = $('#passOld').val();
+        var taikhoan = $('#txtTenTaiKhoan').text();
+        var model = { tenTaiKhoan: taikhoan, pass: passOld };
+        $.ajax({
+            url: '/api/DanhMuc/HT_NguoiDungAPI/' + 'CheckMatKhauKhiXoaDL',
+            type: 'POST',
+            data: model,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (item) {
+                if (item === "") {
+                    document.getElementById("passNew").disabled = false;
+                } else {
+                    document.getElementById("passNew").disabled = true;
+                    document.getElementById("passRepeat").disabled = true;
+                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Mật khẩu hiện tại không chính xác xin nhập lại!", "danger");
+                    $('#passOld').focus().select();
+                }
+            }
+        });
+    }
+    function checkpass() {
+        document.getElementById("clickluu").disabled = true;
+        $('.notyfi-check').css('display', 'block');
+        var passnew = $('#passNew').val();
+        var passrepeat = $('#passRepeat').val();
+        if (passnew !== passrepeat) {
+            $('.notyfi-check').html('Mật khẩu nhập lại không khớp nhau');
+            $('#passRepeat').focus();
+        } else {
+            document.getElementById("clickluu").disabled = false;
+            $('.notyfi-check').css('display', 'none');
+        }
+    }
+    function testpass() {
+        document.getElementById("clickluu").disabled = true;
+        $('.notyfi-check').css('display', 'block');
+        document.getElementById("passRepeat").disabled = true;
+        var passnew = $('#passNew').val();
+        var passrepeat = $('#passRepeat').val();
+        if (passnew !== passrepeat && passrepeat !== "") {
+            $('.notyfi-check').html('Mật khẩu nhập lại không khớp nhau');
+            $('#passRepeat').focus();
+            return false;
+        } else {
+            if (passrepeat !== "") {
+                document.getElementById("clickluu").disabled = false;
+                $('.notyfi-check').css('display', 'none');
+            }
+            else {
+                document.getElementById("clickluu").disabled = true;
+                $('.notyfi-check').css('display', 'block');
+            }
+        }
+        var specialChars = "<>!#$%^&*()+[]{}?:;|'\"\\,./~`="
+        var check = function (string) {
+            for (i = 0; i < specialChars.length; i++) {
+                if (string.indexOf(specialChars[i]) > -1) {
+                    return true
+                }
+            }
+            return false;
+        }
+        if (passnew.length < 6) {
+            $('.notyfi-check').text('Mật khẩu chứa ít nhất 6 ký tự');
+            $('#passNew').select();
+            document.getElementById("passRepeat").disabled = true;
+        } else if (passnew.length > 50) {
+            $('.notyfi-check').text("Mật khẩu chứa nhiều nhất 50 ký tự");
+            $('#passNew').select();
+            document.getElementById("passRepeat").disabled = true;
+        } else if (passnew.search(/\d/) === -1) {
+            $('.notyfi-check').text("Mật khẩu phải chứa ít nhất 1 chữ số");
+            $('#passNew').select();
+            document.getElementById("passRepeat").disabled = true;
+        } else if (passnew.search(/[a-zA-Z]/) === -1) {
+            $('.notyfi-check').text("Mật khẩu phải chứa ít nhất 1 chữ cái");
+            $('#passNew').select();
+            document.getElementById("passRepeat").disabled = true;
+        } else if (check(passnew) === true) {
+            $('.notyfi-check').text("Mật khẩu không được chứa ký tự đặc biệt");
+            $('#passNew').select();
+            document.getElementById("passRepeat").disabled = true;
+        } else {
+            document.getElementById("passRepeat").disabled = false;
+            $('.notyfi-check').css('display', 'none');
+        }
+    }
+    function hidewaitHH(o) {
+        $('.' + o).append('<div id="wait"><img src="/Content/images/wait.gif" width="64" height="64" /><div class="happy-wait">' +' </div>' +'</div>')    }
+    function createShortcut() {
+        $.ajax({
+            url: "/Home/CreateShortcut",
+            type: "POST",
+            success: function (data) {
+            }
+        });
+    }
+    function locdau(obj) {
+        if (!obj)
+            return "";
+        var str = obj.trim();
+        str = str.toLowerCase();
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+        str = str.replace(/đ/g, "d");
+        str = str.replace(/^\-+|\-+$/g, "");
+        // Some system enBaoHiemode vietnamese combining accent as individual utf-8 characters
+        str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
+        str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
+        return str;
+    }
+    function collapseMenu(ele) {
+        if ($("#op-menu").hasClass('expanded')) {
+            $(ele).parent().toggleClass("op-collapsed");
+            $(ele).parent().siblings().addClass("op-collapsed");
+            $(ele).next().css('top', 0)
+        } else {
+            if (window.innerHeight < ($(ele).next().height() + $(ele).parent().position().top)) {
+                $(ele).next().css('top', window.innerHeight - ($(ele).next().height() + $(ele).parent().position().top) + 'px')
+            }
+        }
+        const hasListAfter = $(ele).next().length > 0;
+        if (window.innerWidth <= 1024 && !hasListAfter) {
+            $("#op-menu").removeClass('expanded');
+            $('#MainLayout').removeClass('expanded');
+            $(ele).addClass('op-collapsed');
+        }
+    }
+    function expandMenu() {
+        $("#op-menu").toggleClass('expanded');
+        $('#MainLayout').toggleClass('expanded');
+        if (window.innerWidth < 1024) {
+            $(".bg-op").show();
+            $('.op-menu-list ul').css('top', '0')
+        }
+    }
+    function toggleTabletMenu(clickedItem) {
+        if (window.innerWidth <= 1024) {
+            $("#op-menu").removeClass('expanded');
+            $('#MainLayout').removeClass('expanded');
+            $(clickedItem).parent().parent().addClass('op-collapsed');
+        }
+    }
+    function showFilter() {
+        $(".bg-op").show()
+        $(".col-left").removeClass("showed");
+        $("#op-popup-thongbao").removeClass("showed");
+        $(".col-left").toggleClass("showed");
+        Tawk_API.hideWidget();
+    };
+    $(document).ready(function () {
+        if (window.innerWidth <= 1024) {
+            $(document).mouseup(function (e) {
+                var container = $("#op-menu");
+                var mainLayout = $('#MainLayout');
+                if (!$(event.target).closest("#op-menu").length && $("#op-menu").is(':visible')) {
+                    container.removeClass('expanded');
+                    mainLayout.removeClass('expanded');
+                }
+            });
+        }
+        $("#gohome").click(function () {
+            $(".w560").show();
+            $(".300").hide();
+        }
+        )
+        $("#gopay").click(function () {
+            $(".w560").hide();
+            $(".300").show();
+        }
+        )
+        $('.menu-drop-ul-style-color').on('click', 'li', function () {
+            LocalCaches.SetThemeColor(parseInt($(this).find('a').data('id')));
+            commonStatisJs.ChangeThemeColor(parseInt($(this).find('a').data('id')));
+            $('.menu-drop-ul-style-color li').each(function () {
+                $(this).removeClass('active-color');
+            });
+            $(this).addClass('active-color');
+        });
+        $('#LinkKyHieuChamCong').on('click', function () {
+            vmKyHieuCong.ModalShow();
+        });
+        $('#LinkNgayNghiLe').on('click', function () {
+            vmNgayNghiLe.ModalShow();
+        });
+        $('#op-avatar').on("error", function () {
+            $(this).attr('src', '/Content/empty-avatar.png');
+        });
+    })
+
+    //$.ajax({
+    //    type: "GET",
+    //    url: "https://localhost:7015/api/exrate/getexrate",
+        
+    //    success: function (xml) {
+    //        console.log(xml);
+    //    }
+    //});
+
+    $(document).mouseup(function (e) {
+        var container = $("#op-popup-thongbao");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.removeClass('showed');
+            $(".bg-op").hide()
+        }
+    });
+    $(document).mouseup(function (e) {
+        var container = $(".op-baocao-type");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.removeClass('showed')
+        }
+    });
+    $(window).on('load', function (e) {
+        var chatframe = document.querySelectorAll("iframe[title='chat widget']");
+    });
+
+
+</script>

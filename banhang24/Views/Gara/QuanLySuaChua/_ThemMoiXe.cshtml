@@ -1,0 +1,156 @@
+﻿@using banhang24.Hellper
+<div class="modal fade" id="ThemMoiXemModal">
+    <div class="modal-dialog draggable modal-lg ">
+        <div class="modal-content  ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <h5 class="modal-title">{{isNew ? 'Thêm mới xe' : 'Cập nhật xe ' + newCar.BienSo}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid row">
+                    <div class="col-lg-6 col-sm-12 col-xs-12 nopadding">
+                        <div class="gara-detail-information">
+                            <label>Biển số</label>
+                            <input type="text" class="form-control search-line" maxlength="30"
+                                   autocomplete="off" autofocus
+                                   v-model="newCar.BienSo" />
+                        </div>
+                        <div class="gara-detail-information gara-addcar-brand">
+                            <label>Mẫu xe</label>
+                            <car-model :text-search="modelCarName"
+                                       :search-list="listData.MauXe"
+                                       :models="listData.MauXe"
+                                       :show-btn-add="$root.role.ThemMoi && (newCar.ID_MauXe =='00000000-0000-0000-0000-000000000000' || newCar.ID_MauXe ==null) "
+                                       :show-btn-update="$root.role.CapNhat && newCar.ID_MauXe !='00000000-0000-0000-0000-000000000000' && newCar.ID_MauXe !=null "
+                                       v-on:reset-modelcar="Reset_MauXe"
+                                       v-on:show-modal-modelcar="vmMauXe.ShowModalAddNew()"
+                                       v-on:show-modal-update="$root.showModal_UpdateMauXe"
+                                       v-on:change-modelcar-parent="changeModelCarParent">
+                            </car-model>
+                        </div>
+                        <div class="gara-detail-information gara-addcar-brand">
+                            <label>Hãng xe</label>
+                            <input type="text" class="form-control search-line" readonly v-bind:value="manufacturerName" />
+                            @*<car-manufacturer :text-search="manufacturerName"
+                                                  :manufacturers="listData.HangXe"
+                                                  :search-list="listData.HangXe"
+                                                  :show-btn-add="$root.role.ThemMoi"
+                                                  v-on:show-modal-manufacture="showModalHangXe"
+                                                  v-on:change-manufacturer-parent="changeManufacturerParent">
+                                </car-manufacturer>*@
+                        </div>
+                        <div class="gara-detail-information gara-addcar-brand">
+                            <label>Loại xe</label>
+                            <input type="text" class="form-control search-line" readonly v-bind:value="typeCarName" />
+                            @*<car-type :text-search="typeCarName"
+                                          :types="listData.LoaiXe"
+                                          :search-list="listData.LoaiXe"
+                                          :show-btn-add="$root.role.ThemMoi"
+                                          v-on:show-modal-cartype="showModalLoaiXe"
+                                          v-on:change-typecar-parent="changeTypeCarParent">
+                                </car-type>*@
+                        </div>
+                        <div class="gara-detail-information">
+                            <label>Năm SX</label>
+                            <input type="number" maxlength="4" value="2020" class="form-control search-line" autocomplete="off"
+                                   v-model="newCar.NamSanXuat" />
+                        </div>
+                        <div class="gara-detail-information">
+                            <label>Chủ xe</label>
+                            <customers :text-search="customerChosing.TenDoiTuong"
+                                       :showbutton="role.KhachHang.ThemMoi && newCar.ID_KhachHang ==null"
+                                       :showbutton-update="role.KhachHang.CapNhat && newCar.ID_KhachHang!==null"
+                                       :loai-doi-tuong="1"
+                                       :disable-search="false"
+                                       :id-chi-nhanh="inforLogin.ID_DonVi"
+                                       v-on:reset-customer-parent="$root.ResetCustomer"
+                                       v-on:show-modal-customer="showModalCustomer"
+                                       v-on:show-modal-update="$root.UpdateCustomer"
+                                       v-on:change-customer-parent="ChangeCustomer">
+                            </customers>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 col-xs-12 nopadding">
+                        <div class="gara-detail-information">
+                            <label>Số khung</label>
+                            <input type="text" class="form-control search-line" autocomplete="off"
+                                   v-model="newCar.SoKhung" />
+                        </div>
+                        <div>
+                            <div class="gara-detail-information">
+                                <label>Số máy</label>
+                                <input type="text" class="form-control search-line" autocomplete="off"
+                                       v-model="newCar.SoMay" />
+                            </div>
+                        </div>
+                        <div class="gara-detail-information">
+                            <label>Màu sơn</label>
+                            <input type="text" class="form-control search-line" autocomplete="off" v-model="newCar.MauSon" />
+                        </div>
+                        <div class="gara-detail-information">
+                            <label>Hộp số</label>
+                            <input type="text" class="form-control search-line" autocomplete="off" v-model="newCar.HopSo" />
+                        </div>
+                        <div>
+                            <div class="gara-detail-information">
+                                <label>Dung tích</label>
+                                <input type="text" class="form-control search-line" autocomplete="off" v-model="newCar.DungTich" />
+                            </div>
+                        </div>
+                        <div class="gara-detail-information">
+                            <label>SĐT</label>
+                            <input type="text" class="form-control search-line" readonly v-bind:value="customerChosing.DienThoai" />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-sm-12 col-xs-12 nopadding">
+                        <div class="gara-detail-information">
+                            <label>Ghi chú</label>
+                            <textarea rows="2" placeholder="Nhập ghi chú.." v-model="newCar.GhiChu"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 col-xs-12 nopadding">
+                        <div class="gara-detail-information">
+                            <label></label>
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="cbxekh" value="0" v-model="newCar.NguoiSoHuu" id="cbxekhachhang" style="margin: 4px 0 0;" checked />
+                                    <label class="form-check-label" for="cbxekhachhang">
+                                        Xe khách hàng
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="cbxekh" value="1" v-model="newCar.NguoiSoHuu" id="cbxegara" style="margin: 4px 0 0;"/>
+                                    <label class="form-check-label" for="cbxegara">
+                                        Xe gara
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="!isLoading && ((isNew && $root.role.ThemMoi)
+                            || (!isNew && $root.role.CapNhat))"
+                            v-on:click="CheckSave">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isLoading">
+                        Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/NhanVien_KhachHang.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/HangLoaiXe.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/BanLamViec/_ThemMoiXe.js")"></script>

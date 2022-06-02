@@ -1,0 +1,292 @@
+﻿<div id="modalTuVan" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <!-- Modal content-->
+        <div class="modal-content" v-if="!Success">
+            <div class="modal-header">
+                @*<div style="display:flex; justify-content:space-between">
+
+            <div style="color: white; margin: 30px 0 30px 30px; ">
+                <h4 style=" text-transform: uppercase; font-weight: bold; ">Đăng ký dùng thử! </h4>
+                <p>Đừng ngần ngại, hãy cho chúng tôi cơ hội được đồng hành cùng bạn !</p>
+            </div>
+        </div>*@
+
+                <h5 class="modal-title" style="text-transform: uppercase; color: var(--color-theme);">ĐĂNG KÝ DÙNG THỬ {{TenSanPhamQuanTam}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @*<div class="col-md-12 col-xs-12">*@
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên <span style="color:red">(*)</span>:</label>
+                    <div>
+                        <input autocomplete="off" type="text" class="form-control" id="focusinthisinput" v-model="FullName">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại <span style="color:red">(*)</span>:</label>
+                    <div>
+                        <input autocomplete="off" type="text" class="form-control" v-model="Phone">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email:</label>
+                    <div>
+                        <input autocomplete="off" type="text" class="form-control" v-model="Email">
+                    </div>
+                </div>
+                <div class="mb-3" v-if="ShowSelect">
+                    <label class="form-label">Sản phẩm bạn quan tâm <span style="color:red">(*)</span>:</label>
+                    <select class="form-select" aria-label="Default select example" v-model="TypeOpenSelected">
+                        <option value="0">Chọn sản phẩn bạn quan tâm</option>
+                        <option value="1">Phần mềm quản lý Gara - Open24 Gara</option>
+                        <option value="2">Phần mềm quản lý Spa, Salon - Open24 Beauty</option>
+                        <option value="3">Phần mềm quản lý Bán hàng - Open24 Sale</option>
+                    </select>
+                </div>
+                @*</div>*@
+
+            </div>
+            <div class="modal-footer" style="justify-content:center">
+                <div style="display: flex; flex-direction: column;">
+                    <button v-on:click="Clickdangky" type="button" class="btn op-btn-submit mb-3">
+                        <i class="fa fa-hand-o-right "></i>
+                        Đăng ký
+                    </button>
+                    <div style="display:flex; flex-direction:row; justify-content:flex-start;">
+                        <div class="icon-box">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <div style="text-align:left">
+                            <div>Để được hỗ trợ tốt hơn, xin vui lòng liên hệ với chúng tôi.</div>
+                            <h4 style=" margin: 0; font-weight: bold; color: var(--color-theme); ">Hotline: 0247 303 9333</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-content" v-if="Success">
+            <div class="modal-header" style="text-align:center">
+                <h6 class="modal-title" style="text-transform: uppercase; color: green;">ĐĂNG KÝ DÙNG THỬ {{TenSanPhamQuanTam}} THÀNH CÔNG!</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="text-align:center">
+                Open24 đã nhận được thông tin đăng ký của Quý khách.<br />
+                Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.<br />
+                Cảm ơn Quý khách!
+            </div>
+            <div class="modal-footer" style="justify-content:center">
+                <div style="display:flex; flex-direction:row; justify-content:flex-start;">
+                    <div class="icon-box">
+                        <i class="fa fa-phone"></i>
+                    </div>
+                    <div style="text-align:left">
+                        <div>Để được hỗ trợ tốt hơn, xin vui lòng liên hệ với chúng tôi.</div>
+                        <h4 style=" margin: 0; font-weight: bold; color: var(--color-theme); ">Hotline: 0247 303 9333</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<script language="JavaScript" src="http://www.geoplugin.net/javascript.gp" type="text/javascript"></script>*@
+<script>
+
+    $(document).ready(function () {
+        var myModalEl = document.getElementById('modalTuVan')
+        myModalEl.addEventListener('hidden.bs.modal', function (event) {
+            formDKTV.Success = false;
+        });
+        myModalEl.addEventListener('show.bs.modal', function (event) {
+            setTimeout(function () {
+                $("#focusinthisinput").focus();
+            }, 1000);
+        });
+    });
+
+    var formDKTV = new Vue({
+        el: "#modalTuVan",
+        data: {
+            FullName: "",
+            Email: "",
+            Phone: "",
+            Type: 1,
+            Company: "",
+            Address: "",
+            Noted: "",
+            Software: "",
+            SoftwareCODE: "",
+            TypeOpenSelected: 0,
+            TenSanPhamQuanTam: "",
+            ShowSelect: false,
+            geoipObject: {},
+            Success: false,
+            IpAddress: ""
+        },
+        methods: {
+            Clickdangky: function () {
+                var self = this;
+                switch (self.TypeOpenSelected) {
+                    case 3:
+                        self.SoftwareCODE = 'STMN';
+                        break;
+                    case 1:
+                        self.SoftwareCODE = 'OTXMXDD';
+                        break;
+                    case 2:
+                        self.SoftwareCODE = 'STPG';
+                        break;
+                    default:
+                        self.SoftwareCODE = 'STMN';
+                        break;
+
+                }
+                if (self.TypeOpenSelected === 0) {
+                    alert("Vui lòng chọn sản phẩm bạn quan tâm");
+                }
+                else if (localValidate.CheckNull(self.FullName)) {
+                    alert("Vui lòng nhập họ tên");
+                }
+                else if (localValidate.CheckNull(self.Phone)) {
+                    alert("Vui lòng nhập số điện thoại");
+                }
+                else if (localValidate.CheckNull(self.SoftwareCODE)) {
+                    alert("Vui lòng chọn ngành nghề bạn kinh doanh");
+                }
+                else {
+                    self.CallInsert();
+                    //$.ajax({
+                    //    type: 'GET',
+                    //    url: "https://geoip-db.com/json/",
+                    //    success: function (data) {
+                            
+                    //    },
+                    //    timeout: 3000,      // 3 seconds
+                    //    error: function (qXHR, textStatus, errorThrown) {
+                    //        self.CallInsert(null);
+                    //        if (textStatus === "timeout") {
+                    //            console.log(qXHR);
+                    //        }
+                    //    }
+                    //});
+                }
+            },
+            CallInsert: function () {
+                var self = this;
+
+                var diachi = "";
+                var ip4 = "";
+                if (self.geoipObject !== null && self.geoipObject !== undefined) {
+                    diachi = (self.geoipObject.city !== '' && self.geoipObject.city !== null) ? self.geoipObject.city + "-" + self.geoipObject.country_name : self.geoipObject.country_name;
+                    ip4 = self.geoipObject.IPv4;
+                }
+                else {
+                    ip4 = self.IpAddress;
+                }
+
+                var model = {
+                    FullName: self.FullName,
+                    Phone: self.Phone,
+                    Note: self.Noted,
+                    Software: self.SoftwareCODE,
+
+                    Address: self.Address,
+                    Company: self.Company,
+                    Email: self.Email,
+
+                    Type: self.Type,
+                    IPv4: ip4,
+                    IpAddress: diachi.trim()
+
+                };
+                console.log(model)
+                self.Success = true;
+                $.ajax({
+                    data: model,
+                    url: '/Open24Api/ApiHome/FormDangKyTuVan',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (item) {
+                        if (item.res === true) {
+                            /*window.location.href = "/dang-ky-dung-thu-thanh-cong";*/
+                            self.FullName = '';
+                            self.Phone = '';
+                            self.Note = '';
+                            self.Address = "";
+                        }
+                        else {
+                            alert(item.mess);
+                        }
+                    }
+                });
+            },
+            LoadgeoipObject: function () {
+                $.getJSON('https://jsonip.com/?callback=?', function (data) {
+                    self.IpAddress = data.ip;
+                    //$.getJSON("http://www.geoplugin.net/json.gp?ip=" + data.ip,
+                    //    function (data1) {
+                    //        console.log(data1);
+                    //    }
+                    //);
+                });
+            }
+        },
+        created: function () {
+            let self = this;
+            var currentPage = $("#currentPage").val();
+            if (currentPage !== null) {
+                if (currentPage === "Gara") {
+                    self.TypeOpenSelected = 1;
+                    self.TenSanPhamQuanTam = "Open24 Gara";
+                }
+                else if (currentPage === "Beauty") {
+                    self.TypeOpenSelected = 2;
+                    self.TenSanPhamQuanTam = "Open24 Beauty";
+                } else if (currentPage === "Sale") {
+                    self.TypeOpenSelected = 3;
+                    self.TenSanPhamQuanTam = "Open24 Sale";
+                }
+                else {
+                    self.ShowSelect = true;
+                }
+            }
+            else {
+                self.ShowSelect = true;
+            }
+            self.LoadgeoipObject();
+        },
+        watch: {
+            FullName: function () {
+                let self = this;
+                console.log(self.FullName)
+            },
+            Email: function () {
+                let self = this;
+                console.log(self.Email)
+            },
+            Address: function () {
+                let self = this;
+                console.log(self.Address)
+            },
+            Noted: function () {
+                let self = this;
+                console.log(self.Noted)
+            },
+            Software: function () {
+                let self = this;
+                console.log(self.Software)
+            },
+
+            Company: function () {
+                let self = this;
+                console.log(self.Company)
+            },
+        },
+        computed: {
+
+            Softwave: function () {
+                return "Open24 " + currentPage != null ? currentPage : "Sale";
+            }
+        }
+    })
+</script>

@@ -1,0 +1,196 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "Advertising";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Content/ckfinder/ckfinder.js"></script>
+    <script src="~/Assets/js/Admin/Advertising.js"></script>
+}
+<div class="right_col">
+    <h3>Danh sách quảng cáo</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleUpdate)
+                {
+                    <button class="btn-updata btn-green" data-bind="click: Adnew"><i class="fa fa-pencil-square-o"></i> Thêm mới quảng cáo</button>
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-reponsive">
+                <table id="example" class="table table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">Ảnh</th>
+                            <th style="text-align:center">Tiêu đề</th>
+                            <th style="text-align:center">Đường dẫn</th>
+                            <th title="Thời gian hiển thị từ ngày">Hiện thị từ ngày</th>
+                            <th title="Thời gian hiển thị đến ngày">Hiện thị đến ngày</th>
+                            <th style="text-align:center">Ngày cập nhật</th>
+                            <th style="text-align:center">Trạng thái</th>
+                            @if (Model.RoleUpdate)
+                            {
+                                <th style="text-align:center">Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListAdvertising">
+                        <tr>
+                            <td class="list-img" style="width:10%"> <img data-bind="attr:{src: UrlImage}" style="width: 120px; height: 70px;"></td>
+                            <td data-bind="text:Title" style="width:25%"></td>
+                            <td style="width:20%"><a href="javascript:void(0)" target="_blank" style="color:#337ab7;text-decoration: underline;" data-bind="attr:{href:Link},text:Link"></a></td>
+                            <td style="width:10%" data-bind="text: ConvertDate(FromDate)"></td>
+                            <td style="width:10%" data-bind="text: ConvertDate(ToDate)"></td>
+                            <td style="width:10%" data-bind="text: ConvertDate(EditDate)"></td>
+
+                            <td tyle="width:10%" data-bind="text: ConvertTrangthai(Status)"></td>
+                            @if (Model.RoleUpdate)
+                            {
+                                <td style="width:5%">
+
+                                    <div class="edit-delete">
+                                        <a class="red" href="#" data-bind="click: $parent.Edit">
+                                            <i class="ace-icon fa fa-pencil "></i>
+                                        </a>
+                                        <a class="blue" href="#" data-bind="click: $parent.Delete">
+                                            <i class="ace-icon fa fa-trash-o "></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+                            }
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal">
+    <div class="modal-lg" style="    width: 800px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;"><span data-bind="text:TitlePopup">Thêm mới quảng cáo</span></h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><Span>Tiêu đề ảnh </Span></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" data-bind="value: Title" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><Span>Đường dẫn link </Span></div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" data-bind="value: Link" />
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><span>Ảnh quảng cáo</span></div>
+                    <div class="col-md-9">
+                        <span class="btn  btn-file form-control">
+                            Chọn ảnh <input type='file' id="imageUploadForm" accept=".jpg,.gif,.png" name="image" />
+                        </span>
+                        <div class="fl">
+                            <img src="~/Content/images/imgdemo.png" alt="your image" id="blah" data-bind="attr:{src: pathImage}" style="width:200px;height:150px" />
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><Span>Thời gian hiện thị từ </Span></div>
+                    <div class="col-md-9">
+                        <div class="container">
+                            <div class="row">
+                                <div class='col-sm-6'>
+                                    <div class='input-group date' id='datetimepicker1'>
+                                        <input type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><Span>Thời gian hiện thị đến</Span></div>
+                    <div class="col-md-9">
+                        <div class="container">
+                            <div class="row">
+                                <div class='col-sm-6'>
+                                    <div class='input-group date' id='datetimepicker2'>
+                                        <input type='text' class="form-control" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><Span>Trạng thái</Span></div>
+                    <div class="col-md-9">
+                        <form id='form-id'>
+                            <input id='watch-me' name='star' type='radio' data-bind="checked: Status, checkedValue: true" /> Hiện thị
+                            <input id='see-me' name='star' type='radio' data-bind="checked: Status, checkedValue: false" /> Ẩn
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: Save"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

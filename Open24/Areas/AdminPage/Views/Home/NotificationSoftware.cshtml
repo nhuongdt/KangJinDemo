@@ -1,0 +1,130 @@
+﻿@model Model_banhang24vn.CustomView.UserRoleView
+@{
+    ViewBag.Title = "NotificationSoftware";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts {
+<script>
+    $(document).on('click', '.Classbussines', function () {
+        var t = $(this).closest('tr').next(".tr-hide").css("display");
+        if (t == "none") {
+            $(".tr-hide").removeClass("block");
+            $(this).closest('tr').next(".tr-hide").addClass("block");
+        }
+        else if (t == "block") {
+            $(this).closest('tr').next(".tr-hide").removeClass("block");
+        }
+        else {
+            $(".tr-hide").removeClass("block");
+        }
+    });
+</script>
+@Scripts.Render("~/bundles/Knockout")
+<script src="~/Assets/js/Admin/NotificationSoftware.js"></script>
+}
+
+<div class="right_col">
+    <h3>Danh sách thông báo</h3>
+    <div class="panel panel-default" style=" height: 100%;">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="pull-left">
+                <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Tìm kiếm..">
+            </div>
+            <div class="pull-right">
+                @if (Model.RoleInsert)
+                {
+                    <button class="btn-updata btn-green" data-bind="click: addnew"><i class="fa fa-pencil-square-o"></i> Thêm mới thông báo</button>
+                }
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="example" class="table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Subdomain </th>
+                            <th>Tên thông báo </th>
+                            <th>Loại thông báo</th>
+                            <th>Người cập nhật</th>
+                            <th>Ngày áp dụng</th>
+                            <th>Trạng thái </th>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <th>Xử lý</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: ListNotification">
+                        <tr class="tr-show" data-bind="attr: {  id: ID}">
+                            <td class="Classbussines" data-bind="text: Subdomain"></td>
+                            <td class="Classbussines" data-bind="text: Title"></td>
+                            <td class="Classbussines" data-bind="text: Type"></td>
+                            <td class="Classbussines" data-bind="text: EditUser"></td>
+                            <td class="Classbussines" data-bind="text: ConvertDate(ApplyDate)"></td>
+                            <td class="Classbussines" data-bind="text: ConvertTrangthai(Status)"></td>
+                            @if (Model.RoleUpdate || Model.RoleDelete)
+                            {
+                                <td>
+                                    <div class="edit-delete">
+                                        @if (Model.RoleUpdate)
+                                        {
+                                            <a class="red" href="#" data-bind="click: $parent.Update">
+                                                <i class="ace-icon fa fa-pencil "></i>
+                                            </a>
+                                        }
+                                        @if (Model.RoleDelete)
+                                        {
+                                            <a class="blue" href="#" data-bind="click: $parent.delete">
+                                                <i class="ace-icon fa fa-trash-o "></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                        <tr class="tr-hide">
+                            <td colspan="8" style="background-color: #eee;    border: 1px solid #dddddd">
+                              <div class="container">
+                                  <div class="col-md-12">
+                                      <div data-bind="html:BodyContent"/>
+                                  </div>
+                                  </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 50px;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

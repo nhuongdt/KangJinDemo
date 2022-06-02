@@ -1,0 +1,420 @@
+﻿<style>
+
+    .list-img-user .detail-user-discount {
+        padding-left: 0;
+        min-height: 0;
+    }
+
+    .detail-user-discount p {
+        margin: 0px !important;
+        padding-top: 3px !important
+    }
+
+    .title-user {
+        font-weight: bold;
+        width: unset;
+    }
+
+    .line-space {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .list-img-user .form-group:hover {
+        background-color: #d6f1f0;
+    }
+
+    .search-img-user button {
+        position: absolute;
+        left: unset;
+        top: 0px;
+        right: 0px;
+        width: 36px;
+        float: right;
+        height: 30px;
+        background: var(--color-button);
+        border: none;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+        color: white;
+    }
+
+
+
+    .tab-discount-user li.active {
+        border-top: 1px solid var(--color-main);
+        border-left: 1px solid var(--color-main);
+        border-right: 1px solid var(--color-main);
+        border-bottom: none !important;
+    }
+
+    .tab-discount-user li a {
+        margin: 0px !important;
+        font-weight: bold;
+    }
+
+    .tab-discount-user {
+        padding-bottom: 13px !important;
+    }
+
+        .tab-discount-user .nav-tabs {
+            border-bottom: 1px solid var(--color-main);
+        }
+
+    .note-discount-money-new p span {
+        color: #f81600;
+    }
+
+    .note-discount-money-new p img {
+        margin-right: 10px;
+    }
+
+    .input-span input {
+        width: calc(100% - 15px);
+        height: 22px;
+        float: left;
+        padding-right: 0px;
+    }
+
+    .input-span label {
+        width: 15px;
+        float: right;
+        font-weight: 100;
+        color: red;
+    }
+
+    .list-img-user .img-user {
+        width: 55px;
+        height: 50px;
+        position: unset;
+        border-radius: 5px;
+        background: none;
+        object-fit: cover;
+        border: 1px dashed #ccc;
+        margin: 0 5px;
+    }
+
+    table thead th {
+        text-align: center;
+    }
+
+    #vmThanhPhanDinhLuong table input {
+        float: revert;
+        text-align: center;
+        overflow: hidden;
+        height: 29px;
+        padding: 1px 4px;
+        border: none;
+        outline: none;
+        border-bottom: 1px solid #ccc;
+    }
+</style>
+<div id="vmThanhPhanDinhLuong" class="modal fade">
+    <div class="modal-dialog draggable modal-lg modal-lgmax ">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <h4 class="modal-title">
+                    Chi tiết hàng hóa thành phần
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="container-fluid  flex flex-between " style="padding:0 0 15px 0">
+                    <div class="col-md-6 col-xs-12 nopadding">
+                        <products :con-ton-kho="0"
+                                  :loai-hang-hoa="typeSearchProduct"
+                                  :show-gia-von="true"
+                                  :show-image="false"
+                                  :show-ton-kho="true"
+                                  :id-chi-nhanh="ID_DonVi"
+                                  v-on:chose-product="ChoseDinhLuong">
+                        </products>
+                    </div>
+                    <div class="col-md-6 col-xs-12 nopadding" style="line-height:24px; padding:3px; text-align:left; color:red">
+                        <i class="fa fa-info-circle"></i>
+                        <span v-if="DichVu_isDoing">  {{DichVu_isDoing.TenHangHoa}}</span>
+                    </div>
+
+
+                </div>
+
+                <div class="container-fluid row">
+                    <div class="table-frame">
+                        <table class=" table-hover table table-striped  ">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        STT
+                                    </th>
+                                    <th>
+                                        Mã hàng hóa
+                                    </th>
+                                    <th>
+                                        Tên hàng hóa
+                                    </th>
+                                    <th>
+                                        Quy cách
+                                    </th>
+                                    <th style="width:80px">
+                                        Số lượng
+                                    </th>
+                                    <th>
+                                        Giá vốn
+                                    </th>
+                                    <th>
+                                        Thành tiền
+                                    </th>
+                                    <th>
+                                        Ghi chú
+                                    </th>
+                                    <th style="width:30px">
+                                        #
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in Grid_TPDinhLuongChosed"
+                                    v-if="item.isDefault == false || (item.isDefault && item.SoLuong > 0)">
+                                    <td class="text-center">{{item.STT}}</td>
+                                    <td>{{item.MaHangHoa}}</td>
+                                    <td>
+                                        <span>{{item.TenHangHoa}}</span>
+                                        <span style="font-style:italic;color:cornflowerblue" v-if="item.TenDonViTinh">
+                                            ({{item.TenDonViTinh}})
+                                        </span>
+                                        <span v-if="item.MaLoHang" style="color:brown">
+                                            (Lô: {{item.MaLoHang}})
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <input class="munber-bill" onclick="this.select()"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)"
+                                               v-model="item.SoLuongQuyCach"
+                                               v-on:keyup="EditQuyCach_Modal(item,index)"
+                                               v-on:keyup.13="EnterDetail_TPDinhLuong(3)" />
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <input class="input-simple" style="width: 80px" onclick="this.select()"
+                                               onkeypress="return keypressNumber_limitNumber(event, this)"
+                                               v-model="item.SoLuong"
+                                               v-on:keyup="EditSoLuong_TPDinhLuong(item, index)"
+                                               v-on:keyup.13="EnterDetail_TPDinhLuong(4)" />
+                                    </td>
+                                    <td class="text-right">{{formatNumber3Digit(item.GiaVon)}}</td>
+                                    <td class="text-right">{{formatNumber3Digit(item.GiaVonAfter)}}</td>
+                                    <td>
+                                        <input class="input-simple" style="width:100%" onclick="this.select()"
+                                               v-model="item.GhiChu"
+                                               v-on:keyup="EditGhiChu_TPDinhLuong(index)"
+                                               v-on:keyup.13="EnterDetail_TPDinhLuong(7)" />
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-link height-24" v-on:click="Delete_TPDinhLuong(index)">
+                                            <i class="fa fa-close text-danger"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>&nbsp;Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-on:click="Agree_TPDinhLuong">
+                        <i class="fa fa-save"></i> Đồng ý
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmThanhPhanDinhLuong = new Vue({
+        el: '#vmThanhPhanDinhLuong',
+        components: {
+            'products': cmpChoseProduct
+        },
+        created: function () {
+            var self = this;
+            self.ID_DonVi = $('#txtDonVi').val();
+            if (commonStatisJs.CheckNull(self.ID_DonVi)) {
+                self.ID_DonVi = VHeader.IdDonVi;
+            }
+            self.GetAllDinhLuongDV();
+        },
+        data: {
+            saveOK: false,
+            isCombo: false,
+            isDoiTra: false,
+            typeSearchProduct: '11',// 11.hanghoa, 12.dichvu, 23.combo
+            DichVu_isDoing: {},
+            Grid_TPDinhLuongChosed: [],
+            All_DinhLuongDichVu: [],
+        },
+        methods: {
+            GetAllDinhLuongDV: function () {
+                var self = this;
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetAllDinhLuongDV_byChiNhanh?idChiNhanh=' + self.ID_DonVi, 'GET').done(function (data) {
+                    if (data !== null) {
+                        self.All_DinhLuongDichVu = data;
+                    }
+                })
+            },
+            showModal: function (isDoiTra = false, isCombo = false) {
+                var self = this;
+                self.isCombo = isCombo;
+                self.isDoiTra = isDoiTra;
+                self.saveOK = false;
+                $('.jsSearchProduct .gara-search-HH').val('');
+                $('#vmThanhPhanDinhLuong').modal('show');
+            },
+            ChoseDinhLuong: function (item) {
+                var self = this;
+                var itemEx = $.grep(self.Grid_TPDinhLuongChosed, function (x) {
+                    return x.ID_DonViQuiDoi === item.ID_DonViQuiDoi && x.ID_LoHang === item.ID_LoHang;
+                })
+                if (itemEx.length > 0) {
+                    for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                        let itFor = self.Grid_TPDinhLuongChosed[i];
+                        if (itFor.ID_DonViQuiDoi === item.ID_DonViQuiDoi
+                            && itFor.ID_LoHang === item.ID_LoHang) {
+                            self.Grid_TPDinhLuongChosed[i].SoLuong = itFor.SoLuong + 1;
+                            self.Grid_TPDinhLuongChosed[i].isDefault = false;
+                            self.Grid_TPDinhLuongChosed[i].SoLuongQuyCach = self.Grid_TPDinhLuongChosed[i].SoLuong * itFor.QuyCach;
+                            self.Grid_TPDinhLuongChosed[i].GiaVonAfter = self.Grid_TPDinhLuongChosed[i].SoLuong * itFor.GiaVon;// = GiaVon(co ban) * SoLuong
+                            break;
+                        }
+                    }
+                    self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
+                }
+                else {
+                    var len = self.Grid_TPDinhLuongChosed.length;
+                    item.STT = len + 1;
+                    item.SoLuong = 1;
+                    item.isDefault = false;// neu la dluong macdinh bandau (caidat hanghoa), isDefault = true
+                    item.SoLuongMacDinh = 1 / self.DichVu_isDoing.SoLuong; // số lượng định lượng trên 1 đơn vị sản phẩm
+                    item.SoLuongDinhLuong_BanDau = 0;
+                    item.GhiChu = '';
+                    item.SoLuongQuyCach = item.QuyCach;
+                    item.GiaVonAfter = item.GiaVon;
+                    self.Grid_TPDinhLuongChosed.push(item);
+                }
+                self.UpdateSTT();
+            },
+            Delete_TPDinhLuong: function (index) {
+                var self = this;
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].SoLuong = 0;
+                        self.Grid_TPDinhLuongChosed[i].isDefault = true;
+                    }
+                }
+                self.UpdateSTT();
+            },
+            UpdateSTT: function () {
+                var self = this;
+                let stt = 1;
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    let itFor = self.Grid_TPDinhLuongChosed[i];
+                    if (itFor.isDefault == false || (itFor.isDefault && itFor.SoLuong > 0)) {
+                        itFor.STT = stt;
+                        stt += 1;
+                    }
+                }
+                self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
+            },
+            EditGhiChu_TPDinhLuong: function (index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var thisObj = event.currentTarget;
+                // update GhiChu in grid TPDL
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].GhiChu = $(thisObj).val();
+                        break;
+                    }
+                }
+            },
+            EditQuyCach_Modal: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var thisObj = event.currentTarget;
+                formatNumberObj(thisObj);
+                var quycach = item.QuyCach;
+                var soluongNhap = formatNumberToFloat($(thisObj).val());
+                var soluongQuyDoi = soluongNhap / quycach;
+                // update value in grid TPDL
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].SoLuongQuyCach = $(thisObj).val();
+                        self.Grid_TPDinhLuongChosed[i].isDefault = false;
+                        self.Grid_TPDinhLuongChosed[i].SoLuong = soluongQuyDoi;
+                        self.Grid_TPDinhLuongChosed[i].GiaVonAfter = soluongQuyDoi * self.Grid_TPDinhLuongChosed[i].GiaVon;
+                        break;
+                    }
+                }
+                self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
+            },
+            EditSoLuong_TPDinhLuong: function (item, index) {
+                var self = this;
+                var keyCode = event.keyCode || event.which;
+                if (keyCode === 13) {
+                    return;
+                }
+                var thisObj = event.currentTarget;
+                formatNumberObj(thisObj);
+                var quycach = item.QuyCach;
+                var soluongNhap = formatNumberToFloat($(thisObj).val());
+                var soluongQuyCach = soluongNhap * quycach;
+                // update value in grid TPDL
+                for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    if (i === index) {
+                        self.Grid_TPDinhLuongChosed[i].SoLuongQuyCach = soluongQuyCach;
+                        self.Grid_TPDinhLuongChosed[i].SoLuong = $(thisObj).val();
+                        self.Grid_TPDinhLuongChosed[i].isDefault = false;
+                        self.Grid_TPDinhLuongChosed[i].GiaVonAfter = soluongNhap * self.Grid_TPDinhLuongChosed[i].GiaVon;
+                        break;
+                    }
+                }
+                self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
+            },
+            EnterDetail_TPDinhLuong: function (columnEdit) {
+                var thisObj = $(event.currentTarget);
+                var trClosest = $(thisObj).closest('tr');
+                var tdNext = trClosest.next().find('td');
+                $(tdNext).eq(columnEdit).find('input').focus().select();
+            },
+            Agree_TPDinhLuong: function () {
+                var self = this;
+                self.saveOK = true;
+                $('#vmThanhPhanDinhLuong').modal('hide');
+            },
+        }
+    })
+
+    function formatNumber(number) {
+        if (number === undefined || number === null) {
+            return 0;
+        }
+        else {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    }
+</script>

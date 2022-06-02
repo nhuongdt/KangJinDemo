@@ -1,0 +1,1744 @@
+﻿@using System.Web.Optimization
+@using banhang24.Hellper
+@{
+    /**/
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Thiết lập cửa hàng";
+}
+<style>
+    .add-kich-hoat {
+        width: 220px;
+        position: relative;
+        margin-left: 15px;
+    }
+    /*.add-kich-hoat .checked-thong-bao input[type=checkbox] {
+            right: 15px;
+        }*/
+    #cke_txtCkeditor {
+        width: 100% !important;
+    }
+
+    .op-brand-logo {
+        width: 150px;
+        height: 150px;
+        padding: 5px;
+        margin: 0 10px 10px 10px;
+        border: 1px dotted #ccc;
+    }
+
+        .op-brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+</style>
+@*<link href="~/Content/icomoon/style.css" rel="stylesheet" />*@
+<div id="divPage">
+    <div class=" op-container">
+        <div class="col-lg-2 col-md-3 col-xs-12 ">
+            <h4>Thiết lập cửa hàng</h4>
+            <ul class="nav nav-stacked nav-pills not-visible-scrollbar">
+                <li class="active"><a href="#home" data-toggle="tab" data-bind="click :GetThongTinCuaHang">Thông tin cửa hàng</a></li>
+                <li><a href="#info" data-toggle="tab" data-bind="click :GetThietLapHeThong">Thiết lập tính năng</a></li>
+                <li><a href="#sms" data-toggle="tab" data-bind="click: LoadThongTinKichHoat">Dịch vụ SMS</a></li>
+                @*<li><a href="#zaloConnect" data-bind="click: GetStatusZaloConnection" data-toggle="tab">Zalo</a></li>
+                <li><a href="#TemplateDatLich" data-toggle="tab">Mẫu đặt lịch</a></li>*@
+            </ul>
+        </div>
+        <div class="col-lg-10 col-md-9 col-xs-12 nopadding">
+            <div class="tab-content nopadding">
+                <div class="tab-pane active" id="home">
+                    <div class="information-es floatleft form-thong-tin-chung">
+                        <div class="col-md-12 col-lg-4 col-sm-12 col-xs-12">
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Địa chỉ truy cập:</label>
+                                <div class="css-form-detail ">
+                                    <input type="text" class="form-control" required="" data-bind="value: newThongTinCH().Website" placeholder="bán hàng" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Hạn sử dụng:</label>
+                                <div class="css-form-detail">
+                                    <input type="text" class="form-control" data-bind="value: newThongTinCH().HanSuDung" required="" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Tên cửa hàng:</label>
+                                <div class="css-form-detail">
+                                    <input type="text" class="form-control" required="" data-bind="value: newThongTinCH().TenCongTy" placeholder="Tên cửa hàng">
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Địa chỉ:</label>
+                                <div class="css-form-detail">
+                                    <input type="text" class="form-control" required="" data-bind="value: newThongTinCH().DiaChi">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-4 col-sm-12 col-xs-12">
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Điện thoại:</label>
+                                <div class="css-form-detail">
+                                    <input type="text" class="form-control" required="" data-bind="value: newThongTinCH().SoDienThoai">
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Ngôn ngữ:</label>
+                                <div class="css-form-detail">
+                                    <select class="form-control">
+                                        <option>Tiếng Việt</option>
+                                        <option>Tiếng Anh</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label" style="letter-spacing:-1px">Công chuẩn tháng:</label>
+                                <div class="css-form-detail">
+                                    <input type="text" class="form-control" required="" data-bind="value: newThongTinCH().NgayCongChuan">
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label">Logo:</label>
+                                <div class="css-form-detail">
+                                    <span class="btn  btn-file btn-main height-30" style="position:relative">
+                                        <label style="position: absolute; left: calc(50% - 25px); z-index: 99; color: white; top: 5px;" for="imageUpHHForm">Chọn ảnh</label>
+                                        <input class="floatleft" type='file' multiple id="imageUpHHForm" name="files[]" data-bind="event:{change: $root.fileSelect}" accept=".png,.jpg,.jpeg,.gif" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-4 col-sm-12 col-xs-12 ">
+                            <div class="op-brand-logo">
+                                <!-- ko if: LoGo != 'undefined'-->
+                                <img id="blahHH1" alt="" data-bind="attr: {src: newThongTinCH().DiaChiNganHang , 'title': name}" />
+                                <!-- ko foreach: $root.files-->
+                                <!-- ko if: $index() == 0-->
+                                <img id="blahHH" alt="" data-bind="attr: {src: URLAnh , 'title': name}" />
+                                <!-- /ko -->
+                                <!-- /ko -->
+                                <!-- /ko -->
+                            </div>
+                            <p><em> Lưu ý: Ảnh không vượt quá 2MB</em></p>
+                            <button type="button" class="btn btn-save" data-bind="click: LuuThongTin"><i class="fa fa-save"></i> Lưu</button>
+                        </div>
+                        <div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="info">
+                    <div class="information-es floatleft ">
+                        <div class="col-xs-12 col-ms-6 col-md-6 col-lg-4">
+                            <ul>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-27" data-bind="css: {'cl': ThietLap().GiaVonTrungBinh}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Giá vốn trung  bình
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().GiaVonTrungBinh}" id="cbGiaVonTrungBinh"></a>
+                                                <input type="checkbox" value="true" data-bind="checked: ThietLap().GiaVonTrungBinh, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-34" data-bind="css: {'cl': ThietLap().DatHang}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Tính năng đặt hàng
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().DatHang}" id="cbDatHang"></a>
+                                                <input type="checkbox" value="true" data-bind="checked: ThietLap().DatHang, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="fa fa-star" data-bind="css: {'cl': ThietLap().TinhNangTichDiem}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Tính năng tích điểm
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().TinhNangTichDiem}" id="cbTichDiem"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().TinhNangTichDiem, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="datail-TH tichdiem" data-bind="click: $root.clickShowTichDiem">Chi tiết</a>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-39" data-bind="css: {'cl': ThietLap().CoDonViTinh}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Sản phẩm có đơn vị tính
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().CoDonViTinh}" id="cbDonViTinh"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().CoDonViTinh, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-32" data-bind="css: {'cl': ThietLap().GioiHanThoiGianTraHang}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Giới hạn thời gian trả hàng
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().GioiHanThoiGianTraHang}" id="cbGioiHanThoiGianTH"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().GioiHanThoiGianTraHang, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="datail-TH gioihanthoitrahang" data-toggle="modal" data-bind="click: clickShowGioiHanTH" data-target="#datail-TH">Chi tiết</a>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="fa fa-gift" data-bind="css: {'cl': ThietLap().KhuyenMai}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Sử dụng tính năng khuyến mại
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().KhuyenMai}" id="cbKhuyenMai"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().KhuyenMai, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="datail-TH khuyenmai" data-toggle="modal" data-target="#datail-TH5">Chi tiết</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-ms-6 col-md-6 col-lg-4">
+                            <ul>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-33" data-bind="css: {'cl': ThietLap().SanPhamCoThuocTinh}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Sản phẩm có thuộc tính
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().SanPhamCoThuocTinh}" id="cbSanPhamCoThuocTinh"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().SanPhamCoThuocTinh, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span data-bind="css: {'cl': ThietLap().BanHangOffline}"><i class="fa fa-wifi"></i></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Cho phép bán hàng khi mất kết nối Internet
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().BanHangOffline}" id="cbBanHangOffline"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().BanHangOffline, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-36" data-bind="css: {'cl': ThietLap().DatHangXuatAm}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Cho phép đặt hàng khi hết tồn kho
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().DatHangXuatAm}" id="cbDatHangXuatAm"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().DatHangXuatAm, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-37" data-bind="css: {'cl': ThietLap().XuatAm}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Bán & Chuyển hàng, Trả hàng nhập khi hết hàng tồn kho
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().XuatAm}" id="cbXuatAm"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().XuatAm, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="fa fa-cogs" data-bind="css: {'cl': ThietLap().SuDungMauInMacDinh}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Sử dụng mẫu in mặc định
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().SuDungMauInMacDinh}" id="cbTinhNangMauInMD"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().SuDungMauInMacDinh, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="datail-TH khuyenmai" data-toggle="modal" data-target="#datail-TH7" style="display: inline;">Chi tiết</a>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-38" data-bind="css: {'cl': ThietLap().SuDungMauInMacDinh}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Cài đặt mã chứng từ
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().SuDungMaChungTu}" id="cbMauChungTu"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().SuDungMaChungTu === 1" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="javascript:void(0)" class="datail-TH machungtu" data-bind="click: showThietLapMaChungTu">Chi tiết</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-xs-12 col-ms-6 col-md-6 col-lg-4">
+                            <ul>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-41" data-bind="css: {'cl': ThietLap().KhoaSo}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Tính năng khóa sổ
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().KhoaSo}" id="cbKhoaSo">
+                                                    <input type="checkbox" data-bind="checked: ThietLap().KhoaSo, checkedValue:true" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="datail-TH chotso" data-toggle="modal" data-target="#datail-TH4">Chi tiết</a>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-44" data-bind="css: {'cl': ThietLap().QuanLyKhachHangTheoDonVi}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Tính năng quản lý khách hàng theo chi nhánh
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().QuanLyKhachHangTheoDonVi}" id="cbQuanLyKHTheoDonVi"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().QuanLyKhachHangTheoDonVi, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es" data-bind="click:$root.ShowThongBaoLoHang">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-36" data-bind="css: {'cl': ThietLap().LoHang}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Cho phép quản lý theo lô hàng
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().LoHang}" id="cbLoHang"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().LoHang, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="datail-TH lohang" data-toggle="modal" data-target="#modalPopup_lohanghoa">Chi tiết</a>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="icon-IconSVG-30" data-bind="css: {'cl': ThietLap().ThongTinChiTietNhanVien}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Thông tin chi tiết nhân viên
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().ThongTinChiTietNhanVien}" id="cbChiTietNV"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().ThongTinChiTietNhanVien, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="item-es">
+                                        <div class="icon-es">
+                                            <span class="fa fa-phone" data-bind="css: {'cl': ThietLap().ChoPhepTrungSoDienThoai}"></span>
+                                        </div>
+                                        <div class="checkbox-es ">
+                                            <div class="setup-right">
+                                                Cho phép nhập trùng SĐT khách hàng
+                                            </div>
+                                            <div class="setup-left">
+                                                <a href="javascript:void(0)" class="setup-cheack" data-bind="css: {'cl': ThietLap().ChoPhepTrungSoDienThoai}" id="cbSameSDT"></a>
+                                                <input type="checkbox" data-bind="checked: ThietLap().ChoPhepTrungSoDienThoai, checkedValue:true" />
+                                            </div>
+                                        </div>
+                                        <div class="infor">
+                                            <i class="fa fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="height-30" data-toggle="modal" data-target="#modalSetupBaoDuong" style="text-align: left; padding-left: 13px;">Cài đặt lịch nhắc bảo dưỡng</li>
+                            </ul>
+                            <div style="" class="text-right">
+                                <button type="button" class="btn btn-save" data-bind="click: LuuThietLap"> <i class="fa fa-save"></i> Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="sms">
+                    <div class="img-active-sms">
+                        <img src="~/Content/images/icon/sdwqd34gtrgh-01.png" class="element" />
+                        <p><a href="javascript:void(0)" data-bind="click:$root.KichHoatSms"><i class="fa fa-check" aria-hidden="true" style="    font-size: 16px;margin-right: 5px;"></i> Kích hoạt ngay!</a></p>
+                    </div>
+                    <div class="popup-active-sms" hidden>
+                        <div style="padding:15px;border-bottom:1px solid #ccc">
+                            <button class="btn btn-cancel btn-lg" data-bind="click:$root.HuyKichHoatSms">
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                Hủy kích hoạt
+                            </button>
+                        </div>
+                        <div>
+                            <div class="col-lg-6 col-md-12 col-sm-6 col-xs-12" style="padding-bottom: 1.5rem;">
+                                <div class="flex flex-between">
+                                    <h4>Nhà cung cấp SMS</h4>
+                                    <button type="button" class="btn btn-main dropdown-toggle  btn-main pull-right btn-add-sms" data-bind="click: clickShowBrandName">
+                                        <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                    </button>
+                                </div>
+                                <div class="table-frame">
+                                    <table class="">
+                                        <thead>
+                                            <tr>
+                                                <th>BrandName</th>
+                                                <th>Ngày tạo</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ghi chú</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach : BrandNames">
+                                            <tr>
+                                                <td><span data-bind="text: BrandName"></span></td>
+                                                <td><span data-bind="text: moment(NgayTao).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(NgayTao).format('DD/MM/YYYY hh:mm'):''"></span></td>
+                                                <td> <span data-bind="text: TrangThai"></span></td>
+                                                <td><span data-bind="text: GhiChu"></span></td>
+                                                <td>
+                                                    <button class="btn btn-link" data-bind="click: $parent.EditBrandName"><i aria-hidden="true" class="fa fa-edit"></i></button>
+                                                    <button class="btn btn-link" data-bind="click: $parent.DeleteBrandName"><i aria-hidden="true" class="fa fa-times"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 col-sm-6 col-xs-12 ">
+                                <div class="flex flex-between">
+                                    <h4>Mẫu SMS</h4>
+                                    <button type="button" class="btn btn-main dropdown-toggle  btn-main pull-right btn-add-sms" data-bind="click: clickShowThemTinMau">
+                                        <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                    </button>
+                                </div>
+                                <div class="table-frame">
+                                    <table class="">
+                                        <thead>
+                                            <tr>
+                                                <th>Nội dung</th>
+                                                <th>Loại tin</th>
+                                                <th>Ngày tạo</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: MauTins">
+                                            <tr>
+                                                <td><span data-bind="text: NoiDungTin"></span></td>
+                                                <td><span data-bind="text: TenLoaiTin"></span></td>
+                                                <td><span data-bind="text: moment(NgayTao).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(NgayTao).format('DD/MM/YYYY hh:mm'):''"></span></td>
+                                                <td>
+                                                    <button class="btn btn-link" data-bind="click: $parent.EditMauTin"><i aria-hidden="true" class="fa fa-edit"></i></button>
+                                                    <button class="btn btn-link" data-bind="click: $parent.XoaMauTin"><i aria-hidden="true" class="fa fa-times red"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="zaloConnect">
+                    <!--ko if: zaloConnected() == false-->
+                    <div class="img-active-zalo">
+                        <img src="~/Content/images/zalo/zalo-1-logo-svg-vector.svg" class="element" />
+                        <p data-bind="click: OpenZaloConnect"><a href="javascript:void(0);"><i class="fa fa-check" aria-hidden="true" style="    font-size: 16px;margin-right: 5px;"></i> Tạo liên kết!</a></p>
+                    </div>
+                    <!--/ko-->
+                    <!--ko if: zaloConnected() == true-->
+                    <div class="flex flex-column">
+                        <div class="flex flex-between flex-row">
+                            <img src="~/Content/images/zalo/zalooa_logo.png" title="Open24.vn" />
+                            <div class="flex flex-row">
+                                <div class="flex flex-column">
+                                    <span class="bold" data-bind="text: zaloAOInfo().name"></span>
+                                    <span data-bind="text: zaloAOInfo().description"></span>
+
+                                </div>
+                                <button type="button" class="btn btn-danger">Xóa liên kết</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="row">
+                                <div class="col-sm-6">
+
+                                </div>
+                                <div class="col-sm-6">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/ko-->
+                </div>
+                <div class="tab-pane" id="TemplateDatLich">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Template</label>
+                                <select class="form-control">
+                                    <option>Template 1</option>
+                                    <option>Template 2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Main color</label>
+                                <input type="color" value="#fff" class="form-control" id="mainColor" v-model="vTemplate.color.main">
+                            </div>
+                            <div class="form-group">
+                                <label>Color one</label>
+                                <input type="color" value="#fff" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Color two</label>
+                                <input type="color" value="#fff" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Color three</label>
+                                <input type="color" value="#fff" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Color four</label>
+                                <input type="color" value="#fff" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-10" id="opiframe">
+                            <iframe src="about:blank" width="100%" height="100vh" style="border:none;" id="Iframe" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade " id="datail-TH" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable modal-md " role="document">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        Giới hạn thời gian trả hàng
+                    </h4>
+                </div>
+                <div class="modal-body floatleft">
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="row">
+                                    <div class="form-group floatleft" data-bind="with: newGioiHanTH">
+                                        <label class="css-form-label">Số ngày</label>
+                                        <div class="css-form-detail">
+                                            <input type="text" class="form-control w60px ng-pristine ng-empty ng-invalid ng-invalid-required ng-touched" required="" data-bind="value: SoNgayGioiHan"> ngày
+                                            <span class="commodity-note">
+                                                <i class="fa fa-info-circle"></i>
+                                                <span href="javascript:void(0)" class="materiall">
+                                                    Hệ thống chỉ cho phép trả hàng trong vòng số ngày thiết lập kể từ ngày mua hàng.
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft" data-bind="with: newGioiHanTH">
+                                        <label class="css-form-label floatleft">
+                                            <input type="radio" name="rdGioiHanTH" data-bind="checked: ChoPhepTraHang, checkedValue: true" />
+                                            Cảnh báo khi trả hàng
+                                        </label>
+                                        <div class="commodity-note ">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span href="javascript:void(0)" class="materiall">
+                                                Nếu vượt quá thời hạn được phép trả hàng, khi chọn hóa đơn để trả, hệ thống sẽ hiển thị cảnh báo nhưng vẫn cho phép người dùng trả hàng nếu muốn.
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group floatleft" data-bind="with: newGioiHanTH">
+                                        <label class="css-form-label  floatleft">
+                                            <input type="radio" name="rdGioiHanTH" data-bind="checked: ChoPhepTraHang, checkedValue: false" />
+                                            Không cho phép trả hàng
+                                            <span class="commodity-note r0">
+                                                <i class="fa fa-info-circle"></i>
+                                                <span href="javascript:void(0)" class="materiall">
+                                                    Nếu vượt quá thời hạn được phép trả hàng, khi chọn hóa đơn để trả hệ thống sẽ hiển thị cảnh báo và không cho phép người dùng trả hàng.
+                                                </span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group floatleft">
+                                        <label class="css-form-label">&nbsp;</label>
+                                        <div class="footer-right pull-right">
+                                            <div class="modal-footer">
+                                                <div class="container-fluid">
+                                                    <button type="button" class="btn btn-main" data-bind="click: $root.addGioiHanTH"> <i class="fa fa-check-square"></i> Xong</button>
+                                                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*tích điểm*@
+    <div class="modal fade " id="modalpopupTichDiem" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        Thiết lập tích điểm
+                    </h4>
+                </div>
+                <style>
+                    #modalpopupTichDiem .css-form-label {
+                        width: 200px;
+                    }
+
+                    #modalpopupTichDiem .css-form-detail {
+                        position: relative;
+                        width: calc(100% - 200px);
+                    }
+                </style>
+                <div class="modal-body floatleft">
+                    <div class="accumulating">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-label">Tỷ lệ quy đổi điểm thưởng</label>
+                                    <div class="css-form-detail">
+                                        <div class="w140">
+                                            <input type="text" class="form-control" id="txtTyLeDoiDiem" data-bind="value: TyLeDoiDiem" onkeypress="return keyPress(event)" />
+                                            <span class="ctyvnd">VNĐ</span>
+                                        </div>
+                                        <div class="w40">
+                                            =
+                                        </div>
+                                        <div class="w140">
+                                            1điểm thưởng
+                                        </div>
+                                        <div class="commodity-note">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span href="javascript:void(0)" class="materiall">
+                                                Quy định số tiền mua hàng để đổi lấy 1 điểm thưởng
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-label">
+                                        <input type="checkbox" id="thanhtoanbangdiem" data-bind="checked: ThanhToanBangDiem, checkedValue: true" onkeypress="return keyPress(event)" />
+                                        Cho phép thanh toán bằng điểm
+                                    </label>
+                                    <div class="css-form-detail">
+                                        <div class="w140">
+                                            <input type="text" class="form-control" id="diemthanhtoan" data-bind="value: DiemThanhToan" onkeypress="return keyPress(event)" />
+                                            <span class="ctyvnd bg19">Điểm</span>
+                                        </div>
+                                        <div class="w40">
+                                            =
+                                        </div>
+                                        <div class="w140">
+                                            <input type="text" class="form-control" id="tienthanhtoan" data-bind="value: TienThanhToan" onkeypress="return keyPress(event)" />
+                                            <span class="ctyvnd">VNĐ</span>
+                                        </div>
+                                        <span class="commodity-note">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span href="javascript:void(0)" class="materiall">
+                                                Quy định số tiền mua hàng để đổi lấy 1 điểm thưởng
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-label">
+                                        Thanh toán bằng điểm sau
+                                    </label>
+                                    <div class="css-form-detail">
+                                        <div class="w140">
+                                            <input type="text" class="form-control" id="solanmua" data-bind="value: SoLanMua" onkeypress="return keyPress(event)" />
+                                        </div>
+                                        <div class="w140 p10">
+                                            lần mua
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-detail  floatleft ">
+                                        <input type="checkbox" data-bind="checked: TichDiemGiamGia, checkedValue: true" />
+                                        Không tích điểm cho sản phẩm giảm giá
+                                    </label>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-detail  floatleft ">
+                                        <input type="checkbox" data-bind="checked: TichDiemHoaDonGiamGia, checkedValue: true" />
+                                        Không tích điểm cho hóa đơn có giảm giá.
+                                    </label>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-detail  floatleft ">
+                                        <input type="checkbox" data-bind="checked:TichDiemHoaDonDiemThuong, checkedValue: true" />
+                                        Không tích điểm cho hóa đơn thanh toán bằng điểm thưởng
+                                    </label>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <span data-bind="with: newTichDiem">
+                                        <input type="radio" id="nhomkhachhang" name="rdToanBoKH" data-bind="checked: ToanBoKhachHang, checkedValue: false" />
+                                    </span>
+
+                                    <label class="css-form-label" for="nhomkhachhang">
+                                        Nhóm khách hàng
+                                    </label>
+                                    <div class="w180 promotion-drop ">
+                                        <div class="outselect">
+                                            <div class="choose-person floatleft " data-toggle="dropdown" id="choose_NguoiBan">
+                                                <ul data-bind="foreach: MangNhomKH">
+                                                    <li class="li-input-span">
+                                                        <span data-bind="text: TenNhomDoiTuong">
+                                                        </span>
+                                                        <span data-bind="click: $parent.CloseNKH">
+                                                            <i class="fa fa-times"></i>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                <input type="text" id="dllNhomKH" readonly="readonly" class="dropdown" placeholder="--- Chọn nhóm khách hàng ---" />
+                                            </div>
+                                            <div class="selec-person dropdown-menu" id="selec-all-KH">
+                                                <ul data-bind="foreach: NhomKhachHang ">
+                                                    <li data-bind="attr:{id: ID}, click: $parent.selectedNewNKH">
+                                                        <span data-bind="text: TenNhomDoiTuong"></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <input type="radio" id="toanbokhachhang" name="rdToanBoKH" data-bind="checked: ToanBoKhachHang, checkedValue: true" />
+                                    <label class="css-form-label" for="toanbokhachhang">
+                                        Toàn bộ khách hàng
+                                    </label>
+                                </div>
+                                <div class="form-group floatleft" data-bind="with: newTichDiem">
+                                    <label class="css-form-label" style="width:auto!important">
+                                        <input type="checkbox" name="rdToanBoKH" data-bind="checked: KhoiTaoTichDiem, checkedValue: true" />
+                                        Khởi tạo tích điểm cho toàn bộ hàng hóa, dịch vụ
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        <button type="button" class="btn btn-save" data-bind="click: $root.addTichDiem"> <i class="fa fa-save"></i> Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade " id="datail-TH3" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable " role="document">
+            <div class="modal-sm">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            Tính năng giao hàng
+                        </h4>
+                    </div>
+                    <div class="modal-body floatleft">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="form-group floatleft">
+                                    <label class="css-form-label"><input type="checkbox" /> Quản lý thu hộ tiền </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container-fluid">
+                            <button type="button" class="btn btn-main" data-bind="click: $root.addNhomKhuVuc"> <i class="fa fa-check-square"></i> Xong</button>
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="datail-TH4">
+        <div class="modal-dialog draggable modal-lg">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        Thiết lập ngày khóa sổ
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-3 menu-left">
+                        <div class="op-filter-title floatleft">Tìm kiếm</div>
+                        <aside class="op-filter-containermodal ">
+                            <ul>
+                                <li>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Tên chi nhánh"
+                                               data-bind="value: $root.chotso_txtSearch,
+                                                   valueUpdate:'afterkeydown',
+                                                   event:{keyup: $root.chotso_SearchChiNhanh}">
+                                    </div>
+                                </li>
+                            </ul>
+                        </aside>
+                    </div>
+                    <div class="col-md-9 content-right">
+                        <div class="table-frame">
+                            <table class="td-date">
+                                <tbody class="table-reponsive1">
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" onclick="SetCheckAllHH(this)">
+                                        </th>
+                                        <th>Tên chi nhánh</th>
+                                        <th class="text-right " style="width:170px">
+                                            Ngày khóa sổ
+                                        </th>
+                                    </tr>
+                                </tbody>
+                                <tbody data-bind="foreach: $root.chotso_ArrDonVi">
+                                    <tr>
+                                        <td>
+                                            <label class="checkall_DonVi" style="width:unset">
+                                                <input data-bind="attr: {id: ID}, checked: KhoaSo && NgayChotSo!==null" type="checkbox" onclick="getIDHH(this)">
+                                            </label>
+                                        </td>
+                                        <td data-bind="text: TenDonVi"></td>
+                                        <td class="text-right ">
+                                            <div style="width: 150px!important;" data-bind="attr:{id: 'dvt_' + ID}">
+                                                <input class="form-control" type="text"
+                                                       data-bind="attr:{id:'input_' + ID},value: moment(NgayChotSo).format('DD/MM/YYYY')!='Invalid date'? moment(NgayChotSo).format('DD/MM/YYYY'):'',
+                                                               click: $root.clickDateChotSo">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" data-bind="click: save_ChotSo">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="datail-TH5" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable modal-md " role="document">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        Sử dụng tính năng khuyến mại
+                    </h4>
+                </div>
+                <div class="modal-body floatleft">
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="row">
+                                    <div class="form-group floatleft" data-bind="with: ThietLap">
+                                        <label class="css-form-label  floatleft">
+                                            <input type="checkbox" data-bind="checked: ApDungGopKhuyenMai, checkedValue: true" /> Áp dụng gộp các chương trình khuyến mãi
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-main" data-dismiss="modal"> <i class="fa fa-check-square"></i> Xong</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="datail-TH6" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable " role="document">
+            <div class="modal-sm">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            Không cho phép thay đổi thời gian bán hàng
+                        </h4>
+                    </div>
+                    <div class="modal-body floatleft">
+                        <div class="col-md-12">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Đặt hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Hóa đơn
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Trả hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Nhập hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Trả hàng nhập
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Chuyển hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Xuất hủy
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Sổ quỹ
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Kiểm kho
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Sản xuất
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container-fluid">
+                            <button type="button" class="btn btn-main"> <i class="fa fa-check-square"></i> Xong</button>
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="datail-TH7" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable " role="document">
+            <div class="modal-md modal-dialog">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            Sử dụng mẫu in mặc định
+                        </h4>
+                    </div>
+                    <div class="modal-body ">
+                        <div class="">
+                            <!--ko if: $root.IsGara()-->
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Phiếu tiếp nhận
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="PhieuTiepNhan"
+                                                data-bind="options:$root.ListMauInPTN, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--/ko-->
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Đặt hàng
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="DatHang" data-bind="options:ListMauInDathang, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Hóa đơn
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="HoaDon" data-bind="options:ListMauInHoaDon, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Gói dịch vụ
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="GoiDichVu" data-bind="options:ListMauInGoiDV, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Thẻ giá trị
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="TheGiaTri" data-bind="options:ListMauInTheGiaTri, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Trả hàng
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="TraHang" data-bind="options:ListMauInTraHang, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Đổi trả hàng
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="DoiTraHang" data-bind="options:ListMauInDoiTraHang, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Nhập hàng
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="NhapHang" data-bind="options:ListMauInNhapHang, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Trả nhập hàng
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="TraHangNhap1" data-bind="options:ListMauInTraHangNhap, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Chuyển hàng
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="ChuyenHang" data-bind="options:ListMauInChuyenHang, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Phiếu thu
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="PhieuThu" data-bind="options:ListMauInPhieuThu, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Phiếu chi
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="PhieuChi" data-bind="options:ListMauInPhieuChi, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Xuất  hủy
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="XuatHuy" data-bind="options:ListMauInXuatHuy, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Điều chỉnh
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control" id="DieuChinh" data-bind="options:ListMauInDieuChinh, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="css-form-label  ">
+                                    Phiếu lương
+                                </label>
+                                <div class="css-form-detail">
+                                    <div class="outselect ">
+                                        <select class="form-control"
+                                                id="PhieuLuong"
+                                                data-bind="options:ListMauInPhieuLuong, optionsText: 'Value', optionsValue: 'Key'"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container-fluid">
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                            <button type="button" class="btn btn-main" data-bind="click:UpdateSelectDefaultMauIn"> <i class="fa fa-check-square"></i> Xong</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="datail-TH8" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable " role="document">
+            <div class="modal-sm">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            Không cho phép thay đổi đơn giá
+                        </h4>
+                    </div>
+                    <div class="modal-body floatleft">
+                        <div class="col-md-12">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Đặt hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Bán hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Đổi trả hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Điều chuyển
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container-fluid">
+                            <button type="button" class="btn btn-main"> <i class="fa fa-check-square"></i> Xong</button>
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="datail-TH9" tabindex="-1" aria-labelledby="myModalLabel">
+        <div class="modal-dialog draggable " role="document">
+            <div class="modal-sm">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            Không cho phép thay đổi nhân viên bán hàng
+                        </h4>
+                    </div>
+                    <div class="modal-body floatleft">
+                        <div class="col-md-12">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Đặt hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Bán hàng
+                                            </label>
+                                        </div>
+                                        <div class="form-group floatleft">
+                                            <label class="css-form-label  floatleft">
+                                                <input type="checkbox"> Đổi trả hàng
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="modalpopup_ShowThongBaoLo">
+        <div id="modalContainer_delete" class="modal-dialog">
+            <div class="modal-content ">
+                <div class="modal-body">
+                    <div class="title-delete">
+                        <span id="header-confirm-delete">Xác nhận</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    Cửa hàng đã thiết lập theo lô hàng, không thể tắt tính năng này!!!
+                    <div class="modal-footer">
+                        <div class="container-fluid"></div>
+                        <button type="button" class="btn btn-main" data-bind="click: DongYTBLo"><i class="fa fa-check"></i> Đồng ý</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal" data-bind="click: clostShowTBLo"><i class="fa fa-ban"></i>Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalPopup_lohanghoa">
+        <div id="modalContainer_NhomHHDV" class="modal-dialog draggable modal-dialoghh ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">Cảnh báo hạn sử dụng lô</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="floatleft margin-bot-15" data-bind="with: ThietLap">
+                                <div class="han-su-dung-lo"><span>Cảnh báo hạn sử dụng lô trước</span><input type="text" class=" number-price text-right price-border-bot" maxlength="12" data-bind="value: ThoiGianNhacHanSuDungLo" onkeypress="return keyPress(event)"><span> ngày</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal" data-bind="click: HuyNhacLoHang"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        <button type="button" class="btn btn-save" data-bind="click: LuuNgayNhacLo"><i class="fa fa-save"></i> Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.Partial("_smsPartial")
+    @Html.Partial("_smsTinMau")
+</div>
+<div id="div2">
+    @Html.Partial("_ThietLapMaChungTu")
+</div>
+<div class="modal fade " id="modalSetupBaoDuong" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    Lịch nhắc bảo dưỡng
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="p-15 mt-15 mr-15">
+                    <div class="flex mb-15">
+                        <label class="width-150">Nhắc trước</label>
+                        <div style="position: relative; flex: 1;">
+                            <input class="form-control" type="text" v-model="NhacTruoc">
+                            <select class="form-control select-add-input" v-model="NhacTruocLoaiThoiGianSelected">
+                                <option v-for="item in ListNhacTruocLoaiThoiGian" v-bind:value="item.value">{{item.text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex mb-15">
+                        <label class="width-150">Số lần nhắc</label>
+                        <div style="flex: 1">
+                            <input class="form-control" type="text" v-model="SoLanNhac">
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <label class="width-150">Lặp định kỳ</label>
+                        <div style="flex: 1">
+                            <select class="form-control" v-model="LapDinhKySelected">
+                                <option v-for="item in ListLapDinhKy" v-bind:value="item.value">{{item.text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    <button type="button" class="btn btn-save" data-dismiss="modal" v-on:click="LuuCaiDatLichNhacBaoDuong"> <i class="fa fa-save"></i> Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Content/Framework/CkEditor/ckeditor.js"></script>
+<script>
+    var KeyPhieuTiepNhan = "@commonEnum.MauInTeamPlates.PhieuTiepNhan";
+    var KeyDatHang = "@commonEnum.MauInTeamPlates.DatHang";
+    var KeyHoaDon = "@commonEnum.MauInTeamPlates.HoaDon";
+    var KeyGoiDichVu = "@commonEnum.MauInTeamPlates.GoiDV";
+    var KeyTraHang = "@commonEnum.MauInTeamPlates.TraHang";
+    var KeyDoiTraHang = "@commonEnum.MauInTeamPlates.DoiTraHang";
+    var KeyNhapHang= "@commonEnum.MauInTeamPlates.NhapHang";
+    var KeyTraHangNhap = "@commonEnum.MauInTeamPlates.TraHangNhap";
+    var KeyChuyenHang = "@commonEnum.MauInTeamPlates.ChuyenHang";
+    var KeyPhieuThu = "@commonEnum.MauInTeamPlates.PhieuThu";
+    var KeyPhieuChi = "@commonEnum.MauInTeamPlates.PhieuChi";
+    var KeyXuatHuy = "@commonEnum.MauInTeamPlates.XuatHuy";
+    var KeyDieuChinh = "@commonEnum.MauInTeamPlates.DieuChinh";
+    var KeyTheGiaTri = "@commonEnum.MauInTeamPlates.TheGiaTri";
+    var KeyPhieuLuong = "@commonEnum.MauInTeamPlates.PhieuLuong";
+    $(document).on('click', '.information-es ul li .item-es', function () {
+        $(this).find(".setup-cheack").toggleClass('cl');
+        $(this).next(".datail-TH ").toggle();
+        $(this).find(".icon-es").find("span").toggleClass("cl");
+        var t = $(this).find('input:checkbox').is(':checked');
+        if (t == false) {
+            $(this).find('input:checkbox').attr('checked', true);
+        }
+        else {
+        $(this).find('input:checkbox').attr('checked', false);
+        }
+    });
+        //$('.btn-add-sms').on('click', function () {
+        //    $('#exampleModal').modal('show');
+        //});
+    window.onload = function () {
+        var inputs = document.querySelectorAll('.inputfile');
+        Array.prototype.forEach.call(inputs, function (input) {
+            var label = input.parentElement.nextElementSibling,
+                labelVal = label.innerHTML;
+            input.addEventListener('change', function (e) {
+                var fileName = '';
+                if (this.files && this.files.length > 1)
+                    fileName = (this.getAttribute('data-multiple-caption') || '').replace('{count}', this.files.length);
+                else
+                    fileName = e.target.value.split('\\').pop();
+                if (fileName)
+                    label.querySelector('span').innerHTML = fileName;
+                else
+                    label.innerHTML = labelVal;
+            });
+        });
+    }
+    $(document).on('click', '#nhomkhachhang', function () {
+        document.getElementById("dllNhomKH").disabled = false;
+    });
+    $(document).on('click', '#toanbokhachhang', function () {
+        document.getElementById("dllNhomKH").disabled = true;
+    });
+    //$(document).on('click', '#thanhtoanbangdiem', function () {
+    //    document.getElementById("diemthanhtoan").disabled = true;
+    //    document.getElementById("tienthanhtoan").disabled = true;
+    //    document.getElementById("solanmua").disabled = true;
+    //});
+    $("#thanhtoanbangdiem").click(function () {
+        if ($(this).is(':checked') === true) {
+            document.getElementById("diemthanhtoan").disabled = false;
+            document.getElementById("tienthanhtoan").disabled = false;
+            document.getElementById("solanmua").disabled = false;
+        }
+        else {
+            document.getElementById("diemthanhtoan").disabled = true;
+            document.getElementById("tienthanhtoan").disabled = true;
+            document.getElementById("solanmua").disabled = true;
+        }
+    });
+    $('#selec-all-KH').on('click', 'li', function () {
+        //var check = $(this).find(".fa-check").css("display");
+        //if (check == "none") {
+        //    var per = $(this).html();
+        //    $(this).parents(".selec-person").prev(".choose-person").find("ul").append("<li></li>");
+        //    $(this).parents(".selec-person").prev(".choose-person").find("input").addClass("per_ac");
+        //    $(this).parents(".selec-person").prev(".choose-person").find("ul").addClass("per_ac1");
+        //    $(this).find(".fa-check"PhieuLuongLuong.toggle();
+        //}
+        //else {
+        //    $(this).find(".fa-check").hide();
+        //    var k = $(this).index();
+        //    $(this).parents(".selec-person").prev(".choose-person").find("li").eq(k).remove();
+        //}
+    });
+    $(function () {
+        $('.datetimepicker2').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+         $('#datetimepicker2').datetimepicker({
+             format: 'DD/MM/YYYY'
+         });
+                $(".date input").click(function () {
+                    $(this).parent(".date").next(".apdung").toggle();
+               $(".apdung").mouseup(function () {
+                   return false
+               });
+               $(".date input").mouseup(function () {
+                   return false
+               });
+               $(document).mouseup(function () {
+                   $(".apdung").hide();
+               });
+             });
+    });
+     $(function () {
+         $('.datetimepicker4').datetimepicker({
+             format: 'DD/MM/YYYYY'
+            });
+    });
+     function keyPress(e) {
+         var keypressed = null;
+         if (window.event) {
+             keypressed = window.event.keyCode; //IE
+         }
+         else {
+             keypressed = e.which; //NON-IE, Standard
+         }
+         if (keypressed < 48 || keypressed > 57) {
+             if (keypressed == 8 || keypressed == 127) {
+                 return;
+             }
+             return false;
+         }
+     }
+     $(function () {
+         $.datetimepicker.setLocale('vi');
+         var time = new Date();
+         $('.datetimepicker_mask').datetimepicker({
+             timepicker: false,
+             mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+             format: 'd/m/Y',
+         });
+     });
+
+     $('input[type=text]').click(function () {
+         $(this).select();
+     });
+
+</script>
+<style>
+    .setup-cheack:after {
+        /*content: "\f096";*/
+        font-size: 1.2rem;
+        font-weight: normal;
+        color: var(--color-primary) !important;
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-family: 'Font Awesome 5 Pro';
+        width: 16px;
+        height: 16px;
+    }
+
+    .setup-cheack.cl:after {
+        content: '\f00c';
+    }
+</style>
+@Scripts.Render("~/bundles/ThietLap")
+<script src="@Url.ContentVersioned("~/Scripts/Thietlap/Modal_ThietLapMaChungTu.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Thietlap/CauHinhHeThong.js")"></script>
+
+<script>
+    //Script thiết lập lịch nhắc bảo dưỡng using vuejs
+    var ModalLichBaoDuong = new Vue({
+        el: '#modalSetupBaoDuong',
+        data:
+        {
+            Id: '',
+            NhacTruoc: 0,
+            ListNhacTruocLoaiThoiGian: [],
+            NhacTruocLoaiThoiGianSelected: 3,
+            SoLanNhac: 0,
+            ListLapDinhKy: [],
+            LapDinhKySelected: 3,
+            urlApi: {
+                ThietLapApi: '/api/DanhMuc/HT_ThietLapAPI/'
+            }
+        },
+        methods: {
+            initListNhacTruocLoaiThoiGian: function () {
+                return [{ value: 3, text: 'Ngày' }, { value: 4, text: 'Tháng' }, { value: 5, text: 'Năm' }]
+            },
+            initListLapDinhKy: function () {
+                return [{ value: 3, text: 'theo ngày' }, { value: 4, text: 'theo tháng' }, { value: 5, text: 'theo năm' }]
+            },
+            LoadCaiDatLichNhacBaoDuong: function () {
+                let self = this;
+                $.ajax({
+                    url: self.urlApi.ThietLapApi + 'GetCaiDatLichNhacBaoDuong',
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res === true) {
+                            if (data.dataSoure != null) {
+                                self.Id = data.dataSoure.ID;
+                                self.NhacTruoc = data.dataSoure.NhacTruocThoiGian;
+                                self.NhacTruocLoaiThoiGianSelected = data.dataSoure.NhacTruocLoaiThoiGian;
+                                self.SoLanNhac = data.dataSoure.SoLanLapLai;
+                                self.LapDinhKySelected = data.dataSoure.LoaiThoiGianLapLai;
+                            }
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                        }
+                    }
+                });
+            },
+            LuuCaiDatLichNhacBaoDuong: function () {
+                let self = this;
+                let myData = {};
+                myData.Id = self.Id;
+                myData.NhacTruoc = self.NhacTruoc;
+                myData.NhacTruocLoaiThoiGian = self.NhacTruocLoaiThoiGianSelected;
+                myData.SoLanLapLai = self.SoLanNhac;
+                myData.LoaiThoiGianLapLai = self.LapDinhKySelected;
+                $.ajax({
+                    url: self.urlApi.ThietLapApi + 'UpdateCaiDatLichNhacBaoDuong',
+                    type: 'POST',
+                    data: myData,
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res === true) {
+                            commonStatisJs.ShowMessageSuccess("Cập nhật cài đặt lịch nhắc bảo dưỡng thành công!");
+                        }
+                        else {
+                            self.LoadCaiDatLichNhacBaoDuong();
+                            commonStatisJs.ShowMessageDanger("Cập nhật cài đặt lịch nhắc bảo dưỡng thất bại!");
+                        }
+                    }
+                });
+            }
+        },
+        created: function () {
+            let self = this;
+            self.LoadCaiDatLichNhacBaoDuong();
+            self.ListNhacTruocLoaiThoiGian = self.initListNhacTruocLoaiThoiGian();
+            self.ListLapDinhKy = self.initListLapDinhKy().filter(p => p.value <= self.NhacTruocLoaiThoiGianSelected);
+        },
+        watch: {
+            NhacTruocLoaiThoiGianSelected: function (val) {
+                let self = this;
+                self.ListLapDinhKy = self.initListLapDinhKy().filter(p => p.value <= self.NhacTruocLoaiThoiGianSelected);
+                if (self.NhacTruocLoaiThoiGianSelected < self.LapDinhKySelected) {
+                    self.LapDinhKySelected = self.NhacTruocLoaiThoiGianSelected;
+                }
+            }
+        }
+    });
+
+    //iframe
+    var frame = document.getElementById("Iframe");
+
+    // Adjusting the iframe height onload event
+    frame.onload = function () {
+        /*frame.contentWindow.document.documentElement.style.setProperty('--color-main', '#c97d39');*/
+        
+     }
+
+    frame.onload = setInterval(function ()
+    // function execute while load the iframe
+    {
+        // set the height of the iframe as
+        // the height of the iframe content
+        frame.style.height =
+            frame.contentWindow.document.body.scrollHeight + 'px';
+
+
+        // set the width of the iframe as the
+        // width of the iframe content
+        //frame.style.width =
+        //    frame.contentWindow.document.body.scrollWidth + 'px';
+
+    }, 500)
+</script>
+<script>
+        (function (global) {
+            (function (w) {
+                function l() {
+                    var files = [
+                        'https://temp.open24.vn/contents/lib/vue.min.js',
+                        'https://temp.open24.vn/contents/lib/moment.js',
+                        'https://temp.open24.vn/Contents/js/public.js'
+                    ];
+
+                    var s0 = document.getElementsByTagName('script')[0];
+
+                    for (var i = 0; i < files.length; i++) {
+                        var s1 = document.createElement('script');
+                        s1.src = files[i];
+                        s1.charset = 'UTF-8';
+                        s1.setAttribute('crossorigin', '*');
+                        s0.parentNode.insertBefore(s1, s0);
+                    }
+                }
+                if (document.readyState === 'complete') {
+                    l();
+                } else if (w.attachEvent) {
+                    w.attachEvent('onload', l);
+                } else {
+                    w.addEventListener('load', l, false);
+                }
+            })(window);
+
+        })(window);
+</script>

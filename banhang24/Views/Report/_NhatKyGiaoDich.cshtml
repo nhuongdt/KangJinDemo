@@ -1,0 +1,396 @@
+﻿<style>
+    #modalDiaryTrans .thead {
+        text-align: center;
+        padding: 9px;
+        background: var(--color-table);
+        font-weight: 700;
+    }
+    #modalDiaryTrans .tfoot {
+        padding: 9px;
+        font-weight: 700;
+    }
+        #modalDiaryTrans .tfoot .paging {
+            font-style: italic;
+            font-weight: 100
+        }
+            #modalDiaryTrans .tfoot .paging li {
+                float: left
+            }
+                #modalDiaryTrans .tfoot .paging li .click {
+                    color: #fff;
+                    background: var(--color-main);
+                    text-decoration: none;
+                    border-radius: 50%;
+                }
+                #modalDiaryTrans .tfoot .paging li a {
+                    border: none;
+                    width: auto;
+                    padding: 3px 9px !important;
+                    min-width: 18px;
+                }
+    #modalDiaryTrans .trow {
+        padding: 9px 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    #modalDiaryTrans .p-caption {
+        font-weight: 700;
+        font-style: italic;
+        margin-top: 7px;
+        border-bottom: 1px solid;
+        color: var(--color-main)
+    }
+    #modalDiaryTrans .op-filter-container {
+        padding: unset;
+        padding-bottom: 10px !important;
+        padding-top: 10px !important;
+    }
+    #modalDiaryTrans .page ul li .click {
+        border-radius: 50%;
+    }
+    #modalDiaryTrans .Report_Empty {
+        height: 30px;
+        text-align: center;
+        background: #F2EED6 !important;
+    }
+</style>
+<div class="modal fade" id="modalDiaryTrans">
+    <div class="modal-dialog draggable modal-md  modal-lg" style="width: 80vw;">
+        <div class="modal-content  ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    Nhật ký giao dịch
+                </h4>
+            </div>
+            <div class="modal-body " style="padding:15px">
+                    <div class="col-md-3 col-xs-12 col-sm-12" style="padding-left:0">
+                        <div class="op-filter-title floatleft"> Chi nhánh</div>
+                        <aside class="op-filter-container">
+                            <div class="outselect" id="trans_ddlDonVi">
+                                <div class="choose-person floatleft " data-toggle="dropdown">
+                                    <ul data-bind="foreach: ChiNhanhChosed">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenDonVi"></span>
+                                            <span data-bind="click: $parent.CloseDonVi">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown nameDonVi" data-bind="event:{keyup: NoteNameDonVi}">
+                                </div>
+                                <div class="selec-person dropdown-menu">
+                                    <ul>
+                                        <li data-bind="click: SelectedDonVi">
+                                            <span>Tất cả chi nhánh</span>
+                                        </li>
+                                        <!--ko foreach: ArrDonVi-->
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedDonVi">
+                                            <span data-bind="text: TenDonVi "></span>
+                                        </li>
+                                        <!--/ko-->
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                        <div class="op-filter-title floatleft"> Khách hàng</div>
+                        <aside class="op-filter-containermodal ">
+                            <div class="form-group">
+                                <div>
+                                    <input type="text" onclick="this.select()"
+                                           data-bind="jqAutoCustomer: { source: ListAllDoiTuong, value: ID_KhachHang,
+                                                         inputProp: 'NguoiNopTien', labelProp: 'NguoiNopTien', valueProp: 'ID', template: 'rowChiTiet'}"
+                                           placeholder="Tìm kiếm" class="form-control ui-autocomplete-input txtKhachHang">
+                                    <script id="rowChiTiet" type="text/html">
+                                        @Html.Partial("~/Views/Component/_ko-ListSearchNguoiNopTien.cshtml")
+                                    </script>
+                                </div>
+                            </div>
+                        </aside>
+                        <div class="op-filter-title floatleft">Thời gian</div>
+                        <aside class="op-filter-containermodal ">
+                            <ul>
+                                <li>
+                                    <div class="form-group floatleft">
+                                        <div class="floatleft form-wrap ">
+                                            <input type="text" class="form-control datepicker_mask" placeholder="Từ ngày"
+                                                   data-bind="value: FromDate, valueUpdate: 'afterkeydown', click: formatDate">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-group floatleft">
+                                        <div class="floatleft form-wrap ">
+                                            <input type="text" class="form-control datepicker_mask" placeholder="Đến ngày"
+                                                   data-bind="value: ToDate, valueUpdate: 'afterkeydown', click: formatDate">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </aside>
+                    </div>
+                    <div class="col-md-9 col-xs-12 col-sm-12 nopadding">
+                        <div class="contentAvailable" data-bind="visible: VisibleBanHang() || VisibleGoiDV() || VisibleTheGiaTri() || VisibleHDSC()">
+                            <ul class="nav nav-pills" id="TabDetail">
+                                <li class="active" data-bind="visible: VisibleBanHang, click: function(){ChangeTab(1)}, css:{'active': $root.HD_IsActive()}">
+                                    <a data-toggle="pill" href="#BanHang">Hóa đơn bán lẻ</a>
+                                </li> 
+                                <li class="active" data-bind="visible: VisibleHDSC, click: function(){ChangeTab(25)}, css:{'active': $root.HDSC_IsActive()}">
+                                    <a data-toggle="pill" href="#HDSC">Hóa đơn sửa chữa</a>
+                                </li>
+                                <li data-bind="visible: VisibleGoiDV, click: function(){ChangeTab(19)}, css:{'active': $root.GDV_IsActive()}">
+                                    <a data-toggle="pill" href="#GoiDV">Gói dịch vụ</a>
+                                </li>
+                                <li data-bind="visible: VisibleTheGiaTri, click: function(){ChangeTab(22)},css:{'active': $root.TGT_IsActive()}">
+                                    <a data-toggle="pill" href="#TheGiaTri">Thẻ giá trị</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="content_seperate">
+                                <div class="col-sm-12 thead">
+                                    <div class="col-sm-2">
+                                        Mã hóa đơn
+                                    </div>
+                                    <div class="col-sm-2">
+                                        Ngày lập hóa đơn
+                                    </div>
+                                    <div class="col-sm-2">
+                                        Tổng tiền hàng
+                                    </div>
+                                    <div class="col-sm-2">
+                                        Tổng giảm giá
+                                    </div>
+                                    <div class="col-sm-2">
+                                        Phải thanh toán
+                                    </div>
+                                    <div class="col-sm-2">
+                                        Đã thanh toán
+                                    </div>
+                                </div>
+                                <div class="tab-pane" style="background:red" id="BanHang" data-bind="css:{'active': $root.HD_IsActive()}">
+                                    <!--ko foreach: NhatKyGiaoDich_HoaDonBan-->
+                                    <div class="col-sm-12 trow">
+                                        <div class="col-sm-2" data-bind="text: MaHoaDon">
+                                        </div>
+                                        <div class="col-sm-2" data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongTienHang)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongGiamGia)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(PhaiThanhToan)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(DaThanhToan)">
+                                        </div>
+                                    </div>
+                                    <!--/ko-->
+                                    <div class="col-sm-12 tfoot" data-bind="visible: VisibleBanHang">
+                                        <div class="col-sm-4 paging">
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.StartPage(1)}, visible: HD_VisiblePrev">
+                                                <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.BackPage(1)}, visible: HD_VisiblePrev ">
+                                                <i class="fa fa-caret-left" aria-hidden="true"></i>
+                                            </a>
+                                            <ul data-bind="foreach: {data: HD_ListPage, as :'item'}, visible: HD_ListPage().length > 1">
+                                                <li>
+                                                    <a href="javascript: void(0)"
+                                                       data-bind="text: item, click: function(){$root.GotoPage(1, item)}, css:{'click': item === $root.HD_CurrentPage() + 1}"></a>
+                                                </li>
+                                            </ul>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.GoToNextPage(1)}, visible: HD_VisibleNext ">
+                                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.EndPage(1)}, visible: HD_VisibleNext ">
+                                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            </a>
+                                            <div class="total-recos">
+                                                <span data-bind="text: $root.HD_PageView"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HD_SumTienHang())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HD_SumGiamGia())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HD_SumPhaiThanhToan())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HD_SumDaThanhToan())">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" style="background:red" id="HDSC" data-bind="css:{'active': $root.HDSC_IsActive()}">
+                                    <!--ko foreach: NhatKyGiaoDich_HDSC-->
+                                    <div class="col-sm-12 trow">
+                                        <div class="col-sm-2" data-bind="text: MaHoaDon">
+                                        </div>
+                                        <div class="col-sm-2" data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongTienHang)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongGiamGia)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(PhaiThanhToan)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(DaThanhToan)">
+                                        </div>
+                                    </div>
+                                    <!--/ko-->
+                                    <div class="col-sm-12 tfoot" data-bind="visible: $root.VisibleHDSC">
+                                        <div class="col-sm-4 paging">
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.StartPage(25)}, visible: HDSC_VisiblePrev">
+                                                <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.BackPage(25)}, visible: HDSC_VisiblePrev ">
+                                                <i class="fa fa-caret-left" aria-hidden="true"></i>
+                                            </a>
+                                            <ul data-bind="foreach: {data: HDSC_ListPage, as :'item'}, visible: HDSC_ListPage().length > 1">
+                                                <li>
+                                                    <a href="javascript: void(0)"
+                                                       data-bind="text: item, click: function(){$root.GotoPage(1, item)}, css:{'click': item === $root.HDSC_CurrentPage() + 1}"></a>
+                                                </li>
+                                            </ul>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.GoToNextPage(25)}, visible: HDSC_VisibleNext ">
+                                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.EndPage(25)}, visible: HDSC_VisibleNext ">
+                                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            </a>
+                                            <div class="total-recos">
+                                                <span data-bind="text: $root.HDSC_PageView"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HDSC_SumTienHang())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HDSC_SumGiamGia())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HDSC_SumPhaiThanhToan())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(HDSC_SumDaThanhToan())">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" style="background:green" id="GoiDV" data-bind="css:{'active': $root.GDV_IsActive()}">
+                                    <!--ko foreach: NhatKyGiaoDich_GoiDichVu-->
+                                    <div class="col-sm-12 trow">
+                                        <div class="col-sm-2" data-bind="text: MaHoaDon">
+                                        </div>
+                                        <div class="col-sm-2" data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongTienHang)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongGiamGia)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(PhaiThanhToan)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(DaThanhToan)">
+                                        </div>
+                                    </div>
+                                    <!--/ko-->
+                                    <div class="col-sm-12 tfoot" data-bind="visible: VisibleGoiDV">
+                                        <div class="col-sm-4 paging">
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.StartPage(19)}, visible: GDV_VisiblePrev">
+                                                <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.BackPage(19)}, visible: GDV_VisiblePrev ">
+                                                <i class="fa fa-caret-left" aria-hidden="true"></i>
+                                            </a>
+                                            <ul data-bind="foreach: {data: GDV_ListPage, as :'item'}, visible: GDV_ListPage().length > 1">
+                                                <li>
+                                                    <a href="javascript: void(0)"
+                                                       data-bind="text: item, click: function(){$root.GotoPage(19, item)}, css:{'click': item === $root.GDV_CurrentPage() + 1}"></a>
+                                                </li>
+                                            </ul>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.GoToNextPage(19)}, visible: GDV_VisibleNext ">
+                                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.EndPage(19)}, visible: GDV_VisibleNext ">
+                                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            </a>
+                                            <div class="total-recos">
+                                                <span data-bind="text: $root.GDV_PageView"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(GDV_SumTienHang())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(GDV_SumGiamGia())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(GDV_SumPhaiThanhToan())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(GDV_SumDaThanhToan())">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" style="background:blue" id="TheGiaTri" data-bind="css:{'active': $root.TGT_IsActive()}">
+                                    <!--ko foreach: NhatKyGiaoDich_TheGiaTri-->
+                                    <div class="col-sm-12 trow">
+                                        <div class="col-sm-2" data-bind="text: MaHoaDon">
+                                        </div>
+                                        <div class="col-sm-2" data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongTienHang)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TongGiamGia)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(PhaiThanhToan)">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(DaThanhToan)">
+                                        </div>
+                                    </div>
+                                    <!--/ko-->
+                                    <div class="col-sm-12 tfoot" data-bind="visible: VisibleTheGiaTri">
+                                        <div class="col-sm-4 paging">
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.StartPage(22)}, visible: TGT_VisiblePrev">
+                                                <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.BackPage(22)}, visible: TGT_VisiblePrev ">
+                                                <i class="fa fa-caret-left" aria-hidden="true"></i>
+                                            </a>
+                                            <ul data-bind="foreach: {data: TGT_ListPage, as :'item'}, visible: TGT_ListPage().length > 1">
+                                                <li>
+                                                    <a href="javascript: void(0)"
+                                                       data-bind="text: item, click: function(){$root.GotoPage(22, item)}, css:{'click': item === $root.TGT_CurrentPage() + 1}"></a>
+                                                </li>
+                                            </ul>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.GoToNextPage(22)}, visible: TGT_VisibleNext ">
+                                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" data-bind="click: function(){$root.EndPage(22)}, visible: TGT_VisibleNext ">
+                                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                            </a>
+                                            <div class="total-recos">
+                                                <span data-bind="text: $root.TGT_PageView"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TGT_SumTienHang())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TGT_SumGiamGia())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TGT_SumPhaiThanhToan())">
+                                        </div>
+                                        <div class="col-sm-2 text-right" data-bind="text: formatNumber(TGT_SumDaThanhToan())">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 Report_Empty" 
+                             data-bind="visible: NhatKyGiaoDich_HoaDonBan().length == 0 
+                             && NhatKyGiaoDich_GoiDichVu().length == 0
+                             && NhatKyGiaoDich_TheGiaTri().length == 0
+                             && NhatKyGiaoDich_HDSC().length == 0">
+                            <i>
+                                Báo cáo không có dữ liệu
+                            </i>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer row container-fluid">
+                <button type="button" class="btn btn-main" data-bind="click: Export">
+                    <span class="glyphicon glyphicon-export"></span> Xuất file
+                </button>
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"> <i class="fa fa-times"></i> Đóng </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Report/_NhatKyGiaoDich.js"></script>

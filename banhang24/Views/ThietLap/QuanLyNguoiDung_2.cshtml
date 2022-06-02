@@ -1,0 +1,380 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Quản lý người dùng";
+}
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <style>
+        label {
+            margin-bottom: 0
+        }
+    </style>
+</head>
+@Html.Hidden("shopCookies", (string)ViewBag.ShopCookies, new { id = "shopCookies" })
+<body>
+    <div class="container-fluid flex" style="height:calc(100vh - 100px); padding:15px" id="IdQuanLyNguoiDung">
+        <div class="col-lg-2" style="padding:0">
+            <div style="padding:15px ; border:1px solid #ccc; height:100%">
+                <div class="op-user-title">
+                    <h4>Quản lý người dùng</h4>
+                </div>
+                <div  style="height:calc(100% - 60px); overflow:hidden">
+                    <div class="op-tab flex flex-between">
+                        <a class="active" id="toggleNguoidung" onclick="switchpanel(1)">
+                            <span>Người dùng</span>
+                        </a>
+                        <a id="toggleVaitro" onclick="switchpanel(2)">
+                            <span>Vai trò</span>
+                        </a>
+                    </div>
+                    <div style="height:calc(100% - 30px); overflow:hidden">
+                        <div class="op-panel" id="listNguoiDung">
+                            <div class="op-search">
+                                <div class="op-search-container">
+                                    <input id="textFindND" placeholder="Tìm kiếm người dùng" data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off" class="input-simple" />
+                                    <i class="fa fa-search"></i>
+                                </div>
+                                <div class="op-search-button">
+                                    <button class="btn op-btn-add " data-bind="click: showPopupAddND">
+                                        <i class="material-icons">add</i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="container-fluid ">
+                                <span class="sts-label">Trạng thái</span><span class="sts-label" id="currentstate">Tất cả</span>
+                                <div id="statelist" hidden>
+                                    <ul>
+                                        <li>
+                                            <input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="0" hidden id="all_sss" />  <label for="all_sss" id="allstate">Tất cả</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="1" hidden id="active_sss" />      <label for="active_sss" id="activestate"> Đang hoạt động</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" name="rdHoatDong" data-bind="checked: Loc_HoatDong ,checkedvalue: true" value="2" hidden id="deactive_sss" />   <label for="deactive_sss" id="deactivestate">Ngừng hoạt động</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <ul class="op-search-list" data-bind="foreach: NguoiDung"  style="height:calc(100% - 30px); overflow:auto" >
+                                <li class="flex flex-between" data-bind="click:$root.clickLoadHD, "  onclick="switchpanel(1)">
+                                    <span class="flex flex-row">
+                                        <span class="dot " data-bind="css: {active:(DangHoatDong==true)} "></span>
+                                        <span class="flex flex-column">
+                                            <span data-bind="text: TaiKhoan"></span>
+                                            @*<small data-bind="text: (DangHoatDong==true)?'(Đang hoạt động)':'(Ngừng hoạt động)'"></small>*@
+                                        </span>
+                                    </span>
+                                    <button class="btn op-btn-edit"><i class="fa fa-edit"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="op-panel" id="listVaiTro" hidden>
+                            <div class="op-search">
+                                <div class="op-search-container">
+                                    <input placeholder="listVaiTro" class="input-simple" />
+                                    <i class="fa fa-search"></i>
+                                </div>
+                                <div class="op-search-button">
+                                    <button class="btn op-btn-add " data-bind="click: showpopupvaitro">
+                                        <i class="material-icons">add</i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ul class="op-search-list"  style="height:calc(100% - 30px); overflow:auto" data-bind="foreach:NhomNguoiDungs">
+                                <li class="flex flex-between"  onclick="switchpanel(2)" data-bind=" click: $root.editVaiTro,attr:{value:ID, },
+                        style:{background: ($root.selectedChange() !== undefined && ID == $root.selectedChange())?'#ccc':'none'}">
+                                    <span data-bind="text: TenNhom"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-10">
+            <div style="padding:15px ; border:1px solid #ccc; height:100%">
+                <div class="op-panel">
+                    <div class="flex flex-column" style="align-items:center; height:100%">
+                        <img src="~/Content/images/update-img.png" />
+                        <h4>Welcome</h4>
+                    </div>
+                </div>
+                <div class="op-panel" hidden id="panelVaitro" data-bind="visible: $root.roleUpdateUser() && ($root.currentUser() !== undefined || $root.currentVaiTro() !== undefined)">
+                    <div class="flex flex-row flex-between">
+                        <div class="flex flex-row" style="align-items:center">
+                            <div class="flex flex-row" style="align-items:center; margin-right:5px;">
+                                <label style=" line-height:24px;padding:3px 0; margin-right:15px">Vai trò</label>
+                                <div data-bind="with : newVaiTro">
+                                    <input type="text" class="form-control" data-bind="value: TenNhom" />
+                                </div>
+                            </div>
+                            <div class="flex flex-row">
+                                <button class="btn btn-delete" data-bind="click: xoaNhomND" style="margin-right:5px">
+                                    <i class="fa fa-trash"></i><b>Xóa</b>
+                                </button>
+                                <button class="btn btn-cancel" style="margin-right:5px">
+                                    <i class="fa fa-times"></i><b>Đóng</b>
+                                </button>
+                                <button class="btn btn-save" data-bind="click: SuaVaiTro" style="margin-right:5px">
+                                    <i class="fa fa-save"></i><b>Lưu</b>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-row">
+                            <button class="btn btn-link">
+                                <i></i><b>Thu gọn</b>
+                            </button>
+                            <button class="btn btn-link" hidden>
+                                <i></i><b>Mở rộng</b>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="" style="height:calc(100% - 60px); overflow:auto">
+                        <ul data-bind="foreach : $root.QuyenEdit">
+                            <li class="col-md-4 op-role-main">
+                                <div class="flex flex-between">
+                                    <label class="">
+                                        <input type="checkbox" class="maincheck" value="checked" onclick=" ChecktheMainRole(this)" />
+                                        <span data-bind="text: TenQuyen"></span>
+                                    </label>
+                                    <button class="btn op-btn op-btn-toggle" onclick="togglePanel(this)"><i class="fa fa-angle-down"></i></button>
+                                </div>
+                                <ul style="padding-left:15px;" data-bind="foreach: Childs">
+                                    <li class="op-role-sub">
+                                        <div class="flex flex-between">
+                                            <label>
+                                                <input type="checkbox" class="subcheck" value="checked" data-bind="checked: DuocSuDung == true, checkedValue: true,attr:{id:'editcheck' + MaQuyen}" onclick="ChecktheSubRole(this), chkmaininput(this)" />
+                                                <span data-bind="text: TenQuyen"></span>
+                                            </label>
+                                            <button data-bind="visible: Child2s.length > 0" class="btn op-btn op-btn-toggle" onclick="togglePanel(this)"><i class="fa fa-angle-down"></i></button>
+                                        </div>
+                                        <ul style="padding-left:15px;" data-bind="foreach: Child2s">
+                                            <li class="op-role-item">
+                                                <div class="flex flex-between">
+                                                    <label>
+                                                        <input type="checkbox" value="checked" data-bind="checked: DuocSuDung == true, checkedValue: true,attr:{id: MaQuyen}" onclick="getMaQuyen(this)" />
+                                                        <span data-bind="text: TenQuyen"></span>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="op-panel " hidden id="panelNguoidung" data-bind="visible: $root.roleUpdateUser() && ($root.currentUser() !== undefined || $root.currentVaiTro() !== undefined)">
+                    <div class="flex flex-row flex-between">
+                        <div class="flex flex-row" style="align-items:center">
+                            <div  data-bind="with: $root.currentUser()">
+                                <b>   <span data-bind=" text:TaiKhoan"></span></b>
+                            </div>
+                        </div>
+                        <div class="flex flex-row">
+                            <button class="btn btn-link">
+                                <i></i><b>Thu gọn</b>
+                            </button>
+                            <button class="btn btn-link" hidden>
+                                <i></i><b>Mở rộng</b>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex" style="height:100%">
+                        <div class="col-md-3 nopadding">
+                            <div style="border:1px solid #ccc; width:100%; height:100%">
+                                <div data-bind="with: $root.currentUser()" style="padding:15px;">
+                                    <div class="form-group">
+                                        <span class="css-form-label">Tên đăng nhập:</span>
+                                        <div class="css-form-detail">
+                                            <span data-bind=" text:TaiKhoan"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <span class="css-form-label">Tên người dùng:</span>
+                                        <div class="css-form-detail">
+                                            <span data-bind="text: TenNguoiDung">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <span class="css-form-label">Số dư tài khoản:</span>
+                                        <div class="css-form-detail">
+                                            <span data-bind="text: formatNumber(SoDuTaiKhoan)">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row">
+                                        <button title="sửa đổi" class="btn btn-main" style="margin-right:5px;" data-bind="click: $root.editND">
+                                            Sửa đổi
+                                        </button>
+                                        <button class=" btn btn-main clickChoHD" style="margin-right:5px;"
+                                                data-bind="click: $parent.ChoPhepHoatDong, visible: DangHoatDong ==false">
+                                            Cho phép hoạt động
+                                        </button>
+                                        <button class=" btn btn-cancel" style="margin-right:5px;"
+                                                data-bind="click: $parent.NgungHoatDong, visible: DangHoatDong ==true ">
+                                            Ngừng hoạt động
+                                        </button>
+                                        <button class=" btn btn-delete" style="margin-right:5px; display:none" data-bind="click: $parent.modalDelete">
+                                            <i class="fa fa-trash"></i> Xóa
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="op-search">
+                                        <input type="text" class="input-simple" placeholder="Tìm kiếm chi nhánh" data-bind="event:{keyup: $root.FilterChiNhanh}" />
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul data-bind="foreach: $root.ListDonVis" style="height:calc(100% - 30px); overflow:auto ">
+                                        <li style="border-bottom:1px dotted #ccc; padding:7px; margin:5px"
+                                            data-bind="attr:{id: 'checkvaitro' + ID_DonVi} , click: $root.LoadQuyenByIDChiNhanh" class="select-brand" onclick="selectedChinhanh($(this))">
+                                            <div class="flex flex-column ">
+                                                <label class="form-label control-label  permission-title-left" data-bind="text: TenDonVi, click: $root.LoadQuyenByIDChiNhanh" style="width:100%; float:left;">
+                                                </label>
+                                                <div class="flex flex-between">
+                                                    <font>
+                                                        Vai trò
+                                                    </font>
+                                                    <select id="ddlNhomHH1" name="ddlNhomHH" class="form-control" style="width:calc(100% - 75px)" data-bind="options: $root.NhomNguoiDungs ? $root.NhomNguoiDungs : [],
+                                                                                            optionsText: 'TenNhom', optionsCaption :'Tất cả vai trò',
+                                                                                            optionsValue: 'ID', optionsCaption: 'Không phân quyền',
+                                                                                            value: ID_VaiTro, event: {click: $root.arrVaiTroDonVi}"></select>
+                                                </div>
+                                            </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9 " style="padding-right:0">
+                            <div class="" style="border:1px solid #ccc; width:100%; height:100%">
+                                <label>
+                                    <input type="checkbox" value="checked" data-bind="checked: $root.XemGiaVonND, checkedValue: false, event:{change: $root.ShowPopupCapNhat}">
+                                    <span style="margin-left:5px" class="notcheck">Xem giá vốn và lợi nhuận</span>
+                                </label>
+                                <div class="" style="height:calc(100% - 60px); overflow:auto">
+                                    <ul data-bind="foreach : $root.QuyenEdit">
+                                        <li class="col-md-4 op-role-main" data-bind="visible: DuocSuDung == true">
+                                            <div class="flex flex-between">
+                                                <label class="">
+                                                    <span data-bind="text: TenQuyen">Tiêu đề</span>
+                                                </label>
+                                                <button class="btn op-btn op-btn-toggle" onclick="togglePanel(this)"><i class="fa fa-angle-down"></i></button>
+                                            </div>
+                                            <ul style="padding-left:15px;" data-bind="foreach: Childs ">
+                                                <li class="op-role-sub" data-bind="visible: DuocSuDung == true || Child2s.length > 0">
+                                                    <div class="flex flex-between">
+                                                        <label>
+                                                            <span data-bind="text: TenQuyen">Tiêu đề</span>
+                                                        </label>
+                                                        <button class="btn op-btn op-btn-toggle" onclick="togglePanel(this)"><i class="fa fa-angle-down"></i></button>
+                                                    </div>
+                                                    <ul style="padding-left:15px;" data-bind="foreach: Child2s, visible:  DuocSuDung == true">
+                                                        <li class="op-role-item">
+                                                            <div class="flex flex-between">
+                                                                <label>
+                                                                    <span data-bind="text: TenQuyen">Tiêu đề</span>
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Scripts/Components/NhanVien_KhachHang.js"></script>
+    @Html.Partial("~/Views/ThietLap/_themmoinguoidung.cshtml")
+    <div class="modal fade" id="modalpopup_deleteND">
+        <div id="modalContainer_delete" class="modal-dialog draggable modal-md">
+            <div class="modal-content ">
+                <div class="modal-body">
+                    <div class="title-delete">
+                        <span id="header-confirm-delete">Xóa người dùng</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    Bạn có chắc chắn muốn xóa người dùng này không.
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaND"><i class="fa fa-save"></i> Đồng ý</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalPopuplg_VaiTro">
+        <div class="modal-dialog draggable modal-md">
+            @Html.Action("_themmoicapnhatvaitro", new { area = "", Controller = "ThietLap" })
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModalCenterTrue" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog draggable modal-md" role="document">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle" style="    font-weight: bold;">Thông báo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                </div>
+                <div class="modal-body">
+                    Bạn muốn cho người dùng xem giá vốn và lợi nhuận?
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal">Bỏ qua</button>
+                        <button type="button" class="btn btn-save btn-save" data-bind="click: $root.CapNhatQuyenXemGiaVon">Đồng ý</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .op-btn-toggle:focus {
+            outline: none;
+        }
+        .op-btn-toggle > i {
+            transition: all 0.4s ease;
+            outline: none
+        }
+        .arrow-up > i {
+            transform: rotate(-180deg)
+        }
+    </style>
+    <script>
+        function togglePanel(ele) {
+            $(ele).parent().next().slideToggle();
+            $(ele).toggleClass("arrow-up");
+        }
+        function switchpanel( opt) {
+            //$(ele).addClass('active')
+            //$(ele).siblings().removeClass("active");
+            switch (opt) {
+                case 1://nguoidung
+                    $("#toggleNguoidung").addClass('active')
+                    $("#toggleNguoidung").siblings().removeClass("active");
+                    $('#panelNguoidung').show();
+                    $('#panelNguoidung').siblings().hide();
+                    $('#listNguoiDung').show();
+                    $('#listNguoiDung').siblings().hide();
+                    break;
+                case 2://vaitro
+                    $("#toggleVaitro").addClass('active')
+                    $("#toggleVaitro").siblings().removeClass("active");
+                    $('#panelVaitro').show();
+                    $('#panelVaitro').siblings().hide();
+                    $('#listVaiTro').show();
+                    $('#listVaiTro').siblings().hide();
+                    break;
+            }
+        }
+    </script>
+    <script src="~/Scripts/Thietlap/QLNguoiDung.js"></script>
+</body>

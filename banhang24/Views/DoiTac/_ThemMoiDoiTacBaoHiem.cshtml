@@ -1,0 +1,523 @@
+﻿<!-- Button trigger modal -->
+<!-- Modal -->
+<style>
+
+    #DoiTacBaoHiem label {
+        width: 120px;
+    }
+</style>
+<div class="modal fade" id="DoiTacBaoHiem" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Thêm mới đối tác bảo hiểm</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-6 col-xs-12">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Mã bảo hiểm</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="Mã tự động" autocomplete="off" title="Mã tự động" disabled v-model="objBaoHiem.MaDoiTuong" />
+                        </div>
+
+
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Tên bảo hiểm</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="" autocomplete="off" title="Nhập tên đơn vị bảo hiểm" v-model="objBaoHiem.TenDoiTuong" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Địa chỉ</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="" autocomplete="off" title="Nhập địa chỉ đơn vị bảo hiểm" v-model="objBaoHiem.DiaChi" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Tỉnh/thành</label>
+                        <div class="css-form-detail">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn tỉnh thành"
+                                             v-bind:listdata="dataTinhThanh.listSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="SelectTinhThanh"
+                                             v-bind:valueselected="objBaoHiem.ID_TinhThanh"
+                                             v-on:onsearch="SearchTinhThanh"></dropdown-search>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Quận huyện</label>
+                        <div class="css-form-detail">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn quận huyện"
+                                             v-bind:listdata="dataQuanHuyen.listSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="SelectQuanHuyen"
+                                             v-bind:valueselected="objBaoHiem.ID_QuanHuyen"
+                                             v-on:onsearch="SearchQuanHuyen"></dropdown-search>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Điện thoại</label>
+
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="" autocomplete="off" title="Nhập số điện thoại đơn vị bảo hiểm" v-model="objBaoHiem.DienThoai" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Email</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="" autocomplete="off" title="Nhập email đơn vị bảo hiểm" v-model="objBaoHiem.Email" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Mã số thuế</label>
+                        <div class="css-form-detail">
+                            <input class="form-control" placeholder="" autocomplete="off" title="Nhập mã số thuế" v-model="objBaoHiem.MaSoThue" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Ghi chú</label>
+                        <div class="css-form-detail">
+                            <textarea row="2" placeholder="" autocomplete="off" v-model="objBaoHiem.GhiChu" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-times"></i>
+                        Hủy
+                    </button>
+                    <button type="button" class="btn btn-save" v-on:click="SaveBaoHiem">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Components/dropdown-search.js"></script>
+<script>
+    var urlBaseApi = '/api/DanhMuc/BaseApi/';
+    var vThemMoiBaoHiem = new Vue({
+        el: '#DoiTacBaoHiem',
+        data:
+        {
+            urlApi: {
+                DoiTuongApi: '/api/DanhMuc/DM_DoiTuongAPI/'
+            },
+            oldInsurance: {},
+            objBaoHiem: {
+                ID: '',
+                ID_NhomDoiTuong: null,
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                DiaChi: '',
+                DienThoai: '',
+                Email: '',
+                GioiTinhNam: true,
+                MaSoThue: '',
+                GhiChu: '',
+                LaCaNhan: false,
+                ID_TinhThanh: '',
+                ID_QuanHuyen: '',
+                ID_DonVi: '',
+                NguoiTao: '',
+                ID_NhanVienPhuTrach: '',
+                NguoiSua: '',
+                LoaiDoiTuong: 3
+            },
+            dataTinhThanh: {
+                listTinhThanh: [],
+                TextSearch: '',
+                listSearch: []
+            },
+            dataQuanHuyen: {
+                listQuanHuyen: [],
+                TextSearch: '',
+                listSearch: []
+            },
+            isNew: true,
+            isSaving: false,
+            isSaveOk: false,
+            role: {},
+        },
+        methods:
+        {
+            //Begin Tỉnh thành
+            SelectTinhThanh: function (value) {
+                let self = this;
+                if (self.objBaoHiem.ID_TinhThanh !== value.id) {
+                    self.objBaoHiem.ID_TinhThanh = value.id;
+                    self.objBaoHiem.ID_QuanHuyen = '';
+                    self.LoadQuanHuyen();
+                }
+            },
+            LoadTinhThanh: function () {
+                let self = this;
+                $.getJSON(urlBaseApi + "GetAllTinhThanh").done(function (x) {
+                    self.dataTinhThanh.listTinhThanh = x.map(p => ({
+                        ID: p.Key,
+                        val2: p.Value
+                    }));
+                    self.dataTinhThanh.listSearch = self.dataTinhThanh.listTinhThanh;
+                });
+            },
+            SearchTinhThanh: function (value) {
+                let self = this;
+                if (value.searchkey === '') {
+                    self.objBaoHiem.ID_TinhThanh = '';
+                    self.objBaoHiem.ID_QuanHuyen = '';
+                    self.dataQuanHuyen.listQuanHuyen = [];
+                }
+                self.dataTinhThanh.listSearch = self.dataTinhThanh.listTinhThanh.filter(p => commonStatisJs.convertVieToEng(p.val1).match(commonStatisJs.convertVieToEng(value.searchkey))
+                    || commonStatisJs.convertVieToEng(p.val2).match(commonStatisJs.convertVieToEng(value.searchkey))
+                    || commonStatisJs.convertVieToEng(p.val3).match(commonStatisJs.convertVieToEng(value.searchkey)));
+            },
+            //End tỉnh thành
+            //Begin Quận Huyện
+            LoadQuanHuyen: async function () {
+                let self = this;
+                await $.getJSON(urlBaseApi + "GetQuanHuyen?tinhthanhID=" + self.objBaoHiem.ID_TinhThanh).done(function (x) {
+                    self.dataQuanHuyen.listQuanHuyen = x.map(p => ({
+                        ID: p.Key,
+                        val2: p.Value
+                    }));
+                    self.dataQuanHuyen.listSearch = self.dataQuanHuyen.listQuanHuyen;
+                });
+            },
+            SelectQuanHuyen: function (value) {
+                let self = this;
+                self.objBaoHiem.ID_QuanHuyen = value.id;
+            },
+            SearchQuanHuyen: function (value) {
+                let self = this;
+                if (value.searchkey === '') {
+                    self.objBaoHiem.ID_QuanHuyen = '';
+                }
+                self.dataQuanHuyen.listSearch = self.dataQuanHuyen.listQuanHuyen.filter(p => commonStatisJs.convertVieToEng(p.val1).match(commonStatisJs.convertVieToEng(value.searchkey))
+                    || commonStatisJs.convertVieToEng(p.val2).match(commonStatisJs.convertVieToEng(value.searchkey))
+                    || commonStatisJs.convertVieToEng(p.val3).match(commonStatisJs.convertVieToEng(value.searchkey)));
+            },
+            //End Quận Huyện
+            //Begin Bảo hiểm
+            SaveBaoHiem: function () {
+                let self = this;
+                self.isSaving = true;
+                self.objBaoHiem.TenDoiTuong_KhongDau = commonStatisJs.convertVieToEng(self.objBaoHiem.TenDoiTuong);
+                self.objBaoHiem.TenDoiTuong_ChuCaiDau = GetChartStart(self.objBaoHiem.TenDoiTuong);
+                let myData = {};
+                myData.IdDoiTuong = self.objBaoHiem.ID;
+                myData.TenDoiTuong = self.objBaoHiem.TenDoiTuong;
+                myData.LoaiDoiTuong = self.objBaoHiem.LoaiDoiTuong;
+                if (self.objBaoHiem.TenDoiTuong === "") {
+                    ShowMessage_Danger("Tên bảo hiểm không được để trống");
+                }
+                else {
+                    $.ajax({
+                        data: myData,
+                        url: this.urlApi.DoiTuongApi + "CheckTenDoiTuong",
+                        type: 'POST',
+                        async: true,
+                        dataType: 'json',
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (obj) {
+                            if (obj.res === true) {
+                                if (self.isNew) {
+                                    self.AddNew();
+                                }
+                                else {
+                                    self.Update();
+                                }
+                                self.isSaving = false;
+                            }
+                            else {
+                                ShowMessage_Danger(obj.mess);
+                            }
+                        }
+                    });
+                }
+            },
+            AddNew: function () {
+                let self = this;
+                $.ajax({
+                    data: this.objBaoHiem,
+                    url: this.urlApi.DoiTuongApi + "PostDM_DoiTuong",
+                    type: 'POST',
+                    async: true,
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (obj) {
+                        if (obj.res === true) {
+                            var item = obj.data;
+                            self.objBaoHiem.ID = item.ID;
+                            self.objBaoHiem.MaDoiTuong = item.MaDoiTuong;
+                            //Insert_NhatKyThaoTac(item, 1, 1);
+                            ShowMessage_Success("Thêm mới bảo hiểm thành công");
+                            self.isSaveOk = true;
+                            $("#DoiTacBaoHiem").modal("hide");
+                        }
+                        else {
+                            ShowMessage_Danger(obj.mes);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        ShowMessage_Danger('Thêm mới bảo hiểm thất bại');
+                    }
+                });
+            },
+            Update: function () {
+                let self = this;
+                var myData = {};
+                this.objBaoHiem.LoaiDoiTuong = 3;
+                myData.objDoiTuong = this.objBaoHiem;
+                $.ajax({
+                    url: this.urlApi.DoiTuongApi + "PutDM_DoiTuong",
+                    type: 'PUT',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    data: myData,
+                    success: function (obj) {
+                        if (obj.res === true) {
+                            var item = obj.data;
+                            self.objBaoHiem.MaDoiTuong = item.MaDoiTuong;
+                            //Insert_NhatKyThaoTac(item, 1, 2);
+                            ShowMessage_Success("Cập nhật bảo hiểm thành công");
+                            self.isSaveOk = true;
+                            $("#DoiTacBaoHiem").modal("hide");
+                        }
+                        else {
+                            ShowMessage_Danger(obj.mes);
+                        }
+                    }
+                });
+            },
+            Delete: function (item) {
+                let self = this;
+                self.isSaveOk = false;
+                commonStatisJs.ConfirmDialog_OKCancel('Xóa đối tượng bảo hiểm ' + item.MaDoiTuong,
+                    'Bạn có chắc chắn muốn xóa đối tượng bảo hiểm <b>'.concat(item.MaDoiTuong, ' </b> không ? '), function () {
+                        $.ajax({
+                            type: "DELETE",
+                            url: self.urlApi.DoiTuongApi + "DeleteDM_DoiTuong/" + item.ID,
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            success: function (result) {
+                                commonStatisJs.ShowMessageSuccess("Xóa đối tượng thành công");
+                                self.isSaveOk = true;
+                            },
+                            error: function (error) {
+                                console.log(error);
+                                commonStatisJs.ShowMessageDanger("Xóa đối tượng thất bại");
+                            }
+                        });
+                    });
+            },
+            ShowModalThemMoi: function () {
+                this.initObjBaoHiem();
+                $('#DoiTacBaoHiem').modal('show');
+            },
+            ShowModalUpdate: function (value) {
+                this.initObjBaoHiem(value);
+                $('#DoiTacBaoHiem').modal('show');
+            },
+            initObjBaoHiem: async function (value) {
+                let self = this;
+                self.dataTinhThanh.listSearch = self.dataTinhThanh.listTinhThanh;
+                self.isSaveOk = false;
+                if (value === undefined) {
+                    self.isNew = true;
+                    self.objBaoHiem.ID = '00000000-0000-0000-0000-000000000000';
+                    self.objBaoHiem.ID_NhomDoiTuong = null;
+                    self.objBaoHiem.MaDoiTuong = '';
+                    self.objBaoHiem.TenDoiTuong = '';
+                    self.objBaoHiem.DiaChi = '';
+                    self.objBaoHiem.DienThoai = '';
+                    self.objBaoHiem.Email = '';
+                    self.objBaoHiem.GioiTinhNam = true;
+                    self.objBaoHiem.MaSoThue = '';
+                    self.objBaoHiem.GhiChu = '';
+                    self.objBaoHiem.LaCaNhan = false;
+                    self.objBaoHiem.ID_TinhThanh = '';
+                    self.objBaoHiem.ID_QuanHuyen = '';
+                    self.objBaoHiem.ID_DonVi = $('#hd_IDdDonVi').val();
+                    self.objBaoHiem.NguoiTao = $('#txtTenTaiKhoan')[0].innerHTML;
+                    self.objBaoHiem.ID_NhanVienPhuTrach = $('.idnhanvien').text();
+                    self.objBaoHiem.NguoiSua = '';
+                    self.objBaoHiem.LoaiDoiTuong = 3;
+                }
+                else {
+                    self.isNew = false;
+                    self.objBaoHiem.ID = value.ID;
+                    self.objBaoHiem.ID_NhomDoiTuong = value.ID_NhomDoiTuong;
+                    self.objBaoHiem.MaDoiTuong = value.MaDoiTuong;
+                    self.objBaoHiem.TenDoiTuong = value.TenDoiTuong;
+                    self.objBaoHiem.DiaChi = value.DiaChi;
+                    self.objBaoHiem.DienThoai = value.DienThoai;
+                    self.objBaoHiem.Email = value.Email;
+                    self.objBaoHiem.GioiTinhNam = value.GioiTinhNam;
+                    self.objBaoHiem.MaSoThue = value.MaSoThue;
+                    self.objBaoHiem.GhiChu = value.GhiChu;
+                    self.objBaoHiem.LaCaNhan = value.LaCaNhan;
+                    self.objBaoHiem.ID_TinhThanh = value.ID_TinhThanh;
+                    if (self.objBaoHiem.ID_TinhThanh !== null) {
+                        await self.LoadQuanHuyen();
+                    }
+                    self.objBaoHiem.ID_QuanHuyen = value.ID_QuanHuyen;
+                    self.objBaoHiem.ID_DonVi = value.ID_DonVi;
+                    self.objBaoHiem.NguoiTao = value.NguoiTao;
+                    self.objBaoHiem.ID_NhanVienPhuTrach = value.ID_NhanVienPhuTrach;
+                    self.objBaoHiem.NguoiSua = $('#txtTenTaiKhoan')[0].innerHTML;
+                    self.objBaoHiem.LoaiDoiTuong = value.LoaiDoiTuong;
+                }
+            },
+            CheckRole: function (maquyen) {
+                var role = $.grep(VHeader.Quyen, function (x) {
+                    return x === maquyen;
+                })
+                return role.length > 0;
+            },
+            GetInforKhachHangFromDB_ByID: function (idBaoHiem, isShow = false) {// used to update cus at phieutiepnhan
+                let self = this;
+                let date = moment(new Date()).format('YYYY-MM-DD HH:mm');
+                if (!commonStatisJs.CheckNull(idBaoHiem)) {
+                    ajaxHelper('/api/DanhMuc/DM_DoituongAPI/' + "GetInforKhachHang_ByID?idDoiTuong=" + idBaoHiem
+                        + '&idChiNhanh=' + self.objBaoHiem.ID_DonVi
+                        + '&timeStart=' + date + '&timeEnd=' + date + '&wasChotSo=false', 'GET').done(function (data) {
+                            if (data !== null) {
+                                if (isShow) {
+                                    if (!commonStatisJs.CheckNull(data[0].ID_NhomDoiTuong) && data[0].ID_NhomDoiTuong.indexOf('00000000') > -1) {
+                                        data[0].ID_NhomDoiTuong = null;
+                                    }
+                                    data[0].ID_DonVi = $('#hd_IDdDonVi').val();
+                                    self.ShowModalUpdate(data[0]);
+                                }
+                            }
+                        });
+                }
+            },
+        },
+        created: function () {
+            let self = this;
+            self.LoadTinhThanh();
+            self.initObjBaoHiem();
+
+            self.role.ThemMoi = self.CheckRole('BaoHiem_ThemMoi');
+            self.role.CapNhat = self.CheckRole('BaoHiem_CapNhat');
+            self.role.Xoa = self.CheckRole('BaoHiem_Xoa');
+            self.role.XuatFile = self.CheckRole('BaoHiem_XuatFile');
+        },
+    });
+    var style1 = '<a style= \"cursor: pointer\" onclick = \"';
+    var style2 = "('";
+    var style3 = "')\" >";
+    var style4 = '</a>';
+    function Insert_NhatKyThaoTac(objUsing, chucNang, loaiNhatKy) {
+        // chuc nang (1.DoiTuong, 2.NhomDoiTuong, 3.PhieuThu)
+        var tenChucNang = 'Bảo hiểm';
+        var noiDung = '';
+        var noiDungChiTiet = '';
+        var txtFirst = '';
+        var funcNameKH = 'LoadKhachHang_byMaKH';
+        var funcNameSoQuy = 'LoadQuyHD_byMa';
+        switch (loaiNhatKy) {
+            case 1:
+                txtFirst = 'Thêm mới ';
+                break;
+            case 2:
+                txtFirst = 'Cập nhật ';
+                break;
+            case 3:
+                txtFirst = 'Xóa ';
+                break;
+            case 5:
+                txtFirst = 'Import ';
+                break;
+            case 6:
+                txtFirst = 'Xuất file ';
+                break;
+        }
+        switch (chucNang) {
+            case 1:
+                if (loaiNhatKy < 4) {
+                    // them, sua, xoa
+                    var maDoiTuong = objUsing.MaDoiTuong.toUpperCase();
+                    var ngaySinh = '';
+                    var tenNhom = '';
+                    var dienThoai = '';
+                    var inforOld = '';
+                    if (loaiNhatKy === 2) {
+                        inforOld = '<br /> Thông tin cũ: ';
+                        let maOld = self.DoiTuong_Old().MaDoiTuong.toUpperCase();
+                        let nameOld = self.DoiTuong_Old().TenDoiTuong;
+                        var dtOld = self.DoiTuong_Old().DienThoai;
+                        let nhomOld = self.DoiTuong_Old().ID_NhomDoiTuong;
+                        if (maDoiTuong !== maOld) {
+                            inforOld = inforOld.concat('Mã : ', maOld);
+                        }
+                        if (locdau(nameOld) !== locdau(objUsing.TenDoiTuong)) {
+                            inforOld = inforOld.concat(' Tên : ', nameOld);
+                        }
+                        if (dtOld !== objUsing.DienThoai) {
+                            inforOld = inforOld.concat(' Điện thoại : ', dtOld == '' ? null : dtOld);
+                        }
+                    }
+                    if (objUsing.NgaySinh_NgayTLap !== null && objUsing.NgaySinh_NgayTLap !== undefined) {
+                        ngaySinh = 'Ngày sinh: ' + moment(objUsing.NgaySinh_NgayTLap, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY') + ', ';
+                    }
+                    if (objUsing.TenNhomDT !== '') {
+                        tenNhom = 'Nhóm: ' + objUsing.TenNhomDT + ', ';
+                    }
+                    if (objUsing.DienThoai !== null && objUsing.DienThoai !== undefined) {
+                        dienThoai = 'Điện thoại: ' + objUsing.DienThoai + ', ';
+                    }
+                    noiDung = txtFirst.concat("bảo hiểm", maDoiTuong, ', Tên: ', objUsing.TenDoiTuong, ', ', ngaySinh, dienThoai, tenNhom);
+                    noiDungChiTiet = txtFirst.concat("bảo hiểm", style1, funcNameKH, style2, maDoiTuong, style3, maDoiTuong, style4, ', tên: ', objUsing.TenDoiTuong, ', ',
+                        ngaySinh, dienThoai, tenNhom, inforOld);
+                    noiDungChiTiet = Remove_LastComma(noiDungChiTiet);
+                    noiDungChiTiet = noiDungChiTiet.concat('<br /> Nhân viên thực hiện: ', user);
+                }
+                else {
+                    // import, export
+                    noiDung = txtFirst.concat('danh sách ', "bảo hiểm");
+                    noiDungChiTiet = noiDung.concat('<br /> Nhân viên thực hiện: ', user)
+                }
+                break;
+            case 2:
+                noiDung = txtFirst.concat('Nhóm ', "bảo hiểm", objUsing.TenNhomDoiTuong);
+                noiDungChiTiet = noiDung.concat('<br /> Nhân viên thực hiện: ', user);
+                break;
+            case 3:
+                var phaiTT = formatNumber(objUsing.TongTienThu);
+                var ngaylapHD = moment(objUsing.NgayLapHoaDon, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY HH:mm:ss');
+                var styleMaHD = ''.concat(style1, funcNameSoQuy, style2, objUsing.MaHoaDon, style3, objUsing.MaHoaDon, style4);
+                // 11.Thu, 12.Chi
+                if (objUsing.LoaiHoaDon === 11) {
+                    tenChucNang = 'Phiếu thu ';
+                }
+                else {
+                    tenChucNang = 'Phiếu chi ';
+                }
+                noiDung = txtFirst.concat(tenChucNang, objUsing.MaHoaDon, ' với giá trị: ', phaiTT, ', Phương thức thanh toán: ', objUsing.PhuongThucTT, ', Thời gian: ', ngaylapHD);
+                noiDungChiTiet = txtFirst.concat(tenChucNang, styleMaHD, '<br/ > Giá trị: ', phaiTT, '<br/ > Phương thức thanh toán: ', objUsing.PhuongThucTT, '<br/ > Thời gian: ', ngaylapHD);
+                break;
+        }
+        // insert HT_NhatKySuDung
+        var objNhatKy = {
+            ID_NhanVien: idNhanVien,
+            ID_DonVi: idDonVi,
+            ChucNang: tenChucNang,
+            LoaiNhatKy: loaiNhatKy,
+            NoiDung: noiDung,
+            NoiDungChiTiet: noiDungChiTiet,
+        };
+        Insert_NhatKyThaoTac_1Param(objNhatKy);
+    }
+</script>

@@ -1,0 +1,623 @@
+﻿<style>
+    .form-news {
+        line-height: unset !important
+    }
+
+    #ThongTinHoaDonModal {
+        overflow: auto;
+    }
+</style>
+<div class="modal fade" id="ThongTinHoaDonModal">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+                <h4 class="modal-title">{{sLoaiHoaDon}}</h4>
+            </div>
+            <div class="modal-body" style="float:unset">
+                <div class="container-fluid">
+                    <div class="col-xs-12 col-md-6 nopadding">
+
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label ">Mã hóa đơn:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>  <span class="bold">{{HoaDon.MaHoaDon}}</span></div>
+                        </div>
+                        <div class="form-group floatleft ">
+                            <label class="form-label control-label ">Thời gian:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>
+                                <span class="">{{moment(HoaDon.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</span>
+                            </div>
+
+                        </div>
+                        <div class="form-group floatleft" v-if="!$root.hideBottom">
+                            <label class="form-label control-label" v-if="!$root.isVendor">Khách hàng:</label>
+                            <label class="form-label control-label" v-else>Nhà cung cấp:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>
+                                <span>{{HoaDon.TenDoiTuong}}</span>
+                                <span class="blue" v-on:click="GotoOther(2,HoaDon.MaDoiTuong)">({{HoaDon.MaDoiTuong}})</span>
+                            </div>
+
+                        </div>
+                        <div class="form-group floatleft" v-if="HoaDon.LoaiHoaDon === 25">
+                            <label class="form-label control-label ">Bảo hiểm:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>
+                                <span>{{HoaDon.TenBaoHiem}}</span>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group floatleft ">
+                            <label class="form-label control-label ">Ghi chú:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'> <span class="">{{HoaDon.DienGiai}}</span></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 nopadding">
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label ">Trạng thái:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>
+                                <span class="">{{HoaDon.TrangThai}}</span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label "> Chi nhánh:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>
+                                <span class="">{{HoaDon.TenDonVi}}</span>
+                            </div>
+
+                        </div>
+                        <div class="form-group floatleft ">
+                            <label class="form-label control-label ">{{txtNguoiBan}}:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'>  <span class="">{{HoaDon.TenNhanVien}}</span></div>
+                        </div>
+                        <div class="form-group floatleft ">
+                            <label class="form-label control-label ">Người tạo:</label>
+                            <div class=" form-news lineHeight-24 " style='padding:3px'><span class="">{{HoaDon.NguoiTaoHD}}</span></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-md-12 nopadding">
+                        <div class="table-res table-reponsive table-frame" style="padding-top:10px">
+                            <table class='table'>
+                                <thead>
+                                    <tr>
+                                        <th>Mã hàng hóa</th>
+                                        <th>Tên hàng</th>
+                                        <th v-if="HoaDon.LoaiHoaDon === 25">Đã xuất/ SL</th>
+                                        <th v-else>Số lượng</th>
+                                        <th v-if="HoaDon.LoaiHoaDon === 8">Giá vốn</th>
+                                        <th v-if="HoaDon.LoaiHoaDon === 8">Giá trị xuất</th>
+                                        <th v-if="!$root.hideBottom">Đơn giá</th>
+                                        <th v-if="!$root.hideBottom">Chiết khấu</th>
+                                        <th v-if="!$root.hideBottom">Tiền thuế</th>
+                                        <th v-if="!$root.hideBottom">Thanh toán</th>
+                                        <th style="text-align:center"
+                                            v-if="formType!=2  && formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6]) > -1">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(ct, index) in HoaDon.BH_HoaDon_ChiTiet">
+                                        <td>
+                                            <a href="javascript:void(0)"
+                                               v-on:click="GotoOther(1,ct.MaHangHoa)">
+                                                {{ct.MaHangHoa}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span>{{ct.TenHangHoaThayThe}}</span>
+                                            <i class="fal fa-info-circle" title="Thành phần combo"
+                                               v-if="ct.LoaiHangHoa ===3 && HoaDon.LoaiHoaDon !== 25 "
+                                               v-on:click="showChiTietXuatKho(ct)"></i>
+                                            <span style="color:#ff6a00">{{ct.ThuocTinh_GiaTri}}</span>
+                                            <span style="color: #8abb0f" v-if="ct.TenDonViTinh">
+                                                (<span>{{ct.TenDonViTinh}}</span>)
+                                            </span><br />
+                                            <span v-if="ct.MaLoHang" style="color: palevioletred">(Lô: {{ct.MaLoHang}})</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span title="Đã xuất kho" class="blue"
+                                                  v-if="HoaDon.LoaiHoaDon === 25 && ct.LaHangHoa && ct.SoLuongXuat > 0">
+                                                {{formatNumber3Digit(ct.SoLuongXuat)}}/
+                                            </span>
+                                            <span> {{formatNumber3Digit(ct.SoLuong)}}</span>
+                                            <span v-on:click="showChiTietXuatKho(ct)"
+                                                  v-if="HoaDon.LoaiHoaDon === 25 && ((ct.LaHangHoa && ct.SoLuongXuat > 0) || (!ct.LaHangHoa))">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </td>
+                                        <td class="text-right" v-if="HoaDon.LoaiHoaDon === 8">{{formatNumber3Digit(ct.GiaVon)}}</td>
+                                        <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.DonGia)}}</td>
+                                        <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.GiamGia)}}</td>
+                                        <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.TienThue,2)}}</td>
+                                        <td class="text-right">{{formatNumber3Digit(ct.ThanhToan,2)}}</td>
+                                        <td v-on:click="showVmEditCKDichVu(ct)"
+                                            v-if="formType!=2 &&  formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6]) > -1">
+                                            <a href="javascript:void(0)">
+                                                <i title="Chọn nhân viên để cài đặt chiết khấu" class="fa fa-user"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                    <div class=" flex flex-end floatleft">
+                        <div class="flex flex-column  padding-10">
+                            <div class="form-group">
+                                <label>
+                                    Tổng số lượng :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+                                    <span>
+                                        {{formatNumber3Digit(HoaDon.TongSLHang)}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label v-if="HoaDon.LoaiHoaDon!=8">
+                                    Tổng tiền hàng :
+                                </label>
+                                <label v-else="HoaDon.LoaiHoaDon ==8">
+                                    Tổng xuất :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+                                    {{formatNumber3Digit(HoaDon.TongTienHang,2)}}
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="!$root.hideBottom">
+                                <label>
+                                    Tiền thuế :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+
+                                    {{formatNumber3Digit(HoaDon.TongTienThue,2)}}
+
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="!$root.hideBottom">
+                                <label>
+                                    Giảm giá hóa đơn :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+
+                                    {{formatNumber3Digit(HoaDon.TongGiamGia,2)}}
+
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="!$root.hideBottom">
+                                <label v-if="!$root.isVendor">
+                                    Khách cần trả :
+                                </label>
+                                <label v-else>
+                                    Phải thanh toán :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+                                    {{formatNumber3Digit(HoaDon.PhaiThanhToan,2)}}
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="!$root.hideBottom">
+                                <label v-if="!$root.isVendor">
+                                    Khách đã trả:
+                                </label>
+                                <label v-else>
+                                    Đã thanh toán :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+                                    {{formatNumber3Digit(Math.abs(HoaDon.KhachDaTra),2)}}
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="HoaDon.PhaiThanhToanBaoHiem > 0 && !$root.hideBottom">
+                                <label>
+                                    Bảo hiểm cần trả :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+
+                                    {{formatNumber3Digit(HoaDon.PhaiThanhToanBaoHiem,2)}}
+
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="HoaDon.PhaiThanhToanBaoHiem > 0 && !$root.hideBottom">
+                                <label>
+                                    Bảo hiểm đã trả:
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+
+                                    {{formatNumber3Digit(HoaDon.BaoHiemDaTra,2)}}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 15px !important;border-top: 1px solid #e5e5e5;">
+                <div class="container-fluid">
+                    <a href="javascript:void(0)" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-save"></i> Đóng
+                    </a>
+                    <a href="javascript:void(0)" class="btn btn-main" v-on:click="GotoDSHoaDon" v-if="formType!==0">
+                        <i class="fa fa-share"></i> Mở phiếu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Views/Gara/HoaDon/_EditHoaHongDV.cshtml")
+@Html.Partial("~/Views/Gara/HoaDon/_HDSCChiTietXuatKho.cshtml")
+
+<script>
+    var vmChiTietHoaDon = new Vue({
+        el: '#ThongTinHoaDonModal',
+        created: function () {
+            var self = this;
+            self.formType = 1;// 0.ds hoadon (hide btn MoPhieu), 1.default, 2. ds baohiem, thong tin HD at xuatkhochitiet, 3.gara
+            self.HoaDonAPI = "/api/DanhMuc/BH_HoaDonAPI/";
+            let idDonVi = $('#txtDonVi').val();
+            if (commonStatisJs.CheckNull(idDonVi)) {
+                let hhDV = $.grep(VHeader.Quyen, function (x) {
+                    return x === 'BanHang_HoaDongDichVu_CapNhat';
+                })
+                self.role.CapNhatHoaHongDichVu = hhDV.length > 0;
+                self.isGara = VHeader.IdNganhNgheKinhDoanh.toUpperCase() === 'C16EDDA0-F6D0-43E1-A469-844FAB143014';
+                console.log('vmThongTinHD ')
+            }
+            self.isKhoaSo = false;
+        },
+        computed: {
+            isVendor: function () {
+                let self = this;
+                return self.HoaDon.LoaiHoaDon === 4 || self.HoaDon.LoaiHoaDon === 7;
+            },
+            hideBottom: function () {
+                let self = this;
+                return $.inArray(self.HoaDon.LoaiHoaDon, [8, 9, 18]) > -1;// xuatkho, kiemke, dieuchinhGV
+            },
+            txtNguoiBan: function () {
+                let self = this;
+                let txt = '';
+                switch (self.HoaDon.LoaiHoaDon) {
+                    case 1:
+                    case 25:
+                    case 19:
+                        txt = 'Người bán';
+                        break;
+                    case 3:
+                    case 6:
+                    case 7:
+                        txt = 'Nhân viên lập';
+                        break;
+                    case 4:
+                        txt = 'Nhân viên nhập';
+                        break;
+                    case 8:
+                        txt = 'Nhân viên xuất';
+                        break;
+                }
+                return txt;
+            },
+            sLoaiHoaDon: function () {
+                let self = this;
+                let txt = '';
+                switch (self.HoaDon.LoaiHoaDon) {
+                    case 1:
+                        txt = 'Hóa đơn bán lẻ';
+                        break;
+                    case 3:
+                        if (commonStatisJs.CheckNull(self.HoaDon.ID_PhieuTiepNhan)) {
+                            txt = 'Đặt hàng';
+                        }
+                        else {
+                            txt = 'Báo giá sửa chữa';
+                        }
+                        break;
+                    case 4:
+                        txt = 'Phiếu nhập hàng';
+                        break;
+                    case 6:
+                        txt = 'Phiếu trả hàng';
+                        break;
+                    case 7:
+                        txt = 'Phiếu trả hàng nhập';
+                        break;
+                    case 8:
+                        txt = 'Phiếu xuất kho';
+                        break;
+                    case 19:
+                        if (commonStatisJs.CheckNull(self.HoaDon.ID_PhieuTiepNhan)) {
+                            txt = 'Gói dịch vụ';
+                        }
+                        else {
+                            txt = 'Gói bảo dưỡng';
+                        }
+                        break;
+                    case 19:
+                        txt = 'Thẻ giá trị';
+                        break;
+                    case 25:
+                        txt = 'Hóa đơn sửa chữa';
+                        break;
+                }
+                return txt;
+            }
+        },
+
+        data: {
+            isKhoaSo: false,
+            isGara: false,
+            role: { CapNhatHoaHongDichVu: false },
+            HoaDon: { LoaiHoaDon: 1 },
+            CTHD_ChangeCKNV: [],// ds dichvu bi thay doi hoahong nhanvien
+        },
+        methods: {
+            showModalChiTietHoaDon: function (id, formType = 1) {
+                var self = this;
+                self.formType = formType;
+                ajaxHelper(self.HoaDonAPI + "Get_InforHoaDon_byID?id=" + id, 'GET').done(function (res) {
+                    if (res) {
+                        self.HoaDon = res;
+                        var ct = res.BH_HoaDon_ChiTiet;
+                        self.HoaDon.TongSLHang = ct.reduce(function (_this, item) {
+                            return _this + item.SoLuong;
+                        }, 0);
+
+                        // if loaihoadon != 19: caculator PhiDichVu
+                        switch (self.HoaDon.LoaiHoaDon) {
+                            case 1:
+                            case 3:
+                            case 25:
+                                for (let i = 0; i < self.HoaDon.BH_HoaDon_ChiTiet.length; i++) {
+                                    let ct = self.HoaDon.BH_HoaDon_ChiTiet[i];
+                                    if (ct.LaPTPhiDichVu) {
+                                        self.HoaDon.BH_HoaDon_ChiTiet[i].TongPhiDichVu = Math.round(ct.PhiDichVu * ct.DonGia * ct.SoLuong / 100);
+                                    }
+                                    else {
+                                        self.HoaDon.BH_HoaDon_ChiTiet[i].TongPhiDichVu = ct.PhiDichVu * ct.SoLuong;
+                                    }
+                                }
+                                break;
+
+                        }
+
+                        if (formType !== 3) {
+                            self.isKhoaSo = VHeader.CheckKhoaSo(moment(res.NgayLapHoaDon).format('YYYY-MM-DD'), self.HoaDon.ID_DonVi);
+                        }
+                    }
+                });
+                $('#ThongTinHoaDonModal').modal('show');
+            },
+            showVmEditCKDichVu: function (item, isCombo = false) {
+                var self = this;
+
+                var cacheNVTH = localStorage.getItem('cacheNVTH');
+                if (cacheNVTH !== null) {
+                    cacheNVTH = JSON.parse(cacheNVTH);
+                }
+                else {
+                    cacheNVTH = [];
+                }
+                var lstNV = [];
+                for (let i = 0; i < cacheNVTH.length; i++) {
+                    if (cacheNVTH[i].ID === item.ID) {
+                        if (cacheNVTH[i].BH_NhanVienThucHien !== null) {
+                            lstNV = cacheNVTH[i].BH_NhanVienThucHien;
+                        }
+                        break;
+                    }
+                }
+                if (lstNV.length > 0) {
+                    vmHoaHongDV.GridNV_TVTH = lstNV;
+                    vmHoaHongDV.showModalUpdate(item, isCombo);
+                }
+                else {
+                    // get bh_nvthuchien from DB
+                    ajaxHelper(self.HoaDonAPI + "GetNVThucHienDichVu?idChiTiet=" + item.ID, 'GET').done(function (x) {
+
+                        if (x.res) {
+                            vmHoaHongDV.GridNV_TVTH = x.dataSoure;
+                        }
+                        else {
+                            vmHoaHongDV.GridNV_TVTH = [];
+                        }
+
+                        // update tacvu: 1.thuchien, 2.tuvan, 3. yeucau, 4.bangoi
+                        for (let i = 0; i < vmHoaHongDV.GridNV_TVTH.length; i++) {
+                            let itFor = vmHoaHongDV.GridNV_TVTH[i];
+                            itFor.ChietKhauMacDinh = itFor.PT_ChietKhau;
+                            if (itFor.PT_ChietKhau === 0) {
+                                itFor.ChietKhauMacDinh = itFor.TienChietKhau / itFor.HeSo / item.SoLuong;
+                            }
+                            if (itFor.TinhChietKhauTheo) {
+                                vmHoaHongDV.GridNV_TVTH[i].TacVu = 4;
+                            }
+                            else {
+                                if (itFor.TheoYeuCau) {
+                                    vmHoaHongDV.GridNV_TVTH[i].TacVu = 3;
+                                }
+                                else {
+                                    if (itFor.ThucHien_TuVan) {
+                                        vmHoaHongDV.GridNV_TVTH[i].TacVu = 1;
+                                    }
+                                    else {
+                                        vmHoaHongDV.GridNV_TVTH[i].TacVu = 2;
+                                    }
+                                }
+                            }
+                        }
+                        if (item.ChatLieu === '4') {// sudung gdv
+                            item.ThanhTien = (item.DonGia - item.GiamGia) * item.SoLuong;
+                        }
+                        // set value to ctDoing
+                        if (vmHoaHongDV.GridNV_TVTH.length > 0) {
+                            item.HoaHongTruocChietKhau = vmHoaHongDV.GridNV_TVTH[0].TinhHoaHongTruocCK;
+                        }
+
+                        //item.TongPhiDichVu = item.PhiDichVu * item.SoLuong;
+                        //if (item.LaPTPhiDichVu) {
+                        //    item.TongPhiDichVu = RoundDecimal(item.DonGia * item.SoLuong * item.PhiDichVu / 100, 1);
+                        //}
+                        vmHoaHongDV.showModalUpdate(item, isCombo);
+                    });
+                }
+
+                vmHoaHongDV.inforHoaDon.ID_DonVi = self.HoaDon.ID_DonVi;
+                vmHoaHongDV.inforHoaDon.LoaiHoaDon = self.HoaDon.LoaiHoaDon;
+                vmHoaHongDV.inforHoaDon.MaHoaDon = self.HoaDon.MaHoaDon;
+            },
+            AssignNVTHucHien_toCTHD: function () {
+                var self = this;
+                var cacheNVTH = localStorage.getItem('cacheNVTH');
+                if (cacheNVTH !== null) {
+                    cacheNVTH = JSON.parse(cacheNVTH);
+                }
+                else {
+                    cacheNVTH = [];
+                }
+                var cthdDoing = vmHoaHongDV.DichVu_isDoing;
+                for (let i = 0; i < self.HoaDon.BH_HoaDon_ChiTiet.length; i++) {
+                    let itFor = self.HoaDon.BH_HoaDon_ChiTiet[i];
+                    if (itFor.ID === cthdDoing.ID) {
+                        self.HoaDon.BH_HoaDon_ChiTiet[i].BH_NhanVienThucHien = vmHoaHongDV.GridNV_TVTH;
+                        break;
+                    }
+                }
+                cacheNVTH = self.HoaDon.BH_HoaDon_ChiTiet;
+                localStorage.setItem('cacheNVTH', JSON.stringify(self.HoaDon.BH_HoaDon_ChiTiet));
+                self.CTHD_ChangeCKNV.push({
+                    ID: cthdDoing.ID,
+                    MaHangHoa: cthdDoing.MaHangHoa,
+                    TenHangHoa: cthdDoing.TenHangHoa,
+                })
+            },
+            UpdateHoaHongDichVu_toDB: function () {
+                var self = this;
+                var lstNV = [];
+
+                for (let i = 0; i < self.HoaDon.BH_HoaDon_ChiTiet.length; i++) {
+                    let ct = self.HoaDon.BH_HoaDon_ChiTiet[i];
+                    // chỉ lấy những cthd có cập nhật lại nvth
+                    if (ct.BH_NhanVienThucHien !== null) {
+                        for (let j = 0; j < ct.BH_NhanVienThucHien.length; j++) {
+                            let nv = ct.BH_NhanVienThucHien[j];
+                            lstNV.push(nv);
+                        }
+                    }
+                }
+                var dichvus = $.unique($.map(self.CTHD_ChangeCKNV, function (x) {
+                    return x.TenHangHoa
+                })).toString();
+
+                var lstID = $.unique($.map(self.CTHD_ChangeCKNV, function (x) {
+                    return x.ID
+                }));
+
+                var myData = {
+                    NhanViens: lstNV,
+                    IDChiTiets: lstID,
+                }
+
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/UpdateCKNhanVien_DichVu', 'POST', myData).done(function (x) {
+                    if (x.res) {
+                        self.CTHD_ChangeCKNV = [];
+                        ShowMessage_Success('Cập nhật chiết khấu nhân viên thành công');
+                        var diary = {
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            LoaiNhatKy: 2,
+                            ChucNang: 'Sửa đổi hoa hồng nhân viên theo dịch vụ',
+                            NoiDung: 'Sửa đổi hoa hồng nhân viên theo dịch vụ cho hóa đơn <b>'.concat(vmHoaHongDV.inforHoaDon.MaHoaDon, ' </b>'),
+                            NoiDungChiTiet: 'Sửa đổi hoa hồng nhân viên theo dịch vụ cho hóa đơn '.concat(vmHoaHongDV.inforHoaDon.MaHoaDon,
+                                ' <br> - Dịch vụ bị thay đổi hoa hồng gồm: ', dichvus),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }
+                    else {
+                        ShowMessage_Danger(x.mes);
+                    }
+                    localStorage.removeItem('cacheNVTH');
+                    $('#ThongTinHoaDonModal').modal('hide');
+                });
+            },
+            GotoDSHoaDon: function () {
+                var self = this;
+                localStorage.setItem('FindHD', self.HoaDon.MaHoaDon);
+                var url = '';
+                switch (self.HoaDon.LoaiHoaDon) {
+                    case 1:
+                        url = '/#/Invoices';
+                        break;
+                    case 4:
+                        url = '/#/PurchaseOrder';
+                        break;
+                    case 7:
+                        url = '/#/PurchaseReturns';
+                        break;
+                    case 8:
+                        url = '/#/DamageItems';
+                        break;
+                    case 25:
+                        url = '/#/HoaDonSuaChua';
+                        break;
+                    case 3:
+                        if (commonStatisJs.CheckNull(self.HoaDon.ID_PhieuTiepNhan)) {
+                            url = '/#/Order';
+                        }
+                        else {
+                            url = '/#/Quotation';
+                        }
+                        break;
+                    case 6:
+                        url = '/#/Returns';
+                        break;
+                    case 19:
+                        url = '/#/servicepackage';
+                        break;
+                }
+                window.open(url, '_blank');
+            },
+            GotoOther: function (type = 1, text) {
+                var self = this;
+                let url = '';
+                switch (type) {
+                    case 1:
+                        url = '/#/Product';
+                        localStorage.setItem('loadMaHang', text);
+                        break;
+                    case 2:// customer
+                        url = '/#/Customers';
+                        localStorage.setItem('FindKhachHang', text);
+                        break;
+                    case 3:// insurance
+                        url = '/#/BaoHiem';
+                        localStorage.setItem('FindKhachHang', text);
+                        break;
+                }
+                window.open(url, '_blank');
+            },
+            showChiTietXuatKho: function (item) {
+                let self = this;
+                item.LoaiHoaDon = self.HoaDon.LoaiHoaDon;
+                if (item.LoaiHangHoa === 3) {
+                    vmThanhPhanCombo.showModal(item, 2, false);
+                }
+                else {
+                    vmHDSC_chitietXuat.showModal(item)
+                }
+            }
+        }
+    })
+
+    $('#vmEditHoaHongDV').on('hidden.bs.modal', function () {
+        if (!$('#vmThanhPhanDinhLuong').hasClass('in')) {
+            if (vmHoaHongDV.saveOK) {
+                if (!vmHoaHongDV.isNew) {
+                    vmChiTietHoaDon.AssignNVTHucHien_toCTHD();
+                }
+            }
+        }
+    })
+</script>

@@ -1,0 +1,415 @@
+﻿@using banhang24.Hellper
+<style>
+    .btn.btn-input-right {
+        background: none;
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        height: 30px;
+        width: 30px;
+        padding: 6px !important;
+        transition: all 0.4s ease;
+    }
+
+    .btn-input-right:hover {
+        background: #ccc;
+        border-radius: 15px;
+    }
+
+    .btn-input-right i.material-icons {
+        font-size: 18px
+    }
+
+    .add-customer .choose-person {
+        width: 100%;
+    }
+
+    .search-nguoiGT {
+        position: absolute;
+        top: 30px;
+        max-height: 300px;
+        background: white;
+        overflow: scroll;
+        border: 1px solid #ccc;
+        width: inherit;
+        z-index: 999999;
+    }
+
+    .img-item {
+        border: 1px dotted #ccc !important
+    }
+
+    #showseach_nguoiGT li span {
+        margin-left: 10px;
+        font-weight: bold;
+    }
+
+    #showseach_nguoiGT li {
+        border-bottom: 1px dotted #ccc;
+    }
+
+    .gara-bill-infor-button {
+        position: relative;
+    }
+
+    .gara-search-dropbox {
+        /*   display: none;
+        position: absolute;*/
+        background: white;
+        width: 100%;
+        z-index: 10000;
+        padding: 0;
+        border: 1px solid #ccc;
+        box-shadow: 3px 3px 6px rgba(0,0,0,0.15);
+        /*overflow: auto;*/
+    }
+
+        .gara-search-dropbox ul {
+            max-height: 400px;
+            overflow: auto;
+        }
+
+    .gara-search-HH + .gara-search-dropbox {
+        top: 30px;
+        left: 0;
+        overflow: auto;
+    }
+
+    .gara-search-dropbox li {
+        padding: 7px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .addCustomer-option-radio-box {
+        border: 1px solid rgb(204, 204, 204);
+        padding: 0px 5px;
+        margin: 5px 0px;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .flexCollumn {
+        flex-direction: column;}
+
+    .addCustomer-option-radio-box label {
+        width: 80px;
+    }
+
+    .gioitinh.addCustomer-option-radio-box label {
+        width: 55px;
+    }
+    #newCustomer_about >div
+    
+    {line-height:24px;
+     padding:3px;
+     border:1px solid #ccc;
+     border-radius:3px;
+     margin-right:5px;
+    }
+    div#newCustomer_about label {
+        white-space: nowrap;
+    }
+</style>
+<div class="modal fade in" id="ThemMoiKhachHang">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+                <h4 class="modal-title">{{isNew?'Thêm mới khách hàng':'Cập nhật khách hàng'}}</h4>
+            </div>
+            <div class="modal-body">
+
+
+                <div class="col-md-6 col-xs-12">
+
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Mã khách hàng</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" v-model="newCustomer.MaDoiTuong" autocomplete="off"
+                                   placeholder="Mã mặc định">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Tên khách hàng <span style="color:red">(*)</span></label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" autofocus="" autocomplete="off"
+                                   v-model="newCustomer.TenDoiTuong">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label   ">Ngày sinh</label>
+                        <ngaysinh :type-format="newCustomer.DinhDang_NgaySinh"
+                                  :date-chose="newCustomer.NgaySinh_NgayTLap"
+                                  v-on:on-select-item="Change_DinhDangNgaySinh">
+                        </ngaysinh>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Điện thoại</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" v-model="newCustomer.DienThoai" autocomplete="off"
+                                   onkeypress="return chekPhone(event)" maxlength="13">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label    ">Email</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" autocomplete="off"
+                                   v-model="newCustomer.Email"
+                                   v-on:blur="ValidateEmail">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label    ">Địa chỉ</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control " v-model="newCustomer.DiaChi" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label    ">Tỉnh thành</label>
+                        <div class="css-form-detail">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn tỉnh thành"
+                                             v-bind:listdata="listData.ListTinhThanhSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="ChoseTinhThanh"
+                                             v-bind:valueselected="newCustomer.ID_TinhThanh"
+                                             v-on:onsearch="SearchTinhThanh"></dropdown-search>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label    ">Quận huyện</label>
+                        <div class="css-form-detail">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn quận huyện"
+                                             v-bind:listdata="listData.ListQuanHuyenSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="ChoseQuanHuyen"
+                                             v-bind:valueselected="newCustomer.ID_QuanHuyen"
+                                             v-on:onsearch="SearchQuanHuyen"></dropdown-search>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label    ">Mã số thuế</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" v-model="newCustomer.MaSoThue" autocomplete="off"
+                                   onkeypress="return keypressNumber(event)">
+                        </div>
+                    </div> 
+                    <div class="form-group floatleft">
+                        <label class="css-form-label">Số tài khoản</label>
+                        <div class="css-form-detail">
+                            <input type="text" class="form-control" v-model="$root.newCustomer.TaiKhoanNganHang" autocomplete="off"
+                                   >
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label  ">Ghi chú</label>
+                        <div class="css-form-detail">
+                            <textarea rows="1"
+                                      v-model="newCustomer.GhiChu"
+                                      data-bind="value:GhiChu">        </textarea>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6  col-xs-12">
+                    <div class="floatleft flex">
+                        <div class=" col-lg-6 col-md-6 col-sm-12 col-xs-12 ">
+                            <div class="img-commodity" style="width:100%">
+                                <div class="img-customer border-noscroll nopadding" style="margin:0; width:100%">
+                                    
+                                        <a v-if="!HaveImage">
+                                            <img src="~/Content/images/photo.png" />
+                                        </a>
+                                        <ul v-if="HaveImage">
+                                            <li v-for="(item, index) in FileSelects" v-if="index ==0">
+                                                <div class="img-customer">
+                                                    <img v-bind:src="item.URLAnh" />
+                                                </div>
+                                                <a v-on:click="DeleteImg(item, index)">
+                                                    <i class="fa fa-close red"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    
+                                </div>
+
+                                <span class="btn btn-file form-control" style="background:var(--color-main)">
+                                    <span style="color:white">Chọn ảnh</span>
+                                    <input type="file" name="file" id="file" class="inputfile" multiple
+                                           v-on:change="fileSelect"
+                                           accept=".png,.jpg,.jpeg,.gif">
+                                </span>
+                            </div>
+                        </div>
+                        <div class=" col-lg-6 col-md-6 col-sm-12 col-xs-12 nopadding">
+                            <ul class="img-list-c list-cus" style="width:100%">
+                                <li v-for="(item, index) in FileSelects" v-if="index!==0">
+                                    <div class="img-item">
+                                        <img v-bind:src="item.URLAnh" />
+                                    </div>
+                                    <a v-on:click="DeleteImg(item, index)">
+                                        <i class="fa fa-close red"></i>
+                                    </a>
+                                </li>
+                                <li v-if="!HaveImage">
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                                <li v-if="!HaveImage">
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                                <li v-if="!HaveImage">
+                                    <div class="img-item">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    <div class="deatal-custummer floatleft">
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">Khách hàng là</label>
+                            <div class="css-form-detail " >
+                                <div class="flex flex-row" id='newCustomer_about'>
+                                    <div class="flex flex-evenly" style="width:100%">
+                                        <div class="flex">
+                                            <input type="radio" name="company" value="true" id="newCustomer_person" v-model="newCustomer.LaCaNhan" />
+                                            <label for="newCustomer_person">Cá nhân</label>
+                                        </div>
+                                        <div class="flex">
+                                            <input type="radio" name="company" value="false" id="newCustomer_company" v-model="newCustomer.LaCaNhan" />
+                                            <label for="newCustomer_company">Công ty</label>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-evenly" id="newCustomer_gender"style="width:100%">
+                                        <div class="flex">
+                                            <input type="radio" name="rdgioitinh" id="newCustomer_male" value="true" v-model="newCustomer.GioiTinhNam" />
+                                            <label for="newCustomer_male">Nam</label>
+                                        </div>
+                                        <div class="flex">
+                                            <input type="radio" name="rdgioitinh" id="newCustomer_female" value="false" v-model="newCustomer.GioiTinhNam" />
+                                            <label for="newCustomer_female"> Nữ</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Nguồn khách</label>
+                        <div class="css-form-detail">
+                            <nguonkhachs :list-all="listData.NguonKhachs"
+                                         :list-search="listData.NguonKhachs"
+                                         :text-search="newCustomer.TenNguonKhach"
+                                         :id-chosing="newCustomer.ID_NguonKhach"
+                                         :showbutton="$root.role.KhachHang.ThemMoi"
+                                         v-on:show-modal-add="showModalNguonKhach"
+                                         v-on:on-select-item="ChoseNguonKhach">
+                            </nguonkhachs>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Người giới thiệu</label>
+                        <div class="css-form-detail">
+                            <customers :text-search="newCustomer.TenNguoiGioiThieu"
+                                       :loai-doi-tuong="1"
+                                       :showbutton="false"
+                                       :id-chi-nhanh="inforLogin.ID_DonVi"
+                                       v-on:change-customer-parent="ChoseNguoiGioiThieu">
+                            </customers>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label  req ">Nhóm khách</label>
+                        <div class="css-form-detail">
+                            <nhomkhachs :list-all="listData.NhomKhachs"
+                                        :list-search="listData.NhomKhachs"
+                                        :list-chosed="NhomKhachChosed"
+                                        :showbutton="$root.role.KhachHang.ThemMoi"
+                                        v-on:on-select-item="ChoseNhomKhach"
+                                        v-on:remove-item="RemoveNhomKhach"
+                                        v-on:show-modal-add-group="ShowModalAddNhomKhach">
+                            </nhomkhachs>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">Trạng thái khách</label>
+                        <div class="css-form-detail">
+                            <trangthais :list-all="listData.TrangThaiKhachs"
+                                        :text-search="newCustomer.TenTrangThai"
+                                        :list-search="listData.TrangThaiKhachs"
+                                        :showbutton="$root.role.KhachHang.ThemMoi"
+                                        v-on:show-modal-add="showModalTrangThaiKhach"
+                                        v-on:on-select-item="ChoseTrangThai">
+                            </trangthais>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label class="css-form-label ">NV phụ trách</label>
+                        <div class="input-group css-form-detail">
+                            <nhanviens :text-search="newCustomer.TenNhanVienPhuTrach"
+                                       :staffs="listData.NhanViens"
+                                       :search-list="listData.NhanViens"
+                                       v-on:change-staff-parent="ChoseNVPhuTrach">
+                            </nhanviens>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+               
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-on:click="SaveCustomer"
+                            v-if="!isLoading 
+                            && ((isNew && $root.role.KhachHang.ThemMoi) 
+                            || (!isNew && $root.role.KhachHang.CapNhat))">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+               
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/dropdown-search.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/TrangThai_NguonKhach.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/KhachHang/_ThemMoiKhachHang.js")"></script>
+<script>
+    function chekPhone(e) {
+        var keyCode = window.event.keyCode || e.which;
+        var arrAscii = [32, 40, 41, 43, 45]; // space,(,),+, -,
+        if (keyCode < 48 || keyCode > 57) {
+            // 8: tab; 127: delete
+            if (keyCode == 8 || keyCode == 127 || arrAscii.indexOf(keyCode) > -1) {
+                return;
+            }
+            return false;
+        }
+    }
+    function keypressNumber(e) {
+        var keyCode = window.event.keyCode || e.which;
+        if (keyCode < 48 || keyCode > 57) {
+            // 8: tab; 127: delete
+            if (keyCode == 8 || keyCode == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+   
+</script>

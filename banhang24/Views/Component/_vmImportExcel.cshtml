@@ -1,0 +1,112 @@
+﻿<style>
+    .lstRdo li {
+        float: left;
+        width: 100%;
+    }
+
+        .lstRdo li label {
+            height: unset;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+        }
+</style>
+<div id="vmImportDinhLuong" class="modal fade">
+    <import-dinhluong :title="title"
+                      :is-chosing-file="isChosingFile"
+                      :list-chose="ListChose"
+                      :list-error="ListErr"
+                      v-on:import-file="ImportFile"
+                      v-on:download-file="DownloadFile"
+                      v-on:change-type-update="ChangeTypeUpdate">
+
+    </import-dinhluong>
+</div>
+<script src="~/Scripts/Components/importExcel.js"></script>
+<script>
+    var vmImportDinhLuong = new Vue({
+        el: "#vmImportDinhLuong",
+        components: {
+            'import-dinhluong': cpmImportExcel,
+        },
+        data: {
+            title: 'Nhập file thành phần định lượng',
+            isChosingFile: false,
+            typeUpdate: 1,
+            ListChose: [
+                { ID: 1, Text: 'Cập nhật lại thành phần định lượng', Value: true },
+                { ID: 0, Text: 'Giữ thành phần cũ, bổ sung thành phần mới', Value: false },
+            ],
+            ListErr: [],
+        },
+        created: function () {
+            let self = this;
+            self.QuanLyTheoLoHang = false;
+        },
+        methods:
+        {
+            showModal: function () {
+                let self = this;
+                self.isChosingFile = false;
+                self.ListErr = [];
+                $('#vmImportDinhLuong').modal('show');
+            },
+            DownloadFile: function (type) {
+                let self = this;
+                let url = '/api/DanhMuc/DM_HangHoaAPI/' + "Download_TeamplateImport?fileSave=";
+                if (type === 1) {
+                    if (self.QuanLyTheoLoHang) {
+                        url = url + "FileImport_ThanhPhanDinhLuongLoHang.xls";
+                    }
+                    else {
+                        url = url + "FileImport_ThanhPhanDinhLuong.xls";
+                    }
+                }
+                else {
+                    if (self.QuanLyTheoLoHang) {
+                        url = url + "FileImport_ThanhPhanDinhLuongLoHang.xlsx";
+                    }
+                    else {
+                        url = url + "FileImport_ThanhPhanDinhLuong.xlsx";
+                    }
+                }
+                window.location.href = url;
+            },
+            ChangeTypeUpdate: function (item) {
+                var self = this;
+                self.typeUpdate = item.ID;
+            },
+            ImportFile: function (fileChosed) {
+                var self = this;
+                var err = self.ListErr.map(function (x) { return x.rowError }).filter(x => x !== -1);
+                var formData = new FormData();
+                if (!commonStatisJs.CheckNull(fileChosed.file)) {
+                    formData.append("file", fileChosed.file);
+                    formData.append("ListErr", err.toString());
+                }
+                $('#vmImportDinhLuong').gridLoader();
+                $.ajax({
+                    type: "POST",
+                    url: '/api/DanhMuc/DM_HangHoaAPI/' + "ImportExcelDinhLuong?idDonVi="
+                        + VHeader.IdDonVi + "&idNhanVien=" + VHeader.IdNhanVien + "&typeUpdate=" + self.typeUpdate,
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                }).done(function (x) {
+                    if (x.res) {
+                        ShowMessage_Success("Import file thành công");
+                        self.ListErr = [];
+                        $('#vmImportDinhLuong').modal('hide');
+                    }
+                    else {
+                        ShowMessage_Danger("Import file thất bại");
+                        self.ListErr = x.data;
+                    }
+                }).always(function (x) {
+                    $('#vmImportDinhLuong').gridLoader({ show: false });
+                });
+            },
+        }
+    });
+</script>

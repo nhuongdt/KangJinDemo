@@ -1,0 +1,401 @@
+﻿<div class="modal fade" id="ThongTinThanhToanModal">
+    <div class="modal-dialog draggable modal-lgmax">
+        <div class="modal-content  ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <h5 class="modal-title"
+                    data-bind="text: HoaDons().HoanTraTamUng()> 0?'Tiền trả khách':'Thông tin thanh toán'"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+            </div>
+            <div class="modal-body" style="padding:15px;">
+                <ul class="nav nav-pills mb-3 gara-detail-tab" id="gara-detail-tab" role="tablist">
+                    <li class="nav-item active"
+                        data-bind="css:{'active': loaiDoiTuong() ===1},  click: function(){changeTab(1)}">
+                        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" 
+                           href="#KhachHang" role="tab" aria-controls="pills-profile" aria-selected="false"
+                           data-bind="text: HoaDons().HoanTraTamUng() > 0?'Thông tin':' Khách hàng'">
+                        </a>
+                    </li>
+                    <!--ko if: PhieuThuBaoHiem().CanThanhToan() > 0-->
+                    <li class="nav-item"
+                        data-bind="css:{'active': loaiDoiTuong() ===3}, click: function(){changeTab(3)}">
+                        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#BaoHiem" role="tab" aria-controls="pills-contact" aria-selected="false">
+                            Bảo hiểm
+                        </a>
+                    </li>
+                    <!--/ko-->
+                    <li class="nav-item" data-bind="css:{'active': loaiDoiTuong() ===0}, click: function(){changeTab(0)}">
+                        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#HoaHongNhanVien" role="tab" aria-controls="pills-contact" aria-selected="false">
+                            Hoa Hồng nhân viên
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content ">
+                    <div class="tab-pane active" data-bind="css:{'active': loaiDoiTuong() ===1}" id="KhachHang" role="tabpanel" aria-labelledby="pills-profile-tab">
+                        <div style=" " class="gara-tttt-thongtin">
+                            <!--ko if: HoaDons().HoanTraTamUng() <= 0-->
+                            <label style="width:200px;">Tổng tiền khách cần trả</label>
+                            <!--/ko-->
+                            <!--ko if: HoaDons().HoanTraTamUng() > 0 -->
+                            <label style="width:200px;">Tổng tiền trả khách</label>
+                            <!--/ko-->
+                            <input class="gara-tttt-tienthu" readonly data-bind="value: formatNumber3Digit((PhieuThuKhach().CanThanhToan(),2)" />
+                        </div>
+                        <div  class="gara-tttt-chuyenkhoan">
+                            <div class="col-lg-7 nopadding">
+                                <div>
+                                    <div data-bind="visible: HoaDons().HoanTraTamUng() > 0 && PhieuThuKhach().SoDuDatCoc() > 0">
+                                        <label> Trả lại tiền cọc</label>
+                                        <div style="line-height:30px">
+                                            <span>Số dư: </span>
+                                            <span data-bind="text: formatNumber3Digit((PhieuThuKhach().SoDuDatCoc(),2)"></span>
+                                        </div>
+                                    </div>
+                                    <div class="gara-detail-information  nopadding">
+                                        <label>Tiền mặt</label>
+                                    </div>
+                                    <!--ko if: HoaDons().HoanTraTamUng() <= 0-->
+                                    <div class="gara-detail-information  nopadding">
+                                        <label>Tiền quẹt thẻ POS</label>
+                                        <jqauto-account-bank params="TaiKhoanPos: true,
+                                                             textSearch: $root.PhieuThuKhach().TenTaiKhoanPos(),
+                                                         idChose: $root.PhieuThuKhach().ID_TaiKhoanPos(),
+                                                         TaiKhoanNganHang: $root.AllAccountBank(),
+                                                         callback: ChoseAccountPOS,
+                                                             resetNoChose: ResetAccountPOS
+                                                         " style="width:300px">
+                                        </jqauto-account-bank>
+                                    </div>
+                                    <!--/ko-->
+                                    <div class="gara-detail-information  nopadding">
+                                        <label>Tiền chuyển khoản</label>
+                                        <jqauto-account-bank params="TaiKhoanPos: false,
+                                                              textSearch: $root.PhieuThuKhach().TenTaiKhoanCK(),
+                                                         idChose: $root.PhieuThuKhach().ID_TaiKhoanChuyenKhoan(),
+                                                         TaiKhoanNganHang: $root.AllAccountBank(),
+                                                         callback: ChoseAccountCK,
+                                                              resetNoChose: ResetAccountCK
+                                                          " style="width:300px">
+                                        </jqauto-account-bank>
+                                    </div>
+                                    <div data-bind="visible: PhieuThuKhach().SoDuThe() > 0">
+                                        <label>Thẻ giá trị</label>
+                                        <div style="line-height:30px">
+                                            <span>Số dư hiện tại: </span>
+                                            <span data-bind="text: formatNumber3Digit((PhieuThuKhach().SoDuThe(),2)"></span>
+                                        </div>
+                                    </div>
+                                    <div data-bind="visible: PhieuThuKhach().TongTichDiem() > 0">
+                                        <label>Thanh toán bằng điểm</label>
+                                        <div style="line-height:30px">
+                                            <span>Tổng tích điểm: </span>
+                                            <span data-bind="text: formatNumber3Digit((PhieuThuKhach().TongTichDiem(),2)"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div style="margin-bottom:5px;" 
+                                     data-bind="visible: HoaDons().HoanTraTamUng() > 0 && PhieuThuKhach().SoDuDatCoc() > 0">
+                                    <input type="text" class="form-control text-right input-width250"
+                                           onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuKhach().TienDatCoc(),2),
+                                           event:{keyup: KH_EditTienDatCoc}" />
+                                </div>
+                                <div style="margin-bottom:5px">
+                                    <input type="text" class="form-control text-right input-width250"
+                                           onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuKhach().TienMat(),2),
+                                           event:{keyup: KH_EditTienMat}" />
+                                </div>
+                                <!--ko if: HoaDons().HoanTraTamUng() <= 0-->
+                                <div style="margin-bottom:5px">
+                                    <input type="text" class="form-control text-right input-width250"
+                                           onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuKhach().TienPOS()),
+                                           event:{keyup: KH_EditTienPos},
+                                           disable: PhieuThuKhach().ID_TaiKhoanPos() == null" />
+                                </div>
+                                <!--/ko-->
+                                <div style="margin-bottom:5px">
+                                    <input type="text" class="form-control text-right input-width250"
+                                           onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuKhach().TienCK()),
+                                           event:{keyup: KH_EditTienCK},
+                                           disable: PhieuThuKhach().ID_TaiKhoanChuyenKhoan() === null ||  PhieuThuKhach().ID_TaiKhoanChuyenKhoan()=== undefined" />
+                                </div>
+                                <div style="margin-bottom:5px" data-bind="visible: PhieuThuKhach().SoDuThe() > 0">
+                                    <input type="text" class="form-control text-right input-width250"
+                                           onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuKhach().TienTheGiaTri()),
+                                           event:{keyup: KH_EditTienThe},
+                                           " />
+                                </div>
+                                <div style="margin-bottom:5px" data-bind="visible: PhieuThuKhach().TongTichDiem() > 0">
+                                    <input type="text" class="form-control text-right input-width250" />
+                                </div>
+                            </div>
+                        </div>
+                        <div style=" " class="gara-tttt-thongtin">
+                            <!--ko if: HoaDons().HoanTraTamUng() <= 0-->
+                            <label>Khách đã trả</label>
+                            <!--/ko-->
+                            <!--ko if: HoaDons().HoanTraTamUng() > 0-->
+                            <label>Tổng trả khách</label>
+                            <!--/ko-->
+                            <input class="gara-tttt-tienthu" readonly
+                                   data-bind="value: formatNumber3Digit((PhieuThuKhach().DaThanhToan())" />
+                        </div>
+                        <div class="gara-tttt-thongtin">
+                            <label data-bind="text: PhieuThuKhach().TienThua() > 0?'Tiền thừa':'Tiền thiếu'"></label>
+                            <input class="gara-tttt-tienthu" readonly
+                                   data-bind="value: formatNumber3Digit((Math.abs(PhieuThuKhach().TienThua()))" />
+                        </div>
+                    </div>
+                    <!--ko if:  PhieuThuBaoHiem().CanThanhToan() > 0-->
+                    <div class="tab-pane" data-bind="css:{'active': loaiDoiTuong() ===3}" id="BaoHiem"
+                         role="tabpanel" aria-labelledby="pills-profile-tab">
+                        <div style=" " class="gara-tttt-thongtin">
+                            <label style="width:200px;">Bảo hiểm cần thanh toán</label>
+                            <input class="gara-tttt-tienthu" readonly data-bind="value: formatNumber3Digit((PhieuThuBaoHiem().CanThanhToan())" />
+                        </div>
+                        <div  class="gara-tttt-chuyenkhoan">
+                            <div class="col-lg-7 nopadding">
+                                <div>
+                                    <div class="gara-detail-information  nopadding">
+                                        <label>Tiền mặt</label>
+                                    </div>
+                                    <div class="gara-detail-information  nopadding">
+                                        <label>Tiền quẹt thẻ POS</label>
+                                        <jqauto-account-bank params="TaiKhoanPos: true,
+                                                         textSearch:  $root.PhieuThuBaoHiem().TenTaiKhoanPos(),
+                                                         idChose: $root.PhieuThuBaoHiem().ID_TaiKhoanPos(),
+                                                         TaiKhoanNganHang: $root.AllAccountBank(),
+                                                         callback: ChoseAccountPOS,
+                                                         resetNoChose: ResetAccountPOS
+                                                         "
+                                                             style="width:300px">
+                                        </jqauto-account-bank>
+                                    </div>
+                                    <div class="gara-detail-information  nopadding">
+                                        <label>Tiền chuyển khoản</label>
+                                        <jqauto-account-bank params="TaiKhoanPos: false,
+                                                         textSearch:  $root.PhieuThuBaoHiem().TenTaiKhoanCK(),
+                                                         idChose: $root.PhieuThuBaoHiem().ID_TaiKhoanChuyenKhoan(),
+                                                         TaiKhoanNganHang: $root.AllAccountBank(),
+                                                         callback: ChoseAccountCK,
+                                                         resetNoChose: ResetAccountCK
+                                                         "
+                                                             style="width:300px">
+                                        </jqauto-account-bank>
+                                    </div>
+                                    <div style="display:none">
+                                        <label>Thẻ giá trị</label>
+                                        <div>
+                                            <span>Số dư hiện tại: </span>
+                                            <span data-bind="text: formatNumber3Digit((PhieuThuBaoHiem().SoDuThe())" style="line-height:30px"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div style="margin-bottom:5px">
+                                    <input type="text" class="form-control text-right input-width250"
+                                              onkeypress="return keypressNumber(event)"
+                                           onclick="this.select()"
+                                           data-bind="value: formatNumber3Digit((PhieuThuBaoHiem().TienMat()),
+                                           event:{keyup: BH_EditTienMat}
+                                          " />
+                                </div>
+                                <div style="margin-bottom:5px">
+                                    <input type="text" class="form-control text-right input-width250"
+                                             onclick="this.select()"
+                                             onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuBaoHiem().TienPOS()),
+                                           event:{keyup: BH_EditTienPos},
+                                           disable: PhieuThuBaoHiem().ID_TaiKhoanPos() ===null " />
+                                </div>
+                                <div style="margin-bottom:5px">
+                                    <input type="text" class="form-control text-right input-width250"
+                                             onclick="this.select()"
+                                              onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuBaoHiem().TienCK()),
+                                           event:{keyup: BH_EditTienCK},
+                                           disable: PhieuThuBaoHiem().ID_TaiKhoanChuyenKhoan() ===null " />
+                                </div>
+                                <div style="margin-bottom:5px; display:none">
+                                    <input type="text" class="form-control text-right input-width250"
+                                               onkeypress="return keypressNumber(event)"
+                                           data-bind="value: formatNumber3Digit((PhieuThuBaoHiem().TienTheGiaTri()), event:{keyup: BH_EditTienThe}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div style=" " class="gara-tttt-thongtin">
+                            <label>Bảo hiểm đã trả</label>
+                            <input class="gara-tttt-tienthu" readonly
+                                   data-bind="value: formatNumber3Digit((PhieuThuBaoHiem().DaThanhToan())" />
+                        </div>
+                        <div style=" " class="gara-tttt-thongtin">
+                            <label data-bind="text: PhieuThuBaoHiem().TienThua()> 0?'Tiền thừa trả lại':'Tiền thiếu'"></label>
+                            <input class="gara-tttt-tienthu" readonly
+                                   data-bind="value: formatNumber3Digit((Math.abs(PhieuThuBaoHiem().TienThua()))" />
+                        </div>
+                    </div>
+                    <!--/ko-->
+                    <div class="tab-pane " data-bind="css:{'active': loaiDoiTuong() ===0}" id="HoaHongNhanVien" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        <div style="display:flex; justify-content:flex-start; margin:15px 0">
+                            <div style="width:250px;min-height:300px; background:white;">
+                                <div style="position:relative; margin-bottom:5px">
+                                    <i class="material-icons" style="position:absolute; top:3px; left:5px;">search</i>
+                                    <input class="form-control" placeholder="Nhập tên nhân viên" style="padding-left:30px;"
+                                           data-bind="value: textSearch, event:{keyup: searchNhanVien}, valueUpdate:'afterkeydown'" />
+                                </div>
+                                <div style="max-height:400px; overflow: overlay; margin:15px 0 0 0; padding:0 ">
+                                    <ul class="gara-tttt-listNV" data-bind="foreach: ListNVien_BanGoi">
+                                        <li data-bind="style:{background: $root.indexFocus() === $index()?'#d9d9d9':'none'},
+                                           click: $root.AddNhanVien_BanGoi">
+
+                                            <label style="display:flex; align-items:center; padding:7px" class="floatleft">
+                                                <span class="img-user">
+                                                    <img src="~/Content/images/icon/gioi-tinh-nam.png" data-bind="visible: GioiTinh" />
+                                                    <img src="~/Content/images/icon/gioi-tinh-nu.png" data-bind="visible: GioiTinh == false" />
+                                                </span>
+                                                <span class="detail-user-discount">
+                                                    <span class="floatleft" style="font-weight:normal">
+                                                        Mã NV: <span data-bind="text: MaNhanVien"></span>
+                                                    </span>
+                                                    <span class="floatleft"
+                                                          data-bind="text: TenNhanVien">
+                                                    </span>
+                                                    <span class="floatleft" style="font-weight:normal">SDT :<span data-bind="text: SoDienThoai"></span> </span>
+                                                    <span class="floatleft" style="font-weight:normal">
+                                                        Trạng thái : <span data-bind="text: StatusCV===0?'Đang rảnh':'Đang bận', style:{ color: StatusCV === 1 ? 'red':'none'}"></span>
+                                                    </span>
+                                                </span>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div style="width:calc(100% - 250px);min-height:300px; background:white;padding:0 0 0 15px;">
+                                <div style="display:flex; justify-content:space-between">
+                                    <div>
+                                        <span>Doanh thu</span>
+                                        <span data-bind="text: formatNumber3Digit((HoaDon_DoanhThu())"></span>
+                                    </div>
+                                    <div>
+                                        <span>Thực thu</span>
+                                        <span data-bind="text: formatNumber3Digit((HoaDon_ThucThu())"></span>
+                                    </div>
+                                    <div>
+                                        <span>Còn nợ</span>
+                                        <span data-bind="text: formatNumber3Digit((HoaDon_ConNo())"></span>
+                                    </div>
+                                </div>
+                                <div style="display:flex; ">
+                                    <label>Chia đều chiết khấu</label>
+                                    <div class="form-check">
+                                        <label class="form-check-label" style="width:auto; margin:0 15px">
+                                            <input type="radio" class="form-check-input" name="ckHoaDon"
+                                                   value="1"
+                                                   data-bind="checked: IsShareDiscount, event:{change: Change_IsShareDiscount}">Có
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label" style="width:auto; ">
+                                            <input type="radio" class="form-check-input" name="ckHoaDon"
+                                                   value="2"
+                                                   data-bind="checked: IsShareDiscount, event:{change: Change_IsShareDiscount}">Không
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="gara-detail-status gara-no-stt">
+                                    <div class="table-frame" style="min-height: 400px">
+                                        <table class="table-res">
+                                            <tr>
+                                                <th>Nhân viên</th>
+                                                <th>Chiết khấu</th>
+                                                <th>Hệ số</th>
+                                                <th>Tiền được nhận</th>
+                                                <th></th>
+                                            </tr>
+                                            <tbody data-bind="foreach: GridNVienBanGoi_Chosed">
+                                                <tr>
+                                                    <td><span style="display:inline-block; width:200px; text-overflow:ellipsis; overflow:hidden" data-bind="text: TenNhanVien"></span></td>
+                                                    <td>  <input class="search-line " style="width:100%; background:white"
+                                                           data-bind="click: $root.HoaHongHD_ShowDivChietKhau,
+                                                               value: TinhChietKhauTheo != 3?ChietKhauMacDinh: formatNumber3Digit(3Digit(ChietKhauMacDinh),
+                                                              attr:{id: 'gtri_'+ IDRandom}" />
+                                                    <div class="gara-popup-chietkhau" style="width:282px">
+                                                        <div style="width: 100%;display: flex;line-height: 30px;justify-content: space-between; align-content:center">
+                                                            <span style="width:100px">Chiết khấu bằng</span>
+                                                            <input class="search-line" autocomplete="off" onclick="this.select()"
+                                                                   style="width:calc(100% - 120px)"
+                                                                   onkeypress="keypressNumber_limitNumber(event,this)"
+                                                                   data-bind="event:{keyup: $root.HoaHongHD_EditChietKhau}, attr:{id: IDRandom}" />
+                                                        </div>
+                                                        <div class="options" style="width: 100%;display: flex;line-height: 30px;justify-content: space-between;">
+                                                            <label class="form-check-label">
+                                                                <input type="radio" class="form-check-input" name="rdoTypeCK" value="2"
+                                                                       data-bind="attr: {name: 'rdoTypeCK'+ IDRandom},
+                                                                           checked: $root.LoaiChietKhauHD_NV(),
+                                                                           event:{change: function(){ $root.HoaHongHD_ChangeLoaiChietKhau($data,2)}}">%DoanhThu
+                                                            </label>
+                                                            <label class="form-check-label">
+                                                                <input type="radio" class="form-check-input" name="rdoTypeCK" value="1"
+                                                                       data-bind="attr: {name: 'rdoTypeCK'+ IDRandom},
+                                                                           checked: $root.LoaiChietKhauHD_NV(),
+                                                                           event:{change: function(){ $root.HoaHongHD_ChangeLoaiChietKhau($data,1)}}">% Thực thu
+                                                            </label>
+                                                            <label class="form-check-label">
+                                                                <input type="radio" class="form-check-input" name="rdoTypeCK" value="3"
+                                                                       data-bind="attr: {name: 'rdoTypeCK'+ IDRandom},
+                                                                           checked: $root.LoaiChietKhauHD_NV(),
+                                                                           event:{change: function(){ $root.HoaHongHD_ChangeLoaiChietKhau($data,3)}}"> VNĐ
+                                                            </label>
+                                                        </div>
+                                                    </div></td>
+                                                    <td>
+                                                        <input class=" search-line" style="width:100%; background:white"
+                                                               onkeypress="keypressNumber_limitNumber(event,this)"
+                                                               data-bind="value: HeSo, attr:{id:'HeSo_'+ IDRandom},
+                                                               enable: parseInt($root.IsShareDiscount()) === 1,
+                                                           event: {keyup: $root.HoaHongHD_EditHeSo }" />
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <span  data-bind="text: formatNumber3Digit(3Digit(TienChietKhau), attr:{id: 'TienCK_'+ IDRandom}"></span>
+                                                    </td>
+                                                    <td>
+                                                        <a title="Xóa" data-bind="click: $root.HoaHongHD_RemoveNhanVien">
+                                                            <i class="material-icons" style="color:red">close</i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-save" data-bind="click: AgreeThanhToan">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script>
+            $('.infor-popup a').click(function () {
+                $(this).siblings().toggle();
+            })
+        </script>
+    </div>
+</div>

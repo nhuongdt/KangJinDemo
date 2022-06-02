@@ -1,0 +1,193 @@
+﻿@using Model;
+<div class="modal fade" id="modalNvhopdong">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Số hợp đồng(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="sohopdong" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Loại hợp đồng (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                         <select class="form-control" id="loaihopdongPSL">
+                             @foreach(var item in commonEnumHellper.ListLoaiHopDong)
+                             {
+                                 <option value="@item.Key">@item.Value</option>
+                             }
+                             </select>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày ký(<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateTNHopDong" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" v-show="Isthoihan==true">
+                        <label>Thời hạn(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57'class="dropdown input-add-select form-control" v-model="thoihan">
+                            <select class="form-control select-add-input btn-work" id="ThoiHanDonVi" style="width:85px;">
+                                @foreach (var item in commonEnumHellper.ListThoiHan)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ghi chú </label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="ghichu"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveTax">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmNvHopDong = new Vue({
+        el: '#modalNvhopdong',
+        data: {
+            nhanvienId: null,
+            ID: null,
+            sohopdong: "",
+            thoihan:0,
+            ghichu: "",
+            title: "",
+            error: '',
+            Isnew: true,
+            Isthoihan: true,
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                this.Isthoihan = true;
+                $('#modalNvhopdong').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.Isthoihan = true;
+                    this.ID = model.ID;
+                    this.Isnew = false;
+                    this.sohopdong = model.SoHopDong;
+                    this.thoihan = model.ThoiHan;
+                    this.ghichu = model.GhiChu;
+                    this.nhanvienId = model.ID_NhanVien;
+                    $('#loaihopdongPSL').val(model.LoaiHopDong);
+                    if (model.LoaiHopDong ===@((int)commonEnumHellper.TypeLoaiHopDong.khongxacdinh)){
+                        this.Isthoihan = false;
+                        this.thoihan = 0;
+                      }
+                    this.error = "";
+                    $('#ThoiHanDonVi').val(model.DonViThoiHan);
+                    $('#dateTNHopDong').val(this.convertDate(model.NgayKy));
+                    this.title = "Cập nhật hợp đồng";
+                    $('#modalNvhopdong').modal("show");
+                 }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.Isnew = true;
+                this.sohopdong = "";
+                $('#loaihopdongPSL').val(null);
+                this.ghichu = '';
+                this.error = '';
+                this.thoihan =0;
+                this.title = "Thêm mới hợp đồng";
+                $('#dateTNHopDong').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            SaveTax: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull($('#dateTNHopDong').val())) {
+                    self.messageError("Vui lòng nhập ngày ký");
+                }
+                else if (commonStatisJs.CheckNull(self.sohopdong)) {
+                    self.messageError("Vui lòng nhập số hợp đồng");
+                }
+                else if (commonStatisJs.CheckNull($('#loaihopdongPSL').val())) {
+                    self.messageError("Vui lòng nhập loại hợp đồng");
+                }
+                else if (commonStatisJs.CheckNull(self.thoihan)) {
+                    self.messageError("Vui lòng nhập thời hạn");
+                }
+                else {
+                        var model = {
+                            ID: self.ID,
+                            ID_NhanVien: self.nhanvienId,
+                            SoHopDong: self.sohopdong,
+                            LoaiHopDong: $('#loaihopdongPSL').val(),
+                            NgayKy: commonStatisJs.convertDateToServer($('#dateTNHopDong').val()),
+                            ThoiHan: self.thoihan,
+                            DonViThoiHan: $('#ThoiHanDonVi').val(),
+                            GhiChu: self.ghichu,
+                            };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveHopDong?Isnew=" + self.Isnew,
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modalNvhopdong').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvHopDongSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+             },
+        computed: {
+        }
+    })
+    $('#dateTNHopDong').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    $('#loaihopdongPSL').on("change", function () {
+        vmNvHopDong.Isthoihan = true;
+        if ($(this).val() ==='@((int)commonEnumHellper.TypeLoaiHopDong.khongxacdinh)') {
+            vmNvHopDong.Isthoihan = false;
+            vmNvHopDong.thoihan = 0;
+        }
+    });
+</script>

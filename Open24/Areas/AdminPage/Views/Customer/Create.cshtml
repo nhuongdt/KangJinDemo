@@ -1,0 +1,213 @@
+﻿@{
+    ViewBag.Title = "Câp nhật đối tác";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+<script src="~/Assets/js/Admin/Customer.Create.js"></script>
+}
+<script src="~/Content/CkEditor/ckeditor.js"></script>
+<script src="~/Content/ckfinder/ckfinder.js"></script>
+<script> 
+$(document).ready(function () {
+    window.sessionStorage.setItem("CustomerId", '@ViewBag.CustomerId');
+    });
+    function LoadUrlImages(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#blah')
+                    .attr('src', e.target.result)
+                    .width(200)
+                    .height(150);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function getBase64Image(img) {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        var dataURL = canvas.toDataURL("image/png");
+
+        return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+    }
+
+</script>
+
+<div class="right_col" role="main">
+    <div class="addnews fl">
+        <h3 data-bind="text:title"></h3>
+        <div class="content-addnews fl">
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Tên đối tác  <span class="red">(*)</span></Span></div>
+                <div class="col-md-10">
+                   <div class="row">
+                       <input type="text" class="form-control" data-bind="value: nameCustomer,event:{ change: nameCustomerChanged}" />
+                   </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Url  <span class="red">(*)</span></Span></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <input type="text" class="form-control" data-bind="value: Url,event:{ change: UrlChanged}" />
+                    </div>
+                    <div class="row">
+                <p class="seo-link">https://.../<span data-bind="text: Url"></span>...html</p>
+            </div>
+            </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><label>Ảnh tiêu đề</label></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <span class="btn  btn-file form-control">
+                            Chọn ảnh <input type='file' id="imageUploadForm" accept=".jpg,.gif,.png" name="image" onchange="LoadUrlImages(this)" />
+                        </span>
+                        <div class="fl">
+                            <img src="~/Content/images/imgdemo.png" id="blah" alt="Ảnh tải lên" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Địa chỉ</Span></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <input type="text" class="form-control" data-bind="value: Area" />
+                    </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Khu vực<span class="red">(*)</span></Span></div>
+                <div class="col-md-10">
+                  <div class="row">
+                      @*<select class="kv12 form-control" id="selectAdress" data-bind="options:ListAdress, optionsText: 'TEN', optionsValue: 'ID'"></select>*@
+                      <div class=" kv12 form-control">
+                          <span data-bind="text:koTinhThanh"></span>
+                          <span class="resdown pull-right">
+                              <i class="fa fa-caret-up" ></i>
+                              <i class="fa fa-caret-down"  ></i>
+                          </span>
+                      </div>
+                      <div class="list-kv1" >
+                          <div class="seach-nhomhang">
+                              <input type="text" class="seach-nhomhang" id="inputTinhThanh"  data-bind="value:koSearch ,event: { keyup: searchKhuVuc }">
+                              <i class="fa fa-search"></i>
+                          </div>
+                          <ul id="myListTinhThanh" data-bind="foreach: ListAdress">
+                              <li><a href="javascript: void(0)" data-bind="text:TEN,click: $parent.clickselect">Yên Bái - Nghĩa Lộ</a></li>
+                          </ul>
+                      </div>
+                  </div>
+                </div>
+            </div>
+             <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Nghành kinh doanh<span class="red">(*)</span></Span></div>
+                <div class="col-md-10">
+                   <div class="row">
+                       <select class="form-control" id="selectBusiness" data-bind="options:ListBusiness, optionsText: 'TEN', optionsValue: 'ID'"></select>
+                   </div>
+                </div>
+            </div>
+
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Số điện thoại</Span></div>
+                <div class="col-md-10">
+                   <div class="row">
+                       <input type="text" class="form-control" data-bind="value: Phone" />
+                   </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Email</Span></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <input type="text" class="form-control" data-bind="value: Email" />
+                    </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Ghi chú<span class="red">(*)</span></Span></div>
+                <div class="col-md-10">
+                   <div class="row">
+                       <textarea class="form-control" rows="2" data-bind="value: Note"></textarea>
+                   </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Mô tả chi tiết<span class="red">(*)</span></Span></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <textarea class="form-control" rows="4" id="txtDescription"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fl form-addnews"id="prioritize" hidden >
+                <div class="col-md-2 title-add"><Span>Stt ưu tiên</Span></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <input type="number" min="0" class="form-control" data-bind="value: prioritize" />
+                    </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><Span>Trạng thái</Span></div>
+                <div class="col-md-10">
+                    <div class="row">
+                        <form id='form-id'>
+                            <input id='watch-me' name='star' type='radio' data-bind="checked: koStatus, checkedValue: true" /> hiện thị
+                            <input id='see-me' name='star' type='radio' data-bind="checked: koStatus, checkedValue: false" /> Ẩn
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="fl form-addnews">
+                <div class="col-md-2 title-add"><label>&nbsp;</label></div>
+                <div class="col-md-10">
+                   <div class="row">
+                       <div class="pull-right">
+                           <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: UpdateCustomer"><i class="fa fa-floppy-o"></i> Lưu</button>
+                       </div>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    CKEDITOR.replace('txtDescription',
+        {
+            entermode: CKEDITOR.ENTER_BR,
+            toolbar: [[
+                'Bold', 'Italic', 'Underline', 'Subscript',
+                'Superscript', 'Image', 'Table', 'NumberedList',
+                'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link', 'Unlink',
+                'TextColor', 'Maximize', 'Source', 'FontSize', 'Format', 'Font'
+            ]]
+        });
+    CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+    $(document).ready(function () {
+        $(".kv12").click(function () {
+            $(".list-kv1").toggle();
+            $(".resdown i").toggle();
+            $(".list-kv1").mouseup(function () {
+                return false
+            });
+            $(".kv12").mouseup(function () {
+                return false
+            });
+            $(document).mouseup(function () {
+                $(".list-kv1").hide();
+            });
+        });
+    });
+</script>

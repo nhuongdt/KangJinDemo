@@ -1,0 +1,282 @@
+﻿@using banhang24.Hellper;
+<div class="modal fade" id="modalGiaDinh">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content " id="thongtingiadinh">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red" >{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Họ và tên(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="hoten" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày sinh</label>
+                        <div class="form-news ">
+                            <div class="choose-date-yaer">
+                                <div class="outselect add-customer ">
+                                    <input type="text" id="txtNgaySinhGD" class="form-control hasDatepicker" autocomplete="off" style="display:none">
+                                    <input type="text" id="DateGiaDinh" class="form-control">
+                                    <button class="btn btn-default op-js-themmoinhomhang" style="top: 0px;" id="SelectedTypeDate" tabindex="-1" href="javascript:void(0)" aria-expanded="true">
+                                        <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu floatleft " id="lstTypeNgaySinh" style="display:none">
+                                        @foreach (var item in commonEnum.listTypeDate)
+                                {
+                                    if (item.Key == (int)commonEnum.TypeDate.ddmmyyyy)
+                                    {
+                                        <li data-id="@item.Key">@item.Value<i class="fa fa-check check-after-li"></i></li>
+                                    }
+                                    else
+                                    {
+                                        <li data-id="@item.Key">@item.Value</li>
+                                    }
+                                }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nơi ở</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="noio" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>
+                            Quan hệ<br />
+                            <span class="span-label">(Cha, mẹ...)</span>
+                        </label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="quanhe" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Địa chỉ</label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="diachi"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveFamily">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vm = new Vue({
+        el: '#thongtingiadinh',
+        data: {
+            nhanvienId: null,
+            ID:null,
+            hoten: "",
+            noio: "",
+            quanhe: "",
+            diachi: "",
+            title: "Thêm mới thông tin gia đình",
+            error:'',
+            typedate:@((int)commonEnum.TypeDate.ddmmyyyy),
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                $('#modalGiaDinh').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.hoten = model.HoTen;
+                    this.noio = model.NoiO;
+                    this.quanhe = model.QuanHe;
+                    this.diachi = model.DiaChi;
+                    this.error ="";
+                    this.title = "Cập nhật thông tin gia đình";
+                    if (model.NgaySinh.length === 7) {
+                        ChangeTypeNgaySinh(@((int)commonEnum.TypeDate.mmyyyy), model.NgaySinh);
+                    }
+                    else if (model.NgaySinh.length === 4) {
+                        ChangeTypeNgaySinh(@((int)commonEnum.TypeDate.yyyy), model.NgaySinh);
+                    }
+                    else {
+                        ChangeTypeNgaySinh(@((int)commonEnum.TypeDate.ddmmyyyy), model.NgaySinh);
+                    }
+                    $('#modalGiaDinh').modal("show");
+                }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.hoten = "";
+                this.noio = "";
+                this.quanhe = "";
+                this.diachi = "";
+                this.error = '';
+                this.title = "Thêm mới thông tin gia đình";
+                ChangeTypeNgaySinh(@((int)commonEnum.TypeDate.ddmmyyyy));
+            },
+            getConvetDate: function () {
+                var self = this;
+                 if (self.typedate ===@((int)commonEnum.TypeDate.mmyyyy))
+                    {
+                        if (commonStatisJs.CheckNull($('#txtNgaySinhGD').val())) {
+                            self.messageError("Vui lòng nhập ngày sinh");
+                        }
+                        if ($('#txtNgaySinhGD').val().length < 7) {
+                            self.messageError("Ngày sinh không đúng định dạng");
+                        }
+                        else {
+                            var result = $('#txtNgaySinhGD').val().split('/');
+                            if (parseInt(result[1])<1000) {
+                                self.messageError("Năm sinh không đúng");
+                            }
+                            else if (parseInt(result[0]) >12){
+                                self.messageError("Tháng sinh không đúng định dạng");
+                            }
+                            else {
+                                return parseInt(result[1] + result[0]);
+                            }
+                        }
+                    }
+                    else if (self.typedate ===@((int)commonEnum.TypeDate.yyyy))
+                    {
+                         if (commonStatisJs.CheckNull($('#txtNgaySinhGD').val())) {
+                             self.messageError("Vui lòng nhập ngày sinh");
+                            }
+                         if ($('#txtNgaySinhGD').val().length < 4) {
+                             self.messageError("Ngày sinh không đúng định dạng");
+                         }
+                         else {
+                             var result = $('#txtNgaySinhGD').val().split('/');
+                             if (parseInt(result[0]) < 1000) {
+                                 self.messageError("Năm sinh không đúng định dạng");
+                             }
+                             else {
+                                 return parseInt(result[0]);
+                             }
+                         }
+                    }
+                 else
+                    {
+                         if (commonStatisJs.CheckNull($('#DateGiaDinh').val())) {
+                             self.messageError("Vui lòng nhập ngày sinh");
+                         }
+                         else {
+                             var result = $('#DateGiaDinh').val().split('/');
+                             return parseInt(result[2] + result[1] + result[0]);
+                         }
+                    }
+                 return 0;
+            },
+            convertDateToServer: function (input) {
+                if(input !== null && input !== undefined && input !== '') {
+                    var result = input.split('/');
+                    if (result.length >= 3)
+                    { return result[1] + "/" + result[0] + "/" + result[2]; }
+                }
+                     return "";
+               },
+            SaveFamily: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull(self.hoten)) {
+                    self.messageError("Vui lòng nhập họ tên");
+                } else {
+                    var ngaysinh = self.getConvetDate();
+                    if (ngaysinh != 0)
+                    {
+                        var model = {
+                            ID: self.ID,
+                            HoTen: self.hoten,
+                            NoiO: self.noio,
+                            QuanHe: self.quanhe,
+                            DiaChi: self.diachi,
+                            ID_NhanVien: self.nhanvienId,
+                            NgaySinh: ngaysinh
+                        };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveThongTinGiaDinh",
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modalGiaDinh').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvGiaDinhSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        },
+        computed: {
+        }
+    })
+    var DateNgaySinh = $("#txtNgaySinhGD").mask('99/99/9999').focus();
+    $('#lstTypeNgaySinh').on('click', 'li', function () {
+        ChangeTypeNgaySinh($(this).data('id'));
+    });
+    function ChangeTypeNgaySinh(key, value=null) {
+        vm.typedate = key;
+        $('#lstTypeNgaySinh').hide();
+        $('#lstTypeNgaySinh li').each(function (i) {
+            $(this).children('i').remove();
+            if ($(this).data('id') === key) {
+                $(this).append('<i class="fa fa-check check-after-li"></i>');
+            }
+        });
+        switch (key) {
+            case @((int)commonEnum.TypeDate.mmyyyy):
+                DateNgaySinh.val(null);
+                DateNgaySinh.mask('99/9999').focus();
+                $('#DateGiaDinh').hide();
+                $('#txtNgaySinhGD').show();
+                $('#txtNgaySinhGD').val(value);
+                break;
+            case @((int)commonEnum.TypeDate.yyyy):
+                DateNgaySinh.val(null);
+                DateNgaySinh.mask('9999').focus();
+                $('#DateGiaDinh').hide();
+                $('#txtNgaySinhGD').show();
+                $('#txtNgaySinhGD').val(value);
+                break;
+            default:
+                $('#txtNgaySinhGD').hide();
+                $('#DateGiaDinh').datetimepicker({
+                    timepicker: false,
+                    mask: true,
+                    format: 'd/m/Y'
+                }).val(value).show();
+                break;
+        }
+    }
+    $('#SelectedTypeDate').on('click', function () {
+        $(this).next('ul').toggle();
+    });
+</script>

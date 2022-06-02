@@ -1,0 +1,578 @@
+﻿@using Model
+@using banhang24.Hellper
+<style>
+    #doitac .radio-button-leff label {
+        width: 130px !important;
+    }
+        #doitac .radio-button-leff label a {
+            color: #333 !important;
+        }
+    #nhanvienphoihop .li-input-span {
+        float: left;
+    }
+    .daterangepicker.ltr {
+        z-index: 9999;
+    }
+    .btn-work-add {
+        position: absolute;
+        right: 31px;
+    }
+        .btn-work-add a {
+            border-top-right-radius: 4px !important;
+            border-bottom-right-radius: 4px !important;
+        }
+    .selec-person-150 {
+        width: 150% !important;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="~/Content/partial.css" />
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title" id="nameModelThemMoi">Thêm mới công việc</h4>
+    </div>
+    <div class="modal-body">
+        <div class="col-md-12 nopadding">
+            <div class="row">
+                <div class="col-md-12 nopadding margin-bot-15">
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="form-group floatleft">
+                            <label>Loại công việc</label>
+                            <div class="form-news ">
+                                <div class="outselect">
+                                    <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                        <div class="form-control" id="txtLoaiCongViec" style="cursor:pointer">--- Chọn loại công việc ---</div>
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft ">
+                                        <div class="seach-nhomhang">
+                                            <input type="text" class="seach-nhomhang" data-bind="value: filterLoaiCongViec, valueUpdate: 'afterkeydown'">
+                                            <i class="fa fa-search"></i>
+                                        </div>
+                                        <ul id="lstLoaiCongViec" class="group-parent">
+                                            <li data-bind="click : ChoseTypeWork" class="p-left10">
+                                                <a href="javascript:void(0)">--- Chọn loại công việc ---</a>
+                                            </li>
+                                            <li data-bind="foreach :$root.arrFilterLoaiCongViec">
+                                                <div class="group-p1" data-bind="click : $root.ChoseTypeWork">
+                                                    <a  data-bind="text: TenLoaiTuVanLichHen, attr:{id: ID}"></a>
+                                                    <span data-bind="attr:{id: 'spanCheckLoaiCongViec_'+ ID}" class="pull-right"></span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="input-group-btn btn-work-add">
+                                        
+                                        <button class="btn btn-default op-js-themmoi" data-bind="click: showModalAddLoaiCV">
+                                            <i class="fa fa-plus" aria-hidden="true" data-bind="visible: IsAddTypeWork()"></i>
+                                            <i class="fa fa-edit" aria-hidden="true" data-bind="visible: !IsAddTypeWork()"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-5 col-xs-12">
+                        <label>Mức độ ưu tiên</label>
+                        <div class="form-news">
+                            <ul class="list-radio-work" data-bind="with: newCongViec">
+                                <li class="li-ut-cao" data-id="1"><label><input type="radio" name="optradio" data-bind="checked: MucDoUuTien, checkedValue : 1">Cao</label></li>
+                                <li class="li-ut-tb" data-id="2"><label><input type="radio" name="optradio" data-bind="checked: MucDoUuTien, checkedValue : 2">Trung bình</label></li>
+                                <li class="li-ut-thap" data-id="3"><label><input type="radio" name="optradio" data-bind="checked: MucDoUuTien, checkedValue : 3">Thấp</label></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group floatleft" data-bind="with: newCongViec">
+                            <label>Tên công việc</label>
+                            <div class="form-news">
+                                <input type="text" id="txtTenCongViec" class="form-control" data-bind="value: Ma_TieuDe">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7 col-xs-12 form-work-time">
+                        <div class="form-group floatleft">
+                            <label>Thời gian</label>
+                            <div class="form-news">
+                                <div class="form-date-singer add-icon-date">
+                                    <input type="text" class="form-control newDatesingle" id="txtNgayTu">
+                                </div>
+                                <div class="form-time-singer add-icon-drop">
+                                    <input type="text" class="form-control newTimesingle" id="txtGioTu" data-bind="disable: newCongViec().CaNgay() == 1">
+                                </div>
+                                <div class="form-text-singer">
+                                    Đến
+                                </div>
+                                <div class="form-date-singer add-icon-date">
+                                    <input type="text" class="form-control newDatesingle" id="txtNgayDen">
+                                </div>
+                                <div class="form-time-singer add-icon-drop">
+                                    <input type="text" class="form-control newTimesingle" id="txtGioDen" data-bind="disable: newCongViec().CaNgay() == 1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-xs-12 form-work-time-all">
+                        <div class="form-check-left ">
+                            <input type="checkbox" value="true" style=" margin-top: 10px;"  id="checkallday" class="check-all-day" data-bind="checked: newCongViec().CaNgay()== 1">
+                            <label style="    margin-left: 20px;">Công việc cả ngày</label>
+                           </div>
+                        <div class="optional">
+                            <select id="repeatedly" class="form-control" >
+                                <option value="1">Không lặp lại</option>
+                                <option value="2">Hàng ngày</option>
+                                <option value="3">Hàng tuần</option>
+                                <option value="4">Hàng tháng</option>
+                                <option value="optional">Tùy chọn</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group floatleft" data-bind="with: newCongViec">
+                            <label>Nội dung</label>
+                            <div class="form-news">
+                                <textarea rows="5" data-bind="value: NoiDung"> </textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group floatleft">
+                            <label>&emsp;</label>
+                            <div class="form-news">
+                                <div class="floatleft work-ttt">
+                                    <div class="col-md-12 nopadding floatleft" id="workdoitac" hidden>
+                                        <div class="col-work-page2">
+                                            <div class="form-group floatleft">
+                                                <label>
+                                                    <span data-id="1" id="lblKhachHang_CV">Khách hàng</span>
+                                                    <a href="javascript:void(0)" class="work-change-kh-ncc">
+                                                        <i class="fa fa-exchange" aria-hidden="true"></i>
+                                                    </a>
+                                                </label>
+                                                <div class="form-news" id="formKhachHang">
+                                                    <div class="outselect">
+                                                        <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                                            <div class="form-control form-more-work" id="txtKhachHang" style="cursor:pointer">--- Chọn khách hàng ---</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-work-page2" id="formLienHeKhachHang">
+                                            <div class="form-group floatleft">
+                                                <label>Người liên hệ</label>
+                                                <div class="form-news">
+                                                    <div class="outselect">
+                                                        <div class="floatleft " data-toggle="dropdown" aria-expanded="false">
+                                                            <div class="form-control form-more-work" id="txtLienHe_CV" style="cursor:pointer">--- Chọn liên hệ ---</div>
+                                                        </div>
+                                                        <div class="selec-person dropdown-menu floatleft selec-person-150">
+                                                            <div class="seach-nhomhang">
+                                                                <input type="text" class="seach-nhomhang" data-bind="value: filterLienHe, valueUpdate: 'afterkeydown'">
+                                                                <i class="fa fa-search"></i>
+                                                            </div>
+                                                            <ul id="lstLienHe" class="group-parent">
+                                                                <li data-bind="click : ChoseUserContact" class="p-left10">
+                                                                    <a href="javascript:void(0)">--- Chọn liên hệ ---</a>
+                                                                </li>
+                                                                <li data-bind="foreach :$root.arrFilterLienHe">
+                                                                    <div class="group-p1" data-bind="click : $root.ChoseUserContact">
+                                                                        <a  data-bind="text: MaLienHe"></a> -
+                                                                        <a  data-bind="text: TenLienHe, attr:{id: ID}"></a>
+                                                                        <span data-bind="attr:{id: 'spanCheckLienHe_'+ ID}" class="pull-right"></span>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-work-page3" id="dlltrangthaikh">
+                                            <div class="form-group floatleft">
+                                                <label id="lblCusType">Trạng thái</label>
+                                                <div class="form-news">
+                                                    <select class="form-control form-more-work" id="ddlTrangThai">
+                                                        <option value="">-- Trạng thái khách hàng --</option>
+                                                        <!--ko foreach: arrFilterCusType -->
+                                                        <option data-bind="value:ID,text:Name"></option>
+                                                        <!--/ko-->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 nopadding floatleft " id="worknguoiphutrach" hidden>
+                                        <div class="col-work-page2">
+                                            <div class="form-group floatleft">
+                                                <label>Người phụ trách</label>
+                                                <div class="form-news">
+                                                    <div class="outselect">
+                                                        <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                                            <div class="form-control form-more-work" id="txtStaffIncharge" style="cursor:pointer;border-radius:4px;">--- Chọn nhân viên ---</div>
+                                                        </div>
+                                                        <div class="selec-person dropdown-menu floatleft selec-person-150">
+                                                            <div class="seach-nhomhang">
+                                                                <input type="text" class="seach-nhomhang" data-bind="value: filterNhanVien, valueUpdate: 'afterkeydown'">
+                                                                <i class="fa fa-search"></i>
+                                                            </div>
+                                                            <ul id="lstNhanVien" class="group-parent">
+                                                                <li data-bind="click : ChoseStaffInCharge" class="p-left10">
+                                                                    <a href="javascript:void(0)">--- Chọn nhân viên---</a>
+                                                                </li>
+                                                                <li data-bind="foreach :$root.arrFilterNhanVien">
+                                                                    <div class="group-p1" data-bind="click : $root.ChoseStaffInCharge">
+                                                                        <a  data-bind="text: MaNhanVien"></a> -
+                                                                        <a  data-bind="text: TenNhanVien, attr:{id: ID}"></a>
+                                                                        <span data-bind="attr:{id: 'spanCheckNhanVien_'+ ID}" class="pull-right"></span>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-work-page5">
+                                            <div class="form-group floatleft">
+                                                <label>Phối hợp với</label>
+                                                <div class="form-news">
+                                                    <div class="outselect">
+                                                        <div class="outselect outselectDV">
+                                                            <div class="choose-person floatleft  form-more-work" data-toggle="dropdown" id="choose_NhanVien">
+                                                                <ul data-bind="foreach: ListStaffShare">
+                                                                    <li class="li-input-span">
+                                                                        <span data-bind="text: TenNhanVien">
+                                                                        </span>
+                                                                        <span data-bind="click: $parent.CloseNV">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </span>
+                                                                    </li>
+                                                                </ul>
+                                                                <input style="background:#f0f1f1" type="text" id="dllNhanVien" readonly="readonly" class="dropdown" placeholder="Chọn nhân viên" />
+                                                            </div>
+                                                            <div class="selec-person dropdown-menu floatleft" id="selec-all-NhanVien" style="overflow:hidden">
+                                                                <ul data-bind="foreach: NhanViens">
+                                                                    <li data-bind="attr:{id: ID}, click: $parent.ChoseStaffShare">
+                                                                        <span data-bind="text: TenNhanVien"></span>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12  floatleft" id="workfile" hidden>
+                                        <div class="form-group floatleft">
+                                            <label>File</label>
+                                            <div class="form-news">
+                                                <div class="form-group floatleft">
+                                                    <span style="float:left;    color: #337ab7; text-decoration: underline;" id="txtTenFile" data-bind="text: newCongViec().FileDinhKem"></span>
+                                                    <a data-bind="click: $root.DeleteFile" id="clickXoaFile" >
+                                                        <i class="fa fa-close red"></i>
+                                                    </a>
+                                                    <p id="errorAnh" class="errorAnhHH" style="color:red"></p>
+                                                </div>
+                                                <input type='file' multiple id="fileWork" name="files[]" data-bind="event:{change: $root.ChoseFileUpload}" accept="*" style="display:none" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="floatleft work-ttt-group-btn">
+                                            <a href="javascript:void(0)" data-id="1"><i class="fa fa-users" aria-hidden="true"></i>  <span>Đối tác</span></a>
+                                            <a href="javascript:void(0)" data-id="2"><i class="fa fa-handshake-o" aria-hidden="true"></i><span> Người phối hợp</span></a>
+                                            <a href="javascript:void(0)" data-id="3"><i class="fa fa-upload" aria-hidden="true"></i><span>File đính kèm</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 nopadding">
+                        <div class="col-md-5 col-sm-6 col-xs-12 ">
+                            <div class="form-group floatleft">
+                                <label>Trạng thái</label>
+                                <div class="form-news">
+                                    <select class="form-control border-radius" id="typeTrangThaiCV" data-bind="event: {change: Change_StatusWork}">
+                                        @foreach (var item in commonEnumHellper.ListCongViec)
+                                        {
+                                            <option value="@item.Key">@item.Value</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 nopadding">
+                        <div class="col-md-10 col-xs-12">
+                            <div class="form-group floatleft" id="creatremind">
+                                <label>Nhắc nhở</label>
+                                <select class="optional no-break-line form-control col-10" id="notifyby">
+                                    <option>Thông báo</option>
+                                    <option>Email</option>
+                                    <option>Tin nhắn</option>
+                                    <option>Không nhắc nhở</option>
+                                </select>
+                                <div id="alldayoption" class="optional no-break-line col-10" style="display:none;">
+                                    <input type="number" class=" form-control  no-break-line col-2 optional " value="2" id="allday-remindtime" />
+                                    <select class="form-control no-break-line optional " id="allday-remindtime">
+                                        <option>ngày</option>
+                                        <option>tuần</option>
+                                    </select>
+                                    Trước
+                                    <input class="form-control optional no-break-line" type="time" id="allday-beforetime" name="appt"
+                                           min="09:00" max="18:00" value="09:00" required>
+                                </div>
+                                <div id="ondayoption" class="optional no-break-line  col-10">
+                                    Trước
+                                    <input type="number" class=" form-control optional no-break-line col-2 " id="remindtime" />
+                                    <select class="form-control no-break-line optional " id="notifytime">
+                                        <option>phút</option>
+                                        <option>giờ</option>
+                                        <option>ngày</option>
+                                        <option>tuần</option>
+                                        <option>tháng</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floatleft" id="ketqua" data-bind="visible: newCongViec().TrangThai() !=='1'">
+                        <div class="col-md-12 nopadding">
+                            <div class="col-md-5 col-sm-6 col-xs-12">
+                                <div class="form-group floatleft">
+                                    <label>Ngày hoàn thành</label>
+                                    <div class="form-news add-icon-date">
+                                        <input type="text" class="form-control newDateTimesingle">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group floatleft" data-bind="with: newCongViec">
+                                <label>Kết quả</label>
+                                <div class="form-news">
+                                    <textarea rows="3" data-bind="value: KetQua"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 nopadding">
+                <div class="modal-footer nopadding">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>Bỏ qua</button>
+                    <button type="button" class="btn btn-save" id="btnLuuCongViec" data-bind="click: addCongViec"> <i class="fa fa-save" aria-hidden="true"></i> Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-content nopadding myModal2" id="myModal2"  >
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+            <h4 class="modal-title" id="myModalLabel">Tùy chọn</h4>
+        </div>
+        <div class="modal-body">
+            <div class="form-group row">
+                <label for="example-number-input" class="col-2 col-form-label">Lặp lại trong </label>
+                <div class="col-10">
+                    <input class=" form-control" type="number" value="1" id="repeat-number">
+                    <select id="repeatbytime" class=" form-control">
+                        <option value="1">Ngày</option>
+                        <option value="2">Tuần</option>
+                        <option value="3">Tháng</option>
+                        <option value="4">Năm</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row" id="weeklyon">
+                <div class="col-10">
+                    <label for="example-number-input" class="col-2 col-form-label">Hàng tuần vào</label>
+                    <div class="weekDays-selector">
+                        <input type="checkbox" id="weekday-mon" class="weekday" />
+                        <label for="weekday-mon">2</label>
+                        <input type="checkbox" id="weekday-tue" class="weekday" />
+                        <label for="weekday-tue">3</label>
+                        <input type="checkbox" id="weekday-wed" class="weekday" />
+                        <label for="weekday-wed">4</label>
+                        <input type="checkbox" id="weekday-thu" class="weekday" />
+                        <label for="weekday-thu">5</label>
+                        <input type="checkbox" id="weekday-fri" class="weekday" />
+                        <label for="weekday-fri">6</label>
+                        <input type="checkbox" id="weekday-sat" class="weekday" />
+                        <label for="weekday-sat">7</label>
+                        <input type="checkbox" id="weekday-sun" class="weekday" />
+                        <label for="weekday-sun">CN</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row"  id="monthly" >
+                <div class="col-10">
+                    <label for="example-number-input" class="no-break-line col-2 col-form-label"> Hàng tháng vào </label>
+                    <div class="col-10 no-break-line">
+                        <select class="form-control" id="optionbymonth">
+                            <option value="1">Vào ngày này hàng tháng </option>
+                            <option value="2"> Vào thứ hai đầu tháng </option>
+                        </select>
+                        <span> </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="example-number-input" class="col-2 col-form-label">Kết thúc  </label>
+                <br />
+                <form id="optionform">
+                    <div class="col-10 floatleft" style="margin-left:15px;">
+                        <table class='table'>
+                            <tr>
+                                <td style="width:50px;">
+                                    <input id="end-option1" name="radio-stacked" type="radio" class="custom-control-input" value="1">
+                                    <span class="col-2 col-form-label">Không bao giờ</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:50px;">
+                                    <input id="end-option2" name="radio-stacked" type="radio" class="custom-control-input" value="2">
+                                    <span class="col-2 col-form-label"> Vào ngày </span>
+                                </td>
+                                <td>
+                                    <input class="form-control " type="date" id="repeat-after-date">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:50px;">
+                                    <input id="end-option3" name="radio-stacked" type="radio" class="custom-control-input" value="3">
+                                    <span class="col-2"> Sau khi </span>
+                                </td>
+                                <td>
+                                    <input class="form-control" type="number" value="1" id="repeat-after-time">
+                                    <span class="col-2"> lần </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-green" id="savemodaloption">                            Save</button>
+            <button type="button" class="btn btn-gray" id="closemodaloption" data-dismiss="#myModal2">  Close</button>
+            <span></span>
+        </div>
+    </div>
+</div>
+<script>
+    $('#select_nhacnho').on('change', function () {
+        if ($(this).val() === '2') {
+            $('#modalNhacNho').modal('show')
+        }
+    })
+    $('.a-upload-file').on('click', function () {
+        $('#imageUpHHForm').click();
+    });
+    $('.add-new-muc-do').on('click', 'li a', function () {
+        $('.add-new-muc-do li ').each(function () {
+            $(this).find('a').removeClass('active');
+        });
+        $(this).addClass('active')
+    });
+    $('#doitac').on('click', '.radio-button-leff p label', function () {
+        $(this).find('input').prop('checked', true);
+    });
+    $('#doitac').on('click', '.radio-button-leff p label input', function () {
+        $(this).closest('label').find('a').click();
+    });
+    var time = new Date();
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            timePicker: true,
+            startDate: moment().startOf('minutes'),
+            endDate: moment().startOf('minutes').add(24, 'hour'),
+            locale: {
+                format: 'DD/MM/YYYY HH:mm'
+            },
+            timePicker24Hour: true
+        });
+        $('.newDateTimesingle').datetimepicker({
+            timepicker: true,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y H:i',
+            value: moment(time).format('DD/MM/YYYY HH:mm')
+            //maxDate: new Date(),
+        });
+        $('.newDatesingle').datetimepicker({
+            timepicker: false,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y',
+            value: moment(time).format('DD/MM/YYYY'),
+        });
+        $('.newTimesingle').datetimepicker({
+            timepicker: true,
+            datepicker: false,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'H:i',
+            value: moment(time).format(' HH:mm'),
+        });
+    });
+    $('#repeatedly').change(function () {
+        var opval = $(this).val();
+        if (opval == "optional") {
+            $('#myModal2').modal("show");
+        };
+    });
+    $('#closemodaloption').click(function () {
+        $('#myModal2').modal("hide");;
+    })
+    $('#savemodaloption').click(function () {
+        $('#myModal2').modal("hide");;
+    });
+    $('.modal-header close').click(function () {
+        $('#myModal2').modal("hide");;
+    });
+    $('#creatremind').show();
+    $('#weeklyon').hide();
+    $('#monthly').hide();
+    $('#checkallday').click(function () {
+        $('#creatremind').find("div").toggle();
+        $('#repeatbytime').change(function () {
+            var opval = $(this).val();
+            if (opval == "2") {
+                $('#weeklyon').show("slow");
+                $('#monthly').hide("slow");
+            };
+            if (opval == "3") {
+                $('#weeklyon').hide("slow");
+                $('#monthly').show("slow");
+            };
+            if (opval == "1") {
+                $('#weeklyon').hide("slow");
+                $('#monthly').hide("slow");
+            };
+            if (opval == "4") {
+                $('#weeklyon').hide("slow");
+                $('#monthly').hide("slow");
+            };
+        });
+    });
+    $("#repeat-after-date").prop('disabled', true);
+    $("#repeat-after-time").prop('disabled', true);
+    $('#optionform input').change(function () {
+        if ($('input[name=radio-stacked]:checked', '#optionform').val() == "1") {
+            $("#repeat-after-date").prop('disabled', true);
+            $("#repeat-after-time").prop('disabled', true);
+        };
+        if ($('input[name=radio-stacked]:checked', '#optionform').val() == "2") {
+            $("#repeat-after-date").prop('disabled', false);
+            $("#repeat-after-time").prop('disabled', true);
+        };
+        if ($('input[name=radio-stacked]:checked', '#optionform').val() == "3") {
+            $("#repeat-after-date").prop('disabled', true);
+            $("#repeat-after-time").prop('disabled', false);
+        };
+    });
+    document.getElementById("remindtime").defaultValue = "15";
+</script>

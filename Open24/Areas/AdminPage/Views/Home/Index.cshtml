@@ -1,0 +1,443 @@
+﻿@using Model_banhang24vn.Common
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+    var gio = (int)Notification.Time.gio;
+    var ngay = (int)Notification.Time.ngay;
+    var thang = (int)Notification.Time.thang;
+    var quy = (int)Notification.Time.quy;
+    var nam = (int)Notification.Time.nam;
+    var tatca = (int)Notification.Time.tatca;
+    var tuychinh = (int)Notification.Time.tuychinh;
+}
+ 
+@{
+    var homnay = (int)Notification.selectTime.homnay;
+    var homqua = (int)Notification.selectTime.homqua;
+    var tuannay = (int)Notification.selectTime.tuannay;
+    var tuantruoc = (int)Notification.selectTime.tuantruoc;
+    var thangnay = (int)Notification.selectTime.thangnay;
+    var thangtruoc = (int)Notification.selectTime.thangtruoc;
+    var quynay = (int)Notification.selectTime.quynay;
+    var quytruoc = (int)Notification.selectTime.quytruoc;
+    var namnay = (int)Notification.selectTime.namnay;
+    var namtruoc = (int)Notification.selectTime.namtruoc;
+    var tuychon = (int)Notification.selectTime.tuychon;
+}
+<style type="text/css">
+    .fl {
+        margin-bottom: 1%;
+    }
+
+    .canvasjs-chart-credit {
+        display: none
+    }
+
+    #selectNam1, #selectThang1, #selectQuy1 {
+        width: 80px;
+        float: left;
+        margin-right: 5px;
+    }
+
+    .right_col #selected1 {
+        width: 135px;
+        float: left;
+        margin-right: 5px;
+    }
+
+    #datetimepicker2,#datetimepicker1 {
+        width: 180px;
+        float: left;
+        margin-right: 5px;
+    }
+
+    .panel-default > .panel-heading {
+        color: black;
+        border-color: #ddd;
+        background-color: #dcdada;
+    }
+</style>
+
+@section headscripts {
+    <script src="~/Content/canavas/jquery.canvasjs.min.js"></script>
+    <script src="~/Content/canavas/canvasjs.min.js"></script>
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Assets/js/Admin/Home.js"></script>
+    <script>
+        $(function () {
+            $('#datetimepicker6').datetimepicker({ format: 'MM/DD/YYYY' });
+            $('#datetimepicker7').datetimepicker({
+                useCurrent: false,
+                format: 'MM/DD/YYYY'
+            });
+            $("#datetimepicker6").on("dp.change", function (e) {
+                $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
+            });
+            $("#datetimepicker7").on("dp.change", function (e) {
+                $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
+            });
+            $('#datetimepicker1').datetimepicker({ format: 'MM/DD/YYYY' });
+            $('#datetimepicker2').datetimepicker({
+                useCurrent: false,
+                format: 'MM/DD/YYYY'
+            });
+            $("#datetimepicker1").on("dp.change", function (e) {
+                $('#datetimepicker2').data("DateTimePicker").minDate(e.date);
+            });
+            $("#datetimepicker2").on("dp.change", function (e) {
+                $('#datetimepicker1').data("DateTimePicker").maxDate(e.date);
+            });
+        });
+        //===============================
+        // select thông báo chung
+        //===============================
+        $('#selected').change(function () {
+            if ($('#selected').val() === '@tuychon') {
+                $('#Popuptime').show();
+            }
+            else  {
+                $('#Popuptime').hide();
+            }
+          
+        });
+        //===============================
+        // select thông báo chung
+        //===============================
+        $('#selectedFilter').change(function () {
+            if ($('#selectedFilter').val() === '@tuychon') {
+                $('#Popuptime1').show();
+            }
+            else  {
+                 $('#Popuptime1').hide();
+            }
+        });
+    </script>
+}
+<div class="right_col" role="main">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="statistics fl">
+                <div class="title-admin">
+                    <h3>Thống kê chung</h3>
+                </div>
+                <div class="title-adminright">
+                    @*<select required="required" id="selected" class="form-control">
+                        <option value="@thang">Theo tháng</option>
+                        <option value="@quy">Theo quý</option>
+                        <option value="@nam">Theo năm</option>
+                        <option value="@tatca">Tất cả</option>
+                        <option value="@tuychinh">Tùy chỉnh</option>
+                    </select>*@
+                    <select required="required" id="selected" class="form-control">
+                        <option value="@homnay">Hôm nay</option>
+                        <option value="@homqua">Hôm qua</option>
+                        <option value="@tuannay">Tuần này</option>
+                        <option value="@tuantruoc">Tuần trước</option>
+                        <option value="@thangnay">tháng này</option>
+                        <option value="@thangtruoc">Tháng trước</option>
+                        <option value="@quynay">Quý này</option>
+                        <option value="@quytruoc">Quý trước</option>
+                        <option value="@namnay">Năm nay</option>
+                        <option value="@namtruoc">Năm trước</option>
+                        <option value="@tuychon">Tùy chọn</option>
+                    </select>
+                    @*<select id="selectThang" data-bind="options:listThang, optionsText: $data, optionsValue: $data" class="form-control"></select>
+                    <select class="form-control" id="selectQuy" style="display:none" data-bind="options:listQuy, optionsText: 'Value', optionsValue: 'Key'"></select>
+                    <select class="form-control" id="selectNam" data-bind="options:listNam, optionsText: $data, optionsValue: $data"></select>*@
+                    <div id="Popuptime" style="display:none">
+                        <div class='input-group date' id='datetimepicker6'>
+                            <input type='text' class="form-control" placeholder="Từ ngày" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <div class='input-group date' id='datetimepicker7'>
+                            <input type='text' class="form-control" placeholder="Đến ngày" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" data-bind="click:capnhat" class="btnupdate btn-updata btn-green">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="statistics fl">
+                <div class="item-statistics">
+                    <div class="icon-statistics">
+                        <i class="fa fa-area-chart"></i>
+                    </div>
+                    <div class="content-statistics">
+                        <div class="number-statistics" data-bind="text:CNumberAccess">
+                        </div>
+                        <div class="name-statistics">
+                            Người truy cập
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-statistics">
+                    <div class="icon-statistics">
+                        <i class="fa fa-area-chart"></i>
+                    </div>
+                    <div class="content-statistics">
+                        <div class="number-statistics" data-bind="text:CUserOnline">
+                        </div>
+                        <div class="name-statistics">
+                            Người Online
+                        </div>
+                    </div>
+                    <div class="success-statistics">
+                    </div>
+                </div>
+                <div class="item-statistics">
+                    <div class="icon-statistics">
+                        <i class="fa fa-area-chart"></i>
+                    </div>
+                    <div class="content-statistics">
+                        <div class="number-statistics" data-bind="text:CStore">
+                            12
+                        </div>
+                        <div class="name-statistics">
+                            Cửa hàng
+                        </div>
+                    </div>
+                </div>
+                <div class="item-statistics bor">
+                    <div class="icon-statistics">
+                        <i class="fa fa-area-chart"></i>
+                    </div>
+                    <div class="content-statistics">
+                        <div class="number-statistics" data-bind="text:CNews">
+                            12
+                        </div>
+                        <div class="name-statistics">
+                            Tin tức
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="statistics fl">
+                <div class="title-admin">
+                    <h3>Biểu đồ lượng người dùng truy cập</h3>
+                </div>
+                <div class="title-adminright right-ipw">
+
+                    <select required="required" id="selectedType" class="form-control">
+                        <option value="@gio">Theo giờ</option>
+                        <option value="@ngay">Theo ngày</option>
+                        <option value="@thang">Theo tháng</option>
+                        <option value="@quy">Theo quý</option>
+                        <option value="@nam">Theo năm</option>
+                    </select>
+
+                    <select class="form-control" id="selectedCountryName" data-bind="options:ListCountry, optionsCaption: 'Tất cả', valueAllowUnset: true"></select>
+
+
+                    <select required="required" id="selectedFilter" class="form-control">
+                        <option value="@homnay">Hôm nay</option>
+                        <option value="@homqua">Hôm qua</option>
+                        <option value="@tuannay">Tuần này</option>
+                        <option value="@tuantruoc">Tuần trước</option>
+                        <option value="@thangnay">tháng này</option>
+                        <option value="@thangtruoc">Tháng trước</option>
+                        <option value="@quynay">Quý này</option>
+                        <option value="@quytruoc">Quý trước</option>
+                        <option value="@namnay">Năm nay</option>
+                        <option value="@namtruoc">Năm trước</option>
+                        <option value="@tuychon">Tùy chọn</option>
+                    </select>
+
+                    <div id="Popuptime1" style="display:none">
+                        <div class='input-group date' id='datetimepicker1'>
+                            <input type='text' class="form-control" placeholder="Từ ngày" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <div class='input-group date' id='datetimepicker2'>
+                            <input type='text' class="form-control" placeholder="Đến ngày" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <button type="button" id="buttonUser" class="btn-updata btn-green btnupdate">Cập nhật</button>
+                </div>
+            </div>
+          
+        </div>
+        <div class="panel-body">
+            <div class="statistics fl">
+                <div id="chartContainer" style="height: 300px; width: 100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="statistics fl">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Mật độ đăng ký cửa hàng tại các tỉnh thành</h3>
+            </div>
+            <div class="panel-body">
+                <div class="statistics fl">
+                    <div id="chartStoreSCity" style="height: 400px; width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*<div style="width:50%;    float: right;">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="height: 60px;">
+                        <h3>Mật độ đăng ký cửa hàng tại các tỉnh thành</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="statistics fl">
+                            <div id="chartStoreSCity" style="height: 300px; width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+    </div>
+
+    <div class="statistics fl">
+        <div class="w49l">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>Tỷ lệ các hệ điều hành truy cập</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="statistics fl">
+                        <div id="chartSystem" style="height: 300px; width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w49r">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>Tỷ lệ các thiết bị truy cập</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="statistics fl">
+                        <div id="chartDevice" style="height: 300px; width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="statistics fl">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Biểu đồ tỷ lệ truy cập tại các nước</h3>
+            </div>
+            <div class="panel-body">
+                <div class="statistics fl">
+                    <div id="chartCountry" style="height:80%; width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="statistics fl">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Biểu đồ tỷ lệ truy cập tại các tỉnh thành phố của Việt Nam</h3>
+            </div>
+            <div class="panel-body">
+                <div class="statistics fl">
+                    <div id="chartCityVn" style="height:400%; width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="statistics fl">
+        <div class="w49l">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>Số cửa hàng đăng ký 7 ngày gần đây nhất</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="statistics fl">
+                        <div id="chartStore" style="height: 400px; width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w49r">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>Số lượng truy cập các trang trên website</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered" cellspacing="0">
+
+                        <thead>
+                            <tr>
+                                <th style="width:80%">Trang</th>
+                                <th style="width:20%">Số lượt xem</th>
+                            </tr>
+                        </thead>
+
+                        <tbody data-bind="foreach: LisstPageView">
+                            <tr>
+                                <td data-bind="text: PageName"> </td>
+                                <td data-bind="text: Count"></td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                    <div style="width:100%">
+                        <ul class="pagination">
+                            <li style="float: left; padding:6px 12px;" data-bind="text: PageItem">
+                                Page 1 of 30000 (300000 items)
+
+                            </li>
+                            <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                            <li class="page-item">
+                                <div class="page-link" style="float: left;width: 50px;">
+                                    <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                                </div>
+                            </li>
+                            <li class="page-item"><span class="page-link"> /</span></li>
+                            <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                            <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                        </ul>
+                        <div class="pull-right recost">
+                            <span>Số bản ghi</span>
+                            <select required="required" class="form-control" id="SelectedLimit">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

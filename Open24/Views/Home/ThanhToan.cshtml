@@ -1,0 +1,287 @@
+﻿@using System.Web.Optimization
+@using Model_banhang24vn.Common
+@{
+    Layout = null;
+    ViewBag.Title = "banhang24vn";
+
+    var banking = (int)Notification.payment.Banking;
+    var Live = (int)Notification.payment.Live;
+    var Cod = (int)Notification.payment.Cod;
+}
+<title>Open24 - Thanh toán</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<link href="/Content/bootstrap.css" rel="stylesheet">
+<link href="/Content/font-awesome.css" rel="stylesheet">
+<link href="~/Content/css/style.css" rel="stylesheet">
+<link href="/Content/css/responsive.css" rel="stylesheet">
+<style>
+    .error-order {
+        color: #c23527;
+        line-height: 2em;
+    }
+    </style>
+<div class="container">
+    
+       <div class="header-cart fl">
+           <a href="" class="pull-left"><img src="/Content/images/logoOpen.png" alt="open24.vn"></a>
+           @*<div class="pull-right">
+               <a href="">Đăng ký /</a> 
+               <a href="">Đăng nhập</a>
+           </div>*@
+       </div>
+        <div class="infor-inputleft">
+            <p>Thông tin mua hàng</p>
+            <div class="form-group">
+                <input type="text" id="OrderName" placeholder="Họ và tên"  class="form-control"/>
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="OrderEmail" placeholder="Email" class="form-control"/>
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="OrderPhone" placeholder="Số điện thoại" class="form-control"/>
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="OrderAdress" placeholder="Địa chỉ" class="form-control"/>
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <div class=" kv12 fl form-control">
+                    <span data-bind="text:TT_OrderName">Tỉnh thành quận huyện...</span>
+                    <div class="resdown ">
+                        <i class="fa fa-arrow-up" ></i>
+                        <i class="fa fa-arrow-down" ></i>
+                    </div>
+                </div>
+                <div class="list-kv1">
+                    <div class="seach-nhomhang">
+                        <input type="text" class="seach-nhomhang" placeholder="Tìm kiếm..."onkeyup="SearchTinhThanh($(this).val(),'DSTinhThanh1')">
+                        <i class="fa fa-search"></i>
+                    </div>
+                    <ul class="myListTinhThanh" id="DSTinhThanh1">
+                        <li onclick="ResetTT1()">
+                            <a href="javascript:void(0)">--- Chọn tỉnh thành quận huyện ---</a>
+                        </li>
+                        <!--ko foreach: listTinhThanh -->
+                        <li data-bind="click:$parent.selectChangeTT">
+                            <a href="javascript:void(0)" data-bind="text:Value">Hà Nội</a>
+                        </li>
+                        <!--/ko-->
+                    </ul>
+                </div>
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <input type="checkbox"/> Giao hàng tới địa chỉ khác
+            </div>
+            <div id="Received" hidden>
+                <p>Thông tin nhận hàng</p>
+            <div class="form-group">
+                <input type="text" id="ReceivedName" placeholder="Họ và tên người nhận" class="form-control" />
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="ReceivedPhone" placeholder="Số điện thoại người nhận" class="form-control" />
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="ReceivedAdress" placeholder="Địa chỉ người nhận" class="form-control" />
+                <span class="error-order"></span>
+            </div>
+            <div class="form-group">
+                <div class=" kv12 fl form-control">
+                    <span data-bind="text:TT_ReceivedName"></span>
+                    <div class="resdown ">
+                        <i class="fa fa-arrow-up"></i>
+                        <i class="fa fa-arrow-down"></i>
+                    </div>
+                </div>
+                <div class="list-kv1">
+                    <div class="seach-nhomhang">
+                        <input type="text" class="seach-nhomhang" placeholder="Tìm kiếm..." onkeyup="SearchTinhThanh($(this).val(),'DSTinhThanh2')">
+                        <i class="fa fa-search"></i>
+                    </div>
+                    <ul class="myListTinhThanh" id="DSTinhThanh2" >
+                        <li onclick="ResetTT2()">
+                            <a href="javascript:void(0)">--- Chọn tỉnh thành quận huyện ---</a>
+                        </li>
+                        <!--ko foreach: listTinhThanh -->
+                        <li data-bind="click:$parent.selectChangeTTReceived">
+                            <a href="javascript:void(0)" data-bind="text:Value"></a>
+                        </li>
+                        <!--/ko-->
+                    </ul>
+                </div>
+
+                <span class="error-order"></span>
+            </div>
+                </div>
+            <div class="form-group">
+                <textarea class="form-control" id="Note" rows="3" placeholder="Ghi chú..."></textarea>
+                <span class="error-order"></span>
+            </div>
+        </div>
+        <div class="choose-provin">
+           <p>Chọn hình thức thanh toán</p>
+            <div class="fl" style="padding-top:9px">
+               <div class="choose-pay round" data-id="@banking">
+                   <a href="javascript:void(0)"></a> <span>	Thanh toán bằng Internet Banking hoặc chuyển khoản qua ngân hàng</span>
+               </div>
+                <div class="dettail-pay">
+                    Quý khách có thể đến bất kì Phòng giao dịch ngân hàng, ATM hoặc sử dụng tính năng Internet Banking để chuyển tiền vào tài khoản của Công ty:<br />
+                    Techcombank  – Ngân hàng TMCP Kỹ thương Việt Nam<br />
+                    Số tài khoản: 11021597116011 <br />
+                    Chủ tài khoản: Công ty CP Công Nghệ Phần Mềm Ssoft Việt Nam<br />
+                    Chi nhánh: Đông Đô, Hà Nội<br />
+                    Thời gian cung cấp dịch vụ: Trong vòng 4h làm việc sau khi Ssoft VN nhận được thanh toán hoặc bản scan biên lai, giấy ủy nhiệm chi.<br />
+                </div>
+            </div>
+            <div class="fl">
+                <div class="choose-pay" data-id="@Live">
+                    <a href="javascript:void(0)"></a> <span>		Thanh toán trực tiếp tại Văn phòng Open24</span>
+                </div>
+                <div class="dettail-pay">
+                    Open24 trực thuộc công ty CP Công Nghệ Phần Mềm SSOFT VN<br />
+                    Trụ sở: Tầng 21, Tòa nhà TimeTower, Số 35 Lê Văn Lương, Thanh Xuân, Hà Nội<br />                    
+                    Tổng đài: 0247 303 9333 (Hà Nội)<br />
+                    Chi nhánh: Lầu 1, Số 24 Tân Canh, Phường 1, Quận Tân Bình, TP. HCM<br />
+                    Tổng đài: 0287 303 9333 (HCM)<br />
+                    Giờ làm việc: 8h - 17h 30 hàng ngày từ Thứ 2 - Thứ 7<br />
+                    Thời gian cung cấp dịch vụ: Ngay lập tức<br />
+                </div>
+            </div>
+            <div class="fl">
+                <div class="choose-pay" data-id="@Cod">
+                    <a href="javascript:void(0)"></a> <span>COD - Thanh toán khi giao hàng</span>
+                </div>
+                <div class="dettail-pay">
+                    Chỉ áp dụng cho khách hàng nội thành Hà Nội và nội thành TP Hồ Chí Minh
+                </div>
+            </div>
+        </div>
+        <div class="fl">
+            <div class="title-oder fl">
+                Đơn hàng <span data-bind="text:PR_Count"></span>
+            </div>
+            <div class="order-bill fl">
+                <div class="oder-left">
+                    <table class="table-cart fl">
+                        <tbody data-bind="foreach:listCart">
+                            <tr>
+                                <td class="img-cart">
+                                    <img data-bind="attr: { src: salesDevice_Img,alt:salesDevice_Name}" height="50" width="70">
+                                    @*<div class="sale-product">
+                                        -10%
+                                    </div>*@
+                                </td>
+                                <td class="name-cart" data-bind="text:salesDevice_Name">
+                                </td>
+                                <td class="price-cart" data-bind="text:FormatVND(salesDevice_Money)">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="oder-right">
+                 
+                    <table class="total-cart fl pull-right transport">
+                        <tbody>
+                            <tr>
+                                <td class="text-left">Tạm tính</td>
+                                <td class="text-right" data-bind="text:MoneyComputed"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Phí vận chuyển:</td>
+                                <td class="text-right">Tính khi thanh toán</td>
+                            </tr>
+                            <tr>
+                                <td class="text-left">Tổng cộng:</td>
+                                <td class="text-right" style="color:var(--main-color);" data-bind="text:MoneyComputed"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="fl odder-right">
+                        <a href="javascript:void(0)" data-bind="click:AddOrder,visible:visibleButton" class="bought-right pull-right">
+                            <div class="hand">
+                                <img src="/Content/images/phidv/m4.png">
+
+
+                            </div>
+                            <div class="bought-text">
+                                <font>Đặt hàng</font><br>
+                            </div>
+                        </a>
+                        <a href="/Gio-hang" class="pull-right return">
+                            <i class="fa fa-chevron-left"></i> Quay về giỏ hàng
+                        </a>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+</div>
+@Scripts.Render("~/bundles/ThanhToan")
+<script async="" src="/Scripts/bootstrap.js"></script>
+<script>
+ 
+    $(".kv12").click(function () {
+        $(".list-kv1").hide();
+        $(this).next(".list-kv1").toggle();
+        $(this).find("i").toggle();
+        $(this).next(".list-kv1").find('.seach-nhomhang').focus();
+        $(".list-kv1").mouseup(function () {
+            return false
+        });
+        $(".kv12").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            $(".list-kv1").hide();
+        });
+    });
+    function SearchTinhThanh(input,id) {
+        var filter, ul, li, a, i;
+        filter = input.toUpperCase();
+        ul = document.getElementById(id);
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+
+            if (containsAll(filter.split(" "), stripUnicode(a.innerText)) === true) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+
+            }
+        }
+    }
+    $('.form-group :checkbox').change(function () {
+        if (this.checked) {
+            $('#Received').show();
+        } else {
+            $('#Received').hide();
+        }
+    });
+    function containsAll(needles, haystack) {
+        for (var i = 0, len = needles.length; i < len; i++) {
+            if (needles[i] === '') continue;
+            if (haystack.search(new RegExp(stripUnicode(needles[i]), "i")) < 0) return false;
+        }
+        return true;
+    }
+    function stripUnicode(slug) {
+        slug = slug.toLowerCase();
+        slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
+        slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
+        slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
+        slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
+        slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
+        slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
+        slug = slug.replace(/đ/gi, 'd');
+        return slug;
+    }
+</script>

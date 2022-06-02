@@ -1,0 +1,188 @@
+﻿@using Model;
+<div class="modal fade" id="modalNvbaohiem">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Loại bảo hiểm(<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <select class="form-control" id="loaibaohiemPSL">
+                                @foreach (var item in commonEnumHellper.ListLoaiBaoHiem)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nơi bảo hiểm (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="noibaohiem" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                    <label>Sổ bảo hiểm (<span style="color:red">*</span>)</label>
+                    <div class="form-news">
+                        <input class="form-control" type="text" v-model="sobaohiem" />
+                    </div>
+                </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày cấp(<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateTNBaoHiem" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày hết hạn (<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateDNBaoHiem" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ghi chú </label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="ghichu"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveTax">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+<script>
+    var vmNvBaoHiem = new Vue({
+        el: '#modalNvbaohiem',
+        data: {
+            nhanvienId: null,
+            ID: null,
+            noibaohiem: "",
+            sobaohiem: '',
+            ghichu: "",
+            title: "",
+            error: '',
+            Isnew: true,
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                $('#modalNvbaohiem').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.Isnew = false;
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    $('#loaibaohiemPSL').val(model.LoaiBaoHiem);
+                    this.noibaohiem = model.NoiBaoHiem;
+                    this.sobaohiem = model.SoBaoHiem;
+                    this.ghichu = model.GhiChu;
+                    $('#dateTNBaoHiem').val(this.convertDate(model.NgayCap));
+                    $('#dateDNBaoHiem').val(this.convertDate(model.NgayHetHan));
+                    this.error = "";
+                    this.title = "Cập nhật sổ bảo hiểm";
+                    $('#modalNvbaohiem').modal("show");
+                 }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.ID = null;
+                this.Isnew = true;
+                $('#loaibaohiemPSL').val(null);
+                this.noibaohiem = "";
+                this.sobaohiem = '';
+                this.ghichu = '';
+                this.error = '';
+                this.title = "Thêm mới sổ bảo hiểm";
+                $('#dateTNBaoHiem').val(null);
+                $('#dateDNBaoHiem').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            SaveTax: function (event) {
+                var self = this;
+                if (commonStatisJs.CheckNull($('#loaibaohiemPSL').val())) {
+                    self.messageError("Vui lòng nhập loại bảo hiểm");
+                }
+                else if (commonStatisJs.CheckNull(self.noibaohiem)) {
+                    self.messageError("Vui lòng nhập nơi bảo hiểm");
+                }
+                else if (commonStatisJs.CheckNull(self.sobaohiem)) {
+                    self.messageError("Vui lòng nhập sổ bảo hiểm");
+                }
+                 else if (commonStatisJs.CheckNull($('#dateTNBaoHiem').val())) {
+                    self.messageError("Vui lòng nhập ngày cấp");
+                }
+                else if (commonStatisJs.CheckNull($('#dateDNBaoHiem').val())) {
+                    self.messageError("Vui lòng nhập ngày hết hạn");
+                }
+                else {
+                        var model = {
+                            ID: self.ID,
+                            ID_NhanVien: self.nhanvienId,
+                            LoaiBaoHiem: $('#loaibaohiemPSL').val(),
+                            NoiBaoHiem: self.noibaohiem,
+                            SoBaoHiem: self.sobaohiem,
+                            NgayCap: commonStatisJs.convertDateToServer($('#dateTNBaoHiem').val()),
+                            NgayHetHan: commonStatisJs.convertDateToServer($('#dateDNBaoHiem').val()),
+                            GhiChu: self.ghichu,
+                        };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveBaoHiem?Isnew=" + self.Isnew,
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modalNvbaohiem').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvBaoHiemSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+             },
+        computed: {
+        }
+    })
+    $('#dateTNBaoHiem').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+    $('#dateDNBaoHiem').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+</script>

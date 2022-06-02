@@ -1,0 +1,74 @@
+﻿<div class="modal fade" id="modalRemove">
+    <div class=" modal-dialog draggable modal-sm ">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <div class="title-delete">
+                    <span> {{title}}</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button><button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <p class="content-delete"> {{content}}</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-main" v-on:click="Remove" data-dismiss="modal" tabindex="1"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban" tabindex="2"></i> Bỏ qua</button>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+        <script>
+            var vmModalRemove = new Vue({
+                el: '#modalRemove',
+                data: {
+                    ID: null,
+                    title: "",
+                    content: '',
+                    url: '',
+                    Onsuccess:"DeleteSuccess",
+                },
+                methods: {
+                    messageError: function (input) {
+                        bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' +input, "danger");
+                    },
+                    show: function (url, title, content, Onsuccess) {
+                            this.url = url;
+                            this.title = title;
+                            this.content = content;
+                            if (commonStatisJs.CheckNull(Onsuccess)) {
+                                this.Onsuccess = "DeleteSuccess";
+                            }
+                            else {
+                                this.Onsuccess = Onsuccess;
+                            }
+                            $('#modalRemove').modal("show");
+                    },
+                    Remove: function (event) {
+                        var self = this;
+                       
+                            $.ajax({
+                                url: self.url,
+                                type: 'GET',
+                                dataType: 'json',
+                                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                success: function (item) {
+                                    if (item.res === true) {
+                                        $('#modalRemove').modal("hide");
+                                        bottomrightnotify(item.mess, "success");
+                                        $('body').trigger(self.Onsuccess);
+
+                                    }
+                                    else {
+                                        self.messageError(item.mess);
+                                    }
+                                }
+                            });
+                        
+                    }
+                },
+                computed: {
+                }
+            });
+
+        </script>

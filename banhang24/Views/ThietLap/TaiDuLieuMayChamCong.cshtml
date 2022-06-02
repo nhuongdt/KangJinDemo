@@ -1,0 +1,154 @@
+﻿@using System.Web.Optimization;
+@using banhang24.AppCache;
+@using banhang24.Hellper;
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Tải dữ liệu máy chấm công";
+}
+<style>
+    .op-filter-container .form-check-label {
+        margin: 5px;
+    }
+    .a-disable, .a-disable :hover {
+        color: #bdbdbd !important;
+    }
+</style>
+<link rel="stylesheet" href="~/Content/faloading/LoadingComponentStyle.css" />
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter filter-left-report">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="  op-filter-title">
+                            <img src="/Content/images/icon/loaithuchi.png" alt=""> Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container" id="vFilterChiNhanh">
+                            <dropdown-donvi v-bind:listdataselected="databind.data.filter(p => p.CNChecked === true)" v-bind:listdata="databind.data.filter(p => p.CNChecked === false)"></dropdown-donvi>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="  op-filter-title">
+                            <img src="/Content/images/icon/loaithuchi.png" alt=""> Máy chấm công
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect" id="vMayChamCong">
+                                <select class="form-control" v-if="lstMayChamCong.length === 0">
+                                    <option value="1">Không có máy</option>
+                                </select>
+                                <select class="form-control" v-else v-on:change="VueDataMayChamCong.LoadDataFromDatabase(true)" v-model="IDMayChamCongSelected">
+                                    <option v-for="item in lstMayChamCong" v-bind:value="item.ID" v-bind:selected="item.ID == IDMayChamCongSelected">{{item.TenHienThi}}</option>
+                                </select>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="  op-filter-title">
+                            <img src="/Content/images/icon/report-loaibaocao.png" alt=""> Năm
+                        </h3>
+                        <aside class="op-filter-container" id="YSel">
+                            <select class="form-control" v-on:change="onChange()" v-model="YearSelected">
+                                <option v-for="item in ListYear" v-bind:value="item">{{item}}</option>
+                            </select>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="  op-filter-title">
+                            <img src="/Content/images/icon/report-loaibaocao.png" alt=""> Tháng
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect" id="MSel">
+                                <select class="form-control" v-on:change="onChange()" v-model="MonthSelected">
+                                    <option v-for="item in ListMonth" v-bind:value="item">{{item}}</option>
+                                </select>
+                            </div>
+                        </aside>
+                    </article>
+                    <div class="op-filter-footer">
+                        <button type="button" class="kv2Btn">Hoàn tất</button>
+                    </div>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header container-fluid">
+                <div class="op-header-title" >
+                    <a href="javascript:void(0)" class="btn-link seach-fillter">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </a>
+                    <h2 class="pull-left title">Cài đặt / Tải dữ liệu máy chấm công </h2>
+                </div>
+                <div class=" header-button">
+                    <div class="header-button-left " style="margin-bottom:5px">
+                        <button type="button" class="btn btn-main  dropdown-toggle  btn-main" onclick="VueDataMayChamCong.LoadDataFromDevice()">
+                            <font>Tải xuống</font>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table content-table" id="myScrollspy" style="top: 50px !important;position: sticky; float:right">
+                <div class="table-reponsive table-HH banghh table-frame" id="table-reponsive">
+                    <table class=" table-hover" id="tblDataMayChamCong">
+                        <thead class="thead-boder">
+                            <tr>
+                                <th>
+                                    Mã chấm công
+                                </th>
+                                <th>
+                                    Tên máy
+                                </th>
+                                <th>
+                                    Chi nhánh
+                                </th>
+                                <th>
+                                    IP/Domain
+                                </th>
+                                <th>
+                                    Thời gian
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="item in CongTho.data">
+                            <tr>
+                                <td><span>{{item.MaChamCong}}</span></td>
+                                <td><span>{{item.TenMayChamCong}}</span></td>
+                                <td><span>{{item.MaDonVi}} - {{item.TenDonVi}}</span></td>
+                                <td><span>{{item.IPDomain}}</span></td>
+                                <td><span>{{item.ThoiGian}}</span></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="Report_Empty" v-show="CongTho.data.length<=0">
+                            <tr>
+                                <td class="bg12 bhma text-center" colspan="6"><i>Không có dữ liệu</i></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <page-list id="PageList" v-bind:pagesize="PageSize" v-bind:listpagesize="ListPageSize" v-bind:isprev="isprev" v-bind:isnext="isnext"
+                           v-bind:listpage="ListPage" v-bind:currentpage="currentPage" v-bind:pageview="PageView"></page-list>
+            </div>
+        </div>
+    </div>
+</div>
+<modal-loading id="modalloading" v-bind:textstatus="TextStatus"></modal-loading>
+<script src="~/Scripts/Components/PageListComponent.js"></script>
+<script src="~/Scripts/Components/FilterComponent.js"></script>
+<script src="~/Scripts/Thietlap/TaiDuLieuMayChamCong.js"></script>
+<script src="~/Scripts/Components/LoadingComponent.js"></script>
+<script>
+    $(".op-filter-title").on("click", function () {
+        $(this).find("a i").toggle();
+        $(this).next().slideToggle("fast");
+    })
+   
+</script>

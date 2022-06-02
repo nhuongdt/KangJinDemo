@@ -1,0 +1,156 @@
+﻿
+@{
+    ViewBag.Title = "Contact";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts {
+<script src="~/Assets/Admin/Home.js"></script>
+    <script>
+        $("#MailSetup").click(function () {
+            $('.mail-setup').toggle();
+            $(".mail-setup").mouseup(function () {
+                return false
+            });
+            $("#MailSetup").mouseup(function () {
+                return false
+            });
+            $(document).mouseup(function () {
+                $(".mail-setup").hide();
+            });
+        });
+        vmMain.GetData();
+    </script>
+}
+<div class=" floatleft " id="mainHome">
+    <div class="col-md-4 col-sm-4 col-xs-12 mail_list_column">
+        <div class="form-group floatleft border-bottom" >
+            <div class=" floatleft">
+                <button class="btn btn-sm btn-default pull-left "id="MailSetup" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Forward">
+                    <i class="fa fa-cog" aria-hidden="true"></i>Cài đặt
+                </button>
+                <div class="mail-setup floatleft tree-tag" >
+                <div class="form-group ">
+                        <label>
+                            Thiết lập hiện thị
+                        </label>
+                </div>
+                <div class="form-group" id="CheckedSetup">
+                    <div class="checkbox ghim-bao-viet">
+                        <label>
+                            <input type="checkbox" value="1" v-on:click="checkedSetup(0)"  checked>Tin đã đọc
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox ghim-bao-viet">
+                        <label>
+                            <input type="checkbox" value="2" v-on:click="checkedSetup(1)"  checked>Tin chưa đọc
+                        </label>
+                    </div>
+                </div>
+                </div>
+                <div class="pull-right mail-page form-search">
+                    <p> {{modelSearch.pageItem}}  <a href="javascript:void(0)" v-on:click="ClickPrevious"><i class="fa fa-chevron-left" aria-hidden="true"></i></a> 
+                        <a href="javascript:void(0)"  v-on:click="ClickNext"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></p>
+                    </div>
+                </div>
+            <div class="floatleft form-input-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Tìm kiếm phản hồi" v-model="modelSearch.text"v-on:keyup="keySearch">
+
+                </div>
+        </div>
+        <div class="floatleft mail-content">
+            <div class="fl" v-for="(item, index) in dataResult">
+                <a href="javascript:void(0)" v-on:click="UpdateRead(item,$event)" v-if="item.TrangThai==true">
+                    <div class="mail_list">
+                        <div class="left">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                        </div>
+                        <div class="right">
+                            <h3>{{item.TenNguoiLienHe}}<small>{{localValidate.ConvertTitleDateTime(item.NgayTao)}}</small></h3>
+                            <p>{{localValidate.SubStringContent(item.GhiChu,20)}}</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="javascript:void(0)" class="inbox-read" v-on:click="UpdateRead(item,$event)" v-if="item.TrangThai!=true">
+                    <div class="mail_list">
+                        <div class="left">
+
+                            <i class="fa fa-envelope-open-o" aria-hidden="true" ></i>
+                        </div>
+                        <div class="right">
+                            <h3>{{item.TenNguoiLienHe}}<small>{{localValidate.ConvertTitleDateTime(item.NgayTao)}}</small></h3>
+                            <p>{{localValidate.SubStringContent(item.GhiChu,20)}}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /MAIL LIST -->
+    <!-- CONTENT MAIL -->
+    <div class="col-md-8 col-sm-8 col-xs-12 mail_view">
+        <div class="inbox-body" >
+            <div class="mail_heading row">
+                <div class="col-md-8">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" type="button"><i class="fa fa-reply"></i> Reply</button>
+                        <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Forward"><i class="fa fa-share"></i></button>
+                        <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Print"><i class="fa fa-print"></i></button>
+                        <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Trash"><i class="fa fa-trash-o"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-right">
+                    <p class="date" v-if="contact.NgayTao!==null && contact.NgayTao!==undefined"> {{localValidate.ConvertTitleDateTime(contact.NgayTao)}}</p>
+                </div>
+                <div class="col-md-12   contact-title">
+                   <div class=" col-md-6 no-padding">
+                       <div class="form-group form-news">
+                           <label>Tên khách hàng:</label>
+                           <div class="form-wrap">
+                               {{contact.TenNguoiLienHe}}
+                               </div>
+                           </div>
+                       <div class="form-group form-news">
+                           <label>Số điện thoại:</label>
+                           <div class="form-wrap">
+                               {{contact.SoDienThoai}}
+                           </div>
+                       </div>
+                      
+                       </div>
+                    <div class=" col-md-6">
+                        <div class="form-group form-news">
+                            <label>Email:</label>
+                            <div class="form-wrap">
+                                {{contact.Email}}
+                            </div>
+                        </div>
+                        <div class="form-group form-news">
+                            <label>Địa chỉ:</label>
+                            <div class="form-wrap">
+                                {{contact.DiaChi}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="view-mail">
+                <p>
+                  {{contact.GhiChu}}
+                </p>
+               
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-primary" type="button"><i class="fa fa-reply"></i> Reply</button>
+                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Forward"><i class="fa fa-share"></i></button>
+                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Print"><i class="fa fa-print"></i></button>
+                <button class="btn btn-sm btn-default" type="button" data-placement="top" data-toggle="tooltip" data-original-title="Trash"><i class="fa fa-trash-o"></i></button>
+            </div>
+        </div>
+
+    </div>
+    <!-- /CONTENT MAIL -->
+</div>

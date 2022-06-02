@@ -1,0 +1,553 @@
+﻿
+<div class="modal fade" id="ThemMoiPhieuBanGiao">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{isNew ? "Thêm mới" : "Cập nhật"}} phiếu bàn giao xe
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body" style="padding:15px">
+                <div class="container-fluid flex flex-between">
+                    <div class="flex flex-column gara-detail-sections">
+                        <label class="control-label">Thông tin xe</label>
+                        <div class="row padding-10">
+                            <div class="col-lg-6">
+                                <div class="form-group floatleft">
+                                    <label class="control-label">Biển số <span class="red"> (*) </span></label>
+                                    <div class="form-news">
+                                        <cars :text-search="carChosing.BienSo"
+                                              :show-btn-add="false"
+                                              :show-btn-update="false"
+                                              :nguoisohuu="1"
+                                              v-on:reset-car="Reset_ThongTinXe"
+                                              v-on:show-modal-car="showModalNewCar"
+                                              v-on:show-modal-update="$root.updateCar"
+                                              v-on:change-car-parent="ChangeCar">
+                                        </cars>
+                                    </div>
+
+                                </div>
+                                <div class="form-group floatleft">
+                                    <label class="control-label">Số máy</label>
+                                    <div class="form-news">
+                                        <input type="text" class="form-control" readonly v-model="carChosing.SoMay" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group floatleft">
+                                    <label class="control-label">Mẫu xe</label>
+                                    <div class="form-news">
+                                        <input type="text" class="form-control" readonly
+                                               v-if="carChosing.TenMauXe && carChosing.TenHangXe"
+                                               v-bind:value="carChosing.TenMauXe.concat('_', carChosing.TenHangXe)" />
+                                        <input type="text" class="form-control" readonly
+                                               v-if="!carChosing.TenMauXe || !carChosing.TenHangXe"
+                                               v-model="carChosing.TenMauXe" />
+                                    </div>
+
+                                </div>
+                                <div class="form-group floatleft">
+                                    <label class="control-label">Số khung</label>
+                                    <div class="form-news">
+                                        <input type="text" class="form-control" readonly v-model="carChosing.SoKhung" />
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="flex flex-column gara-detail-sections">
+                        <div class="flex flex-row floatleft" style="border-bottom: 1px solid #ccc; width: 100%; padding: 5px 0 5px 10px;">
+                            <label style="margin-right:5px; width:150px;">Thông tin bàn giao xe</label>
+                            <label class="control-label ">
+                                <input type="checkbox" v-model="LaNhanVien"
+                                       @*v-on:change="Change_LaChuXe"*@ style="position:relative" v-bind:disabled="ExitsNhatKy">
+                                Là nhân viên
+                            </label>
+                        </div>
+                        <div class="row padding-10">
+                            <div class="floatleft">
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Mã phiếu</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" placeholder="Tự động" v-model="ThongTinGiaoXe.MaPhieu" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Thời gian giao<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <cp-ngaygiao :date-chose="ThongTinGiaoXe.ThoiGianGiao"
+                                                         :role-change-date="true"
+                                                         v-on:change-date="ChangeNgayTheoDoi">
+                                            </cp-ngaygiao>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft">
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft" v-if="LaNhanVien">
+                                        <label class="control-label">Nhân viên nhận<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <nhanviens :text-search="NhanVienNhan.TenNhanVien"
+                                                       :staffs="NhanVienNhan.ListNhanVien"
+                                                       :search-list="NhanVienNhan.ListNhanVien"
+                                                       v-on:reset-item-chose="ResetNhanVienNhan"
+                                                       v-on:change-staff-parent="ChangeNhanVienNhan">
+                                            </nhanviens>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group floatleft" v-if="!LaNhanVien">
+                                        <label class="control-label">Khách hàng <span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <customers :text-search="customerChosing.TenDoiTuong"
+                                                       :loai-doi-tuong="1"
+                                                       :showbutton="false"
+                                                       :showbutton-update="false"
+                                                       :disable-search="false"
+                                                       :id-chi-nhanh="inforLogin.ID_DonVi"
+                                                       v-on:show-modal-customer=""
+                                                       v-on:show-modal-update=""
+                                                       v-on:reset-customer-parent="ResetCustomer"
+                                                       v-on:change-customer-parent="ChangeCustomer">
+                                            </customers>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Điện thoại</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" readonly v-model="ThongTinGiaoXe.SoDienThoai" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft">
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Nhân viên giao<span class="red"> (*) </span> </label>
+                                        <div class="form-news">
+                                            <nhanviens :text-search="NhanVienGiao.TenNhanVien"
+                                                       :staffs="NhanVienGiao.ListNhanVien"
+                                                       :search-list="NhanVienGiao.ListNhanVien"
+                                                       v-on:reset-item-chose="ResetNhanVienGiao"
+                                                       v-on:change-staff-parent="ChangeNhanVienGiao">
+                                            </nhanviens>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Số km hiện tại</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control" v-model="ThongTinGiaoXe.SoKmHienTai" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft">
+                                <div class="col-lg-12 col-xs-12">
+                                    <div class="form-group floatleft">
+                                        <label class="control-label">Ghi chú</label>
+                                        <div class="form-news">
+                                            <textarea rows="2" style="resize:none" v-model="ThongTinGiaoXe.GhiChu"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel btn-w100" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-save btn-w100" v-bind:disabled="isSaving" v-on:click="SaveData"
+                            @*v-if="role.PhieuTiepNhan.CapNhat"*@>
+                        <i class="fa fa-save"></i>
+                        {{isSaving ? 'Đang lưu' : 'Lưu'}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vThemMoiPhieubanGiao = new Vue({
+        el: "#ThemMoiPhieuBanGiao",
+        components: {
+            'cars': cmpChoseCar,
+            'customers': cmpChoseCustomer,
+            'cp-ngaygiao': cpmDatetime,
+            'nhanviens': ComponentChoseStaff,
+        },
+        data: {
+            UrlApi: {
+                GaraApi: "/api/GaraAPI/"
+            },
+            carChosing: {
+                ID: null,
+                BienSo: '',
+                TenMauXe: '',
+                TenHangXe: '',
+                SoKhung: '',
+                SoMay: '',
+            },
+            customerChosing: {
+                ID: null,
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                Email: '',
+                DienThoai: '',
+                DiaChi: ''
+            },
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+                TenNhanVien: '',
+            },
+            ThongTinGiaoXe: {
+                Id: null,
+                MaPhieu: '',
+                ThoiGianGiao: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                IdNhanVienGiao: null,
+                SoKmHienTai: 0,
+                IdNhanVienNhan: null,
+                IdKhachHang: null,
+                SoDienThoai: '',
+                Email: '',
+                DiaChi: '',
+                GhiChu: ''
+            },
+            NhanVienGiao: {
+                MaNhanVien: '',
+                TenNhanVien: '',
+                ListNhanVien: []
+            },
+            NhanVienNhan: {
+                Id: null,
+                MaNhanVien: '',
+                TenNhanVien: '',
+                SoDienThoai: '',
+                ListNhanVien: []
+            },
+            LaNhanVien: false,
+            isSaving: false,
+            isNew: true,
+            ExitsNhatKy: false
+        },
+        methods: {
+            showModal: function (isNew = true) {
+                let self = this;
+                self.isNew = isNew;
+                if (isNew) {
+                    self.ExitsNhatKy = false;
+                    self.ResetCustomer();
+                    self.Reset_ThongTinXe();
+                    self.ResetThongTinGiaoXe();
+                    self.ResetNhanVienGiao();
+                    self.ResetNhanVienNhan();
+                }
+                $("#ThemMoiPhieuBanGiao").modal('show');
+            },
+            Reset_ThongTinXe: function () {
+                let self = this;
+                self.carChosing = {
+                    ID: null,
+                    BienSo: '',
+                    TenMauXe: '',
+                    TenHangXe: '',
+                    SoKhung: '',
+                    SoMay: '',
+                };
+            },
+            ResetThongTinGiaoXe: function () {
+                let self = this;
+                self.ThongTinGiaoXe = {
+                    Id: null,
+                    MaPhieu: '',
+                    ThoiGianGiao: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                    IdNhanVienGiao: null,
+                    SoKmHienTai: 0,
+                    IdNhanVienNhan: null,
+                    IdKhachHang: null,
+                    SoDienThoai: '',
+                    Email: '',
+                    DiaChi: '',
+                    GhiChu: ''
+                }
+            },
+            showModalNewCar: function () {
+                /*vmThemMoiXe.inforLogin = this.inforLogin;*/
+                vmThemMoiXe.ShowModalNewCar();
+            },
+            ChangeCar: function (item) {
+                let self = this;
+                self.GetInforCar_byID(item.ID);
+            },
+            ResetCustomer: function () {
+                var self = this;
+                self.customerChosing = {
+                    ID: null,
+                    MaDoiTuong: '',
+                    TenDoiTuong: '',
+                    Email: '',
+                    DienThoai: '',
+                    DiaChi: ''
+                };
+                self.ThongTinGiaoXe.IdKhachHang = "";
+                self.ThongTinGiaoXe.DiaChi = "";
+                self.ThongTinGiaoXe.SoDienThoai = "";
+                self.ThongTinGiaoXe.Email = "";
+            },
+            ChangeCustomer: function (item) {
+                var self = this;
+                self.customerChosing = item;
+                self.ThongTinGiaoXe.IdKhachHang = item.ID;
+                self.ThongTinGiaoXe.DiaChi = item.DiaChi;
+                self.ThongTinGiaoXe.SoDienThoai = item.DienThoai;
+                self.ThongTinGiaoXe.Email = item.Email;
+            },
+            ChangeNgayTheoDoi: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                self.ThongTinGiaoXe.ThoiGianGiao = dt;
+            },
+            ChangeNhanVienGiao: function (item) {
+                let self = this;
+                console.log(item);
+                self.ThongTinGiaoXe.IdNhanVienGiao = item.ID;
+                self.NhanVienGiao.TenNhanVien = item.TenNhanVien;
+                self.NhanVienGiao.MaNhanVien = item.MaNhanVien;
+            },
+            ChangeNhanVienNhan: function (item) {
+                let self = this;
+                self.ThongTinGiaoXe.IdNhanVienNhan = item.ID;
+                self.NhanVienNhan.Id = item.ID;
+                self.NhanVienNhan.MaNhanVien = item.MaNhanVien;
+                self.NhanVienNhan.TenNhanVien = item.TenNhanVien;
+                self.NhanVienNhan.SoDienThoai = item.SoDienThoai;
+                self.ThongTinGiaoXe.SoDienThoai = item.SoDienThoai;
+            },
+            ResetNhanVienGiao: function () {
+                let self = this;
+                self.NhanVienGiao.MaNhanVien = "";
+                self.NhanVienGiao.TenNhanVien = "";
+                self.ThongTinGiaoXe.IdNhanVienGiao = null;
+            },
+            ResetNhanVienNhan: function () {
+                let self = this;
+                self.NhanVienNhan.Id = null;
+                self.NhanVienNhan.TenNhanVien = "";
+                self.NhanVienNhan.SoDienThoai = "";
+                self.ThongTinGiaoXe.IdNhanVienNhan = null;
+                self.ThongTinGiaoXe.DiaChi = "";
+                self.ThongTinGiaoXe.SoDienThoai = "";
+                self.ThongTinGiaoXe.Email = "";
+            },
+            GetInforCar_byID: function (id) {
+                var self = this;
+                if (!commonStatisJs.CheckNull(id)) {
+                    $.getJSON(self.UrlApi.GaraApi + 'GetInforCar_ByID?id=' + id).done(function (x) {
+                        if (x.res && x.dataSoure.length > 0) {
+                            self.carChosing = x.dataSoure[0];
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger(x.mess);
+                        }
+                    });
+                }
+            },
+            SaveData: function () {
+                let self = this;
+                if (self.carChosing.ID === null || self.carChosing.ID === '' || self.carChosing.ID === undefined) {
+                    commonStatisJs.ShowMessageDanger('Chưa chọn xe, vui lòng thử lại.');
+                    return false;
+                }
+                if (self.LaNhanVien) {
+                    if (self.ThongTinGiaoXe.IdNhanVienNhan === null || self.ThongTinGiaoXe.IdNhanVienNhan === '' || self.ThongTinGiaoXe.IdNhanVienNhan === undefined) {
+                        commonStatisJs.ShowMessageDanger('Chưa chọn nhân viên nhận, vui lòng thử lại.');
+                        return false;
+                    }
+                }
+                else {
+                    if (self.ThongTinGiaoXe.IdKhachHang === null || self.ThongTinGiaoXe.IdKhachHang === '' || self.ThongTinGiaoXe.IdKhachHang === undefined) {
+                        commonStatisJs.ShowMessageDanger('Chưa chọn khách hàng nhận, vui lòng thử lại.');
+                        return false;
+                    }
+                }
+                if (self.ThongTinGiaoXe.ThoiGianGiao === null || self.ThongTinGiaoXe.ThoiGianGiao === '' || self.ThongTinGiaoXe.ThoiGianGiao === undefined) {
+                    commonStatisJs.ShowMessageDanger('Chưa chọn thời gian giao, vui lòng thử lại.');
+                    return false;
+                }
+                if (self.ThongTinGiaoXe.IdNhanVienGiao === null || self.ThongTinGiaoXe.IdNhanVienGiao === '' || self.ThongTinGiaoXe.IdNhanVienGiao === undefined) {
+                    commonStatisJs.ShowMessageDanger('Chưa chọn nhân viên giao, vui lòng thử lại.');
+                    return false;
+                }
+                self.isSaving = true;
+                let mydata = {};
+                mydata.MaPhieu = self.ThongTinGiaoXe.MaPhieu;
+                mydata.IdXe = self.carChosing.ID;
+                mydata.IdKhachHang = self.ThongTinGiaoXe.IdKhachHang;
+                mydata.IdNhanVien = self.ThongTinGiaoXe.IdNhanVienNhan;
+                mydata.IdNhanVienGiao = self.ThongTinGiaoXe.IdNhanVienGiao;
+                mydata.ThoiGianGiao = self.ThongTinGiaoXe.ThoiGianGiao;
+                mydata.GhiChu = self.ThongTinGiaoXe.GhiChu;
+                mydata.SoKmHienTai = self.ThongTinGiaoXe.SoKmHienTai;
+                mydata.LaNhanVien = self.LaNhanVien ? 1 : 0;
+                mydata.NguoiTao = self.inforLogin.UserLogin;
+                mydata.IdDonVi = self.inforLogin.ID_DonVi;
+                if (self.isNew) {
+                    $.ajax({
+                        url: self.UrlApi.GaraApi + "POST_PhieuBanGiao",
+                        type: "POST",
+                        dataType: "JSON",
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        data: mydata
+                    }).done(function (result) {
+                        if (result.res) {
+                            self.ThongTinGiaoXe.MaPhieu = result.dataSoure.MaPhieu;
+                            self.ThongTinGiaoXe.Id = result.dataSoure.Id;
+                            VueBanGiaoXe.LoadData();
+                            self.SaveNhatKy();
+                            commonStatisJs.ShowMessageSuccess('Thêm mới phiếu bàn giao thành công.');
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger(result.mess);
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Thêm mới phiếu bàn giao thất bại.');
+                    }).always(function () {
+                        self.isSaving = false;
+                        $("#ThemMoiPhieuBanGiao").modal('hide');
+                    });
+                }
+                else {
+                    mydata.Id = self.ThongTinGiaoXe.Id;
+                    $.ajax({
+                        url: self.UrlApi.GaraApi + "PUT_PhieuBanGiao",
+                        type: "POST",
+                        dataType: "JSON",
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        data: mydata
+                    }).done(function (result) {
+                        if (result.res) {
+                            self.ThongTinGiaoXe.MaPhieu = result.dataSoure.MaPhieu;
+                            self.ThongTinGiaoXe.Id = result.dataSoure.Id;
+                            VueBanGiaoXe.LoadData();
+                            self.SaveNhatKy();
+                            commonStatisJs.ShowMessageSuccess('Cập nhật phiếu bàn giao thành công.');
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger(result.mess);
+                        }
+                    }).fail(function (jqXHR, textStatus) {
+                        console.log(textStatus);
+                        commonStatisJs.ShowMessageDanger('Cập nhật phiếu bàn giao thất bại.');
+                    }).always(function () {
+                        self.isSaving = false;
+                        $("#ThemMoiPhieuBanGiao").modal('hide');
+                    });
+                }
+            },
+            SaveNhatKy: function () {
+                let self = this;
+                let nhatky = {};
+                nhatky.ID_NhanVien = self.inforLogin.ID_NhanVien;
+                nhatky.ChucNang = "Phiếu bàn giao xe";
+                if (self.isNew) {
+                    nhatky.NoiDung = "Thêm mới phiếu bàn giao: " + self.ThongTinGiaoXe.MaPhieu;
+                    nhatky.NoiDungChiTiet = "Thêm mới phiếu bàn giao: " + self.ThongTinGiaoXe.MaPhieu + "<br/>"
+                        + "Thời gian giao xe: " + self.ThongTinGiaoXe.ThoiGianGiao + "<br/>"
+                        + "Biển số xe: " + self.carChosing.BienSo + "<br/>"
+                        + "Người nhận xe: " + (self.LaNhanVien ? "Nhân viên " + self.NhanVienNhan.MaNhanVien + " - " + self.NhanVienNhan.TenNhanVien : "Khách hàng " + self.customerChosing.MaDoiTuong + " - " + self.customerChosing.TenDoiTuong) + "<br/>"
+                        + "Số km hiện tại: " + self.ThongTinGiaoXe.SoKmHienTai + "<br/>"
+                        + "Người giao xe: " + self.NhanVienGiao.MaNhanVien + " - " + self.NhanVienGiao.TenNhanVien + "<br/>"
+                        + "Ghi chú: " + self.ThongTinGiaoXe.GhiChu + "<br/>"
+                        + "Người thêm mới: " + self.inforLogin.UserLogin + "." + self.ThongTinGiaoXe.Id;
+                    nhatky.LoaiNhatKy = 1;
+                }
+                else {
+                    nhatky.NoiDung = "Cập nhật phiếu bàn giao: " + self.ThongTinGiaoXe.MaPhieu;
+                    nhatky.NoiDungChiTiet = "Cập nhật phiếu bàn giao: " + self.ThongTinGiaoXe.MaPhieu + " theo thông tin mới<br/>"
+                        + "Thời gian giao xe: " + self.ThongTinGiaoXe.ThoiGianGiao + "<br/>"
+                        + "Biển số xe: " + self.carChosing.BienSo + "<br/>"
+                        + "Người nhận xe: " + (self.LaNhanVien ? "Nhân viên " + self.NhanVienNhan.MaNhanVien + " - " + self.NhanVienNhan.TenNhanVien : "Khách hàng " + self.customerChosing.MaDoiTuong + " - " + self.customerChosing.TenDoiTuong) + "<br/>"
+                        + "Số km hiện tại: " + self.ThongTinGiaoXe.SoKmHienTai + "<br/>"
+                        + "Người giao xe: " + self.NhanVienGiao.MaNhanVien + " - " + self.NhanVienGiao.TenNhanVien + "<br/>"
+                        + "Ghi chú: " + self.ThongTinGiaoXe.GhiChu + "<br/>"
+                        + "Người cập nhật: " + self.inforLogin.UserLogin + "." + self.ThongTinGiaoXe.Id;
+                    nhatky.LoaiNhatKy = 2;
+                }
+                nhatky.ID_DonVi = self.inforLogin.ID_DonVi;
+                Insert_NhatKyThaoTac_1Param(nhatky);
+            }
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_User: VHeader.IdNguoiDung,
+                UserLogin: VHeader.UserLogin,
+                ID_DonVi: VHeader.IdDonVi,
+                TenNhanVien: VHeader.TenNhanVien,
+            };
+            ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + self.inforLogin.ID_DonVi, 'GET').done(function (data) {
+                self.NhanVienGiao.ListNhanVien = data;
+                self.NhanVienNhan.ListNhanVien = data;
+            });
+        },
+        watch: {
+            LaNhanVien(newval, oldval) {
+                let self = this;
+                if (newval) {
+                    self.ThongTinGiaoXe.IdKhachHang = "";
+                    if (self.NhanVienNhan.ID !== "") {
+                        self.ThongTinGiaoXe.IdNhanVienNhan = self.NhanVienNhan.ID;
+                        self.ThongTinGiaoXe.DiaChi = "";
+                        self.ThongTinGiaoXe.SoDienThoai = self.NhanVienNhan.SoDienThoai;
+                        self.ThongTinGiaoXe.Email = "";
+                    }
+                    else {
+                        self.ThongTinGiaoXe.IdNhanVienNhan = "";
+                        self.ThongTinGiaoXe.DiaChi = "";
+                        self.ThongTinGiaoXe.SoDienThoai = "";
+                        self.ThongTinGiaoXe.Email = "";
+                    }
+                } else {
+                    self.ThongTinGiaoXe.IdNhanVienNhan = "";
+                    if (self.customerChosing.ID !== "") {
+                        self.ThongTinGiaoXe.IdKhachHang = self.customerChosing.ID;
+                        self.ThongTinGiaoXe.DiaChi = self.customerChosing.DiaChi;
+                        self.ThongTinGiaoXe.SoDienThoai = self.customerChosing.DienThoai;
+                        self.ThongTinGiaoXe.Email = self.customerChosing.Email;
+                    }
+                    else {
+                        self.ThongTinGiaoXe.IdKhachHang = "";
+                        self.ThongTinGiaoXe.DiaChi = "";
+                        self.ThongTinGiaoXe.SoDienThoai = "";
+                        self.ThongTinGiaoXe.Email = "";
+                    }
+                }
+            }
+        }
+    })
+</script>

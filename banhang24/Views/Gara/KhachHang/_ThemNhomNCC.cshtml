@@ -1,0 +1,205 @@
+﻿<div class="modal fade in" id="vmThemNhomNCC">
+    <div class="modal-dialog draggable modal-md">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới nhóm':'Cập nhật nhóm'}}
+                </h4>
+            </div>
+            <div class="modal-body ">
+
+                <div class="form-group floatleft">
+                    <label>Tên nhóm <span style="color:red">(*)</span></label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" autofocus="" v-model="newGroup.TenNhomDoiTuong">
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Ghi chú</label>
+                    <div class="form-news"><textarea rows="2" v-model="newGroup.GhiChu">        </textarea></div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                    <button type="button" class="btn btn-delete" data-dismiss="modal"
+                            v-if="role.Delete && typeUpdate!==1"
+                            v-on:click="DeleteNhomKhach">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="role.Update || role.Insert"
+                            v-on:click="SaveNhomNCC">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmThemMoiNhomNCC = new Vue({
+        el: '#vmThemNhomNCC',
+        created: function () {
+            this.DMNhomDoiTuongUri = '/api/DanhMuc/DM_NhomDoiTuongAPI/';
+        },
+        data: {
+            saveOK: false,
+            isNew: true,
+            typeUpdate: 1,
+            itemOld: {},
+            isLoading: false,
+            role: {
+                Delete: true,
+                Insert: true,
+                Update: true,
+            },
+
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+            },
+            newGroup: {
+                ID: null,
+                TenNhomDoiTuong: '',
+                LoaiDoiTuong: 1,
+                GhiChu: '',
+                NguoiTao: '',
+                GiamGia: 0,
+                GiamGiaTheoPhanTram: false,
+                TuDongCapNhat: false,
+                TenNhomDoiTuong_KhongDau: null,
+                TenNhomDoiTuong_KyTuDau: null,
+                TrangThai: true,
+            },
+        },
+        methods: {
+            showModalAdd: function () {
+                var self = this;
+                self.isNew = true;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 1;
+
+                self.groupOld = {};
+                self.ChiNhanhChosed = [];
+
+                self.newGroup = {
+                    ID: '00000000-0000-0000-0000-000000000000',
+                    TenNhomDoiTuong: '',
+                    LoaiDoiTuong: 1,
+                    GhiChu: '',
+                    NguoiTao: '',
+                    GiamGia: 0,
+                    GiamGiaTheoPhanTram: false,
+                    TuDongCapNhat: false,
+                    TenNhomDoiTuong_KhongDau: null,
+                    TenNhomDoiTuong_KyTuDau: null,
+                    TrangThai: true,
+                };
+                $('#vmThemNhomNCC').modal('show');
+            },
+            showModalUpdate: function (item) {
+                var self = this;
+                self.newGroup = item;
+                self.groupOld = item;
+                self.typeUpdate = 2;
+                self.itemOld = $.extend({}, item);
+                $('#vmThemNhomNCC').modal('show');
+            },
+            SaveNhomNCC: function () {
+                var self = this;
+                var _id = self.newGroup.ID;
+                var _tenNhomDoiTuong = self.newGroup.TenNhomDoiTuong;
+                var _ghiChu = self.newGroup.GhiChu;
+
+                if (_tenNhomDoiTuong === '' || _tenNhomDoiTuong === undefined) {
+                    ShowMessage_Danger('Vui lòng nhập tên nhóm nhà cung cấp');
+                    return;
+                }
+
+                var DM_NhomDoiTuong = {
+                    ID: _id,
+                    TenNhomDoiTuong: _tenNhomDoiTuong,
+                    LoaiDoiTuong: 2,
+                    GhiChu: _ghiChu,
+                    TenNhomDoiTuong_KhongDau: locdau(_tenNhomDoiTuong),
+                    TenNhomDoiTuong_KyTuDau: GetChartStart(_tenNhomDoiTuong),
+                    NguoiTao: self.inforLogin.UserLogin,
+                };
+                if (self.typeUpdate === 1) {
+                    ajaxHelper(self.DMNhomDoiTuongUri + 'PostDM_NhomDoiTuong', 'POST', DM_NhomDoiTuong).done(function (item) {
+                        ShowMessage_Success('Thêm mới nhóm nhà cung cấp thành công');
+
+                        self.saveOK = true;
+                        self.newGroup.ID = item.ID;
+                        var diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: 1,
+                            ChucNang: 'Nhóm nhà cung cấp',
+                            NoiDung: 'Thêm nhóm nhà cung cấp '.concat(self.newGroup.TenNhomDoiTuong),
+                            NoiDungChiTiet: 'Thêm nhóm nhà cung cấp '.concat(self.newGroup.TenNhomDoiTuong)
+                        };
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }).fail(function () {
+
+                    })
+                    $('#vmThemNhomNCC').modal("hide");
+                }
+                // edit
+                else {
+                    self.newGroup.NguoiSua = self.inforLogin.UserLogin;
+                    var myData = {
+                        id: _id,
+                        objNhomDoiTuong: DM_NhomDoiTuong,
+                    };
+
+                    ajaxHelper(self.DMNhomDoiTuongUri + 'PutDM_NhomDoiTuong', 'PUT', myData).done(function (item) {
+                        ShowMessage_Success('Cập nhật nhóm nhà cung cấp thành công');
+                        self.saveOK = true;
+                        var diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: 1,
+                            ChucNang: 'Nhóm nhà cung cấp',
+                            NoiDung: 'Cập nhật nhóm nhà cung cấp '.concat(self.newGroup.TenNhomDoiTuong),
+                            NoiDungChiTiet: 'Cập nhật nhóm nhà cung cấp '.concat(self.newGroup.TenNhomDoiTuong,
+                                '<br/> <b> Thông tin cũ: </b>',
+                                '<br/> -Tên nhóm: ', self.itemOld.TenNhomDoiTuong,
+                            )
+                        };
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }).fail(function () {
+
+                    });
+                    $('#vmThemNhomNCC').modal("hide");
+                }
+            },
+            DeleteNhomKhach: function () {
+                var self = this;
+                dialogConfirm('Thông báo xóa', 'Bạn có chắc chắn muốn xóa nhóm <b>' + self.newGroup.TenNhomDoiTuong + ' </b> không?', function () {
+                    ajaxHelper(self.DMNhomDoiTuongUri + 'DeleteDM_NhomDoiTuong/' + self.newGroup.ID, 'DELETE').done(function (msg) {
+                        self.saveOK = true;
+                        self.typeUpdate = 2;
+                        $('#vmThemNhomNCC').modal('hide');
+                        if (msg === "") {
+                            ShowMessage_Success('Xóa nhóm nhà cung cấp thành công ');
+                        }
+                        else {
+                            ShowMessage_Danger(msg);
+                        }
+                    });
+                })
+            },
+        },
+    })
+
+</script>
+

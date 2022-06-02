@@ -1,0 +1,162 @@
+﻿@using Model;
+<div id="KyHieuCong" class="modal-nhan-su">
+    <div class="modal fade in" id="modalKyHieuCong">
+        <div class="modal-dialog draggable modal-lg  ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        Ký hiệu chấm công
+                    </h4>
+                </div>
+                <div class="modal-body">
+                   
+                        <div class=" container-fluid nopadding tab-news-modal ">
+                          
+                                <div class="table-reponsive table-HH banghh">
+                                    <table class=" table-hover op-table">
+                                        <thead class="table-border">
+                                            <tr>
+                                                <th class="text-center " style="width:50px">STT</th>
+                                                <th class="text-center">Ký hiệu</th>
+                                                <th class="text-left ">Mô tả</th>
+                                                <th class="text-center ">Công quy đổi</th>
+                                                <th class="text-center " style="width:50px">#</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody v-for="(item, index) in   databind.data">
+                                            <tr class="op-tr-show">
+                                                <td class="text-center ">{{index + 1}}</td>
+                                                <td class="text-center ">{{item.KyHieu}}</td>
+                                                <td class="text-left ">{{item.MoTa}}</td>
+                                                <td class="text-center ">{{item.CongQuyDoi}}</td>
+                                                <td class="text-left td-icon-edit">
+                                                    <button class="height-24 btn btn-link" title="Cập nhật ký hiệu công" v-on:click="Edit(item)" v-if="Role.Update">
+                                                        <i class="fa fa-edit" aria-hidden="true"></i>
+                                                    </button>
+                                                  <button class="height-24 btn btn-link" title="Xóa ký hiệu công" style="color:red" v-on:click="Delete(item)" v-if="Role.Delete">
+                                                    <i class="fa fa-close text-danger" aria-hidden="true"></i>
+                                                  </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Bạn không có quyền!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="Report_Empty" v-show="databind.data.length<=0">
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="17"><i>Không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                           
+                        </div>
+                    
+                    
+                </div>
+                <div class="modal-footer ">
+                    <div class="container-fluid">
+                        <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="modal" class="btn btn-main addHHH btn-main no-magrin" v-on:click="AddNew" v-if="Role.Insert">
+                            <i aria-hidden="true" class="fa fa-plus"></i> <font>Thêm mới</font>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade in" id="modalthemmoikyhieucong">
+        <div class="modal-dialog draggable  modal-md ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        {{TitlePopup}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group fl">
+                        <label> Ký hiệu<span style="color:red">(*)</span></label>
+                        <div class="form-news">
+                            <input class="form-control" v-model="data.KyHieu" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-group fl">
+                        <label>Công quy đổi <span style="color:red">(*)</span></label>
+                        <div class="form-news">
+                            <input class="form-control text-right " v-model="data.CongQuyDoi" type="number" min="0" />
+                        </div>
+                    </div>
+                    <div class="form-group fl">
+                        <label> Mô tả <span style="color:red">(*)</span></label>
+                        <div class="form-news">
+                            <textarea  v-model="data.MoTa"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group fl" hidden>
+                        <label>&nbsp;</label>
+                        <div class="form-news">
+                            <label style="width:100%">
+                                <input type="checkbox" v-model="data.LayGioMacDinh" style="margin-right: 5px;"><span style="line-height:22px">Giờ mặc định theo ca làm việc</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group fl" v-show="!data.LayGioMacDinh">
+                        <label> Giờ vào </label>
+                        <div class="form-news">
+                            <input class="form-control   _settimeKyHieu" type="text" v-bind:value="commonStatisJs.convertTime(data.GioVao)" data-id="1">
+                        </div>
+                    </div>
+                    <div class="form-group fl" v-show="!data.LayGioMacDinh">
+                        <label> Giờ ra</label>
+                        <div class="form-news ">
+                            <input class="form-control   _settimeKyHieu" type="text" v-bind:value="commonStatisJs.convertTime(data.GioRa)" data-id="2">
+                        </div>
+                    </div>
+                    <div class="form-group " v-show="!isNew">
+                        <p style="font-size:13px; ">
+                            <span style="color:red"> (*) </span>Khi thay đổi
+                            <strong style="color:red">ký hiệu/ công quy đổi</strong>
+                            phần mềm sẽ tính lại công của những phiếu chấm công chưa chốt lương
+                            <strong style="color:red">Vui lòng cân nhắc trước khi cập nhật</strong>
+                        </p>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer ">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                    <button type="button" class="btn btn-save" v-on:click="SaveKyHieuCong" v-show="!loadding">
+                        <i class="fa fa-save" aria-hidden="true"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-show="loadding">
+                        <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modaldeletekyhieucong">
+        <div id="modalContainer_delete" class="modal-sm">
+            <div class="modal-content ">
+                <div class="modal-body">
+                    <div class="title-delete">
+                        <span id="header-confirm-delete">Xóa ký hiệu công</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    Bạn có chắc chắn muốn xóa ký hiệu này:  <span style="font-weight:bold">{{data.KyHieu}}</span> ?
+                    <p class="no-magrin"><span style="color:red">(*)</span> Chỉ được xóa nếu chưa áp dụng chấm công.</p>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-main" v-on:click="DeleteKyHieuCong"><i class="fa fa-check"></i> Đồng ý</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban" tabindex="2"></i> Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/NhanSu/KyHieuCong.js"></script>

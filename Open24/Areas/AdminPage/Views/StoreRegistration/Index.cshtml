@@ -1,0 +1,747 @@
+﻿@model Model_banhang24vn.CustomView.RoleStore
+@using Model_banhang24vn.Common;
+@{
+    ViewBag.Title = "Danh sách cửa hàng đăng ký";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+
+}
+@section scripts {
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Assets/js/Admin/StoreRegistration.Index.js"></script>
+    <script src="~/Assets/js/Admin/jsDateCompare.js"></script>
+    <script>
+        $(function () {
+            $("#datetimepickerUpdate").datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+            $("#datetimepickerUpdateNews").datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+            $('.start-date-filter').datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+            $('.end-date-filter').datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+        });
+        function convertrangthai(config) {
+            if (config === undefined
+                || config === null) {
+                return "";
+            }
+            else if (config === true) {
+
+                return "Đã ký hợp đồng";
+            }
+            else {
+                return "Dùng thử";
+            }
+        }
+    </script>
+
+
+
+
+@Html.Partial("/Areas/AdminPage/Views/Home/_NapTienDichVuPartial.cshtml")
+}
+<style type="text/css">
+    #table-filter tr td {
+        text-align: center;
+    }
+</style>
+<div class="right_col">
+    <h3>Danh sách cửa hàng đăng ký</h3>
+    <button class="btn-updata btn-green pull-right" data-bind="click:ExportExcel" style="    position: absolute;
+    top: 72px;
+    right: 32px;">
+        <i class="fa fa-file-excel-o" aria-hidden="true"></i> Xuất excel
+    </button>
+        
+    <div class="panel panel-default">
+        <div class="panel-heading" style="height: 60px;">
+            <div class="">
+                <div class="col-md-12 row">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                        <input type="text" class="form-control" data-bind="value:koSearch ,event: { keyup: SearchGrid }" placeholder="Nhập thông tin tìm kiếm...">
+                    </div>
+                    <div class="col-md-2 col-sm-6 col-xs-12">
+                        <select required="required" class="form-control" id="SelectedHSD" data-bind="options:ListHSD, optionsText: 'Value', optionsValue: 'Key'"></select>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <select required="required" class="form-control" id="SelectedStatus">
+                            <option value="3">--Trạng thái--</option>
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <select required="required" class="form-control" id="SelectedVersion">
+
+                            <option value="-1">--Phiên bản--</option>
+                            @foreach (var item in Notification.ListVersionStore)
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            @*<div class="pull-right">
+                    @if (Model.RoleInsert)
+                    {
+                        <button class="btn-updata btn-green" data-bind="click: AddNewUserGroup"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Thêm mới</button>
+                    }
+                </div>*@
+        </div>
+        <div class="panel-body">
+            <div class="table-reponsive">
+                <table id="example" class="table table-striped table-bordered" cellspacing="0">
+
+                    <thead>
+                        <tr>
+                            <th id="sortmobile">
+                                Số điện thoại
+                            </th>
+                            <th id="sortname">
+                                Họ tên
+                            </th>
+                            <th id="sortbusines">
+                                Ngành kinh doanh
+                            </th>
+                            <th>
+                                Gói dịch vụ
+                            </th>
+                            <th id="sortcreatedate">
+                                Ngày đăng ký
+                            </th>
+                            <th id="sortexpiryDate">
+                                Hạn sử dụng
+                            </th>
+                            <th>
+                                Phiên bản
+                            </th>
+                            <th >
+                               Ghi chú
+                            </th>
+                            <th id="sortstatus">
+                                Trạng thái
+                            </th>
+                            @if (Model.RoleUpdate || Model.RoleUpdateNews)
+                            {
+                                <th>Xử lý</th>
+                            }
+                        </tr>
+                        <tr class="tr-filter" hidden>
+                            <td>
+                              <input class="form-control" type="text">
+                            </td>
+                            <td>
+                                <input class="form-control" type="text">
+                            </td>
+                            <td>
+                                <input class="form-control" type="text">
+                            </td>
+                            <td>
+                                <input class="form-control" type="text">
+                            </td>
+                            <td>
+                                <div class="input-group datetime start-date-filter">
+                                    <input class="form-control make-datepicker" type="text" placeholder="dd/mm/yyyy" >
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+
+                            </td>
+                            <td>
+                                <div class="input-group datetime end-date-filter">
+                                    <input class="form-control make-datepicker" type="text" placeholder="dd/mm/yyyy">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <select required="required" class="form-control" id="SelectedVersion">
+
+                                    <option value="-1">Tất cả</option>
+                                    @foreach (var item in Notification.ListVersionStore)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <select required="required" class="form-control" id="SelectedStatus">
+                                    <option value="3">Tất cả</option>
+                                    <option value="1">Hoạt động</option>
+                                    <option value="0">Không hoạt động</option>
+                                </select>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </thead>
+
+                    <tbody data-bind="foreach: LisstStoreRegistration">
+                        <tr class="tr-show">
+                            <td data-bind="text: Mobile"></td>
+                            <td data-bind="text: Name"></td>
+                            <td data-bind="text: Business"></td>
+                            <td data-bind="text: GoiDichVu"></td>
+                            <td data-bind="text: ConvertDate(NgayTao)"></td>
+                            <td data-bind="text: ConvertDate(ExpiryDate)"></td>
+                            <td data-bind="text: VersionText"></td>
+                            <td data-bind="text: GhiChu"></td>
+                            <td data-bind="text: ConvertStatuts(Status)"></td>
+                            @if (Model.RoleUpdate || Model.RoleUpdateNews)
+                            {
+                                <td>
+                                    <div class="edit-delete">
+
+                                        <a class="red" href="#" data-bind="click: $parent.btnUpdate">
+                                            <i class="ace-icon fa fa-pencil "></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                        <tr class="tr-hide">
+                            <td colspan="10" class="deatailstore">
+                                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                    <ul class="nav nav-tabs " role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a data-bind="attr: { href:'#1_'+ Mobile}" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Thông tin chi tiết</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a data-bind="attr: { href:'#2_'+ Mobile},click:$parent.LoadHistory" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Lịch sử gia hạn</a>
+                                        </li>
+                                        @if (Model.ServceSms_View) {
+                                            <li role="presentation" class="">
+                                                <a data-bind="attr: { href:'#3_'+ Mobile},click:$parent.LoadServiceSms" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Lịch sử đăng ký BrandName</a>
+                                            </li>
+                                        }
+                                          @if (Model.Recharge_View)
+                                          {
+                                            <li role="presentation" class="">
+                                                <a data-bind="attr: { href:'#4_'+ Mobile},click:$parent.LoadServiceRecharge" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Lịch sử nạp tiền</a>
+                                            </li>
+                                          }
+                                    </ul>
+                                    <div class="tab-content" style="    padding: 5px;    background: #e5e5e5;">
+                                        <div role="tabpanel" class="tab-pane fade active in" data-bind="attr: {  id: '1_' + Mobile}" aria-labelledby="home-tab">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group fl">
+                                                        <label>Họ và tên:</label>
+                                                        <div class="namestore" data-bind="text: Name"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Số điện thoại:</label>
+                                                        <div class="namestore" data-bind="text: Mobile"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Email:</label>
+                                                        <div class="namestore" data-bind="text: Email"></div>
+                                                    </div>
+
+                                                    <div class="form-group fl">
+                                                        <label>Địa chỉ:</label>
+                                                        <div class="namestore" data-bind="text: DiaChi"></div>
+                                                    </div>
+
+                                                    <div class="form-group fl">
+                                                        <label>Quận huyện:</label>
+                                                        <div class="namestore" data-bind="text: Quanhuyen"></div>
+                                                    </div>
+
+                                                    <div class="form-group fl">
+                                                        <label>	Ngày đăng ký:</label>
+                                                        <div class="namestore" data-bind="text: ConvertDate(NgayTao)"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Thiết bị đăng ký:</label>
+                                                        <div class="namestore" data-bind="text: ThietBi_DK"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>	Khu vực đăng ký:</label>
+                                                        <div class="namestore" data-bind="text:KhuVuc_DK"></div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group fl">
+                                                        <label>Tên cửa hàng:</label>
+                                                        <div class="namestore" data-bind="text: TenCuaHang"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>SubDomain:</label>
+                                                        <div class="namestore" data-bind="text: SubDomain"></div>
+                                                    </div>
+
+                                                    <div class="form-group fl">
+                                                        <label>Nghành kinh doanh:</label>
+                                                        <div class="namestore" data-bind="text: Business"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>	Hạn sử dụng:</label>
+                                                        <div class="namestore" data-bind="text: ConvertDate(ExpiryDate)"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Mã kích hoạt:</label>
+                                                        <div class="namestore">
+                                                            @if (Model.RoleView)
+                                                            {
+                                                                <a href="#" data-bind="click: $parent.ViewMa" title="Click vào để xem mã kích hoạt">
+                                                                    <span class="glyphicon glyphicon-eye-open"></span>
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span title="Bạn không có quyền xem mã kích hoạt" class="glyphicon glyphicon-eye-close"></span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Số lần kích hoạt:</label>
+                                                        <div class="namestore" data-bind="text: SoLanKichHoat"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Hệ điều hành:</label>
+                                                        <div class="namestore" data-bind="text: HeDieuHanh_DK"></div>
+                                                    </div>
+                                                    <div class="form-group fl">
+                                                        <label>Địa chỉ IP:</label>
+                                                        <div class="namestore" data-bind="text: DiaChiIP_DK"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '2_' + Mobile}" aria-labelledby="profile-tab">
+                                            <table class="table table-hover table-detail" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Ngày Gia Hạn</th>
+                                                        <th>Người gia hạn</th>
+                                                        <th>Gói trước gia hạn</th>
+                                                        <th>Giá gói trước gia hạn</th>
+                                                        <th>Gia hạn thêm</th>
+                                                        <th>Ghi chú</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody data-bind="foreach: $root.ListHistory">
+                                                    <tr>
+                                                        <td data-bind="text: ConvertDate(NgayTao)"></td>
+                                                        <td data-bind="text: NguoiTao">MI_100096</td>
+                                                        <td data-bind="text: TenGoi">1</td>
+                                                        <td data-bind="text: FormatVND(GiaGoiHienTai)"></td>
+                                                        <td data-bind="text:ThoiGianGiaHan"></td>
+                                                        <td data-bind="text:GhiChu"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '3_' + Mobile}" aria-labelledby="profile-tab">
+                                            <div class="table-responsive">
+                                                <table  class="table table-striped table-bordered" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tên brandname</th>
+                                                            <th>Nhà cung cấp</th>
+                                                            <th>Giá kích hoạt</th>
+                                                            <th>Ngày tạo</th>
+                                                            <th>Ghi chú</th>
+                                                            <th>Trạng thái</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody data-bind="foreach: $root.ListServiceSms">
+                                                        <tr>
+                                                            <td data-bind="text: Name"></td>
+                                                            <td data-bind="text: SupplierSm"></td>
+                                                            <td data-bind="text: FormatVND(Price)"></td>
+                                                            <td data-bind="text:ConvertDate(CreateDate)"></td>
+                                                            <td data-bind="text: Note"></td>
+                                                            <td>
+                                                                @if (Model.ServceSms_Update)
+                                                                {
+                                                                    <a href="javascript:void(0)" style="color:#337ab7;text-decoration: underline;" data-bind="text: ConvertTrangthai(Status),click:$root.changeStatus"></a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span data-bind="text: ConvertTrangthai(Status)"></span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div style="width:100%">
+                                                <ul class="pagination">
+                                                    <li style="float: left; padding:6px 12px;" data-bind="text:$root.c_PageItem">
+                                                        Page 1 of 30000 (300000 items)
+
+                                                    </li>
+                                                    <li><a href="#" id="Previouspage" data-bind="click: $root.c_ClickPrevious">&laquo;</a></li>
+                                                    <li class="page-item">
+                                                        <div class="page-link" style="float: left;width: 50px;">
+                                                            <input type="text" data-bind="value: $root.c_page, event: { keyup: $root.c_netPageKeyup }" class="form-control" style="height:36px">
+                                                        </div>
+                                                    </li>
+                                                    <li class="page-item"><span class="page-link"> /</span></li>
+                                                    <li class="page-item"><span class="page-link" data-bind="text: $root.c_pageCount"></span></li>
+                                                    <li><a href="#" id="Nextpage" data-bind="click: $root.c_ClickNext"> &raquo;</a></li>
+
+                                                </ul>
+                                                <div class="pull-right recost">
+                                                    <span>Số bản ghi</span>
+                                                    <select required="required" class="form-control" id="c_SelectedLimit1">
+                                                        <option value="10">10</option>
+                                                        <option value="20">20</option>
+                                                        <option value="30">30</option>
+                                                        <option value="50">50</option>
+
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade" data-bind="attr: { id: '4_' + Mobile}" aria-labelledby="profile-tab">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-bordered" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tên người nạp</th>
+                                                            <th>Ngày nạp</th>
+                                                            <th>Số tiền</th>
+                                                            <th>Ghi chú</th>
+                                                            <th><a href="javascript:void(0)" title="Thêm mới phiếu nạp tiền" class="icon-add-new-thead" data-bind="click:$parent.ThemMoiDichVunapTien"><i class="fa fa-plus-circle" aria-hidden="true"></i></a></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody data-bind="foreach: $root.ListServiceRecharge">
+                                                        <tr>
+                                                            <td data-bind="text: TenKhachNap"></td>
+                                                            <td data-bind="text:ConvertDate(NgayTao)"></td>
+                                                            <td data-bind="text: FormatVND(SoTien)"></td>
+                                                            <td data-bind="text: GhiChu"></td>
+                                                            <td>
+                                                                @if (Model.Recharge_Update)
+                                                                {
+                                                                <a class="red" href="javascript:void(0)" title="click sửa phiếu nạp thẻ" data-bind="click: $root.CapNhatPhieuNap">
+                                                                    <i class="ace-icon fa fa-pencil "></i>
+                                                                </a>
+                                                                }
+                                                                  @if (Model.Recharge_Delete)
+                                                                  {
+                                                                <a class="blue" href="javascript:void(0)" title="click xóa phiếu nạp thẻ" data-bind="click: $root.XoaPhieuNhap">
+                                                                    <i class="ace-icon fa fa-trash-o "></i>
+                                                                </a>
+                                                                  }
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div style="width:100%">
+                                                <ul class="pagination">
+                                                    <li style="float: left; padding:6px 12px;" data-bind="text:$root.c_PageItem">
+                                                        Page 1 of 30000 (300000 items)
+
+                                                    </li>
+                                                    <li><a href="#" id="Previouspage" data-bind="click: $root.c_ClickPrevious">&laquo;</a></li>
+                                                    <li class="page-item">
+                                                        <div class="page-link" style="float: left;width: 50px;">
+                                                            <input type="text" data-bind="value: $root.c_page, event: { keyup: $root.c_netPageKeyup }" class="form-control" style="height:36px">
+                                                        </div>
+                                                    </li>
+                                                    <li class="page-item"><span class="page-link"> /</span></li>
+                                                    <li class="page-item"><span class="page-link" data-bind="text: $root.c_pageCount"></span></li>
+                                                    <li><a href="#" id="Nextpage" data-bind="click: $root.c_ClickNext"> &raquo;</a></li>
+
+                                                </ul>
+                                                <div class="pull-right recost">
+                                                    <span>Số bản ghi</span>
+                                                    <select required="required" class="form-control "id="c_SelectedLimit2">
+                                                        <option value="10">10</option>
+                                                        <option value="20">20</option>
+                                                        <option value="30">30</option>
+                                                        <option value="50">50</option>
+
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div style="width:100%">
+                <ul class="pagination">
+                    <li style="float: left; padding: 12px;" data-bind="text: PageIten">
+                        Page 1 of 30000 (300000 items)
+
+                    </li>
+                    <li><a href="#" id="Previouspage" data-bind="click: ClickPrevious">&laquo;</a></li>
+                    <li class="page-item">
+                        <div class="page-link" style="float: left;width: 15%;">
+                            <input type="text" data-bind="value: page, event: { keyup: netPageKeyup }" class="form-control" style="height:32px">
+                        </div>
+                    </li>
+                    <li class="page-item"><span class="page-link"> /</span></li>
+                    <li class="page-item"><span class="page-link" data-bind="text: pageCount"></span></li>
+                    <li><a href="#" id="Nextpage" data-bind="click: ClickNext"> &raquo;</a></li>
+
+                </ul>
+                <div class="pull-right recost">
+                    <span>Số bản ghi</span>
+                    <select required="required" class="form-control" id="SelectedLimit">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+
+                    </select>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;">Gia hạn cửa hàng</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="content-addnews fl">
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Tên cửa hàng</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" disabled data-bind="value: koTenCuaHang" />
+                        </div>
+
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Họ tên</Span></div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" disabled data-bind="value: koHoten" />
+                        </div>
+                    </div>
+                    @if (Model.RoleUpdateNews)
+                    {
+
+                        <div class="fl form-addnews">
+                            <div class="col-md-3 title-add"><Span>Gói dịch vụ</Span></div>
+                            <div class="col-md-9">
+                                <select class="form-control" id="selected_GoiDichVu" data-bind="foreach:ListGoiDichVu">
+                                    <option data-bind="value:ID,text:TenGoi"></option>
+                                </select>
+
+
+                            </div>
+                        </div>
+
+                        <div class="fl form-addnews">
+                            <div class="col-md-3 title-add"><Span>Gia hạn năm</Span></div>
+                            <div class="col-md-9">
+                                <input type="number" class="form-control gia-han-nam" min="0" />
+                            </div>
+                        </div>
+                        <div class="fl form-addnews">
+                            <div class="col-md-3 title-add"><Span>Gia hạn tháng</Span></div>
+                            <div class="col-md-9">
+                                <input type="number" class="form-control gia-han-thang" min="0" />
+                            </div>
+                        </div>
+                        <div class="fl form-addnews">
+                            <div class="col-md-3 title-add"><Span>Gia hạn ngày</Span></div>
+                            <div class="col-md-9">
+                                <input type="number" class="form-control gia-han-ngay" min="0" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Hạn sử dụng</Span></div>
+                        <div class="col-md-9">
+                            <input type='text' style="width:100%" class="form-control" disabled id='datetimepickerUpdate' placeholder="dd/mm/yyyy" />
+
+
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Sau khi gia hạn</Span></div>
+                        <div class="col-md-9">
+                            <input type='text' style="width:100%" class="form-control" disabled id='datetimepickerUpdateNews' placeholder="dd/mm/yyyy" />
+
+
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Ghi chú</Span></div>
+                        <div class="col-md-9">
+                            <textarea type='text' style="width:100%;" class="form-control" rows="3" data-bind="value:koGhiChu"></textarea>
+
+                        </div>
+                    </div>
+
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Phiên bản</Span></div>
+                        <div class="col-md-9">
+                            @if (Model.RoleUpdateNews)
+                            {
+                                <form id='form-id'>
+                                    <input id='watch-me' name='star' type='radio' data-bind="checked: koVersion, checkedValue: 1" />Đã ký hợp đồng
+                                    <input id='see-me' name='star' type='radio' data-bind="checked: koVersion, checkedValue: 0" />  Dùng thử
+                                </form>
+                            }
+                            else
+                            {
+                                <form id='form-id'>
+                                    <input id='watch-me' name='star' type='radio' disabled data-bind="checked: koVersion, checkedValue: 1" />Đã ký hợp đồng
+                                    <input id='see-me' name='star' type='radio' disabled data-bind="checked: koVersion, checkedValue: 0" />   Dùng thử
+                                </form>
+                            }
+
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <div class="col-md-3 title-add"><Span>Trạng thái</Span></div>
+                        <div class="col-md-9">
+                            @if (Model.RoleUpdate)
+                            {
+                                <form id='form-id'>
+                                    <input id='watch-me' name='star' type='radio' data-bind="checked: koStatus, checkedValue: true" />Hoạt động
+                                    <input id='see-me' name='star' type='radio' data-bind="checked: koStatus, checkedValue: false" /> Không hoạt động
+                                </form>
+                            }
+                            else
+                            {
+                                <form id='form-id'>
+                                    <input id='watch-me' name='star' type='radio' disabled data-bind="checked: koStatus, checkedValue: true" />Hoạt động
+                                    <input id='see-me' name='star' type='radio' disabled data-bind="checked: koStatus, checkedValue: false" />  Không hoạt động
+                                </form>
+                            }
+
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: SaveUpdateStore"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="myModalServiceSms">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color: black;"> Cập nhật khách hàng được giới thiệu</h4>
+            </div>
+            <div class="modal-body">
+                <div class="content-addnews fl">
+                    <div class="fl form-addnews">
+                        <label>Nhà cung câp</label>
+                        <div class="form-wrap">
+                            <select class="form-control form-control-lg" id="selected-suppliersms" data-bind="foreach: suppliersms">
+
+                                <option data-bind="value:ID,text:Name"></option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="fl form-addnews pricea-ctived" hidden>
+                        <label>Giá kích hoạt</label>
+                        <div class="form-wrap">
+                            <input class="form-control" type="number" data-bind="value:priceactived">
+                        </div>
+                    </div>
+                    <div class="fl form-addnews">
+                        <label>Trạng thái</label>
+                        <div class="form-wrap">
+                            <select class="form-control form-control-lg" id="selected-Status">
+                                @foreach (var item in Notification.TrangThaiServiceSms.AsEnumerable())
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <div class="fl form-addnews">
+                    <div class="col-md-3 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-9">
+                        <div class="pull-right">
+                            <button class="btn-updata btn-green" data-bind="click:saveStatus"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn-updata btn-blue-b" data-dismiss="modal"><i class="fa fa-ban"></i> Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '.tr-show', function () {
+            var t = $(this).next(".tr-hide").css("display");
+            if (t == "none") {
+                $(".tr-hide").removeClass("block");
+                $(this).next(".tr-hide").addClass("block");
+            }
+            else if (t == "block") {
+                $(this).next(".tr-hide").removeClass("block");
+            }
+            else {
+                $(".tr-hide").removeClass("block");
+            }
+        });
+        });
+    $('#selected-Status').on('change', function () {
+
+        if ($(this).val() !== '2' && $(this).val() !== 2) {
+            $('.pricea-ctived').show();
+        }
+        else {
+
+            $('.pricea-ctived').hide();
+        }
+    });
+</script>

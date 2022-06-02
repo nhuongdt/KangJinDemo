@@ -1,0 +1,163 @@
+﻿<div id="modalSendSms" class="modal fade">
+    <div class="modal-dialog draggable modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                Gửi tin nhắn SMS
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="txtSendSmsBrandname" class="css-form-label">Brandname</label>
+                    <div class="css-form-detail">
+                        <select class="form-control" id="txtSendSmsBrandname" v-model="BrandnameSelected">
+                            <option v-for="item in ListBrandname" v-bind:value="item.ID">{{ item.BrandName }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtSendSmsSoDienThoai" class="css-form-label">Số điện thoại</label>
+                    <div class="css-form-detail">
+                        <select class="form-control" id="txtSendSmsSoDienThoai" v-model="SoDienThoai">
+                            <option v-for="itemdt in ListSoDienThoai" v-bind:value="itemdt.SoDienThoai">{{ itemdt.SoDienThoai + ' - ' + itemdt.TenDoiTuong }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtSendSmsNoiDung" class="css-form-label">Nội dung</label>
+                    <div class="css-form-detail">
+                        <textarea id="txtSendSmsNoiDung" rows="3" v-model="NoiDung" maxlength="140"></textarea>
+                        <label style="float:right">{{ NoiDung.length }}/140</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtSendSmsSoDienThoai" class="css-form-label">Số dư tài khoản</label>
+                    <div class="css-form-detail">
+                        {{ formatNumber(SoDuTaiKhoan) }} VNĐ
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i>Hủy
+                </button>
+                <button type="button" class="btn btn-save" v-on:click="GuiTinNhan()" v-bind:style="{ 'pointer-events': BtnGuiStatus === true ? 'none': 'all' }">
+                    <i class="fa fa-paper-plane"></i>{{ BtnGuiStatus ? 'Đang gửi': 'Gửi' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var VSendSms = new Vue({
+        el: '#modalSendSms',
+        data: {
+            SoDienThoai: '',
+            NoiDung: '',
+            SoDuTaiKhoan: 0,
+            UrlApi: {
+                ThietLapApi: '/api/DanhMuc/ThietLapApi/'
+            },
+            ListBrandname: [],
+            BrandnameSelected: '',
+            BtnGuiStatus: false,
+            SmsStatus: false,
+            SmsPrice: 0,
+            BienSoXe: '',
+            ListSoDienThoai: []
+        },
+        methods: {
+            openModal: function () {
+                let self = this;
+                if (self.ListSoDienThoai.length > 0)
+                    self.SoDienThoai = self.ListSoDienThoai[0].SoDienThoai;
+                self.GetSoDuTaiKhoan();
+                self.SetNoiDungTin();
+                $('#modalSendSms').modal('show');
+            },
+            GetSoDuTaiKhoan: function () {
+                let self = this;
+                ajaxHelper(self.UrlApi.ThietLapApi + 'GetSoDuCuaTaiKhoan?idnd=' + VHeader.IdNguoiDung, "GET").done(function (data) {
+                    self.SoDuTaiKhoan = data;
+                });
+            },
+            getAllBrandName: function () {
+                let self = this;
+                ajaxHelper(self.UrlApi.ThietLapApi + 'GetallBrandName', 'GET').done(function (data) {
+                    data = data.filter(p => p.Status === 1);
+                    self.ListBrandname = data;
+                    if (self.ListBrandname.length > 0) {
+                        self.BrandnameSelected = self.ListBrandname[0].ID;
+                        self.SmsStatus = true;
+                    }
+                });
+            },
+            GuiTinNhan: function () {
+                let self = this;
+                self.BtnGuiStatus = true;
+                if (self.SmsPrice > self.SoDuTaiKhoan) {
+                    commonStatisJs.ShowMessageDanger('Số dư không đủ để gửi tin. Vui lòng nạp thêm tiền.');
+                    self.BtnGuiStatus = false;
+                    return false;
+                }
+                else if (self.SoDienThoai === '') {
+                    commonStatisJs.ShowMessageDanger('Số điện thoại không được để trống.');
+                    self.BtnGuiStatus = false;
+                    return false;
+                }
+                else if (self.NoiDung === '') {
+                    commonStatisJs.ShowMessageDanger('Nội dung không được để trống.');
+                    self.BtnGuiStatus = false;
+                    return false;
+                }
+                var objTin = {
+                    NoiDung: self.NoiDung,
+                    SoTinGui: 1,
+                    LoaiTinNhan: 3,
+                    ID_NguoiGui: VHeader.IdNguoiDung,
+                    ID_DonVi: VHeader.IdDonVi,
+                    SoDienThoai: self.SoDienThoai
+                };
+                
+                
+                var myData = {};
+                myData.objTinNhan = objTin;
+                myData.ID_BrandName = self.BrandnameSelected;
+                ajaxHelper(self.UrlApi.ThietLapApi + "PostTinNhan", 'POST', myData).done(function () {
+                    commonStatisJs.ShowMessageSuccess("Gửi tin nhắn thành công");
+                }).fail(function () {
+                    commonStatisJs.ShowMessageDanger("Gửi tin nhắn thất bại");
+                });
+                $('#modalSendSms').modal('hide');
+                self.BtnGuiStatus = false;
+            },
+            SetNoiDungTin: function () {
+                let self = this;
+                self.NoiDung = 'Xe mang bien so: ' + self.BienSoXe + ' da sua xong. Quy khach vui long den gara kiem tra lai va nhan xe. Xin cam on Quy khach.'
+            },
+            GetSmsPrice: function () {
+                let self = this;
+                ajaxHelper(self.UrlApi.ThietLapApi + 'GetGiaTienTrenTinNhan?id_brand=' + self.BrandnameSelected, "GET").done(function (data) {
+                    self.SmsPrice = data;
+                })
+            },
+            ResetData: function () {
+                let self = this;
+                self.ListSoDienThoai = [];
+            }
+        },
+        created: function () {
+            let self = this;
+            self.getAllBrandName();
+        },
+        watch: {
+            BrandnameSelected: function () {
+                let self = this;
+                self.GetSmsPrice();
+            }
+        }
+    });
+
+    $('#modalSendSms').on('hidden.bs.modal', function () {
+        VSendSms.ResetData();
+    })
+</script>

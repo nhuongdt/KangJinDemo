@@ -1,0 +1,833 @@
+﻿@using banhang24.Controllers
+@using System.Web.Optimization
+@using banhang24.Hellper;
+@{
+    ViewBag.Title = "Open24.vn - Tổng quan";
+    Layout = null;
+}
+@{
+    var user = Session["user"];
+}
+<link href="~/Content/dcalendar.picker.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="~/Content/dashstyle.css" />
+<script src="~/Content/Framework/Hightcharts/highcharts.js"></script>
+<style>
+    .selec-person {
+        border: 1px solid var(--color-main) !important;
+    }
+
+    #lstNganHangAdd, #modalPopuplg_DichVu .selec-person, #lstNhomHangAddHH, #lstNhomHangSua, #modalPopup_AddNhomHHDV {
+        margin: 0;
+        max-height: 230px;
+        display: inline-block;
+    }
+
+    #lstNhomHangAddHH {
+        width: 100%;
+        padding-left: 6px;
+    }
+
+    .seach-nhomhang > input {
+        width: calc(100% - 30px) !important;
+    }
+
+    #scroll1 h4 {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--color-main);
+    }
+
+    .today-row {
+        padding-bottom: 11px;
+        padding-top: 10px;
+        margin-bottom: 10px;
+        font-size: 14px !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid #ececec;
+    }
+
+        .today-row img {
+            width: 45px;
+        }
+
+        .today-row .text-bold {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .today-row .text {
+            color: black;
+        }
+
+        .today-row .number {
+            font-weight: 700;
+            color: #0097C4;
+        }
+
+    .scroll1-firstpanel {
+        display: inline-block;
+        margin: 0;
+        border-radius: 5px;
+    }
+</style>
+@Html.Action("_PopupNotificationPartial", "Shared")
+<div class="dashboard-body" style="background:#F1F4F6">
+    <div class="container-fluid">
+        <div class=" tongquan" style="display:none;">
+            <div class="col-md-12 col-xs-12 dasb-header nopadding  ">
+                <div class="hello-admin" style="margin-left:15px;">
+                    <img src="~/Content/images/icon/gioi-tinh-nam.png" height="25" width="25" />
+                    <span class="bold" style="font-size:16px;">
+                    </span> <span class=" UseDangNhap_" data-bind="text: 'Xin chào: '+ nameNhanVien()" style="font-size:15px;"></span>
+                </div>
+                <div class="container-fluid " id="scroll1">
+                    <!--tóm tắt thông tin-->
+                    <div class=" col-md-9 col-sm-12 col-xs-12 ">
+                        <div class="scroll1-firstpanel" style="background:white">
+                            <div class="col-sm-12 col-md-12 col-xs-12" style="box-shadow: none !important;">
+                                <h4 data-bind="text: 'Ngày ' + ToDay() " class="dayreport "></h4>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-xs-12 today-row">
+                                <div class="col-sm-3 col-md-3 col-xs-12 nopadding-left">
+                                    <div class="col-sm-12 nopadding-left left-infor">
+                                        <div class="col-sm-3 col-md-3 col-xs-5 nopadding-left">
+                                            <img src="/Content/images/home/i-dash-doanh-thu1.png">
+                                        </div>
+                                        <div class="col-sm-9 col-md-9 col-xs-7">
+                                            <span class="floatleft text-bold">Doanh thu</span>
+                                            <span class="number" data-bind="text: formatNumber(_DoanhThu(),0)"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-9 col-md-9 col-xs-12">
+                                    <div class="col-sm-12 col-md-12 col-xs-12 nopadding-left">
+                                        <div class="col-sm-2 col-md-3 col-xs-4 nopadding-left">
+                                            <span class="floatleft">
+                                                <span class="number" data-bind="text: formatNumber(_SoLuongHDBan()) "></span>
+                                                <span class="text">
+                                                    Hóa đơn
+                                                </span>
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(_ThanhTien(),0)"></span>
+                                        </div>
+                                        <div class="col-sm-2 col-md-3 col-xs-4 nopadding-left">
+                                            <span class="floatleft">
+                                                <span class="number" data-bind="text: formatNumber(GDV_SoLuongBan()) "></span>
+                                                <span class="text">
+                                                    Gói dịch vụ
+                                                </span>
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber3Digit(GDV_ThanhTien(),0)"></span>
+                                        </div>
+                                        <div class="col-sm-2 col-md-2 col-xs-4 nopadding-left">
+                                            <span class="floatleft">
+                                                <span class="number" data-bind="text: formatNumber3Digit(_SoLuongHDTra()) "></span>
+                                                <span class="text">
+                                                    Trả hàng
+                                                </span>
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber3Digit(_TraHang(),0)"></span>
+                                        </div>
+                                        <div class="col-sm-3 col-md-3 col-xs-8 nopadding-left">
+                                            <span>So với cùng kỳ tháng trước</span>
+                                        </div>
+                                        <div class="col-sm-1 col-md-1 col-xs-4 nopadding-left nopadding-right">
+                                            <span>
+                                                <i class="fa fa-long-arrow-up dash-color-blue HD_CungKyTang" aria-hidden="true" style="display: none;"></i>
+                                                <i class="fa fa-long-arrow-down dash-color-blue HD_CungKyGiam" aria-hidden="true"></i>
+                                                <font class="dash-color-blue" data-bind="text: formatNumber(HD_CungKy()) + ' %'">100 %</font>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-xs-12 today-row">
+                                <div class="col-sm-3 col-md-3 col-xs-12 nopadding-left">
+                                    <div class="col-sm-12 nopadding-left left-infor">
+                                        <div class="col-sm-3 col-md-3 col-xs-5 nopadding-left">
+                                            <img src="~/Content/images/home/i-dash-tien-thu1.png">
+                                        </div>
+                                        <div class="col-sm-9 col-md-9 col-xs-7">
+                                            <span class="floatleft">
+                                                <span class="text-bold" data-bind="visible: IsShowTienThu()">Tiền thu</span>
+                                                <span class="text-bold" data-bind="visible: !IsShowTienThu()" style="display: none;">Tiền chi</span>
+                                                <a href="javascript:void(0)" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                                   data-bind="click: ChangeShowThuChi">
+                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                </a>
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(TQThu_TienThu()), visible: IsShowTienThu()"></span>
+                                            <span class="number" data-bind="text: formatNumber(TQChi_TienThu()), visible: !IsShowTienThu()"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-9 col-md-9 col-xs-12">
+                                    <div class="col-sm-12 col-md-12 col-xs-12 nopadding-left">
+                                        <div class="col-sm-2 col-md-3 col-xs-4 nopadding-left">
+                                            <span class="text floatleft">
+                                                Tiền mặt
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(TQThu_TienMat()), visible: IsShowTienThu() "></span>
+                                            <span class="number" data-bind="text: formatNumber(TQChi_TienMat()), visible: !IsShowTienThu() "></span>
+                                        </div>
+                                        <div class="col-sm-2 col-md-3 col-xs-4 nopadding-left">
+                                            <span class="text floatleft">
+                                                Ngân hàng
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(TQThu_NganHang()), visible: IsShowTienThu()"></span>
+                                            <span class="number" data-bind="text: formatNumber(TQChi_NganHang()), visible: !IsShowTienThu()"></span>
+                                        </div>
+                                        <div class="col-sm-2 col-md-2 col-xs-4 nopadding-left">
+                                            <span class="text floatleft">
+                                                Thu công nợ
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(TongThu_CongNo())"></span>
+                                        </div>
+                                        <div class="col-sm-3 col-md-3 col-xs-8 nopadding-left">
+                                            <span>So với cùng kỳ tháng trước</span>
+                                        </div>
+                                        <div class="col-sm-1 col-md-1 col-xs-4 nopadding-left nopadding-right">
+                                            <span>
+                                                <i class="fa fa-long-arrow-up dash-color-blue Thu_CungKyTang" aria-hidden="true" style="display: none;"></i>
+                                                <i class="fa fa-long-arrow-down dash-color-blue Thu_CungKyGiam" aria-hidden="true"></i>
+                                                <font class="dash-color-blue" data-bind="text: formatNumber(Thu_CungKy()) + ' %'">100 %</font>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-xs-12 today-row" style="border-bottom:none!important">
+                                <div class="col-sm-3 col-md-3 col-xs-12 nopadding-left">
+                                    <div class="col-sm-12 nopadding-left left-infor">
+                                        <div class="col-sm-3 col-md-3 col-xs-5 nopadding-left">
+                                            <img src="~/Content/images/home/i-dash-khach-hang1.png">
+                                        </div>
+                                        <div class="col-sm-9 col-md-9 col-xs-7">
+                                            <span class="floatleft text-bold">Khách hàng giao dịch</span>
+                                            <span class="number" data-bind="text: formatNumber(KH_Tong())"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-9 col-md-9 col-xs-12">
+                                    <div class="col-sm-12 col-md-12 col-xs-12 nopadding-left">
+                                        <div class="col-sm-2 col-md-3 col-xs-4 nopadding-left">
+                                            <span class="text floatleft">
+                                                Khách hàng mới
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(KH_GiaoDichLanDau()) "></span>
+                                        </div>
+                                        <div class="col-sm-2 col-md-3 col-xs-4 nopadding-left">
+                                            <span class="text floatleft">
+                                                Khách quay lại
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(KH_QuayLai())"></span>
+                                        </div>
+                                        <div class="col-sm-2 col-md-2 col-xs-4 nopadding-left" hidden>
+                                            <span class="text floatleft">
+                                                Trả hàng
+                                            </span>
+                                            <span class="number" data-bind="text: formatNumber(_DoanhThu())"></span>
+                                        </div>
+                                        <div class="col-sm-3 col-md-3 col-xs-8 nopadding-left">
+                                            <span>So với cùng kỳ tháng trước</span>
+                                        </div>
+                                        <div class="col-sm-1 col-md-1 col-xs-4 nopadding-left nopadding-right">
+                                            <span>
+                                                <i class="fa fa-long-arrow-up dash-color-blue KH_CungKyTang" aria-hidden="true" style="display: none;"></i>
+                                                <i class="fa fa-long-arrow-down dash-color-blue KH_CungKyGiam" aria-hidden="true"></i>
+                                                <font class="dash-color-blue" data-bind="text: formatNumber(KH_CungKy()) + ' %'">100 %</font>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--lịch-->
+                    <div class=" col-md-3 col-sm-12 col-xs-12  large_no_padding">
+                        <table id="datein" class="calendar"></table>
+                    </div>
+                </div>
+                <!--dòng 2-->
+                <div class="graph container-fluid " id="scroll2">
+                    <div class="col-xs-12 col-sm-12 col-md-9 dash-pane-left" style="margin-top:10px;">
+                        <div class="panel overview-heading  floatleft padingtop table_h paddingtop40 ">
+                            <div class=" inner-overview">
+                                <span class="title-ds">Thực thu <span data-bind="text: NgayLoadThucThu"></span></span>
+                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                <span class="total-value" data-bind="text: formatNumber(TongThucThu())"></span>
+                                <div class="dasb-group-btn-chart">
+                                    <div class="btn-group drop-select-type-time pull-right" style="margin-top: -7px">
+                                        <div type="button" class="dropdown month7" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                            <span data-bind="text: NgayLoadThucThu"></span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </div>
+                                        <div>
+                                            <ul class="dropdown-menu dropdown-menu-right month-oll7 getDateThucThu">
+                                                <li><a href="javascript:void(0)">Hôm nay</a></li>
+                                                <li><a href="javascript:void(0)">Hôm qua</a></li>
+                                                <li class="k-select">
+                                                    <a href="javascript:void(0)">
+                                                        Tháng này
+                                                        <i class="fa fa-check check-after-litr"></i>
+                                                    </a>
+                                                </li>
+                                                <li><a href="javascript:void(0)">Tháng trước</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group drop-select-type-time pull-right drop-filter-chart showChiNhanh" style="margin-top: -7px">
+                                        <div class="outselect">
+                                            <div class="  floatleft  drop-text event-drop month8" aria-expanded="false">
+                                                <div style="cursor:pointer"><span data-bind="text: nameSelectDonViTT()"> </span></div>
+                                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="selec-person dropdown-menu floatleft  event-drop-view  month-oll8" style="overflow:hidden; height:250px;">
+                                                <div class="seach-nhomhang">
+                                                    <i class="fa fa-search" style="padding-left:5px; z-index:2;"></i>
+                                                    <input type="text" class="seach-nhomhang floatleft" id="NoteNameDonViThucThu" data-bind="event:{keyup: NoteNameDonViThucThu}" style="width:100% !important">
+                                                </div>
+                                                <ul id="lstNhomHangAddHH" class="group-parent dasb-select-ul" data-bind=" foreach: DonViThucThu" style="height:calc(100% - 30px)">
+                                                    <li class="flex">
+                                                        <input type="checkbox" data-bind="checked: checkSearch, event: { change: $parent.value_ThucThu }">
+                                                        <a href="javascript:void(0)" data-bind="text: TenDonVi"></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--biểu đồ thực thu-->
+                            <div class="panel-contentThucThu floatleft" id="panel-contentThucThu">
+                            </div>
+                        </div>
+                        <!--biểu đồ doanh thu-->
+                        <div class="panel overview-heading  floatleft padingtop table_h paddingtop40 ">
+                            <div class=" inner-overview">
+                                <span class="title-ds">Doanh thu <span data-bind="text: NgayLoadDoanhSo"></span></span>
+                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                <span class="total-value" data-bind="text: formatNumber(TongDoanhSo())"></span>
+                                <div class="dasb-group-btn-chart">
+                                    <div class="btn-group drop-select-type-time pull-right" style="margin-top: -7px">
+                                        <div type="button" class="dropdown month3" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                            <span data-bind="text: NgayLoadDoanhSo"></span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </div>
+                                        <div>
+                                            <ul class="dropdown-menu dropdown-menu-right month-oll getDateDoanhSo">
+                                                <li><a href="javascript:void(0)">Hôm nay</a></li>
+                                                <li><a href="javascript:void(0)">Hôm qua</a></li>
+                                                <li class="k-select">
+                                                    <a href="javascript:void(0)">
+                                                        Tháng này
+                                                        <i class="fa fa-check check-after-litr"></i>
+                                                    </a>
+                                                </li>
+                                                <li><a href="javascript:void(0)">Tháng trước</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group drop-select-type-time pull-right drop-filter-chart showChiNhanh" style="margin-top: -3px">
+                                        <div class="outselect">
+                                            <div class="  floatleft  drop-text event-drop month9" aria-expanded="false">
+                                                <div style="cursor:pointer"><span data-bind="text: nameSelectDonViDT()"> </span></div>
+                                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="selec-person dropdown-menu floatleft  event-drop-view month-oll9">
+                                                <div class="seach-nhomhang">
+                                                    <i class="fa fa-search" style="padding-left:5px; z-index:2;"></i>
+                                                    <input type="text" class="seach-nhomhang" id="NoteNameDonVi" data-bind="event:{keyup: NoteNameDonViDoanhThu}" style="width:100% !important">
+                                                </div>
+                                                <ul id="lstNhomHangAddHH" class="group-parent dasb-select-ul" data-bind=" foreach: DonVis">
+                                                    <li class="flex">
+                                                        <input type="checkbox" data-bind="checked: checkSearch, event: { change: $parent.value_DoanhThu }">
+                                                        <a href="javascript:void(0)" data-bind="text: TenDonVi"></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--biểu đồ doanh thu-->
+                            <div class="panel-content floatleft" id="panel-content">
+                            </div>
+                        </div>
+                        <div class="panel overview-heading  floatleft padingtop table_h showDoanhThuChiNhanh paddingtop40 ">
+                            <div class=" inner-overview">
+                                <span class="title-ds">Doanh thu theo chi nhánh <span data-bind="text: NgayLoadDoanhSo_ChiNhanh"></span></span>
+                                <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                <span class="total-value" data-bind="text: formatNumber(TongTienHang_ChiNhanh())"></span>
+                                <div class="dasb-group-btn-chart">
+                                    <div class="btn-group drop-select-type-time pull-right" style="margin-top: -7px">
+                                        <div type="button" class="month4" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                            <span data-bind="text: NgayLoadDoanhSo_ChiNhanh"></span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </div>
+                                        <div>
+                                            <ul class="dropdown-menu dropdown-menu-right month-oll4 getDateDoanhSo_ChiNhanh" style="left:unset">
+                                                <li><a href="javascript:void(0)">Hôm nay</a></li>
+                                                <li><a href="javascript:void(0)">Hôm qua</a></li>
+                                                <li class="k-select">
+                                                    <a href="javascript:void(0)">
+                                                        Tháng này
+                                                        <i class="fa fa-check check-after-litr"></i>
+                                                    </a>
+                                                </li>
+                                                <li><a href="javascript:void(0)">Tháng trước</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group pull-right" style="margin-top: -7px">
+                                        <div type="button" class=" month5" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                            <span>Biểu đồ tròn</span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </div>
+                                        <ul class="dropdown-menu dropdown-menu-right month-oll5 rdo_checkDangBieu">
+                                            <li value="1" class="k-select">
+                                                <a class="colorSelected" href="javascript:void(0)">
+                                                    Biểu đồ tròn
+                                                    <i class="fa fa-check check-after-litr"></i>
+                                                </a>
+                                            </li>
+                                            <li value="2"><a class="colorSelected" href="javascript:void(0)">Biểu đồ cột</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-content floatleft" id="panel-contentChiNhanh">
+                            </div>
+                            <div class="panel-content floatleft" id="panel-contentChiNhanh_Column">
+                            </div>
+                        </div>
+                        <div class="panel overview-heading floatleft paddingtop40 ">
+                            <div class="inner-overview panel-two">
+                                <span class="title-ds">Top 10 hàng hóa bán chạy <span data-bind="text: NgayBaoCao"></span></span>
+                                <div class="dasb-group-btn-chart dasb-group-btn-chart-top10 ">
+                                    <div class="btn-group drop-select-type-time pull-right" style="margin-top: -7px">
+                                        <div type="button" class=" month2" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                            <span>Tháng này</span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </div>
+                                        <ul class="dropdown-menu dropdown-menu-right month-oll2 choseNgayTaoBieu">
+                                            <li><a class="colorSelected" href="javascript:void(0)">Hôm nay</a></li>
+                                            <li><a class="colorSelected" href="javascript:void(0)">Hôm qua</a></li>
+                                            <li class="k-select">
+                                                <a class="colorSelected" href="javascript:void(0)">
+                                                    Tháng này
+                                                    <i class="fa fa-check check-after-litr"></i>
+                                                </a>
+                                            </li>
+                                            <li><a class="colorSelected" href="javascript:void(0)">Tháng trước</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="btn-group drop-select-type-time pull-right btn-filter-doanh-thu" style="margin-top: -7px">
+                                        <div type="button" class=" month1" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                            <span>Theo doanh thu</span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </div>
+                                        <ul class="dropdown-menu dropdown-menu-right month-oll1 choseLoaiBieu">
+                                            <li value="1" class="k-select">
+                                                <a class="colorSelected" href="javascript:void(0)">
+                                                    Theo doanh thu
+                                                    <i class="fa fa-check check-after-litr"></i>
+                                                </a>
+                                            </li>
+                                            <li value="2"><a class="colorSelected" href="javascript:void(0)">Theo số lượng</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="btn-group drop-select-type-time pull-right drop-filter-chart" >
+                                        <div class="outselect">
+                                            <div class="  floatleft  drop-text event-drop month9" aria-expanded="false">
+                                                <div style="cursor:pointer">
+                                                    <span >Chi nhánh </span>
+                                                </div>
+                                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="selec-person dropdown-menu floatleft  event-drop-view month-oll9">
+                                                <div class="seach-nhomhang">
+                                                    <i class="fa fa-search" style="padding-left:5px; z-index:2;"></i>
+                                                    <input type="text" class="seach-nhomhang"
+                                                           data-bind="value: $root.Top10_txtSearch,
+                                                           valueUpdate:'afterkeydown',
+                                                           event:{keyup:$root.Top10_SearchDonVi}"
+                                                           style="width:100% !important">
+                                                </div>
+                                                <ul class="group-parent dasb-select-ul"
+                                                    data-bind="foreach: $root.Top10_ArrFilterDonVi">
+                                                    <li class="flex">
+                                                        <input type="checkbox"
+                                                               data-bind="checked: checkSearch,
+                                                               event: {change: $root.Top10_ChoseChiNhanh }">
+                                                        <a href="javascript:void(0)" data-bind="text: TenDonVi"></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="panel-content floatleft" id="panel-content1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 large_no_padding" style="margin-top:10px;">
+                        <div class="container-fluid nopadding">
+                            <!--ko foreach: ListAdvertisement -->
+                            <div class="banner-sale">
+                                <a target="_blank" rel="noopener noreferrer" data-bind="attr:{href:Link}">
+                                    <img data-bind="attr:{src:UrlImage,title:Title}" />
+                                </a>
+                            </div>
+                            <!--/ko-->
+                            <div class="dasb-birtday-now activity floatleft border-none" id="scroll3">
+                                <div class="ac-title floatleft" data-bind="text: 'Ngày ' + ToDay()">
+                                    Hôm nay có
+                                </div>
+                                <div class="dasb-list-work floatleft">
+                                    <ul data-bind="foreach: SuKienToDay">
+                                        <li>
+                                            <i class="fa fa-birthday-cake" aria-hidden="true"></i>
+                                            <div>
+                                                <a href="javascript:void(0)" data-bind="text: SinhNhat + ' khách hàng sinh nhật', click: $parent.LoadKhachHang"></a>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <i class="fa fa-users" aria-hidden="true" style="    color: #0097c4;"></i>
+                                            <div>
+                                                <a href="javascript:void(0)" data-bind="text: $root.KH_TaoMoi() + ' khách hàng mới', click: $parent.LoadKhachHangTaoMoi"></a>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <i class="fa fa-cubes" aria-hidden="true"></i>
+                                            <div>
+                                                <a href="javascript:void(0)" data-bind="text: CongViec + ' công việc', click: $parent.LoadCongViec"></a>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                                            <div>
+                                                <a href="javascript:void(0)" data-bind="text: LichHen + ' lịch hẹn', click: $parent.LoadLichHen"></a>
+                                            </div>
+                                        </li>
+                                        <li data-bind="visible: $parent.CauHinhHeThong = 1">
+                                            <i class="fa fa-shopping-basket" aria-hidden="true" style="color:#9b0c12"></i>
+                                            <div>
+                                                <a href="javascript:void(0)" data-bind="text: SoLoSapHetHan + ' lô hàng sắp hết hạn sử dụng', click: $parent.LoadLoHangSapHetHan"></a>
+                                            </div>
+                                        </li>
+                                        <li data-bind="visible: $parent.CauHinhHeThong = 1">
+                                            <i class="fa fa-shopping-basket" aria-hidden="true" style="color:#9b0c12"></i>
+                                            <div>
+                                                <a href="javascript:void(0)" data-bind="text: SoLoHetHan + ' lô hàng đã hết hạn sử dụng', click: $parent.LoadLoHangDaHetHan"></a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="activity floatleft bg-white1 border-none nhat-ky-hoat-dong" id="scroll4">
+                                <div class="ac-title floatleft">
+                                    Nhật ký hoạt động
+                                </div>
+                                <ul data-bind="foreach: DiaryBH">
+                                    <li>
+                                        <div class="img-ind">
+                                            <img src="~/Content/images/home/oc.png" />
+                                        </div>
+                                        <div class="diary">
+                                            <span data-bind="text: TenNhanVien"></span>
+                                            vừa <span data-bind="text: TenLoaiChungTu"></span> với giá trị <font class="money"><span data-bind="text: formatNumber(ThanhTien)"></span> VNĐ</font>
+                                            <p data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Tạo dữ liệu mẫu*@
+    <div class="modal fade in" id="CreateDL1">
+        <div class="modal-dialog draggable modal-md">
+            <div class="modal-content datademo">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i class="material-icons">close</i>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        Tạo dữ liệu mẫu
+                    </h4>
+                </div>
+                <div class="modal-body floatleft">
+                    <p class="bold paddibot15">Xin chào: <span class="UseDangNhap_" data-bind="text: useDangNhap"></span></p>
+                    <p class=" paddibot15">Để giúp quá trình Tìm hiểu & Sử dụng các tính năng dễ dàng hơn, hệ thống sẽ <font class="bold">Khởi tạo dữ liệu mẫu</font> tương ứng với Ngành nghề bạn chọn.</p>
+                    <p class=" paddibot15">Liên hệ Hotline <font class="bold" color="#32b7b3">0247 303 9333</font> khi cần xóa dữ liệu mẫu.</p>
+                    <p><i>Vui lòng chọn "Bỏ qua" nếu bạn không muốn khởi tạo.</i></p>
+                </div>
+                <div class="modal-footer">
+                    <div class="bordertop ">
+                        <a class="btn btn-main" data-bind="click: CreateDLGoc">
+                            <i class="fa fa-pencil-square-o"></i>   TẠO DỮ LIỆU GỐC
+                        </a>
+                        <a class="btn btn-cancel" data-bind="click: ignore">
+                            <i class="fa fa-ban"></i>
+                            BỎ QUA
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toTop"><i class="fa fa-angle-up"></i></div>
+    <script src="~/Content/js/exporting.js"></script>
+    <script>
+        $(".month4").click(function () {
+            $(".month-oll4").slideToggle();
+            $(".month-oll1").hide();
+            $(".month-oll2").hide();
+            $(".month-oll").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month3").click(function () {
+            $(".month-oll").slideToggle();
+            $(".month-oll2").hide();
+            $(".month-oll1").hide();
+            $(".month-oll4").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month8").click(function () {
+            $(".month-oll").hide();
+            $(".month-oll2").hide();
+            $(".month-oll1").hide();
+            $(".month-oll4").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month9").click(function () {
+            $(".month-oll").hide();
+            $(".month-oll2").hide();
+            $(".month-oll1").hide();
+            $(".month-oll4").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+        })
+        $(".month7").click(function () {
+            $(".month-oll7").slideToggle();
+            $(".month-oll2").hide();
+            $(".month-oll1").hide();
+            $(".month-oll4").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month1").click(function () {
+            $(".month-oll1").slideToggle();
+            $(".month-oll2").hide();
+            $(".month-oll").hide();
+            $(".month-oll4").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month2").click(function () {
+            $(".month-oll2").slideToggle();
+            $(".month-oll1").hide();
+            $(".month-oll").hide();
+            $(".month-oll4").hide();
+            $(".month-oll5").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month5").click(function () {
+            $(".month-oll5").slideToggle();
+            $(".month-oll1").hide();
+            $(".month-oll").hide();
+            $(".month-oll4").hide();
+            $(".month-oll2").hide();
+            $(".month-oll6").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(".month6").click(function () {
+            $(".month-oll6").slideToggle();
+            $(".month-oll5").hide();
+            $(".month-oll1").hide();
+            $(".month-oll").hide();
+            $(".month-oll4").hide();
+            $(".month-oll2").hide();
+            $(".month-oll7").hide();
+            $(".month-oll8").hide();
+            $(".month-oll9").hide();
+        })
+        $(document).on('click', '.month-oll li,.month-oll1 li,.month-oll2 li, .month-oll4 li, .month-oll5 li, .month-oll6 li, .month-oll7 li', function () {
+            $(this).parent("ul").prev(".month3 ,.month1 ,.month2, .month4, .month5,.month6,.month7").find("span").html($(this).html());
+            $(".dropdown-list,.month-oll,.month-oll1,.month-oll2, .month-oll4, .month-oll5,.month-oll6, .month-oll7").hide();
+        });
+        $(document).on('click', '.month-oll5 li', function () {
+            $('.month-oll5 li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(document).on('click', '.month-oll4 li', function () {
+            $('.month-oll4 li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(document).on('click', '.month-oll7 li', function () {
+            $('.month-oll7 li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(document).on('click', '.month-oll li', function () {
+            $('.month-oll li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(document).on('click', '.month-oll1 li', function () {
+            $('.month-oll1 li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(document).on('click', '.month-oll2 li', function () {
+            $('.month-oll2 li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(document).on('click', '.month-oll6 li', function () {
+            $('.month-oll6 li').each(function () {
+                $(this).removeClass('k-select');
+                $(this).find('i').remove();
+            })
+            $(this).addClass('k-select')
+            $(this).find('a').append('<i class="fa fa-check check-after-litr"></i>')
+        });
+        $(".dropdown-list,.month-oll,.month-oll1,.month-oll2, .month-oll4, .month-oll5, .month-oll7").mouseup(function () {
+            return false
+        });
+        $(".dropdown-toggle,.btn-dropdown,.month3,.month1,.month2, .month4, .month5,.month7").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            $(".dropdown-list,.month-oll,.month-oll1,.month-oll2, .month-oll4, .month-oll5, .month-oll7").hide();
+        });
+        //$('#CreateDL').modal("show");
+        $(function () {
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                if (e > 100) {
+                    $("#toTop").show()
+                } else {
+                    $("#toTop").hide()
+                }
+            });
+            $('#toTop').click(function () {
+                $('body,html').animate({
+                    scrollTop: 0
+                })
+            });
+        });
+        jQuery(document).ready(function ($) {
+            0
+            if (window.history && window.history.pushState) {
+                window.history.pushState('forward', null, null);
+            }
+        });
+        $(".delete-introducing").click(function () {
+            $(".banner-introducing").hide();
+            $(this).hide();
+        });
+        $('.event-drop').on('click', function () {
+            $(this).next().toggle();
+            $(".event-drop-view").mouseup(function () {
+                return false
+            });
+            $('.event-drop').mouseup(function () {
+                return false
+            });
+            $(document).mouseup(function () {
+                $(".event-drop-view").hide();
+            });
+        })
+        $('.drop-thu-chi').on('click', function () {
+            $(this).closest('div').each(function () {
+                $(this).find('font').toggle();
+            });
+            $(this).closest('div').next('.dash-sp-thanh-tien').find('span').each(function () {
+                $(this).toggle();
+            });
+            $('.dash-gr-tt-ct').find('.thu-chi').each(function () {
+                $(this).toggle();
+            })
+            $('.dash-gr-tang-giam').find('.thu-chi').each(function () {
+                $(this).toggle();
+            })
+        })
+    </script>
+    <style>
+        .colorSelected {
+            color: #3eb7b3 !important;
+        }
+
+        .detail-reporthh {
+            width: auto;
+            font-size: 12px;
+        }
+
+        .k-select {
+            background-color: #e7fbe3;
+        }
+
+        .check-after-litr {
+            float: right;
+            line-height: 21px;
+            color: #32b7b3;
+            display: inline !important;
+        }
+
+        .rdo_checkDangBieu li:hover {
+            color: dodgerblue !important;
+        }
+
+        .thucthu {
+            font-weight: 100;
+            text-transform: lowercase;
+        }
+    </style>
+    @Scripts.Render("~/bundles/TongQuan")
+    <script src="~/Content/js/dcalendar.picker.js"></script>
+</div>

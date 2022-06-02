@@ -1,0 +1,323 @@
+﻿
+<style>
+    .lbl-note-i {
+        font-size: 12px !important;
+    }
+</style>
+<div class="modal fade" id="vmThanhToanNCC">
+    <div class="modal-dialog modal-lg draggable">
+        <div class="modal-content draggable ui-draggable">
+            <div class="modal-header ui-draggable-handle">
+                <h5 class="modal-title">
+                    {{isNew?'Thêm mới':'Cập nhật'}} phiếu {{$root.sLoaiThuChi}}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:15px">
+                <div class="container-fluid nopadding">
+
+                    <div style="display:inline-block; width:100%">
+                        <div class="col-lg-6 col-xs-12 nopadding-left">
+                            <div class="gara-detail-information nopadding">
+                                <label>
+                                    Mã phiếu {{$root.sLoaiThuChi}}
+                                </label>
+                                <input type="text" class="form-control search-line"
+                                       placeholder="Mã tự động"
+                                       v-model="newPhieuThu.MaHoaDon" />
+                            </div>
+                            <div class="gara-detail-information gara-addcar-brand nopadding">
+                                <label>Nhà cung cấp</label>
+                                <div class="gara-bill-infor-button shortlabel nopadding">
+                                    <input class="gara-search-HH" v-model="ddl_textVal.cusName" v-on:click="showListNguoiNop" />
+                                    <div class="gara-search-dropbox drop-search">
+                                        <ul>
+                                            <li v-for="(item, index) in listData.NguoiNops"
+                                                v-on:click="ChoseNguoiNopTien(item)">
+                                                <div>
+                                                    <span style="color:var(--color-main)">{{item.TenNguoiNop}}</span>
+                                                </div>
+                                                <div v-if="item.DienThoaiKhachHang">
+                                                    <span style="color:black;">{{item.DienThoaiKhachHang}}</span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gara-detail-information gara-addcar-brand nopadding">
+                                <label>Người lập phiếu</label>
+                                <nhanviens :text-search="ddl_textVal.staffName"
+                                           :staffs="listData.NhanViens"
+                                           :search-list="listData.NhanViens"
+                                           :id-chosing="newPhieuThu.ID_NhanVien"
+                                           v-on:change-staff-parent="ChangeCreator">
+                                </nhanviens>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-xs-12 nopadding">
+                            <div class="gara-detail-information nopadding">
+                                <label>Thời gian</label>
+                                <my-date-time :date-chose="newPhieuThu.NgayLapHoaDon"
+                                              :role-change-date="role.SoQuy.ChangeNgayLap && !$root.isKhoaSo"
+                                              v-on:change-date="ChangeNgayLapPhieu">
+                                </my-date-time>
+                            </div>
+                            <div class="gara-detail-information nopadding">
+                                <label>Khoản {{$root.sLoaiThuChi}}</label>
+                                <khoan-thu-chi :text-search="ddl_textVal.khoanthu"
+                                               :la-khoan-thu="newPhieuThu.LoaiHoaDon == 11"
+                                               :list-all="listData.KhoanThuChis"
+                                               :id-chosing="newPhieuThu.ID_KhoanThuChi"
+                                               v-on:change-khoan-thu="ChangeKhoanThu"
+                                               v-on:reset-khoan-thu="ResetKhoanThu">
+                                </khoan-thu-chi>
+                            </div>
+                            <div class="gara-detail-information nopadding">
+                                <label>Ghi chú</label>
+                                <input type="text" class="form-control search-line" v-model="newPhieuThu.NoiDungThu" />
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 15px ;
+                                background: #c7dadf;
+                                display: inline-block;
+                                width: 100%">
+                        <!--nợ hóa đơn-->
+                        <div class="container-fluid row" style="margin-bottom:5px">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <div class="flex flex-between">
+                                    <label>{{isNew?'Nợ hóa đơn':'Tổng '+ $root.sLoaiThuChi}}</label>
+                                    <span v-if="isNew">{{formatNumber3Digit(newPhieuThu.NoHienTai)}}</span>
+                                    <span v-if="!isNew">{{formatNumber3Digit(newPhieuThu.TongTienThu)}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Tiền Cọc-->
+                        <div class="container-fluid row" style="margin-bottom:5px" v-if="SoDuDatCoc > 0 && newPhieuThu.LoaiHoaDon !==11">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <label class="bold"> Chi từ cọc</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                                <div class="flex flex-between">
+                                    <label class="lbl-note-i">Đã đặt cọc: </label>
+                                    <span>{{formatNumber3Digit(SoDuDatCoc)}}</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <input type="text" class="form-control text-right"
+                                       onclick="this.select()"
+                                       onkeypress="return keypressNumber(event)"
+                                       v-model="newPhieuThu.TienDatCoc"
+                                       v-on:keyup="EditTienCoc" />
+                            </div>
+                        </div>
+                        <!--Tiền Mặt-->
+                        <div class="container-fluid row" style="margin-bottom:5px">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <label>Tiền mặt</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <input type="text" class="form-control text-right" onclick="this.select()"
+                                       onkeypress="return keypressNumber(event)"
+                                       v-model="newPhieuThu.TienMat"
+                                       v-on:keyup="EditTienMat" />
+                            </div>
+                        </div>
+                        <!--Tiền POS-->
+                        <div class="container-fluid row" style="margin-bottom:5px">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <label>Tiền quẹt thẻ POS </label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                                <account-bank :text-search="ddl_textVal.accountPOSName"
+                                              :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
+                                              :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
+                                              :id-chosing="newPhieuThu.ID_TaiKhoanPos"
+                                              v-on:change-account-parent="ChangeAccountPOS"
+                                              v-on:reset-account="ResetAccountPOS">
+                                </account-bank>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <input type="text" class="form-control text-right js-input" onclick="this.select()"
+                                       onkeypress="return keypressNumber(event)"
+                                       v-model="newPhieuThu.TienPOS"
+                                       v-on:keyup="EditTienPos"
+                                       v-bind:disabled="newPhieuThu.ID_TaiKhoanPos==null" />
+                            </div>
+                        </div>
+                        <!--Tiền Chuyển khoản-->
+                        <div class="container-fluid row" style="margin-bottom:5px">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <label>Tiền chuyển khoản</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                                <account-bank :text-search="ddl_textVal.accountCKName"
+                                              :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
+                                              :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
+                                              :id-chosing="newPhieuThu.ID_TaiKhoanChuyenKhoan"
+                                              v-on:change-account-parent="ChangeAccountCK"
+                                              v-on:reset-account="ResetAccountCK">
+                                </account-bank>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <input type="text" class="form-control text-right js-input" onclick="this.select()"
+                                       onkeypress="return keypressNumber(event)"
+                                       v-model="newPhieuThu.TienCK"
+                                       v-on:keyup="EditTienCK"
+                                       v-bind:disabled="newPhieuThu.ID_TaiKhoanChuyenKhoan==null" />
+                            </div>
+                        </div>
+                        <!--Tiền Tổng-->
+                        <div class="container-fluid row" style="margin-bottom:5px">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <div class="flex flex-between">
+                                    <label>Tổng:</label>
+                                    <span>{{formatNumber3Digit(newPhieuThu.DaThanhToan)}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Tiền Thừa-->
+                        <div class="container-fluid row" style="margin-bottom:5px">
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                <div class="flex flex-between">
+                                    <label v-if="newPhieuThu.TienThua >= 0">Tiền thừa:</label>
+                                    <label v-else>Tiền thiếu:</label>
+                                    <span>{{formatNumber3Digit(Math.abs(newPhieuThu.TienThua))}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div style="display:inline-block; width:100%">
+                        <div style="display:flex; justify-content:space-between;width:100%; padding:10px 0">
+                            <label>Nội dung {{$root.sLoaiThuChi}} </label>
+                            <div>
+                                <span style="line-height:30px;margin-right:15px; float:left"
+                                      title="Nếu nhập giá trị cột Tiền thu, phải chọn hình thức thanh toán. &#10;Nếu không chọn: Mặc định là Tiền mặt ">
+                                    <span>
+                                        <i class="fa fa-info-circle">
+                                        </i>
+                                    </span>
+                                    <span>Hình thức thanh toán</span>
+                                </span>
+                                <div class=" btn-group dropdown ">
+                                    <button class="btn btn-main">
+                                        {{HinhThucTT.Text}}
+                                    </button>
+                                    <button class="btn btn-main dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu css-right-0">
+                                        <li v-if="SoDuDatCoc > 0" v-on:click="ChoseHinhThucTT(1)">
+                                            <a href="javascript:void(0)">Thu từ cọc</a>
+                                        </li>
+                                        <li v-on:click="ChoseHinhThucTT(2)">
+                                            <a href="javascript:void(0)">Tiền mặt</a>
+                                        </li>
+                                        <li v-on:click="ChoseHinhThucTT(3)">
+                                            <a href="javascript:void(0)">POS</a>
+                                        </li>
+                                        <li v-on:click="ChoseHinhThucTT(4)">
+                                            <a href="javascript:void(0)">Chuyển khoản</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-reponsive">
+                            <div class="table-res">
+                                <table class='table'>
+                                    <thead>
+                                        <tr>
+                                            <th>Mã hóa đơn</th>
+                                            <th class="text-center">Thời gian</th>
+                                            <th class="text-right">Giá trị</th>
+                                            <th class="text-right">Đã {{$root.sLoaiThuChi}} trước</th>
+                                            <th class="text-right">Cần {{$root.sLoaiThuChi}}</th>
+                                            <th class="text-right">Tiền {{$root.sLoaiThuChi}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="gara-bill-detail" v-for="(item, index) in listData.HoaDons">
+                                            <td>{{item.MaHoaDon}}</td>
+                                            <td class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                            <td class="text-right">{{formatNumber3Digit(item.PhaiThanhToan)}}</td>
+                                            <td class="text-right">{{formatNumber3Digit(item.KhachDaTra)}}</td>
+                                            <td class="text-right">{{formatNumber3Digit(item.CanThu)}}</td>
+                                            <td class="text-right">
+                                                <input class="form-control text-right " style="min-width:150px"
+                                                       onclick="this.select()"
+                                                       onkeypress="return keypressNumber(event)"
+                                                       v-model="item.TienThu"
+                                                       v-on:keyup.enter="ChangeTienThu_Enter"
+                                                       v-on:keyup="ChangeTienThu(item, index)">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid ">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Đóng
+                    </button>
+                    <button type="button" class="btn btn-cancel" 
+                            v-if="!isNew && $root.role.SoQuy.Delete && newPhieuThu.TrangThai && !$root.isKhoaSo" 
+                            v-on:click="$root.HuyPhieu">
+                        <i class="fa fa-trash"></i>Xóa
+                    </button> 
+                
+                    <button type="button" class="btn btn-save" 
+                            v-if="!isNew && $root.role.SoQuy.Update && newPhieuThu.TrangThai  && !$root.isKhoaSo" 
+                            v-on:click="SavePhieuChi(false)">
+                        <i class="fa fa-save"></i>
+                        Cập nhật
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isNew && $root.role.SoQuy.Insert" v-on:click="SavePhieuChi(false)">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isNew && $root.role.SoQuy.Insert" v-on:click="SavePhieuChi(true)">
+                        <i class="fa fa-print"></i>
+                        Lưu và in
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/BanHang/Public.js"></script>
+<script src="~/Scripts/Gara/HoaDon/_ThuTienNhapHang.js"></script>

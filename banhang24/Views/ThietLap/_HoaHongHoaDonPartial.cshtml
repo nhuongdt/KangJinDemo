@@ -1,0 +1,235 @@
+﻿<style>
+    ._table-input tbody tr td {
+        border: none;
+    }
+</style>
+<div class="modal-content  ui-draggable">
+    <div class="modal-header ui-draggable-handle">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+        <h4 class="modal-title">
+            Cài đặt hoa hồng theo hóa đơn
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="col-md-12 ">
+            <div class="row">
+                <div class="tab-news-modal _tab-chieu-khau-hoa-don">
+                    <ul class="nav nav-tabs ">
+                        <li class="active"><a data-toggle="tab" href="#_cdhoahonghd">Thông tin hoa hồng</a></li>
+                        <li ><a data-toggle="tab" href="#_nhanvienchietkhauhd">Nhân viên áp dụng</a></li>
+                    </ul>
+                    <div class="tab-content ">
+                        <div class="tab-pane active" id="_cdhoahonghd">
+                            <div class="col-md-12 col-xs-12 flex">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadio" value="1" data-bind="checked: HoaHongHD_TinhCKTheo">
+                                    <label class="form-check-label" for="inlineRadio1">% Thực thu</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadio" value="2" data-bind="checked: HoaHongHD_TinhCKTheo">
+                                    <label class="form-check-label" for="inlineRadio2">% Doanh thu</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadio" value="3" data-bind="checked: HoaHongHD_TinhCKTheo">
+                                    <label class="form-check-label" for="inlineRadio2">VNĐ</label>
+                                </div>
+                            </div>
+                          
+                                <div class="col-md-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Chiết khấu</label>
+                                        <div class="form-news">
+                                            <input type="text" class="form-control " onkeypress="return keypressNumber_limitNumber(event,this)" onclick="this.select()"
+                                                   data-bind="value: HoaDongHD_GiaTriCK, event: {keyup: HoaHongHD_EditChietKhau}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xs-12 ">
+                                    <div class="form-group">
+                                        <label>Chứng từ</label>
+                                        <div class="input-group form-news">
+                                            <div class="outselect ">
+                                                <div class=" choose-person  " data-toggle="dropdown" aria-expanded="false">
+                                                    <ul data-bind="foreach: ChungTuChosed">
+                                                        <li class="li-input-span">
+                                                            <span>
+                                                                <span data-bind="text: Value"></span>
+                                                                <i class="fa fa-times" data-bind="click: $parent.HoaHongHD_RemoveChungTu"></i>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                    <input type="text" class="dropdown form-control" placeholder="Chọn chứng từ" data-bind="visible: ChungTuChosed().length == 0">
+                                                </div>
+                                                <div class="selec-person dropdown-menu floatleft" id="ddlChungTu">
+                                                    <ul data-bind="foreach: ChungTuApDung">
+                                                        <li data-bind="text: Value, click: $parent.HoaHongHD_ChoseChungTu, attr:{id:'chungtu_'+ Key}">
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                            <div class="col-md-12 col-xs-12">
+                                <div class="form-group">
+                                    <label>Ghi chú</label>
+                                    <div class="form-news">
+                                        <textarea rows="3" data-bind="value: HoaDongHD_GhiChu"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane " id="_nhanvienchietkhauhd">
+                            <div class="col-md-12 nopadding floatleft" id="_nhanvienchietkhau">
+                                <div class="container-fluid row">
+                                    <div class="col-md-3 cai-dat-hoa-hong-l">
+                                        <div class=" floatleft title-table-ck">
+                                            <span>Phòng ban</span>
+                                        </div>
+                                        <div class=" floatleft">
+                                            <div class=" floatleft form-group">
+                                                <input type="text" placeholder="Tìm kiếm phòng ban"
+                                                       autofocus="autofocus" class="form-control number-price-new" autocomplete="off"
+                                                       data-bind="value: searchAuto_Department, valueUpdate:'afterkeydown'">
+                                                <i style="position:absolute; top:7px; left:7px;" class="fa fa-search"></i>
+                                            </div>
+                                            <div class="treename yellow" data-bind="click: GetNhanVien_byDepartment">
+                                                <a href="javascript:void(0)"> Tất cả</a>
+                                            </div>
+                                            <ul class="floatleft  tree-chiet-khau" id="treeviewHoaHong" data-bind="foreach: PageResult_Department">
+                                                <li data-bind="attr:{id:'deptID_'+ id}" class="floatleft">
+                                                    <a href="javascript:void(0)" data-bind="click: $parent.GetNhanVien_byDepartment">
+                                                        <span class="icon-tree-li "><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                                        <span class="treename" data-bind="text: text"></span>
+                                                    </a>
+                                                    <ul data-bind="foreach: children">
+                                                        <li data-bind="attr:{id:'deptID_'+ id}">
+                                                            <a href="javascript:void(0)" data-bind="click: $root.GetNhanVien_byDepartment">
+                                                                <span class="icon-tree-li "><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                                                <span class="treename" data-bind="text: text"></span>
+                                                            </a>
+                                                            <ul data-bind="foreach: children">
+                                                                <li data-bind="attr:{id:'deptID_'+ id}">
+                                                                    <a href="javascript:void(0)" data-bind="click: $root.GetNhanVien_byDepartment">
+                                                                        <span class="treename" data-bind="text: text"></span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-4 cai-dat-hoa-hong-r" id="listNV_L">
+                                        <div class=" floatleft  title-table-ck">
+
+                                            <input class="checkbox-modal" type="checkbox" style="margin-right:5px" id="HoaHongHD_CheckAllLeft"
+                                                   data-bind="event:{change: HoaHongHD_ChoseAllNhanVien_Left}">
+                                            <span>Nhân viên</span>
+
+
+                                        </div>
+                                        <div class="floatleft">
+                                            <div class="seach-nhomhang">
+                                                <input type="text" placeholder="Tìm kiếm nhân viên"
+                                                       autofocus="autofocus" class="form-control number-price-new" autocomplete="off"
+                                                       data-bind="value: searchAuto_NVienDepartment, valueUpdate:'afterkeydown'">
+                                                <i style="position:absolute; top:7px; left:7px;" class="fa fa-search"></i>
+                                            </div>
+                                            <ul id="NV_Apdung_L" class="floatleft ul-cai-dat-hoa-hong-r" data-bind="foreach: PageResult_NVienDepartment" style="max-height:350px; overflow:auto">
+                                                <li style="padding:3px; border-bottom:1px solid #ccc">
+                                                    <div class="flex flex-row flex-between" style="align-items:center;flex-wrap:nowrap">
+                                                        <label class="flex flex-row " style="align-items:center; width:calc(100% - 35px)">
+                                                            <input style="position:relative; margin:3px;" type="checkbox" data-bind="attr:{id: ID},event:{change: $parent.Check_UncheckNhanVien}">
+                                                            <span style="   padding:3px 8px;  font-weight: normal;">
+                                                                <span class="floatleft bold">Tên NV: <span data-bind="text: TenNhanVien"></span></span>
+                                                                <small class="floatleft" style="line-height:18px">Mã NV: <span data-bind="text: MaNhanVien"></span></small>
+                                                                <small class="floatleft" style="line-height:18px">Phòng: <span data-bind="text: TenNhanVien_GC"></span></small>
+                                                            </span>
+                                                        </label>
+                                                        <button class="btn btn-default" data-bind="click: $parent.HoaHongHD_Chose1NhanVien">
+                                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+
+                                                        </button>
+
+                                                    </div>
+
+
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 nopadding">
+                                        <div class="btn-chon-nhan-vien  cai-dat-hoa-hong-l">
+                                            <button class="btn btn-main floatleft" style="margin-bottom:5px" data-bind="click: HoaHongHD_ClickBtnChose">Chọn <i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
+                                            <button class="btn btn-cancel floatleft" data-bind="click: HoaHongHD_ClickBtnRemoveChose"> <i class="fa fa-angle-double-left" aria-hidden="true"></i><span style="letter-spacing:-1px">Bỏ chọn</span></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 cai-dat-hoa-hong-r" id="listNV_R">
+                                        <div class=" floatleft  title-table-ck">
+                                            <input type="checkbox" class="checkbox-modal" style=" float: right;margin-right: 5px;"
+                                                   data-bind="event:{change: HoaHongHD_ChoseAllNhanVien_Right}">
+                                            <span>Nhân viên áp dụng</span>
+                                        </div>
+                                        <div class="floatleft">
+                                            <div class=" floatleft form-group">
+                                                <input type="text" placeholder="Tìm kiếm nhân viên" style="padding-left:30px"
+                                                       autofocus="autofocus" class="form-control number-price-new" autocomplete="off"
+                                                       data-bind="value: searchAuto_NVienChosed, valueUpdate:'afterkeydown'">
+                                                <i style="position:absolute; top:7px; left:7px;" class="fa fa-search"></i>
+                                            </div>
+                                            <ul id="NV_Apdung_R" class="floatleft ul-nhan-vien-ap-dung" data-bind="foreach: PageResult_NVienChosed" style="max-height:350px; overflow:auto">
+                                                <li style="padding:3px; border-bottom:1px solid #ccc">
+                                                    <div class="flex flex-row flex-between" style="align-items:center;flex-wrap:nowrap">
+                                                        <button class="btn btn-default" data-bind="click: $parent.HoaHongHD_Remove1NhanVien">
+                                                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                                        </button>
+                                                        <label class="flex flex-row flex-between" style="align-items:center; width:calc(100% - 35px); flex-wrap:nowrap">
+                                                            <span style="   padding:3px 8px;  font-weight: normal;">
+                                                                <span class="floatleft bold">Tên NV: <span data-bind="text: TenNhanVien"></span></span>
+                                                                <small class="floatleft" style="line-height:18px">Mã NV: <span data-bind="text: MaNhanVien"></span></small>
+                                                                <small class="floatleft" style="line-height:18px">Phòng: <span data-bind="text: TenNhanVien_GC"></span></small>
+                                                            </span>
+                                                            <input style="position:relative; margin:3px;" type="checkbox" data-bind="attr:{id: ID},event:{change: $parent.Check_UncheckNhanVien}">
+                                                        </label>
+
+
+                                                    </div>
+
+
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 nopadding">
+            <div class="modal-footer nopadding">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                <button type="button" class="btn btn-save" data-bind="click: HoaHongHD_Agree">
+                    <i class="fa fa-save"></i>&nbsp; Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $.datetimepicker.setLocale('vi');
+        $('.datetime_TuNgay').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+        });
+    });
+</script>

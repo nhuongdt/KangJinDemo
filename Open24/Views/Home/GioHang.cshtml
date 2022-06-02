@@ -1,0 +1,193 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Giỏ hàng";
+}
+@section scripts{
+    <script>
+
+        var Cart = function () {
+            var self = this;
+            self.listCart = ko.observableArray();
+            self.CountCart = ko.observable();
+            $("body").on('CartOnsuccess', function () {
+                loadCart();
+            });
+            function loadCart() {
+                var request = LocalIndexDB.Connect().getAll();
+                request.onsuccess = function (evt) {
+                    var data = evt.target.result;
+                    self.listCart(data);
+                    self.CountCart(data.length);
+                };
+            }
+            self.refresh = function () {
+                var data = self.listCart().slice(0);
+                self.listCart([]);
+                self.listCart(data);
+            };
+            self.removeCart = function (item) {
+                var data = self.listCart().filter(x=>x.ID!==item.ID).slice(0);
+                self.listCart([]);
+                self.listCart(data);
+                var objectStoreRequest = LocalIndexDB.Connect().openCursor(item.ID);
+                objectStoreRequest.onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        var myRecord = cursor.value;
+                        if (myRecord !== null && myRecord !== undefined) {
+                            cursor.delete(item);
+                            loadCart();
+                        }
+                    }
+                }
+
+            }
+            self.QuantityPrev = function (item) {
+                if (item.salesDevice_Quantity > 0) {
+                    item.salesDevice_Quantity -= 1;
+                    self.changeQuantity(item, 0);
+                }
+            }
+            self.QuantityNext = function (item) {
+                
+                item.salesDevice_Quantity += 1;
+                self.changeQuantity(item, 1);
+            }
+            self.changeQuantity = function (item, type) {
+                item.salesDevice_Money = item.salesDevice_Quantity * item.salesDevice_Price;
+                self.refresh();
+                var objectStoreRequest = LocalIndexDB.Connect().openCursor(item.ID);
+                objectStoreRequest.onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        var myRecord = cursor.value;
+                        if (myRecord !== null && myRecord !== undefined) {
+                            if (type === 1) {//next
+                                myRecord.salesDevice_Quantity += 1;
+                            }
+                            else if (myRecord.salesDevice_Quantity>0){
+                                myRecord.salesDevice_Quantity -= 1;
+                            }
+                            myRecord.salesDevice_Money = myRecord.salesDevice_Quantity * myRecord.salesDevice_Price;
+                            cursor.update(myRecord);
+                        }
+                    }
+                }
+            }
+            self.MoneyComputed = ko.computed(function () {
+                return FormatVND(self.listCart().reduce((a, b) => +a + +b.salesDevice_Money, 0));
+            });
+        }
+        ko.applyBindings(new Cart());
+    </script>
+}
+<div class="detail-product fl cart-prod">
+    <div class="container">
+
+        <div class="title-product fl">
+            <div class="product-left pull-left">
+                <a href="/">Trang chủ <i class="fa fa-caret-right"></i></a>
+                <a href="/gio-hang">Giỏ hàng </a>
+            </div>
+            <div class="product-right pull-right">
+                <div class="seach-product">
+                    @*<input type="text" class="form-control" placeholder="Tìm kiếm">
+                    <i class="fa fa-search"></i>*@
+                </div>
+                <div class="cart-product">
+                    <a href="/gio-hang">
+                        Giỏ hàng
+                        <img src="/Content/images/phidv/ca1.png">
+                        <span data-bind="text:CountCart" />
+                        </a>
+</div>
+            </div>
+        </div>
+        <div class="table-reponsive">
+            <table class="table-cart fl">
+                <thead>
+                    <tr>
+                        <th>
+                            &nbsp;
+                        </th>
+                        <th class="name-cart">
+                            Sản phẩm
+                        </th>
+                        <th class="price-cart" style="background:#e7e8e9">
+                            Giá
+                        </th>
+                        <th class="quantily">
+                            Số lượng
+                        </th>
+                        <th class="sum-money" style="background:#e7e8e9">
+                            Thành tiền
+                        </th>
+                        <th class="delete-cart">
+                            Xóa
+                        </th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach:listCart">
+                    <tr>
+                        <td class="img-cart">
+                            <img data-bind="attr: { src: salesDevice_Img}" height="110" width="150">
+                            @*<div class="sale-product">
+                                -10%
+                            </div>*@
+                        </td>
+                        <td class="name-cart" data-bind="text:salesDevice_Name">
+                        </td>
+                        <td class="price-cart" data-bind="text:FormatVND(salesDevice_Price)">
+                        </td>
+                        <td class="quantily">
+                            <a href="javascript:void(0" data-bind="click:$parent.QuantityPrev"><i class="fa fa-chevron-down"></i></a>
+                            <input type="text" data-bind="value:salesDevice_Quantity" disabled />
+                            <a href="javascript:void(0)" data-bind="click:$parent.QuantityNext"><i class="fa fa-chevron-up"></i></a>
+                        </td>
+                        <td class="sum-money" data-bind="text:FormatVND(salesDevice_Money)">
+                        </td>
+                        <td class="delete-cart">
+                            <a href="javascript:void(0)" data-bind="click:$parent.removeCart">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pull-left">
+            <a href="/bang-gia-phan-mem" class="bought-add">Mua thêm hàng</a>
+        </div>
+        <div class="pull-right total-all">
+            <table class="total-cart fl pull-right">
+                <tr>
+                    <td class="text-left">Tổng giá trị sản phẩm:</td>
+                    <td class="text-right" data-bind="text:MoneyComputed"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">Tiền vận chuyển:</td>
+                    <td class="text-right">Tính khi thanh toán</td>
+                </tr>
+                <tr>
+                    <td class="text-left">Tổng thanh toán:</td>
+                    <td class="text-right" style="color:var(--main-color);" data-bind="text:MoneyComputed"></td>
+                </tr>
+            </table>
+            <div class="fl pull-right">
+                <a href="/Thanh-toan" class="bought-right pull-right" >
+                    <div class="hand">
+                        <img src="/Content/images/phidv/m4.png">
+
+
+                    </div>
+                    <div class="bought-text">
+                        <font>Mua hàng ngay</font><br>
+                        Giao tận nơi hoặc nhận tại các cửa hàng
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</div>

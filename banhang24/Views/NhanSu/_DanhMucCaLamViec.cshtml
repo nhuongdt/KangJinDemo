@@ -1,0 +1,110 @@
+﻿
+@using Model;
+<style>
+    .btn-group:hover {
+        background: var(--color-table);
+        color: black;
+    }
+
+    #NgayNghiLe .dropdown-menu li:hover {
+        background: var(--color-table);
+    }
+
+    #NgayNghiLe .dropdown-menu li {
+        border-bottom: 1px solid #ccc;
+    }
+</style>
+
+<div class="modal-nhan-su" id="CaLamViec">
+    <div class="modal fade in" id="modalDMCaLamViec">
+        <div class="modal-dialog draggable modal-lg  ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        Danh mục ca làm việc
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="table-reponsive table-HH banghh">
+                        <table class=" table-hover op-table">
+                            <thead class="table-border">
+                                <tr>
+                                    <th class="text-center">Mã ca</th>
+                                    <th class="text-center">Tên ca</th>
+                                    <th class="text-left ">Giờ vào</th>
+                                    <th class="text-center ">Giờ ra</th>
+                                    <th class="text-center ">Tổng giờ công</th>
+                                    <th class="text-center ">Trạng thái</th>
+                                    <th class="text-center " style="width:50px">#</th>
+                                </tr>
+                            </thead>
+                            <tbody v-for="(item, index) in listdata.CaLamViec" :key="item.Id">
+                                <tr class="op-tr-show">
+                                    <td class="text-center ">{{item.Ma}}</td>
+                                    <td class="text-center ">
+                                        {{item.Ten}}
+                                    </td>
+
+                                    <td class="text-left ">
+                                        {{moment(item.GioVao).format('HH:mm')}}
+                                    </td>
+                                    <td class="text-center ">
+                                        {{moment(item.GioRa).format('HH:mm')}}
+                                    </td>
+                                    <td class="text-center ">
+                                        {{item.TongGioCong}}
+                                    </td>
+                                    <td class="text-center ">
+                                        <span v-if="item.TrangThai!==0">Đang hoạt động</span>
+                                        <span v-else="item.TrangThai===0">Đã xóa</span>
+                                    </td>
+                                    <td class="text-left td-icon-edit">
+                                        <a href="javascript:void(0)" title="Cập nhật ca"
+                                           v-if="Role.Update" v-on:click="Edit(item)">
+                                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                        </a>
+                                        <a href=" javascript:void(0)" title="Xóa ca làm việc" v-if="Role.Delete" style="color:red"
+                                           v-on:click="Delete(item)">
+                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="PhanQuyen" hidden>
+                                <tr>
+                                    <td colspan="7" class="bg12 bhma text-center"><i>Bạn không có quyền!</i></td>
+                                </tr>
+                            </tfoot>
+                            <tfoot class="Report_Empty" v-show="listdata.CaLamViec.length <=0">
+                                <tr>
+                                    <td colspan="7" class="bg12 bhma text-center"><i>Không có dữ liệu</i></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="container-fluid">
+                        <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="modal" class="btn btn-main addHHH btn-main no-magrin"
+                                v-if="Role.Insert" v-on:click="AddNew">
+                            <i aria-hidden="true" class="fa fa-plus"></i> <font>Thêm mới</font>
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/NhanSu/ModalDanhMucCa.js"></script>
+@Html.Partial("_ThemMoiCaLamViecFormBasic")
+
+
+

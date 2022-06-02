@@ -1,0 +1,128 @@
+﻿@using Model_banhang24vn.Common;
+@{
+    ViewBag.Title = "EditNotificationSoftware";
+    Layout = "~/Areas/AdminPage/Views/Shared/_Layout.cshtml";
+}
+@section scripts {
+
+
+    @Scripts.Render("~/bundles/Knockout")
+    <script src="~/Content/CkEditor/ckeditor.js"></script>
+    <script src="~/Content/ckfinder/ckfinder.js"></script>
+    <script src="~/Assets/js/Admin/EditNotificationSoftware.js"></script>
+
+    <script>
+    Date.prototype.addDays = function (days) {
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+    $("#datetimepicker").datetimepicker({
+        format: "MM/DD/YYYY",
+        defaultDate: null,
+        minDate: new Date().addDays(-1)
+    });
+
+ $(document).ready(function () {
+    CKEDITOR.replace('txtbodycontent',
+        {
+            entermode: CKEDITOR.ENTER_BR,
+            toolbar: [[
+                'Bold', 'Italic', 'Underline', 'Subscript',
+                'Superscript', 'Image', 'Table', 'NumberedList',
+                'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'Link',
+                'Unlink', 'TextColor', 'Maximize', 'Source', 'FontSize', 'Format', 'Font'
+            ]]
+        });
+    CKFinder.setupCKEditor(null, '@Url.Content("~/Content/ckfinder/")');
+});
+    </script>
+}
+
+@Html.Hidden("KeyId", (int?)ViewBag.KeyNotificationID, new { @id = "KeyNotificationID" })
+@Html.Hidden("NotificationSoftware", ((int)Notification.NotificationSoftware.thongbaochung), new { @id = "NotificationSoftware" })
+<div class="right_col" role="main">
+    <div class="addnews fl">
+        <h3 data-bind="text:TitleForm"></h3>
+        <div class="content-addnews fl">
+            <div class="col-md-8">
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Tiêu đề</h4></div>
+                    <div class="col-md-12">
+                        <input type="text" class="form-control" data-bind="value: koTitle" />
+                    </div>
+
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Nội dung</h4></div>
+                    <div class="col-md-12">
+                        <textarea class="ckeditor" id="txtbodycontent"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Thời gian thông báo</h4></div>
+                    <div class="col-md-12">
+                        <div class="container">
+                            <div class='input-group date' id='datetimepicker'>
+                                <input type='text' class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Loại thông báo</h4></div>
+                    <div class="col-md-12">
+                        <div class="container">
+                            <div class='input-group select-control'>
+                                <select id="selecttype" class="form-control ">
+                                    @foreach (var item in Notification.ListNotificationSoftware)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews adressSubdomain" hidden>
+                    <div class="col-md-12 title-add"><h4>Địa chỉ cửa hàng</h4></div>
+                    <div class="col-md-12">
+                        <input type="text" class="form-control" data-bind="value: kosubdomain" />
+
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><h4>Trạng thái</h4></div>
+                    <div class="col-md-12">
+                        <div class="radio-addnews">
+                            <input type="radio" data-bind="checked: koStatusNews, checkedValue: true" /> Kích hoạt
+                        </div>
+                        <div class="radio-addnews">
+                            <input type="radio" data-bind="checked: koStatusNews, checkedValue: false" /> Đóng
+                        </div>
+                    </div>
+                </div>
+                <div class="fl form-addnews">
+                    <div class="col-md-12 title-add"><label>&nbsp;</label></div>
+                    <div class="col-md-12">
+                        <div class="pull-left">
+                            <button class="btn-updata btn-green" id="saveImageFolder" data-bind="click: EditNotification"><i class="fa fa-floppy-o"></i> Lưu</button>
+                            <button type="button" class="btn btn-light" onclick="window.location='/AdminPage/Home/NotificationSoftware'"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Quay lại</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

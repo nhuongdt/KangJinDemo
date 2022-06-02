@@ -1,0 +1,355 @@
+﻿@using Open24.Areas.AdminPage.Hellper;
+@using Model_banhang24vn.Common
+@{ var name = "";
+    if (contant.SESSIONNGUOIDUNG != null)
+    { name = contant.SESSIONNGUOIDUNG.Name; }
+
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+    <title>@ViewBag.Title</title>
+
+    <link href="~/Content/js/bootstap.min.css" rel="stylesheet">
+    <link href="~/Content/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/css/bootstrap-datepicker.css" rel="stylesheet" />
+    <link href="~/Content/css/StyleSheet2.css" rel="stylesheet" />
+    <link href="~/Content/css/styleadmin.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery.growl.css" rel="stylesheet" />
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/OpenAdminJs")
+    @RenderSection("headscripts", required: false)
+
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="close-menu">
+                    <i class="fa fa-close text-danger fa-lg"></i>
+                </div>
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title">
+                        <a href="/AdminPage/Home/Index" class="site_title"> <span>Trang quản trị Open 24</span></a>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a href="/AdminPage/Home/Index">
+                                        <i class="fa fa-home"></i> Trang chủ
+                                    </a>
+                                </li>
+                                @if (contant.CheckRole(StaticRole.BAIVIET_VIEW) || contant.CheckRole(StaticRole.NHOMBAIVIET_VIEW))
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-newspaper-o"></i> Tin tức
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.BAIVIET_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Post">Danh sách bài viết</a></li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.NHOMBAIVIET_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Post/GroupPost">Nhóm bài viết</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                @if (contant.CheckRole(StaticRole.USER_VIEW) || contant.CheckRole(StaticRole.USERGROUP_VIEW))
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-user"></i> Người dùng
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.USER_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/News_User">Danh sách người dùng</a></li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.USERGROUP_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/News_UserGroup">Nhóm người dùng</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                @if (contant.CheckRole(StaticRole.CUAHANG_VIEW) || contant.CheckRole(StaticRole.INTRODUCECUSTOMER_VIEW))
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-university"></i> Cửa hàng đăng ký
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.CUAHANG_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/StoreRegistration">
+                                                        Danh sách cửa hàng
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.INTRODUCECUSTOMER_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Home/Contract">Khách hàng được giới thiệu</a></li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.CUSTOMERCONTACTSALE_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Home/CustomerContactSales">Khách đặt hàng</a></li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.GOIDICHVU_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Home/GoiDichVu">Gói dịch vụ</a></li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.DICHVUSMS_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Home/RegisterServiceSms">Của hàng đăng ký SMS</a></li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.DICHVUSMS_VIEW))
+                                            {
+                                                <li><a href="/AdminPage/Home/RechargeService">Của hàng nạp tiền</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                @if (contant.CheckRole(StaticRole.SALESDEVICES_VIEW) || contant.CheckRole(StaticRole.ORDER_VIEW))
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-cubes"></i> Sảm phẩm
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.SALESDEVICES_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Products/SalesDevice">
+                                                        Thiết bị bán hàng
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.ORDER_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Products/Order">
+                                                        Đơn đặt hàng
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                @if (contant.CheckRole(StaticRole.KHACHHANG_VIEW))
+                                {
+                                    <li>
+                                        <a href="/AdminPage/Customer">
+                                            <i class="fa fa-users"></i>Danh sách đối tác
+                                        </a>
+                                    </li>
+                                }
+                                @if (contant.CheckRole(StaticRole.BUSINESS_VIEW))
+                                {
+                                    <li>
+                                        <a href="/AdminPage/Business">
+                                            <i class="fa fa-money"></i>Ngành nghề kinh doanh
+                                        </a>
+                                    </li>
+
+                                }
+                                @if (contant.CheckRole(StaticRole.MENUTAG_VIEW) || contant.CheckRole(StaticRole.SEOURL_INSERT))
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-sitemap"></i> Seo
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.MENUTAG_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Home/MenuTags">
+                                                        Danh sách tags Menu
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.SEOURL_INSERT))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Home/SeoUrl">
+                                                       Url liên kết
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                        
+
+                                    </li>
+                                }
+                               
+                                @if (contant.CheckRole(StaticRole.CAUHOI_VIEW)
+                                    || contant.CheckRole(StaticRole.CUSTOMERCONTACT_VIEW)
+                                    || contant.CheckRole(StaticRole.NHOMNGANH_VIEW)
+                                    || contant.CheckRole(StaticRole.HT_TINHNANG_VIEW)
+                                    )
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-windows"></i>Hỗ trợ
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.CAUHOI_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/HoTro/HoiDap">
+                                                      Câu hỏi thường gặp
+                                                    </a>
+
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.NHOMNGANH_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/HoTro/nhomVaiTro">
+                                                        Nhóm ngành kinh doanh
+                                                    </a>
+
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.HT_TINHNANG_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/HoTro/tinhNang">
+                                                        Tính năng phần mềm
+                                                    </a>
+
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.CUSTOMERCONTACT_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Home/Contact">
+                                                            Khách hàng liên hệ
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+
+                                }
+                                @if (contant.CheckRole(StaticRole.ADVERTISEMENT_VIEW) || contant.CheckRole(StaticRole.NOTIFICATIONSOFWARE_VIEW))
+                                {
+                                    <li>
+                                        <a>
+                                            <i class="fa fa-windows"></i>Phần mềm Open24
+                                            <span class="fa fa-chevron-down"></span>
+                                            <span class="fa fa-chevron-up"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            @if (contant.CheckRole(StaticRole.ADVERTISEMENT_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Home/Advertising">
+                                                      Quảng cáo
+                                                    </a>
+
+                                                </li>
+                                            }
+                                            @if (contant.CheckRole(StaticRole.NOTIFICATIONSOFWARE_VIEW))
+                                            {
+                                                <li>
+                                                    <a href="/AdminPage/Home/NotificationSoftware">
+                                                       Thông báo
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                 
+                                }
+                                <li>
+                                    <a href="/AdminPage/AppChat">
+                                        <i class="fa fa-user-o"></i>Người dùng đang online
+                                    </a>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <div class="list-menu">
+                        <i class="fa fa-list"></i>
+                    </div>
+                    <nav>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    @name
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="/AdminPage/Account/Profile"> Tài khoản</a></li>
+                                    <li><a href="/AdminPage/Account/Index"><i class="fa fa-sign-out pull-right"></i> Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                            <li role="presentation" class="dropdown">
+                                @*<a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-envelope-o"></i>
+                                        <span class="badge bg-green">6</span>
+                                    </a>*@
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            @RenderBody()
+        </div>
+    </div>
+    <script src="~/Content/js/moment.js"></script>
+    @RenderSection("scripts", required: false)
+    <script>
+        $(document).ready(function () {
+            $(".menu_section ul li").click(function () {
+                $(this).find(".child_menu").slideToggle();
+                $(this).find("span").toggle();
+            });
+            $(".list-menu").click(function () {
+                $(".col-md-3.left_col").show();
+            });
+            $(".close-menu").click(function () {
+                $(".col-md-3.left_col").hide();
+            });
+        });
+
+    </script>
+</body>
+</html>
+
+<div class="modal fade" id="Modalpopup" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Thông báo</h4>
+            </div>
+            <div class="modal-body">
+                <div id="showmmessage"></div>
+            </div>
+        </div>
+    </div>
+</div>

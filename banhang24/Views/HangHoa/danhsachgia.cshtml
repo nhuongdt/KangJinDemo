@@ -1,0 +1,599 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+}
+<style>
+    .ui-menu .ui-menu-item a {
+        text-decoration: none;
+        display: block;
+        padding: 13px 0px 10px 10px;
+        line-height: 1.5;
+        min-height: 0;
+        font-weight: normal;
+        text-align: left;
+    }
+    #txtAutoHangHoa ::after {
+        content: '+';
+        position: absolute;
+        right: 5px;
+        top: 5px
+    }
+    .search-left {
+        float: left;
+    }
+    #treeviewnhomhang {
+        max-height: 400px
+    }
+    .callprice > .flex.flex-end {
+        clear: both;
+    }
+</style>
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class="op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft xemBG" style="display:none">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/banggia.png" /> Bảng giá
+                        </h3>
+                        <a class="op-filter-add clickthemBG" hidden data-bind="click: themmoicapnhatgiaban">
+                            <i class="fa fa-plus" style=" margin-top:3px"></i>
+                        </a>
+                        <aside class="op-filter-container">
+                            <div class="input-group" style="    width: calc(100% - 40px);">
+                                <select class="form-control" id="ddlGiaBan" data-bind="options: GiaBans, optionsValue: 'ID',
+                                   optionsCaption: 'Bảng giá chuẩn', optionsText: 'TenGiaBan', value: selectedGiaBan"></select>
+                                <div class="input-group-btn capnhatgiabanggia" style="display:none">
+                                    <button type="button" class="btn btn-default" aria-label="Cập nhật giá" data-bind="click: capnhatgiaban, enable: selectedGiaBan">
+                                        <span class="fa fa-pencil-square-o"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/Iconbanhanggg-03.png" /> Nhóm hàng
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="seach-nhomhang">
+                                <i class="fa fa-search" style="display:inline-block"></i>
+                                <input autocomplete="off" type="text" class="seach-nhomhang" data-bind="event: {keyup: NoteNhomHang}" id="SeachNhomHang" placeholder="Tìm kiếm nhóm hàng" style="display:inline-block; width:calc(100% - 20px" ) />
+                            </div>
+                            <div id="tatcanhh" class="treename" data-bind="click: getAllGiaBanChiTiet">
+                                TẤT CẢ
+                                <a class="op-js-themmoinhomhang" href="javascript:void(0)"></a>
+                                <a href="javascript:void(0)" data-bind="click: addChiTietGiaBan" class="square"><i class="fa fa-share"></i></a>
+                            </div>
+                            <ul class="treeview floatleft" id="treeviewnhomhang" data-bind="foreach: NhomHangHoas">
+                                <li class="ss-li">
+                                    <div class="li-top li-oo" data-bind="attr:{id: ID}">
+                                        <span class="treename" data-bind="text: TenNhomHangHoa, click: $parent.changeddlNhomHangHoa"></span>
+                                        <a href="javascript:void(0)" data-bind="click: $parent.addChiTietGiaBan" class="square"><i class="fa fa-share"></i></a>
+                                    </div>
+                                    <style>
+                                        .treename {
+                                            line-height: 30px;
+                                            width: 100%;
+                                            float: left;
+                                        }
+                                    </style>
+                                    <span class="close-ul" onclick="ShowNhom($(this))" data-bind="visible: Childs.length >0 "><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                    <ul data-bind="foreach: Childs">
+                                        <li>
+                                            <div class="li-top li-oo" data-bind="attr:{id: ID}">
+                                                <span data-bind="text: TenNhomHangHoa, click: $root.changeddlNhomHangHoa" class="li-top li-pp"></span>
+                                                <a href="javascript:void(0)" data-bind="click: $root.addChiTietGiaBan"><i class="fa fa-share"></i></a>
+                                            </div>
+                                            <span class="close-ul" onclick="ShowNhom($(this))" data-bind="visible: Child2s.length >0 "><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                                            <ul data-bind="foreach: Child2s">
+                                                <li>
+                                                    <div class="li-top li-oo" data-bind="attr:{id: ID}">
+                                                        <span data-bind="text: TenNhomHangHoa, click: $root.changeddlNhomHangHoa, " class="li-top li-pp"></span>
+                                                        <a href="javascript:void(0)" data-bind="click: $root.addChiTietGiaBan"><i class="fa fa-share"></i></a>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <div class="close-goods">
+                                <a href="javascript:void(0)" class="add-goods">Xem thêm <i class="fa fa-caret-down "></i></a>
+                                <a href="javascript:void(0)" class="c-goods">Thu gọn <i class="fa fa-caret-up"></i></a>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header container-fluid">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">
+                        <label class="pull-left "> @banhang24.Resources.ResourceTexts.Product /</label>
+                        <label class="pull-left " style="margin-left: 5px" data-bind="text: _TenBangGia">  Bảng giá chuẩn</label>
+                    </h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class="header-button-left ">
+                            <!-- ko if: selectedGiaBan!==undefined-->
+                            <input class=" form-control" style="min-width:275px;" id="txtAutoHangHoa" data-bind="JqAutoHHCTG: { source: HangHoas, value: selectedHH,
+                                                     inputProp: 'TenHangHoa', labelProp: 'TenHangHoa', valueProp: 'ID_DonViQuiDoi',  template: 'rowChiTiet', filter: filterFind}"
+                                   placeholder="Thêm hàng hóa vào bảng giá" />
+                            <!--/ko-->
+                            <script id="rowChiTiet" type="text/html">
+                                @Html.Partial("~/Views/Component/_ko-ListSearchFullHangHoa.cshtml")
+                            </script>
+                            <button class="btn-link shownhapxuat " id="shownhapxuat" title="Chức năng nhập xuất" style="width:30px;">
+                                <i class="material-icons"> more_vert</i>
+                            </button>
+                            <button class="btn btn-main xuatbanggia  btnExport " style="display:none; min-width:85px" data-bind="click: ExportExcel_GiaBan">
+                                <i class="fa fa-file-excel-o"></i>
+                                Xuất file
+                            </button>
+                            <button class="btn btn-main  btnImportCTG " style="display:none" type="submit" data-toggle="modal" data-bind="click: $root.showimportBG">
+                                <i class="fa fa-download"></i> @banhang24.Resources.ResourceTexts.ImportFile
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" id="txtBangGiaFilter" placeholder="Theo mã, tên hàng" class="form-control"
+                                   data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off">
+                            <button type="button" class=" op-search-button" data-bind="click: $root.clickiconSearchBG">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table" id="myScrollspy">
+                <div class="table-res table_price table-frame">
+                    <table class=" table-striped table-hover table-wh banggia" id="myTableBG">
+                        <thead>
+                            <tr>
+                                <th data-bind="style: { display: $root.selectedGiaBan() === undefined ? 'none' : 'table-cell' }, click: modalDeleteAllChiTiet">
+                                    <i class="fa fa-times red"></i> Xóa
+                                </th>
+                                <th class="mahang" id="txtMaHang">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Mã hàng hóa</a>
+                                </th>
+                                <th class="tenhang" id="txttenhang">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Tên hàng</a>
+                                </th>
+                                <th class="tendonvitinh" id="txttendonvitinh">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Đvt</a>
+                                </th>
+                                <th class="tennhomhang" id="txttennhomhang">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Nhóm hàng hóa</a>
+                                </th>
+                                <th class="giavon text-right" id="txtgiavon">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Giá vốn</a>
+                                </th>
+                                <th class="gianhapcuoi text-right" id="txtgianhapcuoi">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Giá nhập cuối</a>
+                                </th>
+                                <th class="giachung text-right" id="txtgiachung" data-bind="style: { display: $root.selectedGiaBan() === undefined ? 'none' : 'table-cell' }">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Giá chung</a>
+                                </th>
+                                <th class="giamoi text-right">
+                                    <a href="javascript:void(0)" style="color: black; text-decoration:none">Giá mới</a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: GiaBanChitiets" id="td">
+                            <tr>
+                                <td data-bind="style: { display: $root.selectedGiaBan() === undefined ? 'none' : 'table-cell' }">
+                                    <a href="javascript:void(0)" data-bind="click: $parent.modalDelete">
+                                        <i class="fa fa-close green"></i>
+                                    </a>
+                                </td>
+                                <td class="mahang" data-bind="text: commonStatisJs.SubStringContent(MaHangHoa,15)"></td>
+                                <td class="tenhang">
+                                    <span data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,30)"></span>
+                                    <span data-bind="text: HangHoaThuocTinh" style="color:#ff6a00"></span>
+                                </td>
+                                <td class="tendonvitinh">
+                                    <span style="color:#009ddc" data-bind="if: DonViTinh != '' && DonViTinh != null">
+                                        <span data-bind="text: DonViTinh"></span>
+                                    </span>
+                                </td>
+                                <td class="tennhomhang" data-bind="text: TenNhomHangHoa"></td>
+                                <td class="giavon text-right" data-bind="text: $root.HangHoa_XemGiaVon() === 'HangHoa_XemGiaVon' ? (QuanLyTheoLoHang === false ? formatNumber(GiaVon) : 'Theo Lô Hàng'): 0, attr: {id : 'giavon_' + ID}"></td>
+                                <td class="gianhapcuoi text-right" data-bind="text: formatNumber(GiaNhapCuoi), attr: {id: 'gianhapcuoi_' + ID}"></td>
+                                <td class="giachung text-right" data-bind="text: formatNumber(GiaChung), style: { display: $root.selectedGiaBan() === undefined ? 'none' : 'table-cell' }, attr: {id: 'giachung_' + ID}"></td>
+                                <td class="giamoi">
+                                    <input type="text" class="form-control newprice text-right"
+                                           data-bind="value: formatNumber(GiaMoi) ,
+                                           attr: {id: ID},
+                                           event: {change: $root.ApDungGiaBanNow, keyup: $root.test, click:$root.ShowItem},
+                                           enable: $root.HangHoa_GiaBan() === 'HangHoa_GiaBan'"
+                                           onclick="this.select()"
+                                           onkeyup="return formatNumberObj(this)"
+                                           onkeypress="return keyPress(event)" />
+                                    <div class="callprice" style="width:546px !important">
+                                        <div class="callprice-left">
+                                            Giá mới: [<span data-bind="text:formatNumber(GiaMoi), attr:{id: 'newprice_' + ID}"></span>] =
+                                        </div>
+                                        <div class="callprice-right">
+                                            <div class="col-50 flex">
+                                                <select class="form-control" data-bind="attr: {id: 'choose-price_' + ID}" onchange="choosepricechange()">
+                                                    <option value="0">Giá hiện tại</option>
+                                                    <option value="1" data-bind="style: {display : $root.selectedGiaBan() === undefined ? 'none' : 'block'}">Giá chung</option>
+                                                    <option value="2">Giá cuối</option>
+                                                    <option value="3" data-bind="visible: $root.HangHoa_XemGiaVon() === 'HangHoa_XemGiaVon' && QuanLyTheoLoHang === false">Giá vốn</option>
+                                                </select>
+                                                <div class="toogle toogle-report active-re addSub" onclick="ShowDonGiaMoi($(this))" data-bind="attr: {id : 'plus_' + ID}">
+                                                    <span class="poison"><i class="fa fa-plus" aria-hidden="true"></i></span>
+                                                    <span class="transverse"><i class="fa fa-minus" aria-hidden="true"></i></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-50">
+                                                <div class="inner-50 " id="idDonGiaMoi">
+                                                    <input type="text" data-bind="attr: {id : 'number_' + ID}" class="form-control number-price" value="0" onkeyup="tinhgiamoi()" onkeypress="return keyPress(event)">
+                                                    <div class="toogle toogle-report active-re Ptram" onclick="ShowDonGiaMoi($(this))" data-bind="attr: {id : 'donViTinh_' + ID}">
+                                                        <span class="poison">VNĐ</span>
+                                                        <span class="transverse">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="callprice-right">
+                                            <div class="notifi floatleft">
+                                                <label><input type="checkbox" class="checkbox" data-bind="attr:{id: 'cbapdung_' + ID}">Áp dụng công thức cho <span data-bind="text: $root.TotalRecord"></span> sản phẩm trong bảng giá?</label>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-end">
+                                            <a href="javascript:void(0);" data-bind="click: $parent.ApDungGiaBan" class="cantrol">OK</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page">
+                    <div class="flex flex-row">
+                        <label>Số bản ghi:</label>
+                        <select class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}" id="pagerownumcount"></select>
+                    </div>
+                    <div class="flex flex-end">
+                        <a href="javascript:void(0)" data-bind="click: $root.StartPage, visible: VisibleStartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.BackPage, visible: VisibleStartPage "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <ul data-bind="foreach: PageList_Display">
+                            <li>
+                                <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageHD, css: $root.GetClassHD($data)"></a>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage, visible: VisibleEndPage "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.EndPage, visible: VisibleEndPage "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <div class="total-recos">Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số <span data-bind="text: TotalRecord"></span> mã hàng.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPopuplg_giaban">
+    <div class="modal-dialog draggable modal-dialog-pb modal-md">
+        <div id="modalContainerlg_giaban">
+            @Html.Partial("_AddNewPriceList")
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_delete">
+    <div id="modalContainer_delete" class="modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa
+                <span style="font-weight:bold" data-bind="text: deleteTenHangHoa"></span> khỏi bảng giá.
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel " data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: deleteChiTietGiaBan"><i class="fa fa-check-square"></i> Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_deleteAllCT">
+    <div id="modalContainer_delete" class="modal-md modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa hết hàng hóa trong bảng giá này.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaAllChiTietBangGia"><i class="fa fa-check-square"></i> Đồng ý</button>
+                <button type="button" class="btn btn-cancel " data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade delete" id="modalpopup_deleteGB">
+    <div id="modalContainer_delete" class="modal-md modal-dialog ">
+        <div class="modal-content ">
+            <div class="modal-body">
+                <b class="font-14">Bạn có chắc chắn muốn xóa bảng giá này.</b>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaGiaBan"><i class="fa fa-check"></i> Đồng ý</button>
+                <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*import bảng giá*@
+<div id="myModalinport" class="modal fade">
+    <div id="modalContainer_NhomHHDV" class=" modal-lg modal-dialog">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="no-magrin">Import hàng hóa vào bảng giá</h4>
+            </div>
+            <div class="modal-body printinport">
+                <div class=" excel-file nopadding" id="importNhapHang">
+                    <div data-bind="visible: visibleImport ">
+                        <h5 class="no-magrin">Nhập hàng hóa từ file Excel - <a href="#" class="link-text" style="float:none;"> Hướng dẫn </a></h5>
+                        <div class="title-inport "> Tải về File mẫu <span class="blue " data-bind="click: DownloadFileTeamplateXLS"> Excel 2003</span>  hoặc<span class="blue" data-bind="click: DownloadFileTeamplateXLSX"> bản cao hơn</span></div>
+                    </div>
+                    <div class="choose-file">
+                        <span class="btn btn-green btn-file form-control no-magrin ClickSelectFile" data-bind="visible: visibleImport ">
+                            Chọn file dữ liệu <input type='file' id="imageUploadForm" name="image" data-bind="event:{ change: SelectedFileImport }"
+                                                     accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                        </span>
+                        <input type="file" id="imageUploadForm" style="display:none" name="image" data-bind="event:{ change: SelectedFileImport }" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                        <div class="">
+                            <div class="list-file flex flex-center">
+                                <ul style="width:100%">
+                                    <li class="filterFileSelect flex flex-between height-30">
+                                        <span data-bind="text: fileNameExcel"></span>
+                                        <button class="btn btn-link height-24 flex" data-bind="click: refreshFileSelect">
+                                            <i class="fa fa-close text-danger"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                                <button class="btn btn-main height-30 imgUploadClick" data-bind="visible:notvisibleImport"><i class="material-icons">folder</i></button>
+                            </div>
+                            <button class="btn btn-main btnImportExcel" id="saveImageFolder" data-bind="click: insertArticleNews" style="display: none;"><i class="fa fa-floppy-o"></i> Thực hiện</button>
+                        </div>
+                        <div class="padingbottom">
+                        </div>
+                        <div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-warning padding-10 NoteImport text-center">
+                    <b class="font-14"><i class="fa fa-warning"></i> Lưu ý</b>
+                    <div>Bạn vui lòng không thay đổi định dạng hàng cột theo file Excel mẫu .</div>
+                    <div>Click vào checkbook "đồng ý..." nếu bạn muốn tiếp tục import dữ liệu bằng cách bỏ qua dữ liệu sai.</div>
+                </div>
+                <div class="BangBaoLoi">
+                    <div class="error-data">
+                        <h2 class="pull-left title">Bảng thông báo lỗi</h2>
+                    </div>
+                    <div class="table-reponsive table_price table_error">
+                        <table class="table  table-hover table-wh">
+                            <thead>
+                                <tr>
+                                    <th>Tên trường dữ liệu</th>
+                                    <th>Vị trí</th>
+                                    <th>Thuộc tính</th>
+                                    <th>Diễn giải<span class="pull-right red " data-bind="click: ShowandHide"><i class="fa fa-refresh fa-lg" aria-hidden="true"></i></span></th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: loiExcel">
+                                <tr>
+                                    <td data-bind="text: TenTruongDuLieu"></td>
+                                    <td data-bind="text: ViTri"></td>
+                                    <td data-bind="text: ThuocTinh"></td>
+                                    <td data-bind="text: DienGiai"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer file-all">
+                        <div class="form-group pull-left continue-hh choseContinue">
+                            <input type="checkbox" data-bind="checked: ContinueImport" value="0" />  Đồng ý bỏ qua lỗi và tiếp tục
+                        </div>
+                        <button type="button" class="btn btn-main pull-right startImport" id="btnLuuHangHoa" data-bind="click: DoneWithError">
+                            <i class="fa fa-save"></i>&nbsp; Tiếp tục
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#treeviewnhomhang li").hover(function () {
+        $("#tatcanhh a").css("display", "none");
+    });
+    $(document).on('click', '#ddlGiaBan', function () {
+        var price = $(this).val();
+        if (price == "") {
+            $(".seach-price").css("display", "none");
+        }
+        else {
+            $(".seach-price").css("display", "block");
+        }
+    });
+    var rowid;
+    var oldPrice;
+    $('#td').on('click', '.newprice', function () {
+        rowid = $(this).attr('id');
+        choosepricechange();
+        $(this).next(".callprice").toggle();
+        //$('.newprice').select();
+        $(".arrow-left2").mouseup(function () {
+            return false
+        });
+        $(".callprice").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            $(".callprice").hide();
+        });
+        $('input[type=text]').click(function () {
+            $(this).select();
+        });
+    });
+    function choosepricechange() {
+        var c = document.getElementById('choose-price_' + rowid).value;
+        if (c == 0) {
+            oldPrice = formatNumberToInt($("#" + rowid).val());
+            document.getElementById("newprice_" + rowid).innerHTML = $("#" + rowid).val();
+        }
+        else if (c == 1) {
+            oldPrice = formatNumberToInt($("#giachung_" + rowid).html());
+            document.getElementById("newprice_" + rowid).innerHTML = $("#giachung_" + rowid).html();
+        }
+        else if (c == 2) {
+            oldPrice = formatNumberToInt($("#gianhapcuoi_" + rowid).html());
+            document.getElementById("newprice_" + rowid).innerHTML = $("#gianhapcuoi_" + rowid).html();
+        }
+        else if (c == 3) {
+            oldPrice = formatNumberToInt($("#giavon_" + rowid).html());
+            document.getElementById("newprice_" + rowid).innerHTML = $("#giavon_" + rowid).html();
+        }
+        tinhgiamoi();
+    }
+    var priceAdd = 0;
+    var giamoi = 0;
+    var phantram = 0;
+    function tinhgiamoi(obj) {
+        var objInput = $("#number_" + rowid);
+        formatNumberObj(objInput); // format 000,000,000
+        var temp = formatNumberToInt(objInput.val()); // convert to int
+        var newPrice = formatNumberToInt($('#newprice_' + rowid).text());
+        if ($('#donViTinh_' + rowid).hasClass('active-re')) {
+            if (formatNumberToFloat($("#number_" + rowid).val()) > 100) {
+                $("#number_" + rowid).val(100);
+                temp = 100;
+                temp = temp * oldPrice / 100;
+                phantram = 100;
+            }
+            else {
+                phantram = temp;
+                temp = temp * oldPrice / 100;
+            }
+        }
+        var result;
+        if ($("#plus_" + rowid).hasClass('active-re') == false) {
+            result = parseInt(oldPrice) + parseInt(temp);
+        }
+        else {
+            if (temp > oldPrice) {
+                result = 0;
+            } else {
+                result = parseInt(oldPrice) - parseInt(temp);
+            }
+        }
+        if ($("#number_" + rowid).val() == "") {
+            result = parseInt(oldPrice);
+        }
+        document.getElementById("newprice_" + rowid).innerHTML = formatNumber(result);
+        priceAdd = parseInt(temp);
+        giamoi = parseInt(result);
+    };
+    $(document).on('click', '.minus', function () {
+        $(this).next(".minus").removeClass("gb");
+        $(this).prev(".minus").removeClass("gb");
+        $(this).addClass("gb");
+        tinhgiamoi();
+    });
+    $(document).on('click', '.plus', function () {
+        $(this).next(".plus").removeClass("gb");
+        $(this).prev(".plus").removeClass("gb");
+        $(this).addClass("gb");
+        tinhgiamoi();
+    });
+    $(document).on('click', '.cantrol', function () {
+        $(".callprice").hide();
+        tinhgiamoi();
+        choosepricechange();
+    });
+    $(".c-goods").click(function () {
+        $(".add-goods").show();
+        $(this).hide();
+        $("#treeviewnhomhang").removeClass("scoll-r")
+    });
+    $(".add-goods").click(function () {
+        $(".c-goods").show();
+        $(this).hide();
+        $("#treeviewnhomhang").addClass("scoll-r")
+    })
+    function openUl(obj) {
+        $(obj).parent().next("ul").toggleClass("open");
+    }
+    function ShowNhom($this) {
+        $this.next("ul").toggleClass("open");
+    };
+    function keyPress(e) {
+        var keypressed = null;
+        if (window.event) {
+            keypressed = window.event.keyCode; //IE
+        }
+        else {
+            keypressed = e.which; //NON-IE, Standard
+        }
+        if (keypressed < 48 || keypressed > 57) {
+            if (keypressed == 8 || keypressed == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    function ShowDonGiaMoi($this) {
+        $this.toggleClass("active-re");
+        tinhgiamoi();
+    }
+    $('input[type=text]').click(function () {
+        $(this).select();
+    });
+    $(document).ready(function () {
+        var lc_CTQuyen = JSON.parse(localStorage.getItem('lc_CTQuyen'));
+        if ($.inArray('ThietLapGia_ThemMoi', lc_CTQuyen) > -1) {
+            $('.clickthemBG').css('display', 'block');
+        }
+        if ($.inArray('ThietLapGia_XemDS', lc_CTQuyen) > -1) {
+            $('.xemBG').css('display', 'block');
+        }
+        if ($.inArray('ThietLapGia_XuatFile', lc_CTQuyen) > -1) {
+            $('.xuatbanggia').css('display', 'block');
+        }
+        if ($.inArray('ThietLapGia_CapNhat', lc_CTQuyen) > -1 || $.inArray('ThietLapGia_Xoa', lc_CTQuyen) > -1) {
+            $('.capnhatgiabanggia').css('display', 'block');
+        }
+    })
+    var height_table = $("#td").height();
+    var width_table = $(".table-hover").width();
+    $.datetimepicker.setLocale('vi');
+    $('#modalPopuplg_giaban').on('shown.bs.modal', function (e) {
+        $('.datetimepicker4').datetimepicker({
+            format: 'd/m/Y H:i',
+            timepicker: true,
+            step: 30,
+            mask: true
+        });
+    });
+    $('#modalPopuplg_giaban1').modal('show');
+</script>
+@Scripts.Render("~/bundles/AppDanhMuc/GiaBan")

@@ -1,0 +1,73 @@
+﻿@model Model_banhang24vn.NotificationSoftware
+<div class="popup-Notification-Open24" hidden>
+    <div class="overlaypop"></div>
+    <div class="pop-body">
+        <p class="op-titile-notification"><img class="op-img-notification" src="/Content/images/icon/open24-notification.png" title="Open24.vn"><span>Open24 thông báo</span></p>
+        <button type="button" class="close closepop" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <div class="pop-wrap">
+            <div class="pop-header">
+                <p>@Model.Title</p>
+            </div>
+            <div class="pop-content">
+                @Html.Raw(Model.BodyContent)
+              
+            </div>
+            <div class="pop-note">
+                <label class="quickaction_chk">
+                    <span class="check-group">
+                        <input type="checkbox">
+                    </span>
+                    <span></span> Không hiển thị lần sau
+                </label>
+                <span class="op-space">|</span>
+                <span>Tổng đài tư vấn: <strong> 0247 303 9333</strong></span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var Open24_cachePopup = "Open24_Popup_Notification";
+    function getDateNowStr() {
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+
+        return d.getFullYear() + '/' +
+            (('' + month).length < 2 ? '0' : '') + month + '/' +
+            (('' + day).length < 2 ? '0' : '') + day;
+    }
+    function showpopup_notification(){
+        var id_Notification = '@Model.ID';
+        var local_Notification = window.localStorage.getItem(Open24_cachePopup);
+        var output = getDateNowStr();
+
+        if (id_Notification !== '0' && VHeader.ShowImgLogo) {
+            if (local_Notification === null || local_Notification === undefined) {
+                $('.popup-Notification-Open24').show();
+                window.localStorage.setItem(Open24_cachePopup, output+"_1");
+            }
+              else  if (local_Notification === (output+"_1")) {
+                    $('.popup-Notification-Open24').show();
+            }
+            else if (local_Notification.split("_")[0] !== output)
+                {
+                $('.popup-Notification-Open24').show();
+                window.localStorage.setItem(Open24_cachePopup, output + "_1");
+                }
+
+        }
+    }
+    showpopup_notification();
+    $('.popup-Notification-Open24').on('click', '.closepop', function ()
+    {
+        if ($('.check-group input').is(':checked'))
+        {
+            var output = getDateNowStr()+"_2";
+            window.localStorage.setItem(Open24_cachePopup, output);
+        }
+
+        $('.popup-Notification-Open24').hide();
+    });
+</script>

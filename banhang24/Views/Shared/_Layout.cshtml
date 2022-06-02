@@ -1,0 +1,334 @@
+﻿@using System.Web.Optimization
+@using banhang24.AppCache
+@using banhang24.Hellper;
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <link rel="manifest" href="~/manifest.manifest" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script>
+        if (location.hostname.indexOf("open24.vn") > 0 || location.hostname === "localhost") {
+            document.head.insertAdjacentHTML('beforeEnd', '<link href="Content/images/open24.vn.png" type="image/gif" rel="icon">');
+        }
+    </script>
+    @*<link href="~/Content/images/open24.vn.png" type="image/gif" rel="icon">*@
+    @Scripts.Render("~/bundles/modernizr")
+    @Styles.Render("~/Content/less")
+    <link href="@Html.WriteRenderFile(Styles.Url("~/Content/CssFramework"))" rel="stylesheet" />
+    @*<link href="~/Content/Framework/fontawesome-pro-5.15.3-web/css/all.css" rel="stylesheet" />
+        <link href="~/Content/Framework/fontawesome-pro-5.15.3-web/css/v4-shims.css" rel="stylesheet" />*@
+    <link href="@Html.WriteRenderFile(Styles.Url("~/Content/Open24Css"))" rel="stylesheet" />
+    <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/JsFramework"))" type="text/javascript"></script>
+    <script src="@Scripts.Url("~/bundles/JsStatic")" type="text/javascript"></script>
+    <script src="~/Content/Framework/signalr/signalr.js"></script>
+    <script src="~/Content/js/Open24SignalR.js"></script>
+    @RenderSection("headScripts", required: false)
+    <script>
+        function AnimationLoading() {
+            $("#swapthemeAnimation").show();
+            $("#swapthemeAnimation").addClass('active');
+            setTimeout(function () {
+                $("#swapthemeAnimation img").fadeIn();
+                setTimeout(function () {
+                    $("#swapthemeAnimation").removeClass('active');
+                    $("#swapthemeAnimation img").fadeOut('slow');
+                }, 1500)
+            }, 1000);
+        }
+        $(document).ready(function () {
+            var sts = localStorage.getItem('BetaUI_sts');
+            //AnimationLoading();
+            switch (sts === 'true') {
+                case true:
+                    $("#BetaInterface").prop("disabled", false);
+                    $("#ClassicInterface").prop("disabled", true);
+                    $("#changeUIButton").html("Giao diện Classic")
+                    break;
+                case false:
+                    $("#BetaInterface").prop("disabled", true);
+                    $("#ClassicInterface").prop("disabled", false);
+                    $("#changeUIButton").html("Giao diện Beta")
+                    break;
+                default:
+                    $("#BetaInterface").prop("disabled", false);
+                    $("#ClassicInterface").prop("disabled", true);
+                    $("#changeUIButton").html("Giao diện Classic")
+                    break;
+            }
+        })
+    </script>
+    <style>
+        .loading-box {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            z-index: 999999999999999999;
+        }
+
+        .loading-bg {
+            background: rgba(255, 255, 255, 1);
+            height: 100%;
+        }
+
+        .loading-obj {
+            overflow: visible;
+            position: relative;
+            background: white;
+            width: 200px;
+            height: 200px;
+            margin: auto;
+            top: calc(50vh - 200px);
+            border-radius: 50%;
+        }
+
+        .loading-img {
+            margin: 82px 50px;
+            vertical-align: middle;
+        }
+
+        .loading-txt {
+            width: 200px;
+            margin: auto;
+            padding-left: 100px;
+        }
+
+        .loading-done {
+            display: none;
+            position: absolute;
+            top: 0;
+            background: white;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loader {
+            width: 75px;
+            height: 75px
+        }
+
+        .renewal button{
+            width: 70px;
+            background: repeat;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript">
+        /* chat hỗ trợ khách hàng Tawk_API*/
+        var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+        (function () {
+            var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/5b14b9ee8859f57bdc7bcdc8/default';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+            s0.parentNode.insertBefore(s1, s0);
+        })();
+    </script>
+    <div class="loading-box">
+        <div class="loading-bg">
+            <div class="loading-obj">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+    @Html.Action("_header", new { area = "", Controller = "Shared" })
+    <div class="bg-op"></div>
+    @RenderBody()
+    @Html.Partial("~/Views/Component/_vue-ImageModal.cshtml")
+    @Html.Partial("~/Views/Home/_GopY.cshtml")
+        @*<div class="renewal" id="op-expire" style="display: block; background: linear-gradient(to right,var(--color-main),rgb(243 243 243));">*@
+<div class="renewal" id="op-expire" style="display: flex; justify-content:space-between; background: var(--color-main)">
+    @*<button>Đặt mua</button>*@
+    
+    <div class="flex flex-row">
+        <span id="footerPhanMemSuDung"></span>
+        <i class="fad fa-angle-right"></i>
+        <button id="btnHotro" data-container="body" data-toggle="popover" data-placement="top" data-trigger="focus">Hỗ trợ <i class="fal fa-question-circle"></i></button>
+        <button onclick="VGopY.ShowModal(1)">Góp ý <i class="fal fa-envelope"></i></button>
+
+    </div>
+    @if (ViewBag.HanSuDung <= 7)
+    {
+    <div class="flex flex-row" style="justify-content:space-between; margin-right:150px; align-items: center">
+        <div class="flex flex-row">
+            <span>Tài khoản của bạn</span>
+            <span style="color: white; background: #ff4007; margin: 6px 3px 0 3px;height: 29px; width: 29px; line-height:29px;text-align:center;border-radius:20px;font-size:17px;">@ViewBag.HanSuDung</span>
+            <span>ngày nữa hết hạn</span>
+        </div>
+        
+        <button style="width: 120px; background: #ff4007; color: white;margin-left:10px" onclick="DatMuaGiaHan()"><i class="fal fa-check-circle"></i> <span id="btnYeuCauText">Yêu cầu gia hạn</span></button>
+        @*<span>  Xin vui lòng liên hệ 0247 303 9333 hoặc 0936 363 069 để Open24 tiếp tục đồng hành cùng bạn. Xin cảm ơn!</span>*@
+    </div>
+    }
+</div>
+    @RenderSection("scripts", required: false)
+    <script>
+        $(function () {
+            $('#btnHotro').popover({
+                template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
+                html: true,
+                content: 'Công ty cổ phần công nghệ phần mềm Ssoft Việt Nam<br />Địa chỉ: Tầng 7, tòa nhà Handiresco, '
+                    + 'Số 31 Lê Văn Lương, Thanh Xuân, Hà Nội<br /> Hotline: 0247.303.9333 - 0936.363.069<br />'
+                    + 'Zalo: <a href="https://chat.zalo.me/?phone=0936363069" target="_blank" rel="nofollow">0936.363.069</a><br />'
+                    + 'Facebook: <a href="https://facebook.com/open24.vn">facebook.com/open24.vn</a>'
+            })
+            if (VHeader.ShowImgLogo) {
+                document.getElementById('op-expire').style.display = "flex";
+            }
+            else {
+                document.getElementById('op-expire').style.display = "none";
+            }
+            document.getElementById('footerPhanMemSuDung').innerText = "Phần mềm quản lý Open24 " + VHeader.TenNganhNghe;
+            
+            if (!VHeader.Registered) {
+                document.getElementById('btnYeuCauText').innerText = "Đặt mua";
+            }
+        });
+
+        function DatMuaGiaHan() {
+            if (VHeader.Registered) {
+                VGopY.ShowModal(3)
+            }
+            else {
+                VGopY.ShowModal(2)
+            }
+        }
+
+        function showCollumnFilter(ele) {
+            /*hàm hiện thị bộ lọc*/
+            $(ele).next().show();
+        }
+        function hidewait() {
+            // hàm chờ load
+            $(".content-table ").append('<div id="wait"><img src="/Content/images/wait.gif" /></div>')
+        }
+        $('#ddlngonngu').on('change', function () {
+            var langcode = $(this).val();
+            if (langcode != "0") {
+                var url = '/Home/ChangeLanguage/' + langcode;
+                $.ajax({
+                    url: url,
+                    data: {},
+                    type: 'GET',
+                    datatype: 'json',
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+        $(".collumn-filter > button").click(function () {
+            $(this).next().show();
+        });
+    </script>
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+            var HUbChat = $.connection.formHub;
+        function ReloadSearchHangHoa() {
+            try {
+                HUbChat.server.changeDataHangHoa();
+            } catch (e) {
+            }
+            }
+            function ReturnLoadThongBao() {
+                HUbChat.server.loadThongBao();
+            }
+            function ReturnLoadThongBaoSetting() {
+                HUbChat.server.loadThongBaoCountKhiCaiDat();
+            }
+            HUbChat.client.returnChangeHangHoa = function (url) {
+                if (window.location.host.indexOf(url) >= 0) {
+                        $("body").trigger("ChangeHangHoa");
+                }
+            };
+            HUbChat.client.returnLoadDatHang = function (url) {
+                if (window.location.host.indexOf(url) >= 0) {
+                    $("body").trigger("ChangeDatHang");
+                }
+            };
+            HUbChat.client.returnloadHoaDon = function (url) {
+                if (window.location.host.indexOf(url) >= 0) {
+                    $("body").trigger("ChangeHoaDon");
+                }
+            };
+            HUbChat.client.returnloadTraHang = function (url) {
+                if (window.location.host.indexOf(url) >= 0) {
+                    $("body").trigger("ChangeTraHang");
+                }
+            };
+            HUbChat.client.returnLoadThongBao = function (url) {
+                if (window.location.host.indexOf(url) >= 0) {
+                    $('#thongbaoload').load("/Shared/_thongbao");
+                }
+            };
+         @*$(function () {
+            var chat = $.connection.chatHub;
+            chat.client.addNewMessageToPage = function (url, userId, VerSion) {
+                if (window.location.host.indexOf(url) >= 0
+                    && userId === '@banhang24.Hellper.contant.IdNguoiDung'
+                    && VerSion === '@banhang24.Hellper.contant.UserVerSion') {
+                    window.location.reload(true);
+                }
+            };
+            $.connection.hub.start().done(function () {
+                $("#_txtTenDonVi").on('fnLabelChanged', function () {
+                    chat.server.send();
+                });
+            });
+         });*@
+
+        //var connectionNew = new signalR.HubConnectionBuilder().withUrl("https://localhost:44385/chatHub").withAutomaticReconnect().build();
+        //connectionNew.start().then(function () {
+        //    //document.getElementById("sendButton").disabled = false;
+        //    console.log("connected");
+        //}).catch(function (err) {
+        //    return console.error(err.toString());
+        //});
+
+        //connectionNew.on("ReceiveMessage", function (message) {
+        //    var titleNo = message.tieuDe;
+        //    var optionNo = {
+        //        body: message.noiDungThongBao
+        //    };
+        //    notifyMe(titleNo, optionNo);
+        //});
+
+        //function notifyMe(title, option) {
+        //    // Let's check if the browser supports notifications
+        //    if (!("Notification" in window)) {
+        //        alert("This browser does not support desktop notification");
+        //    }
+
+        //    // Let's check whether notification permissions have already been granted
+        //    else if (Notification.permission === "granted") {
+        //        // If it's okay let's create a notification
+        //        var notification = new Notification(title, option);
+        //    }
+
+        //    // Otherwise, we need to ask the user for permission
+        //    else if (Notification.permission !== "denied") {
+        //        Notification.requestPermission().then(function (permission) {
+        //            // If the user accepts, let's create a notification
+        //            if (permission === "granted") {
+        //                var notification = new Notification(title, option);
+        //            }
+        //        });
+        //    }
+        //}
+    </script>
+    <script src="~/Content/Framework/Jquery/JqueryUI/jquery-ui.js" type="text/javascript"></script>
+</body>
+</html>

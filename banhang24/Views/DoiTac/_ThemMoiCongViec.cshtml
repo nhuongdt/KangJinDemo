@@ -1,0 +1,295 @@
+﻿@using Model
+@using banhang24.Hellper
+<style>
+    .modal-cong-viec .input-group {
+        width: calc(100% - 130px);
+    }
+</style>
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title">
+            Công việc
+        </h4>
+    </div>
+    <div class="modal-body modal-cong-viec">
+       
+                <select id="repeated" style="display:block;">
+                    <option value="volvo">Không lặp lại</option>
+                    <option value="saab">Hàng ngày</option>
+                    <option value="mercedes">Hàng tuần</option>
+                    <option value="audi">Hàng tháng</option>
+                    <option value="audi">Tùy chọn</option>
+                </select>
+                <div class="col-md-12" hidden>
+                    <div class="form-group floatleft">
+                        <label>Đối tượng</label>
+                        <div class="input-group">
+                            <p class="nopadding no-magrin">
+                                <label>
+                                    <input type="radio" name="ko_unique"
+                                           data-bind="checked: IsCustomer()" value="true"> Khách hàng
+                                </label>
+                                <label>
+                                    <input type="radio" name="ko_unique"
+                                           data-bind="checked: !IsCustomer()" value="false"> Nhà cung cấp
+                                </label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group floatleft">
+                        <label id="lblKhachHang_CV">Khách hàng</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <input class="form-control" id="txtKhachHang" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft" data-bind="visible: IsCustomer">
+                        <label id="lblCusType">Trạng thái khách</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtStatusKH" style="cursor:pointer">--- Chọn trạng thái khách ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterCusType, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstCusType" class="group-parent">
+                                        <li data-bind="click : ChoseCustomeType" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn trạng thái khách ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterCusType">
+                                            <div class="group-p1" data-bind="click : $root.ChoseCustomeType">
+                                                <a data-bind="text: Name, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckCusType_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Liên hệ</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtLienHe_CV" style="cursor:pointer">--- Chọn liên hệ ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterLienHe, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstLienHe" class="group-parent">
+                                        <li data-bind="click : ChoseUserContact" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn liên hệ ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterLienHe">
+                                            <div class="group-p1" data-bind="click : $root.ChoseUserContact">
+                                                Tên LH: <a data-bind="text: TenLienHe, attr:{id: ID}"></a>
+                                                Mã LH :<a data-bind="text: MaLienHe"></a>
+                                                <span data-bind="attr:{id: 'spanCheckLienHe_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Loại công việc</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtLoaiCongViec" style="cursor:pointer">--- Chọn loại công việc ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterLoaiCongViec, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstLoaiCongViec" class="group-parent">
+                                        <li data-bind="click : ChoseTypeWork" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn loại công việc ---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterLoaiCongViec">
+                                            <div class="group-p1" data-bind="click : $root.ChoseTypeWork">
+                                                <a data-bind="text: LoaiCongViec, attr:{id: ID}"></a>
+                                                <span data-bind="attr:{id: 'spanCheckLoaiCongViec_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default op-js-themmoi" data-bind="click: showModalAddLoaiCV">
+                                    <i class="fa fa-plus" aria-hidden="true" data-bind="visible: IsAddTypeWork()"></i>
+                                    <i class="fa fa-edit" aria-hidden="true" data-bind="visible: !IsAddTypeWork()"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nhân viên chia sẻ</label>
+                        <div class="input-group">
+                            <div class="outselect">
+                                <div class="  floatleft " data-toggle="dropdown" aria-expanded="false">
+                                    <div class="form-control" id="txtNhanVien_CV" style="cursor:pointer;border-radius:4px;">--- Chọn nhân viên ---</div>
+                                </div>
+                                <div class="selec-person dropdown-menu floatleft ">
+                                    <div class="seach-nhomhang">
+                                        <input type="text" class="seach-nhomhang" data-bind="value: filterNhanVien, valueUpdate: 'afterkeydown'">
+                                        <i class="fa fa-search"></i>
+                                    </div>
+                                    <ul id="lstNhanVien" class="group-parent">
+                                        <li data-bind="click : ChoseStaffShare" class="p-left10">
+                                            <a href="javascript:void(0)">--- Chọn nhân viên---</a>
+                                        </li>
+                                        <li data-bind="foreach :$root.arrFilterNhanVien">
+                                            <div class="group-p1" data-bind="click : $root.ChoseStaffShare">
+                                                Tên NV: <a data-bind="text: TenNhanVien, attr:{id: ID}"></a>
+                                                Mã NV :<a data-bind="text: MaNhanVien"></a>
+                                                <span data-bind="attr:{id: 'spanCheckNhanVien_'+ ID}" class="pull-right"></span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="col-md-12 nopadding">
+                        <div class="col-xs-6 col-sm-6 col-md-7 nopadding">
+                            <div class="form-group floatleft">
+                                <div class="col-md-5 nopadding">
+                                    <label>Thời gian từ</label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-7  nopadding">
+                                    <input type="text" class="form-control datetimepicker4" id="txtThoiGianTu"
+                                           data-bind="value: newCongViec().ThoiGianTu, click: $root.formatDateTime_CV ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-5 nopadding">
+                            <div class="form-group floatleft">
+                                <div class="col-md-3 ">
+                                    <label>Đến</label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-9  nopadding">
+                                    <input type="text" class="form-control datetimepicker4" id="txtThoiGianDen"
+                                           data-bind="value: newCongViec().ThoiGianDen, click: $root.formatDateTime_CV">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-7 nopadding">
+                            <div class="form-group floatleft">
+                                <div class="col-md-5 nopadding">
+                                    <label>Nhắc trước</label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-7 nopadding ">
+                                    <select class="form-control" id="ddlRemindBefore"
+                                            data-bind=" event:{change: changeTypeRemind_Before}">
+                                        @foreach (var item in commonEnum.TypeTimeRemind)
+                                        {
+                                            <option value="@item.Key">@item.Value</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group floatleft" data-bind="with: newCongViec">
+                        <label class="label-texarea nopadding">Nội dung công việc</label>
+                        <div class="input-group">
+                            <textarea style="width:100%" rows="5" type="text" data-bind="value: NoiDung" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group floatleft" data-bind="with: newCongViec">
+                        <label class="label-texarea nopadding">Kết quả công việc</label>
+                        <div class="input-group">
+                            <textarea style="width:100%" rows="4" type="text"
+                                      data-bind="value: KetQuaCongViec" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <div class="input-group">
+                            <select class="form-control" id="typeTrangThaiCV" data-bind="event: {change: Change_StatusWork}">
+                                @foreach (var item in commonEnumHellper.ListCongViec)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group floatleft checked-content">
+                        <input type="checkbox" data-bind="checked: IsContactAgain" value="true">
+                        <label class="form-label  control-label ">
+                            Có liên hệ lại không?
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6" data-bind="visible:IsContactAgain">
+                    <div class="form-group floatleft">
+                        <label>Thời gian liên hệ lại</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control datetimepicker4" id="txtThoiGianLienHeLai"
+                                   data-bind="value: newCongViec().ThoiGianLienHeLai,click: $root.formatDateTime_CV">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-bind="with: newCongViec, visible:IsContactAgain">
+                    <div class="col-md-12 nopadding">
+                        <div class="col-xs-12 col-sm-12 col-md-7 nopadding">
+                            <div class="form-group floatleft">
+                                <div class="col-md-5 nopadding">
+                                    <label>Nhắc trước</label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-7  nopadding">
+                                    <select class="form-control" id="ddlRemindAfter"
+                                            data-bind=" event:{change: $parent.changeTypeRemind_After} ">
+                                        @foreach (var item in commonEnum.TypeTimeRemind)
+                                        {
+                                            <option value="@item.Key">@item.Value</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" data-bind="visible:IsUpdate,visible:IsContactAgain">
+                    <div class="form-group floatleft" data-bind="with: newCongViec">
+                        <label class="label-texarea nopadding">Lý do hẹn lại</label>
+                        <div class="input-group">
+                            <textarea style="width:100%" rows="4" type="text" data-bind="value: LyDoHenLai" />
+                        </div>
+                    </div>
+                </div>
+          
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>Bỏ qua</button>
+        <button type="button" class="btn btn-main" id="btnLuuCongViec" data-bind="click: addCongViec">
+            <i class="fa fa-save"></i> Lưu
+        </button>
+    </div>
+</div>

@@ -1,0 +1,213 @@
+﻿@using banhang24.Hellper
+<div class="modal fade" id="vmTraHang">
+    <div class="modal-dialog draggable   modal-lgmax" role="document" style="    width: 80vw;    margin: 30px auto;">
+        <div class="modal-content  ">
+            <div class="modal-header draggable ">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{LoaiHoaDon===19?'Trả gói dịch vụ':'Trả hàng hóa đơn'}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="flex flex-row flex-between " style="padding:0 0  10px 0">
+                    <div class="flex col-xs-12 col-md-8 col-lg-6 nopadding" style="align-items:center">
+                        <div class=" flex nopadding" style="align-items:center;">
+                            <label class="width-75" style="margin-right:5px;">Từ ngày</label>
+                            <date-time :date-chose="filter.DateFrom" placeholder="Từ ngày" style="width:125px"
+                                       :format="TypeFormat"
+                                       :role-change-date="true"
+                                       v-on:change-date="DateFrom_Change">
+                            </date-time>
+                        </div>
+                        <div class=" flex nopadding" style="align-items:center">
+                            <label class="width-75">Đến ngày</label>
+                            <date-time :date-chose="filter.DateTo" placeholder="Đến ngày" style="width:125px"
+                                       :format="TypeFormat"
+                                       :role-change-date="true"
+                                       v-on:change-date="DateTo_Change">
+                            </date-time>
+                        </div>
+                    </div>
+                    <div class=" col-xs-12 col-md-4 col-lg-6 flex flex-end nopadding">
+                        <input type="text" class="form-control " style="width:275px" placeholder="Mã hóa đơn, tên khách hàng"
+                               v-model="filter.TextSearch"
+                               v-on:keyup.enter="IconSearch_Click" />
+                    </div>
+                </div>
+                <div class="flex flex-column">
+                    <div class="table-reponsive" style="width:100%;">
+                        <table class='table'>
+                            <tr>
+                                <th>Mã hóa đơn</th>
+                                <th>Ngày lập hóa đơn</th>
+                                <th>Nhân viên</th>
+                                <th>Khách hàng</th>
+                                <th v-if="LoaiNganhNghe===1">Biển số xe</th>
+                                <th>Tổng cộng</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            <tbody>
+                                <tr v-for="(item, index) in ListData">
+                                    <td><a>{{item.MaHoaDon}}</a></td>
+                                    <td>
+                                        <div>
+                                            {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="min-width:200px">
+                                            {{item.TenNhanVien}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="limited-250-text">
+                                            {{item.TenDoiTuong}}
+                                        </span>
+                                    </td>
+                                    <td v-if="LoaiNganhNghe===1">
+                                        <a class="bold">
+                                            {{item.BienSo}}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{formatNumber3Digit(item.PhaiThanhToan)}}
+                                    </td>
+                                    <td>
+                                        <button class="choose-order"
+                                                v-on:click="clickChonTraHang(item)">
+                                            <i class="fa fa-check"></i> Chọn
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <page-list v-bind:currentpage="filter.CurrentPage + 1"
+                               v-bind:pagesize="filter.PageSize"
+                               v-bind:listpage="filter.ListPage"
+                               v-bind:pageview="filter.PageView"
+                               v-bind:numberofpage="filter.TotalPage"
+                               v-on:pageselected="ChangePage"></page-list>
+                </div>
+            </div>
+            <div class="modal-footer ">
+                <button type="button" class="btn btn-main"
+                        v-if="LoaiHoaDon == 1 || LoaiHoaDon == 25"
+                        v-on:click="TraNhanh">
+                    <i class="fa fa-reply-all"></i> Trả nhanh
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+<script>
+    var vmTraHang = new Vue({
+        el: '#vmTraHang',
+        components: {
+            'date-time': cpmDatetime,
+        },
+        created: function () {
+            this.TypeFormat = 'DD/MM/YYYY';
+        },
+        data: {
+            saveOK: true,
+            isTraNhanh: true,
+            ID_DonVi: null,
+            LoaiHoaDon: 1,
+            LoaiNganhNghe: 0,
+            invoiceChosing: {},
+            ListData: [],
+
+            filter: {
+                DateFrom: null,
+                DateTo: null,
+                TextSearch: '',
+                CurrentPage: 0,
+                PageSize: 10,
+                TextSeach: '',
+                PageView: '',
+                ListPage: [],
+                TotalPage: 0,
+            },
+        },
+        methods: {
+            showModal: function () {
+                let self = this;
+                self.saveOK = false;
+                self.isTraNhanh = false;
+                self.filter.CurrentPage = 0;
+                self.GetListHoaDon();
+                $('#vmTraHang').modal('show');
+            },
+            IconSearch_Click: function () {
+                let self = this;
+                self.filter.CurrentPage = 0;
+                self.GetListHoaDon();
+            },
+
+            GetListHoaDon: function () {
+                let self = this;
+                let param = {
+                    LoaiHoaDon: self.LoaiHoaDon,
+                    ID_ChiNhanhs: [self.ID_DonVi],
+                    MaHoaDon: self.filter.TextSearch,
+                    NgayTaoHD_TuNgay: self.filter.DateFrom,
+                    NgayTaoHD_DenNgay: self.filter.DateTo,
+                    //NgayTaoHD_TuNgay: '2016-01-01',
+                    //NgayTaoHD_DenNgay: '2025-01-01',
+                    CurrentPage: self.filter.CurrentPage,
+                    PageSize: 10,
+                }
+                if (navigator.onLine) {
+                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListHDTraHang_afterUseAndTra', 'POST', param).done(function (x) {
+                        if (x.res) {
+                            self.ListData = x.dataSoure.data;
+                            self.filter.PageView = x.dataSoure.pageview;
+                            self.filter.ListPage = x.dataSoure.listpage;
+                            self.filter.TotalPage = x.dataSoure.countpage;
+                        }
+                    });
+                }
+            },
+            DateFrom_Change: function (e) {
+                let self = this;
+                var dt = moment(e).format('YYYY-MM-DD');
+                self.filter.DateFrom = dt;
+                self.GetListHoaDon();
+            },
+            DateTo_Change: function (e) {
+                let self = this;
+                var dt = moment(e).format('YYYY-MM-DD');
+                self.filter.DateTo = dt;
+                self.GetListHoaDon();
+            },
+            ChangePage: function (value) {
+                let self = this;
+                let currentPage = value.currentPage - 1;
+                if (self.filter.CurrentPage !== currentPage) {
+                    self.filter.CurrentPage = currentPage;
+                    self.GetListHoaDon();
+                } else if (self.filter.PageSize !== value.pageSize) {
+                    self.filter.PageSize = value.pageSize;
+                    self.GetListHoaDon();
+                }
+            },
+            clickChonTraHang: function (item) {
+                let self = this;
+                self.saveOK = true;
+                self.isTraNhanh = false;
+                self.invoiceChosing = item;
+                $('#vmTraHang').modal('hide');
+            },
+            TraNhanh: function () {
+                let self = this;
+                self.saveOK = true;
+                self.isTraNhanh = true;
+                $('#vmTraHang').modal('hide');
+            },
+        }
+    })
+</script>

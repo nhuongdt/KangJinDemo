@@ -1,0 +1,1044 @@
+﻿@{
+    Layout = null;
+}
+@using banhang24.Hellper
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        @@media (max-width: 1366px) {
+            .gara-section-title {
+                flex-wrap: nowrap;
+            }
+
+            .op-search {
+                min-width: initial;
+            }
+        }
+
+        #tblPTN {
+            border-collapse: collapse;
+        }
+
+        #BanLamViec .styleIndexFirst {
+            border-top-left-radius: 5px;
+            align-items: center;
+            padding-left: 5px
+        }
+
+        #BanLamViec .styleIndexLast {
+            border-top-right-radius: 5px;
+        }
+
+        #BanLamViec #tblPTN tbody tr {
+            height: 40px;
+            padding: 5px 0px;
+        }
+
+        #BanLamViec #tblPTN .expandPTN {
+            border-left: 1px solid var(--color-primary) !important;
+            border-right: 1px solid var(--color-primary) !important;
+            outline: 1px solid var(--color-primary) !important; /*sử dụng thay thế cho border-top + border-bottom*/
+        }
+
+        #BanLamViec #tblPTN .focusPTN {
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="gara-container op-container" id="BanLamViec">
+        <div class="op-header-title">
+            <h2 class="pull-left title">Danh sách xe đang sửa</h2>
+        </div>
+        <div class="gara-main-body" style="flex-wrap:wrap">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 danhsachxe" style="padding:0 15px 0 0; margin-bottom: 60px; ">
+                <div style="padding:0;  ">
+                    <div class="gara-section-title">
+                        <ul class="list-functions " style="width:auto">
+                            <li v-on:click="ThemMoiPhieuTiepNhan" v-if="role.PhieuTiepNhan.ThemMoi">
+                                <button class="btn btn-main" type="button">
+                                    <i class="fa fa-plus"></i>
+                                    Tiếp nhận
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-main" v-on:click="showModalXuatXuong_Out">
+                                    <i class="fa fa-reply-all"></i>
+                                    Xuất xưởng
+                                </button>
+                            </li>
+                            <li>
+                                <div class="dropdown">
+                                    <button type="button" class="btn " id="TrangThaiXe" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:#575757; color:white; padding:7px 12px; border-radius:3px; height: 30px;">
+                                        <span> Toàn bộ xe</span>
+                                        <i class="fa fa-angle-down"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <div class="flex flex-column">
+                                            <a class="dropdown-item" v-on:click="filterTrangThaiClick(0)" style="padding: 3px 7px;line-height: 24px;display: flex;justify-content: space-between;"> Tất cả       </a>
+                                            <a class="dropdown-item" v-on:click="filterTrangThaiClick(1)" style="padding: 3px 7px;line-height: 24px;display: flex;justify-content: space-between; align-items:center"> Xe đang sửa<div style="background:#75BF72; height:6px; width:11px; border-radius:3px"></div></a>
+                                            <a class="dropdown-item" v-on:click="filterTrangThaiClick(2)" style="padding: 3px 7px;line-height: 24px;display: flex;justify-content: space-between;align-items:center">Xe sửa xong <div style="background:#FF7208; height:6px; width:11px; border-radius:3px"></div></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li v-if="VHeader.DatLichEnable">
+                                <button type="button" class="btn btn-main" v-on:click="ShowModalDanhSachDatLich" title="Khách hàng đặt lịch">
+                                    <i class="far fa-calendar-check" style="font-size:16px"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <div class="btn-dropdown pull-right" style="position: relative;">
+                                    <button type="button" class="btn btn-main" data-toggle="dropdown" title="Ẩn/hiện cột"
+                                            aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-angle-double-down"></i>
+                                    </button>
+                                    <div class="dropdown-list dropdown-menu">
+                                        <ul>
+                                            <li v-for="item in $root.ListHeader">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                        <span>
+                                                        </span>
+                                                        {{item.colText}}
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="op-search" style="position:relative">
+                            <input type="text" class="form-control"
+                                   placeholder="Tìm kiếm" aria-label="Tìm kiếm xe"
+                                   v-model="textSearch" v-on:keyup.enter="Gara_GetListPhieuTiepNhan">
+                            <button class="op-search-button">
+                                <i class="material-icons" style="font-size:18px; color:white;" v-on:click="Gara_GetListPhieuTiepNhan">search</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="gara-section">
+                    <div class="gara gara-section-body">
+                        <div class="gara-section-list ">
+                            <table class="table-reponsive table-frame" id="tblPTN">
+                                <thead style="height:30px!important">
+                                    <tr>
+                                        <th v-for="(item, index) in ListHeader.filter(p=>p.colShow === true)"
+                                            v-bind:class="{styleIndexFirst: index === 0, styleIndexLast: index === ListHeader.filter(p=>p.colShow === true).length - 1}">
+                                            {{item.colText}}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="listData.PhieuSuaChuas.length != 0"
+                                       v-for="(item, index) in listData.PhieuSuaChuas"
+                                       v-on:click="GetInfor_PhieuTiepNhan(item)"
+                                       v-bind:class="[{focusPTN: ID_PhieuTiepNhan == item.ID},{expandPTN: !$root.isFirstLoad && ID_PhieuTiepNhan == item.ID}]">
+                                    <tr>
+                                        <td class="text-center" v-if="CheckColShow('STT')">
+                                            <span class="gara-li-check" v-bind:class="{ garaDone: item.TrangThai !==1 }">
+                                                {{(index+ 1) + ((Paging_PhieuSuaChua.CurrentPage - 1) *  Paging_PhieuSuaChua.PageSize)}}
+                                            </span>
+                                        </td>
+                                        <td class="bold" v-if="CheckColShow('BienSoXe')">
+                                            <a href="javascript:void(0)">
+                                                <span href="javascript:void(0)" v-on:click="updateCar(item.ID_Xe)">
+                                                    {{item.BienSo}}
+                                                </span>
+                                            </a>
+                                        </td>
+                                        <td v-if="CheckColShow('MaPhieuTiepNhan')">
+                                            <a v-on:click="UpdatePhieuTiepNhan(item)"
+                                               v-bind:title="item.MaPhieuTiepNhan">{{item.MaPhieuTiepNhan}}</a>
+                                        </td>
+                                        <td class="text-center" v-if="CheckColShow('SoKMVao')">
+                                            {{formatNumber(item.SoKmVao)}}
+                                        </td>
+                                        <td v-if="CheckColShow('NgayTiepNhan')">
+                                            {{moment(item.NgayVaoXuong).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="CheckColShow('MauHangXe')" v-bind:title="item.TenMauXe + '_'+ item.TenHangXe">
+                                            {{ commonStatisJs.SubStringContent(item.TenMauXe + '_'+ item.TenHangXe,15)}}
+                                        </td>
+                                        <td v-if="CheckColShow('TenKhachHang')"
+                                            v-bind:title="item.TenDoiTuong">
+                                            <a href="javascript:void(0)" v-on:click="updateCus(item.ID_KhachHang)">
+                                                {{item.TenDoiTuong}}
+                                            </a>
+                                        </td>
+                                        <td v-if="CheckColShow('SDTKhachHang')">
+                                            {{item.DienThoaiKhachHang}}
+                                        </td>
+                                        <td v-if="CheckColShow('TenCongTyBaoHiem')"
+                                            v-bind:title="item.TenBaoHiem">
+                                            {{item.TenBaoHiem}}
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="!$root.isFirstLoad && ID_PhieuTiepNhan == item.ID">
+                                        <td colspan="9" style="border-bottom:none">
+                                            <div class="gara-section-list-functions"
+                                                 v-bind:style="        [!$root.isFirstLoad && ID_PhieuTiepNhan == item.ID?{'display':'flex !important'} : 'none']">
+                                                <a href="javascript:void(0)" v-on:click="AddBaoGia(item)"
+                                                   v-if="$root.role.BaoGia.ThemMoi">
+                                                    <i class="fa fa-plus"></i>
+                                                    Lập báo giá
+                                                </a>
+                                                <a href="javascript:void(0)" v-on:click="AddHoaDon(item)"
+                                                   v-if="$root.role.HoaDon.ThemMoi">
+                                                    <i class="fa fa-plus"></i>
+                                                    Lập hóa đơn
+                                                </a>
+                                                <a href="javascript:void(0)" v-if="item.TrangThai===2"
+                                                   v-on:click="showModalXuatXuong(item)">
+                                                    <p>
+                                                        <i class="fa fa-reply-all"></i>
+                                                        Xuất xưởng
+                                                    </p>
+                                                </a>
+                                                <cmp-print :id-don-vi="ID_DonVi"
+                                                           :role-print="$root.role.PhieuTiepNhan.In"
+                                                           :list-mau-in="MauIn.PhieuTiepNhan"
+                                                           :list-data="MauIn.ListData"
+                                                           :ma-chung-tu="'PTN'">
+                                                </cmp-print>
+                                                <a href="javascript:void(0)" v-on:click="PhieuTiepNhan_XacNhanSuaXong"
+                                                   v-if="item.TrangThai===1">
+                                                    <p>
+                                                        <i class="fa fa-check"></i>
+                                                        Sửa xong
+                                                    </p>
+                                                </a>
+                                                <a v-on:click="UpdatePhieuTiepNhan(item)" v-if="$root.role.PhieuTiepNhan.Xem">
+                                                    <p>
+                                                        <i class="fa fa-edit"></i>
+                                                        Sửa
+                                                    </p>
+                                                </a>
+                                                <a v-on:click="XoaPhieuTiepNhan(item)" v-if="$root.role.PhieuTiepNhan.Xoa"><i class="fa fa-trash"></i>Xóa</a>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+
+                            <div style="display:flex; align-items:center; justify-content:center;   flex-direction:column; height:100%" v-if="listData.PhieuSuaChuas.length === 0">
+                                <img src="~/Content/images/Gara/DanhSachXeBg.svg" alt="Danh sách xe" />
+                                <font style="font-size: 18px;margin-top: 30px;opacity: 0.5;">
+                                    Thêm mới tiếp nhận xe
+                                </font>
+                            </div>
+                            <div>
+                                <page-list v-if="Paging_PhieuSuaChua.NumberOfPage > 0" v-bind:pagesize="Paging_PhieuSuaChua.PageSize"
+                                           v-bind:listpage="Paging_PhieuSuaChua.ListPage"
+                                           v-bind:currentpage="Paging_PhieuSuaChua.CurrentPage"
+                                           v-bind:pageview="Paging_PhieuSuaChua.PageView"
+                                           v-bind:numberofpage="Paging_PhieuSuaChua.NumberOfPage"
+                                           v-on:pageselected="PhieuTiepNhan_ChangePage"></page-list>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 thongtinxe" style="padding:0">
+                <div class="baogiaxe">
+                    <div class="gara-section-title">
+                        <ul class="list-functions " style="width:auto">
+                            <li v-if="$root.loaiHoaDonPrint === 3 && $root.arrID_HDPrint.length > 0">
+                                <div>
+                                    <button type="button" class="btn btn-main no-magrin" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-bars"></i><font>Thao tác</font> <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu ">
+                                        <li v-on:click="$root.PrintMerger(3)">
+                                            <a href="javascript:void(0);">
+                                                <i class="fa fa-print"></i>&nbsp;In gộp báo giá
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
+                                <button class="btn button-w100" style="  color:white; background:var(--color-main);"
+                                        v-if="$root.role.BaoGia.ThemMoi"
+                                        v-on:click="AddBaoGia(listData.ThongTinXe)">
+                                    <i class="fa fa-plus"></i>
+                                    Báo giá
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="gara-section" style="margin-bottom:15px">
+                        <div class="gara-section-body">
+                            <div class="gara-section-list half-screen">
+                                <ul class="gara-section-list-header with-index list-5-col">
+                                    <li style="border-top-left-radius:5px; width:50px">
+                                        <input type="checkbox" v-on:click="$root.ChangeCheck_AllItem(3)" />
+                                    </li>
+                                    <li>Ngày lập</li>
+                                    <li> Mã báo giá</li>
+                                    <li> Tổng thanh toán</li>
+                                    <li style="border-top-right-radius:5px;"> Trạng thái</li>
+                                </ul>
+                                <ul class="gara-section-list-body" v-if="listData.BaoGias.length != 0">
+                                    <li v-for="(item, index) in listData.BaoGias">
+                                        <ul class="gara-section-list-item with-index list-5-col"
+                                            v-on:click="ChoseItem_inList(item,3)">
+                                            <li style="width:50px">
+                                                <input type="checkbox"
+                                                       v-model="$root.isCheckPrint(item)"
+                                                       v-on:click="$root.ChangeCheck_Item(item,3)" />
+                                            </li>
+                                            <li onclick="expandbutton(this)">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</li>
+                                            <li onclick="expandbutton(this)"><a v-on:click="showModalChiTietHoaDon(item.ID)">{{item.MaHoaDon}}</a></li>
+                                            <li onclick="expandbutton(this)">{{formatNumber3Digit(item.TongThanhToan,2)}}</li>
+                                            <li onclick="expandbutton(this)">{{item.TrangThaiText}}</li>
+                                        </ul>
+                                        <div class="gara-section-list-functions">
+                                            <a title="Duyệt báo giá" v-on:click="Duyet_HuyBaoGia(item,false)"
+                                               v-if="$root.role.BaoGia.Duyet && item.TrangThai==='1'">
+                                                <i class="material-icons" style="display:none">gavel</i>
+                                                <p>Duyệt</p>
+                                            </a>
+                                            <a title="Thanh toán" v-on:click="showModalThanhToan(item)"
+                                               v-if="item.YeuCau!=='3' && item.TrangThai ==='0'">
+                                                <i class="fa fa-dollar"></i> Đặt cọc
+                                            </a>
+                                            <a title="Xử lý báo giá" v-on:click="XuLyBaoGia(item)"
+                                               v-if="$root.role.BaoGia.XuLy && item.YeuCau!=='3' && item.TrangThai ==='0'">
+                                                <i class="fa  fa-plus"></i> Xử lý báo giá
+                                            </a>
+                                            <a title="Chỉnh sửa báo giá" v-on:click="CapNhatHoaDon(item,3)"
+                                               v-if="$root.role.BaoGia.CapNhat && item.YeuCau !=='3'">
+                                                <p>  <i class="fa  fa-folder-open-o "></i>Sửa đổi</p>
+                                            </a>
+                                            <a title="Bỏ duyệt" v-on:click="Duyet_HuyBaoGia(item,true)"
+                                               v-if="$root.role.BaoGia.Duyet &&  item.TrangThai==='0' && item.YeuCau ==='1'">
+                                                <p><i class="fa fa-times"></i> Bỏ duyệt</p>
+                                            </a>
+                                            <div class="btn-group dropdown-mauin" v-if="$root.role.BaoGia.In">
+                                                <button type="button" class="btn " v-on:click="InHoaDon(false,'DH')">
+                                                    <i class="fa fa-print"></i>
+                                                    In
+                                                </button>
+                                                <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu" v-if="itemChosing.LoaiHoaDon === 3">
+                                                    <li v-for="(item, index) in MauIn.BaoGia">
+                                                        <a v-on:click="InHoaDon(true,item.Key)"> {{item.Value}}</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <a title="Xóa báo giá" v-if="$root.role.BaoGia.Xoa" v-on:click="Huy_HoaDon(item, 3)">
+                                                <p><i class="fa fa-trash"></i> Xóa</p>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div style="display:flex; align-items:center; justify-content:center; flex-direction:column; height:100%" v-if="listData.BaoGias.length === 0">
+                                    <img src="~/Content/images/Gara/BaoGiaBackGround.svg" alt="Báo giá cho xe" />
+                                    <font style="font-size: 18px;margin-top: 30px;opacity: 0.5;">
+                                        Lập báo giá cho xe
+                                    </font>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hoadonxe">
+                    <div class="gara-section-title">
+                        <ul class="list-functions " style="width:auto">
+                            <li v-if="$root.loaiHoaDonPrint === 25 && $root.arrID_HDPrint.length > 0">
+                                <div>
+                                    <button type="button" class="btn btn-main no-magrin" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-bars"></i><font>Thao tác</font> <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu ">
+                                        <li v-on:click="$root.PrintMerger(25)">
+                                            <a href="javascript:void(0);">
+                                                <i class="fa fa-print"></i>&nbsp;In gộp hóa đơn
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
+                                <button class="btn button-w100" style="  color:white; background:var(--color-main);"
+                                        v-if="$root.role.HoaDon.ThemMoi"
+                                        v-on:click="AddHoaDon(listData.ThongTinXe)">
+                                    <i class="fa fa-plus"></i>
+                                    Hóa đơn
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="gara-section">
+                        <div class="gara-section-body">
+                            <div class="gara-section-list half-screen">
+                                <ul class="gara-section-list-header with-index list-5-col">
+                                    <li style="border-top-left-radius: 5px;width: 50px !important">
+                                        <input type="checkbox" v-on:click="$root.ChangeCheck_AllItem(25)" />
+                                    </li>
+                                    <li>Ngày lập</li>
+                                    <li>Mã báo giá</li>
+                                    <li>Mã hóa đơn</li>
+                                    <li>Tổng thanh toán</li>
+                                    <li style="border-top-right-radius:5px;">Còn nợ</li>
+                                </ul>
+                                <ul class="gara-section-list-body" v-if="listData.HoaDons.length != 0">
+                                    <li v-for="(item, index) in listData.HoaDons">
+                                        <ul class="gara-section-list-item with-index list-5-col"
+                                            v-on:click="ChoseItem_inList(item,25)">
+                                            <li style="width:50px!important">
+                                                <input type="checkbox"
+                                                       v-model="$root.isCheckPrint(item)"
+                                                       v-on:click="$root.ChangeCheck_Item(item,25)" />
+                                            </li>
+                                            <li onclick="expandbutton(this)">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</li>
+                                            <li onclick="expandbutton(this)">
+                                                <a v-on:click="showModalChiTietHoaDon(item.ID_HoaDon)"
+                                                   v-bind:title="item.MaBaoGia">
+                                                    {{item.MaBaoGia}}
+                                                </a>
+                                            </li>
+                                            <li onclick="expandbutton(this)">
+                                                <a v-on:click="showModalChiTietHoaDon(item.ID)"
+                                                   v-bind:title="item.MaHoaDon">
+                                                    {{item.MaHoaDon}}
+                                                </a>
+                                            </li>
+                                            <li onclick="expandbutton(this)">{{formatNumber3Digit(item.TongThanhToan)}}</li>
+                                            <li onclick="expandbutton(this)">{{formatNumber3Digit(item.TongThanhToan- item.KhachDaTra - item.BaoHiemDaTra,2)}}</li>
+                                        </ul>
+                                        <div class="gara-section-list-functions">
+                                            <div class="btn-group dropdown-mauin">
+                                                <button type="button" class="btn ">
+                                                    <i class="fa fa-list"></i>
+                                                    Hoạt động
+                                                </button>
+                                                <button type="button" class="btn dropdown-toggle dropdown-toggle-split"
+                                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li v-if="$root.role.XuatKho.ThemMoi">
+                                                        <a v-on:click="$root.XuatKho(item)">
+                                                            <i class="fa fa-share-square-o"></i>
+                                                            Xuất kho
+                                                        </a>
+                                                    </li>
+                                                    <li v-if="$root.role.HoaDon.NhapHang">
+                                                        <a v-on:click="$root.NhapHang(item)">
+                                                            <i class="fas fa-shopping-cart"></i>
+                                                            Nhập hàng hóa đơn
+                                                        </a>
+                                                    </li>
+                                                    <li v-if="$root.role.HoaDon.SuaChiPhiDV && !$root.wasChotSo">
+                                                        <a v-on:click="$root.CapNhatChiPhi(item)">
+                                                            <i class="fas fa-shuttle-van"></i>
+                                                            Sửa chi phí dịch vụ
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <a title="Thanh toán" v-on:click="showModalThanhToan(item)"
+                                               v-if="$root.role.HoaDon.ThanhToan && item.TongThanhToan- item.KhachDaTra - item.BaoHiemDaTra > 0">
+                                                <span> <i class="fa fa-dollar"></i>Thanh toán</span>
+                                            </a>
+
+                                            <a title="Chỉnh sửa hóa đơn" v-on:click="CapNhatHoaDon(item,25)"
+                                               v-if="$root.role.HoaDon.SuaDoi">
+                                                <p>
+                                                    <i class="fa fa-folder-open-o "></i>Sửa đổi
+                                                </p>
+                                            </a>
+                                            <div class="btn-group dropdown-mauin"
+                                                 v-if="$root.role.HoaDon.In">
+                                                <button type="button" class="btn" v-on:click="InHoaDon(false,'HDBL')"><i class="fa fa-print"></i>In</button>
+                                                <button type="button" class="btn  dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu" style="max-height:150px;overflow:auto">
+                                                    <li v-for="(item, index) in MauIn.HoaDon">
+                                                        <a v-on:click="InHoaDon(true,item.Key)">{{item.Value}}</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <a title="Hủy hóa đơn" v-on:click="Huy_HoaDon(item, 25)"
+                                               v-if="$root.role.HoaDon.Xoa && !$root.wasChotSo">
+                                                <p><i class="fa fa-times"></i>Hủy </p>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div style="display:flex; align-items:center; justify-content:center; flex-direction:column; height:100%" v-if="listData.HoaDons.length === 0">
+                                    <img src="~/Content/images/Gara/HoaDonBackGround.svg" alt="Danh sách xe" />
+                                    <font style="font-size: 18px;margin-top: 30px;opacity: 0.5;">
+                                        Lập hóa đơn xe
+                                    </font>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-navigation" class="sts1">
+            <ul style="display:flex">
+                <li>
+                    <a onclick="checksection(1)">Phiếu tiếp nhận</a>
+                </li>
+                <li>
+                    <a onclick="checksection(2)">Báo giá</a>
+                </li>
+                <li>
+                    <a onclick="checksection(3)">Hóa đơn</a>
+                </li>
+            </ul>
+        </div>
+        <div id="modal-xacnhan-suaxong" class="modal fade">
+            <div class="modal-dialog draggable modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        Xác nhận xe đã sửa xong
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có chắc chắn xe {{ listData.ThongTinXe.BienSo }} đã sửa xong?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                            <i class="fa fa-ban"></i>Hủy
+                        </button>
+                        <button type="button" class="btn btn-save" v-on:click="PhieuTiepNhan_ClickDaSuaXong1_GuiTin" v-if="VSendSms.SmsStatus">
+                            <i class="fa fa-paper-plane"></i>Đồng ý và gửi tin
+                        </button>
+                        <button type="button" class="btn btn-save" v-on:click="PhieuTiepNhan_ClickDaSuaXong1">
+                            <i class="fa fa-save"></i>Đồng ý
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mobile-navigation">
+        <a class="focus" onclick="showMobile(1)">Phiếu tiếp nhận</a>
+        <a class="focus" onclick="showMobile(2)">Báo giá</a>
+    </div>
+    @Html.Partial("~/Views/DoiTac/_ThemMoiDoiTacBaoHiem.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_TiepNhanXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiHangXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiLoaiXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiMauXe.cshtml")
+    @Html.Partial("~/Views/Gara/QuanLySuaChua/_XuatXuong.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_ThemMoiKhachHang.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_ThemNhomKhachHang.cshtml")
+    @Html.Partial("~/Views/Gara/KhachHang/_vmTrangThai_NguonKhach.cshtml")
+    @Html.Partial("~/Views/Gara/HoaDon/_ThuTienHoaDon.cshtml")
+    @Html.Partial("~/Views/Gara/HoaDon/_ThongTinHoaDon.cshtml")
+    @Html.Partial("~/Views/Gara/HoaDon/_EditHoaHongHD.cshtml")
+    @Html.Partial("~/Views/Marketing/_GuiTinSmsModal.cshtml")
+    @Html.Partial("~/Views/Gara/HoaDon/_ThanhPhanCombo.cshtml")
+    @Html.Partial("~/Views/Gara/HoaDon/_ChiPhiHoaDon.cshtml")
+
+    <div class="modal fade" id="modalPopuplgDelete">
+        <div class="modal-dialog draggable" role="document">
+            @Html.Partial("~/Views/GiaoDich/_modalDelete.cshtml")
+        </div>
+    </div>
+    <div class="modal fade" id="modalDanhSachDatLich">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title" id="titleTypeWork">
+                        Danh sách khách hàng đặt lịch
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="flex flex-between " style="padding:0 0 15px 0">
+                        @*<div class="col-md-6 col-xs-12 nopadding">
+                                <products :con-ton-kho="0"
+                                          :show-gia-von="false"
+                                          :show-image="false"
+                                          :show-ton-kho="true"
+                                          :loai-hang-hoa="typeSearchProduct"
+                                          :id-chi-nhanh="inforLogin.ID_DonVi"
+                                          v-on:chose-product="ChoseItemCombo">
+                                </products>
+                            </div>*@
+                        <div class="col-md-6 col-sm-12 col-12">
+                            <div class="row">
+                                <div class="col-md-5 col-sm-6 col-12">
+                                    <div class="input-group">
+                                        <input type="text" readonly id="txtFilterDatLich" class="form-control" style="text-align: center !important" />
+                                        <span class="input-group-addon">
+                                            <i class="fal fa-calendar-alt"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-sm-6 col-12">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Tìm kiếm" v-model="TextSearch" v-on:keyup="TextSearchKeyPress(event)" />
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" v-on:click="LoadData"><i class="far fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label v-for="item in ListTrangThai">
+                                <input type="checkbox" v-model="item.Checked" />{{item.Text}}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="container-fluid row">
+                        <div class="table-frame">
+                            <table class=" table-hover table table-striped  ">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            STT
+                                        </th>
+                                        <th>Thời gian</th>
+                                        <th>
+                                            Tên khách hàng
+                                        </th>
+                                        <th>
+                                            Số điện thoại
+                                        </th>
+                                        <th>
+                                            Biển số
+                                        </th>
+                                        <th>
+                                            Trạng thái
+                                        </th>
+                                        <th>
+                                            #
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in dataDanhSachDatLich.data">
+                                        <td class="text-center">{{index + 1}}</td>
+                                        <td>{{moment(item.ThoiGian).format('DD/MM/YYYY HH:mm')}}</td>
+                                        <td>{{item.MaKhachHang !== "" && item.MaKhachHang !== null ? item.MaKhachHang + " - ": ""}}{{item.TenKhachHang}}</td>
+                                        <td>{{item.SoDienThoai}}</td>
+                                        <td>{{item.BienSo}}</td>
+                                        <td>{{ListTrangThai.find(p=>p.Value === item.TrangThai).Text}}</td>
+                                        <td style="text-align:center">
+                                            @*<button  v-on:click="DeleteHangHoaDatLich(item.ID)">*@
+                                            <i class="far fa-check-circle"
+                                               style=" font-size: 20px; padding-left: 3px; padding-right: 3px; color: var(--color-main); cursor: pointer;"
+                                               v-on:click="TiepNhanXe(item)" v-if="item.TrangThai !== 3"></i>
+                                            @*</button>*@
+                                            @*<button  v-on:click="DeleteHangHoaDatLich(item.ID)">*@
+                                            <i class="far fa-info-circle"
+                                               style="font-size: 20px; padding-left: 3px; padding-right: 3px; color: var(--color-main); cursor: pointer;"
+                                               v-on:click="GetChiTiet(item)"></i>
+                                            @*</button>*@
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-show="dataDanhSachDatLich.data.length<=0 || isLoading">
+                                    <tr>
+                                        <td v-show="!isLoading" class="  text-center" v-bind:colspan="9"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <div v-show="isLoading" class="table-loading">
+                                <div class="loading">
+                                </div>
+                                <div style="text-align: center;">
+                                    Đang tải dữ liệu, vui lòng chờ ...
+                                </div>
+                            </div>
+                        </div>
+                        <page-list v-bind:pagesize="PageSize"
+                                   v-bind:listpage="dataDanhSachDatLich.ListPage" v-bind:currentpage="currentPage" v-bind:pageview="dataDanhSachDatLich.PageView"
+                                   v-bind:numberofpage="dataDanhSachDatLich.NumberOfPage"
+                                   v-on:pageselected="PageChange"></page-list>
+                    </div>
+                </div>
+                @*<div class="modal-footer ">
+
+                    </div>*@
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalHangHoaDatLich">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title" id="titleTypeWork">
+                        Danh sách hàng hóa
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-frame">
+                        <table class="table-hover table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã hàng hóa</th>
+                                    <th>Tên hàng hóa</th>
+                                    <th>Đơn giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in HangHoaDatLich">
+                                    <td class="text-center">{{index + 1}}</td>
+                                    <td>{{item.MaHangHoa}}</td>
+                                    <td>{{item.TenHangHoa}}</td>
+                                    <td class="text-right">{{formatNumber3Digit(item.DonGia)}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).mouseup(function (e) {
+            var container = $(".gara-popup-chietkhau");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.hide();
+            }
+        });
+        $(document).mouseup(function (e) {
+            var container = $(".gara-list-drop");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.hide();
+            }
+        });
+        $(".gara-bill-type a").click(function () {
+            $(this).addClass("active");
+            $(this).siblings().removeClass("active")
+        })
+        function showPopupChietKhau(ele) {
+            $(ele).siblings(".gara-popup-chietkhau").toggle();
+        }
+        function ShowNguoiLienHe(ele) {
+            $(ele).siblings(".gara-popup-chietkhau").toggle();
+        }
+        function ShowListChiNhanh(ele) {
+            $(ele).siblings(".gara-list-drop").toggle();
+        }
+        function ShowListBangGia(ele) {
+            $(ele).siblings(".gara-list-drop").toggle();
+        }
+        //$(".gara-search-HH").click(
+        //    function () {
+        //        $(this).siblings(".gara-search-dropbox").show();
+        //        $(this).select().focus();
+        //    });
+        //$(document).mouseup(function (e) {
+        //    var container = $(".gara-search-dropbox");
+        //    if (!container.is(e.target) && container.has(e.target).length === 0) {
+        //        container.hide();
+        //    }
+        //});
+        $(document).mouseup(function (e) {
+            var container = $(".infor-popup");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.hide();
+            }
+        });
+        $(document).mouseup(function (e) {
+            var container = $(".gara-detail-functions.open");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.removeClass('open');
+                container.parent().toggleClass("open");
+            }
+        });
+        $(document).mouseup(function (e) {
+            var container = $(".gara-section-list-body li.open");
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                container.removeClass('open');
+            }
+        });
+        function expandbutton(ele) {
+            $(".gara-section-list-body li").removeClass("open");
+            $(ele).parent().parent().toggleClass("open");
+        }
+        function showMobile(options) {
+            switch (options) {
+                case 1:
+                    $(".danhsachxe").show();
+                    $(".thongtinxe").hide();
+                    break;
+                case 2:
+                    $(".danhsachxe").hide();
+                    $(".thongtinxe").show();
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
+<script src="~/Scripts/Components/page-list.js"></script>
+<script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Gara/BanLamViec/BanLamViec.js")"></script>
+<script>
+    $(document).ready(function () {
+        $('.modal-dialog').draggable({
+            handle: ".modal-header"
+        });
+        var list = document.querySelector('.dropdown-list');
+        window.addEventListener('click', (e) => {
+            if (list.contains(e.target)) {
+                list.closest('.btn-dropdown').classList.add('open')
+            }
+            else {
+                list.closest('.btn-dropdown').classList.remove('open')
+            }
+        });
+    })
+  
+</script>
+<script>
+    function checksection(options) {
+        for (var i = 0; i <= 3; i++) {
+            if (i !== options) {
+                $("#mobile-navigation").removeClass("sts" + i);
+                $(".gara-main-body").removeClass("opt" + i);
+            }
+        }
+        $(".gara-main-body").addClass("opt" + options);
+        $("#mobile-navigation").addClass("sts" + options);
+    }
+    checksection(1);
+</script>
+<script>
+    var vHangHoaDatLich = new Vue({
+        el: '#modalHangHoaDatLich',
+        data: {
+            HangHoaDatLich: []
+        }
+    });
+    //Danh sách đặt lịch modal
+    var vModalDatLich = new Vue({
+        el: '#modalDanhSachDatLich',
+        data: {
+            DateFilter: new Date(),
+            ListTrangThai: [
+                { Text: 'Chưa xử lý', Value: 1, Checked: true },
+                { Text: 'Đã liên hệ', Value: 2, Checked: true },
+                { Text: 'Hoàn thành', Value: 3, Checked: false },
+                /*{ Text: 'Hủy', Value: 0, Checked: false }*/
+            ],
+            currentPage: 1,
+            PageSize: 10,
+            TextSearch: '',
+            isPageSelect: false,
+            isLoading: true,
+            dataDanhSachDatLich: {
+                data: [],
+                ListPage: [1],
+                PageView: "",
+                NumberOfPage: 1
+            },
+            Url: {
+                CSKH: "/api/ChamSocKhachHangAPI/",
+                DoiTuong: "/api/DM_DoiTuongAPI/"
+            },
+            objKhachHang: {},
+            idDatLichRowSelected: ''
+        },
+        methods: {
+            ShowModalDanhSachDatLich: function () {
+                let self = this;
+                self.isPageSelect = false;
+                self.LoadData();
+                $('#modalDanhSachDatLich').modal('show');
+            },
+            LoadData: function () {
+                let self = this;
+                self.isLoading = true;
+                if (!this.isPageSelect) {
+                    self.currentPage = 1;
+                }
+                else {
+                    this.isPageSelect = false;
+                }
+                let myData = {};
+                myData.IdChiNhanhs = [VHeader.IdDonVi];
+                myData.ThoiGianFrom = moment(self.DateFilter).format("YYYY-MM-DD");
+                myData.ThoiGianTo = moment((new Date).setDate(self.DateFilter.getDate() + 1)).format("YYYY-MM-DD");
+                myData.CurrentPage = self.currentPage;
+                myData.TrangThais = [""];
+                myData.TextSearch = self.TextSearch;
+                this.ListTrangThai.filter(p => p.Checked === true).forEach(p => myData.TrangThais.push(p.Value));
+                myData.TrangThais.shift();
+                myData.PageSize = self.PageSize;
+                $.ajax({
+                    url: self.Url.CSKH + "GetListDatLich",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: myData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res === true) {
+                            self.dataDanhSachDatLich = data.dataSoure;
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                        }
+                    },
+                    complete: function () {
+                        self.isLoading = false;
+                    }
+                });
+            },
+            PageChange: function (value) {
+                if (this.currentPage !== value.currentPage) {
+                    this.currentPage = value.currentPage;
+                    this.isPageSelect = true;
+                    this.LoadData();
+                } else if (this.PageSize !== value.pageSize) {
+                    this.PageSize = value.pageSize;
+                    this.LoadData();
+                }
+            },
+            GetChiTiet: function (item) {
+                let self = this;
+                $.ajax({
+                    /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                    url: self.Url.CSKH + "GetChiTietDatLich?id=" + item.Id,
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res === true) {
+                            vHangHoaDatLich.HangHoaDatLich = data.dataSoure.HangHoa;
+                            $('#modalHangHoaDatLich').modal('show');
+                        }
+                        else {
+                            commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá tải dữ liệu. Vui lòng kiểm tra lại.");
+                        }
+                    }
+                });
+            },
+            TiepNhanXe: function (item) {
+                let self = this;
+                if (item.IdXe !== null) {
+                    if (workTable.listData.PhieuSuaChuas.filter(p => p.ID_Xe === item.IdXe).length > 0) {
+                        commonStatisJs.ShowMessageDanger("Xe mang biển số " + item.BienSo + " đang trong xưởng. Không thể thực hiện thao tác tiếp nhận xe.");
+                        return;
+                    }
+                }
+                self.idDatLichRowSelected = item.Id;
+                workTable.InitData_TiepNhanXe();
+                vmTiepNhanXe.showModalTiepNhanXe();
+                if (item.IdKhachHang !== null) {
+                    self.GetThongTinKhachHang(item);
+                }
+                if (item.IdXe !== null) {
+                    self.GetThongTinXe(item);
+                }
+            },
+            GetThongTinKhachHang: function (item) {
+                let self = this;
+                $.ajax({
+                    /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                    url: self.Url.DoiTuong + "GetDM_DoiTuong?id=" + item.IdKhachHang,
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        self.objKhachHang = data;
+                        vmTiepNhanXe.customerChosing = self.objKhachHang;
+                        vmTiepNhanXe.newPhieuTiepNhan.ID_KhachHang = self.objKhachHang.ID;
+                        //if (data.res === true) {
+
+                        //}
+                        //else {
+                        //    commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá tải dữ liệu. Vui lòng kiểm tra lại.");
+                        //}
+                    }
+                });
+            },
+            GetThongTinXe: function (item) {
+                vmTiepNhanXe.newPhieuTiepNhan.ID_Xe = item.IdXe;
+                vmTiepNhanXe.GetInforCar_byID(item.IdXe);
+            },
+            UpdateTrangThaiDatLich: function () {
+
+                let self = this;
+                let myData = {};
+                myData.Id = self.idDatLichRowSelected;
+                myData.TrangThai = 3;
+                myData.IdNhanVien = VHeader.IdNhanVien;
+                myData.IdDonVi = VHeader.IdDonVi;
+                $.ajax({
+                    /*url: urlApiCSKH + "UpdateTrangThaiDatLich",*/
+                    url: self.Url.CSKH + "UpdateTrangThaiDatLich",
+                    type: 'POST',
+                    data: myData,
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (data) {
+                        if (data.res === true) {
+                            self.dataDanhSachDatLich.data.filter(p => p.Id === self.idDatLichRowSelected).map(function (item) {
+                                item.TrangThai = 3;
+                            });
+                        }
+                        else {
+
+                        }
+                    }
+                });
+            },
+            TextSearchKeyPress: function (e) {
+                if (e.keyCode === 13) {
+                    let self = this;
+                    self.LoadData();
+                }
+            }
+        },
+        watch: {
+            ListTrangThai: {
+                handler: function () {
+                    let self = this;
+                    self.LoadData();
+                },
+                deep: true
+            }
+        }
+    });
+    jQuery('#txtFilterDatLich').datetimepicker({
+        /*minDate: new Date(),*/
+        timepicker: false,
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        value: new Date(),
+        onSelectDate: function (ct, $i) {
+            vModalDatLich.DateFilter = ct;
+            vModalDatLich.LoadData();
+        }
+    });
+
+    $(function () {
+        $('#TiepNhanXeModal').on('hidden.bs.modal', function () {
+            if (vmTiepNhanXe.saveOK) {
+                if (vModalDatLich.idDatLichRowSelected !== '') {
+                    vModalDatLich.UpdateTrangThaiDatLich();
+                }
+            }
+        });
+        $('#modalDanhSachDatLich').on('hidden.bs.modal', function () {
+            vModalDatLich.idDatLichRowSelected = '';
+        });
+    });
+</script>

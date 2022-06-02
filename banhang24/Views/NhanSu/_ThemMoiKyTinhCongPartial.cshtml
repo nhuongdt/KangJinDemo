@@ -1,0 +1,129 @@
+﻿@using Model;
+
+<div id="modalEditKyTinhCong">
+    <div class="modal fade in" id="modalthemmoikytinhcong">
+        <div class="modal-dialog draggable  modal-sm ">
+            <div class="modal-content  ui-draggable">
+                <div class="modal-header ui-draggable-handle">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    <h4 class="modal-title">
+                        {{TitlePopup}}
+                    </h4>
+                </div>
+                <div class="modal-body" style="padding-right:0px;">
+                    <div class="col-md-12  row">
+                        <div class=" tab-news-modal ">
+                            <div class="fl">
+                                            <div class="form-group text-right" style="display:none">
+                                                    <input class=" check-fa-toggle"  :disabled="!isNew" type="checkbox" />
+                                                    Năm nhuận
+                                            </div>
+                                                <div class="form-group ">
+                                                    <label> Kỳ</label>
+                                                    <div class="form-news">
+                                                        <input class="form-control" v-model="data.Ky" :disabled="!isNew" type="text" />
+                                                    </div>
+                                                </div>
+                                                <div class="form-group ">
+                                                    <label> Từ ngày <span style="color:red">(*)</span></label>
+                                                    <div class="form-news">
+                                                        <input class="form-control datetime"v-model="commonStatisJs.convertDateTime(data.TuNgay)" data-id="1" type="text" />
+                                                    </div>
+                                                </div>
+                                                <div class="form-group ">
+                                                    <label>Đến ngày <span style="color:red">(*)</span></label>
+                                                    <div class="form-news">
+                                                        <input class="form-control newTime datetime" v-model="commonStatisJs.convertDateTime(data.DenNgay)" data-id="2" type="text" />
+                                                    </div>
+                                                </div>
+                                              
+                                <div class="form-group ">
+                                    <p style="font-size:13px; "><span style="color:red">   (*) </span> Việc chốt kỳ tính công nhằm chốt lại các ký hiệu chấm công, các ngày nghỉ lễ của kỳ đó phục vụ cho việc chốt bảng chấm công và tính lương .</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="modal-footer nopadding">
+                            <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                            <button type="button" class="btn btn-main" v-on:click="SaveKyTinhCong" v-show="!loadding">
+                                <i class="fa fa-floppy-o" aria-hidden="true"></i> Lưu
+                            </button>
+                            <button type="button" class="btn btn-main" v-show="loadding">
+                                <i class="fa fa-spinner fa-pulse  fa-fw"></i> Đang lưu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modaldeletekytinhcong">
+        <div id="modalContainer_delete" class="modal-sm">
+            <div class="modal-content ">
+                <div class="modal-body">
+                    <div class="title-delete">
+                        <span id="header-confirm-delete">Xóa kỳ tính công</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                    </div>
+                    Bạn có chắc chắn muốn xóa kỳ tính công <span style="font-weight:bold; color:red">{{data.Ky}}</span> ?<br />
+                    <span style="color:red">   (*) </span>Việc xóa kỳ tính công sẽ ảnh hưởng tới các nhân viên đang chấm công theo kỳ tính công này!
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-main" v-on:click="DeleteKyTinhCong"><i class="fa fa-check"></i> Đồng ý</button>
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban" tabindex="2"></i> Bỏ qua</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/NhanSu/edit-kytinhcong.js"></script>
+    <script>
+        $(function () {
+            var todayDate = new Date().getDate();
+            var endD = new Date(new Date().setDate(todayDate - 15));
+            var currDate = new Date();
+        $.datetimepicker.setLocale('vi');
+        //$('.datetime').datepicker({
+        //    dateFormat: "dd/mm/yyyy",
+        //    autoclose: true,
+        //    changeMonth: true,
+        //    changeYear: true,
+        //});
+        $('.datetime').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+            maxDate: new Date(new Date().getFullYear(), new Date().getMonth(), new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate())
+        });
+    });
+    </script>
+<style>
+    .ui-datepicker select.ui-datepicker-month {
+        width: 55%;
+    }
+    .ui-datepicker .ui-datepicker-header {
+        background: white !important;
+        border: none !important;
+    }
+    .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button,html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+        border: 1px solid #ffffff;
+        background: #ffffff;
+        font-weight: normal;
+        color: #454545;
+        text-align: center;
+    }
+   .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover{
+       color:white;
+       background:var(--color-main);
+   }
+    .ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+        background: #f5d723;
+    }
+    .ui-datepicker-year {
+        width: 35%;
+    }
+    .ui-datepicker table {
+    margin-bottom: 10px !important;
+    }
+    </style>

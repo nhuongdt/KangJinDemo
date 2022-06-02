@@ -1,0 +1,450 @@
+﻿@using banhang24.Hellper;
+@using System.Web.Optimization
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn -  Phản hồi";
+}
+@section scripts {
+}
+<style>
+    .title-report, .btn btn-main font {
+        display: inline-block;
+    }
+    ul.ui-autocomplete {
+        z-index: 999999999999;
+    }
+</style>
+<div class="op-container">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">  Loại tư vấn
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="outselect outselectDV">
+                                    <div class="choose-person floatleft " data-toggle="dropdown" id="choose_LoaiTuVan">
+                                        <ul data-bind="foreach: MangLoaiPhanHoi">
+                                            <li class="li-input-span">
+                                                <span data-bind="text: TenLoaiTuVanLichHen">
+                                                </span>
+                                                <span data-bind="click: $parent.CloseTuVan">
+                                                    <i class="fa fa-times"></i>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                        <input type="text" id="dllTuVan" readonly="readonly" class="dropdown" placeholder="Chọn loại tư vấn" />
+                                    </div>
+                                    <div class="selec-person dropdown-menu floatleft" id="selec-all-TuVan">
+                                        <ul data-bind="foreach: LoaiTuVanLichHens ">
+                                            <li data-bind="attr:{id: ID}, click: $parent.selectedLoaiTuVanFilter">
+                                                <span data-bind="text: TenLoaiTuVanLichHen"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />       Thời gian
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" data-bind="checked: filterNgayLapHD" value="0" />
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date ">
+                                            <div data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show" placeholder="Toàn thời gian" id="txtNgayTao">
+                                            </div>
+                                            <div class="dropdown-menu choseNgayTao">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="1"><a href="javascript:void(0);">Hôm nay</a></li>
+                                                        <li value="2"><a href="javascript:void(0);">Hôm qua</a></li>
+                                                        <li value="3"><a href="javascript:void(0);">Tuần này</a></li>
+                                                        <li value="4"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                        <li value="5"><a href="javascript:void(0);">7 ngày qua</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="6"><a href="javascript:void(0);">Tháng này</a></li>
+                                                        <li value="7"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                        <li value="10"><a href="javascript:void(0);">Quý này</a></li>
+                                                        <li value="11"><a href="javascript:void(0);">Quý trước</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="12"><a href="javascript:void(0);">Năm này</a></li>
+                                                        <li value="13"><a href="javascript:void(0);">Năm trước</a></li>
+                                                        <li value="0"><a href="javascript:void(0);">Toàn thời gian</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" data-bind="checked: filterNgayLapHD" value="1" />
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap ">
+                                            <input type='text' class="form-control daterange" id="txtNgayTaoInput" placeholder="23/12/2017" name="daterange"
+                                                   data-bind="value: filterNgayLapHD_Input, enable: filterNgayLapHD()!=='0'" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/mucdophandoi.png" />   Mức độ phản hồi
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <ul>
+                                    <li>
+                                        <label><input type="checkbox" data-bind="checked: ckCao"> Cao</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" data-bind="checked: ckTB"> Trung bình</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" data-bind="checked: ckThap"> Thấp</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/trangthai (1).png" />          Trạng thái
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <ul>
+                                    <li>
+                                        <label><input type="checkbox" data-bind="checked: ckChuaXuLy"> Chưa xử lý</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" data-bind="checked: ckDangXuLy"> Đang xử lý</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" data-bind="checked: ckDaXong"> Đã xong</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">@banhang24.Resources.ResourceTexts.Partner / Phiếu phản hồi</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class=" header-button-left">
+                            <div class="btn-group ThemMoiPhanHoi" style="display:none">
+                                <button type="button" class="btn btn-main dropdown-toggle btn-main " data-bind="click: themmoiphanhoi" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                </button>
+                            </div>
+                            <div class="btn-dropdown pull-right" id="selectColumn">
+                                <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                     <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <ul class="dropdown-list " style="display: none;right:0">
+                                    <li>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" class="checkbox" checked="checked" value="maphieu"><span></span>Mã phiếu</label>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" class="checkbox" checked="checked" value="ngaygio"><span></span>Ngày giờ</label>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" class="checkbox" checked="checked" value="khachhang"><span></span>Khách hàng</label>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" class="checkbox" checked="checked" value="nhanvien"><span></span>Nhân viên</label>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" class="checkbox" checked="checked" value="trangthai"><span></span>Trạng thái</label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        @*<div class="input-search-filter" style="margin: 0">
+                            <button type="button" class=" btn-search-icon" data-bind="click: $root.clickSearchPH">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <input type="text" placeholder="Theo mã phiếu, KH, nhân viên" id="txtSearchPhanHoi" class="form-control"
+                                   data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off">
+                        </div>
+                        <button onclick="showFilter()" class="op-filter-toggle btn btn-main"><i class="fa fa-filter"></i></button>*@
+                        <div class="op-search">
+                            <button type="button" class=" op-search-button" data-bind="click: $root.clickSearchPH">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <input type="text" placeholder="Theo mã phiếu, KH, nhân viên" id="txtSearchPhanHoi" class="form-control"
+                                   data-bind="value: filter, valueUpdate: 'afterkeydown'" autocomplete="off">
+                        </div>
+                        <button class="op-filter-toggle btn btn-main" onclick="showFilter()">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table nopadding">
+                <div class="table-reponsive table-frame" id="table-reponsive">
+                    <table class=" table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th class="maphieu">Mã phiếu</th>
+                                <th class="ngaygio">Ngày giờ</th>
+                                <th class="khachhang">Khách hàng</th>
+                                <th class="nhanvien">Nhân viên</th>
+                                <th class="trangthai">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: PhanHois">
+                            <tr class="prev-tr-hide" data-bind="css:{bggray : $index()%2 == 1}, click: $parent.LoadQuyen" >
+                                <td class="maphieu" data-bind="text: Ma_TieuDe"></td>
+                                <td class="ngaygio" data-bind="text:  moment(NgayGio).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(NgayGio).format('DD/MM/YYYY hh:mm'):''"></td>
+                                <td class="khachhang" data-bind="text: TenKhachHang"></td>
+                                <td class="nhanvien" data-bind="text: TenNV"></td>
+                                <td class="trangthai" data-bind="text: TrangThai === '1' ? 'Chưa xử lý' : (TrangThai === '2' ? 'Đang xử lý' : 'Đã xong')"></td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="5">
+                                    <div class="op-object-detail " style="width:100%">
+                                        <ul class="nav nav-tabs" style="width:100%">
+                                            <li class="active"><a href="javascript:void(0)">Thông tin</a></li>
+                                        </ul>
+                                        <div class="tab-content tab-content-next">
+                                            <div class="tab-pane active">
+                                                <div class="col-xs-12 col-sm-6 col-lg-6">
+                                                    <div class="detail-content floatleft">
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label ">Mã phiếu:</label>
+                                                            <div class="css-form-detail" data-bind="text: Ma_TieuDe"></div>
+                                                        </div>
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label ">Ngày giờ:</label>
+                                                            <div class="css-form-detail" data-bind="text:  moment(NgayGio).format('DD/MM/YYYY hh:mm')!='Invalid date'? moment(NgayGio).format('DD/MM/YYYY  hh:mm'):''"></div>
+                                                        </div>
+                                                        <div class="form-group floatleft ">
+                                                            <label class="css-form-label ">Khách hàng:</label>
+                                                            <div class="css-form-detail" data-bind="text: TenKhachHang"></div>
+                                                        </div>
+                                                        <div class="form-group floatleft border-end">
+                                                            <label class="css-form-label ">Nhân viên liên quan:</label>
+                                                            <div class="css-form-detail" data-bind="text: TenNV">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft border-end">
+                                                            <label class="css-form-label ">Loại phản hồi:</label>
+                                                            <div class="css-form-detail" data-bind="text: TenLoaiTV">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-6 col-lg-6">
+                                                    <div class="detail-content floatleft">
+                                                        <div class="form-group floatleft ">
+                                                            <label class="css-form-label ">Mức độ phản hồi:</label>
+                                                            <div class="css-form-detail" data-bind="text: strMucDoPhanHoi">
+                                                                Cao
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label ">Trạng thái:</label>
+                                                            <div class="css-form-detail" data-bind="text: TrangThai === '1' ? 'Chưa xử lý' : (TrangThai === '2' ? 'Đang xử lý' : 'Đã xong')"></div>
+                                                        </div>
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label ">Nội dung phản hồi:</label>
+                                                            <div class="css-form-detail">
+                                                                <div class="css-form-detail" data-bind="text: NoiDung"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft border-end">
+                                                            <label class="css-form-label ">Nội dung trả lời:</label>
+                                                            <div class="css-form-detail" data-bind="text: TraLoi"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <div class="group-btn floatleft text-right">
+                                                        <a  class="btn btn-main txtCapNhatPH" style="display:none" data-bind="click: $parent.editPhanHoi">
+                                                            <i class="fa fa-check-square"></i> Cập nhật
+                                                        </a>
+                                                        <a  class="btn btn-business txtXoaPhanHoi" style="display:none" data-bind="click: $parent.modalDelete">
+                                                            <i class="fa fa-trash"></i> Xóa
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page">
+                    <div class="flex flex-row">
+                        <label>Số bản ghi:</label>
+                        <select id="SelecttedPage" class="form-control seleted-page" data-bind="value: pageSize,
+                                                options: pageSizes, event: {change: ResetCurrentPage}"></select>
+                    </div>
+                    <div class="flex flex-end">
+                        <a href="javascript:void(0)" data-bind="click: $root.StartPage, visible: VisibleStartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.BackPage, visible: VisibleStartPage "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                        <ul data-bind="foreach: PageList_Display">
+                            <li>
+                                <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageHD, css: $root.GetClassHD($data)"></a>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" data-bind="click: $root.GoToNextPage, visible: VisibleEndPage "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0)" data-bind="click: $root.EndPage, visible: VisibleEndPage "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                        <div class="total-recos">Hiển thị <span data-bind="text: fromitem"></span> - <span data-bind="text: toitem"></span> trên tổng số <span data-bind="text: TotalRecord"></span> phiếu hẹn.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        @*Xóa*@
+    </div>
+</div>
+<div class="modal fade" id="myModalphanhoi">
+    <div id="modalContainerlg_VT" class="modal-dialog draggable modal-lgmax">
+        @Html.Action("_themmoiphanhoi", new { area = "", Controller = "TuVan" })
+    </div>
+</div>
+<div class="modal fade " id="myModalphanloai">
+    <div class="modal-dialog draggable modal-dialog-pb">
+        <div class="modal-sm">
+            @Html.Action("_themmoi_loaiphanhoi", new { area = "", Controller = "TuVan" })
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalpopup_deletePhanHoi">
+    <div id="modalContainer_delete" class="modal-dialog draggable ">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa <span style="font-weight:bold" data-bind="text: deletePhieuPhanHoi"></span> khỏi danh sách phản hồi.
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-success" data-dismiss="modal" data-bind="click: xoaPhanHoi">Đồng ý</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Bỏ qua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Modal xóa loai phan hoi*@
+<div class="modal fade" id="modalpopup_deleteLoaiTuVan">
+    <div id="modalContainer_delete" class="modal-dialog draggable ">
+        <div class="modal-content">
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa loại phản hồi <span style="font-weight:bold" data-bind="text: deleteTenLoaiPhanHoi"></span> khỏi danh sách.
+            </div>
+            <div class="modal-footer">
+                    <button type="button" class="btn btn-main" data-dismiss="modal" data-bind="click: xoaLoaiPhanHoi"><i class="fa fa-check"></i> Đồng ý</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        $(document).on('click', '.classification select', function () {
+            var t = $(this).val();
+            if (t == "") {
+                $(".pencel-edit").css("display", "none");
+                $(".pencel-add").css("display", "block");
+            }
+            else {
+                $(".pencel-edit").css("display", "block");
+                $(".pencel-add").css("display", "none");
+            }
+    });
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    $('#table-reponsive').on('click', '.prev-tr-hide', function () {
+        setTop = $('#table-reponsive thead').height() + parseInt($(this).height() * ($(this).index() / 2));
+            $(this).parents(".table-reponsive").toggleClass("table_re");
+            $(".prev-tr-hide td").not($(this).find("td")).removeClass("bor");
+            $("td").not($(this).find("td")).removeClass("bg-gray");
+            $(".prev-tr-hide").not($(this)).removeClass("bor-right");
+            $(this).toggleClass("bor-right");
+            $(this).find("td").toggleClass("bg-gray");
+            $(this).find("td").toggleClass("bor");
+            var t = $(this).next(".op-js-tr-hide").css("display");
+            if (t == "none") {
+                $(".op-js-tr-hide").removeClass("ac");
+                $(".op-js-tr-hide").removeClass("l");
+                $(this).next(".op-js-tr-hide").addClass("ac");
+                heightold = $(this).next().height();
+                heigth = parseInt($(this).height()) + heightold;
+                $('.line-right').height(heigth).css("margin-top", setTop + "px");
+            }
+            else if (t == "block") {
+                $(this).next(".op-js-tr-hide").removeClass("ac");
+                $('.line-right').height(0).css("margin-top", "0px");
+            }
+            else {
+                $(".op-js-tr-hide").removeClass("ac");
+                  $('.line-right').height(0).css("margin-top", "0px");
+            }
+        });
+    $('#myModalphanhoi').on('shown.bs.modal', function (e) {
+        $('.datetimepicker4').datetimepicker({
+            format: 'd/m/Y H:i',
+            timepicker: true,
+            step: 30,
+            mask: true
+        });
+    });
+    var funcName = '@RoleKey.PhanHoi';
+</script>
+@Scripts.Render("~/bundles/AppDanhMuc/PhanHoiList")

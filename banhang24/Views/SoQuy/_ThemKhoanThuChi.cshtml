@@ -1,0 +1,261 @@
+﻿<div id="vmKhoanThuChi" class="modal fade">
+    <div class="modal-dialog draggable modal-md" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới':'Cập nhật'}} khoản thu chi
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <div class="form-group floatleft">
+                    <label>Khoản thu/chi</label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" autocomplete="off" autofocus
+                               v-model="newKhoanThuChi.NoiDungThuChi" />
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Mô tả</label>
+                    <div class="form-news">
+                        <textarea rows="3" type="text" autocomplete="off"
+                                  v-model="newKhoanThuChi.GhiChu" />
+                    </div>
+                </div>
+
+                <div class="form-group floatleft">
+                    <label>&nbsp;</label>
+                    <div class="form-news">
+                        <label class="floatleft">
+                            <input type="checkbox" v-model="newKhoanThuChi.LaKhoanThu" /> Là khoản thu
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>&nbsp;</label>
+                    <div class="form-news">
+                        <label class="floatleft">
+                            <input type="checkbox" v-model="newKhoanThuChi.TinhLuong" /> Là khoản tạm ứng lương
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" v-on:click="Delete">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!isLoading" v-on:click="Save">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmKhoanThuChi = new Vue({
+        el: '#vmKhoanThuChi',
+        created: function () {
+            let self = this;
+            self.UrlQuyHoaDonAPI = '/api/DanhMuc/Quy_HoaDonAPI/';
+            self.inforLogin.ID_DonVi = $('#txtDonVi').val();
+            self.inforLogin.UserLogin = $('#txtUserLogin').val();
+            self.inforLogin.ID_NhanVien = $('#txtIDNhanVien').val();
+
+            if (commonStatisJs.CheckNull(self.inforLogin.ID_DonVi)) {
+                self.inforLogin.ID_DonVi = VHeader.IdDonVi;
+                self.inforLogin.UserLogin = VHeader.UserLogin;
+                self.inforLogin.ID_NhanVien = VHeader.IdNhanVien;
+
+                self.role = {
+                    Update: VHeader.Quyen.indexOf('KhoanThuChi_CapNhat') > -1,
+                    Delete: VHeader.Quyen.indexOf('KhoanThuChi_Xoa') > -1,
+                    Insert: VHeader.Quyen.indexOf('KhoanThuChi_ThemMoi') > -1,
+                };
+            }
+        },
+        data: {
+            saveOK: false,
+            typeUpdate: 1,//1.themmoi, 2.update, 0.delete
+            isLoading: false,
+            error: '',
+            itemOld: {},
+            inforLogin: {},
+            ListBanks: [],
+            role: {
+                Update: false,
+                Delete: true,
+                Insert: true,
+            },
+            newKhoanThuChi: {
+                ID: '00000000-0000-0000-0000-000000000000',
+                MaKhoanThuChi: null,
+                NoiDungThuChi: null,
+                LaKhoanThu: false,
+                TinhLuong: false,
+                GhiChu: '',
+                NguoiTao: '',
+                TrangThai: 1,
+            }
+        },
+
+        methods: {
+            showModalAdd: function () {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 1;
+                self.isLoading = false;
+
+                self.newKhoanThuChi = {
+                    ID: '00000000-0000-0000-0000-000000000000',
+                    MaKhoanThuChi: null,
+                    NoiDungThuChi: null,
+                    LaKhoanThu: false,
+                    TinhLuong: false,
+                    GhiChu: '',
+                    NguoiTao: '',
+                    TrangThai: 1,
+                };
+                $('#vmKhoanThuChi').modal('show');
+            },
+            showModalUpdate: function (item) {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 2;
+                self.newKhoanThuChi = item;
+                self.itemOld = $.extend({}, item);
+                $('#vmKhoanThuChi').modal('show');
+            },
+
+            CheckSave: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.newKhoanThuChi.NoiDungThuChi)) {
+                    ShowMessage_Danger("Vui lòng nhập khoản thu chi");
+                    return false;
+                }
+                return true;
+            },
+
+            Save: function () {
+                let self = this;
+
+                let check = self.CheckSave();
+                if (!check) {
+                    return;
+                }
+
+                let obj = {
+                    ID: self.newKhoanThuChi.ID,
+                    NoiDungThuChi: self.newKhoanThuChi.NoiDungThuChi,
+                    GhiChu: self.newKhoanThuChi.GhiChu,
+                    LaKhoanThu: self.newKhoanThuChi.LaKhoanThu,
+                    NguoiTao: self.inforLogin.UserLogin,
+                    TinhLuong: self.newKhoanThuChi.TinhLuong,
+                    TrangThai: 1
+                };
+
+                self.isLoading = true;
+
+                let sNKy = '<br /> - Tên khoản thu/chi: '.concat(self.newKhoanThuChi.NoiDungThuChi,
+                    '<br /> - Mô tả: ', self.newKhoanThuChi.GhiChu);
+
+                if (self.typeUpdate === 1) {
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "PostQuy_KhoanThuChi", 'POST', obj).done(function (data) {
+                        self.saveOK = true;
+                        self.isLoading = false;
+                        self.newKhoanThuChi.ID = data.ID;
+
+                        ShowMessage_Success("Thêm mới khoản thu chi thành công");
+                        $('#vmKhoanThuChi').modal('hide');
+
+                        let diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: 1,
+                            ChucNang: 'Khoản thu chi',
+                            NoiDung: 'Thêm mới khoản thu chi '.concat(self.newKhoanThuChi.NoiDungThuChi),
+                            NoiDungChiTiet: 'Thêm mới khoản thu chi. <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
+                                '<br /> <b> Người tạo: </b>', self.inforLogin.UserLogin),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    });
+                }
+                else {
+                    obj.NguoiSua = self.inforLogin.UserLogin;
+
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "PutQuy_KhoanThuChi", 'POST', obj).done(function (data) {
+                        self.saveOK = true;
+                        self.isLoading = false;
+                        ShowMessage_Success("Cập nhật khoản thu chi thành công");
+                        $('#vmKhoanThuChi').modal('hide');
+
+                        let diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: 2,
+                            ChucNang: 'Khoản thu chi',
+                            NoiDung: 'Cập nhật khoản thu chi '.concat(self.newKhoanThuChi.NoiDungThuChi),
+                            NoiDungChiTiet: 'Cập nhật khoản thu chi <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
+                                '<br /> <b> Thông tin cũ: </b>',
+                                '<br /> - Tên khoản thu/chi: ', self.itemOld.NoiDungThuChi,
+                                '<br /> - Mô tả: ', self.itemOld.GhiChu,
+                                '<br /><b> Người sửa: </b> ', self.inforLogin.UserLogin
+                            ),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    });
+                }
+            },
+            Delete: function () {
+                let self = this;
+                let myData =
+                {
+                    ID: self.newKhoanThuChi.ID
+                };
+                debugger
+                commonStatisJs.ConfirmDialog_OKCancel('Xác nhận xóa',
+                    'Bạn có chắc chắn muốn xóa khoản thu chi <b> ' + self.newKhoanThuChi.NoiDungThuChi + ' </b>',
+                    function () {
+                        ajaxHelper(self.UrlQuyHoaDonAPI + "DeleteQuy_KhoanThuChi?idloaithuchi=" + self.newKhoanThuChi.ID,
+                            'GET', myData).done(function (data) {
+
+                                if (data !== "") {
+                                    ShowMessage_Danger("Loại thu/chi đã được sử dụng để tạo sổ quỹ, không thể xóa");
+                                    return;
+                                }
+
+                                ShowMessage_Success("Xóa khoản thu chi thành công");
+                                $('#vmKhoanThuChi').modal('hide');
+
+                                self.typeUpdate = 3;
+                                self.saveOK = true;
+                                let diary = {
+                                    ID_DonVi: self.inforLogin.ID_DonVi,
+                                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                    LoaiNhatKy: 3,
+                                    ChucNang: 'Khoản thu chi',
+                                    NoiDung: 'Xóa khoản thu chi '.concat(self.newKhoanThuChi.NoiDungThuChi),
+                                    NoiDungChiTiet: 'Xóa khoản thu chi '.concat(self.newKhoanThuChi.NoiDungThuChi,
+                                        '<br /> Người xóa: ', self.inforLogin.UserLogin
+                                    ),
+                                }
+                                Insert_NhatKyThaoTac_1Param(diary);
+                            }).fail(function () {
+                                ShowMessage_Danger("Xóa khoản thu chi thất bại");
+                            });
+                    })
+            }
+        }
+    })
+</script>

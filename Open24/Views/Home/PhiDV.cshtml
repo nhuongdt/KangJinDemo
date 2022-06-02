@@ -1,0 +1,271 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Bảng giá phần mềm quản lý Open24";
+}
+@using Model_banhang24vn.Common;
+@section scripts {
+
+    <script>
+
+        var groupNews = function () {
+            var self = this;
+            self.ListSalesDevices = ko.observableArray();
+            function Loadform() {
+                $.ajax({
+                    url: "/Open24Api/ApiSalesDevice/GetAllDevice",
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function (result) {
+                        if (result.res === true) {
+                            self.ListSalesDevices(result.DataSoure);
+                        } else {
+                            console.log(result.mess);
+                        }
+                    },
+                    error: function (result) {
+                        console.log(result);
+                    }
+                });
+            };
+
+            Loadform();
+
+            const CartCookieName = "cartId";
+            self.addcart = function (item) {
+
+                var CartId = LocalCookies.Get(CartCookieName);
+                if (CartId === null || CartId === undefined) {
+                    Cart = Guid.newGuid();
+                    LocalCookies.Set(CartCookieName, Cart, 1);
+                    LocalIndexDB.Connect().clear().onsuccess = function (evt) {
+                        addCartDevice(item, CartId);
+                    };
+                }
+                else {
+                    addCartDevice(item, CartId);
+                }
+            }
+            function addCartDevice(item, CartId) {
+                var objectStore = LocalIndexDB.Connect();
+                var request = objectStore.getAll();
+                request.onsuccess = function (evt) {
+                    var data = request.result;
+
+                    if (data.some(o => o.salesDevice_Id === item.ID && o.Client_Id === CartId)) {
+
+                        var objectStoreRequest = objectStore.openCursor(data.filter(o => o.salesDevice_Id === item.ID && o.Client_Id === CartId)[0].ID);
+
+                        objectStoreRequest.onsuccess = function (event) {
+                            var cursor = event.target.result;
+                            if (cursor) {
+                                var myRecord = cursor.value;
+                                if (myRecord !== null && myRecord !== undefined) {
+                                    myRecord.salesDevice_Quantity += 1;
+                                    myRecord.salesDevice_Money = myRecord.salesDevice_Quantity * myRecord.salesDevice_Price;
+                                    cursor.update(myRecord);
+                                }
+                            }
+                            window.location.href = "/Gio-hang";
+                        };
+
+                    }
+                    else {
+                        var price = item.IsSalePrice == true ? item.PriceSale : item.Price;
+                        var model = {
+                            salesDevice_Id: item.ID,
+                            salesDevice_Name: item.Name,
+                            salesDevice_Price: price,
+                            salesDevice_Quantity: 1,
+                            salesDevice_Img: item.SrcImg,
+                            salesDevice_Money: (1 * price),
+                            salesDevice_Encoder: item.Encoder,
+                            Client_Id: CartId,
+                        };
+                        objectStore.add(model);
+                        window.location.href = "/Gio-hang";
+                    }
+                };
+            }
+        }
+        ko.applyBindings(new groupNews());
+        function showPopupDatMua(text,idtype)
+        {
+            $('#type_software').text(idtype);
+            $('#exampleModal').find('.modal-header').find('.modal-title').text("Thông tin đặt mua " + text);
+             $('#exampleModal').modal('show');
+         
+        }
+    </script>
+}
+@section FormDangky{
+    @Html.Action("_cuahangdangky", new { area = "", controller = "home" })
+}
+<style>
+  
+    </style>
+<div class="service fl">
+    <div class="container posrela">
+        <h1>
+            <span class="fl text-service-mobile">Chi phí đầu tư hợp lý</span>
+            <span class="text-service-mobile1" hidden>Chi phí đầu tư</span>
+            <span class="text-service-mobile2" hidden> hợp lý</span>
+        </h1>
+        <div class="fl dung-thu">
+            <a href="/dung-thu-mien-phi" class="bnt-use" @*data-toggle="modal" data-target="#modalPopup_CHDK"*@>Dùng thử miễn phí ngay!</a>
+        </div>
+        @*<img src="~/Content/images/phisd.jpg" alt="anh" class="imgdestc ">
+        <img src="~/Content/images/imgmob/Ipad vs Iphone-26.png" alt="anh" class="imgpadnh">*@
+    </div>
+</div>
+<div class="table-service fl">
+    <div class="container">
+        <div class="inner-service fl">
+            <h2>bảng phí dịch vụ</h2>
+            <p class="fl text-center add-stort1">
+                Để tiết kiệm chi phí bạn vui lòng lựa chọn gói sản phẩm phù hợp. Open24 sẽ chuyển đổi các gói khi bạn có nhu cầu, việc chuyển đổi được thực hiện miễn phí.
+            </p>
+            <div class="next-sp">
+                <div class="sale-service content-table-service goi-tiet-kiem">
+                    <h3 class="bold blue1 ">Gói tiết kiệm</h3>
+                    <div class="bg1">
+                        <p class="text-center blue1">89.000đ/tháng</p>
+                    </div>
+                    <h5>Một cửa hàng</h5>
+                    <ul>
+                        <li class="true">
+                            100 mặt hàng
+                        </li>
+                        <li class="true">
+                            3 người dùng
+                        </li>
+                        <li class="true">
+                            Đầy đủ tính năng cơ bản
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                @*<a href="#" class="bnt-use btn-dung-thu btn-tiet-kiem "  onclick="showPopupDatMua('gói tiết kiệm','@((int)Notification.TypeSalesSoftWare.tietkiem)')" data-toggle="modal" >Đặt mua</a>*@
+                <a href="/dung-thu-mien-phi" class="bnt-use btn-dung-thu btn-tiet-kiem" @*data-toggle="modal" data-target="#modalPopup_CHDK"*@>Dùng thử miễn phí ngay!</a>
+            </div>
+            <div class="next-sp">
+                <div class="sale-service content-table-service goi-tieu-chuan">
+                    <h3 class="bold blue1 ">Gói tiêu chuẩn</h3>
+                    <div class="bg1">
+                        <p class="text-center blue1 price-tieu-chuan">199.000đ/tháng</p>
+                    </div>
+                    <h5>Một cửa hàng</h5>
+                    <ul>
+                        <li class="true">
+                            Không giới hạn mặt hàng
+                        </li>
+                        <li class="true">
+                            Không giới hạn người dùng
+                        </li>
+                        <li class="true">
+                            Đầy đủ tính năng cơ bản
+                        </li>
+                        <li class="true">
+                            Tính năng mở rộng
+                            <p>- Chăm sóc khách hàng</p>
+                            <p>- Quản lý công việc, lịch hẹn</p>
+                        </li>
+                    </ul>
+
+                </div>
+                @*<a href="#" class="bnt-use btn-dung-thu btn-tieu-chuan "onclick="showPopupDatMua('gói tiêu chuẩn','@((int)Notification.TypeSalesSoftWare.tieuchuan)')"  data-toggle="modal" >Đặt mua</a>*@
+                <a href="/dung-thu-mien-phi" class="bnt-use btn-dung-thu btn-tieu-chuan" @*data-toggle="modal" data-target="#modalPopup_CHDK"*@>Dùng thử miễn phí ngay!</a>
+            </div>
+           
+            <div class="next-sp">
+                <div class="sale-service content-table-service goi-chuyen-nghiep">
+                    <h3 class="bold blue1 ">Gói chuyên nghiệp</h3>
+                    <div class="bg1">
+                        <p class="text-center blue1 price-chuyen-nghiep">399.000đ/tháng</p>
+                    </div>
+                    <h5>Một cửa hàng</h5>
+                    <ul>
+                        <li class="true">
+                            Không giới hạn mặt hàng
+                        </li>
+                        <li class="true">
+                            Không giới hạn người dùng
+                        </li>
+                        <li class="true">
+                            Đầy đủ tính năng cơ bản
+                        </li>
+                        <li class="true">
+                            Tính năng mở rộng
+                            <p>- Chăm sóc khách hàng</p>
+                            <p>- Quản lý công việc, lịch hẹn</p>
+                            <p>- Quản lý lô hàng sử dụng</p>
+                            <p>- Quản lý nhân sự</p>
+                        </li>
+                    </ul>
+
+                </div>
+                @*<a href="#" class="bnt-use btn-dung-thu btn-chuyen-nghiep "onclick="showPopupDatMua('gói chuyên nghiệp','@((int)Notification.TypeSalesSoftWare.chuyennghiep)')"  data-toggle="modal" >Đặt mua</a>*@
+                <a href="/dung-thu-mien-phi" class="bnt-use btn-dung-thu btn-chuyen-nghiep" @*data-toggle="modal" data-target="#modalPopup_CHDK"*@>Dùng thử miễn phí ngay!</a>
+            </div>
+        </div>
+
+        <p></p>
+    </div>
+</div>
+<div class="bought-acc fl">
+    <div class="container">
+        <div class="col-md-12 title-add-service">
+            <h4>
+                Mở thêm 1 cửa hàng:<span style="color:red"> 129.000 </span>đ/ tháng
+            </h4>
+            <div class="col-md-12 row">
+                <p> Sử dụng:</p>
+                </div>
+            <div class="col-md-4 col-sm-12 row list-check">
+              
+                <p> Thời gian 1 năm - Tặng <span style="color:red">3</span> tháng</p>
+                <p> Thời gian 3 năm - Tặng <span style="color:red">2</span> năm</p>
+                </div>
+            <div class="col-md-4 col-sm-12 row list-check">
+                <p> Thời gian 5 năm - Tặng <span style="color:red">3</span> năm</p>
+                <p> Thời gian 10 năm - Tặng <span style="color:red">10</span> năm</p>
+            </div>
+            </div>
+        <div class="fl text-center title-bought">
+            <h2>Thiết bị bán hàng</h2>
+        </div>
+        <ul data-bind="foreach: ListSalesDevices">
+            <li>
+                <div class="item-thietbi">
+                    <div class="device-img">
+                        <a data-bind="attr: { href: Url}">
+                            <img data-bind="attr: { src: SrcImg,alt:Name}" />
+                        </a>
+                        <div class="sale-product" data-bind="visible:IsSalePrice">
+                            Giảm giá
+                        </div>
+                    </div>
+                    <div class="content-sales-devices">
+                    <div class="name-device">
+                        <a data-bind="attr: { href: Url}"> <span data-bind="text:Name" /></a>
+                    </div>
+                    <div class="bh-device"><i><span data-bind="text:TimeGuarantee" /></i></div>
+                    <div class="price-device" data-bind="text:FormatVND(PriceSale),visible: IsSalePrice">
+                    </div>
+                    <div class="price-device" data-bind="text:FormatVND(Price),visible: !IsSalePrice">
+                    </div>
+                    <div class="price-oll" data-bind="text:FormatVND(Price),visible: IsSalePrice">
+                    </div>
+                    <div class="add-cart">
+                        <a href="javascript:void(0)" data-bind="click:$parent.addcart"><i class="fa fa-shopping-cart fa-lg"></i>    Thêm vào giỏ hàng</a>
+                    </div>
+                        </div>
+                </div>
+            </li>
+
+
+        </ul>
+
+    </div>
+</div>

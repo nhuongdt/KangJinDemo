@@ -1,0 +1,1388 @@
+﻿@{
+    Layout = null;
+}
+@using System.Web.Optimization;
+@using banhang24.Hellper;
+<style>
+    .treename {
+        line-height: 30px;
+        width: 100%;
+        float: left;
+    }
+    ._tr-bold {
+        font-weight: bold;
+    }
+    .trbolds td{
+        font-weight:bold !important;
+        border-bottom:1px solid black;
+    }
+    .tdMargin {
+        padding-left: 20px !important;
+    }
+</style>
+@Html.Hidden("loaibaocao", (int)commonEnum.GroupReport.taichinh, new { @id = "ID_loaibaocao" })
+@Html.Hidden("soquy", (int)commonEnum.TypeReport.soquy, new { @id = "ID_soquy" })
+<div class="op-container ">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter ">
+                <span class="title-report"> </span>
+                <section class="op-filter-body">
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title ">
+                            <img src="/Content/images/icon/report-loaibaocao.png"> Loại báo cáo
+                        </h3>
+                        <aside class="op-filter-container">
+                            <ul class="chose_kieubang ul-radius">
+                                <li value="1" class="active" data-id="@((int)commonEnum.TypeReport.tonghop)">
+                                    <a data-target="home" class="box-tab">
+                                        <input type="radio" name="kieubang" value="1" id="BCTongHop">
+                                        <label for="BCTongHop">Tổng hợp công nợ</label>
+                                    </a>
+                                </li>
+                                <li value="2" data-id="@((int)commonEnum.TypeReport.thutien)">
+                                    <a data-target="thutien">
+                                        <input type="radio" name="kieubang" value="2" id="BCThuTien">
+                                        <label for="BCThuTien">Nhật ký thu tiền</label>
+                                    </a>
+                                </li>
+                                <li value="3" data-id="@((int)commonEnum.TypeReport.chitien)">
+                                    <a data-target="chiten">
+                                        <input type="radio" name="kieubang" value="3" id="BCChiTien">
+                                        <label for="BCChiTien">Nhật ký chi tiền</label>
+                                    </a>
+                                </li>
+                                <li value="4" data-id="@((int)commonEnum.TypeReport.soquy)">
+                                    <a data-target="soquy">
+                                        <input type="radio" name="kieubang" value="4" id="BCSoQuy">
+                                        <label for="BCSoQuy">Sổ quỹ</label>
+                                    </a>
+                                </li>
+                                <li value="5" data-id="@((int)commonEnum.TypeReport.taichinh)">
+                                    <a data-target="taichinh">
+                                        <input type="radio" name="kieubang" value="5" id="BCTaiChinh">
+                                        <label for="BCTaiChinh">Báo cáo tài chính</label>
+                                    </a>
+                                </li>
+                                <li value="6" data-id="@((int)commonEnum.TypeReport.phantichthuchi)">
+                                    <a data-target="phantichthuchi">
+                                        <input type="radio" name="kieubang" value="6" id="BCPhanTichThuCHi">
+                                        <label for="BCPhanTichThuCHi">Phân tích thu chi</label>
+                                    </a>
+                                </li>
+                            </ul>
+                            <script>
+                                $('.chose_kieubang li').on('click', function () {
+                                    var tar = $(this).children('a').attr('data-target');
+                                    console.log(tar);
+                                    $('#' + tar).siblings('.tab-pane').hide();
+                                    $('#' + tar).show();
+                                })
+                            </script>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showLoaiDoiTac">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaihang.png">  Loại đối tác
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox choose_LoaiHang">
+                                <ul>
+                                    <li>
+                                        <label><input value="1" type="checkbox" data-bind="checked: LoaiSP_HH"> Khách hàng</label>
+                                    </li>
+                                    <li>
+                                        <label> <input value="2" type="checkbox" data-bind="checked: LoaiSP_DV"> Nhà cung cấp</label>
+                                    </li>
+                                    <li>
+                                        <label>  <input value="3" type="checkbox" data-bind=""> Bảo hiểm</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft " style="display:none">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaihang.png">  Loại phiếu
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox ">
+                                <ul>
+                                    <li>
+                                        <label><input value="1" type="checkbox" data-bind=""> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label> <input value="2" type="checkbox" data-bind=""> Phiếu thu</label>
+                                    </li>
+                                    <li>
+                                        <label>  <input value="3" type="checkbox" data-bind=""> Phiếu chi</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft " style="display:none">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaihang.png">  Hình thức thanh toán
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox ">
+                                <ul>
+                                    <li>
+                                        <label><input value="1" type="checkbox" data-bind=""> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label> <input value="2" type="checkbox" data-bind=""> Tiền mặt</label>
+                                    </li>
+                                    <li>
+                                        <label>  <input value="3" type="checkbox" data-bind=""> Chuyển khoản</label>
+                                    </li>
+                                    <li>
+                                        <label>  <input value="3" type="checkbox" data-bind="">Thẻ POS</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showChiNhanh" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/chinhanh-black.png">    Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="nameDonVi choose-person floatleft " data-toggle="dropdown" id="choose_DonVi">
+                                    <ul data-bind="foreach: MangChiNhanh">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenDonVi">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseDonVi">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown nameDonVi" id="NoteNameDonVi" data-bind="event:{keyup: NoteNameDonVi}" placeholder="Chọn chi nhánh..." />
+                                </div>
+                                <div class="selec-person dropdown-menu" id="selec-all-DonVi">
+                                    <ul>
+                                        <li data-bind="click: SelectedDonVi">
+                                            <span>Tất cả chi nhánh</span>
+                                        </li>
+                                        <!--ko foreach: ArrDonVi-->
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedDonVi">
+                                            <span data-bind="text: TenDonVi "></span>
+                                        </li>
+                                        <!--/ko-->
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showTimeTC" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />   Thời gian
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container pinbut0">
+                            <div class="menuCheckbox">
+                                <div class="outselect ">
+                                    <div class="choose-person" id="choose-person" data-toggle="dropdown" aria-expanded="true">
+                                        <input class="form-control" type="text" data-bind="value: newYear" />
+                                    </div>
+                                    <div class="selec-person dropdown-menu" id="selec-all-Year" data-bind="foreach: ArrayYear">
+                                        <ul>
+                                            <li data-bind="attr:{id: Year}, click: $parent.SelectYearReport"><span data-bind="text: Year"></span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_Time">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="1" data-bind="checked: Loc_TonKho"> Theo Tháng</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="2" data-bind="checked: Loc_TonKho"> Theo Quý</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdTonKho" value="3" data-bind="checked: Loc_TonKho"> Theo Năm</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showNhomKH">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/nguoiban.png" />     Nhóm khách hàng
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown" id="choose_NhomDT">
+                                    <ul data-bind="foreach: MangNhomKhachHang">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenNhomDoiTuong">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseNhomKhachHang">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown" id="NoteNameNhomKhachHang" data-bind="event:{keyup: NoteNameNhomKhachHang}" placeholder="Chọn nhóm khách hàng..." />
+                                </div>
+                                <div class="selec-person dropdown-menu" id="selec-all-NhomKhachHang">
+                                    <ul data-bind="foreach: NhomKhachHangs">
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedNhomKhachHang">
+                                            <span data-bind="text: TenNhomDoiTuong"></span>
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showNhomNCC">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/nguoiban.png" />     Nhóm nhà cung cấp
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown" id="choose_NhomDT">
+                                    <ul data-bind="foreach: MangNhomNhaCungCap">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenNhomDoiTuong">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseNhomNhaCungCap">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown" id="NoteNameNhomNhaCungCap" data-bind="event:{keyup: NoteNameNhomNhaCungCap}" placeholder="Chọn nhóm nhà cung cấp..." />
+                                </div>
+                                <div class="selec-person dropdown-menu" id="selec-all-NhomNhaCungCap">
+                                    <ul data-bind="foreach: NhomNhaCungCaps">
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedNhomNhaCungCap">
+                                            <span data-bind="text: TenNhomDoiTuong"></span>
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showLoaiThuChi" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/loaithuchi.png">   Loại phiếu
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="outselect">
+                                <div class="choose-person floatleft " data-toggle="dropdown" id="choose_LoaiThuChi">
+                                    <ul data-bind="foreach: MangLoaiThuChi">
+                                        <li class="li-input-span">
+                                            <span data-bind="text: TenLoaiThuChi">
+                                            </span>
+                                            <span data-bind="click: $parent.CloseLoaiThuChi">
+                                                <i class="fa fa-times"></i>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <input type="text" class="dropdown" id="NoteNameLoaiThuChi" data-bind="event:{keyup: NoteNameThuChi}" placeholder="Chọn loại phiếu..." />
+                                </div>
+                                <div class="selec-person dropdown-menu" id="selec-all-LoaiThuChi">
+                                    <ul data-bind="foreach: LoaiThuChis">
+                                        <li data-bind="attr:{id: ID}, click: $parent.SelectedLoaiThuChi">
+                                            <span data-bind="text: TenLoaiThuChi "></span>
+                                    </ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft DatePK showDate" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />      Đến ngày
+                        </h3>
+                        <aside class="op-filter-container DatePK">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="floatleft form-wrap ">
+                                        <input class="form-control" id="datetimepicker_mask" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showTimeCN">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/thoigian.png">      Thời gian
+                        </h3>
+                        <span></span>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox choose_TimeReport">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="rd_TimeReport" value="1" data-bind="checked: check_Time">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class=" choose-date">
+                                            <div class="dr_TimeReport" data-toggle="dropdown" aria-expanded="true">
+                                                <input type="text" class="dropdown form-control choose-date-show ip_TimeReport" placeholder="Hôm nay">
+                                            </div>
+                                            <div class="dropdown-menu choose_txtTime">
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo ngày và tuần</h3>
+                                                    <ul>
+                                                        <li value="1" style="display: block;"><a href="javascript:void(0);">Hôm nay</a></li>
+                                                        <li value="2" style="display: block;"><a href="javascript:void(0);">Hôm qua</a></li>
+                                                        <li value="3" style="display: block;"><a href="javascript:void(0);">Tuần này</a></li>
+                                                        <li value="4" style="display: block;"><a href="javascript:void(0);">Tuần trước</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-4 col-sm-4">
+                                                    <h3>Theo tháng và quý</h3>
+                                                    <ul>
+                                                        <li value="6" style="display: block;"><a href="javascript:void(0);">Tháng này</a></li>
+                                                        <li value="7" style="display: block;"><a href="javascript:void(0);">Tháng trước</a></li>
+                                                        <li value="9" style="display: block;"><a href="javascript:void(0);">Quý này</a></li>
+                                                        <li value="10" style="display: block;"><a href="javascript:void(0);">Quý trước</a></li>
+                                                    </ul>
+                                                </div><div class="col-md-4 col-sm-4">
+                                                    <h3>Theo năm</h3>
+                                                    <ul>
+                                                        <li value="11" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Năm này</a></li>
+                                                        <li value="12" class="ng-scope" style="display: block;"><a href="javascript:void(0);">Năm trước</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu">
+                                        <input type="radio" name="rd_TimeReport" value="2" data-bind="checked: check_Time">
+                                    </div>
+                                    <div class="conten-choose">
+                                        <div class="floatleft form-wrap">
+                                            <input type="text" class="form-control ip_DateReport newDateTime" name="daterange" disabled="disabled">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showKQKD" hidden>
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="/Content/images/icon/ketquakinhdoanh.png">       Kết quả kinh doanh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_LocKinhDoanh">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdKinhDoanhTM" data-bind="checked: check_LocKinhDoanh" value="1"> Đưa vào hạch toán</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdKinhDoanhTM" data-bind="checked: check_LocKinhDoanh" value="2"> Không hạch toán</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdKinhDoanhTM" data-bind="checked: check_LocKinhDoanh" value="3">Tất cả</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft showLoaiTien" style="display:none">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <img src="~/Content/images/icon/thoigian.png" />   Hình thức thanh toán
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio chose_LoaiTien">
+                                <ul>
+                                    <li>
+                                        <label><input type="radio" name="rdLoaiTien" value="12" data-bind="checked: Loc_LoaiTien"> Tất cả</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdLoaiTien" value="1" data-bind="checked: Loc_LoaiTien"> Tiền mặt</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="radio" name="rdLoaiTien" value="2" data-bind="checked: Loc_LoaiTien"> Ngân hàng</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="" style="height:unset; text-align:center">
+                    <h4 class="floatleft flex  flex-center">
+                        <label data-bind="text: MoiQuanTam"></label>
+                    </h4>
+                    <span class="floatleft" data-bind="text: TodayBC"></span>
+                    <span class="floatleft">Chi nhánh: <span data-bind="text: TenChiNhanh"></span></span>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class=" header-button-left">
+                            <button class="btn btn-main btn-group btnExport  btn-excel-report" id="btnExport" name="btnExport" data-bind="click: ExportExcel">
+                                <i class="fa fa-file-excel-o"></i> Xuất Excel
+                            </button>
+                            <button class="btn btn-main btn-group btnImport btn-print-report" style="display: none" type="submit" data-toggle="modal" data-target="#myModalinport" onclick="printPage()">
+                                <img src="/Content/images/icon/print-black.png"> In báo cáo
+                            </button>
+                            <div class="btn-dropdown" id="select-column">
+                                <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                     <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <div class="dropdown-list" style="display: none;">
+                                    <ul data-bind="foreach: listCheckbox">
+                                        <li>
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" class="checkbox" checked="checked" data-bind="value:Key"><span></span><label class="nopadding" data-bind="text:Value" /></label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" input-search-filter">
+                        <button type="button" class=" btn-search-icon search-report" data-bind="click: LoadReport">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <input type="text" class="form-control " id="txt_search" data-bind="event: {keyup: Select_Text}" placeholder="Theo mã, tên, số điện thoại đối tác">
+                    </div>
+                </div>
+            </div>
+            <div class="content-table" id="myScrollspy" >
+                <div class="tab-content tab-show nopadding">
+                    <div class="tab-pane active" id="home" data-id="@((int)commonEnum.TypeReport.tonghop)">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive table-frame" id="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac mahang xntma middle bg17 text-left" rowspan="2">Nhóm đối tác</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_madoitac mahang xntma middle bg17 text-left" rowspan="2">Mã đối tác</th>
+                                            <th class="  @commonEnum.TypeReportFinancial.Financial_tendoitac mahang xntma middle bg17 text-left" rowspan="2">Tên đối tác</th>
+                                            <th class="  @commonEnum.TypeReportFinancial.Financial_dauky xntslnhap text-center bg18 text-center" colspan="2">Đầu kỳ</th>
+                                            <th class="  @commonEnum.TypeReportFinancial.Financial_trongky  xntxuat bg20 text-center" colspan="2">Trong kỳ</th>
+                                            <th class="  @commonEnum.TypeReportFinancial.Financial_cuoiky  xntxuat bg21 text-center" colspan="2">Cuối kỳ</th>
+                                        </tr>
+                                        <tr>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_dauky  bg18 text-right">Phải thu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_dauky  bg18 text-right">Phải trả</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_trongky bg20 text-right">Phải thu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_trongky bg20 text-right">Phải trả</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_cuoiky bg21 text-right">Phải thu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_cuoiky bg21 text-right">Phải trả</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoTaiChinh_CongNo_Page">
+                                        <tr>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac text-left" data-bind="text: NhomDoiTac"></td>
+                                            <td>
+                                                <a style="cursor: pointer" class="@commonEnum.TypeReportFinancial.Financial_madoitac text-left Trinhpv-hovver" data-bind="text: MaDoiTac, click: $parent.LoadDoiTac_byMaDT">
+                                                </a>
+                                            </td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_tendoitac text-left" data-bind="text: TenDoiTac"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_dauky text-right" data-bind="text: formatNumber(PhaiThuDauKy)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_dauky text-right" data-bind="text: formatNumber(PhaiTraDauKy)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_trongky text-right" data-bind="text: formatNumber(TongTienChi)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_trongky text-right" data-bind="text: formatNumber(TongTienThu)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_cuoiky text-right" data-bind="text: formatNumber(PhaiThuCuoiKy)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_cuoiky text-right" data-bind="text: formatNumber(PhaiTraCuoiKy)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot class="Report_Empty" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody class="TC_CongNo" hidden>
+                                        <tr>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac bg12 tnccma bold">Tổng cộng:</td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_madoitac bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_tendoitac bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_dauky bg12 text-right tnccsoluong bold" data-bind="text: formatNumber(CN_PhaiThuDauKy())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_dauky bg12 text-right tnccgiatri bold" data-bind="text: formatNumber(CN_PhaiTraDauKy())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_trongky bg12 text-right tnccsoluong bold" data-bind="text: formatNumber(CN_TongTienChi())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_trongky bg12 text-right tnccgiatri bold" data-bind="text: formatNumber(CN_TongTienThu())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_cuoiky bg12 text-right tnccsoluong bold" data-bind="text: formatNumber(CN_PhaiThuCuoiKy())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_cuoiky bg12 text-right tnccgiatri bold" data-bind="text: formatNumber(CN_PhaiTraCuoiKy())"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="thutien" data-id="@((int)commonEnum.TypeReport.thutien)">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac text-left">Nhóm đối tác</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_hdlienquan text-left">HĐ liên quan</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_maphieu text-left">Mã phiếu thu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_ngaylap text-center">Ngày lập phiếu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_madoitac text-left">Mã người nộp</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_ten text-left">Tên người nộp</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_tongtienthu text-right">Tổng tiền thu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-center">Khoản mục</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-center">Ghi chú</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_loai text-center">Loại phiếu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoTaiChinh_PhieuThu_Page">
+                                        <tr>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac text-left" data-bind="text: NhomDoiTuong"></td>
+                                            <td>
+                                                <a style="cursor: pointer" class="@commonEnum.TypeReportFinancial.Financial_hdlienquan text-left Trinhpv-hovver" data-bind="text: MaHoaDon, click: $parent.LoadHoaDon_byMaHD">
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a style="cursor: pointer" class="@commonEnum.TypeReportFinancial.Financial_maphieu text-left Trinhpv-hovver" data-bind="text: MaPhieuThu, click: $parent.LoadSoQuy_byMaPhieu">
+                                                </a>
+                                            </td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bhtime cls2 text-center">
+                                                <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                            </td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_madoitac text-left" data-bind="text: MaNguoiNop"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ten text-left" data-bind="text: TenNguoiNop"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_tongtienthu text-right" data-bind="text: formatNumber(ThuChi)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-left" data-bind="text: NoiDungThuChi"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-left" data-bind="text: GhiChu"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_loai text-center" data-bind="text: LoaiThuChi"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot class="Report_Empty" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody class="TC_PhieuThu" hidden>
+                                        <tr>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac bg12 tnccma bold">Tổng cộng:</td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_hdlienquan bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_maphieu bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_madoitac bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ten bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_tongtienthu bg12 text-right tnccsoluong bold" data-bind="text: formatNumber(PT_GiaTri())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_loai bg12 tnccname bold"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="chitien" data-id="@((int)commonEnum.TypeReport.chitien)">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac text-left">Nhóm đối tác</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_hdlienquan text-left">HĐ liên quan</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_maphieu text-left">Mã phiếu chi</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_ngaylap text-center">Ngày lập phiếu</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_ten text-left">Tên người nhận</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_tongtienthu text-right">Tổng tiền chi</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-center">Khoản mục</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-center">Ghi chú</th>
+                                            <th class=" @commonEnum.TypeReportFinancial.Financial_loai text-center">Loại phiếu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: BaoCaoTaiChinh_PhieuChi_Page">
+                                        <tr>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac text-left" data-bind="text: NhomDoiTuong"></td>
+                                            <td>
+                                                <a style="cursor: pointer" class="@commonEnum.TypeReportFinancial.Financial_hdlienquan text-left Trinhpv-hovver" data-bind="text: MaHoaDon, click: $parent.LoadHoaDon_byMaHD">
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a style="cursor: pointer" class="@commonEnum.TypeReportFinancial.Financial_maphieu text-left Trinhpv-hovver" data-bind="text: MaPhieuThu, click: $parent.LoadSoQuy_byMaPhieu">
+                                                </a>
+                                            </td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bhtime cls2 text-center">
+                                                <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                            </td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ten text-left" data-bind="text: TenNguoiNop"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_tongtienthu text-right" data-bind="text: formatNumber(ThuChi)"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-left" data-bind="text: NoiDungThuChi"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-left" data-bind="text: GhiChu"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_loai text-center" data-bind="text: LoaiThuChi"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot class="Report_Empty" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody class="TC_PhieuChi" hidden>
+                                        <tr>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_nhomdoitac bg12 tnccma bold">Tổng cộng:</td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_hdlienquan bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_maphieu bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ten bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_tongtienthu bg12 text-right tnccsoluong bold" data-bind="text: formatNumber(PC_GiaTri())"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu bg12 tnccname bold"></td>
+                                            <td class=" @commonEnum.TypeReportFinancial.Financial_loai bg12 tnccname bold"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="soquy" data-id="@((int)commonEnum.TypeReport.soquy)">
+                        <ul class="nav nav-tabs ">
+                            <li class="active" value="1" data-id="@((int)commonEnum.TypeReport.soquy)"><a data-toggle="tab" href="#table_SoQuyTienMat" data-bind="click: select_SoQuyTienMat">Tiền mặt</a></li>
+                            <li value="2" data-id="@((int)commonEnum.TypeReport.soquy2)"><a data-toggle="tab" href="#table_SoQuyNganHang" data-bind="click: select_SoQuyNganHang">Ngân hàng</a></li>
+                            <li value="3" data-id="@((int)commonEnum.TypeReport.soquy3)" id="tableSoQuy_TongQuy"><a data-toggle="tab" href="#table_SoQuyTongQuy" data-bind="click: select_SoQuyTongQuy">Tổng quỹ</a></li>
+                            <li value="4" data-id="" id="tableSoQuy_chinhanh"><a data-toggle="tab" href="#table_SoQuychinhanh" data-bind="click: select_SoQuyChiNhanh">Chi nhánh</a></li>
+                        </ul>
+                        <div class="pull-right detail-reporthh money-price-tabs">
+                            <div class="col-md-5">
+                            </div>
+                            <div class="ma10 col-md-7 TonDauKy">
+                                <div class="col-xs-5 col-sm-5  col-lg-8 text-right">
+                                    Tồn đầu kỳ :
+                                </div>
+                                <div class="col-xs-7 col-sm-7 col-lg-4 text-right">
+                                    <div class="row" id="tondauky" data-bind="text: formatNumber(SQ_TonDauKy())"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-content floatleft">
+                            <div class="tab-pane active table_SoQuyTienMat" id="table_SoQuyTienMat" data-id="@((int)commonEnum.TypeReport.soquy)">
+                                <div class="table-reponsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_maphieu text-left">Mã phiếu</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ngaylap text-center">Thời gian</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc  text-left">Khoản mục</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ten text-left">Người nộp/nhận</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tienthu text-right">Tiền thu</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tienchi text-right">Tiền chi</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tonluyke text-right">Tồn lũy kế</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-center">Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: BaoCaoTaiChinh_SoQuyTienMat_Page">
+                                            <tr class="prev-tr-hide">
+                                                <td>
+                                                    <a style="cursor: pointer" class="@commonEnum.TypeReportFinancial.Financial_maphieu text-left Trinhpv-hovver" data-bind="text: MaPhieuThu, click: $parent.LoadSoQuy_byMaPhieu">
+                                                    </a>
+                                                </td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bhtime cls2 text-center">
+                                                    <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                                </td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-left" data-bind="text: KhoanMuc"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ten text-left " data-bind="text: TenDoiTac"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tienthu bhsoluong cls4 text-right" data-bind="text: formatNumber(ThuTienMat) "></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tienchi  bhgiaban cls5 text-right " data-bind="text: formatNumber(ChiTienMat)"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tonluyke bhsoluong cls4 text-right" data-bind="text: formatNumber(TonLuyKeTienMat) "></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-left" data-bind="text: GhiChu"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="Report_Empty" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane table_SoQuyNganHang" id="table_SoQuyNganHang" data-id="@((int)commonEnum.TypeReport.soquy2)">
+                                <div class="table-reponsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_maphieu text-left">Mã phiếu</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ngaylap text-center">Thời gian</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc  text-left">Khoản mục</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ten text-left">Người nộp/nhận</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tienthu text-right">Tiền thu</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tienchi text-right">Tiền chi</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tonluyke text-right">Tồn lũy kế</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_sotaikhoan text-left">Số tài khoản</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_nganhang text-left">Ngân hàng</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-center">Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: BaoCaoTaiChinh_SoQuyNganHang_Page">
+                                            <tr class="prev-tr-hide">
+                                                <td class="@commonEnum.TypeReportFinancial.Financial_maphieu">
+                                                    <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaPhieuThu, click: $parent.LoadSoQuy_byMaPhieu">
+                                                    </a>
+                                                </td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bhtime cls2 text-center">
+                                                    <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                                </td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-left" data-bind="text: KhoanMuc"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ten text-left " data-bind="text: TenDoiTac"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tienthu bhsoluong cls4 text-right" data-bind="text: formatNumber(ThuTienGui) "></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tienchi  bhgiaban cls5 text-right " data-bind="text: formatNumber(ChiTienGui)"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tonluyke bhsoluong cls4 text-right" data-bind="text: formatNumber(TonLuyKeTienGui) "></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_sotaikhoan text-left" data-bind="text: SoTaiKhoan"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_nganhang text-left" data-bind="text: NganHang"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-left" data-bind="text: GhiChu"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="Report_Empty" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane table_SoQuyTongQuy" id="table_SoQuyTongQuy" data-id="@((int)commonEnum.TypeReport.soquy3)">
+                                <div class="table-reponsive">
+                                    <table class="table table-striped table-hover ">
+                                        <thead>
+                                            <tr>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_maphieu text-left">Mã phiếu</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ngaylap text-center">Thời gian</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc  text-left">Khoản mục</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ten text-left">Người nộp/nhận</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tienthu text-right">Tiền thu</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tienchi text-right">Tiền chi</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_tonluyke text-right">Tồn lũy kế</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_sotaikhoan text-left">Số tài khoản</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_nganhang text-left">Ngân hàng</th>
+                                                <th class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-center">Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: BaoCaoTaiChinh_SoQuyTongQuy_Page">
+                                            <tr class="prev-tr-hide">
+                                                <td class="@commonEnum.TypeReportFinancial.Financial_maphieu">
+                                                    <a style="cursor: pointer" class=" text-left Trinhpv-hovver" data-bind="text: MaPhieuThu, click: $parent.LoadSoQuy_byMaPhieu">
+                                                    </a>
+                                                </td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ngaylap bhtime cls2 text-center">
+                                                    <span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span>
+                                                </td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_khoanmuc text-left" data-bind="text: KhoanMuc"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ten text-left " data-bind="text: TenDoiTac"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tienthu bhsoluong cls4 text-right" data-bind="text: formatNumber(TienThu) "></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tienchi  bhgiaban cls5 text-right " data-bind="text: formatNumber(TienChi)"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_tonluyke bhsoluong cls4 text-right" data-bind="text: formatNumber(TonLuyKe) "></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_sotaikhoan text-left" data-bind="text: SoTaiKhoan"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_nganhang text-left" data-bind="text: NganHang"></td>
+                                                <td class=" @commonEnum.TypeReportFinancial.Financial_ghichu text-left" data-bind="text: GhiChu"></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="Report_Empty" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane table_SoQuychinhanh" id="table_SoQuychinhanh" data-id="">
+                                <div class="table-reponsive">
+                                    <table class="table table-striped table-hover ">
+                                        <thead>
+                                            <tr>
+                                                <th class="middle">Chi nhánh</th>
+                                                <th class="text-right">Tồn tiền mặt</th>
+                                                <th class="text-right">Tồn tiền gửi</th>
+                                                <th class="text-right middle">Tổng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody data-bind="foreach: BaoCaoTaiChinh_SoQuyChiNhanh_Page">
+                                            <tr class="prev-tr-hide">
+                                                <td>
+                                                    <a style="cursor: pointer" class="text-left Trinhpv-hovver" data-bind="text: TenDonVi, click: $parent.LoadSoQuy_byChiNhanh">
+                                                    </a>
+                                                </td>
+                                                <td class="bhsoluong cls4 text-right" data-bind="text: formatNumber(TonTienMat) "></td>
+                                                <td class="bhsoluong cls4 text-right" data-bind="text: formatNumber(TonTienGui) "></td>
+                                                <td class="bhsoluong cls4 text-right" data-bind="text: formatNumber(TongThuChi) "></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="PhanQuyen" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="Report_Empty" hidden>
+                                            <tr>
+                                                <td class="bg12 bhma text-center" colspan="13"><i>Báo cáo không có dữ liệu</i></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot class="TC_SoQuyChiNhanh" hidden>
+                                            <tr>
+                                                <td class="bg12 text-left bold bhmact">Tổng cộng</td>
+                                                <td class="bg12 bhsoluong text-right bold" data-bind="text: formatNumber(SQCN_TonTienMat())"></td>
+                                                <td class="bg12 bhsoluong text-right bold" data-bind="text: formatNumber(SQCN_TonTienGui())"></td>
+                                                <td class="bg12 text-right bold " data-bind="text: formatNumber(SQCN_TongThuChi())"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="taichinh" data-id="@((int)commonEnum.TypeReport.taichinh)">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive" id="table-reponsive">
+                                <table class="table table-striped table-hover table_TheoThang">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Tên loại</th>
+                                            <th class="tenthang text-right Thang1">T1.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang2">T2.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang3">T3.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang4">T4.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang5">T5.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang6">T6.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang7">T7.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang8">T8.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang9">T9.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang10">T10.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang11">T11.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang12">T12.<span data-bind="text: newYear"></span></th>
+                                            <th class="text-right">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReportTaiChinh_TheoThang">
+                                        <tr>
+                                            <td class="mahang" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh"></td>
+                                            <td class="tenhang text-right Thang1" data-bind="attr:{class: ColorText},text: formatNumber(Thang1)"></td>
+                                            <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Thang2)"></td>
+                                            <td class="tenhang text-right Thang3" data-bind="attr:{class: ColorText},text: formatNumber(Thang3)"></td>
+                                            <td class="tenhang text-right Thang4" data-bind="attr:{class: ColorText},text: formatNumber(Thang4)"></td>
+                                            <td class="tenhang text-right Thang5" data-bind="attr:{class: ColorText},text: formatNumber(Thang5)"></td>
+                                            <td class="tenhang text-right Thang6" data-bind="attr:{class: ColorText},text: formatNumber(Thang6)"></td>
+                                            <td class="tenhang text-right Thang7" data-bind="attr:{class: ColorText},text: formatNumber(Thang7)"></td>
+                                            <td class="tenhang text-right Thang8" data-bind="attr:{class: ColorText},text: formatNumber(Thang8)"></td>
+                                            <td class="tenhang text-right Thang9" data-bind="attr:{class: ColorText},text: formatNumber(Thang9)"></td>
+                                            <td class="tenhang text-right Thang10" data-bind="attr:{class: ColorText},text: formatNumber(Thang10)"></td>
+                                            <td class="tenhang text-right Thang11" data-bind="attr:{class: ColorText},text: formatNumber(Thang11)"></td>
+                                            <td class="tenhang text-right Thang12" data-bind="attr:{class: ColorText},text: formatNumber(Thang12)"></td>
+                                            <td class="tenhang text-right" data-bind="attr:{class: ColorText},text: formatNumber(Tong)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen">
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="14"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <table class="table table-striped table-hover table_TheoQuy">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Tên loại</th>
+                                            <th class="tenhang text-right">Q1.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenhang text-right">Q2.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenhang text-right">Q3.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenhang text-right">Q4.<span data-bind="text: newYear"></span></th>
+                                            <th class="nhomhang text-right">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReportTaiChinh_TheoQuy">
+                                        <tr>
+                                            <td class="mahang" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh,
+                                                   "></td>
+                                            <td class="tenhang text-right Thang1" data-bind="attr:{class: ColorText}, text: formatNumber(Quy1)"></td>
+                                            <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText}, text: formatNumber(Quy2)"></td>
+                                            <td class="tenhang text-right Thang1" data-bind="attr:{class: ColorText}, text: formatNumber(Quy3)"></td>
+                                            <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText}, text: formatNumber(Quy4)"></td>
+                                            <td class="tenhang text-right" data-bind="attr:{class: ColorText}, text: formatNumber(Tong)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen">
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="5"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <table class="table table-striped table-hover table_TheoNam">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Tên loại</th>
+                                            <th class="tenhang text-right"><span data-bind="text: newYear"></span></th>
+                                            <th class="nhomhang text-right">Tổng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReportTaiChinh_TheoNam">
+                                        <tr>
+                                            <td class="mahang" data-bind="attr:{id: TaiChinh, class: Padding33}, text: TaiChinh"></td>
+                                            <td class="tenhang text-right Thang2" data-bind="attr:{class: ColorText},text: formatNumber(Nam)"></td>
+                                            <td class="tenhang text-right" data-bind="attr:{class: ColorText},text: formatNumber(Tong)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen">
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="3"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="phantichthuchi" data-id="@((int)commonEnum.TypeReport.phantichthuchi)">
+                        <div class="col-md-12 content-report">
+                            <div class="table-reponsive" id="table-reponsive">
+                                <table class="table table-striped table-hover _table-quy table_PTTCTheoThang">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Khoản thu chi</th>
+                                            <th class="tenthang text-right Thang1">T1.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang2">T2.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang3">T3.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang4">T4.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang5">T5.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang6">T6.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang7">T7.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang8">T8.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang9">T9.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang10">T10.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang11">T11.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenthang text-right Thang12">T12.<span data-bind="text: newYear"></span></th>
+                                            <th class="text-right tr-bold">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReportPhanTichThuChi_TheoThang">
+                                        <tr data-bind="css: {trbolds: ID_KhoanThuChi == '00000010-0000-0000-0000-000000000010' || ID_KhoanThuChi == '00000030-0000-0000-0000-000000000030'}">
+                                            <td class="text-left" data-bind="text: KhoanMuc, css: {tdMargin: ID_KhoanThuChi != '00000010-0000-0000-0000-000000000010' && ID_KhoanThuChi != '00000030-0000-0000-0000-000000000030'}"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang1)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang2)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang3)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang4)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang5)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang6)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang7)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang8)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang9)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang10)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang11)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Thang12)"></td>
+                                            <td class="td-bold text-right" data-bind="text: formatNumber(TongCong)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="15"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot class="Report_Empty" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="15"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <table class="table table-striped table-hover _table-quy table_PTTCTheoQuy">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Khoản thu chi</th>
+                                            <th class="tenhang text-right">Q1.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenhang text-right">Q2.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenhang text-right">Q3.<span data-bind="text: newYear"></span></th>
+                                            <th class="tenhang text-right">Q4.<span data-bind="text: newYear"></span></th>
+                                            <th class="nhomhang text-right">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReportPhanTichThuChi_TheoQuy">
+                                        <tr data-bind="css: {trbolds: ID_KhoanThuChi == '00000010-0000-0000-0000-000000000010' || ID_KhoanThuChi == '00000030-0000-0000-0000-000000000030'}">
+                                            <td class="text-left" data-bind="text: KhoanMuc, css: {tdMargin: ID_KhoanThuChi != '00000010-0000-0000-0000-000000000010' && ID_KhoanThuChi != '00000030-0000-0000-0000-000000000030'}"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Quy1)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Quy2)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Quy3)"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(Quy4)"></td>
+                                            <td class="td-bold text-right" data-bind="text: formatNumber(TongCong)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot class="Report_Empty" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <table class="table table-striped table-hover _table-nam table_PTTCTheoNam">
+                                    <thead>
+                                        <tr>
+                                            <th class="mahang">Khoản thu chi</th>
+                                            <th class="tenhang text-right"><span data-bind="text: newYear"></span></th>
+                                            <th class="nhomhang text-right">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReportPhanTichThuChi_TheoNam">
+                                        <tr data-bind="css: {trbolds: ID_KhoanThuChi == '00000010-0000-0000-0000-000000000010' || ID_KhoanThuChi == '00000030-0000-0000-0000-000000000030'}">
+                                            <td class="text-left" data-bind="text: KhoanMuc, css: {tdMargin: ID_KhoanThuChi != '00000010-0000-0000-0000-000000000010' && ID_KhoanThuChi != '00000030-0000-0000-0000-000000000030'}"></td>
+                                            <td class="text-right" data-bind="text: formatNumber(TongCong)"></td>
+                                            <td class="td-bold text-right" data-bind="text: formatNumber(TongCong)"></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="PhanQuyen" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        </tr>
+                                    </tfoot>
+                                    <tfoot class="Report_Empty" hidden>
+                                        <tr>
+                                            <td class="bg12 bhma text-center" colspan="10"><i>Báo cáo không có dữ liệu</i></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="garatable" class="tab-pane">
+                        <div class="table-frame">
+                            <table class="table-res">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">
+                                            Mã phiếu
+                                        </th>
+                                        <th rowspan="2">
+                                            Thời gian
+                                        </th>
+                                        <th rowspan="2">
+                                            Loại phiếu
+                                        </th>
+                                        <th rowspan="2">
+                                            Chứng từ liên quan
+                                        </th>
+                                        <th rowspan="2">
+                                            Người nhận/nộp
+                                        </th>
+                                        <th rowspan="2">
+                                            Tiền mặt
+                                        </th>
+                                        <th colspan="2" style="text-align:center; border-bottom:1px solid white">Ngân hàng</th>
+                                        <th colspan="2" style="text-align:center; border-bottom:1px solid white">Pos</th>
+                                        <th rowspan="2">Khoản mục</th>
+                                        <th rowspan="2">Ghi chú</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Giá trị</th>
+                                        <th>Tài khoản</th>
+                                        <th>Giá trị</th>
+                                        <th>Tài khoản</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                        <td>template</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class=" col-md-12 margin-page">
+                        <div class="page " hidden>
+                            <div class="flex flex-end">
+                                <a href="javascript:void(0)" data-bind="click: $root.StartPage" id="StartPage"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                <a href="javascript:void(0)" data-bind="click: $root.BackPage" id="BackPage"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                <ul data-bind="foreach: SumNumberPageReport">
+                                    <li data-bind="click: $parent.gotoNextPage">
+                                        <a href="javascript:void(0)" data-bind="text: SoTrang,css: $root.GetClass($data)"></a>
+                                    </li>
+                                </ul>
+                                <a href="javascript:void(0)" data-bind="click: $root.NextPage" id="NextPage"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                <a href="javascript:void(0)" data-bind="click: $root.EndPage" id="EndPage"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                <div class="total-recos">
+                                    Hiển thị <span data-bind="text: RowsStart"></span> - <span data-bind="text: RowsEnd"></span> trên tổng số
+                                    <span data-bind="text: SumRowsHangHoa"></span>
+                                    <span data-bind="text: LoaiBaoCao"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 total-money footer-total total-money-tabs show_SoQuy" hidden>
+                        <div class="row">
+                            <div class="col-md-5">
+                            </div>
+                            <div class="ma10 col-md-7">
+                                <div class="floatleft sum-prduct">
+                                    <div class="col-xs-5 col-sm-5  col-lg-8 text-right">
+                                        Tổng thu :
+                                    </div>
+                                    <div class="col-xs-7 col-sm-7 col-lg-4 text-right">
+                                        <div class="row" id="tongthu1" data-bind="text: formatNumber(SQ_TongThu())"></div>
+                                    </div>
+                                </div>
+                                <div class="floatleft sum-prduct">
+                                    <div class="col-xs-5 col-sm-5  col-lg-8 text-right">
+                                        Tổng chi :
+                                    </div>
+                                    <div class="col-xs-7 col-sm-7 col-lg-4 text-right">
+                                        <div class="row" id="tongchi1" data-bind="text: formatNumber(SQ_TongChi())"></div>
+                                    </div>
+                                </div>
+                                <div class="floatleft sum-prduct">
+                                    <div class="col-xs-5 col-sm-5  col-lg-8 text-right">
+                                        Tồn trong kỳ :
+                                    </div>
+                                    <div class="col-xs-7 col-sm-7 col-lg-4 text-right">
+                                        <div class="row" id="tonquy1" data-bind="text: formatNumber(SQ_TonTrongKy())"></div>
+                                    </div>
+                                </div>
+                                <div class="floatleft sum-prduct">
+                                    <div class="col-xs-5 col-sm-5  col-lg-8 text-right">
+                                        Tồn cuối kỳ :
+                                    </div>
+                                    <div class="col-xs-7 col-sm-7 col-lg-4 text-right">
+                                        <div class="row" id="toncuoiky1" data-bind="text: formatNumber(SQ_TonCuoiKy())"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#nhacungcap').on('click', 'table .show-tr', function (e) {
+        var t = $(this).closest('tr').next(".tr-hide").css("display");
+        $(".show-tr").find('.fa-plus').show();
+        $(".show-tr").find('.fa-minus').hide();
+        if (t == "none") {
+            $(this).find('.fa-plus').hide();
+            $(this).find('.fa-minus').show();
+            $(".tr-hide").hide();
+            $(this).closest('tr').next(".tr-hide").toggle();
+        }
+        else if (t == "block") {
+            $(this).closest('tr').next(".tr-hide").hide();
+        }
+        else {
+            $(".tr-hide").hide();
+        }
+    });
+    $(function () {
+        var time = new Date();
+        $.datetimepicker.setLocale('vi');
+        //$.datetimepicker.val(moment(time).format('DD/MM/YYYY'))
+        $('#datetimepicker_mask').datetimepicker({
+            timepicker: false,
+            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            format: 'd/m/Y',
+            value: moment(time).format('DD/MM/YYYY')
+        });
+    });
+    $(function () {
+        $('.newDateTime').daterangepicker({
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tạo báo cáo",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+    });
+    function LoadingForm(IsShow) {
+        $('.tab-show .tab-pane').each(function () {
+            if ($(this).hasClass('active')) {
+                var top = $(this).find('.table-reponsive').height() / 2;
+                var style = "top:" + (top > 30 ? top - 30 : top) + "px";
+                $(this).find('.table-reponsive').gridLoader({ show: IsShow, style: style });
+            }
+        });
+    }
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $('#table-nhanvien').on('click', '.show-tr', function (e) {
+        var t = $(this).closest('tr').next(".tr-hide").css("display");
+        $(".show-tr").find('.fa-plus').show();
+        $(".show-tr").find('.fa-minus').hide();
+        if (t == "none") {
+            $(this).find('.fa-plus').hide();
+            $(this).find('.fa-minus').show();
+            $(".tr-hide").hide();
+            $(this).closest('tr').next(".tr-hide").toggle();
+        }
+        else if (t == "block") {
+            $(this).closest('tr').next(".tr-hide").hide();
+        }
+        else {
+            $(".tr-hide").hide();
+        }
+    });
+    function printPage() {
+        LoadingForm(true);
+        var strPrint = '';
+        $('#table-reponsivetr .tab-pane').each(function () {
+            if (!$(this).hasClass('active')) {
+                $(this).hide();
+            }
+        });
+        strPrint += document.getElementById('printtable').innerHTML;
+        PrintExtraReportTr(strPrint);
+        $('#table-reponsivetr .tab-pane').each(function () {
+            if (!$(this).hasClass('active')) {
+                $(this).show();
+            }
+        });
+    }
+    $('body').on('successPrint', function () {
+        LoadingForm(false);
+    })
+    function printPageNhanVienCT() {
+        ;
+        var strPrint = '';
+        strPrint += document.getElementById('printtableNhanVienCT').innerHTML;
+        PrintExtraReportTr(strPrint);
+    }
+    function ShowNhom($this) {
+        $this.next("ul").toggleClass("open");
+    };
+   
+</script>
+<style>
+    .tab-pane {
+        position: relative;
+    }
+    .StartImport {
+        margin-right: 5px;
+        z-index: 0;
+        display: inline-block;
+        background: #808080;
+        color: #fff;
+        font-weight: bold;
+        font-size: 12px;
+        padding: 7px 15px;
+        white-space: nowrap;
+        border: none;
+        vertical-align: middle;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+    .SelectReport {
+        background: #bee69f;
+        color: #000000;
+    }
+    .li-input-span {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .li-input-select {
+        background: #fff;
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        width: auto !important;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+    }
+    .check-after-li {
+        float: right;
+        padding-right: 20px;
+        line-height: 21px;
+        color: #009ddc;
+        display: inline !important;
+    }
+    .nameDonVi input {
+        border: none;
+        height: 30px;
+        outline: none;
+        padding-left: 10px;
+        width: 50%;
+    }
+</style>
+@Scripts.Render("~/bundles/ReportTaiChinh")

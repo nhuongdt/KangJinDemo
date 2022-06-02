@@ -1,0 +1,342 @@
+﻿<style>
+    .lableInputRadio {
+        float: unset;
+        width: auto !important;
+        margin: unset;
+        line-height: unset !important;
+        text-align: unset !important;
+    }
+    .add-customer .choose-person {
+        width: 100%;
+    }
+</style>
+<div class="modal-content ">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+        <h4 class="modal-title" id="lblTitleKH"></h4>
+    </div>
+    <div class="modal-body">
+     
+                <div class="col-md-6 col-xs-12">
+                    <div class="row">
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label">Mã khách hàng</label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" required="" data-bind="value: MaDoiTuong"
+                                       placeholder="Mã mặc định">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label">Tên khách hàng <span style="color:red">(*)</span></label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" autofocus="" required=""
+                                       data-bind="value: TenDoiTuong">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label req ng-binding">Ngày sinh</label>
+                            <div class="form-wrap">
+                                <div class="choose-date-yaer">
+                                    <div class="outselect add-customer">
+                                        <input type='text' id="txtNgaySinh" class="form-control" autocomplete="off" data-bind="value: NgaySinh_NgayTLap" />
+                                        <button class="btn btn-right nopadding" id="btnTypeNgaySinh" tabindex="-1" 
+                                                style="width:30px"
+                                                href="javascript:void(0)" data-toggle="dropdown" data-bind="click: $parent.GetTypeNgaySinh">
+                                            <i class="fa fa-caret-down" style="position:unset" aria-hidden="true"></i>
+                                        </button>
+                                        <ul class="dropdown-menu floatleft selec-person " data-bind="foreach: $parent.ListTypeNgaySinh" id="lstTypeNgaySinh">
+                                            <li data-bind="text: Text, click: $root.ChangeType_NgaySinh" style="padding:3px;">
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label">Điện thoại</label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" data-bind="value: DienThoai, event:{blur: $parent.checkExist}"
+                                       onkeypress="return chekPhone(event)" maxlength="13">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label req ng-binding font400">Email</label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" required="" data-bind="value:Email, event:{blur: $parent.ValidateEmail}" maxlength="40">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label req ng-binding font400">Địa chỉ</label>
+                            <div class="form-wrap"><input type="text" class="form-control " required="" data-bind="value: DiaChi"></div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label req ng-binding font400">Tỉnh thành</label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" placeholder="Chọn tỉnh thành"
+                                       data-bind="jqAuto:{source:TinhThanhs,value: newDoiTuong().ID_TinhThanh, inputProp:'TenTinhThanh', valueProp:'ID',
+                           labelProp:'TenTinhThanh',filter: filterProvince}">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="form-label control-label req ng-binding font400">Quận huyện</label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" placeholder="Chọn quận huyện"
+                                       data-bind="jqAuto:{source:QuanHuyens,value: newDoiTuong().ID_QuanHuyen, inputProp:'TenQuanHuyen', valueProp:'ID',
+                           labelProp:'TenQuanHuyen', filter: filterDistrict}">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label req ng-binding font400">Mã số thuế</label>
+                            <div class="form-wrap">
+                                <input type="text" class="form-control" required="" data-bind="value:MaSoThue" maxlength="13"
+                                       onkeypress="return keypressNumber(event)">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                            <label class="form-label control-label font400">Ghi chú</label>
+                            <div class="form-wrap"><textarea rows="1" class=" ng-pristine ng-untouched ng-valid ng-empty" data-bind="value:GhiChu">        </textarea></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <div class="row">
+                        <div class=" floatleft">
+                            <div>
+                                <div class="img-commodity  col-md-6 col-lg-6 col-sm-16 col-xs-12">
+                                    <div class="img-customer border-noscroll">
+                                        <!--  ko if: HaveImage_Select() == false -->
+                                        <a href="javascript:void(0)">
+                                            <img src="~/Content/images/photo.png" />
+                                        </a>
+                                        <!-- /ko -->
+                                        <ul data-bind="foreach: FilesSelect ">
+                                            <!-- ko if: $index() == 0-->
+                                            <li>
+                                                <div class="img-customer">
+                                                    <img alt="" data-bind="attr: {src: URLAnh }" />
+                                                </div>
+                                                <a data-bind="click: $root.DeleteImg">
+                                                    <i class="fa fa-close red"></i>
+                                                </a>
+                                            </li>
+                                            <!--/ko-->
+                                        </ul>
+                                    </div>
+                                    <div class="choose-img floatleft">
+                                        <span class="btn  btn-file form-control">
+                                            Chọn ảnh <input type="file" name="file" id="file" class="inputfile" multiple
+                                                            data-bind="event:{change: $root.fileSelect}" accept=".png,.jpg,.jpeg,.gif">
+                                        </span>
+                                        <p id="errorAnh" class="errorAnhHH" style="color:red"></p>
+                                    </div>
+                                </div>
+                                <ul class="img-list-c list-cus  col-md-6 col-lg-6 col-sm-16 col-xs-12">
+                                    <!-- ko foreach: FilesSelect-->
+                                    <!-- ko if: $index() != 0-->
+                                    <li>
+                                        <div class="img-item">
+                                            <img alt="" data-bind="attr: {src: URLAnh }" />
+                                        </div>
+                                        <a data-bind="click: $root.DeleteImg">
+                                            <i class="fa fa-close red"></i>
+                                        </a>
+                                    </li>
+                                    <!--/ko-->
+                                    <!--/ko-->
+                                    <!-- ko if: HaveImage_Select() == false -->
+                                    <li>
+                                        <div class="img-item">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="img-item">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="img-item">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="img-item">
+                                        </div>
+                                    </li>
+                                    <!--/ko-->
+                                </ul>
+                            </div>
+                           
+                            <div class="deatal-custummer floatleft">
+                                <div class="form-group floatleft" data-bind="with:newDoiTuong">
+                                    <label class="form-label control-label">Khách hàng là</label>
+                                    <div class="form-news ">
+                                        <div class="cheack-conpany" style="margin-right:3px;">
+                                            <span class="c-personal">
+                                                <input type="radio" name="company" data-bind="checked: LaCaNhan, checkedValue: true" id="personal_checkname" />
+                                                <label class="lableInputRadio" for="personal_checkname" style="float: unset;width: auto !important;margin: unset;line-height: unset !important;text-align: unset !important;"> Cá nhân</label>
+                                            </span>
+                                            <span class="check-company">
+                                                <input type="radio" name="company" data-bind="checked: LaCaNhan,checkedValue: false"id="company_checkname" />
+                                          <label  class="lableInputRadio" for="company_checkname" style="float: unset;width: auto !important;margin: unset;line-height: unset !important;text-align: unset !important;">Công ty</label>
+                                            </span>
+                                        </div>
+                                        <div class="check-personal" style="width: calc(100% - 150px);">
+                                            <div style="display:inline-block;width: 45%;">
+                                                <input type="radio" data-bind="checked: GioiTinhNam, checkedValue: true" name="rdgioitinh"id="genderMale" />
+                                                <label class="lableInputRadio" for="genderMale" style="float: unset;width: auto !important;margin: unset;line-height: unset !important;text-align: unset !important;">Nam</label>
+                                            </div>
+                                            <div style="display:inline-block; ">
+                                                <input type="radio" data-bind="checked: GioiTinhNam, checkedValue: false" name="rdgioitinh" id="genderfeMale"/>
+                                                <label class="lableInputRadio" for="genderfeMale" style="float: unset;width: auto !important;margin: unset;line-height: unset !important;text-align: unset !important;">Nữ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="form-label control-label">Nguồn khách</label>
+                                <div class="input-group form-news">
+                                    <div class="outselect add-customer">
+                                        <div class="choose-person form-control" style="padding:0 !important" data-toggle="dropdown" aria-expanded="false" id="choose_NguonKhach">
+                                            <ul data-bind="foreach: NguonKhachChosed">
+                                                <li class="li-input-span">
+                                                    <span data-bind="text:TenNguonKhach">
+                                                    </span>&nbsp;
+                                                    <span data-bind="click: $parent.CloseNguonKhach">
+                                                        <i class="fa fa-times"></i>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <input type="text" class="dropdown form-control" placeholder="Chọn nguồn">
+                                        </div>
+                                        <button class="btn btn-right" id="addNguonKhach" data-bind="click: ShowModal_InsertNguon_modalKH">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="selec-person dropdown-menu floatleft" id="ddlNguonKhach">
+                                            <ul data-bind="foreach: NguonKhachs">
+                                                <li data-bind="text: TenNguonKhach, attr:{id: ID}, event:{click: $parent.ChoseNguonKhach}">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="form-label control-label">Người giới thiệu</label>
+                                <div class="form-news ">
+                                  
+                                    <a href="javascript:void(0)" data-bind="click: $root.DeleteDTKH">
+                                        <i class="fa fa-close fa-lg text-danger xoaCTDTKH" style="color:red; display:none"></i>
+                                    </a>
+                                    <input type="text" data-bind="jqAutoCustomer: { source: ListAllDoiTuong, value: newDoiTuong().ID_NguoiGioiThieu,
+                                                         inputProp: 'NguoiNopTien', labelProp: 'NguoiNopTien', valueProp: 'ID', template: 'rowChiTiet'}"
+                                           placeholder="Tìm kiếm" class="form-control ui-autocomplete-input txtKhachHang">
+                                    <script id="rowChiTiet" type="text/html">
+                                        @Html.Partial("~/Views/Component/_ko-ListSearchNguoiNopTien.cshtml")
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="form-label control-label req ng-binding">Nhóm khách</label>
+                                <div class="input-group form-news">
+                                    <div class="outselect add-customer">
+                                        <div class=" choose-person  " data-toggle="dropdown" aria-expanded="false" id="choose_NhomDT">
+                                            <ul data-bind="foreach: NhomDoiTuongChosed">
+                                                <li class="li-input-span">
+                                                    <span data-bind="html:TenNhomDoiTuong">
+                                                    </span>&nbsp;
+                                                    <span data-bind="click: $parent.CloseNhomDT">
+                                                        <i class="fa fa-times"></i>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <input type="text" class="dropdown form-control" style="width: 245px;" placeholder="Chọn nhóm">
+                                        </div>
+                                        <button class="btn btn-right" id="btnThemMoiNhom" href="javascript:void(0)"
+                                                data-bind="click: ShowModalAddNhomKH_popup">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="selec-person dropdown-menu floatleft" id="ddlNhomDT">
+                                            <ul data-bind="foreach: NhomDoiTuongDB">
+                                                <li data-bind="text: TenNhomDoiTuong, attr:{id: ID}, event:{click: $parent.selectManyNhomDT}">
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft" id="hidechecktrangthaikh">
+                                <label class="form-label control-label">Trạng thái KH</label>
+                                <div class="input-group form-news">
+                                    <select class="form-control border-radius" id="SL_TrangThaiKH">
+                                        <option value="">-- Trạng thái khách hàng --</option>
+                                        <!--ko foreach: TrangThaiKhachHang -->
+                                        <option data-bind="value:ID,text:Name"></option>
+                                        <!--/ko-->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group floatleft">
+                                <label class="form-label control-label">NV phụ trách</label>
+                                <div class="form-news">
+                                    <input type="text" class="form-control" placeholder="Chọn người quản lý"  id="modalKH_txtNnguoiTao"
+                                           data-bind="jqAuto:{source:NhanViens,value: newDoiTuong().ID_NhanVienPhuTrach, inputProp:'TenNhanVien', valueProp:'ID',
+                           labelProp:'TenNhanVien', filter: filterNhanVien}">
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+    </div>
+    <div class="modal-footer">
+        <div class="container-fluid">
+            
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
+                        <button type="button" class="btn btn-save" data-bind="click: $root.addKhachHang" id="btnLuuDoiTuong"> <i class="fa fa-save"></i> Lưu</button>
+                   
+        </div>
+    </div>
+</div>
+<script>
+    function chekPhone(e) {
+        var keyCode = window.event.keyCode || e.which;
+        var arrAscii = [32, 40, 41, 43, 45]; // space,(,),+, -,
+        if (keyCode < 48 || keyCode > 57) {
+            // 8: tab; 127: delete
+            if (keyCode == 8 || keyCode == 127 || arrAscii.indexOf(keyCode) > -1) {
+                return;
+            }
+            return false;
+        }
+    }
+    function keypressNumber(e) {
+        var keyCode = window.event.keyCode || e.which;
+        if (keyCode < 48 || keyCode > 57) {
+            // 8: tab; 127: delete
+            if (keyCode == 8 || keyCode == 127) {
+                return;
+            }
+            return false;
+        }
+    }
+    $(document).on('click', '.c-personal', function () {
+        $(".check-personal").show();
+        $(".cheack-conpany").removeClass("tgg")
+    });
+    $(document).on('click', '.check-company', function () {
+        $(".check-personal").hide();
+        $(".cheack-conpany").addClass("tgg")
+    })
+    var loginUser = '@Session["user"]';
+</script>
+<style>
+    .li-input-span-chose1 {
+        color: #333;
+        line-height: 30px;
+        text-align: left;
+        padding: 0px 7px;
+        margin: 1px 0 1px 1px;
+        background: #ccffff;
+        width: 100%;
+    }
+</style>

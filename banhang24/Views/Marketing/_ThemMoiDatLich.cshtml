@@ -1,0 +1,725 @@
+﻿<div id="modalDatLich" class="modal fade">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">{{modalTitle}}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="gara-detail-sections">
+                            <label class="control-label" style="padding: 0">Thông tin khách hàng</label>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Khách hàng</label>
+                            <div class="form-news">
+                                <customers :text-search="customerChosing.TenDoiTuong"
+                                           :loai-doi-tuong="1"
+                                           :showbutton="role.KhachHang.ThemMoi && objDatLich.ID_KhachHang ==null"
+                                           :showbutton-update="role.KhachHang.CapNhat && objDatLich.ID_KhachHang!==null"
+                                           :disable-search="false"
+                                           :id-chi-nhanh="inforLogin.IdDonVi"
+                                           v-on:show-modal-customer="showModalCustomer"
+                                           v-on:show-modal-update="$root.UpdateCustomer"
+                                           v-on:reset-customer-parent="Reset_KhachHang"
+                                           v-on:change-customer-parent="ChangeCustomer">
+                                </customers>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Số điện thoại</label>
+                            <label class="control-label" style="width: 100%">{{customerChosing.DienThoai}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Địa chỉ</label>
+                            <label class="control-label" style="width: 100%">{{customerChosing.DiaChi}}</label>
+                        </div>
+                    </div>
+                    @*<div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Ngày sinh</label>
+                            <label class="control-label">{{customerChosing.NgaySinh}}</label>
+                        </div>
+                    </div>*@
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="gara-detail-sections">
+                            <label class="control-label" style="padding: 0">Thông tin xe</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Biển số</label>
+                            <div class="form-news">
+                                <cars :text-search="carChosing.BienSo"
+                                      :show-btn-add="role.Xe.ThemMoi && objDatLich.ID_Xe == null"
+                                      :show-btn-update="role.Xe.CapNhat && objDatLich.ID_Xe !== null"
+                                      v-on:reset-car="Reset_ThongTinXe"
+                                      v-on:show-modal-car="showModalNewCar"
+                                      v-on:show-modal-update="updateCar"
+                                      v-on:change-car-parent="ChangeCar">
+                                </cars>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Mẫu xe</label>
+                            <label class="control-label" style="width: 100%">{{carChosing.TenMauXe}} - {{carChosing.TenHangXe}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="gara-detail-sections">
+                            <label class="control-label" style="padding: 0">Thông tin đặt lịch</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Chi nhánh</label>
+                            <div class="form-news">
+                                <v-select :options="VHeader.ListChiNhanh" label="TenDonVi" :reduce="dv => dv.ID" v-model="objDatLich.ID_DonVi"></v-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group floatleft">
+                            <label class="control-label">Thời gian</label>
+                            <input type="text" class="form-control" readonly v-on:click="VTimeSelect.showModal" 
+                                   v-bind:value="objDatLich.ThoiGianDatLich !== '' ? moment(objDatLich.ThoiGianDatLich).format('DD/MM/YYYY HH:mm') : ''" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="gara-detail-sections">
+                            <label class="control-label" style="padding: 0">Hàng hóa dịch vụ</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container-fluid  flex flex-between " style="padding:0 0 15px 0">
+                        <div class="col-md-6 col-xs-12 nopadding">
+                            <products :con-ton-kho="0"
+                                      :show-gia-von="false"
+                                      :show-image="false"
+                                      :show-ton-kho="false"
+                                      :loai-hang-hoa="typeSearchProduct"
+                                      :id-chi-nhanh="inforLogin.ID_DonVi"
+                                      v-on:chose-product="ChoseItemCombo">
+                            </products>
+                        </div>
+                    </div>
+                    <div class="container-fluid">
+                        <div class="table-frame">
+                            <table class=" table-hover table table-striped  ">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">
+                                            STT
+                                        </th>
+                                        <th>
+                                            Mã hàng hóa
+                                        </th>
+                                        <th>
+                                            Tên hàng hóa
+                                        </th>
+                                        <th>
+                                            Đơn giá
+                                        </th>
+                                        <th>
+                                            Ghi chú
+                                        </th>
+                                        <th style="width:30px" class="text-center">
+                                            #
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in objDatLich.HangHoaDichVu">
+                                        <td class="text-center">{{index + 1}}</td>
+                                        <td>{{item.MaHangHoa}}</td>
+                                        <td>{{item.TenHangHoa}}</td>
+                                        <td class="text-right">{{formatNumber3Digit(item.DonGia)}}</td>
+                                        <td>{{item.GhiChu}}</td>
+                                        <td>
+                                            <button class="btn btn-link height-24" v-on:click="RemoveItemHangHoaDichVu(item)">
+                                                <i class="fa fa-close text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-show="objDatLich.HangHoaDichVu.length <=0">
+                                    <tr>
+                                        <td class=" text-center" v-bind:colspan="6"><i>Không có dữ liệu</i></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="far fa-ban"></i>Hủy
+                </button>
+                <button type="button" class="btn btn-save" v-on:click="Save" v-bind:style="{'pointer-events' : isSaving ? 'none' : 'auto'}">
+                    <i class="far fa-save"></i>{{isSaving ? 'Đang lưu' : 'Lưu'}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalTimeSelect" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="flex flex-column">
+                    <div class="flex" style="justify-content:center">
+                        <div class="text-center">
+                            <input id="datepicker" type="text" class="text-center form-control" style="width: auto" readonly>
+                        </div>
+                    </div>
+                    <ul class="justify-content-start">
+                        <li v-for="item in ListTimeSelect" class="col-md-2 col-sm-4 col-6"
+                            v-bind:class="[{'op-disabled': !item.enable}, TimeSelected === item.minute ? 'li-select': '' ]"
+                            v-on:click="SelectTime(item)">
+                            <div class="li-content text-center" style=" margin: 0.25rem; padding: 0.25rem; width: 100%;">{{item.stime}}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="far fa-ban"></i>Hủy
+                </button>
+                <button type="button" class="btn btn-save" 
+                        v-bind:style="{'pointer-events' : TimeSelected === 0 ? 'none' : 'auto'}"
+                        v-on:click="Save">
+                    <i class="far fa-save"></i>Chọn
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var VTimeSelect = new Vue({
+        el: '#modalTimeSelect',
+        data: {
+            ListTimeSelect: [],
+            TimeSelected: 0,
+            DateSelect: new Date(),
+            DateStart: "09:00",
+            DateEnd: "19:00",
+            DateInterval: "30",
+            DateBefore: "0",
+            DateBeforeSet: "60",
+        },
+        methods: {
+            showModal: function () {
+                let self = this;
+                self.ListTimeSelect = self.InitTimeSelect();
+                $("#modalTimeSelect").modal("show");
+            },
+            SelectTime: function (item) {
+                let self = this;
+                self.TimeSelected = item.minute;
+            },
+            InitTimeSelect: function () {
+                let self = this;
+                let start = "08:00"
+                if (self.DateStart !== "datestartvalue") {
+                    start = self.DateStart;
+                }
+                let end = "17:30"
+                if (self.DateEnd !== "dateendvalue") {
+                    end = self.DateEnd;
+                }
+                let interval = 30;
+                if (self.DateInterval !== "dateintervalvalue") {
+                    interval = parseInt(self.DateInterval);
+                }
+                let before = 0;
+                if (self.DateBefore !== "datebeforevalue") {
+                    before = parseInt(self.DateBefore);
+                }
+                let arrtime = GetTimeInterval(start, end, interval);
+                let now = new Date();
+                let currentMinute = 0;
+                if (now > self.DateSelect) {
+                    currentMinute = now.getHours() * 60 + now.getMinutes() + before;
+                }
+                else {
+                    currentMinute = 0;
+                }
+                // currentMinute = now.getHours() * 60 + now.getMinutes() + before;
+                arrtime.map(function (item) {
+                    if (item.minute < currentMinute) {
+                        item["enable"] = false;
+                        if (self.TimeSelected === item.minute) {
+                            self.TimeSelected = 0;
+                        }
+                    }
+                    else {
+                        item["enable"] = true;
+                    }
+                });
+                return arrtime;
+            },
+            TimeSelectToDateTime: function () {
+                let self = this;
+                let hours = (self.TimeSelected - self.TimeSelected % 60) / 60;
+                let minute = self.TimeSelected % 60;
+                return moment(self.DateSelect.setHours(hours, minute)).format('YYYY/MM/DD HH:mm');
+            },
+            Save: function () {
+                let self = this;
+                VThemMoiDatLich.objDatLich.ThoiGianDatLich = self.TimeSelectToDateTime();
+                $("#modalTimeSelect").modal("hide");
+            }
+        },
+        created: function () {
+            let self = this;
+            self.DateBefore = self.DateBeforeSet;
+        },
+        watch: {
+            DateSelect: {
+                handler: function () {
+                    let self = this;
+                    self.ListTimeSelect = self.InitTimeSelect();
+                },
+                deep: true
+            }
+        }
+    });
+
+    function GetTimeInterval(start, end, interval) {
+        let _start = parseInt(start) * 60 + parseInt(start.slice(-2));
+        let _end = parseInt(end) * 60 + parseInt(end.slice(-2));
+        let result = []
+        for (let i = _start; i <= _end; i += interval) {
+            // console.log(((i - i%60)/60 + ":" + ("0" + i%60).slice(-2)));
+            result.push({ stime: ((i - i % 60) / 60 + ":" + ("0" + i % 60).slice(-2)), minute: i });
+        }
+        return result;
+    }
+
+    jQuery('#datepicker').datetimepicker({
+        minDate: new Date(),
+        timepicker: false,
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        value: new Date(),
+        onSelectDate: function (ct, $i) {
+            // alert(ct);
+            VTimeSelect.DateSelect = ct;
+        }
+    });
+</script>
+<style>
+    #modalTimeSelect ul li {
+        list-style: none;
+        cursor: pointer;
+    }
+
+    .li-content {
+        border: 1px solid var(--color-secondary);
+    }
+
+    .op-disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .li-content:hover {
+        border: 1px solid var(--color-main);
+    }
+    .li-select .li-content {
+        background-color: var(--color-main);
+        color:white;
+    }
+
+    .vs__dropdown-toggle {
+        padding: 0;
+    }
+
+    .vs__actions {
+        padding: 0 6px 0 3px;
+    }
+</style>
+<script>
+    Vue.component('v-select', VueSelect.VueSelect)
+    var VThemMoiDatLich = new Vue({
+        el: "#modalDatLich",
+        data: {
+            UrlApi: {
+                CSKH: '/api/ChamSocKhachHangAPI/'
+            },
+            customerChosing: {
+                ID: '',
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                Email: '',
+                DienThoai: '',
+                DiaChi: '',
+                NgaySinh: ''
+            },
+            role: {
+                Xe: {},
+                PhieuTiepNhan: {},
+                KhachHang: {},
+                BaoHiem: {},
+            },
+            objDatLich: {
+                ID: null,
+                ID_Xe: null,
+                ID_KhachHang: null,
+                ID_DonVi: VHeader.IdDonVi,
+                ThoiGianDatLich: '',
+                HangHoaDichVu: [],
+                ListIdHangHoa: [],
+                ListIdHangHoaRemove: [],
+                ListIdHangHoaAdd: []
+            },
+            carChosing: {
+                ID: '',
+                BienSo: '',
+                TenMauXe: '',
+                TenHangXe: '',
+                SoKhung: '',
+                SoMay: '',
+            },
+            inforLogin: {
+                ID_NhanVien: null,
+                ID_User: null,
+                UserLogin: null,
+                ID_DonVi: null,
+                TenNhanVien: '',
+            },
+            typeSearchProduct: '%1%',
+            modalTitle: 'Thêm mới đặt lịch',
+            isSaving: false,
+            isSaved: false
+        },
+        components: {
+            'my-date-time': cpmDatetime,
+            'customers': cmpChoseCustomer,
+            'cars': cmpChoseCar,
+            'products': cmpChoseProduct
+        },
+        methods: {
+            showModal: function () {
+                let self = this;
+                self.isSaved = false;
+                self.isSaving = false;
+                if (self.objDatLich.ID === null) {
+                    self.Reset_DatLich();
+                    self.Reset_KhachHang();
+                    self.Reset_ThongTinXe();
+                }
+                else {
+                    self.modalTitle = "Cập nhật đặt lịch"
+                    if (self.objDatLich.ID_Xe !== null) {
+                        self.GetInforCar_byID(self.objDatLich.ID_Xe);
+                    }
+                }
+                $("#modalDatLich").modal("show");
+            },
+            showModalCustomer: function () {
+                var self = this;
+                vmThemMoiKhach.inforLogin = self.inforLogin;
+                vmThemMoiKhach.showModalAdd();
+            },
+            ChangeCustomer: function (item) {
+                var self = this;
+                self.objDatLich.ID_KhachHang = item.ID;
+                self.customerChosing = item;
+                self.FocusInput_AfterSelect(event.currentTarget);
+            },
+            FocusInput_AfterSelect: function (elm) {
+                $(elm).closest('div').hide();
+                $(elm).closest('div').prev('focus');
+            },
+            Reset_ThongTinXe: function () {
+                var self = this;
+                self.objDatLich.ID_Xe = null;
+                self.carChosing.ID = null;
+                self.carChosing.BienSo = '';
+                self.carChosing.TenMauXe = '';
+                self.carChosing.TenHangXe = '';
+                self.carChosing.TenLoaiXe = '';
+                self.carChosing.SoKhung = '';
+                self.carChosing.SoMay = '';
+                self.carChosing.HopSo = '';
+                self.carChosing.DungTich = '';
+                self.carChosing.MauSon = '';
+                self.carChosing.NamSanXuat = '';
+            },
+            Reset_KhachHang: function () {
+                let self = this;
+                self.objDatLich.ID_KhachHang = null;
+                self.customerChosing.ID = '';
+                self.customerChosing.MaDoiTuong = '';
+                self.customerChosing.TenDoiTuong = '';
+                self.customerChosing.Email = '';
+                self.customerChosing.DienThoai = '';
+                self.customerChosing.DiaChi = '';
+            },
+            Reset_DatLich: function () {
+                let self = this;
+                self.objDatLich.ID = null;
+                self.objDatLich.ID_Xe = null;
+                self.objDatLich.ID_KhachHang = null;
+                self.objDatLich.ID_DonVi = VHeader.IdDonVi;
+                self.objDatLich.HangHoaDichVu = [];
+                self.objDatLich.ListIdHangHoa = [];
+                self.objDatLich.ListIdHangHoaRemove = [];
+                self.objDatLich.ListIdHangHoaAdd = [];
+                self.objDatLich.ThoiGianDatLich = '';
+            },
+            showModalNewCar: function () {
+                vmThemMoiXe.inforLogin = this.inforLogin;
+                vmThemMoiXe.ShowModalNewCar();
+            },
+            ChangeCar: function (item) {
+                var self = this;
+                self.objDatLich.ID_Xe = item.ID;
+                self.GetInforCar_byID(item.ID);
+            },
+            GetInforCar_byID: function (id, type = 0) {
+                var self = this;
+                $.getJSON('/api/DanhMuc/GaraAPI/GetInforCar_ByID?id=' + id).done(function (x) {
+                    if (x.res && x.dataSoure.length > 0) {
+                        if (type === 2) {
+                            vmThemMoiXe.ShowModalUpdate(x.dataSoure[0]);
+                        }
+                        else {
+                            self.carChosing = x.dataSoure[0];
+                        }
+                    }
+                    else {
+                        commonStatisJs.ShowMessageDanger(x.mess);
+                    }
+                });
+            },
+            UpdateCustomer: function () {
+                var self = this;
+                vmThemMoiKhach.inforLogin = self.inforLogin;
+                vmThemMoiKhach.GetInforKhachHangFromDB_ByID(self.objDatLich.ID_KhachHang, true);
+            },
+            updateCar: function () {
+                let self = this;
+                vmThemMoiXe.inforLogin = self.inforLogin;
+                self.GetInforCar_byID(self.objDatLich.ID_Xe, 2);
+            },
+            ChoseItemCombo: function (item) {
+                var self = this;
+                if (!item.LaDonViChuan) {
+                    commonStatisJs.ShowMessageDanger("Chỉ chọn được mã hàng là đơn vị chuẩn, vui lòng kiểm tra lại.");
+                    return;
+                }
+                if (self.objDatLich.HangHoaDichVu.find(p => p.ID === item.ID) === undefined) {
+                    self.objDatLich.HangHoaDichVu.push({
+                        ID: item.ID,
+                        MaHangHoa: item.MaHangHoa,
+                        TenHangHoa: item.TenHangHoa,
+                        DonGia: item.GiaBan
+                    });
+                }
+                if (self.objDatLich.ListIdHangHoa.find(p => p === item.ID) === undefined) {
+                    if (self.objDatLich.ListIdHangHoaAdd.find(p => p === item.ID) === undefined) {
+                        self.objDatLich.ListIdHangHoaAdd.push(item.ID);
+                    }
+                }
+                if (self.objDatLich.ListIdHangHoaRemove.find(p => p === item.ID) !== undefined) {
+                    let indexhhremove = self.objDatLich.ListIdHangHoaRemove.findIndex(p => p === item.ID);
+                    self.objDatLich.ListIdHangHoaRemove.splice(indexhhremove, 1);
+                }
+            },
+            RemoveItemHangHoaDichVu: function (item) {
+                let self = this;
+                if (self.objDatLich.HangHoaDichVu.find(p => p.ID === item.ID) !== undefined) {
+                    let indexhh = self.objDatLich.HangHoaDichVu.findIndex(p => p.ID === item.ID);
+                    self.objDatLich.HangHoaDichVu.splice(indexhh, 1);
+                }
+                if (self.objDatLich.ListIdHangHoa.find(p => p === item.ID) !== undefined) {
+                    if (self.objDatLich.ListIdHangHoaRemove.find(p => p === item.ID) === undefined) {
+                        self.objDatLich.ListIdHangHoaRemove.push(item.ID);
+                    }
+                }
+                if (self.objDatLich.ListIdHangHoaAdd.find(p => p === item.ID) !== undefined) {
+                    let indexhhadd = self.objDatLich.ListIdHangHoaAdd.findIndex(p => p === item.ID);
+                    self.objDatLich.ListIdHangHoaAdd.splice(indexhhadd, 1);
+                }
+            },
+            Save: function () {
+                let self = this;
+                self.isSaving = true;
+                self.CheckSave();
+                if (self.objDatLich.ID !== null) {
+                    //Cập nhật
+                    let myData = {};
+                    myData.Id = self.objDatLich.ID;
+                    myData.IdChiNhanh = self.objDatLich.ID_DonVi;
+                    myData.IdKhachHang = self.objDatLich.ID_KhachHang;
+                    myData.IdXe = self.objDatLich.ID_Xe;
+                    myData.ThoiGian = self.objDatLich.ThoiGianDatLich;
+                    myData.ListHangHoaAdd = self.objDatLich.ListIdHangHoaAdd;
+                    myData.ListHangHoaRemove = self.objDatLich.ListIdHangHoaRemove;
+                    $.ajax({
+                        url: self.UrlApi.CSKH + "PutDatLichCheckin",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            //self.isSuccess = true;
+                            //self.isSending = false;
+                            if (data.res === true) {
+                                commonStatisJs.ShowMessageSuccess("Cập nhật thành công");
+                                $("#modalDatLich").modal("hide");
+                                self.isSaving = false;
+                                self.isSaved = true;
+                            }
+                            else {
+                                self.isSaving = false;
+                                commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                            }
+                        }
+                    });
+                    
+                }
+                else {
+                    //Thêm mới
+                    let myData = {};
+                    myData.IdChiNhanh = self.objDatLich.ID_DonVi;
+                    myData.IdKhachHang = self.objDatLich.ID_KhachHang;
+                    myData.IdXe = self.objDatLich.ID_Xe;
+                    myData.ThoiGian = self.objDatLich.ThoiGianDatLich;
+                    myData.ListHangHoa = self.objDatLich.HangHoaDichVu.map(p => p.ID);
+                    $.ajax({
+                        url: self.UrlApi.CSKH + "PostDatLichCheckin1",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: myData,
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        success: function (data) {
+                            //self.isSuccess = true;
+                            //self.isSending = false;
+                             if (data.res === true) {
+                                 commonStatisJs.ShowMessageSuccess("Đặt lịch thành công");
+                                 $("#modalDatLich").modal("hide");
+                                 self.isSaving = false;
+                                 self.isSaved = true;
+                             }
+                             else {
+                                 self.isSaving = false;
+                                 commonStatisJs.ShowMessageDanger("Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng kiểm tra lại.");
+                             }
+                        }
+                    });
+                }
+            },
+            CheckSave: function () {
+                let self = this;
+                if (self.objDatLich.ID_KhachHang === null) {
+                    commonStatisJs.ShowMessageDanger("Chưa chọn khách hàng, vui lòng kiểm tra lại.");
+                    return;
+                }
+                if (self.objDatLich.ID_Xe === null) {
+                    commonStatisJs.ShowMessageDanger("Chưa chọn xe, vui lòng kiểm tra lại.");
+                    return;
+                }
+                if (self.objDatLich.ID_DonVi === null) {
+                    commonStatisJs.ShowMessageDanger("Chưa chọn chi nhánh, vui lòng kiểm tra lại.");
+                    return;
+                }
+                if (self.objDatLich.ThoiGianDatLich === '') {
+                    commonStatisJs.ShowMessageDanger("Chưa chọn thời gian, vui lòng kiểm tra lại.");
+                    return;
+                }
+                if (self.objDatLich.HangHoaDichVu.length === 0) {
+                    commonStatisJs.ShowMessageDanger("Chưa chọn hàng hóa, vui lòng kiểm tra lại.");
+                    return;
+                }
+            }
+        },
+        watch: {
+
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin.ID_NhanVien = VHeader.IdNhanVien;
+            self.inforLogin.ID_User = VHeader.IdNguoiDung;
+            self.inforLogin.UserLogin = VHeader.UserLogin;
+            self.inforLogin.ID_DonVi = VHeader.IdDonVi;
+            self.inforLogin.TenNhanVien = VHeader.TenNhanVien;
+            self.role.KhachHang.ThemMoi = true;
+            self.role.KhachHang.CapNhat = true;
+            self.role.Xe.ThemMoi = true;
+            self.role.Xe.CapNhat = true;
+        }
+    });
+
+
+    $(function () {
+        $('#ThemMoiXemModal').on('hidden.bs.modal', function () {
+            if (vmThemMoiXe.saveOK) {
+                VThemMoiDatLich.objDatLich.ID_Xe = vmThemMoiXe.newCar.ID;
+                VThemMoiDatLich.carChosing = vmThemMoiXe.newCar;
+                /*VThemMoiDatLich.GetInforCar_byID(vmThemMoiXe.newCar.ID);*/
+            }
+        });
+
+        $('#ThemMoiKhachHang').on('hidden.bs.modal', function () {
+            // check if isShowing modal themmoixe
+            if (!$('#ThemMoiXemModal').hasClass('in')) {
+                if (vmThemMoiKhach.saveOK) {
+                    VThemMoiDatLich.objDatLich.ID_KhachHang = vmThemMoiKhach.customerDoing.ID;
+
+                    let diachi = vmThemMoiKhach.customerDoing.DiaChi;
+
+                    let quanhuyen = vmThemMoiKhach.customerDoing.TenQuanHuyen + ', ';
+                    if (commonStatisJs.CheckNull(quanhuyen)) quanhuyen = '';
+
+                    let tinhthanh = vmThemMoiKhach.customerDoing.TenTinhThanh;
+                    if (commonStatisJs.CheckNull(tinhthanh)) tinhthanh = '';
+
+                    diachi = Remove_LastComma(diachi.concat(', ', quanhuyen, tinhthanh));
+
+                    VThemMoiDatLich.customerChosing = {
+                        ID: vmThemMoiKhach.customerDoing.ID,
+                        MaDoiTuong: vmThemMoiKhach.customerDoing.MaDoiTuong,
+                        TenDoiTuong: vmThemMoiKhach.customerDoing.TenDoiTuong,
+                        Email: vmThemMoiKhach.customerDoing.Email,
+                        DienThoai: vmThemMoiKhach.customerDoing.DienThoai,
+                        DiaChi: diachi
+                    }
+                }
+            }
+        });
+
+        $('#modalDatLich').on('hidden.bs.modal', function () {
+            VThemMoiDatLich.objDatLich.ID = null;
+        });
+    });
+</script>

@@ -1,0 +1,164 @@
+﻿<div class="modal fade" id="modalkhenthuongkyluat">
+    <div class=" modal-dialog draggable modal-md ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{title}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 no-padding-left">
+                    <span style="float:right;color:red">{{error}}</span>
+                    <div class="form-group floatleft">
+                        <label>Hình thức (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="hinhthuc" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số quyết định (<span style="color:red">*</span>)</label>
+                        <div class="form-news">
+                            <input class="form-control" type="text" v-model="quyetdinh" />
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày ban hành(<span style="color:red">*</span>)</label>
+                        <div class="form-news add-icon-date">
+                            <input type="text" id="dateTNKhenThuong" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Nội dung tóm tắt </label>
+                        <div class="form-news">
+                            <textarea rows="1" type="text" v-model="tomtat"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ghi chú </label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text" v-model="ghichu"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="SaveTax">
+                            <i class="fa fa-save"></i>&nbsp; Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vmNvKhenThuongKyLuat = new Vue({
+        el: '#modalkhenthuongkyluat',
+        data: {
+            nhanvienId: null,
+            ID: null,
+            hinhthuc: "",
+            quyetdinh: "",
+            tomtat: '',
+            ghichu: "",
+            title: "",
+            error: '',
+            Isnew:true,
+        },
+        methods: {
+            messageError: function (input) {
+               this.error = input;
+            },
+            Insert: function (id) {
+                $('#modalkhenthuongkyluat').modal("show");
+                this.nhanvienId = id;
+                this.refresh();
+            },
+            edit: function (model) {
+                if (model !== null && !commonStatisJs.CheckNull(model.ID)) {
+                    this.ID = model.ID;
+                    this.nhanvienId = model.ID_NhanVien;
+                    this.hinhthuc = model.HinhThuc;
+                    this.quyetdinh = model.SoQuyetDinh;
+                    this.tomtat = model.NoiDung;
+                    this.ghichu = model.GhiChu;
+                    this.Isnew = false;
+                    this.error = "";
+                    $('#dateTNKhenThuong').val(this.convertDate(model.NgayBanHang));
+                    this.title = "Cập nhật khen thưởng, kỷ luật";
+                    $('#modalkhenthuongkyluat').modal("show");
+                 }
+                else {
+                    bottomrightnotify("Không lấy được thông tin cần cập nhật", "danger");
+                }
+            },
+            refresh: function () {
+                this.Isnew = true;
+                this.ID = null;
+                this.hinhthuc = "";
+                this.quyetdinh = "";
+                this.tomtat = '';
+                this.ghichu = '';
+                this.error = '';
+                this.title = "Thêm mới khen thưởng,kỷ luật";
+                $('#dateTNKhenThuong').val(null);
+            },
+            convertDate: function (input) {
+                if (input !== null && input !== undefined && input !== '') {
+                    return moment(input).format('DD/MM/YYYY');
+                }
+                return "";
+            },
+            SaveTax: function (event) {
+                var self = this;
+                 if (commonStatisJs.CheckNull(self.hinhthuc)) {
+                    self.messageError("Vui lòng nhập hình thức khen thưởng");
+                }
+                else if (commonStatisJs.CheckNull(self.quyetdinh)) {
+                    self.messageError("Vui lòng nhập số quyết định");
+                }
+                else 
+                if (commonStatisJs.CheckNull($('#dateTNKhenThuong').val())) {
+                    self.messageError("Vui lòng nhập ngày ban hành");
+                }
+                else {
+                        var model = {
+                            ID: self.ID,
+                            ID_NhanVien: self.nhanvienId,
+                            NgayBanHang: commonStatisJs.convertDateToServer($('#dateTNKhenThuong').val()),
+                            HinhThuc: self.hinhthuc,
+                            SoQuyetDinh: self.quyetdinh,
+                            NoiDung: self.tomtat,
+                            GhiChu: self.ghichu,
+                        };
+                        $.ajax({
+                            data: model,
+                            url: "/api/DanhMuc/NS_NhanVienAPI/SaveKhenthuong?Isnew=" + self.Isnew,
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                            success: function (item) {
+                                if (item.res === true) {
+                                    $('#modalkhenthuongkyluat').modal("hide");
+                                    bottomrightnotify(item.mess, "success");
+                                    $('body').trigger("InsertNvKhenThuongSuccess");
+                                }
+                                else {
+                                    self.messageError(item.mess);
+                                }
+                            }
+                        });
+                    }
+                }
+             },
+        computed: {
+        }
+    })
+    $('#dateTNKhenThuong').datetimepicker({
+        timepicker: false,
+        mask: true,
+        format: 'd/m/Y'
+    });
+</script>

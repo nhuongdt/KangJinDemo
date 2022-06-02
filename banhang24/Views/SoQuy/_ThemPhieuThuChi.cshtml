@@ -1,0 +1,1074 @@
+﻿<style>
+    #vmThemPhieuThuChi li.active {
+        /* vì thẻ a đã set boder*/
+        border: none !important;
+        font-weight: 600;
+    }
+
+    #vmThemPhieuThuChi .gara-detail-input {
+        /*use at vmThemKhoanThuChi*/
+        width: 100% !important;
+    }
+</style>
+<div class="modal fade" id="vmThemPhieuThuChi">
+    <div id="modalContainerlg_SQ" class="modal-dialog draggable modal-md">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới':'Cập nhật'}} {{isPhieuThu?'phiếu thu':'phiếu chi'}} {{loaiNapTien==0?'tiền gửi':''}}
+                </h4>
+            </div>
+            <div class="modal-body floatleft">
+                <div class="form-group floatleft">
+                    <label>Số phiếu {{sLoaiThuChi}}</label>
+                    <div class="form-news">
+                        <input type="text"
+                               class="form-control "
+                               v-model="newPhieuThu.MaHoaDon"
+                               required="" placeholder="Mã tự động">
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Ngày lập </label>
+                    <div class="form-news">
+                        <my-date-time :date-chose="newPhieuThu.NgayLapHoaDon"
+                                      :role-change-date="$root.role.ChangeNgayLap && !$root.isKhoaSo"
+                                      v-on:change-date="ChangeNgayLapPhieu">
+                        </my-date-time>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>{{isPhieuThu?'Thu của':'Chi cho'}}</label>
+                    <div class="form-news">
+                        <div role="tabpanel" data-example-id="togglable-tabs">
+                            <ul class="nav nav-tabs " role="tablist">
+                                <li role="presentation" class="khachhang active"
+                                    v-on:click="ChangeTab(1)">
+                                    <a href="javascript:void(0)" role="tab"
+                                       data-toggle="tab" ria-expanded="true">Khách hàng</a>
+                                </li>
+                                <li role="presentation" class="nhacungcap"
+                                    v-on:click="ChangeTab(2)">
+                                    <a href="javascript:void(0)" role="tab"
+                                       data-toggle="tab" aria-expanded="false">Nhà cung cấp</a>
+                                </li>
+
+                                <li role="presentation" class="baohiem"
+                                    v-if="LoaiNganhNghe===1"
+                                    v-on:click="ChangeTab(3)">
+                                    <a href="javascript:void(0)" role="tab"
+                                       data-toggle="tab" aria-expanded="false">Bảo hiểm</a>
+                                </li>
+                                <li role="presentation" class="nhanv"
+                                    v-on:click="ChangeTab(4)">
+                                    <a href="javascript:void(0)" role="tab"
+                                       data-toggle="tab" aria-expanded="false">Nhân viên</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active">
+                                    <div v-if="newPhieuThu.LoaiDoiTuong !==4" class="gara-detail-information">
+                                        <customers :text-search="newPhieuThu.NguoiNopTien"
+                                                   :loai-doi-tuong="newPhieuThu.LoaiDoiTuong"
+                                                   :disable-search="false"
+                                                   :showbutton="false"
+                                                   :showbutton-reset="showBtnResetNguoiNop"
+                                                   :id-chi-nhanh="inforLogin.ID_DonVi"
+                                                   v-on:change-customer-parent="ChoseNguoiNopTien"
+                                                   v-on:reset-customer-parent="ResetNguoiNopTien">
+                                        </customers>
+                                    </div>
+                                    <div v-if="newPhieuThu.LoaiDoiTuong===4">
+                                        <nhanviens :text-search="newPhieuThu.NguoiNopTien"
+                                                   :showbutton-reset="showBtnResetNguoiNop"
+                                                   :staffs="listData.NhanViens"
+                                                   :search-list="listData.NhanViens"
+                                                   v-on:change-staff-parent="ChoseNhanVien"
+                                                   v-on:reset-item-chose="ResetNguoiNopTien">
+                                        </nhanviens>
+                                    </div>
+                                    <div class="floatleft" style="padding-top:10px"
+                                         v-if="newPhieuThu.ID_DoiTuong !==null || newPhieuThu.ID_NhanVienCT !==null ">
+                                        <div class="form-group floatleft no-magrin">
+                                            <label> Mã {{sLoaiDoiTuong}}:</label>
+                                            <div class="css-form-detail">{{inforNguoiNop.MaDoiTuong}}</div>
+                                        </div>
+                                        <div class="form-group floatleft no-magrin">
+                                            <label> Tên {{sLoaiDoiTuong}}:</label>
+                                            <div class="css-form-detail">{{inforNguoiNop.TenDoiTuong}}</div>
+                                        </div>
+                                        <div class="form-group floatleft no-magrin">
+                                            <label> Số điện thoại</label>
+                                            <div class="css-form-detail">{{inforNguoiNop.SoDienThoai}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="form-group floatleft">
+                    <label>
+                        Tiền {{sLoaiThuChi}}
+                        <span title="Chuyển đổi hình thức thanh toán"
+                              v-on:click="ChuyenHinhThucTT"><i class="fa fa-exchange"></i></span>
+                        <span class="red">(*)</span>
+                    </label>
+                    <div class="form-news">
+                        <input type="text" class="form-control  text-right"
+                               onkeypress="keypressNumber_limitNumber(event,this)"
+                               v-model="newPhieuThu.TongTienThu"
+                               v-on:keyup="EditTongThu">
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Khoản mục {{sLoaiThuChi}}</label>
+                    <div class="form-news">
+                        <khoan-thu-chi :text-search="khoanthuchi.NoiDungThuChi"
+                                       :la-khoan-thu="newPhieuThu.LoaiHoaDon === 11"
+                                       :list-all="listData.AllKhoanThuChis"
+                                       :id-chosing="newPhieuThu.ID_KhoanThuChi"
+                                       :showbutton-add="newPhieuThu.ID_KhoanThuChi == null && vmKhoanThuChi.role.Insert"
+                                       :showbutton-update="newPhieuThu.ID_KhoanThuChi !== null && vmKhoanThuChi.role.Update"
+                                       v-on:show-modal-add="showModalKhoanThuChi(1)"
+                                       v-on:show-modal-update="showModalKhoanThuChi(2)"
+                                       v-on:change-khoan-thu="ChangeKhoanThu"
+                                       v-on:reset-khoan-thu="ResetKhoanThu">
+                        </khoan-thu-chi>
+                    </div>
+                </div>
+                <div class="form-group floatleft" v-if="loaiNapTien === 0">
+                    <label>Tài khoản {{sLoaiThuChi}}</label>
+                    <div class="form-news">
+                        <account-bank :text-search="ddl_textVal.accountCKName"
+                                      :accounts="listData.AccountBanks"
+                                      :search-list="listData.AccountBanks"
+                                      :id-chosing="newPhieuThu.ID_TaiKhoanChuyenKhoan"
+                                      v-on:change-account-parent="ChangeAccountCK"
+                                      v-on:reset-account="ResetAccountCK">
+                        </account-bank>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Nội dung {{sLoaiThuChi}}</label>
+                    <div class="form-news">
+                        <textarea rows="2" v-model="newPhieuThu.NoiDungThu">        </textarea>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label class="floatleft">
+                        <input style="margin-right:5px;" type="checkbox"
+                               v-model="newPhieuThu.HachToanKinhDoanh" /> Hạch toán vào kết quả hoạt động kinh doanh
+                    </label>
+                </div>
+                <div class="form-group floatleft">
+                    <label class="floatleft">
+                        <input style="margin-right:5px;" type="checkbox"
+                               v-model="newPhieuThu.KhongBuTruCongNo" /> Không tính vào công nợ
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-cancel"
+                            v-if="typeUpdate != 1 && $root.role.Delete && newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-on:click="$root.HuyPhieu">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn bg-recycle"
+                            v-if="typeUpdate != 1 && $root.role.Delete && !newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-on:click="$root.KhoiPhuc">
+                        <i class="fa fa-trash"></i> Khôi phục
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!isLoading && typeUpdate == 1 && !$root.isKhoaSo"
+                            v-on:click="Save">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="!isLoading && typeUpdate == 1 && !$root.isKhoaSo" v-on:click="Save(true)">
+                        <i class="fa fa-save"></i> Lưu và in
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="!isLoading && typeUpdate != 1 && $root.role.Update && newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-on:click="Save">
+                        <i class="fa fa-save"></i> Cập nhật
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmThemPhieuThuChi = new Vue({
+        el: '#vmThemPhieuThuChi',
+        components: {
+            'account-bank': cmpChoseAccountBank,
+            'my-date-time': cpmDatetime,
+            'nhanviens': ComponentChoseStaff,
+            'khoan-thu-chi': cmpChoseKhoanThu,
+            'customers': cmpChoseCustomer,
+        },
+        created: function () {
+            let self = this;
+            this.GuidEmpty = '00000000-0000-0000-0000-000000000000';
+            self.UrlQuyHoaDonAPI = '/api/DanhMuc/Quy_HoaDonAPI/';
+            self.LoaiNganhNghe = 0;
+            self.isKhoaSo = false;
+            if (VHeader.IdNganhNgheKinhDoanh.toUpperCase() === 'C16EDDA0-F6D0-43E1-A469-844FAB143014') {
+                self.LoaiNganhNghe = 1;
+            }
+            console.log('vmThuchi')
+            self.inforLogin = {
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_User: VHeader.IdNhanVien,
+                UserLogin: VHeader.UserLogin,
+                ID_DonVi: VHeader.IdDonVi,
+                TenNhanVien: VHeader.TenNhanVien,
+            };
+            self.role.Insert = VHeader.Quyen.indexOf('SoQuy_ThemMoi') > -1;
+            self.role.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
+            self.role.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
+            self.role.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+        },
+        data: {
+            saveOK: false,
+            isNew: true,
+            typeUpdate: 1,// insert, 2.update
+            isPhieuThu: true,
+            loaiNapTien: 1,//1.mat, 0.ngan hang,
+            isLoading: false,
+            showBtnResetNguoiNop: false,
+            isKhoaSo: false,
+
+            role: {},
+            phieuThuOld: {},
+            qctOld: {},
+            khoanthuchi: {
+                BuTruCongNo: false,
+                ID: "00000000-0000-0000-0000-000000000000",
+                LaKhoanThu: true,
+                MaKhoanThuChi: "",
+                NoiDungThuChi: "",
+                TinhLuong: false,
+            },
+            ddl_textVal: {
+                staffName: '',
+                accountCKName: '',
+                khoanthu: '',
+            },
+            taiKhoanNganHang: {},
+
+            inforNguoiNop: {
+                ID: null,
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                SoDienThoai: '',
+                SoDuDatCoc: 0,
+            },
+            inforCongTy: {
+                TenCongTy: '',
+                DiaChiCuaHang: '',
+                LogoCuaHang: ''
+            },
+            newPhieuThu: {
+                ID: '00000000-0000-0000-0000-000000000000',
+                LoaiHoaDon: 11,
+                LoaiDoiTuong: 1,// 1.kh, 2.ncc
+                MaHoaDon: '',
+                NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                TienMat: 0,
+                TienCK: 0,
+                TienPOS: 0,
+                ID_KhoanThuChi: null,
+                ID_TaiKhoanChuyenKhoan: null,
+                ID_NganHang: null,
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_DoiTuong: null,
+                NoiDungThu: '',
+                NguoiNopTien: '',
+                TongTienThu: 0,
+                NguoiTao: '',
+                ID_DonVi: VHeader.IdDonVi,
+                HachToanKinhDoanh: true,
+                PhieuDieuChinhCongNo: 0,
+                TrangThai: true,
+                TenNhanVien: '',
+
+                ID_NhanVienCT: null,
+                KhongBuTruCongNo: false,
+            },
+            listData: {
+                AccountBanks: [],
+                NhanViens: [],
+                AllKhoanThuChis: [],
+            },
+        },
+        methods: {
+            ChangeTab: function (loaiDT) {
+                let self = this;
+                self.newPhieuThu.LoaiDoiTuong = loaiDT;
+                self.newPhieuThu.ID_DoiTuong = null;
+                self.newPhieuThu.ID_NhanVienCT = null;
+                self.newPhieuThu.NguoiNopTien = '';
+                self.showBtnResetNguoiNop = false;
+
+                self.inforNguoiNop = {
+                    MaDoiTuong: '',
+                    TenDoiTuong: '',
+                    SoDienThoai: '',
+                    DiaChi: '',
+                    SoDuDatCoc: 0,
+                };
+            },
+            ChuyenHinhThucTT: function () {
+                let self = this;
+                if (self.loaiNapTien === 1) {//mat -->chuyenkhoan
+                    self.loaiNapTien = 0;
+                }
+                else {
+                    self.loaiNapTien = 1;
+                    self.ResetAccountCK();
+                }
+            },
+
+            ChoseNhanVien: function (item) {
+                var self = this;
+                self.newPhieuThu.ID_NhanVienCT = item.ID;
+                self.newPhieuThu.NguoiNopTien = item.TenNhanVien;
+
+                self.inforNguoiNop = {
+                    MaDoiTuong: item.MaNhanVien,
+                    TenDoiTuong: item.TenNhanVien,
+                    SoDienThoai: '',
+                    DiaChi: '',
+                    SoDuDatCoc: 0,
+                };
+                self.showBtnResetNguoiNop = true;
+            },
+
+            ChoseNguoiNopTien: function (item) {
+                var self = this;
+                self.newPhieuThu.ID_DoiTuong = item.ID;
+                self.newPhieuThu.NguoiNopTien = item.TenDoiTuong;
+                self.inforNguoiNop = {
+                    MaDoiTuong: item.MaDoiTuong,
+                    TenDoiTuong: item.TenDoiTuong,
+                    SoDienThoai: item.DienThoai,
+                    DiaChi: item.DiaChi,
+                    SoDuDatCoc: 0,
+                };
+                self.showBtnResetNguoiNop = true;
+            },
+            ResetNguoiNopTien: function () {
+                var self = this;
+                self.newPhieuThu.ID_DoiTuong = null;
+                self.newPhieuThu.ID_NhanVienCT = null;
+                self.newPhieuThu.NguoiNopTien = '';
+                self.inforNguoiNop = {
+                    MaDoiTuong: '',
+                    TenDoiTuong: '',
+                    SoDienThoai: '',
+                    DiaChi: '',
+                    SoDuDatCoc: 0,
+                };
+                self.showBtnResetNguoiNop = false;
+            },
+            showListNguoiNop: function () {
+                $(event.currentTarget).next().show();
+            },
+            showModalAddNew: function (loai, isPhieuThu) {//1.mat, 0.ngan hang
+                var self = this;
+                self.isPhieuThu = isPhieuThu;
+                self.isNew = true;
+                self.isKhoaSo = false;
+                self.typeUpdate = 1;
+                self.loaiNapTien = loai;
+                self.ResetPhieuThuChi();
+                $('#vmThemPhieuThuChi').modal('show');
+            },
+            ResetPhieuThuChi: function () {
+                let self = this;
+                self.showBtnResetNguoiNop = false;
+                $('#vmThemPhieuThuChi .nav-tabs li').removeClass('active');
+                $('#vmThemPhieuThuChi .nav-tabs li:eq(0)').addClass('active');
+                let loaiHoaDon = 11;
+                if (!self.isPhieuThu) {
+                    loaiHoaDon = 12;
+                }
+                self.newPhieuThu = {
+                    ID: '00000000-0000-0000-0000-000000000000',
+                    LoaiHoaDon: loaiHoaDon,
+                    LoaiDoiTuong: 1,// 1.kh, 2.ncc
+                    MaHoaDon: '',
+                    NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                    TienMat: 0,
+                    TienCK: 0,
+                    TienPOS: 0,
+                    ID_TaiKhoanChuyenKhoan: null,
+                    ID_KhoanThuChi: null,
+                    ID_NganHang: null,
+                    ID_DoiTuong: null,
+                    NoiDungThu: '',
+                    NguoiNopTien: '',
+                    TongTienThu: 0,
+                    HachToanKinhDoanh: true,
+                    PhieuDieuChinhCongNo: 0,
+                    TrangThai: true,
+                    ID_DonVi: VHeader.IdDonVi,
+                    NguoiTao: self.inforLogin.UserLogin,
+                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                    TenNhanVien: self.inforLogin.TenNhanVien,
+
+                    ID_NhanVienCT: null,
+                    KhongBuTruCongNo: false,
+                };
+                self.inforNguoiNop = {
+                    ID: null,
+                    MaDoiTuong: '',
+                    TenDoiTuong: '',
+                    SoDienThoai: '',
+                    DiaChi: '',
+                    SoDuDatCoc: 0,
+                };
+                self.khoanthuchi = {
+                    BuTruCongNo: false,
+                    ID: "00000000-0000-0000-0000-000000000000",
+                    LaKhoanThu: true,
+                    MaKhoanThuChi: "",
+                    NoiDungThuChi: "",
+                    TinhLuong: false,
+                };
+                self.ddl_textVal.accountCKName = '';
+                self.ddl_textVal.khoanthu = '';
+
+                self.taiKhoanNganHang = {
+                    GhiChu: '',
+                    ID: null,
+                    ID_DonVi: null,
+                    ID_NganHang: null,
+                    SoTaiKhoan: '',
+                    TaiKhoanPOS: false,
+                    TenChuThe: '',
+                    TenNganHang: '',
+                    TextSearchAuto: '',
+                    TrangThai: true,
+                }
+            },
+            getQuyHoaDon_byID: function (idQuyHD, isShowModal = false) {
+                let self = this;
+                ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + 'GetQuyChiTiet_byIDQuy/' + idQuyHD, 'GET').done(function (x) {
+                    if (x.res && x.dataSoure.length > 0) {
+                        let quyHD = x.dataSoure[0];
+                        let qct = x.dataSoure;
+                        if (isShowModal) {
+                            self.showModalUpdate(quyHD, qct)
+                        }
+                    }
+                    else {
+                        self.ResetPhieuThuChi();
+                    }
+                })
+            },
+            showModalUpdate: function (quyHD, qct) {
+                let self = this;
+                self.phieuThuOld = $.extend({}, quyHD);
+                self.qctOld = $.extend({}, qct);
+                self.isNew = false;
+                self.typeUpdate = 2;
+                self.showBtnResetNguoiNop = true;
+                self.isPhieuThu = quyHD.LoaiHoaDon === 11;
+                self.isKhoaSo = !commonStatisJs.CheckNull(self.qctOld[0].ID_BangLuongChiTiet)
+                    || VHeader.CheckKhoaSo(moment(quyHD.NgayLapHoaDon).format('YYYY-MM-DD'), quyHD.ID_DonVi)
+
+                if (qct[0].ID_NhanVienCT !== null) {
+                    quyHD.LoaiDoiTuong = 4;
+                }
+
+                let indexActive = quyHD.LoaiDoiTuong - 1;
+                if (quyHD.LoaiDoiTuong === 4 && self.LoaiNganhNghe === 0) {
+                    indexActive = 2;
+                }
+                $('#vmThemPhieuThuChi .nav-tabs li').removeClass('active');
+                $('#vmThemPhieuThuChi .nav-tabs li:eq(' + indexActive + ')').addClass('active');
+
+                let tienmat = qct.reduce(function (_this, item) {
+                    return _this + item.TienMat;
+                }, 0);
+                let ck = qct.reduce(function (_this, item) {
+                    return _this + item.TienGui;
+                }, 0)
+
+                let qct0 = qct[0];
+                self.newPhieuThu = {
+                    ID: quyHD.ID,
+                    LoaiHoaDon: quyHD.LoaiHoaDon,
+                    LoaiDoiTuong: quyHD.LoaiDoiTuong,// 1.kh, 2.ncc
+                    MaHoaDon: quyHD.MaHoaDon,
+                    NgayLapHoaDon: moment(quyHD.NgayLapHoaDon).format('YYYY-MM-DD HH:mm'),
+                    TienMat: formatNumber(tienmat),
+                    TienCK: qct0.TaiKhoanPOS ? 0 : formatNumber(ck),
+                    TienPOS: qct0.TaiKhoanPOS ? formatNumber(ck) : 0,
+                    ID_TaiKhoanChuyenKhoan: quyHD.ID_TaiKhoanNganHang,
+                    ID_KhoanThuChi: qct0.ID_KhoanThuChi,
+                    ID_NganHang: null,
+                    ID_DoiTuong: qct0.ID_DoiTuong,
+                    NoiDungThu: quyHD.NoiDungThu,
+                    NguoiNopTien: quyHD.NguoiNopTien,
+                    TongTienThu: formatNumber(ck + tienmat),
+                    HachToanKinhDoanh: quyHD.HachToanKinhDoanh,
+                    PhieuDieuChinhCongNo: quyHD.PhieuDieuChinhCongNo,
+                    TrangThai: quyHD.TrangThai,
+                    ID_DonVi: quyHD.ID_DonVi,
+                    NguoiTao: '',
+                    ID_NhanVien: quyHD.ID_NhanVien,
+                    TenNhanVien: quyHD.TenNhanVien,
+
+                    ID_NhanVienCT: qct0.ID_NhanVienCT,
+                    KhongBuTruCongNo: quyHD.PhieuDieuChinhCongNo == 3 ? true : false,
+                };
+                self.inforNguoiNop = {
+                    ID: quyHD.ID_DoiTuong,
+                    MaDoiTuong: quyHD.MaDoiTuong,
+                    TenDoiTuong: quyHD.NguoiNopTien,
+                    SoDienThoai: quyHD.SoDienThoai,
+                    DiaChi: '',
+                    SoDuDatCoc: 0,
+                };
+
+                // todo taikhoan POS, noPOS
+                let tenTK = qct0.TaiKhoanPOS ? qct0.TenTaiKhoanPOS : qct0.TenTaiKhoanNOTPOS;
+                self.taiKhoanNganHang = {
+                    GhiChu: '',
+                    ID: quyHD.ID_TaiKhoanNganHang,
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    ID_NganHang: null,
+                    SoTaiKhoan: '',
+                    TaiKhoanPOS: tenTK,
+                    TenChuThe: '',
+                    TenNganHang: '',
+                    TextSearchAuto: '',
+                    TrangThai: true,
+                }
+                self.ddl_textVal.accountCKName = tenTK;
+                self.ddl_textVal.khoanthu = quyHD.NoiDungThuChi;
+
+                // get khoanTC
+                let ktc = $.grep(self.listData.AllKhoanThuChis, function (x) {
+                    return x.ID === qct0.ID_KhoanThuChi;
+                });
+                if (ktc.length > 0) {
+                    self.khoanthuchi = ktc[0];
+                }
+                else {
+                    self.ResetKhoanThu();
+                }
+
+                if (ck > 0) {
+                    self.loaiNapTien = 0;
+                }
+                else {
+                    self.loaiNapTien = 1;
+                }
+                $('#vmThemPhieuThuChi').modal('show');
+            },
+            HuyPhieu: function () {
+                var self = this;
+                debugger
+                let khoaSo = VHeader.CheckKhoaSo(moment(self.phieuThuOld.NgayLapPhieuThu).format('YYYY-MM-DD'),
+                    self.phieuThuOld.ID_DonVi);
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Delete);
+                    return;
+                }
+                dialogConfirm('Xác nhận xóa', 'Bạn có chắc chắn muốn hủy phiếu ' + self.sLoaiThuChi + ' <b> ' + self.newPhieuThu.MaHoaDon + ' </b> không?', function () {
+                    ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + "DeleteQuy_HoaDon/" + self.newPhieuThu.ID, 'DELETE').done(function (x) {
+                        if (x === "") {
+                            ShowMessage_Success("Xóa sổ quỹ thành công");
+                            $('#vmThemPhieuThuChi').modal('hide');
+
+                            let diary = {
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ChucNang: 'Phiếu ' + self.sLoaiThuChi,
+                                NoiDung: 'Hủy phiếu '.concat(self.sLoaiThuChi, ' ', self.newPhieuThu.MaHoaDon, ', nhân viên hủy: ', self.inforLogin.UserLogin),
+                                NoiDungChiTiet: ''.concat(self.sForm, ': Hủy phiếu ', self.sLoaiThuChi, ' ', self.newPhieuThu.MaHoaDon, ', nhân viên hủy: ', self.inforLogin.UserLogin,
+                                    '<br /><b> Thông tin cũ: </b>',
+                                    '<br /> - Giá trị: ', formatNumber3Digit(self.phieuThuOld.TongTienThu),
+                                    '<br/> - Phương thức thanh toán: ', self.phieuThuOld.PhuongThuc,
+                                    '<br/> - Người nộp tiền ', self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaDoiTuong, ')'),
+                                LoaiNhatKy: 3
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                        else {
+                            ShowMessage_Danger("Giá trị thẻ nạp đã được sử dụng không thể xóa phiếu này");
+                        }
+                    });
+                });
+            },
+
+            ChangeAccountCK: function (item) {
+                var self = this;
+                self.ddl_textVal.accountCKName = item.TenChuThe;
+                self.newPhieuThu.ID_TaiKhoanChuyenKhoan = item.ID;
+                self.newPhieuThu.ID_NganHang = item.ID_NganHang;
+
+                self.taiKhoanNganHang = {
+                    GhiChu: item.GhiChu,
+                    ID: item.ID,
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    ID_NganHang: item.ID_NganHang,
+                    SoTaiKhoan: item.SoTaiKhoan,
+                    TaiKhoanPOS: item.TaiKhoanPOS,
+                    TenChuThe: item.TenChuThe,
+                    TenNganHang: item.TenNganHang,
+                    TextSearchAuto: '',
+                    TrangThai: true,
+                }
+            },
+            ResetAccountCK: function () {
+                var self = this;
+                self.ddl_textVal.accountCKName = '';
+                self.newPhieuThu.TienCK = 0;
+                self.newPhieuThu.ID_TaiKhoanChuyenKhoan = null;
+
+                self.taiKhoanNganHang = {
+                    GhiChu: '',
+                    ID: null,
+                    ID_DonVi: null,
+                    ID_NganHang: null,
+                    SoTaiKhoan: '',
+                    TaiKhoanPOS: false,
+                    TenChuThe: '',
+                    TenNganHang: '',
+                    TextSearchAuto: '',
+                    TrangThai: true,
+                }
+            },
+            ChangeKhoanThu: function (item) {
+                var self = this;
+                self.khoanthuchi.NoiDungThuChi = item.NoiDungThuChi;
+                self.khoanthuchi.ID = item.ID;
+                self.khoanthuchi.LaKhoanThu = item.LaKhoanThu;
+                self.newPhieuThu.ID_KhoanThuChi = item.ID;
+            },
+            ResetKhoanThu: function () {
+                var self = this;
+                self.newPhieuThu.ID_KhoanThuChi = null;
+
+                self.khoanthuchi = {
+                    BuTruCongNo: false,
+                    ID: "00000000-0000-0000-0000-000000000000",
+                    LaKhoanThu: true,
+                    MaKhoanThuChi: "",
+                    NoiDungThuChi: "",
+                    TinhLuong: false,
+                };
+            },
+
+            ChangeNgayLapPhieu: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                let khoaSo = VHeader.CheckKhoaSo(moment(e).format('YYYY-MM-DD'), self.newPhieuThu.ID_DonVi);
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                }
+                self.newPhieuThu.NgayLapHoaDon = dt;
+            },
+            EditTongThu: function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+                formatNumberObj($this);
+
+                //let tienthu = formatNumberToFloat($this.val());
+                //self.newPhieuThu.TongTienThu = formatNumber3Digit(tienthu);
+            },
+
+            Save: function (print) {
+                console.log('pr ', print)
+                var self = this;
+                var ptKhach = self.newPhieuThu;
+                let khoaSo = VHeader.CheckKhoaSo(moment(ptKhach.NgayLapHoaDon, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD'), ptKhach.ID_DonVi);
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                    return;
+                }
+                var tienthu = formatNumberToFloat(ptKhach.TongTienThu);
+                if (commonStatisJs.CheckNull(ptKhach.ID_NhanVien)) {
+                    commonStatisJs.ShowMessageDanger('Vui lòng chọn nhân viên lập phiếu');
+                    return;
+                }
+                if (moment(ptKhach.NgayLapHoaDon, 'YYYY-MM-DD HH:mm').format('YYYYMMDD') > moment(new Date()).format('YYYYMMDD')) {
+                    commonStatisJs.ShowMessageDanger('Ngày lập phiếu vượt quá thời gian hiện tại');
+                    return;
+                }
+                if (commonStatisJs.CheckNull(ptKhach.ID_DoiTuong)
+                    && commonStatisJs.CheckNull(ptKhach.ID_NhanVienCT)) {
+                    commonStatisJs.ShowMessageDanger('Vui lòng chọn người nộp tiền');
+                    return;
+                }
+                if (tienthu === 0) {
+                    commonStatisJs.ShowMessageDanger('Vui lòng nhập số tiền cần thanh toán');
+                    return;
+                }
+                let ghichu = ptKhach.NoiDungThu;
+                let idDoiTuong = ptKhach.ID_DoiTuong;
+                let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
+                var tienmat = 0, tienck = 0;
+                var phuongthucTT = '';
+                var mahoadon = ptKhach.MaHoaDon ? ptKhach.MaHoaDon : '';
+                let lstQuyCT = [];
+
+                let loaiThanhToan = 0;
+                if (ptKhach.KhongBuTruCongNo) {
+                    ptKhach.PhieuDieuChinhCongNo = 3;
+                    loaiThanhToan = 3;
+                }
+                else {
+                    ptKhach.PhieuDieuChinhCongNo = 0;
+                }
+
+                if (self.loaiNapTien === 1) {
+                    tienmat = tienthu;
+                }
+                else {
+                    tienck = tienthu;
+                }
+
+                if (tienmat > 0) {
+                    let qct = newQuyChiTiet({
+                        ID_KhoanThuChi: idKhoanThuChi,
+                        ID_DoiTuong: idDoiTuong,
+                        ID_NhanVien: ptKhach.ID_NhanVienCT,
+                        GhiChu: ghichu,
+                        TienThu: tienmat,
+                        TienMat: tienmat,
+                        HinhThucThanhToan: 1,
+                        LoaiThanhToan: loaiThanhToan,
+                    });
+                    qct.ID_HoaDon = ptKhach.ID;
+                    lstQuyCT.push(qct);
+                    phuongthucTT = 'Tiền mặt, ';
+                }
+                if (tienck > 0) {
+                    let hinhthuc = 3;
+                    if (self.taiKhoanNganHang.TaiKhoanPOS) {
+                        hinhthuc = 2;
+                        phuongthucTT += 'POS, ';
+                    }
+                    else {
+                        phuongthucTT += 'Chuyển khoản, ';
+                    }
+
+                    let qct = newQuyChiTiet({
+                        ID_HoaDon: ptKhach.ID,
+                        ID_KhoanThuChi: idKhoanThuChi,
+                        ID_DoiTuong: idDoiTuong,
+                        ID_NhanVien: ptKhach.ID_NhanVienCT,
+                        GhiChu: ghichu,
+                        TienThu: tienck,
+                        HinhThucThanhToan: hinhthuc,
+                        LoaiThanhToan: loaiThanhToan,
+                        ID_NganHang: ptKhach.ID_NganHang,
+                        ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanChuyenKhoan,
+                    });
+                    qct.ID_HoaDon = ptKhach.ID;
+                    qct.TienGui = tienck;
+
+                    lstQuyCT.push(qct);
+                }
+                ptKhach.PhuongThucTT = Remove_LastComma(phuongthucTT);
+                // used to print
+                self.newPhieuThu.PhuongThucTT = ptKhach.PhuongThucTT;
+                self.newPhieuThu.TienMat = tienmat;
+                self.newPhieuThu.TienATM = self.taiKhoanNganHang.TaiKhoanPOS ? tienck : 0;
+                self.newPhieuThu.TienCK = self.taiKhoanNganHang.TaiKhoanPOS ? 0 : tienck;
+
+                if (!self.isNew) {
+                    ptKhach.NguoiSua = self.inforLogin.UserLogin;
+                }
+
+                self.isLoading = true;
+
+                var myData = {
+                    objQuyHoaDon: ptKhach,
+                    objCTQuyHoaDon: lstQuyCT[0],
+                }
+                console.log('myData ', myData)
+
+                if (self.typeUpdate === 1) {
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "Check_MaSoQuyExist?maSoQuy=" + mahoadon, 'POST').done(function (data) {
+                        if (data) {
+                            ShowMessage_Danger('Mã phiếu đã tồn tại');
+                            self.isLoading = false;
+                            return false;
+                        }
+
+                        ajaxHelper(self.UrlQuyHoaDonAPI + "PostQuy_HoaDon", 'POST', myData).done(function (x) {
+                            if (x.res) {
+                                let obj = x.dataSoure;
+                                self.newPhieuThu.ID = obj.ID;
+                                self.newPhieuThu.MaHoaDon = obj.MaHoaDon;
+                                self.isLoading = false;
+                                self.saveOK = true;
+
+                                ShowMessage_Success("Thêm mới phiếu " + self.sLoaiThuChi + ' ' + self.newPhieuThu.MaHoaDon + " thành công");
+                                $('#vmThemPhieuThuChi').modal('hide');
+
+                                let diary = {
+                                    LoaiNhatKy: 1,
+                                    ID_DonVi: self.inforLogin.ID_DonVi,
+                                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                    ChucNang: 'Phiếu ' + self.sLoaiThuChi,
+                                    NoiDung: 'Thêm mới phiếu '.concat(self.sLoaiThuChi, ' ', self.newPhieuThu.MaHoaDon),
+                                    NoiDungChiTiet: 'Thêm mới phiếu '.concat(self.sLoaiThuChi, ' ', self.newPhieuThu.MaHoaDon,
+                                        '<br/> - Mã hóa đơn: ', self.newPhieuThu.MaHoaDon,
+                                        '<br/> - Ngày lập hóa đơn: ', moment(ptKhach.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                                        '<br/> - Tổng tiền ', self.sLoaiThuChi, ': ', ptKhach.TongTienThu,
+                                        '<br/> - Phương thức thanh toán: ', ptKhach.PhuongThucTT,
+                                        '<br/> - Người nộp tiền (', self.sLoaiDoiTuong, '): ', self.inforNguoiNop.TenDoiTuong, ' (', self.inforNguoiNop.MaDoiTuong, ')',
+                                        '<br/> - Khoản ', self.sLoaiThuChi, ': ', self.khoanthuchi.NoiDungThuChi,
+                                        '<br/> - NV lập phiếu: ', ptKhach.TenNhanVien,
+                                        '<br/> - Tiền mặt: ', self.loaiNapTien == 1 ? formatNumber3Digit(ptKhach.TongTienThu) : 0,
+                                        '<br/> - Tiền chuyển khoản: ', self.loaiNapTien == 1 ? 0 : formatNumber3Digit(ptKhach.TongTienThu),
+                                        '<br/> - Tài khoản chuyển khoản: ', self.ddl_textVal.accountCKName,
+                                        '<br/> - Không tính vào công nợ: ', ptKhach.KhongBuTruCongNo,
+                                        '<br/> - Người tạo: ', self.inforLogin.UserLogin)
+                                };
+                                Insert_NhatKyThaoTac_1Param(diary);
+
+                                if (print === true) {
+                                    self.InPhieuThu(self.newPhieuThu);
+                                }
+                            }
+                        })
+                    })
+                }
+                else {
+                    myData.objQuyHoaDon.NguoiSua = self.inforLogin.UserLogin;
+                    myData.objCTQuyHoaDon = lstQuyCT;
+
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "PutQuy_HoaDon", 'POST', myData).done(function (x) {
+                        if (x.res) {
+                            let maHD = x.dataSoure.MaHoaDon;
+                            self.newPhieuThu.MaHoaDon = maHD;
+                            self.isLoading = false;
+                            self.saveOK = true;
+                            ShowMessage_Success("Cập nhật phiếu " + self.sLoaiThuChi + ' ' + maHD + " thành công");
+                            $('#vmThemPhieuThuChi').modal('hide');
+
+                            let sLoaiDTOld = '';
+                            switch (self.phieuThuOld.LoaiDoiTuong) {
+                                case 1:
+                                    sLoaiDTOld = 'khách hàng';
+                                    break;
+                                case 2:
+                                    sLoaiDTOld = 'nhà cung cấp';
+                                    break;
+                                case 3:
+                                    sLoaiDTOld = 'Cty bảo hiểm';
+                                    break;
+                                case 4:
+                                    sLoaiDTOld = 'nhân viên';
+                                    break;
+                            }
+
+                            let diary = {
+                                LoaiNhatKy: 2,
+                                ID_DonVi: self.phieuThuOld.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                ChucNang: 'Phiếu ' + self.sLoaiThuChi,
+                                NoiDung: 'Cập nhật phiếu '.concat(self.sLoaiThuChi, ' ', maHD),
+                                NoiDungChiTiet: 'Cập nhật phiếu '.concat(self.sLoaiThuChi, ' ', maHD,
+                                    '<br/> <b> Thông tin mới: </b>',
+                                    '<br/> - Mã hóa đơn: ', maHD,
+                                    '<br/> - Ngày lập hóa đơn: ', moment(ptKhach.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                                    '<br/> - Tổng tiền ', self.sLoaiThuChi, ': ', ptKhach.TongTienThu,
+                                    '<br/> - Phương thức thanh toán: ', ptKhach.PhuongThucTT,
+                                    '<br/> - Người nộp tiền (', self.sLoaiDoiTuong, '): ', self.inforNguoiNop.TenDoiTuong, ' (', self.inforNguoiNop.MaDoiTuong, ')',
+                                    '<br/> - Khoản ', self.sLoaiThuChi, ': ', self.khoanthuchi.NoiDungThuChi,
+                                    '<br/> - NV lập phiếu: ', ptKhach.TenNhanVien,
+                                    '<br/> - Tiền mặt: ', self.loaiNapTien == 1 ? formatNumber3Digit(ptKhach.TongTienThu) : 0,
+                                    '<br/> - Tiền chuyển khoản: ', self.loaiNapTien == 1 ? 0 : formatNumber3Digit(ptKhach.TongTienThu),
+                                    '<br/> - Tài khoản chuyển khoản: ', self.ddl_textVal.accountCKName,
+                                    '<br/> - Không tính vào công nợ: ', ptKhach.KhongBuTruCongNo,
+                                    '<br/> - Người sửa: ', self.inforLogin.UserLogin,
+
+                                    '<br/> <b> Thông tin cũ: </b>',
+                                    '<br/> - Mã hóa đơn: ', self.phieuThuOld.MaHoaDon,
+                                    '<br/> - Ngày lập hóa đơn: ', moment(self.phieuThuOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                                    '<br/> - Tổng tiền ', self.sLoaiThuChi, ': ', formatNumber3Digit(self.phieuThuOld.TongTienThu),
+                                    '<br/> - Phương thức thanh toán: ', self.phieuThuOld.PhuongThuc,
+                                    '<br/> - Người nộp tiền (', sLoaiDTOld, '): ', self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaDoiTuong, ')',
+                                    '<br/> - Khoản thu chi: ', self.phieuThuOld.NoiDungThuChi,
+                                    '<br/> - Tiền mặt: ', formatNumber3Digit(self.phieuThuOld.TienMat),
+                                    '<br/> - Tiền chuyển khoản: ', formatNumber3Digit(self.phieuThuOld.TienCK),
+                                    '<br/> - Tài khoản chuyển khoản: ', self.phieuThuOld.TenTaiKhoanNOTPOS,
+                                    '<br/> - NV lập phiếu: ', self.phieuThuOld.TenNhanVien,
+                                ),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+
+                            if (print === true) {
+                                self.InPhieuThu(self.newPhieuThu);
+                            }
+                        }
+                        else {
+                            ShowMessage_Danger("Cập nhật phiếu thu/chi thất bại");
+                        }
+                    }).always(function (x) {
+                    })
+                }
+            },
+
+            KhoiPhuc: function () {
+                let self = this;
+                dialogConfirm('Khôi phục', 'Bạn có chắc chắn muốn khôi phục phiếu ' + self.sLoaiThuChi + ' <b> ' + self.newPhieuThu.MaHoaDon + ' </b> không?', function () {
+
+                    ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + "KhoiPhucQuy_HoaDon/" + self.newPhieuThu.ID, 'GET').done(function (x) {
+                        if (x.res) {
+                            ShowMessage_Success("Khôi phục sổ quỹ thành công");
+                            $('#vmThanhToanNCC').modal('hide');
+
+                            let diary = {
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ChucNang: 'Khôi phục phiếu ' + self.sLoaiThuChi,
+                                NoiDung: 'Khôi phục phiếu '.concat(self.sLoaiThuChi, ' ', self.newPhieuThu.MaHoaDon, ', Người khôi phục: ', self.inforLogin.UserLogin),
+                                NoiDungChiTiet: ''.concat('Khôi phục phiếu ', self.sLoaiThuChi, ' ', self.newPhieuThu.MaHoaDon, ', Người khôi phục: ', self.inforLogin.UserLogin),
+                                LoaiNhatKy: 2
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                        else {
+                            ShowMessage_Danger(x.mess);
+                        }
+                    });
+                });
+            },
+
+            InPhieuThu: function (quyhd) {
+                var self = this;
+                var loaiCT = 'SQPT'
+                if (quyhd.LoaiHoaDon === 12) {
+                    loaiCT = 'SQPC';
+                }
+
+                quyhd.TenCuaHang = self.inforCongTy.TenCongTy;
+                quyhd.DiaChiCuaHang = self.inforCongTy.DiaChiCuaHang;
+                quyhd.LogoCuaHang = self.inforCongTy.LogoCuaHang;
+
+                let cn = VHeader.GetInforChiNhanh(quyhd.ID_DonVi);
+                quyhd.TenChiNhanh = cn.TenChiNhanh;
+                quyhd.DiaChiChiNhanh = cn.DiaChiChiNhanh;
+                quyhd.DienThoaiChiNhanh = cn.DienThoaiChiNhanh;
+                quyhd.ChiNhanhBanHang = cn.TenChiNhanh;
+
+                let ngaylap = quyhd.NgayLapHoaDon;
+                quyhd.MaPhieu = quyhd.MaHoaDon;
+                quyhd.NgayLapHoaDon = moment(ngaylap).format('DD/MM/YYYY HH:mm:ss');
+                quyhd.Ngay = moment(ngaylap).format('DD');
+                quyhd.Thang = moment(ngaylap).format('MM');
+                quyhd.Nam = moment(ngaylap).format('YYYY');
+                quyhd.NguoiNopTien = quyhd.NguoiNopTien;
+                quyhd.NguoiNhanTien = quyhd.NguoiNopTien;
+                quyhd.DiaChiKhachHang = self.inforNguoiNop.DiaChi;
+                quyhd.DienThoaiKhachHang = self.inforNguoiNop.SoDienThoai;
+                quyhd.NoiDungThu = quyhd.NoiDungThu;
+                quyhd.TienBangChu = DocSo(formatNumberToFloat(quyhd.TongTienThu));
+                quyhd.ChuyenKhoan = formatNumber(quyhd.TienCK);
+                quyhd.TienMat = formatNumber(quyhd.TienMat);
+                quyhd.GiaTriPhieu = formatNumber(quyhd.TongTienThu);
+                quyhd.TienDoiDiem = 0;
+                quyhd.TienTheGiaTri = 0;
+                quyhd.TTBangTienCoc = 0;
+                quyhd.KhoanMucThuChi = self.khoanthuchi.NoiDungThuChi;
+
+                $.ajax({
+                    url: '/api/DanhMuc/ThietLapApi/GetContentFIlePrintTypeChungTu?maChungTu=' + loaiCT + '&idDonVi=' + quyhd.ID_DonVi,
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (result) {
+                        let data = result;
+                        data = data.concat(`<script src="\/Scripts/knockout-3.4.2.js\"> <\/script>`);
+                        data = data.concat(`<script>var item1 = []; var item2 = []; var item4 = []; var item5 = []; var item3 = `,
+                            JSON.stringify(quyhd), `;<\/script>`);
+                        data = data.concat(`<script type="text/javascript" src="/Scripts/Thietlap/MauInTeamplate.js"><\/script>`);
+                        PrintExtraReport(data);
+                    }
+                });
+            },
+
+            showModalKhoanThuChi: function (typeUpdate) {
+                let self = this;
+                if (typeUpdate === 1) {
+                    vmKhoanThuChi.showModalAdd();
+                }
+                else {
+                    console.log(1, vmKhoanThuChi.newKhoanThuChi)
+                    vmKhoanThuChi.showModalUpdate(self.khoanthuchi);
+                }
+            }
+        },
+        computed: {
+            sLoaiDoiTuong: function () {
+                let self = this;
+                let sLoai = '';
+                switch (self.newPhieuThu.LoaiDoiTuong) {
+                    case 1:
+                        sLoai = 'khách hàng';
+                        break;
+                    case 2:
+                        sLoai = 'nhà cung cấp';
+                        break;
+                    case 3:
+                        sLoai = 'bảo hiểm';
+                        break;
+                    case 4:
+                        sLoai = 'nhân viên';
+                        break;
+                }
+                return sLoai;
+            },
+            sLoaiThuChi: function () {
+                let self = this;
+                return self.isPhieuThu ? 'thu' : 'chi';
+            }
+        }
+    })
+
+    $('#vmKhoanThuChi').on('hidden.bs.modal', function (e) {
+        if ($('#vmThemPhieuThuChi').hasClass('in')) {
+            if (vmKhoanThuChi.saveOK) {
+                vmThemPhieuThuChi.newPhieuThu.ID_KhoanThuChi = vmKhoanThuChi.newKhoanThuChi.ID;
+                vmThemPhieuThuChi.khoanthuchi = vmKhoanThuChi.newKhoanThuChi;
+
+                switch (vmKhoanThuChi.typeUpdate) {
+                    case 1:// insert
+                        vmThemPhieuThuChi.listData.AllKhoanThuChis.unshift(vmKhoanThuChi.newKhoanThuChi);
+                        break;
+                    case 2:// update
+                        for (let i = 0; i < vmThemPhieuThuChi.listData.AllKhoanThuChis.length; i++) {
+                            if (vmThemPhieuThuChi.listData.AllKhoanThuChis[i].ID === vmKhoanThuChi.newKhoanThuChi.ID) {
+                                vmThemPhieuThuChi.listData.AllKhoanThuChis[i].NoiDungThuChi = vmKhoanThuChi.newKhoanThuChi.NoiDungThuChi;
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+    })
+</script>
