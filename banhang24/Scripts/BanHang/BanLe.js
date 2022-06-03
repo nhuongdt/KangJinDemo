@@ -27,7 +27,7 @@ $.connection.hub.disconnected(function () {
 });
 var FormModel_NewHoaDon = function () {
     var self = this;
-    self.ID = ko.observable();
+    self.ID = ko.observable('00000000-0000-0000-0000-000000000000');
     self.ID_HoaDon = ko.observable();
     self.IDRandom = ko.observable();
     self.LoaiHoaDon = ko.observable(1);
@@ -411,6 +411,12 @@ var NewModel_BanHangLe = function () {
     self.roleChangeSale_ServicePackage = ko.observable(false);
     self.RoleChange_ChietKhauNV = ko.observable(false);
     self.roleUpdateImg = ko.observable(false);
+    self.RoleInsert_Invoice = ko.observable(false);
+    self.RoleInsert_Order = ko.observable(false);
+    self.RoleInsert_Service = ko.observable(false);
+    self.RoleInsert_Return = ko.observable(false);
+    self.RoleXuly_Order = ko.observable(false);
+    self.RoleView_ChietKhauNV = ko.observable(false);
 
     // const localStorage
     const lcMaHD = 'maHDCache';
@@ -420,8 +426,6 @@ var NewModel_BanHangLe = function () {
     const lcListCTHD_DoiTra = 'lstCTHDLe_TraHang'; // save CTHD doi tra
     const lcProductKM_HoaDon = 'productKM_HoaDon';
     const lcDM_DoiTuong = 'DM_DoiTuongs'; // lst KH offline
-    const lcID_AccountPOS = 'lcID_AccountPOS';
-    const lcID_AccountChuyenKhoan = 'lcID_AccountChuyenKhoan';
     const lcCTDatHang_Const = 'lcCTDatHang';
     const lcSetPrintConst = "SetPrintBL";
     const lcXuLiDonHang_Const = 'lcXuLiDonHang';
@@ -1570,389 +1574,6 @@ var NewModel_BanHangLe = function () {
             self.SumProduct(sumProduct);
         }
     }
-    // use when know itemEx
-    function HideShow_byLoaiHoaDon(itemEx) {
-        HideShow_Icon_NhatKyGoiDV();
-
-        var updateHD = itemEx.ID !== const_GuidEmpty && itemEx.TrangThaiHD === 8;
-        switch (itemEx.LoaiHoaDon) {
-            case 1: // HD (li index: 0.hd,1.dh,2.gdv,3.th)
-            case 25:
-                HideTraHang();
-                ShowMuaHang();
-                $('#lblHoaDon ul li:eq(0)').css('display', '');
-                $('#lblHoaDon ul li:eq(0)').addClass('active');
-
-                // neu hd xuly from DH/ hdDoiTra
-                if (itemEx.ID_HoaDon !== null) {
-                    $('#lblHoaDon ul li:gt(0)').css('display', 'none');
-                }
-                else {
-                    if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                        $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                    }
-                    else {
-                        if (updateHD) {
-                            $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                        }
-                        else {
-                            $('#lblHoaDon ul li:lt(2)').css('display', '');
-                        }
-                    }
-                }
-                HideShow_TabGoiDichVu(self.roleCurrent());
-
-                // if creat HoaDon from HD DatHang
-                if (itemEx.MaHoaDonTraHang !== '' && itemEx.MaHoaDonTraHang !== undefined) {
-                    // disable price-pay-end if create HD from HD Dat Hang da thanh toan het tien
-                    if (itemEx.PhaiThanhToan === 0) {
-                        $('#txtDaThanhToan').attr('disabled', 'disabled');
-                    }
-                    else {
-                        $('#txtDaThanhToan').removeAttr('disabled');
-                    }
-                }
-                else {
-                    $('#txtDaThanhToan').removeAttr('disabled');
-                }
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Thanh toán (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 3: // HD Dat hang
-                HideTraHang();
-                ShowMuaHang();
-                $('#lblHoaDon ul li:eq(1)').css('display', '');
-                $('#lblHoaDon ul li:eq(1)').addClass('active');
-                // if DH0000
-                if (itemEx.ID !== null && itemEx.ID !== const_GuidEmpty) {
-                    // if XuLiDonHang, hide tab 'HoaDon'
-                    $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                    $('#lblHoaDon ul li:gt(1)').css('display', 'none');
-
-                    // if not Insert HD --> hide btnTaoHD
-                    if (self.roleCurrent() > 32) {
-                        $('#btnTaoHD').css('display', 'none');
-                    }
-                    else {
-                        $('#btnTaoHD').show();
-                    }
-                    $('#btnSave').css('display', 'none');
-                    $('#btnSaveDatHang').show();
-                    // disable price-pay-end if KH da thanh toan het (DatHang)
-                    if (itemEx.PhaiThanhToan === 0) {
-                        $('#txtDaThanhToan').attr('disabled', 'disabled');
-                    }
-                    else {
-                        $('#txtDaThanhToan').removeAttr('disabled');
-                    }
-                }
-                else {
-                    if (self.roleCurrent() > 32) {
-                        $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                    }
-                    else {
-                        $('#lblHoaDon ul li:eq(0)').css('display', '');
-                    }
-                    HideShow_TabGoiDichVu(self.roleCurrent());
-                    $('#btnSave').css('display', '');
-                    $('#btnSave').text('Đặt hàng (F10)');
-                    $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                    $('#txtDaThanhToan').removeAttr('disabled');
-                }
-                break;
-            case 6:
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Trả hàng (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                $('#lblHoaDon ul li:eq(2)').css('display', 'none');
-                ShowTraHang();
-                HideShow_TabGoiDichVu();
-                // check HH mua moi
-                var lstCTHD_TH = localStorage.getItem(lcListCTHD_DoiTra);
-                if (lstCTHD_TH !== null && lstCTHD_TH !== 'null') {
-                    lstCTHD_TH = JSON.parse(lstCTHD_TH);
-                    var arrCTHD_TH = $.grep(lstCTHD_TH, function (item) {
-                        return item.IDRandomHD === itemEx.IDRandom;
-                    });
-                    //self.NewProducts(arrCTHD_TH);
-
-                    if (arrCTHD_TH.length > 0) {
-                        ShowMuaHang();
-                        $('#lblHoaDon ul li:lt(3)').css('display', 'none');
-                        $('#lblHoaDon ul li:eq(3)').css('display', '');
-                        $('#lblHoaDon ul li:eq(3)').addClass('active');
-                    }
-                    else {
-                        HideMuaHang();
-                    }
-                }
-                else {
-                    HideMuaHang();
-                }
-                $('#HangHoaView').hide();
-                break;
-            case 19:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(self.roleCurrent());
-
-                if (updateHD) {
-                    $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                }
-                else {
-                    $('#lblHoaDon ul li:eq(0)').css('display', '');
-                }
-
-                if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                    $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                }
-                else {
-                    if (updateHD) {
-                        $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                    }
-                    else {
-                        $('#lblHoaDon ul li:eq(1)').css('display', '');
-                    }
-                }
-                $('#lblHoaDon ul li:eq(2)').addClass('active');
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Thanh toán (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                $('#txtDaThanhToan').removeAttr('disabled');
-                break;
-            case 20:
-                break;
-            default:
-                break;
-        }
-    }
-    function HideShow_TabGoiDichVu(roleCurrent) {
-        var arrNotRole_GoiDV = [3, 4, 7, 8, 11, 12, 15, 16, 19, 20, 23, 24, 27, 28, 31, 32, 35, 36, 39, 40, 43, 44, 47, 48, 51, 52, 55, 56, 59, 60, 63, 64];
-        if ($.inArray(roleCurrent, arrNotRole_GoiDV) > -1) {
-            $('#lblHoaDon ul li:eq(2)').css('display', 'none');
-        }
-        else {
-            if (IsShop_SpaSalon()) {
-                var hd = localStorage.getItem(lcListHD);
-                if (hd !== null) {
-                    hd = JSON.parse(hd);
-                    let hdOp = GetHDOpening_byMaHoaDon(_maHoaDon, hd);
-                    if (hdOp.length > 0) {
-                        // update hd loai = 1
-                        if (hdOp[0].LoaiHoaDon !== 19 && hdOp[0].ID !== const_GuidEmpty) {
-                            $('#lblHoaDon ul li:eq(2)').css('display', 'none');
-                        }
-                        else {
-                            $('#lblHoaDon ul li:eq(2)').css('display', '');
-                        }
-                    }
-                    else {
-                        $('#lblHoaDon ul li:eq(2)').css('display', '');
-                    }
-                }
-                else {
-                    $('#lblHoaDon ul li:eq(2)').css('display', '');
-                }
-            }
-            else {
-                $('#lblHoaDon ul li:eq(2)').css('display', 'none');
-            }
-        }
-    }
-    // use when newHoaDon
-    function HideShowDiv_byPermission(roleCurrent) {
-        // hide/show tab GoiDV
-        HideShow_Icon_NhatKyGoiDV();
-        switch (roleCurrent) {
-            case 1: // BH + insert DH (neu co quyen mua/dat, khong can check quyen tra)
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#lblHoaDon ul li:eq(0)').css('display', '');
-                $('#lblHoaDon ul li:eq(0)').addClass('active');
-                if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                    $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                }
-                else {
-                    $('#lblHoaDon ul li:eq(1)').css('display', '');
-                }
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Thanh toán (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 17: // BH - insert DH
-            case 18:
-            case 19:
-            case 20:
-            case 21:
-            case 22:
-            case 23:
-            case 24:
-            case 25:
-            case 26:
-            case 27:
-            case 28:
-            case 29:
-            case 30:
-            case 31:
-            case 32:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#lblHoaDon ul li:eq(0)').css('display', '');
-                $('#lblHoaDon ul li:eq(0)').addClass('active');
-                $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Thanh toán (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 33: // insert DH + TH - BH
-            case 34:
-            case 37:
-            case 38:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-
-                $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                $('#btnSave').css('display', '');
-                if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                    // active Tab DichVu
-                    $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                    $('#lblHoaDon ul li:eq(2)').addClass('active');
-                    $('#btnSave').text('Thanh toán (F10)');
-                }
-                else {
-                    $('#lblHoaDon ul li:eq(1)').css('display', '');
-                    $('#lblHoaDon ul li:eq(1)').addClass('active');
-                    $('#btnSave').text('Đặt hàng (F10)');
-                }
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 35: // insert DH + TH - BH - insert goiDV
-            case 36:
-            case 39:
-            case 40:
-                $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                $('#lblHoaDon ul li:eq(1)').addClass('active');
-                if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                    $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                    HideMuaHang();
-                    ShowTraHang();
-                }
-                else {
-                    $('#lblHoaDon ul li:eq(1)').css('display', '');
-                    HideTraHang();
-                    ShowMuaHang();
-                }
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Đặt hàng (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 41: // insert DH - BH - TH
-            case 42:
-            case 45:
-            case 46:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-
-                if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                    // active Tab DichVu
-                    $('#lblHoaDon ul li:eq(2)').addClass('active');
-                    $('#btnSave').css('display', '');
-                    $('#btnSave').text('Thanh toán (F10)');
-                }
-                else {
-                    // active Tab DatHang
-                    $('#lblHoaDon ul li:eq(1)').css('display', '');
-                    $('#lblHoaDon ul li:eq(1)').addClass('active');
-                    $('#btnSave').css('display', '');
-                    $('#btnSave').text('Đặt hàng (F10)');
-                }
-                $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                break;
-            case 43: // insert DH - BH - TH - insert goi DV
-            case 44:
-            case 47:
-            case 48:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                $('#lblHoaDon ul li:eq(1)').addClass('active');
-                if (self.ThietLap() !== null && self.ThietLap().DatHang === false) {
-                    // not permisson
-                    window.location.href = '/#/DashBoard';
-                }
-                else {
-                    $('#lblHoaDon ul li:eq(1)').css('display', '');
-                }
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Đặt hàng (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 49: // TH - BH - insert DH
-            case 50:
-            case 53:
-            case 54:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#lblHoaDon ul li:eq(2)').addClass('active');
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Thanh toán (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 51: // TH - BH - insert DH - insert goiDV
-            case 52:
-            case 55:
-            case 56:
-                HideMuaHang();
-                ShowTraHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Trả hàng (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 57: // insert goiDV
-            case 58:
-            case 61:
-            case 62:
-                HideTraHang();
-                ShowMuaHang();
-                HideShow_TabGoiDichVu(roleCurrent);
-                $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                $('#lblHoaDon ul li:eq(2)').addClass('active');
-                $('#btnSave').css('display', '');
-                $('#btnSave').text('Thanh toán (F10)');
-                $('#btnTaoHD, #btnSaveDatHang').css('display', 'none');
-                break;
-            case 59:
-            case 60:
-            case 63: // tragoiDV
-            case 64: // no role
-                window.location.href = '/#/DashBoard';
-                break;
-        }
-    }
 
     function CheckQuyenExist(maquyen) {
         var role = $.grep(self.Quyen_NguoiDung(), function (x) {
@@ -2212,7 +1833,7 @@ var NewModel_BanHangLe = function () {
 
                 // use when time load HangHoa  > time load Quyen_NguoiDung
                 if (roleLoadEnd) {
-                    CheckPermission_andShowTagA();
+                    CheckRole();
                     DeleteHD_CTHD_ifNotRole();
                     SubFunction_getAllDMHangHoas();
                 }
@@ -3067,6 +2688,10 @@ var NewModel_BanHangLe = function () {
         $('#btnSave, #btnSaveDatHang, #btnTaoHD').removeAttr('disabled');
         $('.bgwhite').hide();
         $('body').gridLoader({ show: false });
+    }
+
+    self.SaveGoiDV_andCreatHDSuDung = function () {
+
     }
 
     self.saveHoaDonTraHang = function (isTamLuu) {
@@ -4050,48 +3675,43 @@ var NewModel_BanHangLe = function () {
             }
         }
     }
-    function BindHD_CTHDafterSave() {
-        // bind list HD by permission
-        var lstHD = localStorage.getItem(lcListHD);
+
+    function GetMaHoaDonNew_byRole() {
         var maHDNew = nameHD_InsertBH + 1;
-        var idRandom = '';
-        // set maHD new from role
-        switch (self.roleCurrent()) {
-            case 33:// Dat Hang
-            case 34:
-            case 35:
-            case 36:
-            case 37:
-            case 38:
-            case 39:
-            case 40:
-            case 41:
-            case 42:
-            case 43:
-            case 44:
-            case 45:
-            case 46:
-            case 47:
-            case 48:
+        var loaiHD = 1;
+        if (!self.RoleInsert_Invoice()) {
+            if (self.RoleInsert_Order()) {
                 maHDNew = nameHD_InsertDH + '1';
-                break;
-            case 49: // Tra hang
-            case 50:
-            case 51:
-            case 52:
-            case 53:
-            case 54:
-            case 55:
-            case 56:
-                maHDNew = nameHD_TraHang + '1';
-                break;
-            case 57:
-            case 58:
-            case 61:
-            case 62:
-                maHDNew = nameHD_AddGoiDV + '1';
-                break;
+                loaiHD = 3;
+            }
+            else {
+                if (self.RoleInsert_Service()) {
+                    maHDNew = nameHD_AddGoiDV + '1';
+                    loaiHD = 19;
+                }
+                else {
+                    if (self.RoleInsert_Return()) {
+                        maHDNew = nameHD_TraHang + '1';
+                        loaiHD = 6;
+                    }
+                    else {
+
+                    }
+                }
+            }
         }
+        return {
+            MaHoaDon: maHDNew,
+            LoaiHoaDon: loaiHD,
+        }
+    }
+
+    function BindHD_CTHDafterSave() {
+        var maHDNew = GetMaHoaDonNew_byRole().MaHoaDon;
+        var idRandom = '';
+
+        var lstHD = localStorage.getItem(lcListHD);
+
         if (lstHD !== null) {
             lstHD = JSON.parse(lstHD);
             var arrPB_HD = GetListHD_Opening();
@@ -4116,7 +3736,6 @@ var NewModel_BanHangLe = function () {
                 idRandom = hdLast.IDRandom;
                 self.IDPhongBan_Chosing(hdLast.ID_ViTri);
 
-                HideShow_byLoaiHoaDon(hdLast);
                 self.selectedNCC(hdLast.ID_DoiTuong);
                 GetInForCustomer_byID(hdLast.ID_DoiTuong);
                 self.SetNhanVien(hdLast.ID_NhanVien);
@@ -4145,11 +3764,6 @@ var NewModel_BanHangLe = function () {
                 self.resetInforHD_CTHD();
                 self.IDPhongBan_Chosing(null);
                 ClearTextSearch();
-                $('#txtDaThanhToan').text('');
-                $('input, select').removeAttr('disabled');
-                $('.parent-price-1, #txtDaThanhToan').removeAttr('disabled');
-                $('#lblTienMat').text('(Tiền mặt)');
-                HideShowDiv_byPermission(self.roleCurrent());
                 stopTimer();
                 timer();
             }
@@ -4178,21 +3792,14 @@ var NewModel_BanHangLe = function () {
             self.HoaDonOffline([]);
             self.countHDoffilne(0);
             ClearTextSearch();
-            $('#txtDaThanhToan').text('');
-            $('input, select').removeAttr('disabled');
-            $('.parent-price-1, #txtDaThanhToan').removeAttr('disabled');
-            $('#lblTienMat').text('(Tiền mặt)');
-            HideShowDiv_byPermission(self.roleCurrent());
             timer();
         }
         localStorage.setItem(lcMaHD, _maHoaDon);
         // get maHoaDon after close or Save
         GetCurrentPage_byMaHoaDon(_maHoaDon);
-        // remove border for LoHang last of CTHD
         SetBorder_LotEnd_CTHD();
         localStorage.setItem('lcIDRandom', idRandom); // used to get at form DisplayCustomer when first load
         vmUpAnhHoaDon.InvoiceChosing.IDRandomHD = idRandom;
-        console.log("AfterSave: " + idRandom);
         vmUpAnhHoaDon.GetListImgInvoiceLC();
     }
 
@@ -4563,7 +4170,6 @@ var NewModel_BanHangLe = function () {
             GetInForCustomer_byID(itemEx[0].ID_DoiTuong);
             self.SetNhanVien(itemEx[0].ID_NhanVien);
             self.SetBangGia(itemEx[0].ID_BangGia);
-            HideShow_byLoaiHoaDon(itemEx[0]);
 
             // chek if item is opening and exist
             var blExist = false;
@@ -5673,7 +5279,6 @@ var NewModel_BanHangLe = function () {
         ClearTextSearch();
         stopTimer();
         timer();
-        // HideShowDiv_byPermission(self.roleCurrent());
         HideShow_HeaderCTHD();
         var max = 1;
         var maHDNew = nameHD_InsertBH;
@@ -5756,7 +5361,6 @@ var NewModel_BanHangLe = function () {
         _maHoaDon = maHDNew + (max + 1);
         localStorage.setItem(lcMaHD, _maHoaDon);
         GetCurrentPage_byMaHoaDon(_maHoaDon);
-        HideShowDiv_byPermission(self.roleCurrent());
 
         self.resetInforHD_CTHD();
         ResetInfor_KhachHang();
@@ -5951,7 +5555,6 @@ var NewModel_BanHangLe = function () {
                 idRandom = itemExist[0].IDRandom;
                 self.IDPhongBan_Chosing(itemExist[0].ID_ViTri);
 
-                HideShow_byLoaiHoaDon(itemExist[0]);
                 GetInForCustomer_byID(itemExist[0].ID_DoiTuong);
                 self.SetNhanVien(itemExist[0].ID_NhanVien);
                 BindLstBangGia_byNhanVien_andDoiTuong();
@@ -12134,29 +11737,15 @@ var NewModel_BanHangLe = function () {
         $(".slider").show();
         $('#HangHoaView').show();
         $('#divMuaHang').show();
-        $('#lblHoaDon ul li').removeClass('active');
-        $('#lblHoaDon ul li:eq(3)').css('display', 'none');
     }
     function HideMuaHang() {
         $(".slider").hide();
         $('#HangHoaView').hide();
         $('#divMuaHang').hide();
-        $('#lblHoaDon ul li').removeClass('active');
-        $('#lblHoaDon ul li:lt(3)').css('display', 'none');
-        $('#lblHoaDon ul li:eq(3)').css('display', '');
-        $('#lblHoaDon ul li:eq(3)').addClass('active');
     }
-    function HideCanTraKhach() {
-        $('.cantrakhach').css('display', 'none');
-        $('.khachcantra').show();
-    }
-    function ShowCanTraKhach() {
-        $('.cantrakhach').show();
-        $('.khachcantra').css('display', 'none');
-    }
+   
     function ShowDivDefault() {
         $('#CTHDView').show();
-        //$('#divListHD,#divGhiChu,#divMenuRight').show();
         $('#divGhiChu,#divMenuRight').show();// khong can show divListHD, vi neu view Sodo Phong, thi div nay se bi hien thi
     }
 
@@ -13347,8 +12936,6 @@ var NewModel_BanHangLe = function () {
             return false;
         }
         $('#txtSearchHH').focus();
-        $('#lblHoaDon ul li').removeClass('active');
-        $('#lblHoaDon ul li:eq(0)').addClass('active');
         $('#btnSave').text('Thanh toán (F10)');
 
         var lstHD = localStorage.getItem(lcListHD);
@@ -20119,27 +19706,57 @@ var NewModel_BanHangLe = function () {
             console.log(tbl.name, e);
         });
     }
+
+    function CheckRole() {
+        self.RoleChange_ChietKhauNV(CheckQuyenExist('HoaHong_ThayDoi'));
+        self.RoleView_ChietKhauNV(CheckQuyenExist('BanHang_HoaDongDichVu_XemChietKhau'));
+        self.roleUpdateImg(CheckQuyenExist('HoaDon_CapNhatAnh'));
+
+        vmHoaHongDV.role.XemChietKhau = CheckQuyenExist('BanHang_HoaDongDichVu_XemChietKhau');
+        vmHoaHongDV.role.ThayDoiChietKhau = CheckQuyenExist('HoaHong_ThayDoi');
+        vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
+        vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
+        vmThanhToanGara.RoleChange_ChietKhauNV = vmHoaHongDV.role.ThayDoiChietKhau;
+        vmUpAnhHoaDon.roleUpdateImg = self.roleUpdateImg();
+        vmNKGoiBaoDuong.roleUpdateImg = self.roleUpdateImg();
+
+
+
+        self.roleCustomer_Insert(CheckQuyenExist('KhachHang_ThemMoi'));
+        self.roleCustomer_ThanhToanNo(CheckQuyenExist('KhachHang_ThanhToanNo'));
+
+        vmThanhToan.role.PhieuThu.Insert = CheckQuyenExist('SoQuy_ThemMoi');
+        vmThanhToan.role.PhieuThu.Update = CheckQuyenExist('SoQuy_CapNhat');
+        vmThanhToan.role.PhieuThu.Delete = CheckQuyenExist('SoQuy_Xoa');
+        vmThanhToan.role.PhieuThu.ChangeNgayLap = CheckQuyenExist('SoQuy_ThayDoiThoiGian');
+
+        self.RoleInsert_Invoice(CheckQuyenExist('HoaDon_ThemMoi'));
+        self.RoleInsert_Order(CheckQuyenExist('DatHang_ThemMoi'));
+        self.RoleInsert_Service(CheckQuyenExist('GoiDichVu_ThemMoi'));
+        self.RoleXuly_Order(CheckQuyenExist('DatHang_TaoHoaDon'));
+        self.RoleInsert_Return(CheckQuyenExist('TraHang_ThemMoi'));
+
+        self.roleChangePriceProduct_Invoice(CheckQuyenExist('HoaDon_ThayDoiGia'));
+        self.roleChangeSale_Invoice(CheckQuyenExist('HoaDon_GiamGia'));
+        self.roleChangePriceProduct_Order(CheckQuyenExist('DatHang_ThayDoiGia'));
+        self.roleChangeSale_Order(CheckQuyenExist('DatHang_GiamGia'));
+        self.roleChangePriceProduct_Return(CheckQuyenExist('TraHang_ThayDoiGia'));
+        self.roleChangeSale_Return(CheckQuyenExist('TraHang_GiamGia'));
+        self.roleChangePriceProduct_ServicePackage(CheckQuyenExist('GoiDichVu_ThayDoiGia'));
+        self.roleChangeSale_ServicePackage(CheckQuyenExist('GoiDichVu_GiamGia'));
+    }
+
     // end TrinhPV
     var roleLoadEnd = false;
     function GetHT_Quyen_ByNguoiDung() {
         ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetListQuyen_OfNguoiDung", 'GET').done(function (data) {
             if (data !== "" && data.length > 0) {
                 self.Quyen_NguoiDung(data);
+                CheckRole();
 
-                self.RoleChange_ChietKhauNV(CheckQuyenExist('HoaHong_ThayDoi'));
-                self.roleUpdateImg(CheckQuyenExist('HoaDon_CapNhatAnh'));
-
-                vmHoaHongDV.role.XemChietKhau = CheckQuyenExist('BanHang_HoaDongDichVu_XemChietKhau');
-                vmHoaHongDV.role.ThayDoiChietKhau = CheckQuyenExist('HoaHong_ThayDoi');
-                vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
-                vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
-                vmThanhToanGara.RoleChange_ChietKhauNV = vmHoaHongDV.role.ThayDoiChietKhau;
-                vmUpAnhHoaDon.roleUpdateImg = self.roleUpdateImg();
-                vmNKGoiBaoDuong.roleUpdateImg = self.roleUpdateImg();
-
-                CheckPermission_andShowTagA();
                 DeleteHD_CTHD_ifNotRole();
                 roleLoadEnd = true;
+
                 // use when HangHoa load finished, but Quyen_NguoiDung has not finish --> update TonKho,Warning CTHD
                 if (productLoadEnd) {
                     console.log('hh > 0')
@@ -20164,29 +19781,33 @@ var NewModel_BanHangLe = function () {
     }
 
     function DeleteHD_CTHD_ifNotRole() {
-        var arrNotRole_GoiDV = [3, 4, 7, 8, 11, 12, 15, 16, 19, 20, 23, 24, 27, 28, 31, 32, 35, 36, 39, 40, 43, 44, 47, 48, 51, 52, 55, 56, 59, 60, 63, 64];
-
         var hd = localStorage.getItem(lcListHD);
         if (hd !== null) {
             hd = JSON.parse(hd);
 
             // remove hd
-            if (self.roleCurrent() > 32) {
+            if (!self.RoleInsert_Invoice()) {
                 hd = $.grep(hd, function (x) {
                     return x.NguoiTao !== userLogin || (x.NguoiTao === userLogin && x.LoaiHoaDon !== 1);
                 });
             }
             // remove dathang
-            if ((self.roleCurrent() > 16 && self.roleCurrent() < 33) || (self.roleCurrent() > 48 && self.roleCurrent() < 65)) {
+            if (!self.RoleInsert_Order()) {
                 hd = $.grep(hd, function (x) {
                     return x.NguoiTao !== userLogin || (x.NguoiTao === userLogin && x.LoaiHoaDon !== 3);
                 });
             }
 
             // remove goidv
-            if ($.inArray(self.roleCurrent(), arrNotRole_GoiDV) > -1) {
+            if (!self.RoleInsert_Service()) {
                 hd = $.grep(hd, function (x) {
                     return x.NguoiTao !== userLogin || (x.NguoiTao === userLogin && x.LoaiHoaDon !== 19);
+                });
+            }
+            // remove trahang
+            if (!self.RoleInsert_Return()) {
+                hd = $.grep(hd, function (x) {
+                    return x.NguoiTao !== userLogin || (x.NguoiTao === userLogin && x.LoaiHoaDon !== 6);
                 });
             }
 
@@ -20207,472 +19828,7 @@ var NewModel_BanHangLe = function () {
             localStorage.setItem(lcListHD, JSON.stringify(hd));
         }
     }
-    function CheckPermission_andShowTagA() {
-        self.roleCustomer_Insert(CheckQuyenExist('KhachHang_ThemMoi'));
-        self.roleCustomer_ThanhToanNo(CheckQuyenExist('KhachHang_ThanhToanNo'));
 
-        vmThanhToan.role.PhieuThu.Insert = CheckQuyenExist('SoQuy_ThemMoi');
-        vmThanhToan.role.PhieuThu.Update = CheckQuyenExist('SoQuy_CapNhat');
-        vmThanhToan.role.PhieuThu.Delete = CheckQuyenExist('SoQuy_Xoa');
-        vmThanhToan.role.PhieuThu.ChangeNgayLap = CheckQuyenExist('SoQuy_ThayDoiThoiGian');
-
-        // ban hang
-        var roleInsert_Invoice = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'HoaDon_ThemMoi';
-        });
-        // dat hang
-        var roleInsert_Order = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'DatHang_ThemMoi';
-        });
-        var roleUpdate_Order = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'DatHang_CapNhat';
-        });
-        // tra hang
-        var roleInsert_Return = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'TraHang_ThemMoi';
-        });
-        // goiDV (don't role update, only role insert)
-        var roleInsert_GoiDV = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'GoiDichVu_ThemMoi';
-        });
-        var roleReturn_GoiDV = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'GoiDichVu_TraGoi';
-        });
-        // check quyen ban, dat, tra hang, update DatHang
-        // 64 role (2 mũ 6 )
-        // 1 if (insert BH)
-        if (roleInsert_Invoice.length > 0) {
-            // 1.1 if (insert DH)
-            if (roleInsert_Order.length > 0) {
-                if (roleInsert_Return.length > 0) {
-                    if (roleUpdate_Order.length > 0) {
-                        $('#aOrder').show();
-                        $('.aReturn').show();
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(1); //1
-                            }
-                            else {
-                                self.roleCurrent(2); // 2
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(3); // 3
-                            }
-                            else {
-                                self.roleCurrent(4); // 4
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH 
-                        $('.aReturn').show();
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(5); // 5
-                            }
-                            else {
-                                self.roleCurrent(6); // 6
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(7); // 7
-                            }
-                            else {
-                                self.roleCurrent(8); // 8
-                            }
-                        }
-                    }
-                }
-                else {
-                    // no permisson insert TH
-                    if (roleUpdate_Order.length > 0) {
-                        $('#aOrder').show();
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(9); // 9
-                            }
-                            else {
-                                self.roleCurrent(10); // 10
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(11); // 11
-                            }
-                            else {
-                                self.roleCurrent(12); // 12
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(13); // 13
-                            }
-                            else {
-                                self.roleCurrent(14); // 14
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(15); // 15
-                            }
-                            else {
-                                self.roleCurrent(16); // 16
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                // 1.2  no permisson insert DH
-                if (roleInsert_Return.length > 0) {
-                    if (roleUpdate_Order.length > 0) {
-                        $('.aReturn').show();
-                        $('#aOrder').show();
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(17); // 17
-                            }
-                            else {
-                                self.roleCurrent(18); // 18
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(19); // 19
-                            }
-                            else {
-                                self.roleCurrent(20); // 20
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH 
-                        $('.aReturn').show();
-                        $('#aImport').show();
-                        $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(21); // 21
-                            }
-                            else {
-                                self.roleCurrent(22); // 22
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(23); // 23
-                            }
-                            else {
-                                self.roleCurrent(24); // 24
-                            }
-                        }
-                    }
-                }
-                else {
-                    // no permisson insert TH
-                    if (roleUpdate_Order.length > 0) {
-                        $('#aOrder').show();
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(25); // 25
-                            }
-                            else {
-                                self.roleCurrent(26); // 26
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(27); // 27
-                            }
-                            else {
-                                self.roleCurrent(28); // 28
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH 
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(29); // 29
-                            }
-                            else {
-                                self.roleCurrent(30); // 30
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(31); // 31
-                            }
-                            else {
-                                self.roleCurrent(32); // 32
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            // 2 else (no insert BH)
-            // 1.1 if (insert DH)
-            if (roleInsert_Order.length > 0) {
-                if (roleInsert_Return.length > 0) {
-                    if (roleUpdate_Order.length > 0) {
-                        $('#aOrder').show();
-                        $('.aReturn').show();
-                        $('#aImport').show();
-                        $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                        $('#btnSaveDatHang').css('display', 'none');
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(33); // 33
-                            }
-                            else {
-                                self.roleCurrent(34); // 34
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(35); // 35
-                            }
-                            else {
-                                self.roleCurrent(36); // 36
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH
-                        $('.aReturn').show();
-                        $('#aImport').show();
-                        $('#lblHoaDon ul li:eq(0)').css('display', 'none');
-                        $('#btnTaoHD').css('display', 'none');
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(37); // 37
-                            }
-                            else {
-                                self.roleCurrent(38); // 38
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(39); // 39
-                            }
-                            else {
-                                self.roleCurrent(40); // 40
-                            }
-                        }
-                    }
-                }
-                else {
-                    // no permision insert TH
-                    if (roleUpdate_Order.length > 0) {
-                        $('#aOrder').show();
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(41); // 41
-                            }
-                            else {
-                                self.roleCurrent(42); // 42
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(43); // 43
-                            }
-                            else {
-                                self.roleCurrent(44); // 44
-                            }
-                        }
-                    }
-                    else {
-                        $('#aImport').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(45); // 45
-                            }
-                            else {
-                                self.roleCurrent(46); // 46
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(47); // 47
-                            }
-                            else {
-                                self.roleCurrent(48); // 48
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                // 1.2 else (no insert DH)
-                if (roleInsert_Return.length > 0) {
-                    if (roleUpdate_Order.length > 0) {
-                        $('.aReturn').show();
-                        $('#aOrder').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(49); // 49
-                            }
-                            else {
-                                self.roleCurrent(50); // 50
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(51); // 51
-                            }
-                            else {
-                                self.roleCurrent(52); // 52
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH + 
-                        $('.aReturn').show();
-                        $('#lblHoaDon ul li:eq(1)').css('display', 'none');
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(53); // 53
-                            }
-                            else {
-                                self.roleCurrent(54); // 54
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(55); // 55
-                            }
-                            else {
-                                self.roleCurrent(56); // 56
-                            }
-                        }
-                    }
-                }
-                else {
-                    // no permission insert TH
-                    if (roleUpdate_Order.length > 0) {
-                        $('#aOrder').show();
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(57); // 57
-                            }
-                            else {
-                                self.roleCurrent(58); // 58
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(59); // 59
-                            }
-                            else {
-                                self.roleCurrent(60); // 60
-                            }
-                        }
-                    }
-                    else {
-                        // no permisson update DH
-                        if (roleInsert_GoiDV.length > 0) {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(61); // 61
-                            }
-                            else {
-                                self.roleCurrent(62); // 62
-                            }
-                        }
-                        else {
-                            if (roleReturn_GoiDV.length > 0) {
-                                self.roleCurrent(63); // 63
-                            }
-                            else {
-                                self.roleCurrent(64); // 64
-                                window.location.href = '/#/DashBoard';
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // quyen bao cao (quyen cha)
-        var roleReport = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'BCCuoiNgay';
-        });
-        // xem bao cao (quyen con)
-        var roleViewReport_EndDay = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'BCCN_BanHang';
-        });
-        if (roleReport.length > 0 && roleViewReport_EndDay.length > 0) {
-            $('#aReport').show();
-        }
-        // check quyen: thay doi gia HangHoa (cap nhat gia + sua chiet khau), cap nhat giam gia (Hoa Don)
-        var roleChangePriceProduct_Invoice = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'HoaDon_ThayDoiGia';
-        });
-        if (roleChangePriceProduct_Invoice.length > 0) {
-            self.roleChangePriceProduct_Invoice(true);
-        }
-
-        var roleChangeSale_Invoice = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'HoaDon_GiamGia';
-        });
-        if (roleChangeSale_Invoice.length > 0) {
-            self.roleChangeSale_Invoice(true);
-        }
-        // dat hang (thay doi gia, giam gia)
-        var roleChangePriceProduct_Order = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'DatHang_ThayDoiGia';
-        });
-        if (roleChangePriceProduct_Order.length > 0) {
-            self.roleChangePriceProduct_Order(true);
-        }
-        var roleChangeSale_Order = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'DatHang_GiamGia';
-        });
-        if (roleChangeSale_Order.length > 0) {
-            self.roleChangeSale_Order(true);
-        }
-        // tra hang (thay doi gia, giam gia)
-        var roleChangePriceProduct_Return = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'TraHang_ThayDoiGia';
-        });
-        if (roleChangePriceProduct_Return.length > 0) {
-            self.roleChangePriceProduct_Return(true);
-        }
-        var roleChangeSale_Return = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'TraHang_GiamGia';
-        });
-        if (roleChangeSale_Return.length > 0) {
-            self.roleChangeSale_Return(true);
-        }
-        // goi dich vu
-        var roleChangePriceProduct_ServicePackage = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'GoiDichVu_ThayDoiGia';
-        });
-        if (roleChangePriceProduct_ServicePackage.length > 0) {
-            self.roleChangePriceProduct_ServicePackage(true);
-        }
-        var roleChangeSale_ServicePackage = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen === 'GoiDichVu_GiamGia';
-        });
-        if (roleChangeSale_ServicePackage.length > 0) {
-            self.roleChangeSale_ServicePackage(true);
-        }
-    }
     function Call_6Func(firstLoad) {
         firstLoad = firstLoad || false;
         // count number product and show at header CTHD
@@ -20763,434 +19919,26 @@ var NewModel_BanHangLe = function () {
                 return item.Status === 1 &&
                     (item.NguoiTao === userLogin || item.TrangThaiHD === 3); // get HD this user OR client (if hd client is opening)
             });
-            switch (self.roleCurrent()) {
-                case 0:
-                    break;
-                case 1: // BH + DH + TH + GoiDV
-                    lstHDisOpening = lstHD_byUser;
-                    break;
-                case 2: // 1 - TraGoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 3:// 1 - insert GoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 4: // 1 - (tra goi + insert goiDV)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 19 && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 5: // - update DH
-                    lstHDisOpening = $.grep(lstHD, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1;
-                    });
-                    break;
-                case 6: // - update DH - tra goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 7: // - update DH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.LoaiHoaDon !== 3;
-                    });
-                    break;
-                case 8: // - update DH - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1 && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                // ---- No role TraHang ----
-                case 9: // - TH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 10: // - TH - TraGoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 11:// - TH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 12: // - TH - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 13: // - TH - update DH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 14: // - TH - update DH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 15: // - TH - update DH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 16: // - TH - update DH - goiDV (insert + update)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                // ---- No role insert DatHang ----
-                case 17: // - insert DH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                case 18: // - insert DH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_InsertDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 19: // - insert DH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_InsertDH) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 20: // - insert DH - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_InsertDH) === -1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 21: // - DH (insert + update)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 3;
-                    });
-                    break;
-                case 22: // - DH (insert + update) - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 3
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 23: // - DH (insert + update)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 3;
-                    });
-                    break;
-                case 24: // - DH (insert + update) - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 3
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                // ----  No role (insert DatHang + insert TH) ----
-                case 25: // - insert (DH + TH)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 26: // - insert (DH + TH) - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 27: // - insert (DH + TH) - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 28: // - insert (DH + TH) - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 29: // - insert (DH + TH) - update DH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 3;
-                    });
-                    break;
-                case 30: // - insert (DH + TH) - update DH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1
-                            && item.LoaiHoaDon !== 3;
-                    });
-                    break;
-                case 31: // - insert (DH + TH) - update DH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 3
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 32: // - insert (DH + TH) - update DH - goiDV (insert + update)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.LoaiHoaDon !== 3
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                // ---- No role BH ----
-                case 33: // - BH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1;
-                    });
-                    break;
-                case 34: // - BH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 35: // - BH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 36: // - BH - goiDV (insert + tra)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                // ---- No role (BH + update DH) ---
-                case 37: // - BH - update DH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1;
-                    });
-                    break;
-                case 38: // - BH - update DH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 39: // - BH - update DH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1;
-                    });
-                    break;
-                case 40: // - BH - update DH - goiDV (insert + tra)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                // ---- No role (BH + TH) ---
-                case 41: // - BH - TH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                    });
-                    break;
-                case 42: // - BH - TH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 6;
-                    });
-                    break;
-                case 43: // - BH - TH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 44: // - BH - TH - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 6
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                // ---- No role (BH + TH + update DH) ---
-                case 45: // - BH - TH - updateDH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1;
-                    });
-                    break;
-                case 46: // - BH - TH - updateDH - tragoiDV (tra hang + tragoiDV = loai 6)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 6
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1;
-                    });
-                    break;
-                case 47: // - BH - TH - updateDH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 48: // - BH - TH - updateDH - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 6
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_UpdateDH) === -1;
-                    });
-                    break;
-                // --- No role (BH + insert DH) ---
-                case 49: // - BH - insert DH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                case 50: // - BH - insert DH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 51: // - BH - insert DH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                case 52: // - BH - insert DH - goiDV (tra + insert)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                // --- No role (BH + DH (insert + update)) ---
-                case 53: // - BH - DH (insert + update)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3;
-                    });
-                    break;
-                case 54: // - BH - DH (insert + update) - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                case 55: // - BH - DH (insert + update) - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3
-                            && item.LoaiHoaDon !== 19;
-                    });
-                    break;
-                case 56: // - BH - DH (insert + update) - goiDV (insert + tra)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraGoiDV) === -1;
-                    });
-                    break;
-                //---- No role (BH + insert DH + insert TH) ----
-                case 57: // - BH - insert DH - TH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                case 58: // - BH - insert DH - TH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 6
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                case 59: // - BH - insert DH - TH - insert goiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                case 60: // - BH - insert DH - TH - goiDV(insert + tra)
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 6
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_InsertDH) === -1;
-                    });
-                    break;
-                //---- No role (BH + DH (insert + update) + TH) ----
-                case 61: // - BH - DH (insert + update) - TH
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 62: // - BH - DH (insert + update) - TH - tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3
-                            && item.LoaiHoaDon !== 6;
-                    });
-                    break;
-                case 63: // [- BH - DH (insert + update) - TH - insert goiDV] = tragoiDV
-                    lstHDisOpening = $.grep(lstHD_byUser, function (item) {
-                        return item.LoaiHoaDon !== 1
-                            && item.LoaiHoaDon !== 3
-                            && item.LoaiHoaDon !== 19
-                            && item.MaHoaDon.indexOf(nameHD_TraHang) === -1;
-                    });
-                    break;
-                case 64: // no permisson
-                    lstHDisOpening = [];
-                    break;
+            lstHDisOpening = lstHD_byUser;
+            if (!self.RoleInsert_Invoice()) {
+                lstHDisOpening = $.grep(lstHD_byUser, function (x) {
+                    return x.LoaiHoaDon !== 1 && x.LoaiHoaDon !== 25;
+                });
+            }
+            if (!self.RoleInsert_Order()) {
+                lstHDisOpening = $.grep(lstHD_byUser, function (x) {
+                    return x.LoaiHoaDon !== 3;
+                });
+            }
+            if (!self.RoleInsert_Service()) {
+                lstHDisOpening = $.grep(lstHD_byUser, function (x) {
+                    return x.LoaiHoaDon !== 19;
+                });
+            }
+            if (!self.RoleInsert_Return()) {
+                lstHDisOpening = $.grep(lstHD_byUser, function (x) {
+                    return x.LoaiHoaDon !== 6;
+                });
             }
         }
         return lstHDisOpening;
@@ -25739,9 +24487,6 @@ var NewModel_BanHangLe = function () {
                 var loaiHD = GetLoaiHoaDon_ofHDopening();
                 // if is active Tab DatHang/GoiDv --> active tab HoaDon
                 if (loaiHD !== 1) {
-                    $('#lblHoaDon ul li').removeClass('active');
-                    $('#lblHoaDon ul li:eq(0)').addClass('active');
-                    // counnt HoaDon in list HoaDon cache
                     var max = GetMax_MaHoaDon(1, lstHoaDon);
                     _maHoaDon = nameHD_InsertBH + (max + 1);
                 }
@@ -27008,7 +25753,6 @@ var NewModel_BanHangLe = function () {
                 self.SetNhanVien(itemHD[0].ID_NhanVien);
                 self.SetBangGia(itemHD[0].ID_BangGia);
                 self.SetChiNhanh(itemHD[0].ID_DonVi);
-                HideShow_byLoaiHoaDon(itemHD[0]);
                 OnOff_Timer(itemHD[0].NgayLapHoaDon);
                 SetText_lblTienMat(itemHD[0], 1);
                 ChosePhong_ActiveTabHangHoa();
@@ -28198,8 +26942,6 @@ var NewModel_BanHangLe = function () {
         self.SetBangGia(hdOpening.ID_BangGia);
         self.SetChiNhanh(hdOpening.ID_DonVi);
 
-        //$('#tr-congnoDH').css('display', 'none');
-        HideShow_byLoaiHoaDon(hdOpening);
         self.HoaDons().SetData(hdOpening);
         OnOff_Timer(hdOpening.NgayLapHoaDon);
         SetText_lblTienMat(hdOpening, 1);

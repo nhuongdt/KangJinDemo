@@ -409,17 +409,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "HoaDon_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(4, "Bán hàng", "Bán hàng", UrlPage.HoaDon, "e/hoadon", false, "fa fa-list", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(4, "“Đơn sử dụng dịch vụ/sản phẩm”", "“Đơn sử dụng dịch vụ/sản phẩm”", UrlPage.HoaDon, "e/hoadon", false, "fa fa-list", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "GoiDichVu").FirstOrDefault() != null && (NganhNgheKinhDoanh == "AC9DF2ED-FF08-488F-9A64-08433E541020" || NganhNgheKinhDoanh == "83894499-AEFA-4F58-96B4-5EC1A0B16A76"))
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(5, "Gói dịch vụ", "Gói dịch vụ", UrlPage.GoiDichVu, "e/GoiDichVu", false, "fa fa-suitcase", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(5, "Đơn hàng", "Đơn hàng", UrlPage.GoiDichVu, "e/GoiDichVu", false, "fa fa-suitcase", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "TheGiaTri_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(6, "Nạp thẻ giá trị", "Nạp thẻ giá trị", UrlPage.NapTienTheGiaTri, "e/NapTienTheGiaTri", false, "fa fa-credit-card", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(6, "Khách hàng đặt cọc", "Khách hàng đặt cọc", UrlPage.NapTienTheGiaTri, "e/NapTienTheGiaTri", false, "fa fa-credit-card", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "TraHang_XemDS").FirstOrDefault() != null)
@@ -732,7 +732,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "TheGiaTri_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuBanHang.Add(new HeaderMenu(4, "Nạp thẻ giá trị", "Nạp thẻ giá trị", UrlPage.NapTienTheGiaTri, "x/TheGiaTri", false, "fa fa-usd", new List<HeaderMenu>()));
+                    lstSubMenuBanHang.Add(new HeaderMenu(4, "Khách hàng đặt cọc", "Khách hàng đặt cọc", UrlPage.NapTienTheGiaTri, "x/TheGiaTri", false, "fa fa-usd", new List<HeaderMenu>()));
                     lstSubMenuBanHangCheck = true;
                 }
 
