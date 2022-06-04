@@ -9244,7 +9244,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [System.Web.Http.AcceptVerbs("GET", "POST")]
-        public IHttpActionResult PostBH_HoaDon_SoQuy_Spa_NKySuDung([FromBody] JObject data)
+        public IHttpActionResult PostBH_HoaDon_SoQuy_Spa_NKySuDung([FromBody] JObject data, Guid? idNhanVien)
         {
             var tenChucNang = "";
             var noiDung = "";
@@ -9303,6 +9303,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             }
                             else
                             {
+                                bool exist = classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
+                                if (exist)
+                                {
+                                    return Json(new
+                                    {
+                                        res = false,
+                                        mes = "Mã hóa đơn đã tồn tại",
+                                    });
+                                }
                                 sMaHoaDon = classhoadon.GetMaHoaDon_Copy(objHoaDon.MaHoaDon);
                             }
                             objHoaDon.MaHoaDon = sMaHoaDon;
@@ -9525,11 +9534,22 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         {
                             insert = false;
                             #region "Update Hoa Don"
+                            if (!string.IsNullOrEmpty(objHoaDon.MaHoaDon))
+                            {
+                                bool exist = classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon, objHoaDon.ID);
+                                if (exist)
+                                {
+                                    return Json(new
+                                    {
+                                        res = false,
+                                        mes = "Mã hóa đơn đã tồn tại",
+                                    });
+                                }
+                            }
                             ngaylapHDOld = db.BH_HoaDon.Find(objHoaDon.ID).NgayLapHoaDon;
                             objHoaDon.NgayLapHoaDon = ngaylapHD;
                             BH_HoaDon objUpHD = classhoadon.Update_HoaDon_DatHang(objHoaDon);
                             idHoaDon = objUpHD.ID;
-
                             sMaHoaDon = objUpHD.MaHoaDon;
                             #endregion
 
@@ -9824,7 +9844,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         nky.ID = Guid.NewGuid();
                         nky.ID_DonVi = objHoaDon.ID_DonVi;
                         nky.LoaiHoaDon = objHoaDon.LoaiHoaDon;
-                        nky.ID_NhanVien = objHoaDon.ID_NhanVien;
+                        nky.ID_NhanVien = idNhanVien != Guid.Empty && idNhanVien != null ? idNhanVien : objHoaDon.ID_NhanVien;
                         nky.ChucNang = tenChucNang;
                         nky.LoaiNhatKy = 1;
                         nky.NoiDung = noiDung;
@@ -9854,7 +9874,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 MaHoaDon = sMaHoaDon,
                                 NgayLapHoaDon = ngaylapHD,
                                 NgayLapHoaDonOld = ngaylapHDOld,
-                                BH_HoaDon_ChiTiet = objHoaDon.BH_HoaDon_ChiTiet
+                                BH_HoaDon_ChiTiet = objHoaDon.BH_HoaDon_ChiTiet.Where(x => x.ChatLieu != "5")
                                 .Select(x => new BH_HoaDon_ChiTietDTO
                                 {
                                     ID = x.ID,
@@ -10687,7 +10707,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
             catch (Exception e)
             {
-                CookieStore.WriteLog(string.Concat("UpdateHoaDon_OpenFromList: ",e.InnerException , e.Message));
+                CookieStore.WriteLog(string.Concat("UpdateHoaDon_OpenFromList: ", e.InnerException, e.Message));
                 return Json(new
                 {
                     res = false,
