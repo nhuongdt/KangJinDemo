@@ -765,7 +765,7 @@ var commonStatisJs = commonStatisJs || (function () {
     };
     var FirstChar_UpperCase = function (str) {
         if (str) {
-            str.replace(/\w/, c => c.toUpperCase());
+          return  str.replace(/\w/, c => c.toUpperCase());
         }
         return '';
     }
