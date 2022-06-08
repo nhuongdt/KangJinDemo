@@ -2994,9 +2994,9 @@ namespace libDM_DoiTuong
             {
                 mahoadon = model.maHoaDon;
             }
-            if (model.id_ViTris != null && model.id_ViTris.Count > 0)// muon tam truong idvitri = trangthai
+            if (model.ArrTrangThai != null && model.ArrTrangThai.Count > 0)
             {
-                trangthais = string.Join(",", model.id_ViTris);
+                trangthais = string.Join(",", model.ArrTrangThai);
             }
             List<SqlParameter> lstParam = new List<SqlParameter>();
             lstParam.Add(new SqlParameter("TextSearch", mahoadon));
@@ -5944,7 +5944,7 @@ namespace libDM_DoiTuong
         public int LoaiHoaDon { get; set; }
         public int SoThuTu { get; set; }
         public double TongTienHDTra { get; set; }
-        public int LoaiHoaDonGoc { get; set; }
+        public int? LoaiHoaDonGoc { get; set; }
         public double TongTienHDDoiTra { get; set; } // tra hang + mua moi
         public string TenDoiTuongUnSign { get; set; }
         public string TenDoiTuongStartChars { get; set; }
@@ -6298,14 +6298,14 @@ public class ModelHoaDon
 {
     public int currentPage { get; set; }
     public int pageSize { get; set; }
-    public int loaiHoaDon { get; set; }
+    public string loaiHoaDon { get; set; }
     public string maHoaDon { get; set; }
     public string maHDGoc { get; set; }
     public List<string> id_ViTris { get; set; }
     public List<string> id_BangGias { get; set; }
     public List<string> arrChiNhanh { get; set; }
     public List<string> id_NhanViens { get; set; }
-    public int trangThai { get; set; }
+    public int? trangThai { get; set; }
     public DateTime dayStart { get; set; }
     public DateTime dayEnd { get; set; }
     public string id_donvi { get; set; }
@@ -6314,6 +6314,7 @@ public class ModelHoaDon
     public string time { get; set; }
     public List<string> tenchinhanh { get; set; }
     public string columnsHide { get; set; }
+    public List<string> ArrTrangThai { get; set; }
 }
 
 public class ModelNhatKySDThe
