@@ -85,7 +85,7 @@ namespace banhang24.Controllers
         }
 
         [RBACAuthorize(RoleKey = RoleKey.NhapHang_XemDs)]
-        public ActionResult NhapHang()
+        public ActionResult NhapHang(string id)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -96,6 +96,7 @@ namespace banhang24.Controllers
                     ViewBag.ShopCookies = CookieStore.GetCookieAes("shop").ToUpper();
                     string apiUrl = Url.HttpRouteUrl("DefaultApi", new { controller = "GiaoDich" });
                     ViewBag.ApiUrl = new Uri(Request.Url, apiUrl).AbsoluteUri.ToString();
+                    ViewBag.LoaiHoaDon = id.Split('?')[0];
                     return View();
                 }
                 else
@@ -147,7 +148,7 @@ namespace banhang24.Controllers
         }
 
         [RBACAuthorize(RoleKey = RoleKey.NhapHang_XemDs)]
-        public ActionResult NhapHangItem1_2()
+        public ActionResult NhapHangItem1_2(string id)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -156,7 +157,7 @@ namespace banhang24.Controllers
                 ViewBag.ShopCookies = CookieStore.GetCookieAes("shop").ToUpper();
                 if (objUser_Cookies != null)
                 {
-                    ViewBag.LoaiHoaDon = 4;
+                    ViewBag.LoaiHoaDon = id.Split('?')[0];
                     return View();
                 }
                 else
