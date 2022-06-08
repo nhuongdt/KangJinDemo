@@ -1990,7 +1990,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                 try
                 {
-                    var data = classhoadon.GetList_HoaDonNhapHang(model);
+                    List<BH_HoaDonDTO> data = classhoadon.GetList_HoaDonNhapHang(model);
                     return ActionTrueData(data);
                 }
                 catch (Exception e)
@@ -3522,24 +3522,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         }
                         string str = CookieStore.GetCookieAes("SubDomain");
 
-                        Guid? idhoadon = null;
-                        if (chothanhtoanxoa == false)
-                        {
-                            idhoadon = item.ID;
-                        }
-                        HT_NhatKySuDung hT_NhatKySuDung = new HT_NhatKySuDung();
-                        hT_NhatKySuDung.ID = Guid.NewGuid();
-                        hT_NhatKySuDung.ID_NhanVien = idnhanvien;
-                        hT_NhatKySuDung.ID_HoaDon = idhoadon;
-                        hT_NhatKySuDung.ThoiGianUpdateGV = item.NgayLapHoaDon;
-                        hT_NhatKySuDung.LoaiHoaDon = loaiHoaDon;
-                        hT_NhatKySuDung.ChucNang = loaiHoaDon == 4 ? "Nhập hàng" : "Trả hàng nhập";
-                        hT_NhatKySuDung.ThoiGian = DateTime.Now;
-                        hT_NhatKySuDung.NoiDung = loaiHoaDon == 4 ? "Xóa phiếu nhập hàng : " + item.MaHoaDon : "Xóa phiếu trả hàng nhập : " + item.MaHoaDon;
-                        hT_NhatKySuDung.NoiDungChiTiet = loaiHoaDon == 4 ? "Xóa phiếu nhập hàng : " + item.MaHoaDon : "Xóa phiếu trả hàng nhập : " + item.MaHoaDon;
-                        hT_NhatKySuDung.LoaiNhatKy = 3;
-                        hT_NhatKySuDung.ID_DonVi = iddonvi;
-                        SaveDiary.add_Diary(hT_NhatKySuDung);
+                        //Guid? idhoadon = null;
+                        //if (chothanhtoanxoa == false)
+                        //{
+                        //    idhoadon = item.ID;
+                        //}
+                        //HT_NhatKySuDung hT_NhatKySuDung = new HT_NhatKySuDung();
+                        //hT_NhatKySuDung.ID = Guid.NewGuid();
+                        //hT_NhatKySuDung.ID_NhanVien = idnhanvien;
+                        //hT_NhatKySuDung.ID_HoaDon = idhoadon;
+                        //hT_NhatKySuDung.ThoiGianUpdateGV = item.NgayLapHoaDon;
+                        //hT_NhatKySuDung.LoaiHoaDon = loaiHoaDon;
+                        //hT_NhatKySuDung.ChucNang = loaiHoaDon == 4 ? "Nhập hàng" : "Trả hàng nhập";
+                        //hT_NhatKySuDung.ThoiGian = DateTime.Now;
+                        //hT_NhatKySuDung.NoiDung = loaiHoaDon == 4 ? "Xóa phiếu nhập hàng : " + item.MaHoaDon : "Xóa phiếu trả hàng nhập : " + item.MaHoaDon;
+                        //hT_NhatKySuDung.NoiDungChiTiet = loaiHoaDon == 4 ? "Xóa phiếu nhập hàng : " + item.MaHoaDon : "Xóa phiếu trả hàng nhập : " + item.MaHoaDon;
+                        //hT_NhatKySuDung.LoaiNhatKy = 3;
+                        //hT_NhatKySuDung.ID_DonVi = iddonvi;
+                        //SaveDiary.add_Diary(hT_NhatKySuDung);
                         return "";
                     }
                     else
@@ -4711,6 +4711,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 ID = Guid.NewGuid(),
                                 ID_DonViQuiDoi = item.ID_DonViQuiDoi,
+                                ID_ChiTietGoiDV = item.ID_ChiTietGoiDV,
                                 SoThuTu = item.SoThuTu,
                                 DonGia = item.DonGia,
                                 ID_HoaDon = newHD.ID,
@@ -4754,8 +4755,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             }
                         }
 
-                        //classHoaDonCT.UpdateTonKhoGiaVon_whenUpdateCTHD(newHD.ID, newHD.ID_DonVi, newHD.NgayLapHoaDon);
-
                         #region update GiaBan in BangGiaChiTiet
                         classDM_GiaBan_ChiTiet classGiaBanChiTiet = new classDM_GiaBan_ChiTiet(db);
                         foreach (var item in objBangGia)
@@ -4798,6 +4797,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 else
                                 {
                                     txtFirst = "Lưu tạm phiếu trả hàng nhập: ";
+                                }
+                                break;  
+                            case 31:
+                                tenChucNang = "Đặt hàng nhà cung cấp";
+                                if (objHoaDon.ChoThanhToan.Value == false)
+                                {
+                                    txtFirst = "Tạo mới phiếu đặt hàng nhà cung cấp: ";
+                                }
+                                else
+                                {
+                                    txtFirst = "Lưu tạm phiếu đặt hàng nhà cung cấp: ";
                                 }
                                 break;
                         }
@@ -5016,6 +5026,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
                     ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
                     classDonViQuiDoi classQuiDoi = new classDonViQuiDoi(db);
+                    List<string> lstID_NewOld = new List<string>();
+
                     string err = string.Empty;
                     string noidung = "";
                     string chitiet = "";
@@ -5128,6 +5140,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 {
                                     ID = Guid.NewGuid(),
                                     ID_DonViQuiDoi = item.ID_DonViQuiDoi,
+                                    ID_ChiTietGoiDV = item.ID_ChiTietGoiDV,
                                     SoThuTu = item.SoThuTu,
                                     DonGia = item.DonGia,
                                     ID_HoaDon = newHD.ID,
@@ -9244,7 +9257,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [System.Web.Http.AcceptVerbs("GET", "POST")]
-        public IHttpActionResult PostBH_HoaDon_SoQuy_Spa_NKySuDung([FromBody] JObject data, Guid? idNhanVien)
+        public IHttpActionResult PostBH_HoaDon_SoQuy_Spa_NKySuDung([FromBody] JObject data, Guid? idNhanVien = null)
         {
             var tenChucNang = "";
             var noiDung = "";
@@ -9874,7 +9887,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 MaHoaDon = sMaHoaDon,
                                 NgayLapHoaDon = ngaylapHD,
                                 NgayLapHoaDonOld = ngaylapHDOld,
-                                BH_HoaDon_ChiTiet = objHoaDon.BH_HoaDon_ChiTiet.Where(x => x.ChatLieu != "5")
+                                BH_HoaDon_ChiTiet = objHoaDon.BH_HoaDon_ChiTiet
                                 .Select(x => new BH_HoaDon_ChiTietDTO
                                 {
                                     ID = x.ID,
@@ -10294,7 +10307,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost, HttpGet]
-        public IHttpActionResult UpdateHoaDon_OpenFromList([FromBody] JObject data)
+        public IHttpActionResult UpdateHoaDon_OpenFromList([FromBody] JObject data, Guid? idNhanVien = null)
         {
             try
             {
@@ -10644,7 +10657,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         ID = Guid.NewGuid(),
                         ID_DonVi = objHoaDon.ID_DonVi,
                         LoaiHoaDon = objHoaDon.LoaiHoaDon,
-                        ID_NhanVien = objHoaDon.ID_NhanVien,
+                        ID_NhanVien = idNhanVien != null && idNhanVien != Guid.Empty ? idNhanVien : objHoaDon.ID_NhanVien,
                         ChucNang = tenChucNang,
                         LoaiNhatKy = 2,
                         NoiDung = noiDung,
