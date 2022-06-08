@@ -3242,6 +3242,9 @@ var NewModel_BanHangLe = function () {
                             Call_6Func();
                             SaveHD_RemoveDisable();
                         }
+                        else {
+                            ShowMessage_Danger(x.mes);
+                        }
                     }).always(function () {
                         SaveHD_RemoveDisable();
                     }).fail(function (x) {
@@ -6413,19 +6416,13 @@ var NewModel_BanHangLe = function () {
             lstCTHD = JSON.parse(lstCTHD);
             // HD mua
             if (itemHD[0].LoaiHoaDon !== 6) {
-                // check SoLuong > SoLuongConLai in service package in chosing
                 var check = Check_Enought_SoLuongConLai_ServicePackage(item, (newNumber + 1));
                 if (check !== '') {
+                    objNumber.val(formatNumber3Digit(item.SoLuongConLai));
                     ShowMessage_Danger(check);
                     return false;
                 }
-                // check CongNo when use service
-                //if (idCT_goiDV !== null) {
-                //    check = CheckCongNo_GoiDV_whenChangeSoLuong(item, newNumber + 1);
-                //    if (check === false) {
-                //        return check;
-                //    }
-                //}
+               
                 objNumber.val(newNumber + 1);
                 cthdDoing.SoLuong = newNumber + 1;
                 cthdDoing.ThanhToan = cthdDoing.SoLuong * (cthdDoing.DonGia - cthdDoing.TienChietKhau + cthdDoing.TienThue);
@@ -6756,6 +6753,18 @@ var NewModel_BanHangLe = function () {
 
     self.ChangeCus = function (item) {
         self.Change_KhachHang(item);
+    }
+
+    self.showListHoaDon = function () {
+        let cus = self.ChiTietDoiTuong()[0];
+        let obj = {
+            ID: cus.ID,
+            MaDoiTuong: cus.MaDoiTuong,
+            TenDoiTuong: cus.TenDoiTuong,
+            DienThoai: cus.DienThoai,
+            NoHienTai: cus.NoHienTai,
+        }
+        vmThanhToan.showModalThanhToan(obj, 1);
     }
 
     self.Change_KhachHang = function (item) {
@@ -8767,7 +8776,7 @@ var NewModel_BanHangLe = function () {
                     }
                 }
             }
-
+            GetCurrentPage_byMaHoaDon(_maHoaDon);
             BindCTHD_byIDRandomHD(self.HoaDons().IDRandom());
         });
     }
@@ -9595,18 +9604,10 @@ var NewModel_BanHangLe = function () {
             // check so luong dich vu > so luong con lai trong goi
             var check = Check_Enought_SoLuongConLai_ServicePackage(item, newNumber);
             if (check !== '') {
-                // nhap qua --> reset ve soluong bandau
-                thisObj.val(item.SoLuong);
+                thisObj.val(item.SoLuongConLai);
                 ShowMessage_Danger(check);
                 return false;
             }
-            // check CongNo when use service
-            //if (idCT_goiDV !== null) {
-            //    check = CheckCongNo_GoiDV_whenChangeSoLuong(item, newNumber);
-            //    if (check === false) {
-            //        return check;
-            //    }
-            //}
             //get itemHD --> check LoaiHoaDon
             if (loaiHD === 6 && self.HoaDons().ID_HoaDon() !== null) {
                 // trahang tu HDMua --> chi nhap toida = soluongmua
@@ -16751,6 +16752,7 @@ var NewModel_BanHangLe = function () {
                 }
                 else {
                     maHoaDon = objAdd[0].MaHoaDonDB;
+                    objAdd[0].MaHoaDon = maHoaDon;
                 }
 
                 // ID_DonVi
@@ -22464,9 +22466,6 @@ var NewModel_BanHangLe = function () {
     });
     shortcut.add('F6', function () {
         self.NhapThuong_Nhanh();
-        //if( window.screen.width <1280){
-        //    $("#divListHD").toggle()    
-        //    }
     });
     shortcut.add('F10', function () {
         if ($('.bgwhite').css('display') === "none") {
@@ -24543,11 +24542,8 @@ var NewModel_BanHangLe = function () {
         }
     }
     self.Chose_Service = function (itemChose, soluong, isNhapSoLuong) {
-        if (_maHoaDon.indexOf('O') === -1) {
             self.ItemHH_LoChosing(itemChose);
-            if (_maHoaDon === '') {
-                _maHoaDon = $('.bill-bxslide li.using font').text();
-            }
+           
             var idQuiDoi = itemChose.ID_DonViQuiDoi;
             var addHang = false;
             if (self.IsNhapNhanh() === true) {
@@ -24564,6 +24560,8 @@ var NewModel_BanHangLe = function () {
                 $('#txtSoLuong').val(1);
                 $('#txtSoLuong').select();
             }
+            debugger
+
             if (addHang) {
                 var lstHoaDon = localStorage.getItem(lcListHD);
                 if (lstHoaDon === null) {
@@ -24573,6 +24571,7 @@ var NewModel_BanHangLe = function () {
                     lstHoaDon = JSON.parse(lstHoaDon);
                 }
                 var loaiHD = GetLoaiHoaDon_ofHDopening();
+                
                 // if is active Tab DatHang/GoiDv --> active tab HoaDon
                 if (loaiHD !== 1) {
                     var max = GetMax_MaHoaDon(1, lstHoaDon);
@@ -24828,7 +24827,6 @@ var NewModel_BanHangLe = function () {
                 HideShow_Icon_ChietKhauNV();
                 vmUpAnhHoaDon.InvoiceChosing.IDRandomHD = idRandomHD;
             }
-        }
     }
     function UpdateSoThuTu_CTHD_DichVu(isCTDoiTra, idRandomHD) {
         var locaStoreName = lcListCTHD;
@@ -24959,20 +24957,9 @@ var NewModel_BanHangLe = function () {
     })
 
     function Check_Enought_SoLuongConLai_ServicePackage(ctDoing, soluongNew) {
-        if (!commonStatisJs.CheckNull(ctDoing.ID_ChiTietGoiDV)) {
-            for (let i = 0; i < vmNKGoiBaoDuong.listData.GoiDichVu.length; i++) {
-                let for1 = vmNKGoiBaoDuong.listData.GoiDichVu[i];
-                for (let j = 0; j < for1.lstDetail.length; j++) {
-                    let for2 = for1.lstDetail[j];
-                    for (let k = 0; k < for2.ComBo.length; k++) {
-                        let for3 = for2.ComBo[k];
-                        if (ctDoing.ID_ChiTietGoiDV === for3.ID_ChiTietGoiDV) {
-                            if (for3.SoLuongConLai < soluongNew) {
-                                return 'Dịch vụ "' + ctDoing.TenHangHoa + '" nhập quá số lượng cho phép là ' + for3.SoLuongConLai;
-                            }
-                        }
-                    }
-                }
+        if (!commonStatisJs.CheckNull(ctDoing.ID_ChiTietGoiDV) && ctDoing.ChatLieu === '4') {
+            if (soluongNew > ctDoing.SoLuongConLai ) {
+                return 'Dịch vụ "' + ctDoing.TenHangHoa + '" nhập quá số lượng cho phép là ' + ctDoing.SoLuongConLai;
             }
         }
         return '';
