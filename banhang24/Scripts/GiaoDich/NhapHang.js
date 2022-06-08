@@ -12,12 +12,18 @@
     var Key_Form = 'Key_PurchaseOrder';
     $('#txtNgayTao').val('Tháng này');
 
+    self.LoaiHoaDonMenu = ko.observable(parseInt($('#txtLoaiHoaDon').val()));
     self.shopCookies = ko.observable($('#shopCookies').val().toUpperCase())
     self.TodayBC = ko.observable('Toàn thời gian');
     self.TenChiNhanh = ko.observableArray();
     self.filterNgayLapHD = ko.observable("0");
     self.filterNgayLapHD_Input = ko.observable(); // ngày cụ thể
     self.filterNgayLapHD_Quy = ko.observable('6'); // Theo tháng
+
+    var sLoai = 'nhập hàng';
+    if (self.LoaiHoaDonMenu() === 31) {
+        sLoai = 'đặt hàng nhà cung cấp';
+    }
 
     self.HoaDons = ko.observableArray();
     self.DonVis = ko.observableArray();
@@ -36,6 +42,8 @@
     self.KhoanChis = ko.observableArray();
     self.ListCheckBox = ko.observableArray();
     self.TT_TamLuu = ko.observable(true);
+    self.TT_DangXuLy = ko.observable(true);
+    self.TT_DaLuu = ko.observable(true);
     self.TT_HoanThanh = ko.observable(true);
     self.TT_DaHuy = ko.observable(false);
     self.filter = ko.observable();
@@ -74,6 +82,10 @@
     self.HoaDon_ThemMoi = ko.observable();
     self.NhapHang_ThayDoiThoiGian = ko.observable();
     self.NhapHang_ThayDoiNhanVien = ko.observable();
+    self.roleNhapHang_Insert = ko.observable(false);
+    self.roleNhapHang_Export = ko.observable(false);
+    self.roleDatHangNCC_Insert = ko.observable(false);
+
     self.TongSLuong = ko.observable();
     self.NgayLapHD_Update = ko.observable();
     self.selectedGiaBan = ko.observable();
@@ -211,19 +223,10 @@
                     self.Show_BtnUpdateSoQuy(CheckQuyenExist('SoQuy_CapNhat'));
                     self.Show_BtnDeleteSoQuy(CheckQuyenExist('SoQuy_Xoa'));
                     self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));
+                    self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
+                    self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
 
-                    if (CheckQuyenExist('NhapHang_ThemMoi')) {
-                        $('.clicknhaphang').css('display', 'block');
-                    }
-                    else {
-                        $('.clicknhaphang').css('display', 'none');
-                    }
-                    if (CheckQuyenExist('NhapHang_XuatFile')) {
-                        $('.xuatfilenhaphang').css('display', 'block');
-                    }
-                    else {
-                        $('.xuatfilenhaphang').css('display', 'none');
-                    }
+                    self.roleDatHangNCC_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
                 }
                 else {
                     ShowMessage_Danger('Không có quyền');
@@ -303,7 +306,7 @@
         }
     }
 
-    function CheckNgayLapHD_format(valDate, idDonVi= null) {
+    function CheckNgayLapHD_format(valDate, idDonVi = null) {
 
         var dateNow = moment(new Date()).format('YYYY-MM-DD HH:mm');
         var ngayLapHD = moment(valDate, 'DD/MM/YYYY HH:mm').format('YYYY-MM-DD HH:mm');
@@ -386,7 +389,7 @@
             };
             if (formElement.ChoThanhToan === false) {
                 diary.ID_HoaDon = id;
-                diary.LoaiHoaDon = loaiHoaDon;
+                diary.LoaiHoaDon = self.LoaiHoaDonMenu();
                 diary.ThoiGianUpdateGV = ngaylapHDOld;
                 Post_NhatKySuDung_UpdateGiaVon(diary);
             }
@@ -460,7 +463,7 @@
     }
 
     self.GetLichSuThanhToan = function (item) {
-        ajaxHelper(Quy_HoaDonUri + 'GetQuyHoaDon_byIDHoaDon?idHoaDon=' + item.ID, 'GET').done(function (data) {
+        ajaxHelper(Quy_HoaDonUri + 'GetQuyHoaDon_byIDHoaDon?idHoaDon=' + item.ID + '&idHoaDonParent=' + item.ID_HoaDon, 'GET').done(function (data) {
             self.LichSuThanhToan(data);
         });
     }
@@ -688,15 +691,40 @@
     self.modalDelete = function (item) {
         ajaxHelper(BH_HoaDonUri + 'GetDSHoaDon_chuaHuy_byIDDatHang/' + item.ID, 'GET').done(function (x) {
             if (x === true) {
-                ShowMessage_Danger('Có trả hàng nhập từ phiếu nhập, không thể xóa');
+                switch (item.LoaiHoaDon) {
+                    case 4:
+                        ShowMessage_Danger('Có trả hàng nhập từ phiếu nhập, không thể xóa');
+                        break;
+                    case 31:
+                        ShowMessage_Danger('Phiếu đặt hàng đã nhập mua, không thể hủy');
+                        break;
+                }
             }
             else {
                 dialogConfirm('Thông báo xóa ', 'Bạn có chắc chắn muốn hủy phiếu nhập hàng <b>' + item.MaHoaDon + '</b> không?', function () {
                     ajaxHelper(BH_HoaDonUri + "UpdateHD_ChoThanToan?id=" + item.ID + '&iddonvi=' + _IDchinhanh + '&loaiHoaDon='
-                        + loaiHoaDon + '&idnhanvien=' + _id_NhanVien
+                        + self.LoaiHoaDonMenu() + '&idnhanvien=' + _id_NhanVien
                         , 'GET').done(function (x) {
                             SearchHoaDon();
                             ShowMessage_Success('Hủy hóa đơn thành công');
+
+                            let diary = {
+                                ID_NhanVien: _id_NhanVien,
+                                ID_DonVi: item.ID_DonVi,
+                                LoaiNhatKy: 3,
+                                ChucNang: commonStatisJs.FirstChar_UpperCase(sLoai),
+                                NoiDung: "Hủy phiếu ".concat(sLoai, ' ', item.MaHoaDon),
+                                NoiDungChiTiet: "Hủy phiếu ".concat(sLoai, ' ', item.MaHoaDon,
+                                    ' <br />- Người hủy: ', userLogin,
+                                    ' <br />- Chi nhánh hủy: ', VHeader.TenDonVi),
+                                LoaiHoaDon: item.LoaiHoaDon,
+                                ID_HoaDon: item.ChoThanhToan === false ? item.ID : null,
+                                ThoiGianUpdateGV: item.ChoThanhToan === false ? item.NgayLapHoaDon : null,
+                            }
+                            Post_NhatKySuDung_UpdateGiaVon(diary);
+
+                            UpdateStatudHD(item.ID_HoaDon, 4);
+
                         }).fail(function () {
                             ShowMessage_Success('Hủy hóa đơn thất bại');
                         });
@@ -704,6 +732,16 @@
             }
         });
     };
+
+    function UpdateStatudHD(idDatHang, status) {
+        if (!commonStatisJs.CheckNull(idDatHang)) {
+            ajaxHelper(BH_HoaDonUri + 'Update_StatusHD?id=' + idDatHang + '&Status=' + status, 'POST').done(function (data) {
+                if (data === '') {
+                }
+            }).fail(function () {
+            });
+        }
+    }
 
     function getListDonVi() {
         ajaxHelper(DMDonViUri + "GetListDonVi1", 'GET').done(function (data) {
@@ -748,54 +786,22 @@
         if (txtMaHDon === undefined) {
             txtMaHDon = "";
         }
-        // trang thai: 
-        var statusInvoice = 1;
-        if (self.TT_TamLuu()) {
-            if (self.TT_HoanThanh()) {
-                if (self.TT_DaHuy()) {
-                    statusInvoice = 0; // all
-
-                } else {
-                    statusInvoice = 9; // tamluu + hoanthanh
-                }
-            }
-            else {
-                if (self.TT_DaHuy()) {
-                    statusInvoice = 5; // tamluu + huy
-
-                } else {
-                    statusInvoice = 13; // tamluu
-                }
-            }
-        }
-        else {
-            if (self.TT_HoanThanh()) {
-                if (self.TT_DaHuy()) {
-                    statusInvoice = 3; // hoanthanh + huy
-
-                } else {
-                    statusInvoice = 11; // hoanthanh
-                }
-            }
-            else {
-                if (self.TT_DaHuy()) {
-                    statusInvoice = 7; // huy
-
-                } else {
-                    statusInvoice = 0; // not check (all)
-                }
-            }
-        }
 
         var arrStatus = [];
         if (self.TT_TamLuu()) {
-            arrStatus.push('1');
-        }
-        if (self.TT_HoanThanh()) {
             arrStatus.push('0');
         }
-        if (self.TT_DaHuy()) {
+        if (self.TT_DaLuu()) {
+            arrStatus.push('1');
+        }
+        if (self.TT_DangXuLy()) {
             arrStatus.push('2');
+        }
+        if (self.TT_HoanThanh()) {
+            arrStatus.push('3');
+        }
+        if (self.TT_DaHuy()) {
+            arrStatus.push('4');
         }
 
         // NgayLapHoaDon
@@ -804,7 +810,6 @@
         var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
         var dayStart = '';
         var dayEnd = '';
-        var dateChose = '';
 
         var arrDV = [];
         self.TenChiNhanh([]);
@@ -922,16 +927,16 @@
         }
 
         return {
-            loaiHoaDon: loaiHoaDon,
+            loaiHoaDon: self.LoaiHoaDonMenu(),
             maHoaDon: txtMaHDon,
             maHDGoc: '',
-            trangThai: statusInvoice,
             dayStart: dayStart,
             dayEnd: dayEnd,
             id_donvi: _IDchinhanh,
             arrChiNhanh: arrDV,
             id_NhanViens: arrIDNV,
             id_ViTris: arrStatus,
+            ArrTrangThai: arrStatus,
             id_BangGias: [],
             columsort: self.columsort(),
             sort: self.sort(),
@@ -1006,6 +1011,16 @@
     });
 
     self.TT_DaHuy.subscribe(function (newVal) {
+        ResetSearch();
+        SearchHoaDon();
+    });
+
+    self.TT_DangXuLy.subscribe(function (newVal) {
+        ResetSearch();
+        SearchHoaDon();
+    });
+
+    self.TT_DaLuu.subscribe(function (newVal) {
         ResetSearch();
         SearchHoaDon();
     });
@@ -1475,7 +1490,14 @@
     }
 
     function GoToChiTietNhap() {
-        window.open('/#/PurchaseOrderItem2', '_blank');
+        switch (self.LoaiHoaDonMenu()) {
+            case 4:
+                window.open('/#/PurchaseOrderItem2', '_blank');
+                break;
+            case 31:
+                window.open('/#/DatHangNCCItem', '_blank');
+                break;
+        }
     }
 
     function GetPTThue_PTChietKhauHang(item) {
@@ -1523,7 +1545,7 @@
 
         for (let i = 0; i < arrCTsort.length; i++) {
             var ctNew = $.extend({}, arrCTsort[i]);
-            delete ctNew["ID"];
+            //delete ctNew["ID"];
             ctNew.ID_HoaDon = idHoaDon;
             ctNew.TenDoiTuong = item.TenDoiTuong;
             ctNew.TongTienHangChuaCK = self.TongTienHangChuaCK();
@@ -1542,6 +1564,7 @@
             ctNew.NgayLapHoaDon = type !== 0 ? item.NgayLapHoaDon : null;
             ctNew.MaHoaDon = isSaochep ? "Copy" + item.MaHoaDon : item.MaHoaDon;
             ctNew.DienGiai = item.DienGiai;
+            ctNew.YeuCau = item.YeuCau;
             if (hd.ID_DoiTuong !== '00000000-0000-0000-0000-000000000000') {
                 ctNew.ID_DoiTuong = hd.ID_DoiTuong;
             }
@@ -1606,6 +1629,8 @@
                 }
             }
         }
+        cthdLoHang[0].ID_DonVi = isSaochep ? VHeader.IdDonvi : item.ID_DonVi;// keep idDonVi if update hoadon
+
         localStorage.setItem('lc_CTSaoChep', JSON.stringify(cthdLoHang));
         localStorage.setItem('isSaoChep', isSaochep);
         localStorage.setItem('isEditNH', !isSaochep);
@@ -2022,6 +2047,153 @@
             return false;
         }
     };
+
+    self.NhapMua_fromPO = function (item) {
+
+        let hd = $.extend({}, item);
+        let obj = GetPTThue_PTChietKhauHang(item);
+
+        let dathanhtoan = item.KhachDaTra;
+        if (item.YeuCau === '2') {// daxuly it nhat 1 lan
+            dathanhtoan = 0;
+        }
+        let ptGiamHD = item.TongChietKhau;
+        if (ptGiamHD === 0) {
+            if (item.TongTienHang > 0) {
+                ptGiamHD = item.TongGiamGia / (item.TongTienHang + item.TongTienThue) * 100;
+            }
+        }
+
+        var arrIDQuiDoi = [];
+        var cthdLoHang = [];
+
+        ajaxHelper(BH_HoaDonUri + 'GetCTHoaDon_afterDatHang?idHoaDon=' + item.ID, 'GET').done(function (data) {
+            if (data !== null) {
+                let ctConLai = $.grep(data, function (x) {
+                    return x.SoLuongConLai > 0;
+                });
+                console.log('ctConLai ', ctConLai)
+
+                if (ctConLai.length === 0) {
+                    ShowMessage_Danger('Đã nhập mua đủ đơn hàng');
+                    return;
+                }
+
+                let tongtienhang = 0, tongthueHD = 0, thanhtienchuaCK = 0, tongCKHang = 0, tonggiamHD = 0,
+                    phaithanhtoan = 0, tongthanhtoan = 0;
+
+                for (let i = 0; i < ctConLai.length; i++) {
+                    let ctNew = $.extend({}, ctConLai[i]);
+
+                    ctNew.ID_ChiTietGoiDV = ctNew.ID;
+                    ctNew.SoLuong = ctNew.SoLuongConLai;
+
+                    let ck1SP = ctNew.TienChietKhau, thue1SP = ctNew.TienThue;
+                    if (ctNew.PTChietKhau > 0) {
+                        ck1SP = ctNew.PTChietKhau * ctNew.DonGia / 100;
+                    }
+                    if (ctNew.PTThue > 0) {
+                        thue1SP = ctNew.PTThue * (ctNew.DonGia - ck1SP) / 100;
+                    }
+                    ctNew.ThanhTien = ctNew.SoLuong * (ctNew.DonGia - ck1SP);
+                    ctNew.ThanhToan = ctNew.SoLuong * (ctNew.DonGia - ck1SP + thue1SP);
+
+                    thanhtienchuaCK += ctNew.SoLuong * ctNew.DonGia;
+                    tongtienhang += ctNew.ThanhTien;
+                    tongthueHD += ctNew.SoLuong * thue1SP;
+                    tongCKHang += ctNew.SoLuong * ck1SP;
+
+                    let idLoHang = ctNew.ID_LoHang;
+                    let quanLiTheoLo = ctNew.QuanLyTheoLoHang;
+                    let ngaysx = ctNew.NgaySanXuat !== null ? moment(ctNew.NgaySanXuat).format('DD/MM/YYYY') : '';
+                    let hethan = ctNew.NgayHetHan !== null ? moment(ctNew.NgayHetHan).format('DD/MM/YYYY') : '';
+
+                    if (ngaysx === 'Invalid date') {
+                        ngaysx = '';
+                    }
+                    if (hethan === 'Invalid date') {
+                        hethan = '';
+                    }
+                    ctNew.NgaySanXuat = ngaysx;
+                    ctNew.NgayHetHan = hethan;
+
+                    ctNew.DM_LoHang = [];
+                    ctNew.ID_LoHang = idLoHang;
+                    ctNew.LotParent = quanLiTheoLo;
+                    ctNew.SoThuTu = cthdLoHang.length + 1;
+                    ctNew.HangCungLoais = [];
+                    ctNew.LaConCungLoai = false;
+                    ctNew.DVTinhGiam = '%';
+                    if (ctNew.PTChietKhau === 0 && ctNew.TienChietKhau !== 0) {
+                        ctNew.DVTinhGiam = 'VND';
+                    }
+
+                    if ($.inArray(ctNew.ID_DonViQuiDoi, arrIDQuiDoi) === -1) {
+                        arrIDQuiDoi.unshift(ctNew.ID_DonViQuiDoi);
+                        ctNew.IDRandom = CreateIDRandom('CTHD_');
+                        if (quanLiTheoLo) {
+                            let objLot = $.extend({}, ctNew);
+                            objLot.HangCungLoais = [];
+                            objLot.DM_LoHang = [];
+                            ctNew.DM_LoHang.push(objLot);
+                        }
+                        cthdLoHang.push(ctNew);
+                    }
+                    else {
+                        // find in cthdLoHang with same ID_QuiDoi
+                        for (let j = 0; j < cthdLoHang.length; j++) {
+                            if (cthdLoHang[j].ID_DonViQuiDoi === ctNew.ID_DonViQuiDoi) {
+                                if (quanLiTheoLo) {
+                                    let objLot = $.extend({}, ctNew);
+                                    objLot.LotParent = false;
+                                    objLot.HangCungLoais = [];
+                                    objLot.DM_LoHang = [];
+                                    objLot.IDRandom = CreateIDRandom('RandomCT_');
+                                    cthdLoHang[j].DM_LoHang.push(objLot);
+                                }
+                                else {
+                                    ctNew.IDRandom = CreateIDRandom('RandomCT_');
+                                    ctNew.LaConCungLoai = true;
+                                    cthdLoHang[j].HangCungLoais.push(ctNew);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (cthdLoHang.length > 0) {
+                    if (hd.ID_DoiTuong !== '00000000-0000-0000-0000-000000000000') {
+                        cthdLoHang[0].ID_DoiTuong = hd.ID_DoiTuong;
+                    }
+                    tonggiamHD = ptGiamHD * (tongtienhang + tongthueHD) / 100;
+                    cthdLoHang[0].ID = const_GuidEmpty;
+                    cthdLoHang[0].ID_HoaDon = item.ID;
+                    cthdLoHang[0].ID_DonVi = item.ID_DonVi;
+                    cthdLoHang[0].NgayLapHoaDon = null;
+                    cthdLoHang[0].TenDoiTuong = hd.TenDoiTuong;
+                    cthdLoHang[0].TongTienHangChuaCK = thanhtienchuaCK;
+                    cthdLoHang[0].TongGiamGiaHang = tongCKHang;
+                    cthdLoHang[0].PTChietKhauHH = obj.PTChietKhauHH;
+                    cthdLoHang[0].PTThueHD = obj.PTThueHD;
+                    cthdLoHang[0].TongTienHang = tongtienhang;
+                    cthdLoHang[0].TongGiamGia = tonggiamHD;
+                    cthdLoHang[0].TongTienThue = tongthueHD;
+                    cthdLoHang[0].TongChietKhau = item.TongChietKhau;
+                    cthdLoHang[0].PhaiThanhToan = tongtienhang + tongthueHD - tonggiamHD;
+                    cthdLoHang[0].TongThanhToan = cthdLoHang[0].PhaiThanhToan;
+                    cthdLoHang[0].KhachDaTra = dathanhtoan;
+                    cthdLoHang[0].DaThanhToan = 0;
+                    cthdLoHang[0].ID_NhanVien = _id_NhanVien;
+                    cthdLoHang[0].MaHoaDon = '';
+                    cthdLoHang[0].DienGiai = item.DienGiai;
+                }
+                localStorage.setItem('lc_CTSaoChep', JSON.stringify(cthdLoHang));
+                localStorage.setItem('typeCacheNhapHang', 4);
+                window.open('/#/PurchaseOrderItem2', '_blank');
+            }
+        })
+    }
 
     self.DownloadFileExportXLSX = function (url) {
         var url1 = DMHangHoaUri + "Download_fileExcel?fileSave=" + url;
