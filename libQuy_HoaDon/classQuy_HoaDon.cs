@@ -1150,7 +1150,7 @@ namespace libQuy_HoaDon
             lstPr.Add(new SqlParameter("LoaiChungTu", loaiChungTu));
             lstPr.Add(new SqlParameter("TrangThaiSoQuy", trangthai));
             lstPr.Add(new SqlParameter("TrangThaiHachToan", hachtoan));
-            lstPr.Add(new SqlParameter("TxtSearch", txtSearch??(object)DBNull.Value));
+            lstPr.Add(new SqlParameter("TxtSearch", txtSearch ?? (object)DBNull.Value));
             lstPr.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             lstPr.Add(new SqlParameter("PageSize", lstParam.PageSize));
             lstPr.Add(new SqlParameter("LoaiNapTien", loaiNapTien));
@@ -1773,14 +1773,29 @@ namespace libQuy_HoaDon
                     }
                 }
 
+                // get phieuthu/chi from dathang
+                var tblCoc = from qhd in db.Quy_HoaDon
+                             join qct in db.Quy_HoaDon_ChiTiet on qhd.ID equals qct.ID_HoaDon
+                             where qct.ID_HoaDonLienQuan == idHoadonParent && isHDFirst == true
+                             && qhd.TrangThai != false
+                             group new { qct } by new
+                             {
+                                 MaHoaDon = qhd.MaHoaDon,
+                                 NgayLapHoaDon = qhd.NgayLapHoaDon,
+                                 NguoiTao = qhd.NguoiTao,
+                                 NgaySua = qhd.NgaySua,
+                                 NguoiSua = qhd.NguoiSua,
+                                 TrangThai = qhd.TrangThai,
+                                 ID = qhd.ID,
+                                 LoaiHoaDon = qhd.LoaiHoaDon,
+                             };
+                // get phieuthu/chi of hoadon
                 var tbl2 = from qhd in db.Quy_HoaDon
                            join qct in db.Quy_HoaDon_ChiTiet on qhd.ID equals qct.ID_HoaDon
-                           join hd in db.BH_HoaDon on qct.ID_HoaDonLienQuan equals hd.ID
-                           where hd.ID == id || (hd.ID == idHoadonParent && isHDFirst) // neu HD is first --> get HD DatHang
+                           where qct.ID_HoaDonLienQuan == id
                            group new { qct } by new
                            {
-                               // if HD create from HDDatHang --> MaHoaDon = Chuyển tạm ứng
-                               MaHoaDon = hd.LoaiHoaDon == 3 ? "(Chuyển tạm ứng)" : qhd.MaHoaDon,
+                               MaHoaDon = qhd.MaHoaDon,
                                NgayLapHoaDon = qhd.NgayLapHoaDon,
                                NguoiTao = qhd.NguoiTao,
                                NgaySua = qhd.NgaySua,
@@ -1789,6 +1804,56 @@ namespace libQuy_HoaDon
                                ID = qhd.ID,
                                LoaiHoaDon = qhd.LoaiHoaDon,
                            };
+
+
+                foreach (var item in tblCoc)
+                {
+                    Quy_HoaDon quyHD = new Quy_HoaDon();
+                    quyHD.ID = item.Key.ID;
+                    quyHD.MaHoaDon = item.Key.MaHoaDon;
+                    quyHD.NgayLapHoaDon = item.Key.NgayLapHoaDon;
+                    quyHD.NguoiTao = item.Key.NguoiTao;
+                    quyHD.NgaySua = item.Key.NgaySua;
+                    quyHD.NguoiSua = item.Key.NguoiSua;
+                    quyHD.TrangThai = item.Key.TrangThai;
+                    quyHD.LoaiHoaDon = item.Key.LoaiHoaDon;
+
+                    var phuongthuc = "";
+                    double tongTT = 0;
+                    foreach (var itemGr in item)
+                    {
+                        tongTT += itemGr.qct.TienThu;
+                        switch (itemGr.qct.HinhThucThanhToan)
+                        {
+                            case 1:
+                                phuongthuc += "Tiền mặt, ";
+                                break;
+                            case 2:
+                                phuongthuc += "POS, ";
+                                break;
+                            case 3:
+                                phuongthuc += "Chuyển khoản, ";
+                                break;
+                            case 4:
+                                phuongthuc += "Thẻ giá trị, ";
+                                break;
+                            case 5:
+                                phuongthuc += "Điểm, ";
+                                break;
+                            case 6:
+                                phuongthuc += "Thu từ cọc, ";
+                                break;
+                            default:
+                                phuongthuc += "";
+                                break;
+                        }
+                    }
+                    phuongthuc = phuongthuc.Trim().TrimEnd(',');
+                    quyHD.PhuongThucTT = phuongthuc;
+                    quyHD.TongTienThu = tongTT;
+
+                    lstReturn.Add(quyHD);
+                }
 
                 foreach (var item in tbl2)
                 {
@@ -1803,7 +1868,7 @@ namespace libQuy_HoaDon
                     quyHD.LoaiHoaDon = item.Key.LoaiHoaDon;
 
                     var phuongthuc = "";
-                    double tongTT =0;
+                    double tongTT = 0;
                     foreach (var itemGr in item)
                     {
                         tongTT += itemGr.qct.TienThu;
@@ -2417,7 +2482,7 @@ namespace libQuy_HoaDon
                 List<SqlParameter> lstParam = new List<SqlParameter>();
                 lstParam.Add(new SqlParameter("ID_PhieuThuChi", id));
                 var obj = db.Database.SqlQuery<Model.SP_ReturnBool>("EXEC HuyTienCoc_CheckVuotHanMuc @ID_PhieuThuChi", lstParam.ToArray()).FirstOrDefault();
-                return obj.Exist; 
+                return obj.Exist;
             }
             catch (Exception e)
             {
