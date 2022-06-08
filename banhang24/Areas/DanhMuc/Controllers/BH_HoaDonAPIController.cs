@@ -3522,24 +3522,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         }
                         string str = CookieStore.GetCookieAes("SubDomain");
 
-                        //Guid? idhoadon = null;
-                        //if (chothanhtoanxoa == false)
-                        //{
-                        //    idhoadon = item.ID;
-                        //}
-                        //HT_NhatKySuDung hT_NhatKySuDung = new HT_NhatKySuDung();
-                        //hT_NhatKySuDung.ID = Guid.NewGuid();
-                        //hT_NhatKySuDung.ID_NhanVien = idnhanvien;
-                        //hT_NhatKySuDung.ID_HoaDon = idhoadon;
-                        //hT_NhatKySuDung.ThoiGianUpdateGV = item.NgayLapHoaDon;
-                        //hT_NhatKySuDung.LoaiHoaDon = loaiHoaDon;
-                        //hT_NhatKySuDung.ChucNang = loaiHoaDon == 4 ? "Nhập hàng" : "Trả hàng nhập";
-                        //hT_NhatKySuDung.ThoiGian = DateTime.Now;
-                        //hT_NhatKySuDung.NoiDung = loaiHoaDon == 4 ? "Xóa phiếu nhập hàng : " + item.MaHoaDon : "Xóa phiếu trả hàng nhập : " + item.MaHoaDon;
-                        //hT_NhatKySuDung.NoiDungChiTiet = loaiHoaDon == 4 ? "Xóa phiếu nhập hàng : " + item.MaHoaDon : "Xóa phiếu trả hàng nhập : " + item.MaHoaDon;
-                        //hT_NhatKySuDung.LoaiNhatKy = 3;
-                        //hT_NhatKySuDung.ID_DonVi = iddonvi;
-                        //SaveDiary.add_Diary(hT_NhatKySuDung);
                         return "";
                     }
                     else
@@ -5227,6 +5209,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 case 7:
                                     tenChucNang = "Trả hàng nhập";
                                     txtFirst = "Cập nhật phiếu trả hàng nhập: ";
+                                    break;  
+                                case 31:
+                                    tenChucNang = "Đặt hàng nhà cung cấp";
+                                    txtFirst = "Cập nhật phiếu đặt hàng nhà cung cấp: ";
                                     break;
                             }
                             noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", objHoaDon.PhaiThanhToan.ToString("#,#", CultureInfo.InvariantCulture), ", Thời gian: ", ngaylapHD.ToString("dd/MM/yyy HH:mm:ss"));
