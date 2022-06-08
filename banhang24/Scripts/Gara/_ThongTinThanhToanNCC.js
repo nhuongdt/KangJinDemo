@@ -527,7 +527,7 @@
         },
 
         SavePhieuThu_Default: function (hd) {
-            var loaiThuChi = hd.LoaiHoaDon === 4 ? 12 : 11;
+            var loaiThuChi = hd.LoaiHoaDon === 7 ? 11 : 12;
             var sLoai = 'thu';
             let lstQuyCT = [];
             let daTT = formatNumberToFloat(hd.DaThanhToan);
@@ -647,8 +647,8 @@
             var ptKhach = self.PhieuThuKhach;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
             console.log('save pt')
-            var loaiThuChi = hd.LoaiHoaDon === 4 ? 12 : 11;
-            var sLoai = hd.LoaiHoaDon === 4 ? 'chi' : 'thu';
+            var loaiThuChi = hd.LoaiHoaDon === 7 ? 11 : 12;
+            var sLoai = hd.LoaiHoaDon === 7 ? 'thu' : 'chi';
             var tiendatcoc = formatNumberToFloat(ptKhach.TienDatCoc), soduDatCoc = hd.SoDuDatCoc;
             var maPhieuThuChi = 'TT' + hd.MaHoaDon;
             var chitracoc = self.isCheckTraLaiCoc;
