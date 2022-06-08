@@ -12,6 +12,7 @@
     }
 </style>
 @Html.Hidden("shopCookies", (string)ViewBag.ShopCookies, new { id = "shopCookies" })
+@Html.Hidden("txtLoaiHoaDon", (string)ViewBag.LoaiHoaDon, new { id = "txtLoaiHoaDon" })
 <div class="op-container">
     <div class="container-fluid nopadding">
         <div class="col-left">
@@ -115,15 +116,34 @@
                         <aside class="op-filter-container">
                             <div class="menuCheckbox">
                                 <ul>
+                                    <!--ko if: $root.LoaiHoaDonMenu() === 4-->
                                     <li>
-                                        <label><input type="checkbox" value="2" data-bind="checked: TT_TamLuu"> Phiếu tạm</label>
+                                        <label><input type="checkbox" value="0" data-bind="checked: TT_TamLuu"> Phiếu tạm</label>
                                     </li>
                                     <li>
-                                        <label><input type="checkbox" value="1" data-bind="checked: TT_HoanThanh"> Đã nhập hàng</label>
+                                        <label><input type="checkbox" value="1" data-bind="checked: TT_DaLuu"> Đã nhập hàng</label>
                                     </li>
                                     <li>
-                                        <label><input type="checkbox" value="1" data-bind="checked: TT_DaHuy"> Đã hủy</label>
+                                        <label><input type="checkbox" value="4" data-bind="checked: TT_DaHuy"> Đã hủy</label>
                                     </li>
+                                    <!--/ko-->
+                                    <!--ko if: $root.LoaiHoaDonMenu() === 31-->
+                                    <li>
+                                        <label><input type="checkbox" value="0" data-bind="checked: TT_TamLuu"> Phiếu tạm</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" value="1" data-bind="checked: $root.TT_DaLuu"> Đã lưu</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" value="2" data-bind="checked:  $root.TT_DangXuLy"> Đang xử lý </label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" value="3" data-bind="checked: TT_HoanThanh">Hoàn thành</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" value="4" data-bind="checked: TT_DaHuy"> Đã hủy</label>
+                                    </li>
+                                    <!--/ko-->
                                 </ul>
                             </div>
                         </aside>
@@ -144,15 +164,18 @@
         <div class="col-right">
             <div class="op-header">
                 <div class="op-header-title">
-                    <h2 class="pull-left title">@banhang24.Resources.ResourceTexts.Exchange / Phiếu nhập hàng</h2>
+                    <h2 class="pull-left title">
+                        @banhang24.Resources.ResourceTexts.Exchange /&nbsp;
+                        <span data-bind="text: $root.LoaiHoaDonMenu() === 4?'Nhập hàng':'Đặt hàng nhà cung cấp'"></span>
+                    </h2>
                 </div>
                 <div class="flex flex-between">
                     <div class="header-button ">
                         <div class=" header-button-left">
-                            <div class=" clicknhaphang" style="display:none;">
+                            <div>
                                 <button class="btn btn-main" data-bind="click: clickNhapHang" href="javascript:void(0)"><i class="fa fa-plus"></i><font>Thêm mới</font></button>
                             </div>
-                            <button type="button" class="btn btn-main xuatfile btnExport xuatfilenhaphang" style="display:none" data-toggle="dropdown" data-bind="click: ExportExcel_PhieuNhapHang"> <i class="fa fa-file-excel-o"></i> Xuất file</button>
+                            <button type="button" class="btn btn-main xuatfile" data-toggle="dropdown" data-bind="click: ExportExcel_PhieuNhapHang"> <i class="fa fa-file-excel-o"></i> Xuất file</button>
                             <div class="btn-dropdown open ">
                                 <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)">
                                     <i class="fa fa-angle-double-down"></i>
@@ -222,6 +245,9 @@
                         <tbody data-bind="foreach: HoaDons">
                             <tr class="prev-tr-hide" id="table" data-bind="click: $parent.LoadChiTietHD,css:{bggray : $index()%2 == 1}">
                                 <td class="@commonEnum.ColumnPurchaseOrder.mahoadon" data-bind="text: MaHoaDon"></td>
+                                <td class="@commonEnum.ColumnInvoices.madathang">
+                                    <a data-bind="text: MaHoaDonGoc"></a>
+                                </td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.ngaylaphoadon"><span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span></td>
                                 <td class="@commonEnum.ColumnPurchaseReturns.makhachhang ">
                                     <a href="=javascript:void(0)" data-bind="text: MaDoiTuong, click: $root.gotoKhachHang"></a>
@@ -244,7 +270,7 @@
                                 <td class="@commonEnum.ColumnPurchaseOrder.datrakhach text-right" data-bind="text: formatNumber3Digit(KhachDaTra,3)"></td>
                                 <td class="@commonEnum.ColumnInvoices.conno text-right" data-bind="text: formatNumber3Digit(ConNo,2), style: { color: (ConNo > 0) ? 'red' : 'black' }"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.ghichu" data-bind="text: DienGiai"></td>
-                                <td class="@commonEnum.ColumnPurchaseOrder.trangthai" data-bind="text: ChoThanhToan == null ? 'Đã hủy': (ChoThanhToan == false ? 'Đã nhập hàng' :'Tạm lưu')"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.trangthai" data-bind="text: TrangThai"></td>
                             </tr>
                             <tr class="op-js-tr-hide">
                                 <td colspan="10">
@@ -300,7 +326,7 @@
                                                         <div class="form-group floatleft">
                                                             <label class="css-form-label">Trạng thái :</label>
                                                             <div class="css-form-detail">
-                                                                <span data-bind="text: ChoThanhToan == null ? 'Đã hủy': (ChoThanhToan == false ? 'Đã nhập hàng' :'Tạm lưu')">Hoàn thành</span>
+                                                                <span data-bind="text: TrangThai">Hoàn thành</span>
                                                             </div>
                                                         </div>
                                                         <div class="form-group floatleft border-end">
@@ -367,7 +393,7 @@
                                                                         <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(DonGia,2):0"></td>
                                                                         <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(DonGia * SoLuong,2):0"></td>
                                                                         <td class="text-right" data-bind="text: formatNumber3Digit(GiamGia,2)"></td>
-                                                                        <td class="text-center"data-bind="text: PTChietKhau"></td>
+                                                                        <td class="text-center" data-bind="text: PTChietKhau"></td>
                                                                         <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(ThanhTien,2):0"></td>
                                                                         <td class="text-right" data-bind="text: formatNumber3Digit(TienThue,2)"></td>
                                                                         <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(ThanhToan,2):0"></td>
@@ -483,6 +509,12 @@
                                                             <i class="fa fa-share"></i> Mở phiếu
                                                         </button>
                                                         <!--/ko-->
+                                                        <!--ko if: $root.LoaiHoaDonMenu() ===31 -->
+                                                        <button class="btn btn-main" data-bind="click: $root.NhapMua_fromPO">
+                                                            <i class="fa fa-share"></i> Nhập mua
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.LoaiHoaDonMenu() !==31 -->
                                                         <div class="dropdown-mauin " style="margin-right:5px" data-bind="visible: ChoThanhToan == false  && $root.Enable_NgayLapHD()">
                                                             <button class="btn btn-main btn-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                                 <i class="fa fa-bars"></i>Hoạt động <span class="caret"></span>
@@ -499,6 +531,7 @@
                                                                 </li>
                                                             </ul>
                                                         </div>
+                                                        <!--/ko-->
                                                         <div class="btn-group dropdown-mauin">
                                                             <button href="javascript:void(0)" class="btn btn-main " data-bind="click: $root.InHoaDon">
                                                                 <i class="fa fa-print" aria-hidden="true"></i> In
@@ -512,9 +545,11 @@
                                                                 </li>
                                                             </ul>
                                                         </div>
+                                                        <!--ko if: $root.LoaiHoaDonMenu() !==31 -->
                                                         <button href="javascript: void(0)" class="btn btn-main" data-bind="click: $root.BarCodeChooseHH">
                                                             <i class="fa fa-barcode"></i>In mã vạch
                                                         </button>
+                                                        <!--/ko-->
                                                         <!--ko if: $root.Show_BtnExcelDetail()-->
                                                         <button href="javascript: void(0)" class="btn btn-main" data-bind="click: $parent.ExportExcel_ChiTietPhieuNhapHang">
                                                             <i class="fa fa-file-excel-o"></i> Xuất file
@@ -575,6 +610,7 @@
                         <tfoot data-bind="visible: HoaDons().length > 0">
                             <tr class="border-bottom bg12 bold">
                                 <td class="@commonEnum.ColumnPurchaseOrder.mahoadon">Tổng cộng</td>
+                                <td class="@commonEnum.ColumnInvoices.madathang"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.ngaylaphoadon"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.makhachhang"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.tenkhachhang"></td>
@@ -610,7 +646,7 @@
                 <div class="page">
                     <div class="flex flex-row">
                         <label>Số bản ghi:</label>
-                        <select  class="form-control  seleted-page" data-bind="value: pageSize,
+                        <select class="form-control  seleted-page" data-bind="value: pageSize,
                                                 options: pageSizes, event: {change: ResetCurrentPage}"></select>
                     </div>
                     <div class="flex flex-end">
@@ -633,7 +669,7 @@
                 @Html.Action("_printchooseHH", new { area = "", Controller = "HangHoa" })
             </div>
         </div>
-       
+
         <!-- Modal -->
         <div class="modal fade">
             <div class="modal-xs">
@@ -779,7 +815,6 @@
     });
 </script>
 <script>
-    var loaiHoaDon = 4;
     $('.bgwhite').hide();
     function printDiv(divID) {
         var innerContents = document.getElementById(divID).innerHTML;
