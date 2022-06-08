@@ -571,6 +571,21 @@
                 , 'GET').done(function (x) {
                     SearchHoaDon();
                     ShowMessage_Success('Hủy hóa đơn thành công');
+
+                    let diary = {
+                        ID_NhanVien: _id_NhanVien,
+                        ID_DonVi: item.ID_DonVi,
+                        LoaiNhatKy: 3,
+                        ChucNang: 'Trả hàng nhập',
+                        NoiDung: "Hủy phiếu trả hàng nhập ".concat(item.MaHoaDon),
+                        NoiDungChiTiet: "Hủy phiếu trả hàng nhập ".concat(item.MaHoaDon,
+                            ' <br />- Người hủy: ', VHeader.UserLogin,
+                            ' <br />- Chi nhánh hủy: ', VHeader.TenDonVi),
+                        LoaiHoaDon: item.LoaiHoaDon,
+                        ID_HoaDon: item.ChoThanhToan === false ? item.ID : null,
+                        ThoiGianUpdateGV: item.ChoThanhToan === false ? item.NgayLapHoaDon : null,
+                    }
+                    Post_NhatKySuDung_UpdateGiaVon(diary);
                 }).fail(function () {
                     ShowMessage_Success('Hủy hóa đơn thất bại');
                 });
