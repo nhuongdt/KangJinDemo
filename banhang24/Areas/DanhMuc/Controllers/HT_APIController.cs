@@ -429,7 +429,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Nhập hàng", "Nhập hàng", UrlPage.NhapHang, "e/nhaphang", false, "fa fa-mail-forward", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Đặt hàng nhà cung cấp", "Đặt hàng nhà cung cấp", UrlPage.DatHangNCC, "e/nhaphang/31", false, "fa fa-mail-forward", new List<HeaderMenu>()));
+                    lstSubMenuHoatDongCheck = true;
+                }
+                if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
+                {
+                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Nhập hàng", "Nhập hàng", UrlPage.NhapHang, "e/nhaphang/4", false, "fa fa-mail-forward", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "TraHangNhap_XemDS").FirstOrDefault() != null)
