@@ -119,7 +119,7 @@ namespace Model
         [Column(TypeName = "nvarchar(max)")]
         public string YeuCau { get; set; } // HDDatHang (1:Phieu tam, 2: Dang giao hang, 3: HoanThanh, 4: Huy)
                                            // HDChuyenHang (1: Dang chuyen, 2: Phieu tam, 3: Huy, 4: Da Nhan)
-                                           // HDBan: 5. HD deleted & update again
+                                           // HDBan: 5. HD deleted & update again, 4.Huy
         [Column(TypeName = "datetime")]
         public DateTime? NgayApDungGoiDV { get; set; }
 
