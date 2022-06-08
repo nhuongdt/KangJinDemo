@@ -30,6 +30,8 @@ namespace banhang24.Hellper
         public const string LoHangHoa = "Shipment";
         public const string TraHang = "Returns";
         public const string NhapHang = "PurchaseOrder";
+        public const string DatHangNCC = "DatHangNCC";
+        public const string DatHangNCCItem = "DatHangNCCItem";
         public const string NhapHangSanXuat = "PurchaseOrderProduce";
         public const string NhapHangItem = "PurchaseOrderItem";
         public const string NhapHangItem2 = "PurchaseOrderItem2";
@@ -2694,6 +2696,7 @@ namespace banhang24.Hellper
         public static Dictionary<string, string> ListColumnPurchaseOrder = new Dictionary<string, string>()
         {
               { ColumnPurchaseOrder.mahoadon.ToString(),"Mã hóa đơn" },
+              { ColumnInvoices.madathang.ToString(),"Mã đặt hàng" },
               { ColumnPurchaseOrder.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
               { ColumnPurchaseOrder.makhachhang.ToString(),"Mã nhà cung cấp" },
               { ColumnPurchaseOrder.tenkhachhang.ToString(),"Tên nhà cung cấp" },
