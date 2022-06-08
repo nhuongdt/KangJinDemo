@@ -886,8 +886,8 @@ namespace libDM_DoiTuong
         public int? LoaiHangHoa { get; set; }
         public bool? LaHangHoa { get; set; }
         public double? GiaVon { get; set; }
-        public double? TienChietKhau { get; set; } // todo: check PhiDV truoc CK (used test)
-        public double? PTChietKhau { get; set; } // todo: check PhiDV truoc CK (used test)
+        public double? TienChietKhau { get; set; } 
+        public double? PTChietKhau { get; set; } 
     }
 
     public class SP_NhatKySuDung_GoiDV
