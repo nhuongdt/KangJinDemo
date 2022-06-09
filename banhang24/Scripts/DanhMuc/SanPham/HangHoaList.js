@@ -3529,29 +3529,41 @@ var ViewModel = function () {
             self.currentPageCTNH(0);
             self.LoadChiTietHD(item, e);
         });
-
-        if (item.LoaiHoaDon === 9) {
-            $('#modalpopup_KiemKho').modal('show');
-        } else if (item.LoaiHoaDon === 4) {
-            $('#modalPopuplg_NhapHang').modal('show');
-        } else if (item.LoaiHoaDon === 1 || item.LoaiHoaDon === 19) {
-            $('#modalpopup_PhieuBH').modal('show');
-        } else if (item.LoaiHoaDon === 10 && item.ID_CheckIn !== _IDchinhanh) {
-            $('#modalPopuplg_TheKho').modal('show');
-            $('#tenphieu').html("Chuyển hàng");
-        } else if (item.LoaiHoaDon === 10 && item.ID_CheckIn === _IDchinhanh) {
-            $('#modalPopuplg_TheKho').modal('show');
-            $('#tenphieu').html("Nhận hàng");
-        } else if (item.LoaiHoaDon === 8) {
-            $('#modalpopup_PhieuXH').modal('show');
-        } else if (item.LoaiHoaDon === 6) {
-            $('#modalpopup_PhieuTH').modal('show');
-        }
-        else if (item.LoaiHoaDon === 7) {
-            $('#modalpopup_PhieuTHN').modal('show');
-        }
-        else {
-            $('#modalpopup_PhieuDieuChinh').modal('show');
+        switch (item.LoaiHoaDon) {
+            case 1:
+            case 19:
+                $('#modalpopup_PhieuBH').modal('show');
+                break;
+            case 6:
+                $('#modalpopup_PhieuTH').modal('show');
+                break;
+            case 7:
+                $('#modalpopup_PhieuTHN').modal('show');
+                break;
+            case 8:
+                $('#modalpopup_PhieuXH').modal('show');
+                break;
+            case 9:
+                $('#modalpopup_KiemKho').modal('show');
+                break;
+            case 10:
+                if (item.ID_CheckIn !== _IDchinhanh) {
+                    $('#modalPopuplg_TheKho').modal('show');
+                    $('#tenphieu').html("Chuyển hàng");
+                }
+                else {
+                    $('#modalPopuplg_TheKho').modal('show');
+                    $('#tenphieu').html("Nhận hàng");
+                }
+                break;
+            case 18:
+                $('#modalpopup_PhieuDieuChinh').modal('show');
+                break;
+            case 4:
+            case 13:
+            case 14:
+                $('#modalPopuplg_NhapHang').modal('show');
+                break;
         }
     }
 
@@ -14146,6 +14158,9 @@ var ViewModel = function () {
                         break;
                     case 18:
                         modalName = '#modalpopup_PhieuDieuChinh';
+                        break;
+                    default:
+                        modalName = '#modalPopuplg_NhapHang';
                         break;
                 }
                 $(modalName).modal('hide');
