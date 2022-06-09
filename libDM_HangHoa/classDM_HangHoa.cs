@@ -40,7 +40,7 @@ namespace libDM_HangHoa
             prm.Add(new SqlParameter("Form", param.Form ?? 0));// 1.nhaphang, 0.other (0.bán hàng: chỉ hiện nếu có mã lô, và chưa hết hạn - nhập hàng: show all)
             prm.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
             prm.Add(new SqlParameter("PageSize", param.PageSize ?? 500));
-            var xx= db.Database.SqlQuery<SP_DM_HangHoaDTO>("exec Gara_JqAutoHangHoa @ID_DonVi, @ID_BangGia, @TextSearch," +
+            var xx = db.Database.SqlQuery<SP_DM_HangHoaDTO>("exec Gara_JqAutoHangHoa @ID_DonVi, @ID_BangGia, @TextSearch," +
                 " @LaHangHoa, @QuanLyTheoLo, @ConTonKho, @Form, @CurrentPage, @PageSize", prm.ToArray()).ToList();
             return xx;
         }
@@ -2565,47 +2565,7 @@ namespace libDM_HangHoa
                 List<SqlParameter> paramlist = new List<SqlParameter>();
                 paramlist.Add(new SqlParameter("ID_HangHoa", id));
                 paramlist.Add(new SqlParameter("IDChiNhanh", iddonvi));
-                List<DM_TheKhoDTO> tbl1 = db.Database.SqlQuery<DM_TheKhoDTO>("Exec ListHangHoaTheKho @ID_HangHoa, @IDChiNhanh", paramlist.ToArray()).ToList();
-                //double soluongton = 0;
-
-                lst = tbl1.AsEnumerable().GroupBy(p => p.ID_HoaDon).Select(t => new DM_TheKhoDTO()
-                {
-                    ID_HoaDon = t.FirstOrDefault().ID_HoaDon,
-                    MaHoaDon = t.FirstOrDefault().MaHoaDon,
-                    LoaiHoaDon = t.FirstOrDefault().LoaiHoaDon,
-                    NgayLapHoaDon = t.FirstOrDefault().NgayLapHoaDon,
-                    LoaiChungTu = t.FirstOrDefault().LoaiChungTu,
-                    SoLuong = !t.FirstOrDefault().ID_CheckIn.HasValue && t.FirstOrDefault().YeuCau != "3" ?
-                    (Math.Round(((t.FirstOrDefault().LoaiHoaDon == 9 || t.FirstOrDefault().LoaiHoaDon == 4 || t.FirstOrDefault().LoaiHoaDon == 6) ?
-                    (t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ?
-                    t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi :
-                    t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi) :
-                    t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)) :
-                    (t.FirstOrDefault().LoaiHoaDon == 10 && t.FirstOrDefault().YeuCau == "4" ? -(t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi))
-                    : -(t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ? t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi
-                    : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.Where(p => p.LaDonViChuan == true).Sum(p => p.TienChietKhau * p.TyLeChuyenDoi)) : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)))), 3, MidpointRounding.ToEven))
-                    : (t.FirstOrDefault().ID_CheckIn == iddonvi && t.FirstOrDefault().YeuCau == "4" ?
-                    Math.Round(t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi), 3, MidpointRounding.ToEven)
-                    : (Math.Round(((t.FirstOrDefault().LoaiHoaDon == 9 || t.FirstOrDefault().LoaiHoaDon == 4 || t.FirstOrDefault().LoaiHoaDon == 6) ?
-                    (t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ?
-                    t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi
-                    : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi)
-                    : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi))
-                    : (t.FirstOrDefault().LoaiHoaDon == 10 && t.FirstOrDefault().YeuCau == "4" ?
-                    -(t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi)) :
-                    -(t.FirstOrDefault().LoaiHoaDon == 9 ?
-                    (t.FirstOrDefault().QuanLyTheoLoHang == false ? t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi
-                    : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi)
-                    : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)))), 3, MidpointRounding.ToEven))),
-                    ThanhTien = t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi),
-                    TienChietKhau = t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi),
-                    GiaVon = (iddonvi == t.FirstOrDefault().ID_DonVi ? (t.FirstOrDefault().GiaVon != null ? (double)t.FirstOrDefault().GiaVon : 0) : (t.FirstOrDefault().GiaVon_NhanChuyenHang != null ? (double)t.FirstOrDefault().GiaVon_NhanChuyenHang : 0)),
-                    TonKho = (iddonvi == t.FirstOrDefault().ID_DonVi ? (t.FirstOrDefault().TonLuyKe != null ? Math.Round((double)t.FirstOrDefault().TonLuyKe, 3, MidpointRounding.ToEven) : 0) : (t.FirstOrDefault().TonLuyKe_NhanChuyenHang != null ? Math.Round((double)t.FirstOrDefault().TonLuyKe_NhanChuyenHang, 3, MidpointRounding.ToEven) : 0)),
-                    YeuCau = t.FirstOrDefault().YeuCau,
-                    ID_CheckIn = t.FirstOrDefault().ID_CheckIn,
-                    ID_DonVi = t.FirstOrDefault().ID_DonVi,
-                    QuanLyTheoLoHang = t.FirstOrDefault().QuanLyTheoLoHang
-                }).ToList();
+                return db.Database.SqlQuery<DM_TheKhoDTO>("Exec ListHangHoaTheKho @ID_HangHoa, @IDChiNhanh", paramlist.ToArray()).ToList();
             }
             return lst;
         }
@@ -2619,25 +2579,8 @@ namespace libDM_HangHoa
                 paramlist.Add(new SqlParameter("ID_HangHoa", idhanghoa));
                 paramlist.Add(new SqlParameter("IDChiNhanh", iddonvi));
                 paramlist.Add(new SqlParameter("ID_LoHang", idlohang));
-                List<DM_TheKhoDTO> tbl = db.Database.SqlQuery<DM_TheKhoDTO>("Exec ListHangHoaTheKhoTheoLoHang @ID_HangHoa, @IDChiNhanh, @ID_LoHang", paramlist.ToArray()).ToList();
+               return db.Database.SqlQuery<DM_TheKhoDTO>("Exec ListHangHoaTheKhoTheoLoHang @ID_HangHoa, @IDChiNhanh, @ID_LoHang", paramlist.ToArray()).ToList();
 
-                lst = tbl.AsEnumerable().GroupBy(p => p.ID_HoaDon).Select(t => new DM_TheKhoDTO()
-                {
-                    ID_HoaDon = t.FirstOrDefault().ID_HoaDon,
-                    MaHoaDon = t.FirstOrDefault().MaHoaDon,
-                    LoaiHoaDon = t.FirstOrDefault().LoaiHoaDon,
-                    NgayLapHoaDon = t.FirstOrDefault().NgayLapHoaDon,
-                    LoaiChungTu = t.FirstOrDefault().LoaiChungTu,
-                    SoLuong = !t.FirstOrDefault().ID_CheckIn.HasValue && t.FirstOrDefault().YeuCau != "3" ? (Math.Round(((t.FirstOrDefault().LoaiHoaDon == 9 || t.FirstOrDefault().LoaiHoaDon == 4 || t.FirstOrDefault().LoaiHoaDon == 6) ? (t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ? t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi) : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)) : (t.FirstOrDefault().LoaiHoaDon == 10 && t.FirstOrDefault().YeuCau == "4" ? -(t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi)) : -(t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ? t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.Where(p => p.LaDonViChuan == true).Sum(p => p.TienChietKhau * p.TyLeChuyenDoi)) : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)))), 3, MidpointRounding.ToEven)) : (t.FirstOrDefault().ID_CheckIn == iddonvi && t.FirstOrDefault().YeuCau == "4" ? Math.Round(t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi), 3, MidpointRounding.ToEven) : (Math.Round(((t.FirstOrDefault().LoaiHoaDon == 9 || t.FirstOrDefault().LoaiHoaDon == 4 || t.FirstOrDefault().LoaiHoaDon == 6) ? (t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ? t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi) : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)) : (t.FirstOrDefault().LoaiHoaDon == 10 && t.FirstOrDefault().YeuCau == "4" ? -(t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi)) : -(t.FirstOrDefault().LoaiHoaDon == 9 ? (t.FirstOrDefault().QuanLyTheoLoHang == false ? t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi : t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi) - t.FirstOrDefault().TienChietKhau * t.FirstOrDefault().TyLeChuyenDoi) : t.Sum(p => p.SoLuong * p.TyLeChuyenDoi)))), 3, MidpointRounding.ToEven))),
-                    ThanhTien = t.Sum(p => p.ThanhTien * p.TyLeChuyenDoi),
-                    TienChietKhau = t.Sum(p => p.TienChietKhau * p.TyLeChuyenDoi),
-                    GiaVon = (iddonvi == t.FirstOrDefault().ID_DonVi ? (t.FirstOrDefault().GiaVon != null ? (double)t.FirstOrDefault().GiaVon : 0) : (t.FirstOrDefault().GiaVon_NhanChuyenHang != null ? (double)t.FirstOrDefault().GiaVon_NhanChuyenHang : 0)),
-                    TonKho = (iddonvi == t.FirstOrDefault().ID_DonVi ? (t.FirstOrDefault().TonLuyKe != null ? Math.Round((double)t.FirstOrDefault().TonLuyKe, 3, MidpointRounding.ToEven) : 0) : (t.FirstOrDefault().TonLuyKe_NhanChuyenHang != null ? Math.Round((double)t.FirstOrDefault().TonLuyKe_NhanChuyenHang, 3, MidpointRounding.ToEven) : 0)),
-                    YeuCau = t.FirstOrDefault().YeuCau,
-                    ID_CheckIn = t.FirstOrDefault().ID_CheckIn,
-                    ID_DonVi = t.FirstOrDefault().ID_DonVi,
-                    QuanLyTheoLoHang = t.FirstOrDefault().QuanLyTheoLoHang
-                }).ToList();
             }
             return lst;
         }
@@ -3604,6 +3547,7 @@ namespace libDM_HangHoa
         public Guid? ID_LoHang { get; set; }
         public double? TonKho { get; set; }
         public double? GiaVon { get; set; }
+        public double? GiaNhap { get; set; }// used to NhapHangChiTiet: change LoaiHoaDon --> get again GiaNhap from DB
     }
     public class Gara_ParamSearchHangHoa
     {
