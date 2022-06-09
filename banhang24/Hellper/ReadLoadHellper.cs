@@ -2695,6 +2695,7 @@ namespace banhang24.Hellper
         }
         public static Dictionary<string, string> ListColumnPurchaseOrder = new Dictionary<string, string>()
         {
+              { colummReportDinhLuong.loaichungtu.ToString(),"Loại phiếu" },
               { ColumnPurchaseOrder.mahoadon.ToString(),"Mã hóa đơn" },
               { ColumnInvoices.madathang.ToString(),"Mã đặt hàng" },
               { ColumnPurchaseOrder.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
