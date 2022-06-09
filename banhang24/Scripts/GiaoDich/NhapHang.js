@@ -129,6 +129,20 @@
         { TenLoai: "In 65 tem", value: "65" }
     ]);
 
+    self.LoaiHoaDon_4 = ko.observable(true);
+    self.LoaiHoaDon_13 = ko.observable(true);
+    self.LoaiHoaDon_14 = ko.observable(true);
+    self.LoaiHoaDon_31 = ko.observable(true);
+
+    if (self.LoaiHoaDonMenu() === 4) {
+        self.LoaiHoaDon_31(false);
+    }
+    else {
+        self.LoaiHoaDon_4(false);
+        self.LoaiHoaDon_14(false);
+        self.LoaiHoaDon_13(false);
+    }
+
     function PageLoad() {
         LoadColumnCheck();
         Check_QuyenXemGiaVon();
@@ -157,7 +171,7 @@
     }
 
     function SetDefault_HideColumn() {
-        var arrHideColumn = ['makhachhang', 'diachi', 'sodienthoai', 'tenchinhanh', 'nguoiban', 'tonggiamgia', 'ghichu', 'trangthai', 'tienthue'];
+        var arrHideColumn = ['loaichungtu','makhachhang', 'diachi', 'sodienthoai', 'tenchinhanh', 'nguoiban', 'tonggiamgia', 'ghichu', 'trangthai', 'tienthue'];
         var cacheHideColumn = localStorage.getItem(Key_Form);
         if (cacheHideColumn === null || cacheHideColumn === '[]') {
             // hide default some column
@@ -804,6 +818,20 @@
             arrStatus.push('4');
         }
 
+        let arrLoaiHD = [];
+        if (self.LoaiHoaDon_4()) {
+            arrLoaiHD.push(4);
+        }
+        if (self.LoaiHoaDon_13()) {
+            arrLoaiHD.push(13);
+        }
+        if (self.LoaiHoaDon_14()) {
+            arrLoaiHD.push(14);
+        }
+        if (self.LoaiHoaDon_31()) {
+            arrLoaiHD.push(31);
+        }
+
         // NgayLapHoaDon
         var _now = new Date();  //current date of week
         var currentWeekDay = _now.getDay();
@@ -928,6 +956,7 @@
 
         return {
             loaiHoaDon: self.LoaiHoaDonMenu(),
+            arrLoaiHoaDon: arrLoaiHD,
             maHoaDon: txtMaHDon,
             maHDGoc: '',
             dayStart: dayStart,
@@ -1021,6 +1050,21 @@
     });
 
     self.TT_DaLuu.subscribe(function (newVal) {
+        ResetSearch();
+        SearchHoaDon();
+    });
+
+    self.LoaiHoaDon_4.subscribe(function (newVal) {
+        ResetSearch();
+        SearchHoaDon();
+    });
+
+    self.LoaiHoaDon_13.subscribe(function (newVal) {
+        ResetSearch();
+        SearchHoaDon();
+    });
+
+    self.LoaiHoaDon_14.subscribe(function (newVal) {
         ResetSearch();
         SearchHoaDon();
     });
@@ -1485,6 +1529,10 @@
                     }
                 }
             }
+
+            if (cthdLoHang.length > 0) {
+                cthdLoHang[0].LoaiHoaDon = item.LoaiHoaDon;
+            }
         }
         localStorage.setItem('THN_Chitiet', JSON.stringify(cthdLoHang));
     }
@@ -1629,8 +1677,11 @@
                 }
             }
         }
-        cthdLoHang[0].ID_DonVi = isSaochep ? VHeader.IdDonvi : item.ID_DonVi;// keep idDonVi if update hoadon
 
+        if (cthdLoHang.length > 0) {
+            cthdLoHang[0].LoaiHoaDon = item.LoaiHoaDon;
+            cthdLoHang[0].ID_DonVi = isSaochep ? VHeader.IdDonvi : item.ID_DonVi;// keep idDonVi if update hoadon
+        }
         localStorage.setItem('lc_CTSaoChep', JSON.stringify(cthdLoHang));
         localStorage.setItem('isSaoChep', isSaochep);
         localStorage.setItem('isEditNH', !isSaochep);
@@ -2171,6 +2222,7 @@
                     cthdLoHang[0].ID_HoaDon = item.ID;
                     cthdLoHang[0].ID_DonVi = item.ID_DonVi;
                     cthdLoHang[0].NgayLapHoaDon = null;
+                    cthdLoHang[0].LoaiHoaDon = item.LoaiHoaDon;
                     cthdLoHang[0].TenDoiTuong = hd.TenDoiTuong;
                     cthdLoHang[0].TongTienHangChuaCK = thanhtienchuaCK;
                     cthdLoHang[0].TongGiamGiaHang = tongCKHang;
