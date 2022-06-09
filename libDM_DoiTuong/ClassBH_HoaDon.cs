@@ -2115,6 +2115,7 @@ namespace libDM_DoiTuong
                 ID_KhuyenMai = p.ID_KhuyenMai, // use show/hide icon KMai in lstCTHD
                 ThuocTinh_GiaTri = p.ThuocTinh_GiaTri,
                 TenHangHoaFull = p.TenHangHoaFull,
+                TenHangHoaThayThe = p.TenHangHoaThayThe,
                 LaHangHoa = p.LaHangHoa,
                 QuanLyTheoLoHang = p.QuanLyTheoLoHang,
                 TenHangHoa = p.TenHangHoa,
@@ -2982,6 +2983,7 @@ namespace libDM_DoiTuong
             var sortBy = "DESC";
             var trangthais = "0,1,2";
             var mahoadon = string.Empty;
+            var loaiHoaDons = "7";
             if (model.columsort != null && model.columsort != string.Empty)
             {
                 columnSort = model.columsort;
@@ -2998,9 +3000,13 @@ namespace libDM_DoiTuong
             {
                 trangthais = string.Join(",", model.ArrTrangThai);
             }
+            if (model.ArrLoaiHoaDon != null && model.ArrLoaiHoaDon.Count > 0)
+            {
+                loaiHoaDons = string.Join(",", model.ArrLoaiHoaDon);
+            }
             List<SqlParameter> lstParam = new List<SqlParameter>();
             lstParam.Add(new SqlParameter("TextSearch", mahoadon));
-            lstParam.Add(new SqlParameter("LoaiHoaDon", model.loaiHoaDon));
+            lstParam.Add(new SqlParameter("LoaiHoaDon", loaiHoaDons));
             lstParam.Add(new SqlParameter("IDChiNhanhs", isChiNhanhs));
             lstParam.Add(new SqlParameter("FromDate", model.dayStart));
             lstParam.Add(new SqlParameter("ToDate", model.dayEnd));
@@ -6315,6 +6321,7 @@ public class ModelHoaDon
     public List<string> tenchinhanh { get; set; }
     public string columnsHide { get; set; }
     public List<string> ArrTrangThai { get; set; }
+    public List<string> ArrLoaiHoaDon { get; set; }
 }
 
 public class ModelNhatKySDThe
