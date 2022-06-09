@@ -75,7 +75,28 @@
         PhieuThuBaoHiemPrint: {},
     },
     methods: {
+        newPhuongThucTT: function (tkPos = true) {
+            if (tkPos) {
+                return {
+                    TienPOS: 0,
+                    ID_TaiKhoanPos: null,
+                    TenTaiKhoanPos: '',
+                    SoTaiKhoanPos: '',
+                    TenNganHangPos: '',
+                }
+            }
+            else {
+                return {
+                    TienCK: 0,
+                    ID_TaiKhoanChuyenKhoan: null,
+                    TenTaiKhoanCK: '',
+                    SoTaiKhoanCK: '',
+                    TenNganHangCK: '',
+                }
+            }
+        },
         newPhieuThu: function (loaiDoiTuong) {
+            var self = this;
             return {
                 LoaiDoiTuong: loaiDoiTuong,
                 MaHoaDon: '',
@@ -104,6 +125,9 @@
                 TenNganHangPos: '',
                 TenNganHangCK: '',
                 HoanTraTamUng: 0,
+
+                ListTKPos: [self.newPhuongThucTT(true)],
+                ListTKChuyenKhoan: [self.newPhuongThucTT(false)],
             };
         },
         newNhanVien_ChietKhauHoaDon: function (itemCK, itemNV, exitChietKhau) {
@@ -362,6 +386,14 @@
             var self = this;
             self.inforHoaDon.LoaiDoiTuong = loaiDT;
             self.UpdateChietKhauNV_ifChangeThucThu();
+        },
+        AccountPos_AddRow: function () {
+            let self = this;
+            self.PhieuThuKhach.ListTKPos.push(self.newPhuongThucTT(true));
+        },
+        AccountCK_AddRow: function () {
+            let self = this;
+            self.PhieuThuKhach.ListTKChuyenKhoan.push(self.newPhuongThucTT(false));
         },
         CaculatorDaThanhToan: function () {
             var self = this;

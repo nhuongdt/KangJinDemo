@@ -1533,50 +1533,56 @@ var NewModel_BanHangLe = function () {
             }
             // find hd opening--> get IDRandom
             var lstHD = localStorage.getItem(lcListHD);
-            lstHD = JSON.parse(lstHD);
-            var itemEx = GetHDOpening_byMaHoaDon(_maHoaDon, lstHD);
-            var sumQuantity = 0;
-            var sumProduct = 0;
-            if (itemEx.length > 0) {
-                var arrCTHDopen = $.grep(lstCTHD, function (x) {
-                    return x.IDRandomHD === itemEx[0].IDRandom;
-                });
-                if (arrCTHDopen.length > 0) {
-                    sumProduct = arrCTHDopen.length;
-                    for (let i = 0; i < arrCTHDopen.length; i++) {
-                        sumQuantity += parseFloat(arrCTHDopen[i].SoLuong);
-                        // count HH Khuyen mai of Hang hoa
-                        for (let j = 0; j < arrCTHDopen[i].HangHoa_KM.length; j++) {
-                            sumQuantity += parseFloat(arrCTHDopen[i].HangHoa_KM[j].SoLuong);
-                            sumProduct += 1;
-                        }
-                        // count Lot in Hang hoa
-                        for (let k = 1; k < arrCTHDopen[i].DM_LoHang.length; k++) {
-                            sumQuantity += parseFloat(arrCTHDopen[i].DM_LoHang[k].SoLuong);
-                        }
-                        // count hangcungloai
-                        for (let k = 0; k < arrCTHDopen[i].HangCungLoais.length; k++) {
-                            sumQuantity += parseFloat(arrCTHDopen[i].HangCungLoais[k].SoLuong);
-                        }
-                    }
-                }
-                // count HH Khuyen mai of  Hoa don
-                var lstKM_ProductHD = localStorage.getItem(lcProductKM_HoaDon);
-                if (lstKM_ProductHD !== null) {
-                    lstKM_ProductHD = JSON.parse(lstKM_ProductHD);
-                    lstKM_ProductHD = $.grep(lstKM_ProductHD, function (x) {
+            if (lstHD !== null) {
+                lstHD = JSON.parse(lstHD);
+                var itemEx = GetHDOpening_byMaHoaDon(_maHoaDon, lstHD);
+                var sumQuantity = 0;
+                var sumProduct = 0;
+                if (itemEx.length > 0) {
+                    var arrCTHDopen = $.grep(lstCTHD, function (x) {
                         return x.IDRandomHD === itemEx[0].IDRandom;
                     });
-                    for (let i = 0; i < lstKM_ProductHD.length; i++) {
-                        sumQuantity += parseFloat(lstKM_ProductHD[i].SoLuong);
-                        sumProduct += 1;
+                    if (arrCTHDopen.length > 0) {
+                        sumProduct = arrCTHDopen.length;
+                        for (let i = 0; i < arrCTHDopen.length; i++) {
+                            sumQuantity += parseFloat(arrCTHDopen[i].SoLuong);
+                            // count HH Khuyen mai of Hang hoa
+                            for (let j = 0; j < arrCTHDopen[i].HangHoa_KM.length; j++) {
+                                sumQuantity += parseFloat(arrCTHDopen[i].HangHoa_KM[j].SoLuong);
+                                sumProduct += 1;
+                            }
+                            // count Lot in Hang hoa
+                            for (let k = 1; k < arrCTHDopen[i].DM_LoHang.length; k++) {
+                                sumQuantity += parseFloat(arrCTHDopen[i].DM_LoHang[k].SoLuong);
+                            }
+                            // count hangcungloai
+                            for (let k = 0; k < arrCTHDopen[i].HangCungLoais.length; k++) {
+                                sumQuantity += parseFloat(arrCTHDopen[i].HangCungLoais[k].SoLuong);
+                            }
+                        }
+                    }
+                    // count HH Khuyen mai of  Hoa don
+                    var lstKM_ProductHD = localStorage.getItem(lcProductKM_HoaDon);
+                    if (lstKM_ProductHD !== null) {
+                        lstKM_ProductHD = JSON.parse(lstKM_ProductHD);
+                        lstKM_ProductHD = $.grep(lstKM_ProductHD, function (x) {
+                            return x.IDRandomHD === itemEx[0].IDRandom;
+                        });
+                        for (let i = 0; i < lstKM_ProductHD.length; i++) {
+                            sumQuantity += parseFloat(lstKM_ProductHD[i].SoLuong);
+                            sumProduct += 1;
+                        }
                     }
                 }
+                // round number to 3 decimals (OK)
+                var numberRound = Math.round(sumQuantity * 1000) / 1000;
+                self.SumQuantity(numberRound);
+                self.SumProduct(sumProduct);
             }
-            // round number to 3 decimals (OK)
-            var numberRound = Math.round(sumQuantity * 1000) / 1000;
-            self.SumQuantity(numberRound);
-            self.SumProduct(sumProduct);
+            else {
+                self.SumQuantity(0);
+                self.SumProduct(0);
+            }
         }
     }
 
@@ -24560,8 +24566,6 @@ var NewModel_BanHangLe = function () {
                 $('#txtSoLuong').val(1);
                 $('#txtSoLuong').select();
             }
-            debugger
-
             if (addHang) {
                 var lstHoaDon = localStorage.getItem(lcListHD);
                 if (lstHoaDon === null) {
@@ -24571,7 +24575,6 @@ var NewModel_BanHangLe = function () {
                     lstHoaDon = JSON.parse(lstHoaDon);
                 }
                 var loaiHD = GetLoaiHoaDon_ofHDopening();
-                
                 // if is active Tab DatHang/GoiDv --> active tab HoaDon
                 if (loaiHD !== 1) {
                     var max = GetMax_MaHoaDon(1, lstHoaDon);

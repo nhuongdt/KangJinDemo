@@ -3107,6 +3107,7 @@
             item.TongGiamGiaHang = self.TongGiamGiaHang();
 
             item.IsSaoChep = true;
+            item.MaHoaDonDB = maHD;
             item.IsHDDatHang = false; // assign IsHDDatHang = false --> deleteNCC at BanLe_TraHang
             item.Status = 1;
             item.LoaiHoaDon = loaiHoaDon;
@@ -3129,7 +3130,7 @@
             item.TongGiamGiaKM_HD = item.TongGiamGia + item.KhuyeMai_GiamGia;
 
             item.DiemHienTai = 0;
-            item.DiemKhuyenMai = 0; // get from db (todo comment)
+            item.DiemKhuyenMai = 0; 
             item.DiemCong = 0;
             item.CreateTime = 0;
             item.ID_ViTri = null;

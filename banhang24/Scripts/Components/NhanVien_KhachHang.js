@@ -591,15 +591,27 @@ var cmpListAccountBank = {
     }
 }
 var cmpChoseAccountBank = {
-    props: ['accoutnName', 'accounts', 'textSearch', 'searchList', 'idChosing'],
+    props: ['accounts', 'textSearch', 'searchList', 'idChosing'],
+    props: {
+        textSearch: { default: [] },
+        formType: { default: 0 },// 1.soquy, 0.conlai (thanh toán nhiều tk ngân hàng)
+        idChosing: { default: null },
+        searchList: { default: [] },
+        accounts: { default: [] },
+    },
     components: {
         'accounts': cmpListAccountBank,
     },
     template: `
         <div class="gara-bill-infor-button shortlabel">
-        <div>
+        <div v-if="formType === 1">
             <a>
-                <i class="fa fa-eye"></i>
+                <i class="fa fa-eye" ></i>
+            </a>
+        </div>   
+        <div v-if="formType === 0" v-on:click="addRow">
+            <a>
+                <i class="fa fa-plus"></i>
             </a>
         </div>
         <input class="gara-search-HH" placeholder="Chọn tài khoản" v-model="textSearch" v-on:keyup="searchAccount" v-on:click="showList"/>
@@ -645,6 +657,9 @@ var cmpChoseAccountBank = {
         ResetAccount: function () {
             this.$emit('reset-account');
             $(event.currentTarget).closest('div').hide();
+        },
+        addRow: function () {
+            this.$emit('add-row');
         }
     }
 };

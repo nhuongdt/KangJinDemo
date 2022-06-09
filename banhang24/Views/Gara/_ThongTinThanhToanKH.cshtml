@@ -74,12 +74,12 @@
                              v-if="inforHoaDon.KhachDaTra > 0 && (inforHoaDon.HoanTraTamUng <=0 || inforHoaDon.SoDuDatCoc > 0) ">
                             <label style="width:200px;">Khách đã trả</label>
                             <input class="gara-tttt-tienthu" readonly
-                                    v-bind:value="formatNumber3Digit(inforHoaDon.KhachDaTra,2)" />
+                                   v-bind:value="formatNumber3Digit(inforHoaDon.KhachDaTra,2)" />
                         </div>
                         <div class="gara-tttt-thongtin" v-if="inforHoaDon.HoanTraTamUng > 0 && inforHoaDon.SoDuDatCoc <=0">
                             <label style="width:200px;">Tổng tiền trả khách</label>
                             <input class="gara-tttt-tienthu"
-                                    v-bind:value="formatNumber3Digit(inforHoaDon.HoanTraTamUng,2)" />
+                                   v-bind:value="formatNumber3Digit(inforHoaDon.HoanTraTamUng,2)" />
 
                         </div>
                         <div class="gara-tttt-chuyenkhoan" v-if="inforHoaDon.SoDuDatCoc > 0">
@@ -115,7 +115,7 @@
                                 </div>
                                 <div class="col-lg-4 col-sm-12 col-xs-12 col-md-4">
                                     <input type="text" class="form-control text-right " readonly
-                                            v-bind:value="formatNumber3Digit(PhieuThuKhach.PhaiThanhToan,2)" />
+                                           v-bind:value="formatNumber3Digit(PhieuThuKhach.PhaiThanhToan,2)" />
                                 </div>
 
                             </div>
@@ -158,7 +158,7 @@
                                         <div class="col-sm-6">
                                             <input type="text" class="form-control text-right " readonly="readonly"
                                                    onkeypress="return keypressNumber(event)"
-                                                    v-bind:value="formatNumber3Digit(PhieuThuKhach.TTBangDiem,2)" />
+                                                   v-bind:value="formatNumber3Digit(PhieuThuKhach.TTBangDiem,2)" />
                                         </div>
                                     </div>
                                 </div>
@@ -197,58 +197,64 @@
                                 <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                                     <input type="text" class="form-control text-right "
                                            onclick="this.select()"
-                                            onkeypress="keypressNumber_limitNumber(event,this)"
+                                           onkeypress="keypressNumber_limitNumber(event,this)"
                                            v-model="PhieuThuKhach.TienMat"
                                            v-on:keyup="KH_EditTienMat" />
                                 </div>
 
                             </div>
                             <!--POS-->
-                            <div class="container-fluid row" style="margin-bottom:5px">
-                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                                    <label>Tiền quẹt thẻ POS</label>
-
+                            <div class="container-fluid row" style="margin-bottom:5px"
+                                 v-for="(pos, index1) in PhieuThuKhach.ListTKPos">
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"
+                                      >
+                                    <label v-if="index1 ==0">Tiền quẹt thẻ POS</label>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                                    <account-bank :text-search="PhieuThuKhach.TenTaiKhoanPos"
+                                    <account-bank :text-search="pos.TenTaiKhoanPos"
                                                   :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
                                                   :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
-                                                  :id-chosing="PhieuThuKhach.ID_TaiKhoanPos"
+                                                  :id-chosing="pos.ID_TaiKhoanPos"
                                                   v-on:change-account-parent="ChangeAccountPOS"
-                                                  v-on:reset-account="ResetAccountPOS">
+                                                  v-on:reset-account="ResetAccountPOS"
+                                                  v-on:add-row="AccountPos_AddRow">
                                     </account-bank>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                                     <input type="text" class="form-control text-right "
-                                            onkeypress="keypressNumber_limitNumber(event,this)"
+                                           onkeypress="keypressNumber_limitNumber(event,this)"
                                            onclick="this.select()"
-                                           v-model="PhieuThuKhach.TienPOS"
+                                           v-model="pos.TienPOS"
                                            v-on:keyup="KH_EditTienPos"
-                                           v-bind:disabled="PhieuThuKhach.ID_TaiKhoanPos == null" />
+                                           v-bind:disabled="pos.ID_TaiKhoanPos == null" />
                                 </div>
                             </div>
                             <!--Chuyển khoản-->
-                            <div class="container-fluid row" style="margin-bottom:5px">
-                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                                    <label>Tiền chuyển khoản</label>
-
+                            <div class="container-fluid row" style="margin-bottom:5px"
+                                 v-for="(ck, index2) in PhieuThuKhach.ListTKChuyenKhoan">
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"
+                                     >
+                                    <label v-if="index2 ==0">Tiền chuyển khoản</label>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                                    <account-bank :text-search="PhieuThuKhach.TenTaiKhoanCK"
-                                                  :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
-                                                  :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
-                                                  :id-chosing="PhieuThuKhach.ID_TaiKhoanChuyenKhoan"
-                                                  v-on:change-account-parent="ChangeAccountCK"
-                                                  v-on:reset-account="ResetAccountCK">
-                                    </account-bank>
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                                    <input type="text" class="form-control text-right "
-                                            onkeypress="keypressNumber_limitNumber(event,this)"
-                                           onclick="this.select()"
-                                           v-model="PhieuThuKhach.TienCK"
-                                           v-on:keyup="KH_EditTienCK"
-                                           v-bind:disabled="PhieuThuKhach.ID_TaiKhoanChuyenKhoan==null" />
+                                <div >
+                                    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                        <account-bank :text-search="ck.TenTaiKhoanCK"
+                                                      :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
+                                                      :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
+                                                      :id-chosing="ck.ID_TaiKhoanChuyenKhoan"
+                                                      v-on:change-account-parent="ChangeAccountCK"
+                                                      v-on:reset-account="ResetAccountCK"
+                                                      v-on:add-row="AccountCK_AddRow">
+                                        </account-bank>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                        <input type="text" class="form-control text-right "
+                                               onkeypress="keypressNumber_limitNumber(event,this)"
+                                               onclick="this.select()"
+                                               v-model="ck.TienCK"
+                                               v-on:keyup="KH_EditTienCK"
+                                               v-bind:disabled="ck.ID_TaiKhoanChuyenKhoan==null" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -287,7 +293,7 @@
                                 {{PhieuThuKhach.TienThua > 0?'Tiền thừa':'Tiền thiếu'}}
                             </label>
                             <input class="gara-tttt-tienthu" readonly
-                                    v-bind:value="formatNumber3Digit(Math.abs(PhieuThuKhach.TienThua,2))" />
+                                   v-bind:value="formatNumber3Digit(Math.abs(PhieuThuKhach.TienThua,2))" />
                         </div>
                     </div>
                     <div class="tab-pane" id="BaoHiem"
@@ -296,7 +302,7 @@
                         <div style=" " class="gara-tttt-thongtin">
                             <label style="width:200px;">Bảo hiểm cần thanh toán</label>
                             <input class="gara-tttt-tienthu" readonly
-                                    v-bind:value="formatNumber3Digit(inforHoaDon.PhaiThanhToanBaoHiem - inforHoaDon.BaoHiemDaTra,2)" />
+                                   v-bind:value="formatNumber3Digit(inforHoaDon.PhaiThanhToanBaoHiem - inforHoaDon.BaoHiemDaTra,2)" />
                         </div>
                         <div class="gara-tttt-chuyenkhoan">
                             <!--Tiền mặt-->
@@ -389,7 +395,7 @@
                         <div style=" " class="gara-tttt-thongtin">
                             <label>Bảo hiểm đã trả</label>
                             <input class="gara-tttt-tienthu" readonly
-                                    v-bind:value="formatNumber3Digit(PhieuThuBaoHiem.DaThanhToan,2)" />
+                                   v-bind:value="formatNumber3Digit(PhieuThuBaoHiem.DaThanhToan,2)" />
                         </div>
                         <div style=" " class="gara-tttt-thongtin">
                             <label>
@@ -483,7 +489,7 @@
                                                 </td>
                                                 <td>
                                                     <input class='input-simple width-125 text-right'
-                                                            v-bind:value="parseInt(item.TinhChietKhauTheo) != 3? item.ChietKhauMacDinh: formatNumber3Digit(item.ChietKhauMacDinh,2)"
+                                                           v-bind:value="parseInt(item.TinhChietKhauTheo) != 3? item.ChietKhauMacDinh: formatNumber3Digit(item.ChietKhauMacDinh,2)"
                                                            v-on:click="HoaHongHD_ShowDivChietKhau(item, index)" />
                                                 </td>
                                                 <td>

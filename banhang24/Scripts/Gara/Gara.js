@@ -26949,7 +26949,9 @@ var NewModel_BanHangLe = function () {
                             tongThueCT += cthd[i].SoLuong * cthd[i].TienThue;
                         }
                     }
-                    if (tongThueCT === 0) {
+                    // lan1. BH thue 100% --> thue CT = 0
+                    // lan2. sua lai PTThueHD --> don't reset TongTienThu
+                    if (tongThueCT === 0 && hd[i].PTThueHoaDon != 0) {
                         hd[i].TongTienThue = thueBH;
                         hd[i].TongThueKhachHang = 0;
                     }

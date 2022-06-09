@@ -5566,6 +5566,9 @@
                 }
                 cthd.ID_ViTri = newHD.ID_ViTri;
                 cthd.TenViTri = newHD.TenPhongBan;
+                if (cthd.ChatLieu === '4') {
+                    cthd.SoLuongConLai = cthd.SoLuongDVConLai;
+                }
 
                 let quanLiTheoLo = cthd.QuanLyTheoLoHang;
                 cthd.QuanLyTheoLoHang = quanLiTheoLo;
