@@ -429,7 +429,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Đặt hàng nhà cung cấp", "Đặt hàng nhà cung cấp", UrlPage.DatHangNCC, "e/nhaphang/31", false, "fa fa-mail-forward", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Đặt hàng nhà cung cấp", "Đặt hàng nhà cung cấp", UrlPage.DatHangNCC, "e/nhaphang/31", false, "fa fa-book", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
@@ -695,8 +695,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lstSubMenuKhachHangCheck = true;
                 }
 
-                
-
                 if (lstQuyen.Where(p => p == "LichHen_XemDS").FirstOrDefault() != null)
                 {
                     lstSubMenuKhachHang.Add(new HeaderMenu(6, "Lịch nhắc bảo dưỡng", "Lịch nhắc bảo dưỡng", 
@@ -743,6 +741,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                 List<HeaderMenu> lstSubMenuMuaHang = new List<HeaderMenu>();
                 bool lstSubMenuMuaHangCheck = false;
+                if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
+                {
+                    lstSubMenuMuaHang.Add(new HeaderMenu(8, "Đặt hàng nhà cung cấp", "Đặt hàng nhà cung cấp", UrlPage.DatHangNCC, "e/nhaphang/31", false, "fa fa-book", new List<HeaderMenu>()));
+                    lstSubMenuMuaHangCheck = true;
+                }
                 if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
                 {
                     lstSubMenuMuaHang.Add(new HeaderMenu(1, "Nhập hàng", "Nhập hàng", UrlPage.NhapHang, "e/nhaphang", false, "fa fa-mail-forward", new List<HeaderMenu>()));
