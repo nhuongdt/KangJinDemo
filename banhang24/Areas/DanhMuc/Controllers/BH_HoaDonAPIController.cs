@@ -4781,6 +4781,28 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     txtFirst = "Lưu tạm phiếu trả hàng nhập: ";
                                 }
                                 break;  
+                            case 13:
+                                tenChucNang = "Nhập kho nội bộ";
+                                if (objHoaDon.ChoThanhToan.Value == false)
+                                {
+                                    txtFirst = "Tạo mới phiếu nhập kho nội bộ: ";
+                                }
+                                else
+                                {
+                                    txtFirst = "Lưu tạm phiếu nhập kho nội bộ: ";
+                                }
+                                break; 
+                            case 14:
+                                tenChucNang = "Nhập hàng khách thừa";
+                                if (objHoaDon.ChoThanhToan.Value == false)
+                                {
+                                    txtFirst = "Tạo mới phiếu nhập hàng thừa của khách: ";
+                                }
+                                else
+                                {
+                                    txtFirst = "Lưu tạm phiếu nhập hàng thừa của khách: ";
+                                }
+                                break;  
                             case 31:
                                 tenChucNang = "Đặt hàng nhà cung cấp";
                                 if (objHoaDon.ChoThanhToan.Value == false)
@@ -5213,6 +5235,14 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 case 31:
                                     tenChucNang = "Đặt hàng nhà cung cấp";
                                     txtFirst = "Cập nhật phiếu đặt hàng nhà cung cấp: ";
+                                    break; 
+                                case 13:
+                                    tenChucNang = "Nhập kho nội bộ";
+                                    txtFirst = "Cập nhật phiếu nhập kho nội bộ: ";
+                                    break;  
+                                case 14:
+                                    tenChucNang = "Nhập hàng khách thừa";
+                                    txtFirst = "Cập nhật phiếu nhập hàng khách thừa: ";
                                     break;
                             }
                             noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", objHoaDon.PhaiThanhToan.ToString("#,#", CultureInfo.InvariantCulture), ", Thời gian: ", ngaylapHD.ToString("dd/MM/yyy HH:mm:ss"));
