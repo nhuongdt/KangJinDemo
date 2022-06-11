@@ -73,6 +73,9 @@
         },
         PhieuThuKhachPrint: {},
         PhieuThuBaoHiemPrint: {},
+
+        Pos_indexChosing: 0,
+        CK_indexChosing: 0
     },
     methods: {
         newPhuongThucTT: function (tkPos = true) {
@@ -395,30 +398,58 @@
             let self = this;
             self.PhieuThuKhach.ListTKChuyenKhoan.push(self.newPhuongThucTT(false));
         },
-        CaculatorDaThanhToan: function () {
+        RemoveAccount: function (type, index) {
+            let self = this;
+            switch (type) {
+                case 0:// pos
+                    self.PhieuThuKhach.ListTKPos.splice(index, 1);
+                    break;
+                case 1:// ck
+                    self.PhieuThuKhach.ListTKChuyenKhoan.splice(index, 1);
+                    break;
+            }
+        },
+        KH_GetTongPos: function () {
             var self = this;
-            var tiencoc = formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
+            var tongPos = 0;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
+                let itFor = self.PhieuThuKhach.ListTKPos[i];
+                tongPos += formatNumberToFloat(itFor.TienPOS);
+            }
+            return tongPos;
+        },
+        KH_GetTongCK: function () {
+            let self = this;
+            let tongCK = 0;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                let itFor = self.PhieuThuKhach.ListTKChuyenKhoan[i];
+                tongCK += formatNumberToFloat(itFor.TienCK);
+            }
+            return tongCK;
+        },
+        CaculatorDaThanhToan: function () {
+            let self = this;
+            let tongPos = self.KH_GetTongPos();
+            let tongCK = self.KH_GetTongCK();
+            self.PhieuThuKhach.TienPOS = tongPos;
+            self.PhieuThuKhach.TienCK = tongCK;
+            let tiencoc = formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
+            let tienmat = formatNumberToFloat(self.PhieuThuKhach.TienMat);
+            let tienTGT = formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri);
+            let tienDiem = formatNumberToFloat(self.PhieuThuKhach.TTBangDiem);
             if (self.PhieuThuKhach.HoanTraTamUng > 0 && self.inforHoaDon.SoDuDatCoc > 0) {
                 // neu chi tra tien: khong tinh tiencoc
                 tiencoc = 0;
             }
-            self.PhieuThuKhach.DaThanhToan = formatNumberToFloat(self.PhieuThuKhach.TienMat)
-                + tiencoc
-                + formatNumberToFloat(self.PhieuThuKhach.TienPOS)
-                + formatNumberToFloat(self.PhieuThuKhach.TienCK)
-                + formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri)
-                + formatNumberToFloat(self.PhieuThuKhach.TTBangDiem);
+            self.PhieuThuKhach.DaThanhToan = tongPos + tongCK + tienmat + tiencoc + tienTGT + tienDiem;
 
-            var thucthu = 0;
+            let thucthu = 0;
             if (self.PhieuThuKhach.HoanTraTamUng > 0) {
                 thucthu = formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
                 self.PhieuThuKhach.TienThua = self.PhieuThuKhach.DaThanhToan - self.PhieuThuKhach.PhaiThanhToan;
             }
             else {
-                thucthu = formatNumberToFloat(self.PhieuThuKhach.TienMat)
-                    + formatNumberToFloat(self.PhieuThuKhach.TienPOS)
-                    + formatNumberToFloat(self.PhieuThuKhach.TienCK) +
-                    + formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
+                thucthu = tongPos + tongCK + tienmat + tiencoc;
                 self.PhieuThuKhach.TienThua = self.PhieuThuKhach.DaThanhToan + self.inforHoaDon.KhachDaTra - self.inforHoaDon.PhaiThanhToan;
                 if (self.PhieuThuKhach.TienThua > 0) {
                     thucthu = self.inforHoaDon.PhaiThanhToan
@@ -444,36 +475,67 @@
             self.Caculator_ThucThu();
             self.UpdateChietKhauNV_ifChangeThucThu();
         },
+        GetIndexChosing: function (type, index) {
+            let self = this;
+            switch (type) {
+                case 0:// pos
+                    self.Pos_indexChosing = index;
+                    break;
+                case 1:// ck
+                    self.CK_indexChosing = index;
+                    break;
+            }
+        },
         ResetAccountPOS: function () {
-            var self = this;
-            self.PhieuThuKhach.TenTaiKhoanPos = '';
-            self.PhieuThuKhach.SoTaiKhoanPos = '';
-            self.PhieuThuKhach.TenNganHangPos = '';
-            self.PhieuThuKhach.ID_TaiKhoanPos = null;
-            self.PhieuThuKhach.TienPOS = 0;
+            let self = this;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
+                if (i === self.Pos_indexChosing) {
+                    self.PhieuThuKhach.ListTKPos[i].ID_TaiKhoanPos = null;
+                    self.PhieuThuKhach.ListTKPos[i].TenTaiKhoanPos = '';
+                    self.PhieuThuKhach.ListTKPos[i].SoTaiKhoanPos = '';
+                    self.PhieuThuKhach.ListTKPos[i].TenNganHangCK = '';
+                    self.PhieuThuKhach.ListTKPos[i].TienPOS = 0;
+                    break;
+                }
+            }
             self.CaculatorDaThanhToan();
         },
         ChangeAccountPOS: function (item) {
-            var self = this;
-            self.PhieuThuKhach.TenTaiKhoanPos = item.TenChuThe;
-            self.PhieuThuKhach.SoTaiKhoanPos = item.SoTaiKhoan;
-            self.PhieuThuKhach.TenNganHangPos = item.TenNganHang;
-            self.PhieuThuKhach.ID_TaiKhoanPos = item.ID;
+            let self = this;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
+                if (i === self.Pos_indexChosing) {
+                    self.PhieuThuKhach.ListTKPos[i].ID_TaiKhoanPos = item.ID;
+                    self.PhieuThuKhach.ListTKPos[i].TenTaiKhoanPos = item.TenChuThe;
+                    self.PhieuThuKhach.ListTKPos[i].SoTaiKhoanPos = item.SoTaiKhoan;
+                    self.PhieuThuKhach.ListTKPos[i].TenNganHangPos = item.TenNganHang;
+                    break;
+                }
+            }
         },
         ChangeAccountCK: function (item) {
-            var self = this;
-            self.PhieuThuKhach.TenTaiKhoanCK = item.TenChuThe;
-            self.PhieuThuKhach.SoTaiKhoanCK = item.SoTaiKhoan;
-            self.PhieuThuKhach.TenNganHangCK = item.TenNganHang;
-            self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan = item.ID;
+            let self = this;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                if (i === self.CK_indexChosing) {
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].ID_TaiKhoanChuyenKhoan = item.ID;
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TenTaiKhoanCK = item.TenChuThe;
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].SoTaiKhoanCK = item.SoTaiKhoan;
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TenNganHangCK = item.TenNganHang;
+                    break;
+                }
+            }
         },
         ResetAccountCK: function () {
-            var self = this;
-            self.PhieuThuKhach.TenTaiKhoanCK = '';
-            self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan = null;
-            self.PhieuThuKhach.SoTaiKhoanCK = '';
-            self.PhieuThuKhach.TenNganHangCK = '';
-            self.PhieuThuKhach.TienCK = 0;
+            let self = this;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                if (i === self.CK_indexChosing) {
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].ID_TaiKhoanChuyenKhoan = null;
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TenTaiKhoanCK = '';
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].SoTaiKhoanCK = '';
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TenNganHangCK = '';
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TienCK = 0;
+                    break;
+                }
+            }
             self.CaculatorDaThanhToan();
         },
 
@@ -666,8 +728,8 @@
             self.PhieuThuKhach.TienMat = formatNumber3Digit(tienmat, 2);
             self.PhieuThuKhach.PhaiThanhToan = tienmat;
 
-            self.PhieuThuKhach.TienPOS = 0;
-            self.PhieuThuKhach.TienCK = 0;
+            self.PhieuThuKhach.ListTKPos[0].TienPOS = 0;
+            self.PhieuThuKhach.ListTKChuyenKhoan[0].TienCK = 0;
             self.PhieuThuKhach.TienTheGiaTri = 0;
             self.CaculatorDaThanhToan();
 
@@ -688,77 +750,121 @@
             var tienthe = formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri);
             var tienpos = 0, tienck = 0;
             var cantt = self.PhieuThuKhach.PhaiThanhToan - tienmat - self.PhieuThuKhach.TTBangDiem - tienthe;
-            if (self.PhieuThuKhach.ID_TaiKhoanPos !== null) {
+
+            let ttPos = $.grep(self.PhieuThuKhach.ListTKPos, function (x) {
+                return x.ID_TaiKhoanPos !== null;
+            });
+            if (ttPos.length > 0) {
                 tienpos = cantt;
                 tienpos = tienpos > 0 ? tienpos : 0;
                 tienck = 0;
+
+                for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
+                    if (self.PhieuThuKhach.ListTKPos[i].ID_TaiKhoanPos !== null) {
+                        self.PhieuThuKhach.ListTKPos[i].TienPOS = formatNumber3Digit(tienpos);
+                        break;
+                    }
+                }
+
+                // reset tienCK
+                for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TienCK = 0;
+                }
             }
             else {
-                if (self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan !== null) {
+                let ttCK = $.grep(self.PhieuThuKhach.ListTKChuyenKhoan, function (x) {
+                    return x.ID_TaiKhoanChuyenKhoan !== null;
+                });
+                if (ttCK.length > 0) {
                     tienck = cantt;
                     tienck = tienck > 0 ? tienck : 0;
+
+                    for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                        if (self.PhieuThuKhach.ListTKChuyenKhoan[i].ID_TaiKhoanChuyenKhoan !== null) {
+                            self.PhieuThuKhach.ListTKChuyenKhoan[i].TienCK = formatNumber3Digit(tienck);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    // reset tienCK
+                    for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                        self.PhieuThuKhach.ListTKChuyenKhoan[i].TienCK = 0;
+                    }
                 }
             }
-            self.PhieuThuKhach.TienPOS = formatNumber3Digit(tienpos, 2);
-            self.PhieuThuKhach.TienCK = formatNumber3Digit(tienck, 2);
             self.CaculatorDaThanhToan();
 
             var key = event.keyCode || event.which;
             if (key === 13) {
-                if (self.PhieuThuKhach.ID_TaiKhoanPos !== null) {
-                    $this.closest('.container-fluid').next().find('input').select();
-                }
-                else {
-                    if (self.inforHoaDon.LoaiHoaDon === 6) {
-                        if (self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan !== null) {
-                            $this.closest('.container-fluid').next().find('input').select();
-                        }
-                    }
-                    else {
-                        if (self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan !== null) {
-                            $this.closest('.container-fluid').next().next().find('input').select();
-                        }
-                    }
-                }
+                self.Focus_NextElem();
             }
         },
-        KH_EditTienPos: function () {
-            var self = this;
-            var $this = $(event.currentTarget);
+        KH_EditTienPos: function (index) {
+            let self = this;
+            let $this = $(event.currentTarget);
             formatNumberObj($this);
 
-            var tienpos = formatNumberToFloat($this.val());
-            self.PhieuThuKhach.TienPOS = $this.val();
-
-            var tienck = 0;
-            var tienmat = formatNumberToFloat(self.PhieuThuKhach.TienMat);
-            var tienthe = formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri);
-            if (self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan !== null) {
-                tienck = self.PhieuThuKhach.PhaiThanhToan - tienmat - tienpos - self.PhieuThuKhach.TTBangDiem - tienthe;
-                tienck = tienck < 0 ? 0 : tienck;
+            for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
+                if (i === index) {
+                    self.PhieuThuKhach.ListTKPos[i].TienPOS = $this.val();
+                    break;
+                }
             }
-            self.PhieuThuKhach.TienCK = formatNumber3Digit(tienck, 2);
+
+            let tienck = 0;
+            let tienpos = self.KH_GetTongPos();
+            let tienmat = formatNumberToFloat(self.PhieuThuKhach.TienMat);
+            let tienthe = formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri);
+
+            for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                if (self.PhieuThuKhach.ListTKChuyenKhoan[i].ID_TaiKhoanChuyenKhoan !== null) {
+                    tienck = self.PhieuThuKhach.PhaiThanhToan - tienmat - tienpos - self.PhieuThuKhach.TTBangDiem - tienthe;
+                    tienck = tienck < 0 ? 0 : tienck;
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TienCK = formatNumber3Digit(tienck);
+                    break;
+                }
+            }
             self.CaculatorDaThanhToan();
 
-            var key = event.keyCode || event.which;
+            let key = event.keyCode || event.which;
             if (key === 13) {
-                if (self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan !== null) {
-                    $this.closest('.container-fluid').next().find('input').select();
+                self.Focus_NextElem(index);
+            }
+        },
+        Focus_NextElem: function (index = null) {
+            if (index === null) {
+                // enter tienmat
+                let elms = $('#ThongTinThanhToanKHNCC ._jsCheck .form-control:not(:disabled)');
+                if (elms.length > 0) {
+                    $(elms).eq(0).select();
                 }
-                else {
-                    if (self.theGiaTriCus.SoDuTheGiaTri > 0) {
-                        $this.closest('.container-fluid').next().next().find('input').select();
-                    }
+            }
+            else {
+                let elms = $('#ThongTinThanhToanKHNCC ._jsCheck:gt(' + index + ')  .form-control:not(:disabled)');
+                if (elms.length > 0) {
+                    $(elms).eq(0).select();
                 }
             }
         },
-        KH_EditTienCK: function () {
-            var self = this;
-            var $this = $(event.currentTarget);
+        KH_EditTienCK: function (index) {
+            let self = this;
+            let $this = $(event.currentTarget);
             formatNumberObj($this);
 
-            self.PhieuThuKhach.TienCK = $this.val();
+            for (let i = 0; i < self.PhieuThuKhach.ListTKChuyenKhoan.length; i++) {
+                if (i === index) {
+                    self.PhieuThuKhach.ListTKChuyenKhoan[i].TienCK = $this.val();
+                    break;
+                }
+            }
             self.CaculatorDaThanhToan();
+
+            let key = event.keyCode || event.which;
+            if (key === 13) {
+                index = self.PhieuThuKhach.ListTKPos.length + index;
+                self.Focus_NextElem(index);
+            }
         },
         KH_EditTienThe: function () {
             var self = this;
@@ -929,8 +1035,8 @@
             var self = this;
             var kh_tiencoc = formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
             var kh_tienmat = formatNumberToFloat(self.PhieuThuKhach.TienMat);
-            var kh_tienpos = formatNumberToFloat(self.PhieuThuKhach.TienPOS);
-            var kh_tienck = formatNumberToFloat(self.PhieuThuKhach.TienCK);
+            var kh_tienpos = self.KH_GetTongPos();
+            var kh_tienck = self.KH_GetTongCK();
             var kh_tienthe = formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri);
             var kh_tiendiem = formatNumberToFloat(self.PhieuThuKhach.TTBangDiem);
             var kh_tienthua = self.PhieuThuKhach.TienThua;
