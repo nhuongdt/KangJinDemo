@@ -611,7 +611,7 @@ var cmpChoseAccountBank = {
         </div>   
         <div v-if="formType === 0" v-on:click="addRow">
             <a>
-                <i class="fa fa-plus"></i>
+               <i class="fal fa-plus"></i>
             </a>
         </div>
         <input class="gara-search-HH" placeholder="Chọn tài khoản" v-model="textSearch" v-on:keyup="searchAccount" v-on:click="showList"/>
@@ -640,6 +640,7 @@ var cmpChoseAccountBank = {
         searchAccount: function () {
             var self = this;
             if (commonStatisJs.CheckNull(self.textSearch)) {
+                this.$emit('reset-account');
                 self.searchList = self.accounts.slice(0, 20);
             }
             else {
