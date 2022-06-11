@@ -112,7 +112,7 @@ var ViewModelQuyHD = function () {
     var userLogin = VHeader.UserLogin;
     var Key_Form = 'KeyForm_CashFlow';
     self.LoaiHoaDonMenu = $('#txtLoaiHoaDon').val();
-    vmNapTienDatCoc.loaiMenu = parseInt(self.LoaiHoaDonMenu);
+    vmNapTienDatCoc.loaiMenu = 1;// spa: mặc định là đặt cọc nhà cung cấp
 
     self.TenChiNhanh = ko.observable($('#_txtTenDonVi').html());
     self.TodayBC = ko.observable('Tháng này');
