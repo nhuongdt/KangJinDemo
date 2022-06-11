@@ -662,6 +662,9 @@
         }
     });
 
+    self.role_NhapKhoNoiBo = ko.observable(VHeader.Quyen.indexOf('NhapKhoNoiBo') > -1);
+    self.role_NhapHangKhachThua = ko.observable(VHeader.Quyen.indexOf('NhapHangKhachThua') > -1);
+
     //load Loai Chung Tu
     self.MangChungTu = ko.observableArray();
     self.ChungTus = ko.observableArray();
@@ -682,11 +685,18 @@
             { ID: 10, TenChungTu: 'Chuyển hàng' },
         ]);
 
+    if (self.role_NhapKhoNoiBo()) {
+        self.AllLoaiChungTu.push({ ID: 13, TenChungTu: 'Nhập kho nội bộ' });
+    }
+    if (self.role_NhapHangKhachThua()) {
+        self.AllLoaiChungTu.push({ ID: 14, TenChungTu: 'Nhập hàng khách thừa' });
+    }
+
     self.getListDM_LoaiChungTuNhapKho = function (item) {
         self.MangChungTu([]);
-        _idChungTuSeach = '4,6,9,10';
+        _idChungTuSeach = '4,6,9,10,13,14';
         let arr = $.grep(self.AllLoaiChungTu(), function (x) {
-            return $.inArray(x.ID, [4, 6, 9, 10]) > -1;
+            return $.inArray(x.ID, [4, 6, 9, 10,13,14]) > -1;
         })
         self.ChungTus(arr);
         self.searchChungTu(arr);
@@ -1011,7 +1021,7 @@
                 $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên nhóm hàng").blur();
                 self.LoaiBaoCao('nhóm hàng hóa');
                 self.MoiQuanTam('Báo cáo tổng hợp hàng nhập kho');
-                self.getListDM_LoaiChungTuNhapKho("4,6,9,10");
+                self.getListDM_LoaiChungTuNhapKho("4,6,9,10,13,14");
                 break;
             case 6:
                 $(".showChungTu").show();
