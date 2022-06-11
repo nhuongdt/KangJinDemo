@@ -950,12 +950,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        public List<Quy_HoaDon> GetQuyHoaDon_byIDHoaDon(Guid idHoaDon, Guid? idHoaDonParent = null)
+        public List<NhatKyThanhToanDTO> GetQuyHoaDon_byIDHoaDon(Guid idHoaDon, Guid? idHoaDonParent = null)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
-                return _classQHD.GetQuyHoaDon_byIDHoaDon(idHoaDon, idHoaDonParent).OrderByDescending(x => x.NgayLapHoaDon).ToList();
+                return _classQHD.GetQuyHoaDon_ofHoaDon(idHoaDon, idHoaDonParent);
             }
         }
 

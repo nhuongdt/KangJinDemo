@@ -1741,6 +1741,13 @@ namespace libQuy_HoaDon
                 }
             }
         }
+        public List<NhatKyThanhToanDTO> GetQuyHoaDon_ofHoaDon(Guid id, Guid? idHoadonParent = null)
+        {
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("ID", id));
+            lstParam.Add(new SqlParameter("ID_Parent", idHoadonParent ?? (object)DBNull.Value));
+            return db.Database.SqlQuery<NhatKyThanhToanDTO>("EXEC GetQuyHoaDon_byIDHoaDon @ID, @ID_Parent", lstParam.ToArray()).ToList();
+        }
 
         /// <summary>
         /// Get list Quy_hoaDon (Nếu HD tạo từ HĐ đặt hàng --> bind HD đặt hàng với mã {Chuyển tạm ứng})

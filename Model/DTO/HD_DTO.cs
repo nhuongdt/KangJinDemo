@@ -79,6 +79,19 @@ namespace Model
         public int? LoaiThanhToan { get; set; }//1.coc, 2.dieuchinhcongno, 3.khong tinh congno
         public int? TotalRow { get; set; }
     }
+    public class NhatKyThanhToanDTO
+    {
+        public Guid? ID { get; set; }
+        public int? LoaiHoaDon { get; set; }
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public double? TongTienThu { get; set; }
+        public string NguoiTao { get; set; }
+        public string NguoiSua { get; set; }
+        public bool? TrangThai { get; set; }
+        public string PhuongThucTT { get; set; }
+        public string SLoaiHoaDon { get; set; }
+    }
 
     public class ParamRpHoatDongXe : CommonParamSearch
     {
