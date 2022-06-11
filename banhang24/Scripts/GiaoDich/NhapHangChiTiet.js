@@ -252,11 +252,21 @@ var NhapHangChiTiet = function () {
     self.isGara = ko.observable(false);
     self.shopCookies = ko.observable(shopCookies.toLowerCase());
 
+    self.role_NhapKhoNoiBo = ko.observable(VHeader.Quyen.indexOf('NhapKhoNoiBo') > -1);
+    self.role_NhapHangKhachThua = ko.observable(VHeader.Quyen.indexOf('NhapHangKhachThua') > -1);
+
     self.ListTypePurchase = ko.observableArray([
         { ID: 4, Text: 'Nhập hàng nhà cung cấp' },
-        { ID: 13, Text: 'Nhập kho nội bộ' },
-        { ID: 14, Text: 'Nhập hàng khách thừa' },
+        //{ ID: 13, Text: 'Nhập kho nội bộ' },
+        //{ ID: 14, Text: 'Nhập hàng khách thừa' },
     ])
+
+    if (self.role_NhapKhoNoiBo()) {
+        self.ListTypePurchase.push({ ID: 13, Text: 'Nhập kho nội bộ' })
+    }
+    if (self.role_NhapHangKhachThua()) {
+        self.ListTypePurchase.push({ ID: 14, Text: 'Nhập hàng khách thừa' })
+    }
 
     if (self.shopCookies() === 'c16edda0-f6d0-43e1-a469-844fab143014') {
         self.isGara(true);
@@ -849,6 +859,9 @@ var NhapHangChiTiet = function () {
             }
             let gianhap = dongia;
             gianhap = gianhap == 0 ? itemHH.GiaVon : gianhap;
+            if (self.newHoaDon().LoaiHoaDon() === 14) {
+                gianhap = 0;
+            }
             tienCK = ptCKHangHoa * gianhap / 100;
             tienThue = ptThue * (gianhap - tienCK) / 100;
             return {
@@ -2413,6 +2426,9 @@ var NhapHangChiTiet = function () {
                     let mahang = data[0].MaHangHoa;
                     let giaban = data[0].GiaBanHH;
                     let tonkho = data[0].TonKho;
+                    if (self.newHoaDon().LoaiHoaDon() === 14) {
+                        gianhap = 0;
+                    }
 
                     for (let i = 0; i < cthd.length; i++) {
                         let itFor = cthd[i];
@@ -2624,6 +2640,10 @@ var NhapHangChiTiet = function () {
 
         var idLoHang = item.ID_LoHang;
         var maLoHang = item.MaLoHang;
+        let gianhap = item.GiaNhap;
+        if (self.newHoaDon().LoaiHoaDon() === 14) {
+            gianhap = 0;
+        }
         var idRandom = $($this.closest('.js-IDlohang')).find('span').eq(0).attr('id');
 
         var ptThue = self.newHoaDon().PTThueHoaDon();
@@ -2643,16 +2663,16 @@ var NhapHangChiTiet = function () {
                         cthd[i].MaLoHang = maLoHang;
                         cthd[i].NgaySanXuat = ngaysx;
                         cthd[i].NgayHetHan = hethan;
-                        cthd[i].DonGia = item.GiaNhap;
+                        cthd[i].DonGia = gianhap;
 
                         if (ptCKHang > 0) {
-                            tienchietkhau = item.GiaNhap * ptCKHang / 100;
+                            tienchietkhau = gianhap * ptCKHang / 100;
                         }
                         if (ptThue > 0) {
-                            tienthue = (item.GiaNhap - tienchietkhau) * ptThue / 100;
+                            tienthue = (gianhap - tienchietkhau) * ptThue / 100;
                         }
-                        cthd[i].ThanhTien = (item.GiaNhap - tienchietkhau) * cthd[i].SoLuong;
-                        cthd[i].ThanhToan = (item.GiaNhap - tienchietkhau + tienthue) * cthd[i].SoLuong;
+                        cthd[i].ThanhTien = (gianhap - tienchietkhau) * cthd[i].SoLuong;
+                        cthd[i].ThanhToan = (gianhap - tienchietkhau + tienthue) * cthd[i].SoLuong;
                         cthd[i].TienChietKhau = tienchietkhau;
                         cthd[i].PTChietKhau = ptCKHang;
                         cthd[i].PTThue = ptThue;
@@ -2666,19 +2686,19 @@ var NhapHangChiTiet = function () {
                         cthd[i].DM_LoHang[j].MaLoHang = maLoHang;
                         cthd[i].DM_LoHang[j].NgaySanXuat = ngaysx;
                         cthd[i].DM_LoHang[j].NgayHetHan = hethan;
-                        cthd[i].DM_LoHang[j].DonGia = item.GiaNhap;
+                        cthd[i].DM_LoHang[j].DonGia = gianhap;
                         if (ptCKHang > 0) {
-                            tienchietkhau = item.GiaNhap * ptCKHang / 100;
+                            tienchietkhau = gianhap * ptCKHang / 100;
                         }
                         if (ptThue > 0) {
-                            tienthue = (item.GiaNhap - tienchietkhau) * ptThue / 100;
+                            tienthue = (gianhap - tienchietkhau) * ptThue / 100;
                         }
                         cthd[i].DM_LoHang[j].TienChietKhau = tienchietkhau;
                         cthd[i].DM_LoHang[j].PTChietKhau = ptCKHang;
                         cthd[i].DM_LoHang[j].PTThue = ptThue;
                         cthd[i].DM_LoHang[j].TienThue = tienthue;
-                        cthd[i].DM_LoHang[j].ThanhTien = (item.GiaNhap - tienchietkhau) * cthd[i].DM_LoHang[j].SoLuong;
-                        cthd[i].DM_LoHang[j].ThanhToan = (item.GiaNhap - tienchietkhau + tienthue) * cthd[i].DM_LoHang[j].SoLuong;
+                        cthd[i].DM_LoHang[j].ThanhTien = (gianhap - tienchietkhau) * cthd[i].DM_LoHang[j].SoLuong;
+                        cthd[i].DM_LoHang[j].ThanhToan = (gianhap - tienchietkhau + tienthue) * cthd[i].DM_LoHang[j].SoLuong;
                         cthd[i].DM_LoHang[j].DVTinhGiam = ptCKHang > 0 || tienchietkhau === 0 ? '%' : 'VND';
                         cthd[i].DM_LoHang[j].GiaVon = item.GiaVon;
                         cthd[i].DM_LoHang[j].GiaBanHH = item.GiaBan;
