@@ -84,7 +84,6 @@
     self.NhapHang_ThayDoiNhanVien = ko.observable();
     self.roleNhapHang_Insert = ko.observable(false);
     self.roleNhapHang_Export = ko.observable(false);
-    self.roleDatHangNCC_Insert = ko.observable(false);
 
     self.TongSLuong = ko.observable();
     self.NgayLapHD_Update = ko.observable();
@@ -106,6 +105,8 @@
     self.Show_BtnUpdateSoQuy = ko.observable(false);
     self.Show_BtnDeleteSoQuy = ko.observable(false);
     self.Allow_ChangeTimeSoQuy = ko.observable(false);
+    self.role_NhapKhoNoiBo = ko.observable(false);
+    self.role_NhapHangKhachThua = ko.observable(false);
 
     //phân trang
     self.PageCount = ko.observable();
@@ -136,6 +137,15 @@
 
     if (self.LoaiHoaDonMenu() === 4) {
         self.LoaiHoaDon_31(false);
+
+        self.role_NhapKhoNoiBo(VHeader.Quyen.indexOf('NhapKhoNoiBo') > -1);
+        self.role_NhapHangKhachThua(VHeader.Quyen.indexOf('NhapHangKhachThua') > -1);
+        if (!self.role_NhapKhoNoiBo()) {
+            self.LoaiHoaDon_13(false);
+        }
+        if (!self.role_NhapHangKhachThua()) {
+            self.LoaiHoaDon_14 (false);
+        }
     }
     else {
         self.LoaiHoaDon_4(false);
@@ -171,7 +181,7 @@
     }
 
     function SetDefault_HideColumn() {
-        var arrHideColumn = ['loaichungtu','makhachhang', 'diachi', 'sodienthoai', 'tenchinhanh', 'nguoiban', 'tonggiamgia', 'ghichu', 'trangthai', 'tienthue'];
+        var arrHideColumn = ['loaichungtu', 'makhachhang', 'diachi', 'sodienthoai', 'tenchinhanh', 'nguoiban', 'tonggiamgia', 'ghichu', 'trangthai', 'tienthue'];
         var cacheHideColumn = localStorage.getItem(Key_Form);
         if (cacheHideColumn === null || cacheHideColumn === '[]') {
             // hide default some column
@@ -232,15 +242,32 @@
                     self.TraHangNhap_ThemMoi(CheckQuyenExist('TraHangNhap_ThemMoi'));
                     self.ChuyenHang_ThemMoi(CheckQuyenExist('ChuyenHang_ThemMoi'));
                     self.HoaDon_ThemMoi(CheckQuyenExist('HoaDon_ThemMoi'));
-                    self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
-                    self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
                     self.Show_BtnUpdateSoQuy(CheckQuyenExist('SoQuy_CapNhat'));
                     self.Show_BtnDeleteSoQuy(CheckQuyenExist('SoQuy_Xoa'));
-                    self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));
-                    self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
-                    self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
+                    self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));                
 
-                    self.roleDatHangNCC_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
+                    if (self.LoaiHoaDonMenu() === 4) {
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                        self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
+                        self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
+                        self.Show_BtnCopy(CheckQuyenExist('NhapHang_SaoChep'));
+                        self.Show_BtnEdit(CheckQuyenExist('NhapHang_CapNhat'));
+                        self.Show_BtnUpdate(CheckQuyenExist('NhapHang_CapNhat'));
+                        self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
+                        self.Show_BtnExcelDetail(CheckQuyenExist('NhapHang_XuatFile'));
+                    }
+                    else {
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('DatHangNCC_ThayDoiNhanVien'));
+                        self.roleNhapHang_Insert(CheckQuyenExist('DatHangNCC_ThemMoi'));
+                        self.roleNhapHang_Export(CheckQuyenExist('DatHangNCC_XuatFile'));
+                        self.Show_BtnCopy(CheckQuyenExist('DatHangNCC_SaoChep'));
+                        self.Show_BtnEdit(CheckQuyenExist('DatHangNCC_CapNhat'));
+                        self.Show_BtnUpdate(CheckQuyenExist('DatHangNCC_CapNhat'));
+                        self.Show_BtnDelete(CheckQuyenExist('DatHangNCC_Xoa'));
+                        self.Show_BtnExcelDetail(CheckQuyenExist('DatHangNCC_XuatFile'));
+                    }
                 }
                 else {
                     ShowMessage_Danger('Không có quyền');
@@ -499,42 +526,6 @@
         }
         else {
             self.Show_BtnThanhToanCongNo(false);
-        }
-        if (CheckQuyenExist('NhapHang_SaoChep')) {
-            self.Show_BtnCopy(true);
-        }
-        else {
-            self.Show_BtnCopy(false);
-        }
-        if (CheckQuyenExist('NhapHang_Xoa')) {
-            self.Show_BtnDelete(true);
-        }
-        else {
-            self.Show_BtnDelete(false);
-        }
-        if (CheckQuyenExist('NhapHang_CapNhat')) {
-            self.Show_BtnUpdate(true);
-        }
-        else {
-            self.Show_BtnUpdate(false);
-        }
-        if (CheckQuyenExist('NhapHang_XuatFile')) {
-            self.Show_BtnExcelDetail(true);
-        }
-        else {
-            self.Show_BtnExcelDetail(false);
-        }
-        if (CheckQuyenExist('NhapHang_CapNhat')) {
-            if (item.ChoThanhToan === false) {
-                self.Show_BtnEdit(true);
-            }
-            else {
-                self.Show_BtnEdit(false);
-            }
-        }
-        else {
-            self.Show_BtnEdit(false);
-            self.Show_BtnUpdateHDTam(false);
         }
 
         self.currentPageCTNH(0);
