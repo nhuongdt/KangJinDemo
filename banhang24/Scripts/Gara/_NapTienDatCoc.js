@@ -83,6 +83,19 @@
         },
     },
     methods: {
+        ChangeLoaiDoiTuongNop: function () {
+            let self = this;
+            if (self.newPhieuThu.LoaiDoiTuong === 1) {
+                self.loaiMenu = 1;
+                self.newPhieuThu.LoaiDoiTuong = 2;
+                self.newPhieuThu.LoaiHoaDon = 12;// chicoc nhacungcap
+            }
+            else {
+                self.loaiMenu = 0;
+                self.newPhieuThu.LoaiDoiTuong = 1;
+                self.newPhieuThu.LoaiHoaDon = 11;// thucoc khachhang
+            }
+        },
         ChangeTab: function (loaiDT) {
             var self = this;
             var loaiHD = 11;
