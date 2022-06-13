@@ -23,6 +23,9 @@
         self.role.SoQuy.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+
+        self.role.Customer.Insert = VHeader.Quyen.indexOf('KhachHang_ThemMoi') > -1;
+        self.role.Vendor.Insert = VHeader.Quyen.indexOf('NhaCungCap_ThemMoi') > -1;
         console.log('vmnapcoc')
     },
     data: {
@@ -34,6 +37,8 @@
         loaiMenu: 0,// 0.thu, 1.chi, 2.all (0.1 used to ds soquy, 2.ds hoadon + khachhang + ncc)
         role: {
             SoQuy: {},
+            Customer: {},
+            Vendor: {},
         },
         inforOld: {},
         ddl_textVal: {
@@ -136,7 +141,6 @@
                     self.inforNguoiNop.SoDuDatCoc = soduDatCoc;
                 });
         },
-
         ChoseNguoiNopTien: function (item) {
             var self = this;
             self.newPhieuThu.ID_DoiTuong = item.ID;
@@ -713,6 +717,21 @@
                     break;
             }
             return sLoai;
+        },
+        roleInsert_CusVen: function() {
+            let self = this;
+            let role = false;
+            switch (self.newPhieuThu.LoaiDoiTuong) {
+                case 1:
+                    role = self.role.Customer.Insert;
+                    break;
+                case 2:
+                    role = self.role.Vendor.Insert;
+                    break;
+                case 3:
+                    break;
+            }
+            return role;
         },
     }
 })

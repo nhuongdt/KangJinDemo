@@ -105,8 +105,8 @@
     self.Show_BtnUpdateSoQuy = ko.observable(false);
     self.Show_BtnDeleteSoQuy = ko.observable(false);
     self.Allow_ChangeTimeSoQuy = ko.observable(false);
-    self.role_NhapKhoNoiBo = ko.observable(false);
-    self.role_NhapHangKhachThua = ko.observable(false);
+    self.role_NhapKhoNoiBo = ko.observable(VHeader.Quyen.indexOf('NhapKhoNoiBo') > -1);
+    self.role_NhapHangKhachThua = ko.observable(VHeader.Quyen.indexOf('NhapHangKhachThua') > -1);
 
     //phân trang
     self.PageCount = ko.observable();
@@ -135,22 +135,19 @@
     self.LoaiHoaDon_14 = ko.observable(true);
     self.LoaiHoaDon_31 = ko.observable(true);
 
-    if (self.LoaiHoaDonMenu() === 4) {
-        self.LoaiHoaDon_31(false);
-
-        self.role_NhapKhoNoiBo(VHeader.Quyen.indexOf('NhapKhoNoiBo') > -1);
-        self.role_NhapHangKhachThua(VHeader.Quyen.indexOf('NhapHangKhachThua') > -1);
-        if (!self.role_NhapKhoNoiBo()) {
+    switch (self.LoaiHoaDonMenu()) {
+        case 4:
+            self.LoaiHoaDon_31(false);
             self.LoaiHoaDon_13(false);
-        }
-        if (!self.role_NhapHangKhachThua()) {
-            self.LoaiHoaDon_14 (false);
-        }
-    }
-    else {
-        self.LoaiHoaDon_4(false);
-        self.LoaiHoaDon_14(false);
-        self.LoaiHoaDon_13(false);
+            break;
+        case 13:
+            self.LoaiHoaDon_4(false);
+            self.LoaiHoaDon_31(false);
+            break;
+        case 31:
+            self.LoaiHoaDon_4(false);
+            self.LoaiHoaDon_13(false);
+            break;
     }
 
     function PageLoad() {
@@ -173,7 +170,11 @@
     PageLoad();
 
     function LoadColumnCheck() {
-        ajaxHelper('/api/DanhMuc/BaseAPI/' + "GetListColumnInvoices?loaiHD=4", 'GET').done(function (data) {
+        let sLoai = 4;
+        if (self.LoaiHoaDonMenu()===13) {
+            sLoai = self.LoaiHoaDonMenu();
+        }
+        ajaxHelper('/api/DanhMuc/BaseAPI/' + "GetListColumnInvoices?loaiHD=" + sLoai, 'GET').done(function (data) {
             self.ListCheckBox(data);
             self.NumberColum_Div2(Math.ceil(data.length / 2));
             LoadHtmlGrid();
@@ -246,27 +247,40 @@
                     self.Show_BtnDeleteSoQuy(CheckQuyenExist('SoQuy_Xoa'));
                     self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));                
 
-                    if (self.LoaiHoaDonMenu() === 4) {
-                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
-                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
-                        self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
-                        self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
-                        self.Show_BtnCopy(CheckQuyenExist('NhapHang_SaoChep'));
-                        self.Show_BtnEdit(CheckQuyenExist('NhapHang_CapNhat'));
-                        self.Show_BtnUpdate(CheckQuyenExist('NhapHang_CapNhat'));
-                        self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
-                        self.Show_BtnExcelDetail(CheckQuyenExist('NhapHang_XuatFile'));
-                    }
-                    else {
-                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
-                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('DatHangNCC_ThayDoiNhanVien'));
-                        self.roleNhapHang_Insert(CheckQuyenExist('DatHangNCC_ThemMoi'));
-                        self.roleNhapHang_Export(CheckQuyenExist('DatHangNCC_XuatFile'));
-                        self.Show_BtnCopy(CheckQuyenExist('DatHangNCC_SaoChep'));
-                        self.Show_BtnEdit(CheckQuyenExist('DatHangNCC_CapNhat'));
-                        self.Show_BtnUpdate(CheckQuyenExist('DatHangNCC_CapNhat'));
-                        self.Show_BtnDelete(CheckQuyenExist('DatHangNCC_Xoa'));
-                        self.Show_BtnExcelDetail(CheckQuyenExist('DatHangNCC_XuatFile'));
+                    switch (self.LoaiHoaDonMenu()) {
+                        case 4:
+                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
+                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                            self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
+                            self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
+                            self.Show_BtnCopy(CheckQuyenExist('NhapHang_SaoChep'));
+                            self.Show_BtnEdit(CheckQuyenExist('NhapHang_CapNhat'));
+                            self.Show_BtnUpdate(CheckQuyenExist('NhapHang_CapNhat'));
+                            self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
+                            self.Show_BtnExcelDetail(CheckQuyenExist('NhapHang_XuatFile'));
+                            break;
+                        case 13:
+                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapNoiBo_ThayDoiThoiGian'));
+                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapNoiBo_ThayDoiNhanVien'));
+                            self.roleNhapHang_Insert(CheckQuyenExist('NhapNoiBo_ThemMoi'));
+                            self.roleNhapHang_Export(CheckQuyenExist('NhapNoiBo_XuatFile'));
+                            self.Show_BtnCopy(CheckQuyenExist('NhapNoiBo_SaoChep'));
+                            self.Show_BtnEdit(CheckQuyenExist('NhapNoiBo_CapNhat'));
+                            self.Show_BtnUpdate(CheckQuyenExist('NhapNoiBo_CapNhat'));
+                            self.Show_BtnDelete(CheckQuyenExist('NhapNoiBo_Xoa'));
+                            self.Show_BtnExcelDetail(CheckQuyenExist('NhapNoiBo_XuatFile'));
+                            break;
+                        case 31:
+                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
+                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('DatHangNCC_ThayDoiNhanVien'));
+                            self.roleNhapHang_Insert(CheckQuyenExist('DatHangNCC_ThemMoi'));
+                            self.roleNhapHang_Export(CheckQuyenExist('DatHangNCC_XuatFile'));
+                            self.Show_BtnCopy(CheckQuyenExist('DatHangNCC_SaoChep'));
+                            self.Show_BtnEdit(CheckQuyenExist('DatHangNCC_CapNhat'));
+                            self.Show_BtnUpdate(CheckQuyenExist('DatHangNCC_CapNhat'));
+                            self.Show_BtnDelete(CheckQuyenExist('DatHangNCC_Xoa'));
+                            self.Show_BtnExcelDetail(CheckQuyenExist('DatHangNCC_XuatFile'));
+                            break;
                     }
                 }
                 else {
@@ -1536,6 +1550,9 @@
             case 31:
                 window.open('/#/DatHangNCCItem', '_blank');
                 break;
+            case 13:
+                window.open('/#/NhapNoiBoItem', '_blank');
+                break;
         }
     }
 
@@ -2212,8 +2229,8 @@
                     cthdLoHang[0].ID = const_GuidEmpty;
                     cthdLoHang[0].ID_HoaDon = item.ID;
                     cthdLoHang[0].ID_DonVi = item.ID_DonVi;
+                    cthdLoHang[0].LoaiHoaDon = 4;
                     cthdLoHang[0].NgayLapHoaDon = null;
-                    cthdLoHang[0].LoaiHoaDon = item.LoaiHoaDon;
                     cthdLoHang[0].TenDoiTuong = hd.TenDoiTuong;
                     cthdLoHang[0].TongTienHangChuaCK = thanhtienchuaCK;
                     cthdLoHang[0].TongGiamGiaHang = tongCKHang;

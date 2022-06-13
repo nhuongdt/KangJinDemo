@@ -434,7 +434,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "NhapHang_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Nhập hàng", "Nhập hàng", UrlPage.NhapHang, "e/nhaphang/4", false, "fa fa-mail-forward", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(8, "Nhập hàng nhà cung cấp", "Nhập hàng nhà cung cấp", UrlPage.NhapHang, "e/nhaphang/4", false, "fa fa-mail-forward", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "TraHangNhap_XemDS").FirstOrDefault() != null)
@@ -442,14 +442,20 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lstSubMenuHoatDong.Add(new HeaderMenu(9, "Trả hàng nhập", "Trả hàng nhập", UrlPage.TraHangNhap, "e/trahangnhap", false, "fa fa-reply-all", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
-                if (lstQuyen.Where(p => p == "ChuyenHang_XemDS").FirstOrDefault() != null)
+               
+                if (lstQuyen.Where(p => p == "NhapKhoNoiBo").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(10, "Điều chuyển", "Điều chuyển", UrlPage.ChuyenHang, "e/ChuyenHang", false, "fa fa-truck", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(10, "Nhập nội bộ", "Nhập nội bộ", UrlPage.NhapNoiBo, "e/nhaphang/13", false, "fa fa-plus", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "XuatHuy_XemDS").FirstOrDefault() != null)
                 {
                     lstSubMenuHoatDong.Add(new HeaderMenu(11, "Xuất kho", "Xuất kho", UrlPage.XuatHuy, "e/XuatHuy", false, "fa fa-recycle", new List<HeaderMenu>()));
+                    lstSubMenuHoatDongCheck = true;
+                }
+                if (lstQuyen.Where(p => p == "ChuyenHang_XemDS").FirstOrDefault() != null)
+                {
+                    lstSubMenuHoatDong.Add(new HeaderMenu(10, "Điều chuyển", "Điều chuyển", UrlPage.ChuyenHang, "e/ChuyenHang", false, "fa fa-truck", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
 
@@ -460,6 +466,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 if (lstSubMenuHoatDong.Where(p => p.ID <= 7).ToList().Count > 0)
                 {
                     lstSubMenuHoatDong[lstSubMenuHoatDong.Where(p => p.ID <= 7).ToList().Count - 1].EndGroup = true;
+                }
+                if (lstSubMenuHoatDong.Where(p => p.ID <= 9).ToList().Count > 0)
+                {
+                    lstSubMenuHoatDong[lstSubMenuHoatDong.Where(p => p.ID <= 9).ToList().Count - 1].EndGroup = true;
                 }
 
                 List<HeaderMenu> lstSubMenuDoiTac = new List<HeaderMenu>();
@@ -777,6 +787,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 if (lstQuyen.Where(p => p == "ChuyenHang_XemDS").FirstOrDefault() != null)
                 {
                     lstSubMenuKhoHang.Add(new HeaderMenu(4, "Điều chuyển hàng hóa", "Điều chuyển hàng hóa", UrlPage.ChuyenHang, "e/ChuyenHang", false, "fa fa-truck", new List<HeaderMenu>()));
+                    lstSubMenuKhoHangCheck = true;
+                }
+                if (lstQuyen.Where(p => p == "NhapKhoNoiBo").FirstOrDefault() != null)
+                {
+                    lstSubMenuKhoHang.Add(new HeaderMenu(10, "Nhập nội bộ", "Nhập nội bộ", UrlPage.ChuyenHang, "e/nhaphang/13", false, "fa fa-plus", new List<HeaderMenu>()));
                     lstSubMenuKhoHangCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "XuatHuy_XemDS").FirstOrDefault() != null)

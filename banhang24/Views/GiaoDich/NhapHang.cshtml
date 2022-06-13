@@ -109,29 +109,6 @@
                             </div>
                         </aside>
                     </article>
-                    <!--ko if: $root.LoaiHoaDonMenu() === 4 && ($root.role_NhapKhoNoiBo() || $root.role_NhapHangKhachThua()) -->
-                    <article class="boxLeft">
-                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                            <i class="fas fa-inbox"></i>  Loại chứng từ
-                        </h3>
-                        <aside class="op-filter-container">
-                            <div class="menuCheckbox">
-                                <ul>
-                                    <li>
-                                        <label><input type="checkbox" value="4" data-bind="checked: LoaiHoaDon_4"> Nhập hàng</label>
-                                    </li>
-                                    <li>
-                                        <label><input type="checkbox" value="13" data-bind="checked: LoaiHoaDon_13"> Nhập kho nội bộ</label>
-                                    </li>
-                                    <li>
-                                        <label><input type="checkbox" value="14" data-bind="checked: LoaiHoaDon_14"> Nhập hàng khách thừa</label>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </aside>
-                    </article>
-                    <!--/ko-->
                     <article class="boxLeft">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <img src="~/Content/images/icon/trangthai (1).png" />   Trạng thái
@@ -139,7 +116,7 @@
                         <aside class="op-filter-container">
                             <div class="menuCheckbox">
                                 <ul>
-                                    <!--ko if: $root.LoaiHoaDonMenu() === 4-->
+                                    <!--ko if: $root.LoaiHoaDonMenu() !== 31-->
                                     <li>
                                         <label><input type="checkbox" value="0" data-bind="checked: TT_TamLuu"> Phiếu tạm</label>
                                     </li>
@@ -189,7 +166,15 @@
                 <div class="op-header-title">
                     <h2 class="pull-left title">
                         @banhang24.Resources.ResourceTexts.Exchange /&nbsp;
-                        <span data-bind="text: $root.LoaiHoaDonMenu() === 4?'Nhập hàng':'Đặt hàng nhà cung cấp'"></span>
+                        <!--ko if:$root.LoaiHoaDonMenu() === 4 -->
+                        <span>Nhập hàng nhà cung cấp</span>
+                        <!--/ko-->
+                        <!--ko if:$root.LoaiHoaDonMenu() === 13 -->
+                        <span>Nhập nội bộ</span>
+                        <!--/ko-->
+                        <!--ko if:$root.LoaiHoaDonMenu() === 31 -->
+                        <span>Đặt hàng nhà cung cấp</span>
+                        <!--/ko-->
                     </h2>
                 </div>
                 <div class="flex flex-between">
@@ -256,6 +241,7 @@
                 <div class="table-reponsive bangchung table-frame">
                     <table class="table-hover table-new" id="tb">
                         <thead class="thead-boder">
+                            <!--ko if: $root.LoaiHoaDonMenu() !==13 -->
                             <tr>
                                 @foreach (var item in commonEnum.ListColumnPurchaseOrder)
                                 {
@@ -264,10 +250,21 @@
                                     </th>
                                 }
                             </tr>
+                            <!--/ko-->
+                            <!--ko if: $root.LoaiHoaDonMenu() === 13 -->
+                            <tr>
+                                @foreach (var item in commonEnum.ListColumnNhapNoiBo)
+                                {
+                                    <th class="@item.Key">
+                                        <a href="javascript:void(0)">@item.Value</a>
+                                    </th>
+                                }
+                            </tr>
+                            <!--/ko-->
                         </thead>
+                        <!--ko if: $root.LoaiHoaDonMenu() !==13 -->
                         <tbody data-bind="foreach: HoaDons">
                             <tr class="prev-tr-hide" id="table" data-bind="click: $parent.LoadChiTietHD,css:{bggray : $index()%2 == 1}">
-                                <td class="@commonEnum.colummReportDinhLuong.loaichungtu" data-bind="text: strLoaiHoaDon"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.mahoadon" data-bind="text: MaHoaDon"></td>
                                 <td class="@commonEnum.ColumnInvoices.madathang">
                                     <a data-bind="text: MaHoaDonGoc"></a>
@@ -634,8 +631,7 @@
                         </tbody>
                         <tfoot data-bind="visible: HoaDons().length > 0">
                             <tr class="border-bottom bg12 bold">
-                                <td class="@commonEnum.colummReportDinhLuong.loaichungtu">Tổng cộng</td>
-                                <td class="@commonEnum.ColumnPurchaseOrder.mahoadon"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.mahoadon">Tổng cộng</td>
                                 <td class="@commonEnum.ColumnInvoices.madathang"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.ngaylaphoadon"></td>
                                 <td class="@commonEnum.ColumnPurchaseOrder.makhachhang"></td>
@@ -660,6 +656,308 @@
                                 <td class="@commonEnum.ColumnPurchaseOrder.trangthai"></td>
                             </tr>
                         </tfoot>
+                        <!--/ko-->
+                        <!--ko if: $root.LoaiHoaDonMenu() ==13 -->
+                        <tbody data-bind="foreach: HoaDons">
+                            <tr class="prev-tr-hide" id="table" data-bind="click: $parent.LoadChiTietHD,css:{bggray : $index()%2 == 1}">
+                                <td class="@commonEnum.ColumnPurchaseOrder.mahoadon" data-bind="text: MaHoaDon"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.ngaylaphoadon"><span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.nguoiban" data-bind="text: TenNhanVien"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.tenchinhanh" data-bind="text: TenDonVi"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.tongtienhang text-right" data-bind="text: $root.HangHoa_XemGiaVon()? formatNumber3Digit(TongTienHang,2):0"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.ghichu" data-bind="text: DienGiai"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.trangthai" data-bind="text: TrangThai"></td>
+                            </tr>
+                            <tr class="op-js-tr-hide">
+                                <td colspan="10">
+                                    <div class="op-object-detail ">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active" onclick="LoadGetHeight()"><a data-bind=" attr: {href: '#home'+ ID}" data-toggle="tab">Thông tin</a></li>
+                                            <li onclick="LoadGetHeight()"><a data-bind=" attr: {href: '#infor'+ ID}, visible: ChoThanhToan !== null" data-toggle="tab">Nhật ký thanh toán</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" data-bind="attr:{ id: 'home'+ ID}">
+                                                <div class="op-object-detail ">
+                                                    <div class="op-object-detail-left">
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label"> Chi nhánh :</label>
+                                                            <div class="css-form-detail">
+                                                                <span data-bind="text:TenDonVi"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label"> Người tạo :</label>
+                                                            <div class="css-form-detail">
+                                                                <span data-bind="text:NguoiTaoHD"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft ">
+                                                            <label class="css-form-label">Mã hóa đơn:</label>
+                                                            <div class="css-form-detail">
+                                                                <input type="text" class="form-control" disabled="disabled" data-bind="value: MaHoaDon" required="" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft ">
+                                                            <label class="css-form-label">Thời gian :</label>
+                                                            <div class="css-form-detail">
+                                                                <input type="text" class="form-control txtNgayLapHD"
+                                                                       data-bind="value: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''
+                                                                               ,enable: $root.NhapHang_ThayDoiThoiGian() && $root.Enable_NgayLapHD()" required="" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label">Người nhập :</label>
+                                                            <div class="css-form-detail" data-bind="">
+                                                                <select class="form-control"
+                                                                        data-bind="options: $root.NhanViens, optionsText: 'TenNhanVien', optionsValue: 'ID', value: $data.ID_NhanVien,
+                                                                                enable: $root.NhapHang_ThayDoiNhanVien() && $root.Enable_NgayLapHD()"></select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft">
+                                                            <label class="css-form-label">Trạng thái :</label>
+                                                            <div class="css-form-detail">
+                                                                <span data-bind="text: TrangThai">Hoàn thành</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group floatleft border-end">
+                                                            <label class="css-form-label">Ghi chú :</label>
+                                                            <div class="css-form-detail">
+                                                                <textarea class="floatleft" data-bind="value: DienGiai, enable: $root.Enable_NgayLapHD()" placeholder="Ghi chú..."></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="op-object-detail-right btn-function" style="margin-left:0">
+                                                        <div class="table-res loadcthd">
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>
+                                                                            <div class="col-md-3 header-title-filter">
+                                                                                Mã hàng hóa  <span class="glyphicon glyphicon-search icon-filter"></span>
+                                                                            </div>
+                                                                            <div class="col-md-8">
+                                                                                <div class="right-inner-addon" hidden>
+                                                                                    <span class="glyphicon glyphicon-search"></span>
+                                                                                    <input type="text" class="form-control" data-bind="event:{keyup:$root.FilterHangHoaChildren}, attr:{id: 'txtSearch' + ID}" placeholder="Tìm kiếm chi tiết hàng hóa">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-1">
+                                                                                <span class="glyphicon glyphicon-chevron-left  icon-filter2" hidden></span>
+                                                                            </div>
+                                                                        </th>
+                                                                        <th>Tên hàng</th>
+                                                                        <th>Đvt</th>
+                                                                        <th data-bind="visible: $root.checkThietLapLoHang() === true">Lô hàng</th>
+                                                                        <th>Số lượng</th>
+                                                                        <th>Đơn giá</th>
+                                                                        <th class="text-right">Thành tiền</th>
+                                                                        <th>Ghi chú</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody data-bind="foreach: $parent.BH_HoaDonChiTiets">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <span data-bind="text: commonStatisJs.SubStringContent(MaHangHoa,15), attr:{title: MaHangHoa}"></span>
+                                                                            <span data-bind="text: Del" style="color:red"></span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,30), attr:{title: TenHangHoa}"></span>
+                                                                            <span data-bind="text: ThuocTinh_GiaTri" style="color:#ff6a00"></span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span style="color: #8abb0f" data-bind="visible: TenDonViTinh">
+                                                                                <span data-bind="text: TenDonViTinh"></span>
+                                                                            </span>
+                                                                        </td>
+                                                                        <td class="text-center" data-bind="visible: $root.checkThietLapLoHang() === true">
+                                                                            <span data-bind="visible: MaLoHang">
+                                                                                <a data-bind="click: $root.linkLoHangHoa"><span data-bind="text: MaLoHang" style="color:palevioletred"></span></a>
+                                                                            </span>
+                                                                        </td>
+                                                                        <td data-bind="text: formatNumber3Digit(SoLuong,2)"></td>
+                                                                        <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(DonGia,2):0"></td>
+                                                                        <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(DonGia * SoLuong,2):0"></td>
+                                                                        <td class="text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(ThanhTien,2):0"></td>
+                                                                        <td data-bind="text: GhiChu"></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <!--ko if: $root.TotalRecordCTNH() > 10-->
+                                                            <div class="page">
+                                                                <div class="flex flex-end">
+                                                                    <a href="#" data-bind="click: $root.StartPageCTNH, visible: $root.VisibleStartPageCTNH"><i class="fa fa-step-backward" aria-hidden="true"></i></a>
+                                                                    <a href="#" data-bind="click: $root.BackPageCTNH, visible: $root.VisibleStartPageCTNH "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+                                                                    <ul data-bind="foreach: $root.PageListCTNH">
+                                                                        <li>
+                                                                            <a href="javascript:void(0)" data-bind="text: pageNumberCTN, click: $root.GoToPageCTNH, css: $root.GetClassCTNH($data)"></a>
+                                                                        </li>
+                                                                    </ul>
+                                                                    <a href="#" data-bind="click: $root.GoToNextPageCTNH, visible: $root.VisibleEndPageCTNH "><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                                                    <a href="#" data-bind="click: $root.EndPageCTNH, visible: $root.VisibleEndPageCTNH "><i class="fa fa-step-forward" aria-hidden="true"></i></a>
+                                                                    <div class="total-recos">Hiển thị <span data-bind="text: $root.fromitemCTNH"></span> - <span data-bind="text: $root.toitemCTNH"></span> trên tổng số <span data-bind="text: $root.TotalRecordCTNH()"></span> mã hàng.</div>
+                                                                </div>
+                                                            </div>
+                                                            <!--/ko-->
+                                                        </div>
+                                                        <div class="op-table-summary">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6 footer-total-detail pull-right">
+                                                                <div class="floatleft sum-prduct">
+                                                                    <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                        Tổng số lượng :
+                                                                    </div>
+                                                                    <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                        <div class="row" data-bind="text: formatNumber3Digit($root.TongSLuong(),2)">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="floatleft sum-prduct">
+                                                                    <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                        Tổng số mặt hàng :
+                                                                    </div>
+                                                                    <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                        <div class="row" data-bind="text: $root.BH_HoaDonChiTietsThaoTac().length">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="floatleft sum-prduct">
+                                                                    <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                        Tổng tiền hàng :
+                                                                    </div>
+                                                                    <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                        <div class="row" data-bind="text: $root.HangHoa_XemGiaVon()? formatNumber3Digit(TongTienHang,2): 0">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex flex-end op-object-detail-function">
+                                                        <!--ko if: $root.Show_BtnEdit() && $root.Enable_NgayLapHD()-->
+                                                        <button class="btn btn-main" type="button"
+                                                                data-bind="visible: ChoThanhToan == false, click: function(){$root.SaoChep_Edit($data, 2)}">
+                                                            <i class="fa fa-share"></i> Sửa đổi
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.Show_BtnUpdate() && $root.Enable_NgayLapHD()-->
+                                                        <button class="btn btn-main" data-bind="click: $parent.editHD">
+                                                            <i class="fa fa-save"></i> Lưu
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.Show_BtnUpdate() && ChoThanhToan == true && $root.Enable_NgayLapHD()-->
+                                                        <button class="btn btn-main" data-bind="click: function(){$root.SaoChep_Edit($data, 1)}">
+                                                            <i class="fa fa-share"></i> Mở phiếu
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.LoaiHoaDonMenu() ===31 -->
+                                                        <button class="btn btn-main" data-bind="click: $root.NhapMua_fromPO">
+                                                            <i class="fa fa-share"></i> Nhập mua
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.LoaiHoaDonMenu() !==31 -->
+                                                        <div class="dropdown-mauin " style="margin-right:5px" data-bind="visible: ChoThanhToan == false  && $root.Enable_NgayLapHD()">
+                                                            <button class="btn btn-main btn-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fa fa-bars"></i>Hoạt động <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li data-bind="click: $parent.ChiTietTraHang, visible: $root.TraHangNhap_ThemMoi()">
+                                                                    <a href="javascript:void(0)">Trả hàng </a>
+                                                                </li>
+                                                                <li data-bind="click: $parent.XuatChuyenHang, visible: $root.ChuyenHang_ThemMoi()">
+                                                                    <a href="javascript:void(0)">Điều chuyển</a>
+                                                                </li>
+                                                                <li data-bind="click: $parent.XuatBanHang, visible: $root.HoaDon_ThemMoi()">
+                                                                    <a href="javascript:void(0)">Xuất bán</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <!--/ko-->
+                                                        <div class="btn-group dropdown-mauin">
+                                                            <button href="javascript:void(0)" class="btn btn-main " data-bind="click: $root.InHoaDon">
+                                                                <i class="fa fa-print" aria-hidden="true"></i> In
+                                                            </button>
+                                                            <button class="btn btn-main  dropdown-toggle dropdown-toggle-split" role="button" data-toggle="dropdown">
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" data-bind="foreach:$root.ListTypeMauIn " style="padding:0; border:none;right:0; box-shadow:3px 3px 10px rgba(0,0,0,0.15)">
+                                                                <li>
+                                                                    <a data-bind="text:Value, click:function() { $root.PrintHoaDon($parent,Key) }">123456</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <!--ko if: $root.LoaiHoaDonMenu() !==31 -->
+                                                        <button href="javascript: void(0)" class="btn btn-main" data-bind="click: $root.BarCodeChooseHH">
+                                                            <i class="fa fa-barcode"></i>In mã vạch
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.Show_BtnExcelDetail()-->
+                                                        <button href="javascript: void(0)" class="btn btn-main" data-bind="click: $parent.ExportExcel_ChiTietPhieuNhapHang">
+                                                            <i class="fa fa-file-excel-o"></i> Xuất file
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.Show_BtnCopy()-->
+                                                        <button class="btn btn-main" data-bind="click: function(){$root.SaoChep_Edit($data, 0)}">
+                                                            <i class="fa fa-cut"></i> Sao chép
+                                                        </button>
+                                                        <!--/ko-->
+                                                        <!--ko if: $root.Show_BtnDelete() && $root.Enable_NgayLapHD()-->
+                                                        <button class="btn btn-cancel" data-bind="click: $parent.modalDelete">
+                                                            <i class="fa fa-close"></i>Hủy bỏ
+                                                        </button>
+                                                        <!--/ko-->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane tab-content-next" data-bind=" attr: {id: 'infor'+ ID}">
+                                                <div class="table-res">
+                                                    <table class='table'>
+                                                        <tr>
+                                                            <th>Mã phiếu</th>
+                                                            <th>Thời gian</th>
+                                                            <th>Người tạo</th>
+                                                            <th>Phương thức</th>
+                                                            <th>Trạng thái</th>
+                                                            <th>Tiền chi</th>
+                                                        </tr>
+                                                        <tbody data-bind="foreach: $root.LichSuThanhToan">
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="javascript:void(0)" data-bind="text: MaHoaDon, click: $root.ShowPopup_InforHD_PhieuThu"></a>
+                                                                </td>
+                                                                <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></td>
+                                                                <td data-bind="text: NguoiTao"></td>
+                                                                <td data-bind="text: PhuongThucTT"></td>
+                                                                <td data-bind="text: TrangThai === false ? 'Đã hủy' : 'Đã thanh toán'"></td>
+                                                                <td data-bind="text: formatNumber3Digit(TongTienThu)"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- ko if: $root.Show_BtnThanhToanCongNo() -->
+                                                    <div class=" floatleft text-right padingtop">
+                                                        <a href="javascript:void(0)" class="btn btn-main"
+                                                           data-bind="click: $parent.showPopThanhToan">
+                                                            <i class="fa fa-save"></i> Thanh toán
+                                                        </a>
+                                                    </div>
+                                                    <!--/ko-->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot data-bind="visible: HoaDons().length > 0">
+                            <tr class="border-bottom bg12 bold">
+                                <td class="@commonEnum.ColumnPurchaseOrder.mahoadon">Tổng cộng</td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.ngaylaphoadon"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.nguoiban"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.tenchinhanh"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.tongtienhang text-right" data-bind="text: $root.HangHoa_XemGiaVon()?formatNumber3Digit(TongTienHang(),2):0"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.ghichu"></td>
+                                <td class="@commonEnum.ColumnPurchaseOrder.trangthai"></td>
+                            </tr>
+                        </tfoot>
+                        <!--/ko-->
                         <tfoot data-bind="visible: HoaDons().length === 0">
                             <tr class="Report_Empty text-center">
                                 <td colspan="16">

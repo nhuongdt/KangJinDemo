@@ -198,8 +198,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamSave);
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamdown);
                     fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel_StypeSQ(fileTeamplate, fileSave, excel, 10, 34, 24, true, 
-                        lstParam.ColumnHides, lstParam.TextTime, lstParam.TextChiNhanhs, 
+                    classOffice.listToOfficeExcel_StypeSQ(fileTeamplate, fileSave, excel, 10, 34, 24, true,
+                        lstParam.ColumnHides, lstParam.TextTime, lstParam.TextChiNhanhs,
                         tongthu, tongchi, tonquy, lstParam.TonDauKy);
 
                     var index = fileSave.IndexOf(@"\Template");
@@ -1894,6 +1894,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ID_NganHang = item.ID_TaiKhoanNganHang != null ? db.DM_TaiKhoanNganHang.Find(item.ID_TaiKhoanNganHang).ID_NganHang : (Guid?)null,
                                 HinhThucThanhToan = item.HinhThucThanhToan,
                                 LoaiThanhToan = item.LoaiThanhToan,
+                                GhiChu = item.GhiChu,
                             };
                             strIns = _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
                         }
@@ -2053,7 +2054,16 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 try
                 {
                     var data = _classQKTC.Gets(x => x.TrangThai == null || x.TrangThai != 0)
-                        .Select(x => new { x.ID, x.MaKhoanThuChi, NoiDungThuChi = x.NoiDungThuChi == null ? string.Empty : x.NoiDungThuChi, x.LaKhoanThu, x.BuTruCongNo, x.TinhLuong });
+                        .Select(x => new
+                        {
+                            x.ID,
+                            x.MaKhoanThuChi,
+                            NoiDungThuChi = x.NoiDungThuChi == null ? string.Empty : x.NoiDungThuChi,
+                            x.LaKhoanThu,
+                            x.BuTruCongNo,
+                            x.TinhLuong,
+                            LoaiChungTu = x.NguoiSua,
+                        });
                     return Json(new { res = true, data = data });
                 }
                 catch (Exception e)

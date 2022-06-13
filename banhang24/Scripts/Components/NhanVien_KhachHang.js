@@ -955,6 +955,101 @@ var cmpVaiTro = {
     }
 }
 
+var cmpLoaiChungTu = {
+    props: {
+        listAll: { default: '' },
+        textSearch: { default: '' },
+        idChosing: { default: null },
+    },
+    data: function () {
+        return {
+            listSearch: [],
+        }
+    },
+    template: `
+
+<div class="outselect add-customer">
+        <div class="gara-bill-infor-button shortlabel">
+        <input class="gara-search-HH " placeholder="Chọn chứng từ" style="padding-right: 27px!important"
+                        onclick="this.select()"
+                        v-model="textSearch" 
+                        v-on:click="showList"
+                        v-on:keyup="search"
+                        v-on:keyup.13="keyEnter"
+                        v-on:keyup.up="keyUp"
+                        v-on:keyup.down="keyDown"/>
+        <div class="gara-search-dropbox drop-search">
+               <ul>
+                    <li v-on:click="OnSelect(item)"
+                        v-for="(item, index) in listSearch">
+                        <div>
+                            <span style="color: var(--color-primary);">{{item.TenLoaiChungTu}}</span> 
+                            <span class="span-check" style="float:right" v-if="idChosing == item.ID">
+                                <i class="fa fa-check"></i>
+                            </span>
+                        </div> 
+                    </li>
+                 </ul>
+        </div>
+    </div>
+     </div>
+
+`,
+    created: function () {
+        this.listSearch = this.listAll;
+    },
+    methods: {
+        showList: function () {
+            $(event.currentTarget).next().show();
+        },
+        search: function () {
+            var self = this;
+            if (commonStatisJs.CheckNull(self.textSearch)) {
+                self.listSearch = self.listAll.slice(0, 20);
+                this.$emit('reset-item');
+            }
+            else {
+                let txt = commonStatisJs.convertVieToEng(self.textSearch);
+                self.listSearch = self.listAll.filter(e =>
+                    commonStatisJs.convertVieToEng(e.TenLoaiChungTu).indexOf(txt) >= 0
+                );
+            }
+        },
+        keyEnter: function () {
+            var self = this;
+            var chosing = $.grep(self.listSearch, function (item, index) {
+                return index === self.indexFocus;
+            });
+            if (chosing.length > 0) {
+                this.$emit('on-select-item', chosing[0]);
+            }
+        },
+        keyUp: function () {// key = 38
+            var self = this;
+            if (self.indexFocus < 0) {
+                self.indexFocus = 0;
+            }
+            else {
+                self.indexFocus = self.indexFocus - 1;
+            }
+        },
+        keyDown: function () {// key = 40
+            var self = this;
+            if (self.indexFocus > self.listSearch.length) {
+                self.indexFocus = 0;
+            }
+            else {
+                self.indexFocus = self.indexFocus + 1;
+            }
+        },
+        OnSelect: function (item) {
+            this.$emit('on-select-item', item);
+            $(event.currentTarget).closest('div').hide();
+        },
+    }
+}
+
+
 // sử dụng cho ddl đã được get sẵn data, select 1 item
 // Text1: mã/sdt, Text2: Tên
 var cmpDropdown1Item = {

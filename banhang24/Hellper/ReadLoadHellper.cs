@@ -32,7 +32,8 @@ namespace banhang24.Hellper
         public const string NhapHang = "PurchaseOrder";
         public const string DatHangNCC = "DatHangNCC";
         public const string DatHangNCCItem = "DatHangNCCItem";
-        public const string NhapHangSanXuat = "PurchaseOrderProduce";
+        public const string NhapNoiBo = "NhapNoiBo";
+        public const string NhapNoiBoItem = "NhapNoiBoItem";
         public const string NhapHangItem = "PurchaseOrderItem";
         public const string NhapHangItem2 = "PurchaseOrderItem2";
         public const string TraHangNhap = "PurchaseReturns";
@@ -2695,7 +2696,6 @@ namespace banhang24.Hellper
         }
         public static Dictionary<string, string> ListColumnPurchaseOrder = new Dictionary<string, string>()
         {
-              { colummReportDinhLuong.loaichungtu.ToString(),"Loại phiếu" },
               { ColumnPurchaseOrder.mahoadon.ToString(),"Mã hóa đơn" },
               { ColumnInvoices.madathang.ToString(),"Mã đặt hàng" },
               { ColumnPurchaseOrder.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
@@ -2717,6 +2717,17 @@ namespace banhang24.Hellper
               { ColumnInvoices.tiencoc.ToString(),"Tiền đặt cọc" },
               { ColumnPurchaseOrder.datrakhach.ToString(),"Đã trả NCC" },
               { ColumnInvoices.conno.ToString(),"Còn nợ" },
+              { ColumnPurchaseOrder.ghichu.ToString(),"Ghi chú" },
+              { ColumnPurchaseOrder.trangthai.ToString(),"Trạng thái" },
+        };
+
+        public static Dictionary<string, string> ListColumnNhapNoiBo = new Dictionary<string, string>()
+        {
+              { ColumnPurchaseOrder.mahoadon.ToString(),"Mã hóa đơn" },
+              { ColumnPurchaseOrder.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
+              { ColumnPurchaseOrder.nguoiban.ToString(),"NV lập hóa đơn" },
+              { ColumnPurchaseOrder.tenchinhanh.ToString(),"Chi nhánh" },
+              { ColumnPurchaseOrder.tongtienhang.ToString(),"Tổng tiền hàng" },
               { ColumnPurchaseOrder.ghichu.ToString(),"Ghi chú" },
               { ColumnPurchaseOrder.trangthai.ToString(),"Trạng thái" },
         };

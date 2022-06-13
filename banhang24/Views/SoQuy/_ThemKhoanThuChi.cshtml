@@ -11,7 +11,18 @@
             </div>
             <div class="modal-body ">
                 <div class="form-group floatleft">
-                    <label>Khoản thu/chi</label>
+                    <label>Loại chứng từ</label>
+                    <div class="form-news">
+                        <chungtus :list-all="ChungTus"
+                                  :text-search="newKhoanThuChi.TenLoaiChungTu"
+                                  :id-chosing="newKhoanThuChi.LoaiChungTu"
+                                  v-on:on-select-item="ChoseChungTu"
+                                  v-on:reset-item="ResetChungTu">
+                        </chungtus>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Tên khoản mục</label>
                     <div class="form-news">
                         <input type="text" class="form-control" autocomplete="off" autofocus
                                v-model="newKhoanThuChi.NoiDungThuChi" />
@@ -33,7 +44,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="form-group floatleft">
+                <div class="form-group floatleft" v-if="newKhoanThuChi.LoaiChungTu == null">
                     <label>&nbsp;</label>
                     <div class="form-news">
                         <label class="floatleft">
@@ -66,12 +77,16 @@
 <script>
     var vmKhoanThuChi = new Vue({
         el: '#vmKhoanThuChi',
+        components: {
+            'chungtus': cmpLoaiChungTu,
+        },
         created: function () {
             let self = this;
             self.UrlQuyHoaDonAPI = '/api/DanhMuc/Quy_HoaDonAPI/';
             self.inforLogin.ID_DonVi = $('#txtDonVi').val();
             self.inforLogin.UserLogin = $('#txtUserLogin').val();
             self.inforLogin.ID_NhanVien = $('#txtIDNhanVien').val();
+            console.log('khoanthuchi')
 
             if (commonStatisJs.CheckNull(self.inforLogin.ID_DonVi)) {
                 self.inforLogin.ID_DonVi = VHeader.IdDonVi;
@@ -93,6 +108,16 @@
             itemOld: {},
             inforLogin: {},
             ListBanks: [],
+            ChungTus: [
+                { ID: 1, TenLoaiChungTu: 'Hóa đơn bán lẻ' },
+                { ID: 4, TenLoaiChungTu: 'Nhập hàng' },
+                { ID: 6, TenLoaiChungTu: 'Khách trả hàng' },
+                { ID: 7, TenLoaiChungTu: 'Trả hàng nhà cung cấp' },
+                { ID: 13, TenLoaiChungTu: 'Nhập kho nội bộ' },
+                { ID: 14, TenLoaiChungTu: 'Nhập hàng khách thừa' },
+                { ID: 19, TenLoaiChungTu: 'Gói dịch vụ' },
+                { ID: 22, TenLoaiChungTu: 'Thẻ giá trị' },
+            ],
             role: {
                 Update: false,
                 Delete: true,
@@ -107,7 +132,9 @@
                 GhiChu: '',
                 NguoiTao: '',
                 TrangThai: 1,
-            }
+                LoaiChungTu: null,
+                TenLoaiChungTu: '',
+            },
         },
 
         methods: {
@@ -126,6 +153,8 @@
                     GhiChu: '',
                     NguoiTao: '',
                     TrangThai: 1,
+                    LoaiChungTu: 1,
+                    TenLoaiChungTu: '',
                 };
                 $('#vmKhoanThuChi').modal('show');
             },
@@ -133,9 +162,30 @@
                 let self = this;
                 self.saveOK = false;
                 self.typeUpdate = 2;
+                item.TenLoaiChungTu = '';
+                if (!commonStatisJs.CheckNull(item.LoaiChungTu)) {
+                    let ct = $.grep(self.ChungTus, function (x) {
+                        return x.ID === item.LoaiChungTu;
+                    });
+                    if (ct.length > 0) {
+                        item.TenLoaiChungTu = ct[0].TenLoaiChungTu;
+                    }
+                }
                 self.newKhoanThuChi = item;
+
                 self.itemOld = $.extend({}, item);
                 $('#vmKhoanThuChi').modal('show');
+            },
+
+            ChoseChungTu: function (item) {
+                let self = this;
+                self.newKhoanThuChi.LoaiChungTu = item.ID;
+                self.newKhoanThuChi.TenLoaiChungTu = item.TenLoaiChungTu;
+            },
+            ResetChungTu: function () {
+                let self = this;
+                self.newKhoanThuChi.LoaiChungTu = null;
+                self.newKhoanThuChi.TenLoaiChungTu = '';
             },
 
             CheckSave: function () {
@@ -162,12 +212,15 @@
                     LaKhoanThu: self.newKhoanThuChi.LaKhoanThu,
                     NguoiTao: self.inforLogin.UserLogin,
                     TinhLuong: self.newKhoanThuChi.TinhLuong,
-                    TrangThai: 1
+                    LoaiChungTu: self.newKhoanThuChi.LoaiChungTu,
+                    TrangThai: 1,
+                    NguoiSua: self.newKhoanThuChi.LoaiChungTu,
                 };
 
                 self.isLoading = true;
 
                 let sNKy = '<br /> - Tên khoản thu/chi: '.concat(self.newKhoanThuChi.NoiDungThuChi,
+                    '<br /> - Loại chứng từ: ', self.newKhoanThuChi.TenLoaiChungTu,
                     '<br /> - Mô tả: ', self.newKhoanThuChi.GhiChu);
 
                 if (self.typeUpdate === 1) {
@@ -192,8 +245,8 @@
                     });
                 }
                 else {
-                    obj.NguoiSua = self.inforLogin.UserLogin;
-
+                    //obj.NguoiSua = self.inforLogin.UserLogin;
+                    obj.NguoiSua = obj.LoaiChungTu;
                     ajaxHelper(self.UrlQuyHoaDonAPI + "PutQuy_KhoanThuChi", 'POST', obj).done(function (data) {
                         self.saveOK = true;
                         self.isLoading = false;
@@ -209,6 +262,7 @@
                             NoiDungChiTiet: 'Cập nhật khoản thu chi <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
                                 '<br /> <b> Thông tin cũ: </b>',
                                 '<br /> - Tên khoản thu/chi: ', self.itemOld.NoiDungThuChi,
+                                '<br /> - Loại chứng từ: ', self.itemOld.TenLoaiChungTu,
                                 '<br /> - Mô tả: ', self.itemOld.GhiChu,
                                 '<br /><b> Người sửa: </b> ', self.inforLogin.UserLogin
                             ),
@@ -223,7 +277,6 @@
                 {
                     ID: self.newKhoanThuChi.ID
                 };
-                debugger
                 commonStatisJs.ConfirmDialog_OKCancel('Xác nhận xóa',
                     'Bạn có chắc chắn muốn xóa khoản thu chi <b> ' + self.newKhoanThuChi.NoiDungThuChi + ' </b>',
                     function () {

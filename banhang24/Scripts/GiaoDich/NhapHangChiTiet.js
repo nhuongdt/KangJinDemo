@@ -172,9 +172,15 @@ var NhapHangChiTiet = function () {
     $(".btnImportExcel").hide();
     $(".filterFileSelect").hide();
 
-    if (self.LoaiHoaDonMenu() === 31) {
-        lcCTNhapHang = 'ctDatNCC';
-        lcHDNhapHang = 'hdDatNCC';
+    switch (self.LoaiHoaDonMenu()) {
+        case 13:
+            lcCTNhapHang = 'ctNhapNoiBo';
+            lcHDNhapHang = 'hdNhapNoiBo';
+            break;
+        case 31:
+            lcCTNhapHang = 'ctDatNCC';
+            lcHDNhapHang = 'hdDatNCC';
+            break;
     }
 
     var _idDonVi = VHeader.IdDonVi;
@@ -354,10 +360,10 @@ var NhapHangChiTiet = function () {
                 if (cthd[i].ThanhToan === undefined) {
                     cthd[i].ThanhToan = cthd[i].ThanhTien;
                 }
-                if (commonStatisJs.CheckNull(cthd.SoLuongConLai)) {
+                if (commonStatisJs.CheckNull(cthd[i].SoLuongConLai)) {
                     cthd[i].SoLuongConLai = 0;
                 }
-                if (commonStatisJs.CheckNull(cthd.ID_ChiTietGoiDV)) {
+                if (commonStatisJs.CheckNull(cthd[i].ID_ChiTietGoiDV)) {
                     cthd[i].ID_ChiTietGoiDV = null;
                 }
                 tongtienchuaCK += formatNumberToFloat(itFor.SoLuong) * formatNumberToFloat(itFor.DonGia);
@@ -489,7 +495,6 @@ var NhapHangChiTiet = function () {
 
             let isSaoChep = localStorage.getItem('isSaoChep') === 'true';
             let isEdit = localStorage.getItem('isEditNH') === 'true';
-
             if (isSaoChep || isEdit) {
 
                 let hdEx = $.grep(hd, function (x) {
@@ -1866,7 +1871,7 @@ var NhapHangChiTiet = function () {
 
             if (!commonStatisJs.CheckNull(item.ID_ChiTietGoiDV)) {
                 if (item.SoLuongConLai < soluong) {
-                    $(thisObj).val(formatNumber(ctDoing.SoLuong));
+                    $(thisObj).val(formatNumber(ctDoing.SoLuongConLai));
                     ShowMessage_Danger('Vui lòng không nhập quá số lượng đặt là ' + item.SoLuongConLai);
                     return;
                 }
@@ -4062,6 +4067,9 @@ var NhapHangChiTiet = function () {
                 break;
             case 31:
                 window.location.href = '/#/DatHangNCC';
+                break;
+            case 13:
+                window.location.href = '/#/NhapNoiBo';
                 break;
         }
     }

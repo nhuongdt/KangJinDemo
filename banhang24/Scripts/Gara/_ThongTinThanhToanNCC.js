@@ -84,6 +84,13 @@
                 HoanTraTamUng: 0,
             };
         },
+        GetKhoanThuChi_byLoaiChungTu: function (lakhoanthu = false) {
+            let self = this;
+            let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
+                return x.LoaiChungTu === self.inforHoaDon.LoaiHoaDon.toString() && x.LaKhoanThu === lakhoanthu;
+            });
+            return ktc;
+        },
         showModalThanhToan: function (hd) {
             console.log('hd ', hd)
             var self = this;
@@ -153,9 +160,18 @@
                 self.khoanthuchi.NoiDungThuChi = ktc[0].NoiDungThuChi;
             }
             else {
-                self.PhieuThuKhach.ID_KhoanThuChi = null;
-                self.khoanthuchi.ID = null;
-                self.khoanthuchi.NoiDungThuChi = '';
+                ktc = self.GetKhoanThuChi_byLoaiChungTu(hd.LoaiHoaDon === 7);
+                if (ktc.length > 0) {
+                    // set default khoanthuchi by loaichungtu
+                    self.PhieuThuKhach.ID_KhoanThuChi = ktc[0].ID;
+                    self.khoanthuchi.ID = ktc[0].ID;
+                    self.khoanthuchi.NoiDungThuChi = ktc[0].NoiDungThuChi;
+                }
+                else {
+                    self.PhieuThuKhach.ID_KhoanThuChi = null;
+                    self.khoanthuchi.ID = null;
+                    self.khoanthuchi.NoiDungThuChi = '';
+                }
             }
 
             datt = tienmat + tienPOS + tienCK + tiendatcoc;
@@ -180,7 +196,7 @@
                 if (hoantra > 0) {
                     cantt = hoantra;
                     if (hd.PhaiThanhToan > datt || soduDatCoc > hd.PhaiThanhToan) {
-                        self.PhieuThuKhach.TienThua = datt - hd.PhaiThanhToan ;
+                        self.PhieuThuKhach.TienThua = datt - hd.PhaiThanhToan;
                         self.PhieuThuKhach.HoanTraTamUng = 0;// HoanTraTamUng # inforHoaDon.HoanTra (xảy ra khi số dư cọc > phải TT, nhưng không sử dụng tiền cọc để TT)
                         self.PhieuThuKhach.PhaiThanhToan = hd.PhaiThanhToan - tiendatcoc;
                     }
@@ -639,7 +655,7 @@
         SavePhieuThu: function () {
             var self = this;
             var hd = self.inforHoaDon;
-            let ghichu = hd.DienGiai;
+            let ghichu = ''.concat(hd.TenDoiTuong, ' (', hd.MaDoiTuong, ') /', hd.MaHoaDon);
             var idHoaDon = hd.ID;
             let idDoiTuong = hd.ID_DoiTuong;
             idDoiTuong = idDoiTuong ? idDoiTuong : '00000000-0000-0000-0000-000000000002';
@@ -686,6 +702,13 @@
                 self.PhieuThuKhachPrint.TienPOS = tienpos;
                 self.PhieuThuKhachPrint.DaThanhToan = tongthu;
 
+                if (commonStatisJs.CheckNull(idKhoanThuChi)) {
+                    let ktc = self.GetKhoanThuChi_byLoaiChungTu(loaiThuChi === 11);
+                    if (ktc.length > 0) {
+                        idKhoanThuChi = ktc[0].ID;
+                    }
+                }
+
                 // thu tiền cọc
                 if (tiendatcoc > 0 && loaiThuChi === 12) {
                     let qct = newQuyChiTiet({
@@ -722,7 +745,7 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
-                        GhiChu: ghichu,
+                        GhiChu: ' /'.concat(ptKhach.TenTaiKhoanPos, ' - ', ptKhach.TenNganHangPos),
                         TienThu: tienpos,
                         TienPOS: tienpos,
                         HinhThucThanhToan: 2,
@@ -731,6 +754,7 @@
                     });
                     lstQuyCT.push(qct);
                     phuongthucTT += 'POS, ';
+                    ghichu += qct.GhiChu + ', ';
                 }
                 if (tienck > 0) {
                     khach_idCK = ptKhach.ID_TaiKhoanChuyenKhoan;
@@ -738,7 +762,7 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
-                        GhiChu: ghichu,
+                        GhiChu: ' /'.concat(ptKhach.TenTaiKhoanCK, ' - ', ptKhach.TenNganHangCK),
                         TienThu: tienck,
                         TienChuyenKhoan: tienck,
                         HinhThucThanhToan: 3,
@@ -747,6 +771,7 @@
                     });
                     lstQuyCT.push(qct);
                     phuongthucTT += 'Chuyển khoản, ';
+                    ghichu += qct.GhiChu;
                 }
 
                 //if (commonStatisJs.CheckNull(idDoiTuong) && tongthu < ptKhach.DaThanhToan) {

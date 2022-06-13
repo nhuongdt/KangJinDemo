@@ -16754,9 +16754,9 @@ var NewModel_BanHangLe = function () {
                         return;
                     }
                 }
-                if (commonStatisJs.CheckNull(_idDoiTuong) || _idDoiTuong === const_GuidEmpty) {
+                if (loaiHD === 1) {
                     if (objAdd[0].PhaiThanhToan > objAdd[0].DaThanhToan) {
-                        msgErr = "Là khách lẻ, nên không cho phép nợ";
+                        msgErr = "Là hóa đơn bán lẻ, không cho phép nợ";
                         ShowMessage_Danger(msgErr);
                         SaveHD_RemoveDisable();
                         return false;
@@ -21129,7 +21129,7 @@ var NewModel_BanHangLe = function () {
                         if (tienATM > item_TienPos) {
                             tienATM = tienATM - item_TienPos;
 
-                             qct = newQuyChiTiet({
+                            qct = newQuyChiTiet({
                                 ID_HoaDonLienQuan: idHoaDon,
                                 ID_KhoanThuChi: idKhoanThuChi,
                                 ID_DoiTuong: idDoiTuong,
@@ -21142,7 +21142,7 @@ var NewModel_BanHangLe = function () {
                             lstQuyChiTiet.push(qct);
                         }
                         else {
-                             qct = newQuyChiTiet({
+                            qct = newQuyChiTiet({
                                 ID_HoaDonLienQuan: idHoaDon,
                                 ID_KhoanThuChi: idKhoanThuChi,
                                 ID_DoiTuong: idDoiTuong,
@@ -21158,7 +21158,7 @@ var NewModel_BanHangLe = function () {
                     }
                 }
                 else {
-                     qct = newQuyChiTiet({
+                    qct = newQuyChiTiet({
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
@@ -21188,7 +21188,7 @@ var NewModel_BanHangLe = function () {
                         if (tienGui > item_TienCK) {
                             tienGui = tienGui - item_TienCK;
 
-                             qct = newQuyChiTiet({
+                            qct = newQuyChiTiet({
                                 ID_HoaDonLienQuan: idHoaDon,
                                 ID_KhoanThuChi: idKhoanThuChi,
                                 ID_DoiTuong: idDoiTuong,
@@ -21200,7 +21200,7 @@ var NewModel_BanHangLe = function () {
                             lstQuyChiTiet.push(qct);
                         }
                         else {
-                             qct = newQuyChiTiet({
+                            qct = newQuyChiTiet({
                                 ID_HoaDonLienQuan: idHoaDon,
                                 ID_KhoanThuChi: idKhoanThuChi,
                                 ID_DoiTuong: idDoiTuong,
@@ -21215,7 +21215,7 @@ var NewModel_BanHangLe = function () {
                     }
                 }
                 else {
-                     qct = newQuyChiTiet({
+                    qct = newQuyChiTiet({
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
@@ -21243,7 +21243,7 @@ var NewModel_BanHangLe = function () {
                     HinhThucThanhToan: 4,
                 });
                 lstQuyChiTiet.push(qct);
-             
+
                 if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                     arrPhuongThuc.push(qct.HinhThucThanhToan);
                 }
@@ -21259,7 +21259,7 @@ var NewModel_BanHangLe = function () {
                     HinhThucThanhToan: 5,
                 });
                 lstQuyChiTiet.push(qct);
-               
+
                 if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                     arrPhuongThuc.push(qct.HinhThucThanhToan);
                 }

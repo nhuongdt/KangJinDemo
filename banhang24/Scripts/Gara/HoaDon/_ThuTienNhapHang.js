@@ -46,6 +46,8 @@
             cusName: '',
             cusPhone: '',
             khoanthu: '',
+            TenNganHangPos: '',
+            TenNganHangCK: '',
         },
         role: {
             SoQuy: {},
@@ -175,6 +177,15 @@
                     }
                 });
         },
+
+        GetKhoanThuChi_byLoaiChungTu: function (lakhoanthu = false) {
+            let self = this;
+            let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
+                return x.LoaiChungTu === self.LoaiHoaDon.toString() && x.LaKhoanThu === lakhoanthu;
+            });
+            return ktc;
+        },
+
         showListNguoiNop: function () {
             $(event.currentTarget).next().show();
         },
@@ -395,6 +406,13 @@
                 LoaiHoaDon: self.LoaiHoaDon === 7 ? 11 : 12,// trahangnhap: phieuthu
                 LoaiDoiTuong: 2,
             };
+
+            let ktc = self.GetKhoanThuChi_byLoaiChungTu(self.LoaiHoaDon === 7);
+            if (ktc.length > 0) {
+                self.newPhieuThu.ID_KhoanThuChi = ktc[0].ID;
+                self.ddl_textVal.khoanthu = ktc[0].NoiDungThuChi;
+            }
+
             switch (formType) {
                 case 0:// at DS nhaphang/trahangnhap
                     var nguoinop = [];
@@ -415,7 +433,12 @@
                         }];
 
                         if (item.ID_DoiTuong !== null) {
-                            let cus = { ID: item.ID_DoiTuong, TenNguoiNop: item.TenDoiTuong, DienThoaiKhachHang: item.DienThoai };
+                            let cus = {
+                                ID: item.ID_DoiTuong,
+                                MaNguoiNop: item.MaDoiTuong,
+                                TenNguoiNop: item.TenDoiTuong,
+                                DienThoaiKhachHang: item.DienThoai
+                            };
                             nguoinop.push(cus);
                         }
 
@@ -476,6 +499,7 @@
         Only_ResetAccountPOS: function () {
             var self = this;
             self.ddl_textVal.accountPOSName = '';
+            self.ddl_textVal.TenNganHangPos = '';
             self.newPhieuThu.ID_TaiKhoanPos = null;
             self.newPhieuThu.TienPOS = 0;
         },
@@ -487,16 +511,19 @@
         ChangeAccountPOS: function (item) {
             var self = this;
             self.ddl_textVal.accountPOSName = item.TenChuThe;
+            self.ddl_textVal.TenNganHangPos = item.TenNganHang;
             self.newPhieuThu.ID_TaiKhoanPos = item.ID;
         },
         ChangeAccountCK: function (item) {
             var self = this;
             self.ddl_textVal.accountCKName = item.TenChuThe;
+            self.ddl_textVal.TenNganHangCK = item.TenNganHang;
             self.newPhieuThu.ID_TaiKhoanChuyenKhoan = item.ID;
         },
         Only_ResetAccountCK: function () {
             var self = this;
             self.ddl_textVal.accountCKName = '';
+            self.ddl_textVal.TenNganHangCK = '';
             self.newPhieuThu.ID_TaiKhoanChuyenKhoan = null;
             self.newPhieuThu.TienCK = 0;
         },
@@ -942,7 +969,13 @@
                 }
             }
 
-            let ghichu = ptKhach.NoiDungThu;
+            let sNguoiNop = '';
+            if (self.listData.NguoiNops.length > 0) {
+                if (!commonStatisJs.CheckNull(ptKhach.NoiDungThu)) {
+                    sNguoiNop = ' /' + sNguoiNop;
+                }
+            }
+            let ghichu = ptKhach.NoiDungThu + sNguoiNop;
             let idDoiTuong = ptKhach.ID_DoiTuong;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
             let tenDoiTuong = self.ddl_textVal.cusName;
@@ -1030,13 +1063,14 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
-                        GhiChu: ghichu,
+                        GhiChu: ' /'.concat(self.ddl_textVal.accountPOSName, ' - ', self.ddl_textVal.TenNganHangPos),
                         TienThu: itemFor.TienPOS,
                         TienPOS: itemFor.TienPOS,
                         HinhThucThanhToan: 2,
                         ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanPos,
                     });
                     lstQuyCT.push(qct);
+                    ghichu += qct.GhiChu;
 
                     if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                         arrPhuongThuc.push(qct.HinhThucThanhToan);
@@ -1047,13 +1081,14 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
-                        GhiChu: ghichu,
+                        GhiChu: ' /'.concat(self.ddl_textVal.accountCKName, ' - ', self.ddl_textVal.TenNganHangCK),
                         TienThu: itemFor.TienChuyenKhoan,
                         TienChuyenKhoan: itemFor.TienChuyenKhoan,
                         HinhThucThanhToan: 3,
                         ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanChuyenKhoan,
                     });
                     lstQuyCT.push(qct);
+                    ghichu += qct.GhiChu;
 
                     if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                         arrPhuongThuc.push(qct.HinhThucThanhToan);
@@ -1078,6 +1113,7 @@
                 sMaHoaDon += itemFor.MaHoaDon + ', ';
             }
             sMaHoaDon = Remove_LastComma(sMaHoaDon);
+            ghichu += '/ ' + sMaHoaDon;
 
             for (let i = 0; i < arrPhuongThuc.length; i++) {
                 switch (arrPhuongThuc[i]) {
@@ -1109,7 +1145,7 @@
                 NgayLapHoaDon: ptKhach.NgayLapHoaDon,
                 NguoiNopTien: tenDoiTuong,
                 NguoiTao: self.inforLogin.UserLogin,
-                NoiDungThu: ptKhach.NoiDungThu,
+                NoiDungThu: ghichu,
                 ID_NhanVien: ptKhach.ID_NhanVien,
                 ID_DonVi: ptKhach.ID_DonVi,
                 ID_DoiTuong: ptKhach.ID_DoiTuong,// used to get when saveDB
