@@ -60,6 +60,9 @@ namespace Model
         [Column(TypeName = "int")]
         public int? TrangThai { get; set; }
 
+        [Column(TypeName = "nvarchar")]
+        public string LoaiChungTu { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Quy_HoaDon_ChiTiet> Quy_HoaDon_ChiTiet { get; set; }
     }
