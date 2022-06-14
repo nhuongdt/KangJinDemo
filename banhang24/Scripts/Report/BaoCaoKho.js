@@ -688,9 +688,6 @@
     if (self.role_NhapKhoNoiBo()) {
         self.AllLoaiChungTu.push({ ID: 13, TenChungTu: 'Nhập kho nội bộ' });
     }
-    if (self.role_NhapHangKhachThua()) {
-        self.AllLoaiChungTu.push({ ID: 14, TenChungTu: 'Nhập hàng khách thừa' });
-    }
 
     self.getListDM_LoaiChungTuNhapKho = function (item) {
         self.MangChungTu([]);

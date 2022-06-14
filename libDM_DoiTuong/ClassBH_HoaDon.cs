@@ -6144,6 +6144,7 @@ namespace libDM_DoiTuong
     public class BH_PhieuNhapHang_Excel
     {
         public string MaHoaDon { get; set; }
+        public string MaHoaDonGoc { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
@@ -6163,6 +6164,16 @@ namespace libDM_DoiTuong
         public double? TienDatCoc { get; set; }
         public double DaThanhToan { get; set; }
         public double? ConNo { get; set; }
+        public string DienGiai { get; set; }
+        public string TrangThai { get; set; }
+    }
+    public class Excel_NhapKhoNoiBoDTO
+    {
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string TenNhanVien { get; set; }
+        public string TenDonVi { get; set; }
+        public double? TongTienHang { get; set; }
         public string DienGiai { get; set; }
         public string TrangThai { get; set; }
     }

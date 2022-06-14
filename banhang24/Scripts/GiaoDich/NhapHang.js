@@ -2278,16 +2278,21 @@
             }
         }
         console.log('columnHide', columnHide);
-
         param.columnsHide = columnHide;
-        ajaxHelper(BH_HoaDonUri + "ExportExcel_PhieuNhapHang", 'post', { objExcel: param }).done(function (url) {
+
+        let url = 'ExportExcel_PhieuNhapHang';
+        if (self.LoaiHoaDon_13()) {
+            url = 'ExportExcel_PhieuNhapKhoNoiBo';
+        }
+
+        ajaxHelper(BH_HoaDonUri + url, 'post', { objExcel: param }).done(function (url) {
             self.DownloadFileExportXLSX(url);
             var objDiary = {
                 ID_NhanVien: _id_NhanVien,
                 ID_DonVi: _IDchinhanh,
                 ChucNang: "Nhập hàng",
                 NoiDung: "Xuất excel danh sách phiếu nhập hàng",
-                NoiDungChiTiet: "Xuất excel danh sách phiếu nhập hàng",
+                NoiDungChiTiet: "Xuất excel danh sách phiếu nhập hàng".concat('<br />- Người xuất: ', VHeader.UserLogin),
                 LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
             };
             Insert_NhatKyThaoTac_1Param(objDiary);

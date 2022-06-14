@@ -1051,6 +1051,52 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
             }
         }
+
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public string ExportExcel_PhieuNhapKhoNoiBo([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ModelHoaDon model = data["objExcel"].ToObject<ModelHoaDon>();
+                List<BH_HoaDonDTO> lstAllHDs = classhoadon.GetList_HoaDonNhapHang(model);
+
+                List<Excel_NhapKhoNoiBoDTO> lst = lstAllHDs.Select(x => new Excel_NhapKhoNoiBoDTO() { 
+                    MaHoaDon = x.MaHoaDon,
+                    NgayLapHoaDon = x.NgayLapHoaDon,
+                    TenNhanVien = x.TenNhanVien,
+                    TenDonVi = x.TenDonVi,
+                    TongTienHang = x.TongTienHang,
+                    DienGiai = x.DienGiai,
+                    TrangThai = x.TrangThai,
+                }).ToList();
+
+                var tencn = "";
+                if (model.tenchinhanh != null)
+                {
+                    for (int i = 0; i < model.tenchinhanh.Count(); i++)
+                    {
+                        if (tencn == "")
+                        {
+                            tencn = model.tenchinhanh[i];
+                        }
+                        else
+                        {
+                            tencn = tencn + "," + model.tenchinhanh[i];
+                        }
+                    }
+                }
+                DataTable excel = _classOFDCM.ToDataTable<Excel_NhapKhoNoiBoDTO>(lst);
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapKhoNoiBo.xlsx" );
+                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuNhapHang.xlsx");
+                fileSave = _classOFDCM.createFolder_Download(fileSave);
+                _classOFDCM.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, model.columnsHide, model.time, tencn);
+                HttpResponse Response = HttpContext.Current.Response;
+                fileSave = _classOFDCM.createFolder_Export("~/Template/ExportExcel/PhieuNhapHang.xlsx");
+                return fileSave;
+            }
+        }
         // trinhpv xuất phiếu nhập hàng
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public string ExportExcel_PhieuNhapHang([FromBody] JObject data)
@@ -1061,11 +1107,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
                 ModelHoaDon model = data["objExcel"].ToObject<ModelHoaDon>();
                 List<BH_HoaDonDTO> lstAllHDs = classhoadon.GetList_HoaDonNhapHang(model);
+
                 List<BH_PhieuNhapHang_Excel> lst = new List<BH_PhieuNhapHang_Excel>();
                 foreach (var item in lstAllHDs)
                 {
                     BH_PhieuNhapHang_Excel DM = new BH_PhieuNhapHang_Excel();
                     DM.MaHoaDon = item.MaHoaDon;
+                    DM.MaHoaDonGoc = item.MaHoaDonGoc;
                     DM.NgayLapHoaDon = item.NgayLapHoaDon;
                     DM.MaDoiTuong = item.MaDoiTuong;
                     DM.TenDoiTuong = item.TenDoiTuong ?? "Nhà cung cấp lẻ";
@@ -1106,7 +1154,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                 }
                 DataTable excel = _classOFDCM.ToDataTable<BH_PhieuNhapHang_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapHang.xlsx");
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapHang.xlsx" );
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuNhapHang.xlsx");
                 fileSave = _classOFDCM.createFolder_Download(fileSave);
                 _classOFDCM.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, model.columnsHide, model.time, tencn);
