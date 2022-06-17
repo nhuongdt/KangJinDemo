@@ -309,6 +309,14 @@ namespace libQuy_HoaDon
         public DateTime? NgayLapPhieuThu { get; set; }
     }
 
+    public class KangJin_QuyChiTietDTO: Quy_HoaDon_ChiTietDTO
+    {
+        public string TenNganHang { get; set; }
+        public double? ChiPhiThanhToan { get; set; }
+        public bool? MacDinh { get; set; }
+        public bool? TheoPhanTram { get; set; }
+        public bool? ThuPhiThanhToan { get; set; }
+    }
     public class SP_GetListCashFlow
     {
         public Guid? ID { get; set; }
