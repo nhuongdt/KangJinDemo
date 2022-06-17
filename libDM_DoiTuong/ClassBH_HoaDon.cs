@@ -293,16 +293,16 @@ namespace libDM_DoiTuong
         /// </summary>
         /// <param name="idHoaDon,nguoiSua "></param>
         /// <returns>string: error</returns>
-        public string UpdateStatus_HDDatHang(Guid? idHoaDon, string nguoiSua)
+        public string UpdateStatus_HDDatHang(Guid? idHoaDon, string nguoiSua, int? loaiHoaDon = 1)
         {
             if (db == null)
             {
-                return null;
+                return "DB null";
             }
             else
             {
                 // find all HD was creat from HD DatHang and chua bi Huy
-                var lstHDfromDH = db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon && x.LoaiHoaDon == 1 && x.ChoThanhToan != null);
+                var lstHDfromDH = db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon && x.LoaiHoaDon == loaiHoaDon && x.ChoThanhToan != null);
 
                 BH_HoaDon itemDH = db.BH_HoaDon.Find(idHoaDon);
 
@@ -328,7 +328,6 @@ namespace libDM_DoiTuong
                 {
                     return "Error";
                 }
-
             }
             return "";
         }
