@@ -1062,7 +1062,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ModelHoaDon model = data["objExcel"].ToObject<ModelHoaDon>();
                 List<BH_HoaDonDTO> lstAllHDs = classhoadon.GetList_HoaDonNhapHang(model);
 
-                List<Excel_NhapKhoNoiBoDTO> lst = lstAllHDs.Select(x => new Excel_NhapKhoNoiBoDTO() { 
+                List<Excel_NhapKhoNoiBoDTO> lst = lstAllHDs.Select(x => new Excel_NhapKhoNoiBoDTO()
+                {
                     MaHoaDon = x.MaHoaDon,
                     NgayLapHoaDon = x.NgayLapHoaDon,
                     TenNhanVien = x.TenNhanVien,
@@ -1088,7 +1089,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                 }
                 DataTable excel = _classOFDCM.ToDataTable<Excel_NhapKhoNoiBoDTO>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapKhoNoiBo.xlsx" );
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapKhoNoiBo.xlsx");
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuNhapHang.xlsx");
                 fileSave = _classOFDCM.createFolder_Download(fileSave);
                 _classOFDCM.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, model.columnsHide, model.time, tencn);
@@ -1154,7 +1155,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                 }
                 DataTable excel = _classOFDCM.ToDataTable<BH_PhieuNhapHang_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapHang.xlsx" );
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuNhapHang.xlsx");
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuNhapHang.xlsx");
                 fileSave = _classOFDCM.createFolder_Download(fileSave);
                 _classOFDCM.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, model.columnsHide, model.time, tencn);
@@ -3891,6 +3892,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet, HttpPost]
+        public string UpdateStatus_HDDatHang(Guid id, string nguoiSua, int? loaihoadon = 1)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                if (db == null)
+                {
+                    return "Chưa kết nối DB";
+                }
+                else
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    return classhoadon.UpdateStatus_HDDatHang(id, nguoiSua, loaihoadon);
+                }
+            }
+        }
+
+
         #endregion
 
         #region update hoa dong chuyen hang
@@ -4828,7 +4847,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 {
                                     txtFirst = "Lưu tạm phiếu trả hàng nhập: ";
                                 }
-                                break;  
+                                break;
                             case 13:
                                 tenChucNang = "Nhập kho nội bộ";
                                 if (objHoaDon.ChoThanhToan.Value == false)
@@ -4839,7 +4858,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 {
                                     txtFirst = "Lưu tạm phiếu nhập kho nội bộ: ";
                                 }
-                                break; 
+                                break;
                             case 14:
                                 tenChucNang = "Nhập hàng khách thừa";
                                 if (objHoaDon.ChoThanhToan.Value == false)
@@ -4850,7 +4869,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 {
                                     txtFirst = "Lưu tạm phiếu nhập hàng thừa của khách: ";
                                 }
-                                break;  
+                                break;
                             case 31:
                                 tenChucNang = "Đặt hàng nhà cung cấp";
                                 if (objHoaDon.ChoThanhToan.Value == false)
@@ -5279,15 +5298,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 case 7:
                                     tenChucNang = "Trả hàng nhập";
                                     txtFirst = "Cập nhật phiếu trả hàng nhập: ";
-                                    break;  
+                                    break;
                                 case 31:
                                     tenChucNang = "Đặt hàng nhà cung cấp";
                                     txtFirst = "Cập nhật phiếu đặt hàng nhà cung cấp: ";
-                                    break; 
+                                    break;
                                 case 13:
                                     tenChucNang = "Nhập kho nội bộ";
                                     txtFirst = "Cập nhật phiếu nhập kho nội bộ: ";
-                                    break;  
+                                    break;
                                 case 14:
                                     tenChucNang = "Nhập hàng khách thừa";
                                     txtFirst = "Cập nhật phiếu nhập hàng khách thừa: ";
@@ -7420,7 +7439,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                                 HT_ThongBao httbCH = new HT_ThongBao();
                                 httbCH.ID = Guid.NewGuid();
-                                httbCH.ID_DonVi = itemBH_HoaDon.ID_DonVi;
+                                httbCH.ID_DonVi = itemBH_HoaDon.ID_CheckIn ?? itemBH_HoaDon.ID_DonVi;
                                 httbCH.LoaiThongBao = 1; //loai = 0 thông báo hết hàng, 1: thông báo có đơn chuyển hàng, 3: thông báo ngày sinh nhật
                                 httbCH.NoiDungThongBao = "<p onclick=\"loaddadoc('" + httbCH.ID + "')\"> Đơn chuyển hàng <a onclick=\"loadthongbao('2', '" + mahoadon + "','" + httbCH.ID + "')\">" + " <span class=\"blue\">" + mahoadon + " </span>" + " </a> đã được nhận thành công </p>";
                                 httbCH.NgayTao = DateTime.Now;
