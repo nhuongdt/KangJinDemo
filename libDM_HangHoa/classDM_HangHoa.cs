@@ -1303,7 +1303,7 @@ namespace libDM_HangHoa
                 dM_HangHoaDTO.SoLuong = 1;
                 dM_HangHoaDTO.TonKho = Math.Round(TinhSLTonHH(item.ID, iddonvi).Value / item.TyLeChuyenDoi, 3, MidpointRounding.ToEven);
                 dM_HangHoaDTO.GiaBan = item.GiaBan;
-                dM_HangHoaDTO.GiaVon = Math.Round((double)item.GiaVon, MidpointRounding.ToEven); // 1* DonGia
+                dM_HangHoaDTO.GiaVon = item.GiaVon; // 1* DonGia
                 dM_HangHoaDTO.GiaNhap = item.GiaNhap;
                 dM_HangHoaDTO.GiamGia = 0;
                 dM_HangHoaDTO.TenDonViTinh = item.TenDonViTinh;
