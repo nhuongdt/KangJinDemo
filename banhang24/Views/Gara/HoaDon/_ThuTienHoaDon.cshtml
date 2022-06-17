@@ -212,53 +212,71 @@
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                             <input type="text" class="form-control text-right floatleft" onclick="this.select()"
-                                    onkeypress="keypressNumber_limitNumber(event,this)"
+                                   onkeypress="keypressNumber_limitNumber(event,this)"
                                    v-model="newPhieuThu.TienMat"
                                    v-on:keyup="EditTienMat" />
                         </div>
                     </div>
                     <!--tiền POS-->
-                    <div class="container-fluid" style="margin-bottom:5px">
+                    <div class="container-fluid _jsCheck" style="margin-bottom:5px"
+                         v-for="(pos, index1) in newPhieuThu.ListTKPos">
                         <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                            <label>Tiền quẹt thẻ POS </label>
+                            <label v-if="index1 ==0">Tiền quẹt thẻ POS </label>
+                            <span v-if="index1 > 0" style="float: right;padding: 5px 0px"
+                                  v-on:click="RemoveAccount(0,index1)">
+                                <a>
+                                    <i class="fal fa-times" style="font-size:18px"></i>
+                                </a>
+                            </span>
                         </div>
-                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                            <account-bank :text-search="ddl_textVal.accountPOSName"
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"
+                             v-on:click="GetIndexChosing(0,index1)">
+                            <account-bank :text-search="pos.TenTaiKhoanPos"
                                           :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
                                           :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
-                                          :id-chosing="newPhieuThu.ID_TaiKhoanPos"
+                                          :id-chosing="pos.ID_TaiKhoanPos"
                                           v-on:change-account-parent="ChangeAccountPOS"
-                                          v-on:reset-account="ResetAccountPOS">
+                                          v-on:reset-account="ResetAccountPOS"
+                                          v-on:add-row="AccountPos_AddRow">
                             </account-bank>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                             <input type="text" class="form-control text-right floatleft _jsInput" onclick="this.select()"
                                    onkeypress="keypressNumber_limitNumber(event,this)"
-                                   v-model="newPhieuThu.TienPOS"
-                                   v-on:keyup="EditTienPos"
-                                   v-bind:disabled="newPhieuThu.ID_TaiKhoanPos==null" />
+                                   v-model="pos.TienPOS"
+                                   v-on:keyup="EditTienPos(index1)"
+                                   v-bind:disabled="pos.ID_TaiKhoanPos==null" />
                         </div>
                     </div>
                     <!--tiền Chuyển khoản-->
-                    <div class="container-fluid" style="margin-bottom:5px">
+                    <div class="container-fluid _jsCheck" style="margin-bottom:5px"
+                          v-for="(ck, index2) in newPhieuThu.ListTKChuyenKhoan">
                         <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                            <label>Tiền chuyển khoản</label>
+                            <label v-if="index2 ==0">Tiền chuyển khoản</label>
+                            <span v-if="index2 > 0" style="float: right;padding: 5px 0px"
+                                  v-on:click="RemoveAccount(1,index2)">
+                                <a>
+                                    <i class="fal fa-times" style="font-size:18px"></i>
+                                </a>
+                            </span>
                         </div>
-                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                            <account-bank :text-search="ddl_textVal.accountCKName"
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"
+                              v-on:click="GetIndexChosing(1,index2)">
+                            <account-bank :text-search="ck.TenTaiKhoanCK"
                                           :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
                                           :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
-                                          :id-chosing="newPhieuThu.ID_TaiKhoanChuyenKhoan"
+                                          :id-chosing="ck.ID_TaiKhoanChuyenKhoan"
                                           v-on:change-account-parent="ChangeAccountCK"
-                                          v-on:reset-account="ResetAccountCK">
+                                          v-on:reset-account="ResetAccountCK"
+                                          v-on:add-row="AccountCK_AddRow">
                             </account-bank>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                             <input type="text" class="form-control text-right floatleft _jsInput" onclick="this.select()"
-                                    onkeypress="keypressNumber_limitNumber(event,this)"
-                                   v-model="newPhieuThu.TienCK"
-                                   v-on:keyup="EditTienCK"
-                                   v-bind:disabled="newPhieuThu.ID_TaiKhoanChuyenKhoan==null" />
+                                   onkeypress="keypressNumber_limitNumber(event,this)"
+                                   v-model="ck.TienCK"
+                                   v-on:keyup="EditTienCK(index2)"
+                                   v-bind:disabled="ck.ID_TaiKhoanChuyenKhoan==null" />
                         </div>
                     </div>
 
@@ -294,8 +312,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="container-fluid" style="margin-bottom:5px"
-                         v-if="!$root.showCheckHachToan && (formType == 2 || formType == 1) && newPhieuThu.LoaiHoaDon === 11">
+                    <div class="container-fluid" style="margin-bottom:5px; display:none" 
+                         @*v-if="!$root.showCheckHachToan && (formType == 2 || formType == 1) && newPhieuThu.LoaiHoaDon === 11"*@
+                         >
                         <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
                             <label>
                             </label>
@@ -398,12 +417,12 @@
                 <button type="button" class="btn btn-cancel " data-dismiss="modal">
                     <i class="fa fa-ban"></i>Đóng
                 </button>
-                <button type="button" class="btn btn-cancel " 
+                <button type="button" class="btn btn-cancel "
                         v-if="role.PhieuThu.Delete && typeUpdate == 1 && newPhieuThu.TrangThai && !$root.isKhoaSo"
                         v-on:click="$root.HuyPhieu">
                     <i class="fa fa-trash"></i> Xóa
                 </button>
-                <button type="button" class="btn btn-save " 
+                <button type="button" class="btn btn-save "
                         v-on:click="SavePhieuThu(false)"
                         v-if="!isLoading && typeUpdate === 1 && newPhieuThu.TrangThai && role.PhieuThu.Update && !$root.isKhoaSo">
                     <i class="fa fa-save"></i>
