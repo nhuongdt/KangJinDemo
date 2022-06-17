@@ -594,7 +594,7 @@ var cmpChoseAccountBank = {
     props: ['accounts', 'textSearch', 'searchList', 'idChosing'],
     props: {
         textSearch: { default: [] },
-        formType: { default: 0 },// 1.soquy, 0.conlai (thanh toán nhiều tk ngân hàng)
+        formType: { default: 0 },// 1.soquy, 2.thanh toán nhiều tk ngân hàng, 0.conlai
         idChosing: { default: null },
         searchList: { default: [] },
         accounts: { default: [] },
@@ -609,8 +609,8 @@ var cmpChoseAccountBank = {
                 <i class="fa fa-eye" ></i>
             </a>
         </div>   
-        <div v-if="formType === 0" v-on:click="addRow">
-            <a>
+        <div v-if="formType === 2" v-on:click="addRow">
+            <a title="Thêm hình thức thanh toán cùng loại">
                <i class="fal fa-plus"></i>
             </a>
         </div>
@@ -1000,6 +1000,8 @@ var cmpLoaiChungTu = {
     },
     methods: {
         showList: function () {
+            var self = this;
+            self.listSearch = self.listAll.slice(0, 20);
             $(event.currentTarget).next().show();
         },
         search: function () {
