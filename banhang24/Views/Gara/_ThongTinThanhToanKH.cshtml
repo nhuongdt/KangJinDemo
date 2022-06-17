@@ -221,6 +221,7 @@
                                                   :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
                                                   :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
                                                   :id-chosing="pos.ID_TaiKhoanPos"
+                                                   :form-type="2"
                                                   v-on:change-account-parent="ChangeAccountPOS"
                                                   v-on:reset-account="ResetAccountPOS"
                                                   v-on:add-row="AccountPos_AddRow">
@@ -254,6 +255,7 @@
                                                   :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
                                                   :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS==false)"
                                                   :id-chosing="ck.ID_TaiKhoanChuyenKhoan"
+                                                   :form-type="2"
                                                   v-on:change-account-parent="ChangeAccountCK"
                                                   v-on:reset-account="ResetAccountCK"
                                                   v-on:add-row="AccountCK_AddRow">
@@ -430,36 +432,24 @@
                             <div class="op-ck-right">
                                 <div class="flex flex-row" style="height:24px">
                                     <div class="col-md-4 col-sm-6 col-xs-12 ">
-                                        <span>Doanh thu: </span>
-                                        <span>{{formatNumber3Digit(inforHoaDon.TongThanhToan - inforHoaDon.TongTienThue,2)}}</span>
-
-                                    </div>
-
-                                    <div class="col-md-4 col-sm-6 col-xs-12 ">
-
                                         <span>Thực thu: </span>
-                                        <span class="red">{{formatNumber3Digit( PhieuThuKhach.ThucThu + PhieuThuBaoHiem.ThucThu,2)}}</span>
+                                        <span class="red">{{formatNumber3Digit(PhieuThuKhach.ThucThu + PhieuThuBaoHiem.ThucThu,2)}}</span>
+                                    </div>
 
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <span>Phí ngân hàng: </span>
+                                        <span class="red" v-if="PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">{{PhieuThuKhach.PhiThanhToan_PTGiaTri}} %</span>
+                                        <span class="red">
+                                            <span v-if="PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">(</span>
+                                            <span>
+                                                {{formatNumber3Digit(PhieuThuKhach.TongPhiThanhToan)}}
+                                            </span>
+                                            <span v-if="PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">)</span>
+                                        </span>
                                     </div>
                                     <div class="col-md-4 col-sm-6 col-xs-12 ">
-
-                                        <span>Còn nợ: </span>
-                                        <span>{{formatNumber3Digit(inforHoaDon.ConNo,2)}}</span>
-
-                                    </div>
-                                </div>
-                                <div class="flex flex-row" v-if="inforHoaDon.LoaiHoaDon == 0">
-                                    <div class="col-md-6 col-sm-6 col-xs-12 ">
-
-                                        <span>Tiền thuế: </span>
-                                        <span>{{formatNumber3Digit(inforHoaDon.TongTienThue,2)}}</span>
-
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12 ">
-
-                                        <span>Thực thu: </span>
-                                        <span class=" red">{{formatNumber3Digit( PhieuThuKhach.ThucThu + PhieuThuBaoHiem.ThucThu,2)}}</span>
-
+                                        <span>Thực tính: </span>
+                                        <span class="red">{{formatNumber3Digit(PhieuThuKhach.ThucThu + PhieuThuBaoHiem.ThucThu - PhieuThuKhach.TongPhiThanhToan)}}</span>
                                     </div>
                                 </div>
                                 <div class="flex flex-row">
@@ -485,11 +475,11 @@
                                     <table class="table position-relative" style="padding-bottom:50px">
                                         <thead>
                                             <tr>
-                                                <th>Nhân viên 1</th>
-                                                <th>Chiết khấu</th>
-                                                <th>Hệ số</th>
-                                                <th>Tiền được nhận</th>
-                                                <th></th>
+                                                <th>Tên nhân viên</th>
+                                                <th style="width:25%">% Chiết khấu</th>
+                                                <th style="width:5%">Hệ số</th>
+                                                <th style="width:25%">Thành tiền</th>
+                                                <th style="width:5%">#</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -498,21 +488,21 @@
                                                     <div class="ellipsis-text width-200" style="min-width:200px">{{item.TenNhanVien}}</div>
                                                 </td>
                                                 <td>
-                                                    <input class='input-simple width-125 text-right'
-                                                           v-bind:value="parseInt(item.TinhChietKhauTheo) != 3? item.ChietKhauMacDinh: formatNumber3Digit(item.ChietKhauMacDinh,2)"
-                                                           v-on:click="HoaHongHD_ShowDivChietKhau(item, index)" />
+                                                    <input class='input-simple text-right'
+                                                           v-model="item.ChietKhauMacDinh"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(1)"
+                                                           v-on:keyup="HoaHongHD_EditChietKhau(item, index)" />
+                                                </td>
+                                                <td class="text-center">
+                                                    {{item.HeSo}}
                                                 </td>
                                                 <td>
-                                                    <input class='input-simple width-125 text-right'
-                                                           onkeypress="keypressNumber_limitNumber(event,this)"
-                                                           v-model="item.HeSo"
-                                                           v-bind:disabled=" parseInt(IsShareDiscount) === 1"
-                                                           v-on:keyup="HoaHongHD_EditHeSo(item,index)" />
+                                                    <input class='input-simple text-right'
+                                                           v-model="item.TienChietKhau"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(3)"
+                                                           v-on:keyup="HoaHongHD_EditThanhTien(item, index)" />
                                                 </td>
-                                                <td style="text-align:center">
-                                                    <span>{{ formatNumber3Digit(item.TienChietKhau,2)}}</span>
-                                                </td>
-                                                <td>
+                                                <td class="text-center">
                                                     <a title="Xóa"
                                                        v-on:click="HoaHongHD_RemoveNhanVien(index)">
                                                         <i class="fa fa-close text-danger"></i>
@@ -528,7 +518,7 @@
                                                 <input class="search-line" autocomplete="off" onclick="this.select()"
                                                        style="width:calc(100% - 120px)"
                                                        onkeypress="keypressNumber_limitNumber(event,this)"
-                                                       v-on:keyup="HoaHongHD_EditChietKhau()" />
+                                                       v-on:keyup="HoaHongHD_EditChietKhau" />
                                             </div>
                                             <div class="options flex flex-between lineHeight-30" style="width: 100%;">
                                                 <label>
