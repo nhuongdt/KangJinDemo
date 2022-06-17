@@ -1632,10 +1632,10 @@ namespace libQuy_HoaDon
             }
         }
 
-        public List<Quy_HoaDon_ChiTietDTO> GetQuyChiTiet_byIDQuy(Guid id)
+        public List<KangJin_QuyChiTietDTO> GetQuyChiTiet_byIDQuy(Guid id)
         {
             SqlParameter param = new SqlParameter("ID", id);
-            return db.Database.SqlQuery<Quy_HoaDon_ChiTietDTO>("GetQuyChiTiet_byIDQuy @ID", param).ToList();
+            return db.Database.SqlQuery<KangJin_QuyChiTietDTO>("GetQuyChiTiet_byIDQuy @ID", param).ToList();
         }
         public List<Quy_HoaDon_ChiTietDTO> GetCT_QuyHoaDon(Guid id)
         {
@@ -2185,6 +2185,7 @@ namespace libQuy_HoaDon
                     objUpd.GhiChu = obj.GhiChu;
                     objUpd.LaKhoanThu = obj.LaKhoanThu;
                     objUpd.TinhLuong = obj.TinhLuong;
+                    objUpd.LoaiChungTu = obj.LoaiChungTu;
                     objUpd.NguoiSua = obj.NguoiSua;
                     objUpd.NgaySua = DateTime.Now;
                     db.Entry(objUpd).State = EntityState.Modified;
