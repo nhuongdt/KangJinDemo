@@ -5415,6 +5415,12 @@
         newHD.PTChietKhauHH = obj.PTChietKhauHH;
         newHD.HeaderBH_GiaTriPtram = 0;
         newHD.HeaderBH_Type = 1;
+        // reset infor pthuc ThanhToan
+        newHD.TienMat = 0;
+        newHD.TienATM = 0;
+        newHD.TienGui = 0;
+        newHD.TienTheGiaTri = 0;
+        newHD.TTBangDiem = 0;
 
         if (commonStatisJs.CheckNull(item.CongThucBaoHiem)) {
             newHD.CongThucBaoHiem = 0;
