@@ -450,6 +450,10 @@
             }
             var thisObj = $(event.currentTarget);
             var heso = formatNumberToFloat(thisObj.val());
+            if (heso > 1) {
+                ShowMessage_Danger('Hệ số không được vượt quá 1');
+                return false;
+            }
 
             var gtritinhCK = self.DichVu_isDoing.GiaTriTinhCK;
             var tienCK = 0;
