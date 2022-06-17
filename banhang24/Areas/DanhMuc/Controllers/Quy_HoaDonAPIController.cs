@@ -749,15 +749,19 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                    // where nh.ID_DonVi == idDonVi
                                    select new
                                    {
-                                       ID = tk.ID,
-                                       ID_DonVi = tk.ID_DonVi,
-                                       ID_NganHang = tk.ID_NganHang,
-                                       TenChuThe = tk.TenChuThe,
-                                       SoTaiKhoan = tk.SoTaiKhoan,
-                                       GhiChu = tk.GhiChu,
-                                       TaiKhoanPOS = tk.TaiKhoanPOS,
-                                       TenNganHang = nh.TenNganHang,
+                                       tk.ID,
+                                       tk.ID_DonVi,
+                                       tk.ID_NganHang,
+                                       tk.TenChuThe,
+                                       tk.SoTaiKhoan,
+                                       tk.GhiChu,
+                                       tk.TaiKhoanPOS,
+                                       nh.TenNganHang,
                                        TrangThai = tk.TrangThai == null ? 1 : tk.TrangThai.Value,
+                                       ChiPhiThanhToan = nh.ChiPhiThanhToan == null ? 0 : nh.ChiPhiThanhToan,
+                                       TheoPhanTram = nh.TheoPhanTram == null ? true : nh.TheoPhanTram,
+                                       nh.MacDinh,
+                                       nh.ThuPhiThanhToan,
                                        TextSearchAuto = string.Concat(tk.TenChuThe, " ", tk.SoTaiKhoan, " ", nh.TenNganHang, " ", nh.MaNganHang)
                                    }).Where(p => p.TrangThai == 1).ToList();
                         return Json(new { res = true, data = tbl });
@@ -984,7 +988,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 try
                 {
                     classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
-                    List<Quy_HoaDon_ChiTietDTO> data = _classQHD.GetQuyChiTiet_byIDQuy(id);
+                    List<KangJin_QuyChiTietDTO> data = _classQHD.GetQuyChiTiet_byIDQuy(id);
                     return ActionTrueData(data);
                 }
                 catch (Exception ex)
@@ -1385,6 +1389,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ID_NhanVien = objCTQuyHoaDon.ID_NhanVien,
                                 ID_KhoanThuChi = objCTQuyHoaDon.ID_KhoanThuChi,
                                 ID_TaiKhoanNganHang = objCTQuyHoaDon.ID_TaiKhoanNganHang,
+                                ChiPhiNganHang = objCTQuyHoaDon.ChiPhiNganHang,
+                                LaPTChiPhiNganHang = objCTQuyHoaDon.LaPTChiPhiNganHang,
                                 ID_NganHang = objCTQuyHoaDon.ID_TaiKhoanNganHang != null ? db.DM_TaiKhoanNganHang.Find(objCTQuyHoaDon.ID_TaiKhoanNganHang).ID_NganHang : (Guid?)null,
                             };
                             strIns = _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
@@ -1681,6 +1687,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 DiemThanhToan = item.DiemThanhToan,
                                 ID_DoiTuong = item.ID_DoiTuong == null ? Guid.Empty : item.ID_DoiTuong,
                                 ID_KhoanThuChi = item.ID_KhoanThuChi,
+                                ChiPhiNganHang = item.ChiPhiNganHang,
+                                LaPTChiPhiNganHang = item.LaPTChiPhiNganHang,
                                 ID_TaiKhoanNganHang = item.ID_TaiKhoanNganHang,
                                 ID_NganHang = item.ID_TaiKhoanNganHang != null ? db.DM_TaiKhoanNganHang.Find(item.ID_TaiKhoanNganHang).ID_NganHang : (Guid?)null,
                             };
@@ -1895,6 +1903,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 HinhThucThanhToan = item.HinhThucThanhToan,
                                 LoaiThanhToan = item.LoaiThanhToan,
                                 GhiChu = item.GhiChu,
+                                ChiPhiNganHang = item.ChiPhiNganHang,
+                                LaPTChiPhiNganHang = item.LaPTChiPhiNganHang,
                             };
                             strIns = _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
                         }
@@ -2062,7 +2072,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.LaKhoanThu,
                             x.BuTruCongNo,
                             x.TinhLuong,
-                            LoaiChungTu = x.NguoiSua,
+                            x.LoaiChungTu,
                         });
                     return Json(new { res = true, data = data });
                 }
