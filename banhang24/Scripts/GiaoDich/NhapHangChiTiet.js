@@ -486,7 +486,7 @@ var NhapHangChiTiet = function () {
                 TenDoiTuong: cthd[0].TenDoiTuong,
                 NguoiTao: _userLogin,
                 SoDuDatCoc: 0,
-                ConThieu: cthd[0].PhaiThanhToan - cthd[0].DaThanhToan,
+                ConThieu: cthd[0].PhaiThanhToan - cthd[0].KhachDaTra,
                 TienMat: 0,
                 TienPOS: 0,
                 TienChuyenKhoan: 0,
@@ -3803,10 +3803,9 @@ var NhapHangChiTiet = function () {
         khachdatra = khachdatra === undefined ? 0 : khachdatra;
         let datcoc = self.newHoaDon().SoDuDatCoc();
         datcoc = datcoc === undefined ? 0 : datcoc;
-        let phaiTT = (self.newHoaDon().TongTienHang() + tienthue) - ggHD - khachdatra - datcoc;
-        if (phaiTT < 0) {
-            self.newHoaDon().HoanTra(Math.abs(phaiTT));
-            phaiTT = 0;
+        let phaiTT = self.newHoaDon().TongTienHang() + tienthue - ggHD;
+        if (phaiTT - khachdatra < 0) {
+            self.newHoaDon().HoanTra(Math.abs(phaiTT - khachdatra));
         }
         else {
             self.newHoaDon().HoanTra(0);
@@ -3814,7 +3813,7 @@ var NhapHangChiTiet = function () {
         self.newHoaDon().PhaiThanhToan(phaiTT);
         self.newHoaDon().TongGiamGia(ggHD);
         self.newHoaDon().TongThanhToan(phaiTT);
-        self.newHoaDon().ConThieu(phaiTT - daTT);
+        self.newHoaDon().ConThieu(phaiTT - daTT - khachdatra);
 
         let lstHD = localStorage.getItem(lcHDNhapHang);
         if (lstHD !== null) {
@@ -4312,7 +4311,7 @@ var NhapHangChiTiet = function () {
     }
 
     function CheckXuLyHet_DonDatHang(loaiHoaDon, idHoaDon, idDatHang) {
-        if (loaiHoaDon === 4 && idDatHang !== null && idDatHang !== const_GuidEmpty) {
+        if (loaiHoaDon === 4 && commonStatisJs.CheckNull(idDatHang)) {
             ajaxHelper(BH_HoaDonUri + 'CheckXuLyHet_DonDathang?idHoaDon=' + idHoaDon + '&idDatHang=' + idDatHang, 'GET').done(function (x) {
                 if (x === true) {
                     UpdateStatudHD(idDatHang, 3);
@@ -4726,12 +4725,7 @@ var NhapHangChiTiet = function () {
             datt = tienmat + tienPOS + tienCK + tiendatcoc;
             if (datt === 0) {
                 if (hoantra > 0) {
-                    datt = cantt = hoantra;
-                    if (obj.SoDuDatCoc > 0) {
-                        tiendatcoc = hd.PhaiThanhToan;
-                        vmThanhToan.isCheckTraLaiCoc = true;
-                    }
-                    tienmat = hoantra;
+                    // todo: có nên tạo phiếu thu hoàn trả tiền??                    
                 }
                 else {
                     if (formatNumberToFloat(obj.DaThanhToan) > 0) {
@@ -4794,10 +4788,10 @@ var NhapHangChiTiet = function () {
             formatNumberToFloat(hd.TongTienHang())
             - formatNumberToFloat(hd.TongGiamGia())
             + formatNumberToFloat(hd.TongTienThue())
-            + formatNumberToFloat(hd.TongChiPhi())
-            - hd.KhachDaTra();
+            + formatNumberToFloat(hd.TongChiPhi());
 
         var obj = {
+            IDRandom: self.newHoaDon().IDRandom(),
             MaHoaDon: '',
             LoaiDoiTuong: 2,// 1.kh, 2.ncc, 3.bh
             LoaiHoaDon: hd.LoaiHoaDon(),

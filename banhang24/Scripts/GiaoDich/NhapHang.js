@@ -171,7 +171,7 @@
 
     function LoadColumnCheck() {
         let sLoai = 4;
-        if (self.LoaiHoaDonMenu()===13) {
+        if (self.LoaiHoaDonMenu() === 13) {
             sLoai = self.LoaiHoaDonMenu();
         }
         ajaxHelper('/api/DanhMuc/BaseAPI/' + "GetListColumnInvoices?loaiHD=" + sLoai, 'GET').done(function (data) {
@@ -245,7 +245,7 @@
                     self.HoaDon_ThemMoi(CheckQuyenExist('HoaDon_ThemMoi'));
                     self.Show_BtnUpdateSoQuy(CheckQuyenExist('SoQuy_CapNhat'));
                     self.Show_BtnDeleteSoQuy(CheckQuyenExist('SoQuy_Xoa'));
-                    self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));                
+                    self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));
 
                     switch (self.LoaiHoaDonMenu()) {
                         case 4:
@@ -742,7 +742,7 @@
                             }
                             Post_NhatKySuDung_UpdateGiaVon(diary);
 
-                            UpdateStatudHD(item.ID_HoaDon, 4);
+                            UpdateStatudHD(item.ID_HoaDon);
 
                         }).fail(function () {
                             ShowMessage_Success('Hủy hóa đơn thất bại');
@@ -752,13 +752,14 @@
         });
     };
 
-    function UpdateStatudHD(idDatHang, status) {
+    function UpdateStatudHD(idDatHang) {
         if (!commonStatisJs.CheckNull(idDatHang)) {
-            ajaxHelper(BH_HoaDonUri + 'Update_StatusHD?id=' + idDatHang + '&Status=' + status, 'POST').done(function (data) {
-                if (data === '') {
-                }
-            }).fail(function () {
-            });
+            ajaxHelper(BH_HoaDonUri + 'UpdateStatus_HDDatHang?id=' + idDatHang + '&nguoiSua=' + VHeader.UserLogin
+                + '&loaihoadon=4', 'GET').done(function (data) {
+                    if (data === '') {
+                    }
+                }).fail(function () {
+                });
         }
     }
 
@@ -1579,21 +1580,16 @@
         var arrIDQuiDoi = [];
         var cthdLoHang = [];
         var khachdatra = 0;
-        var phaitt = 0;
-        var datt = 0;
+        var phaitt = hd.TongThanhToan;
         var idHoaDon = const_GuidEmpty;
         let isSaochep = false;
         // 0. saochep, 1.updateHDTam, 2.updateHD truoc do
         if (type !== 0) {
             khachdatra = hd.KhachDaTra;
-            phaitt = hd.PhaiThanhToan - khachdatra;
-            datt = 0;
             idHoaDon = hd.ID;
         }
         else {
             khachdatra = 0;
-            phaitt = hd.TongThanhToan;
-            datt = 0;
             isSaochep = true;
         }
 
@@ -1615,7 +1611,7 @@
             ctNew.PhaiThanhToan = phaitt;
             ctNew.TongThanhToan = phaitt;
             ctNew.KhachDaTra = khachdatra;
-            ctNew.DaThanhToan = datt;
+            ctNew.DaThanhToan = 0;
             ctNew.ID_NhanVien = item.ID_NhanVien;
             ctNew.NgayLapHoaDon = type !== 0 ? item.NgayLapHoaDon : null;
             ctNew.MaHoaDon = isSaochep ? "Copy" + item.MaHoaDon : item.MaHoaDon;
