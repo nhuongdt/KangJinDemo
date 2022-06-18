@@ -61,15 +61,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 result = codeChallengeClass.genCodeChallenge(cty.ZaloCodeVerifier);
             }
-            
-            if(result != null)
+
+            if (result != null)
             {
                 return ActionTrueNotData(result);
-            }    
+            }
             else
             {
                 return ActionFalseNotData("Get CodeChallenge Fail!");
-            }    
+            }
         }
 
         public IHttpActionResult GetZaloCodeVerifier(string subdomain)
@@ -112,15 +112,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassHT_CongTy _classHTCT = new ClassHT_CongTy(db);
                     HT_CongTy cty = _classHTCT.Gets(null).FirstOrDefault();
-                    if(cty.ZaloRefreshToken == null || cty.ZaloRefreshToken == "")
+                    if (cty.ZaloRefreshToken == null || cty.ZaloRefreshToken == "")
                     {
                         return ActionFalseNotData("");
-                    }    
+                    }
                     else
                     {
                         CZaloApi zaloApi = new CZaloApi();
                         CZaloApi.ZaloOfficialAccountInfoApiResult apiOAResult = zaloApi.GetZaloOfficialAccountInfoApiResult(cty.ZaloAccessToken);
-                        if(apiOAResult.error == -216)
+                        if (apiOAResult.error == -216)
                         {
                             CZaloApi.ZaloApiToKen apiToKen = zaloApi.GetAccessTokenFromRefreshToken(cty.ZaloRefreshToken);
                             if (apiToKen.access_token != "")
@@ -134,13 +134,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         if (apiOAResult.error == 0)
                         {
                             return ActionTrueData(apiOAResult.data);
-                        }    
-                        
+                        }
+
                         else
                         {
                             return ActionFalseNotData("");
                         }
-                    }    
+                    }
                 }
             }
             catch
@@ -280,7 +280,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     prm.Add(new SqlParameter("IDDonViQuyDois", idQuyDois));
                     prm.Add(new SqlParameter("IDLoHangs", idLoHangs));
                     var data = db.Database.SqlQuery<TestTonKho>("exec Insert_ThongBaoHetTonKho @ID_ChiNhanh, @IDDonViQuyDois, @IDLoHangs", prm.ToArray()).ToList();
-                    return Json(new { res = true , data });
+                    return Json(new { res = true, data });
                 }
             }
             catch (Exception ex)
@@ -328,9 +328,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 idnguoidung = objIn["IdNguoiDung"].ToObject<Guid>();
             if (objIn["IdDonVi"] != null && objIn["IdDonVi"].ToObject<string>() != "")
                 iddonvi = objIn["IdDonVi"].ToObject<Guid>();
-            List<HeaderMenu> lst = new List<HeaderMenu>();
 
+            var turnOffDatHang = false;
+            List<HeaderMenu> lst = new List<HeaderMenu>();
             List<string> lstQuyen = new List<string>();
+
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 List<string> lstResult = new List<string>();
@@ -356,6 +358,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lstResult = htqn.Select(p => p.MaQuyen).ToList();
                 }
                 lstQuyen = lstResult;
+
+                var setup = db.HT_CauHinhPhanMem.Where(x => x.ID_DonVi == iddonvi);
+                if (setup != null && setup.Count() > 0)
+                {
+                    turnOffDatHang = setup.FirstOrDefault().DatHang;
+                }
             }
             string NganhNgheKinhDoanh = CookieStore.GetCookieAes("shop").ToUpper();
             var isGara = NganhNgheKinhDoanh == "C16EDDA0-F6D0-43E1-A469-844FAB143014";
@@ -402,7 +410,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 //    lstSubMenuHoatDong.Add(new HeaderMenu(2, "Phiếu tiếp nhận", "Phiếu tiếp nhận", UrlPage.DanhSachPhieuTiepNhan, "e/DanhSachPhieuTiepNhan", false, "fa fa-ticket", new List<HeaderMenu>()));
                 //    lstSubMenuHoatDongCheck = true;
                 //}
-                if (lstQuyen.Where(p => p == "DatHang_XemDS").FirstOrDefault() != null)
+                if (turnOffDatHang && lstQuyen.Where(p => p == "DatHang_XemDS").FirstOrDefault() != null)
                 {
                     lstSubMenuHoatDong.Add(new HeaderMenu(3, "Đặt hàng", "Đặt hàng", UrlPage.DatHang, "e/dathang", false, "fa fa-cart-plus", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
@@ -442,10 +450,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lstSubMenuHoatDong.Add(new HeaderMenu(9, "Trả hàng nhập", "Trả hàng nhập", UrlPage.TraHangNhap, "e/trahangnhap", false, "fa fa-reply-all", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
-               
+
                 if (lstQuyen.Where(p => p == "NhapKhoNoiBo").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(10, "Nhập nội bộ", "Nhập nội bộ", UrlPage.NhapNoiBo, "e/nhaphang/13", false, "fa fa-plus", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(10, "Nhập kho nội bộ", "Nhập kho nội bộ", UrlPage.NhapNoiBo, "e/nhaphang/13", false, "fa fa-plus", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "XuatHuy_XemDS").FirstOrDefault() != null)
@@ -593,7 +601,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     lst.Add(new HeaderMenu(1, "Tổng quan", "Tổng quan", UrlPage.TrangChu, "Home/DashBoard", false, "fa fa-laptop", new List<HeaderMenu>()));
                 }
-                
+
                 if (lstSubMenuHangHoaCheck)
                 {
                     lst.Add(new HeaderMenu(2, "Hàng hóa", "Hàng hóa", "", "", false, "fa fa-cubes", lstSubMenuHangHoa));
@@ -674,7 +682,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     "MANDACONS",
                     "0973474985"
                 };
-                if (lstSubdomain.Contains(SubDomain) )
+                if (lstSubdomain.Contains(SubDomain))
                 {
                     lstSubMenuSuaChuaXe.Add(new HeaderMenu(7, "Phiếu bàn giao xe", "Phiếu bàn giao xe", UrlPage.PhieuBanGiaoXe, "x/PhieuBanGiaoXe", false, "fa fa-book", new List<HeaderMenu>()));
                 }
@@ -707,7 +715,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                 if (lstQuyen.Where(p => p == "LichHen_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuKhachHang.Add(new HeaderMenu(6, "Lịch nhắc bảo dưỡng", "Lịch nhắc bảo dưỡng", 
+                    lstSubMenuKhachHang.Add(new HeaderMenu(6, "Lịch nhắc bảo dưỡng", "Lịch nhắc bảo dưỡng",
                         UrlPage.Gara_LichNhacBaoDuong, "g/Gara_LichNhacBaoDuong", false, "fa fa-calendar", new List<HeaderMenu>()));
                     lstSubMenuKhachHangCheck = true;
                 }
@@ -926,7 +934,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     lstSubMenuBaoCao.Add(new HeaderMenu(9, "Nhân viên", "Nhân viên", UrlPage.R_NhanVien, "x/NhanVien", false, "fa fa-user", new List<HeaderMenu>()));
                     lstSubMenuBaoCaoCheck = true;
-                } 
+                }
 
                 //if (lstQuyen.Where(p => p == "BaoCaoGoiDichVu").FirstOrDefault() != null && (NganhNgheKinhDoanh == "AC9DF2ED-FF08-488F-9A64-08433E541020" || NganhNgheKinhDoanh == "83894499-AEFA-4F58-96B4-5EC1A0B16A76"))
                 //{
@@ -1032,23 +1040,23 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     ModalType = objIn["ModalType"].ToObject<int>();
                 MailMessage Msg = new MailMessage();
                 string subjectF = "";
-                if(ModalType == 1)
+                if (ModalType == 1)
                 {
                     subjectF = "[Góp ý] ";
-                }   
-                else if(ModalType == 2)
+                }
+                else if (ModalType == 2)
                 {
                     subjectF = "[Đặt mua] ";
-                }    
-                else if(ModalType == 3)
+                }
+                else if (ModalType == 3)
                 {
                     subjectF = "[Yêu cầu gia hạn] ";
-                }    
+                }
                 Msg.Subject = "[Góp ý] " + Subdomain;
                 Msg.From = new MailAddress("dangky@open24.vn", "Open24.vn");
                 Msg.To.Add("dangky@open24.vn");
 
-                Msg.Body = "Họ tên: " + HoVaTen + ".<br />Số điện thoại: " + SoDienThoai +".<br />Email: " + Email + ".<br />Nội dung: " + NoiDung;
+                Msg.Body = "Họ tên: " + HoVaTen + ".<br />Số điện thoại: " + SoDienThoai + ".<br />Email: " + Email + ".<br />Nội dung: " + NoiDung;
                 Msg.IsBodyHtml = true;
                 SmtpClient smtp = new SmtpClient();
                 smtp.Host = "smtp.gmail.com";
@@ -1072,21 +1080,21 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             string htmldata = "";
             string path = AppDomain.CurrentDomain.BaseDirectory + "\\Template\\TemplateDatLich\\" + s + "\\index.html";
-            if(System.IO.File.Exists(path))
+            if (System.IO.File.Exists(path))
             {
                 htmldata = System.IO.File.ReadAllText(path);
                 int indexhead = htmldata.IndexOf("<head>");
-                if(indexhead >= 0)
+                if (indexhead >= 0)
                 {
                     htmldata = htmldata.Insert(indexhead + 6, "<style>:root {--color-main: #86b7fe;--color-one: #0068ff;"
-                        +"--color-two: rgb(13 110 253 / 25 %);--color-three: #ced4da;--color-four: white;}</style>");
+                        + "--color-two: rgb(13 110 253 / 25 %);--color-three: #ced4da;--color-four: white;}</style>");
                 }
                 htmldata = htmldata.Replace("datestartvalue", "09:00");
                 htmldata = htmldata.Replace("dateendvalue", "20:00");
                 htmldata = htmldata.Replace("dateintervalvalue", "60");
                 htmldata = htmldata.Replace("datebeforevalue", "60");
                 htmldata = htmldata.Replace("subdomainvalue", s);
-            }   
+            }
             else
             {
 
@@ -1122,7 +1130,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         public string TenDoiTuong { get; set; }
         public string DiaChiDoiTuong { get; set; }
         public string DienThoaiDoiTuong { get; set; }
-    } 
+    }
     public class TestTonKho
     {
         public string MaHangHoa { get; set; }
