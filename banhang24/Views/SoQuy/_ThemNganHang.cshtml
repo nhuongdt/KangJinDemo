@@ -1,0 +1,295 @@
+﻿<div class="modal fade" id="vmBank">
+    <div class="modal-dialog draggable modal-md" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới':'Cập nhật'}} ngân hàng
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <div class="form-group floatleft">
+                    <label>Mã ngân hàng <span class="red">(*)</span></label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" autocomplete="off" autofocus
+                               v-model="newBank.MaNganHang" />
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Tên ngân hàng <span class="red">(*)</span></label>
+                    <div class="form-news">
+                        <input type="text" class="form-control" autocomplete="off"
+                               v-model="newBank.TenNganHang" />
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Chi phí ngân hàng</label>
+                    <div class="form-news" style="display: flex;">
+                        <div style="width: calc(100% - 70px); margin-right: 10px;">
+                            <input maxlength="15" onclick="this.select()" class="form-control text-right"
+                                   v-model="newBank.ChiPhiThanhToan"
+                                   v-on:keyup="Edit_ChiPhiThanhToan"
+                                   onkeypress="return keypressNumber_limitNumber(event, this)">
+                        </div>
+                        <div class="toogle toogle-report js-toggle" style="margin: 0px;"
+                             v-bind:class="{'active-re': newBank.TheoPhanTram}"
+                             v-on:click="ClickPtramVND">
+                            <span class="poison">VNĐ</span>
+                            <span class="transverse">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group floatleft">
+                    <label>Ghi chú</label>
+                    <div class="form-news">
+                        <textarea rows="2" type="text" autocomplete="off"
+                                  v-model="newBank.GhiChu" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" v-if="typeUpdate === 2" v-on:click="Delete">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!isLoading" v-on:click="Save">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmBank = new Vue({
+        el: '#vmBank',
+        created: function () {
+            let self = this;
+            self.UrlQuyHoaDonAPI = '/api/DanhMuc/Quy_HoaDonAPI/';
+            self.inforLogin.ID_DonVi = VHeader.IdDonVi;
+            self.inforLogin.UserLogin = VHeader.UserLogin;
+            self.inforLogin.ID_NhanVien = VHeader.IdNhanVien;
+        },
+        data: {
+            saveOK: false,
+            typeUpdate: 1,//1.themmoi, 2.update, 0.delete
+            isLoading: false,
+            error: '',
+            itemOld: {},
+            inforLogin: {},
+            role: {
+                Update: false,
+                Delete: true,
+            },
+            newBank: {
+                ID: '00000000-0000-0000-0000-000000000000',
+                MaNganHang: '',
+                TenNganHang: '',
+                ChiPhiThanhToan: 0,
+                TheoPhanTram: true,
+                GhiChu: '',
+                MacDinh: false,
+                ThuPhiThanhToan: false,
+            }
+        },
+
+        methods: {
+            showModalAdd: function () {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 1;
+                self.isLoading = false;
+
+                self.newBank = {
+                    ID: '00000000-0000-0000-0000-000000000000',
+                    MaNganHang: '',
+                    TenNganHang: '',
+                    ChiPhiThanhToan: 0,
+                    TheoPhanTram: true,
+                    GhiChu: '',
+                    MacDinh: false,
+                    ThuPhiThanhToan: false,
+                };
+                $('#vmBank').modal('show');
+            },
+            showModalUpdate: function (item) {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 2;
+                self.itemOld = $.extend({}, item);
+
+                if (item.ChiPhiThanhToan > 0 && item.TheoPhanTram === false) {
+                    item.ChiPhiThanhToan = formatNumber3Digit(formatNumberToFloat(item.ChiPhiThanhToan));
+                }
+                self.newBank = item;
+
+                $('#vmBank').modal('show');
+            },
+            ClickPtramVND: function () {
+                let self = this;
+                self.newBank.TheoPhanTram = !self.newBank.TheoPhanTram;
+            },
+            Edit_ChiPhiThanhToan: function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+                formatNumberObj($this);
+
+                if (self.newBank.TheoPhanTram) {
+                    if (formatNumberToFloat($this.val()) > 100) {
+                        $this.val(100);
+                    }
+                }
+            },
+            CheckSave: async function () {
+                let self = this;
+
+                if (commonStatisJs.CheckNull(self.newBank.MaNganHang)) {
+                    ShowMessage_Danger("Vui lòng nhập mã ngân hàng");
+                    return false;
+                }
+
+                if (commonStatisJs.CheckNull(self.newBank.TenNganHang)) {
+                    ShowMessage_Danger("Vui lòng nhập tên ngân hàng");
+                    return false;
+                }
+
+                var xx = await $.getJSON(self.UrlQuyHoaDonAPI + 'CheckExistMaNganHang?id=' + self.newBank.ID
+                    + '&bankCode=' + self.newBank.MaNganHang.toUpperCase(), function () {
+                }).then(function (data) {
+                        if (data) {
+                            ShowMessage_Danger("Mã ngân hàng đã tồn tại");
+                        }
+                        return !data;
+                    });
+                return xx;
+            },
+
+            Save: async function () {
+                let self = this;
+
+                let check = await self.CheckSave();
+                console.log('check ', check)
+                if (check === false) {
+                    return;
+                }
+
+                let obj = {
+                    ID: self.newBank.ID,
+                    MaNganHang: self.newBank.MaNganHang.toUpperCase(),
+                    TenNganHang: self.newBank.TenNganHang,
+                    ChiPhiThanhToan: self.newBank.ChiPhiThanhToan,
+                    TheoPhanTram: self.newBank.TheoPhanTram,
+                    GhiChu: self.newBank.GhiChu,
+                    MacDinh: self.newBank.MacDinh,
+                    ThuPhiThanhToan: self.newBank.ThuPhiThanhToan,
+                };
+                self.isLoading = true;
+
+                let sNKy = '<br /> - Mã ngân hàng: '.concat(self.newBank.MaNganHang,
+                    '<br /> - Tên ngân hàng: ', self.newBank.TenNganHang,
+                    '<br /> - Chi phí thanh toán: ', self.newBank.ChiPhiThanhToan,
+                    '<br /> - Theo phần trăm: ', self.newBank.TheoPhanTram
+                );
+
+                if (self.typeUpdate === 1) {
+                    obj.NguoiTao = VHeader.UserLogin;
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "PostDM_NganHang", 'POST', obj).done(function (x) {
+                        if (x.res) {
+                            ShowMessage_Success("Thêm mới ngân hàng thành công");
+
+                            self.saveOK = true;
+                            self.newBank.ID = x.dataSoure;
+                            $('#vmBank').modal('hide');
+
+                            let diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: 1,
+                                ChucNang: 'Danh mục ngân hàng',
+                                NoiDung: 'Thêm mới ngân hàng '.concat(self.newBank.TenNganHang, ' - ', self.newBank.MaNganHang),
+                                NoiDungChiTiet: '<b> Nội dung chi tiết: </b>'.concat(sNKy,
+                                    '<br /> - Người tạo: ', self.inforLogin.UserLogin),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                    }).always(function () {
+                        self.isLoading = false;
+                    });
+                }
+                else {
+                    obj.NguoiSua = VHeader.UserLogin;
+                    ajaxHelper(self.UrlQuyHoaDonAPI + "PutDM_NganHang", 'POST', obj).done(function (x) {
+                        if (x.res) {
+                            ShowMessage_Success("Cập nhật ngân hàng thành công");
+
+                            self.saveOK = true;
+                            $('#vmBank').modal('hide');
+
+                            let diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: 2,
+                                ChucNang: 'Danh mục ngân hàng',
+                                NoiDung: 'Cập nhật ngân hàng '.concat(self.newBank.TenNganHang, ' - ', self.newBank.MaNganHang),
+                                NoiDungChiTiet: '<b> Nội dung chi tiết: </b>'.concat(sNKy,
+                                    '<br /> <b> Thông tin cũ: </b>',
+                                    '<br /> - Mã ngân hàng: ', self.itemOld.MaNganHang,
+                                    '<br /> - Tên ngân hàng: ', self.itemOld.TenNganHang,
+                                    '<br /> - Chi phí thanh toán : ', self.itemOld.ChiPhiThanhToan,
+                                    '<br /> - Theo phần trăm : ', self.itemOld.TheoPhanTram,
+                                    '<br /> - Người sửa: ', self.inforLogin.UserLogin
+                                ),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                    }).always(function () {
+                        self.isLoading = false;
+                    });
+                }
+            },
+            Delete: function () {
+                let self = this;
+                commonStatisJs.ConfirmDialog_OKCancel('Xác nhận xóa',
+                    'Bạn có chắc chắn muốn xóa  <b> ' + self.newBank.TenNganHang
+                    + ' - ' + self.newBank.MaNganHang + '</b>',
+                    function () {
+                        ajaxHelper(self.UrlQuyHoaDonAPI + "DeleteNganHang?id=" + self.newBank.ID, 'GET').done(function (x) {
+                            if (x.res) {
+                                ShowMessage_Success("Xóa ngân hàng thành công");
+                                $('#vmBank').modal('hide');
+
+                                self.typeUpdate = 0;// used to check when hidden modal
+                                self.saveOK = true;
+                                let diary = {
+                                    ID_DonVi: self.inforLogin.ID_DonVi,
+                                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                    LoaiNhatKy: 3,
+                                    ChucNang: 'Tài khoản ngân hàng',
+                                    NoiDung: 'Xóa  ngân hàng '.concat(self.newBank.TenNganHang, ' - ', self.newBank.MaNganHang),
+                                    NoiDungChiTiet: 'Xóa  ngân hàng '.concat(self.newBank.TenNganHang, ' - ', self.newBank.MaNganHang,
+                                        '<br /> Người xóa: ', self.inforLogin.UserLogin
+                                    ),
+                                }
+                                Insert_NhatKyThaoTac_1Param(diary);
+                            }
+                            else {
+                                ShowMessage_Danger("Ngân hàng tồn tại trong: " + x.mess);
+                            }
+                        }).fail(function () {
+                            ShowMessage_Danger("Xóa ngân hàng thất bại");
+                        });
+                    })
+            }
+        }
+    })
+</script>
+
