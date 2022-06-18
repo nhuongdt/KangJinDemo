@@ -1889,7 +1889,7 @@
             }
             sAccount = Remove_LastComma(sAccount);
             sAccount = sAccount !== '' ? '/ ' + sAccount : '';
-            ghichu += ' / '.concat(sMaHoaDon, ' / ', sAccount);
+            ghichu += ' / '.concat(sMaHoaDon, sAccount);
 
             let quyhd = {
                 LoaiHoaDon: loaiThuChi,
@@ -2038,8 +2038,8 @@
                                 NoiDung: 'Cập nhật phiếu '.concat(self.sLoai, ' ', quyhd.MaHoaDon, ' cho hóa đơn ', sMaHoaDon),
                                 NoiDungChiTiet: 'Cập nhật phiếu '.concat(self.sLoai, ' ', quyhd.MaHoaDon,
                                     '<br/> <b> Thông tin mới: </b>',
-                                    '<br/> - Mã hóa đơn: ', quyhd.MaHoaDon,
-                                    '<br/> - Ngày lập hóa đơn: ', moment(quyhd.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                                    '<br/> - Mã phiếu ', self.sLoai, ': ', quyhd.MaHoaDon,
+                                    '<br/> - Ngày lập phiếu: ', moment(quyhd.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
                                     '<br/> - Tổng tiền ', self.sLoai, ': ', formatNumber3Digit(quyhd.TongTienThu),
                                     '<br/> - ', sLoaiDT, quyhd.NguoiNopTien,
                                     '<br/> - Khoản ', self.sLoai, ': ', self.ddl_textVal.khoanthu,
@@ -2056,8 +2056,8 @@
                                     '<br/> - Người sửa: ', self.inforLogin.UserLogin,
 
                                     '<br/> <b> Thông tin cũ: </b>',
-                                    '<br/> - Mã hóa đơn: ', self.phieuThuOld.MaHoaDon,
-                                    '<br/> - Ngày lập hóa đơn: ', moment(self.phieuThuOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                                    '<br/> - Mã phiếu ', self.sLoai, ': ', self.phieuThuOld.MaHoaDon,
+                                    '<br/> - Ngày lập phiếu: ', moment(self.phieuThuOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
                                     '<br/> - Tổng tiền ', self.sLoai, ': ', formatNumber3Digit(self.phieuThuOld.TongTienThu),
                                     '<br/> - ', sLoaiDT, self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')',
                                     '<br/> - Khoản ', self.sLoai, ': ', self.phieuThuOld.TenKhoanThuChi,
