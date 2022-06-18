@@ -715,7 +715,139 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        //tài khoản ngân hàng
+        [HttpGet]
+        public bool CheckExistMaNganHang(Guid? id = null, string bankCode = "")
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    IQueryable<DM_NganHang> lst = null;
+                    if (id != null && id != Guid.Empty)
+                    {
+                        lst = db.DM_NganHang.Where(x => x.MaNganHang.ToUpper() == bankCode && x.ID != id);
+                    }
+                    else
+                    {
+                        lst = db.DM_NganHang.Where(x => x.MaNganHang.ToUpper() == bankCode);
+                    }
+                    if (lst != null && lst.Count() > 0)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception)
+                {
+                    return true;
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
+        public IHttpActionResult PostDM_NganHang(DM_NganHang obj)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    obj.ID = Guid.NewGuid();
+                    obj.NgayTao = DateTime.Now;
+                    db.DM_NganHang.Add(obj);
+                    db.SaveChanges();
+                    return ActionTrueData(obj);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
+        [HttpPost, HttpPut]
+        public IHttpActionResult PutDM_NganHang(DM_NganHang obj)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    DM_NganHang objUpdate = db.DM_NganHang.Find(obj.ID);
+                    objUpdate.MaNganHang = obj.MaNganHang;
+                    objUpdate.TenNganHang = obj.TenNganHang;
+                    objUpdate.ChiNhanh = obj.ChiNhanh;
+                    objUpdate.ChiPhiThanhToan = obj.ChiPhiThanhToan;
+                    objUpdate.TheoPhanTram = obj.TheoPhanTram;
+                    objUpdate.MacDinh = obj.MacDinh;
+                    objUpdate.ThuPhiThanhToan = obj.ThuPhiThanhToan;
+                    objUpdate.GhiChu = obj.GhiChu;
+                    objUpdate.NguoiSua = obj.NguoiSua;
+                    objUpdate.NgaySua = DateTime.Now;
+                    db.Entry(objUpdate).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return ActionTrueData(obj);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
+        [HttpGet, HttpDelete]
+        public IHttpActionResult DeleteNganHang(Guid id)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    string sErr = string.Empty;
+                    var donvi = db.DM_DonVi.Where(x => x.ID_NganHang == id);
+                    if (donvi != null && donvi.Count() > 0)
+                    {
+                        sErr = "Danh mục chi nhánh, ";
+                    }
+                    var khachhang = db.DM_DoiTuong.Where(x => x.ID_NganHang == id);
+                    if (khachhang != null && khachhang.Count() > 0)
+                    {
+                        sErr += "Danh mục khách hàng, nhà cung cấp, ";
+                    }
+                    var quyct = db.Quy_HoaDon_ChiTiet.Where(x => x.ID_NganHang == id);
+                    if (quyct != null && quyct.Count() > 0)
+                    {
+                        sErr += "Danh mục sổ quỹ, ";
+                    }
+                    var hethong = db.HT_CongTy.Where(x => x.ID_NganHang == id);
+                    if (hethong != null && hethong.Count() > 0)
+                    {
+                        sErr += "Danh mục công ty ";
+                    }
+                    var taikhoan = db.DM_TaiKhoanNganHang.Where(x => x.ID_NganHang == id);
+                    if (taikhoan != null && taikhoan.Count() > 0)
+                    {
+                        sErr += "Danh mục tài khoản ngân hàng";
+                    }
+                    if (string.IsNullOrEmpty(sErr))
+                    {
+                        var obj = db.DM_NganHang.Find(id);
+                        if (obj != null)
+                        {
+                            db.DM_NganHang.Remove(obj);
+                            db.SaveChanges();
+                        }
+                        return ActionTrueNotData(sErr);
+                    }
+                    else
+                    {
+                        return ActionFalseNotData(sErr);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return ActionFalseNotData(ex.Message);
+            }
+        }
+
         public List<DM_NganHangDTO> GetAllNganHang()
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
