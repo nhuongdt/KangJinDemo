@@ -2035,6 +2035,7 @@
             let tenDoiTuong = hd.TenDoiTuong;
             var ptKhach = self.PhieuThuKhach;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
+            let sKhoanThuChi = '';
 
             var loaiThuChi = 11;
             var sLoai = 'thu';
@@ -2049,6 +2050,7 @@
             }
             if (ktc.length > 0) {
                 idKhoanThuChi = ktc[0].ID;
+                sKhoanThuChi = ktc[0].NoiDungThuChi;
             }
 
             if (soduDatCoc > 0 && hd.ChenhLechTraMua != 0) {
@@ -2232,6 +2234,7 @@
                                         ', Khách hàng: <a style="cursor: pointer" onclick = "LoadKhachHang_byMaKH(', quyhd.NguoiNopTien, ')" >', quyhd.NguoiNopTien, '</a> ',
                                         '<br /> Giá trị: ', formatNumber3Digit(quyhd.TongTienThu, 2),
                                         '<br/ > Phương thức thanh toán: ', phuongthucTT, chitracoc ? ' (Trả lại tiền cọc)' : '',
+                                        '<br /> Khoản ', sLoai, ': ', sKhoanThuChi,
                                         '<br/ > Thời gian: ', moment(quyhd.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')
                                     )
                                 }
