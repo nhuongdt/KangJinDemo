@@ -591,7 +591,6 @@ var cmpListAccountBank = {
     }
 }
 var cmpChoseAccountBank = {
-    props: ['accounts', 'textSearch', 'searchList', 'idChosing'],
     props: {
         textSearch: { default: [] },
         formType: { default: 0 },// 1.soquy, 2.thanh toán nhiều tk ngân hàng, 0.conlai
@@ -698,7 +697,7 @@ var cmpChoseKhoanThu = {
         <div class="gara-bill-infor-button shortlabel">
          <div class="gara-absolute-button" v-on:click="showModal" v-if="showbuttonAdd">
                 <a class="gara-button-icon">
-                 <i class="material-icons">add</i>
+                 <i class="fal fa-plus"></i>
                 </a>
             </div> 
             <div class="gara-absolute-button" v-on:click="showModalUpdate" v-if="showbuttonUpdate">
@@ -793,7 +792,7 @@ var cmpChiNhanh = {
         <div class="gara-bill-infor-button shortlabel">
         <div v-if="showbutton">
             <a v-on:click="showModalAdd">
-                <i class="material-icons">add</i>
+                <i class="fal fa-plus"></i>
             </a>
         </div>
         <input class="gara-search-HH " placeholder="Chọn chi nhánh" style="padding-right: 27px!important"
@@ -1091,9 +1090,12 @@ var cmpDropdown1Item = {
 
 <div class="outselect add-customer">
      <div class="gara-bill-infor-button shortlabel">
-        <div class="gara-absolute-button" v-on:click="showModal" v-if="showbutton">
-            <a class="gara-button-icon" title="Thêm mới">
+        <div class="gara-absolute-button" v-if="showbutton" v-on:click="showModal">
+            <a class="gara-button-icon" title="Thêm mới" v-if="idChosing == null" >
                 <i class="fal fa-plus"></i>
+            </a>
+            <a class="gara-button-icon" title="Cập nhật" v-if="idChosing !== null">
+                <i class="fal fa-edit"></i>
             </a>
         </div> 
         <input class="gara-search-HH" style="padding-right: 27px!important"
@@ -1146,6 +1148,7 @@ var cmpDropdown1Item = {
             if (self.listAll.length > 0) {
                 if (commonStatisJs.CheckNull(self.textSearch)) {
                     self.listSearch = self.listAll.slice(0, 20);
+                    this.$emit('reset-item');
                 }
                 else {
                     let txt = locdau(self.textSearch);
@@ -1219,8 +1222,8 @@ var cmpDropdown1Item = {
             $(event.currentTarget).closest('div').hide();
         },
         showModal: function () {
-            this.$emit('show-modal-add');
-        }
+            this.$emit('show-modal');
+        },
     },
 }
 
@@ -1261,7 +1264,7 @@ var cmpDropdownMultipleItem = {
                     <button class="btn css-btn-right no-margin"  style="z-index:2; margin:0"
                             v-if="showbutton"
                             v-on:click="showModalAdd">
-                   <i class="material-icons">add</i>
+                   <i class="fal fa-plus"></i>
                     </button>
                     <ul class="dropdown-menu  "style="width:100%">
                          <li v-on:click="OnSelect(null)" v-if="showItemAll">
