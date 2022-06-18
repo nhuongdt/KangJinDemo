@@ -955,10 +955,14 @@ namespace libQuy_HoaDon
                 var tbl = from nh in db.DM_NganHang
                           select new DM_NganHangDTO
                           {
-                              ID = nh.ID,
-                              MaNganHang = nh.MaNganHang,
-                              TenNganHang = nh.TenNganHang,
-                              ChiNhanh = nh.ChiNhanh
+                              ID= nh.ID,
+                              MaNganHang =nh.MaNganHang,
+                              TenNganHang=nh.TenNganHang,
+                              ChiNhanh=nh.ChiNhanh,
+                              ChiPhiThanhToan=nh.ChiPhiThanhToan,
+                              TheoPhanTram=nh.TheoPhanTram,
+                              MacDinh= nh.MacDinh,
+                              ThuPhiThanhToan=nh.ThuPhiThanhToan
                           };
                 return tbl.ToList();
             }
@@ -2904,6 +2908,10 @@ namespace libQuy_HoaDon
         public string MaNganHang { get; set; }
         public string TenNganHang { get; set; }
         public string ChiNhanh { get; set; }
+        public double? ChiPhiThanhToan { get; set; }
+        public bool? TheoPhanTram { get; set; }
+        public bool? MacDinh { get; set; }
+        public bool? ThuPhiThanhToan { get; set; }
     }
 
     public class DM_TaiKhoanNganHangDTO
