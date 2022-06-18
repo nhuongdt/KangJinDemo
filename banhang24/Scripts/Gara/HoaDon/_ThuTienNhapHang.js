@@ -180,8 +180,12 @@
 
         GetKhoanThuChi_byLoaiChungTu: function (lakhoanthu = false) {
             let self = this;
+            let loaiHD = self.LoaiHoaDon;
+            if (commonStatisJs.CheckNull(loaiHD)) {
+                loaiHD = 4;
+            }
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu === self.LoaiHoaDon.toString() && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu === loaiHD.toString() && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },
@@ -971,6 +975,7 @@
 
             let sNguoiNop = '';
             if (self.listData.NguoiNops.length > 0) {
+                sNguoiNop = self.listData.NguoiNops[0].TenNguoiNop.concat(' (', self.listData.NguoiNops[0].MaNguoiNop, ')');
                 if (!commonStatisJs.CheckNull(ptKhach.NoiDungThu)) {
                     sNguoiNop = ' /' + sNguoiNop;
                 }
@@ -979,7 +984,7 @@
             let idDoiTuong = ptKhach.ID_DoiTuong;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
             let tenDoiTuong = self.ddl_textVal.cusName;
-            let sMaHoaDon = '';
+            let sMaHoaDon = '', sTaiKhoan='';
             let lstQuyCT = [], arrPhuongThuc = [];
             let loaiThuChi = self.LoaiHoaDon === 4 ? 12 : 11;
             let phuongthucTT = '';
@@ -1063,14 +1068,14 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
-                        GhiChu: ' /'.concat(self.ddl_textVal.accountPOSName, ' - ', self.ddl_textVal.TenNganHangPos),
+                        GhiChu: ''.concat(self.ddl_textVal.accountPOSName, ' - ', self.ddl_textVal.TenNganHangPos),
                         TienThu: itemFor.TienPOS,
                         TienPOS: itemFor.TienPOS,
                         HinhThucThanhToan: 2,
                         ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanPos,
                     });
                     lstQuyCT.push(qct);
-                    ghichu += qct.GhiChu;
+                    sTaiKhoan += '/ '+ qct.GhiChu;
 
                     if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                         arrPhuongThuc.push(qct.HinhThucThanhToan);
@@ -1081,14 +1086,14 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
-                        GhiChu: ' /'.concat(self.ddl_textVal.accountCKName, ' - ', self.ddl_textVal.TenNganHangCK),
+                        GhiChu: ''.concat(self.ddl_textVal.accountCKName, ' - ', self.ddl_textVal.TenNganHangCK),
                         TienThu: itemFor.TienChuyenKhoan,
                         TienChuyenKhoan: itemFor.TienChuyenKhoan,
                         HinhThucThanhToan: 3,
                         ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanChuyenKhoan,
                     });
                     lstQuyCT.push(qct);
-                    ghichu += qct.GhiChu;
+                    sTaiKhoan += '/ ' + qct.GhiChu;
 
                     if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                         arrPhuongThuc.push(qct.HinhThucThanhToan);
@@ -1113,7 +1118,7 @@
                 sMaHoaDon += itemFor.MaHoaDon + ', ';
             }
             sMaHoaDon = Remove_LastComma(sMaHoaDon);
-            ghichu += '/ ' + sMaHoaDon;
+            ghichu += '/ ' + sMaHoaDon + sTaiKhoan;
 
             for (let i = 0; i < arrPhuongThuc.length; i++) {
                 switch (arrPhuongThuc[i]) {
