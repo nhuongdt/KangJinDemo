@@ -2297,7 +2297,7 @@ namespace banhang24.Hellper
              {ECashFlow. ghichu.ToString(),"Ghi chú" },
               {ECashFlow.trangthai.ToString(),"Trạng thái" },
              { ECashFlow. nvlapphieu.ToString(),"Nhân viên lập" },
-             {ECashFlow. chinhanh.ToString(),"Chi nhánh" },
+             {ColumnInvoices. tenchinhanh.ToString(),"Chi nhánh" },
         };
 
         public enum TypeRpDiscountInvoice
