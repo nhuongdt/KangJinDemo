@@ -285,6 +285,15 @@ var ViewModelQuyHD = function () {
             }
             self.ListCheckBox(data);
             self.NumberColum_Div2(Math.ceil(data.length / 2));
+
+            let cacheColumnOld = localStorage.getItem(Key_Form)
+            if (cacheColumnOld !== null) {
+                cacheColumnOld = JSON.parse(cacheColumnOld);
+                cacheColumnOld = $.grep(cacheColumnOld, function (x) {
+                    return $.inArray(x.Key, ['chinhanh']) === -1;
+                });
+                localStorage.setItem(Key_Form, JSON.stringify(cacheColumnOld));
+            }
         });
     }
 
