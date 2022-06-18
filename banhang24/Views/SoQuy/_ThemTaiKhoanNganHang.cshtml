@@ -14,11 +14,14 @@
                     <label>Ngân hàng</label>
                     <div class="form-news">
                         <banks placeholder="Chọn ngân hàng"
+                               :showbutton="true"
                                :text-search="newAccountBank.TenNganHang"
                                :list-all="ListBanks"
                                :list-search="ListBanks"
                                :id-chosing="newAccountBank.ID_NganHang"
-                               v-on:on-select-item="ChoseNganHang">
+                               v-on:show-modal="showModalBank"
+                               v-on:on-select-item="ChoseNganHang"
+                               v-on:reset-item="ResetNganHang">
                         </banks>
                     </div>
                 </div>
@@ -30,7 +33,7 @@
                     </div>
                 </div>
                 <div class="form-group floatleft">
-                    <label>Số tài Khoản</label>
+                    <label>Số tài khoản</label>
                     <div class="form-news">
                         <input type="text" class="form-control" autocomplete="off"
                                v-model="newAccountBank.SoTaiKhoan" />
@@ -40,7 +43,6 @@
                     <label>Ghi chú</label>
                     <div class="form-news">
                         <textarea rows="2" type="text" autocomplete="off"
-                                  placeholder="Mã tự động"
                                   v-model="newAccountBank.GhiChu" />
                     </div>
                 </div>
@@ -57,7 +59,7 @@
             </div>
             <div class="modal-footer">
                 <div class="container-fluid">
-                    <button type="button" class="btn btn-cancel" v-on:click="Delete">
+                    <button type="button" class="btn btn-cancel" v-if="typeUpdate==2" v-on:click="Delete">
                         <i class="fa fa-trash"></i> Xóa
                     </button>
                     <button type="button" class="btn btn-cancel" data-dismiss="modal">
@@ -100,6 +102,11 @@
                         ID: o.ID,
                         Text1: o.MaNganHang,
                         Text2: o.TenNganHang,
+                        ChiPhiThanhToan: o.ChiPhiThanhToan,
+                        TheoPhanTram: o.TheoPhanTram,
+                        MacDinh: o.MacDinh,
+                        ThuPhiThanhToan: o.ThuPhiThanhToan,
+                        GhiChu: o.GhiChu,
                     }
                 })
                 self.ListBanks = data;
@@ -111,6 +118,7 @@
             isLoading: false,
             error: '',
             itemOld: {},
+            itemBank: {},
             inforLogin: {},
             ListBanks: [],
             role: {
@@ -125,7 +133,7 @@
                 SoTaiKhoan: '',
                 TaiKhoanPOS: true,
                 GhiChu: '',
-                TrangThai:1,
+                TrangThai: 1,
             }
         },
 
@@ -154,17 +162,53 @@
                 self.typeUpdate = 2;
                 self.newAccountBank = item;
                 self.itemOld = $.extend({}, item);
+                // find bank
+                let bank = $.grep(self.ListBanks, function (x) {
+                    return x.ID === item.ID_NganHang;
+                });
+                if (bank.length > 0) {
+                    self.ChoseNganHang(bank[0]);
+                }
                 $('#vmTaiKhoanNganHang').modal('show');
             },
             ChoseNganHang: function (item) {
                 let self = this;
                 self.newAccountBank.ID_NganHang = item.ID;
                 self.newAccountBank.TenNganHang = item.Text2;
+                self.itemBank = {
+                    ID: item.ID,
+                    MaNganHang: item.Text1,
+                    TenNganHang: item.Text2,
+                    ChiPhiThanhToan: item.ChiPhiThanhToan,
+                    TheoPhanTram: item.TheoPhanTram,
+                    MacDinh: item.MacDinh,
+                    ThuPhiThanhToan: item.ThuPhiThanhToan,
+                    GhiChu: item.GhiChu,
+                }
             },
             ResetNganHang: function () {
                 let self = this;
                 self.newAccountBank.ID_NganHang = null;
                 self.newAccountBank.TenNganHang = '';
+                self.itemBank = {
+                    ID: null,
+                    MaNganHang: '',
+                    TenNganHang: '',
+                    ChiPhiThanhToan: 0,
+                    TheoPhanTram: true,
+                    MacDinh: false,
+                    ThuPhiThanhToan: false,
+                    GhiChu: '',
+                }
+            },
+            showModalBank: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.newAccountBank.ID_NganHang)) {
+                    vmBank.showModalAdd();
+                }
+                else {
+                    vmBank.showModalUpdate(self.itemBank);
+                }
             },
             CheckSave: function () {
                 let self = this;
@@ -289,6 +333,40 @@
                             ShowMessage_Danger("Xóa tài khoản thất bại");
                         });
                     })
+            }
+        }
+    })
+
+    $('#vmBank').on('hidden.bs.modal', function () {
+        if (vmBank.saveOK) {
+            let obj = vmBank.newBank;
+            vmTaiKhoanNganHang.itemBank = obj;
+            vmTaiKhoanNganHang.newAccountBank.TenNganHang = obj.TenNganHang;
+            vmTaiKhoanNganHang.newAccountBank.ID_NganHang = obj.ID;
+            switch (vmBank.typeUpdate) {
+                case 1:// insert
+                    obj.Text1 = obj.MaNganHang;
+                    obj.Text2 = obj.TenNganHang;
+                    vmTaiKhoanNganHang.ListBanks.unshift(obj);
+                    break;
+                case 2://update
+                    for (let i = 0; i < vmTaiKhoanNganHang.ListBanks.length; i++) {
+                        if (vmTaiKhoanNganHang.ListBanks[i].ID === obj.ID) {
+                            vmTaiKhoanNganHang.ListBanks[i].Text1 = obj.MaNganHang;
+                            vmTaiKhoanNganHang.ListBanks[i].Text2 = obj.TenNganHang;
+                            break;
+                        }
+                    }
+                    break;
+                case 0:// delete
+                    vmTaiKhoanNganHang.ResetNganHang();
+                    for (let i = 0; i < vmTaiKhoanNganHang.ListBanks.length; i++) {
+                        if (vmTaiKhoanNganHang.ListBanks[i].ID === obj.ID) {
+                            vmTaiKhoanNganHang.ListBanks.splice(i, 1);
+                            break;
+                        }
+                    }
+                    break;
             }
         }
     })
