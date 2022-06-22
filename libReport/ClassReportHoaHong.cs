@@ -20,16 +20,21 @@ namespace libReport
         public List<SP_ReportDiscountAll> SP_ReportDiscountAll(ParamReportDiscount lstParam)
         {
             string idChiNhanh = string.Join(",", lstParam.LstIDChiNhanh);
-
+            string idPhongBans = string.Empty;
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
+            }
             List<SqlParameter> paramSql = new List<SqlParameter>();
             paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanh));
             paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
             paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
             paramSql.Add(new SqlParameter("DateFrom", lstParam.DateFrom));
             paramSql.Add(new SqlParameter("DateTo", lstParam.DateTo));
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
-            List<SP_ReportDiscountAll> data = _db.Database.SqlQuery<SP_ReportDiscountAll>("EXEC getList_ChietKhauNhanVienTongHop @ID_ChiNhanhs, @ID_NhanVienLogin, @TextSearch, @DateFrom, @DateTo, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
+            List<SP_ReportDiscountAll> data = _db.Database.SqlQuery<SP_ReportDiscountAll>("EXEC getList_ChietKhauNhanVienTongHop @ID_ChiNhanhs, @ID_NhanVienLogin,@DepartmentIDs, @TextSearch, @DateFrom, @DateTo, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
 
@@ -37,13 +42,20 @@ namespace libReport
         {
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
             string loaichungtus = "1,6,19,22,25";
+            string idPhongBans = string.Empty;
+
             if (lstParam.LoaiChungTus != null && lstParam.LoaiChungTus.Count > 0)
             {
                 loaichungtus = string.Join(",", lstParam.LoaiChungTus);
             }
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
+            }
             List<SqlParameter> paramSql = new List<SqlParameter>();
             paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
             paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
             paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
             paramSql.Add(new SqlParameter("LoaiChungTus", loaichungtus));
             paramSql.Add(new SqlParameter("DateFrom", lstParam.DateFrom));
@@ -52,7 +64,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("StatusInvoice", lstParam.StatusInvoice)); // hdTamluu = 2, hdHoanThanh = 1, all.0
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
-            List<BaoCaoChietKhau_TongHopPRC> data = _db.Database.SqlQuery<BaoCaoChietKhau_TongHopPRC>("EXEC ReportDiscountProduct_General @ID_ChiNhanhs, @ID_NhanVienLogin, @TextSearch ," +
+            List<BaoCaoChietKhau_TongHopPRC> data = _db.Database.SqlQuery<BaoCaoChietKhau_TongHopPRC>("EXEC ReportDiscountProduct_General @ID_ChiNhanhs, @ID_NhanVienLogin, @DepartmentIDs, @TextSearch ," +
                 "@LoaiChungTus, @DateFrom, @DateTo, @Status_ColumnHide, @StatusInvoice, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
@@ -62,6 +74,7 @@ namespace libReport
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
             string lahanghoas = "1,2,3";
             string loaichungtus = "1,6,19,22,25";
+            string idPhongBans = string.Empty;
             if (lstParam.LaHangHoas != null && lstParam.LaHangHoas.Count > 0)
             {
                 lahanghoas = string.Join(",", lstParam.LaHangHoas);
@@ -70,10 +83,15 @@ namespace libReport
             {
                 loaichungtus = string.Join(",", lstParam.LoaiChungTus);
             }
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
+            }
 
             List<SqlParameter> paramSql = new List<SqlParameter>();
             paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
             paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
             paramSql.Add(new SqlParameter("ID_NhomHang", lstParam.ID_NhomHang));
             paramSql.Add(new SqlParameter("LaHangHoas", lahanghoas));
             paramSql.Add(new SqlParameter("LoaiChungTus", loaichungtus));
@@ -85,7 +103,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("StatusInvoice", lstParam.StatusInvoice));
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
-            List<BaoCaoChietKhau_ChiTietPRC> data = _db.Database.SqlQuery<BaoCaoChietKhau_ChiTietPRC>("EXEC ReportDiscountProduct_Detail @ID_ChiNhanhs,@ID_NhanVienLogin, @ID_NhomHang," +
+            List<BaoCaoChietKhau_ChiTietPRC> data = _db.Database.SqlQuery<BaoCaoChietKhau_ChiTietPRC>("EXEC ReportDiscountProduct_Detail @ID_ChiNhanhs,@ID_NhanVienLogin, @DepartmentIDs, @ID_NhomHang," +
                 " @LaHangHoas, @LoaiChungTus, @TextSearch, @TextSearchHangHoa, @DateFrom, @DateTo, @Status_ColumnHide, @StatusInvoice, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
@@ -94,13 +112,20 @@ namespace libReport
         {
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
             string loaichungtus = "1,6,19,22,25";
+            string idPhongBans = string.Empty;
+
             if (lstParam.LoaiChungTus != null && lstParam.LoaiChungTus.Count > 0)
             {
                 loaichungtus = string.Join(",", lstParam.LoaiChungTus);
             }
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
+            }
             List<SqlParameter> paramSql = new List<SqlParameter>();
             paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
             paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
             paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
             paramSql.Add(new SqlParameter("LoaiChungTus", loaichungtus));
             paramSql.Add(new SqlParameter("DateFrom", lstParam.DateFrom));
@@ -110,7 +135,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("Status_DoanhThu", lstParam.TrangThai));// chỉ lọc theo doanhthu/thucthu/vnd > 0
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
-            List<SP_ReportDiscountInvoice_General> data = _db.Database.SqlQuery<SP_ReportDiscountInvoice_General>("EXEC ReportDiscountInvoice @ID_ChiNhanhs, @ID_NhanVienLogin, @TextSearch, " +
+            List<SP_ReportDiscountInvoice_General> data = _db.Database.SqlQuery<SP_ReportDiscountInvoice_General>("EXEC ReportDiscountInvoice @ID_ChiNhanhs, @ID_NhanVienLogin, @DepartmentIDs, @TextSearch, " +
                 "@LoaiChungTus, @DateFrom, @DateTo, @Status_ColumnHide, @StatusInvoice, @Status_DoanhThu, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
@@ -119,13 +144,19 @@ namespace libReport
         {
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
             string loaichungtus = "1,6,19,22,25";
+            string idPhongBans = string.Empty;
             if (lstParam.LoaiChungTus != null && lstParam.LoaiChungTus.Count > 0)
             {
                 loaichungtus = string.Join(",", lstParam.LoaiChungTus);
             }
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
+            }
             List<SqlParameter> paramSql = new List<SqlParameter>();
             paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
             paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
             paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
             paramSql.Add(new SqlParameter("LoaiChungTus", loaichungtus));
             paramSql.Add(new SqlParameter("DateFrom", lstParam.DateFrom));
@@ -135,7 +166,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("Status_DoanhThu", lstParam.TrangThai));
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
-            List<SP_ReportDiscountInvoice_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountInvoice_Detail>("EXEC ReportDiscountInvoice_Detail @ID_ChiNhanhs, @ID_NhanVienLogin," +
+            List<SP_ReportDiscountInvoice_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountInvoice_Detail>("EXEC ReportDiscountInvoice_Detail @ID_ChiNhanhs, @ID_NhanVienLogin, @DepartmentIDs, " +
                 " @TextSearch, @LoaiChungTus, @DateFrom, @DateTo, @Status_ColumnHide, @StatusInvoice, @Status_DoanhThu, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
@@ -144,21 +175,27 @@ namespace libReport
         {
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
             string trangthai = string.Empty;
+            string idPhongBans = string.Empty;
             if (lstParam.TrangThai != 0)
             {
                 trangthai = lstParam.TrangThai.ToString();
+            }
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
             }
 
             List<SqlParameter> paramSql = new List<SqlParameter>();
             paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
             paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
             paramSql.Add(new SqlParameter("FromDate", lstParam.DateFrom));
             paramSql.Add(new SqlParameter("ToDate", lstParam.DateTo));
             paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
             paramSql.Add(new SqlParameter("Status_DoanhThu", trangthai));
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
-            List<SP_ReportDiscountSales> data = _db.Database.SqlQuery<SP_ReportDiscountSales>("EXEC GetAll_DiscountSale @ID_ChiNhanhs, @ID_NhanVienLogin, " +
+            List<SP_ReportDiscountSales> data = _db.Database.SqlQuery<SP_ReportDiscountSales>("EXEC GetAll_DiscountSale @ID_ChiNhanhs, @ID_NhanVienLogin, @DepartmentIDs, " +
                 " @FromDate, @ToDate, @TextSearch, @Status_DoanhThu, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
@@ -171,7 +208,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("ID_NhanVien", lstParam.TextSearch)); // mượn tạm trường để lưu ID_NhanVien
             paramSql.Add(new SqlParameter("timeStar", lstParam.DateFrom));
             paramSql.Add(new SqlParameter("timeEnd", lstParam.DateTo));
-            List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC getList_ChietKhauNhanVienTheoDoanhSobyID @ID_ChiNhanhs, @ID_NhanVien," +
+            List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC getList_ChietKhauNhanVienTheoDoanhSobyID @ID_ChiNhanhs, @ID_NhanVien, " +
                 " @timeStar, @timeEnd", paramSql.ToArray()).ToList();
             return data;
         }
@@ -184,7 +221,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("ID_NhanVien", lstParam.TextSearch)); // mượn tạm trường để lưu ID_NhanVien
             paramSql.Add(new SqlParameter("FromDate", lstParam.DateFrom));
             paramSql.Add(new SqlParameter("ToDate", lstParam.DateTo));
-            List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC DiscountSale_byIDNhanVien @IDChiNhanhs, @ID_NhanVien," +
+            List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC DiscountSale_byIDNhanVien @IDChiNhanhs, @ID_NhanVien, " +
                 " @FromDate, @ToDate", paramSql.ToArray()).ToList();
             return data;
         }

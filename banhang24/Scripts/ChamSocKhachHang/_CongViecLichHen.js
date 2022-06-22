@@ -635,7 +635,6 @@ var PartialView_CongViec = function () {
         var dayOfMonth = ngaydatlich.getDate();
         var month = ngaydatlich.getMonth() + 1;
         var weekOfMonth = (0 | dayOfMonth / 7) + 1;
-
         switch (item.ID) {
             case 1:
                 self.newCongViec().KieuLap(1);
@@ -667,7 +666,7 @@ var PartialView_CongViec = function () {
                     case 7:
                         self.Satuday(true);
                         break;
-                    case 8:
+                    case 1:
                         self.Sunday(true);
                         break;
                 }

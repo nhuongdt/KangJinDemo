@@ -127,7 +127,7 @@
                     <div class="col-md-6 col-xs-12 nopadding">
                         <products :con-ton-kho="0"
                                   :loai-hang-hoa="typeSearchProduct"
-                                  :show-gia-von="true"
+                                  :show-gia-von="$root.roleXemGiaVon"
                                   :show-image="false"
                                   :show-ton-kho="true"
                                   :id-chi-nhanh="ID_DonVi"
@@ -162,10 +162,10 @@
                                     <th style="width:80px">
                                         Số lượng
                                     </th>
-                                    <th>
+                                    <th v-if="$root.roleXemGiaVon">
                                         Giá vốn
                                     </th>
-                                    <th>
+                                    <th v-if="$root.roleXemGiaVon">
                                         Thành tiền
                                     </th>
                                     <th>
@@ -204,8 +204,8 @@
                                                v-on:keyup="EditSoLuong_TPDinhLuong(item, index)"
                                                v-on:keyup.13="EnterDetail_TPDinhLuong(4)" />
                                     </td>
-                                    <td class="text-right">{{formatNumber3Digit(item.GiaVon)}}</td>
-                                    <td class="text-right">{{formatNumber3Digit(item.GiaVonAfter)}}</td>
+                                    <td class="text-right" v-if="$root.roleXemGiaVon">{{formatNumber3Digit(item.GiaVon)}}</td>
+                                    <td class="text-right" v-if="$root.roleXemGiaVon">{{formatNumber3Digit(item.GiaVonAfter)}}</td>
                                     <td>
                                         <input class="input-simple" style="width:100%" onclick="this.select()"
                                                v-model="item.GhiChu"
@@ -250,6 +250,16 @@
             self.ID_DonVi = $('#txtDonVi').val();
             if (commonStatisJs.CheckNull(self.ID_DonVi)) {
                 self.ID_DonVi = VHeader.IdDonVi;
+
+                ajaxHelper('/api/DanhMuc/ReportAPI/' + "getQuyenXemGiaVon?ID_NguoiDung=" + VHeader.IdNguoiDung + "&MaQuyen=" + "HangHoa_XemGiaVon", "GET")
+                    .done(function (data) {
+                        if (data !== '') {
+                            self.roleXemGiaVon = true;
+                        }
+                        else {
+                            self.roleXemGiaVon = false;
+                        }
+                    });
             }
             self.GetAllDinhLuongDV();
         },
@@ -261,6 +271,7 @@
             DichVu_isDoing: {},
             Grid_TPDinhLuongChosed: [],
             All_DinhLuongDichVu: [],
+            roleXemGiaVon: false,
         },
         methods: {
             GetAllDinhLuongDV: function () {

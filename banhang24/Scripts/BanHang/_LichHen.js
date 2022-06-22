@@ -267,7 +267,7 @@ var PartialCalendar = function () {
                     case 7:
                         self.Satuday(true);
                         break;
-                    case 8:
+                    case 1:
                         self.Sunday(true);
                         break;
                 }

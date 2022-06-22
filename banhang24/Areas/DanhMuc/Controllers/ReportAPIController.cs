@@ -8385,6 +8385,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             SumThucThu = firstRow.TongHoaHongThucThu,
                             SumVND = firstRow.TongHoaHongVND,
                             SumAll = firstRow.TongAllAll,
+                            SumCPNganHang = firstRow.SumAllChiPhiNganHang,
+                            SumThucThu_ThucTinh = firstRow.SumThucThu_ThucTinh,
 
                             TotalRow = firstRow.TotalRow,
                             TotalPage = firstRow.TotalPage,
@@ -8640,6 +8642,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TotalPage");
                             excel.Columns.Remove("ID_HoaDon");
                             excel.Columns.Remove("ID_DonViQuiDoi");
+                            excel.Columns.Remove("ID_ChiTietHoaDon");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHangHoa_ChiTiet.xlsx");
                             fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoChiTietHoaHongNhanVien.xlsx");
                             break;
@@ -8700,6 +8703,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TongAllAll");
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
+                            excel.Columns.Remove("SumAllChiPhiNganHang");
+                            excel.Columns.Remove("SumThucThu_ThucTinh");
+                            excel.Columns.Remove("PTDoanhThu");
+                            excel.Columns.Remove("HoaHongDoanhThu");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
                             fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
                             break;
@@ -8739,8 +8746,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             List<SP_ReportDiscountSales> data = reportHoaHong.SP_ReportDiscountSales(lstParam);
                             excel = classOffice.ToDataTable<SP_ReportDiscountSales>(data);
                             excel.Columns.Remove("ID_NhanVien");
-                            excel.Columns.Remove("TongAllDoanhThu");
-                            excel.Columns.Remove("TongAllThucThu");
+                            excel.Columns.Remove("TongDoanhThu");
+                            excel.Columns.Remove("TongThucThu");
                             excel.Columns.Remove("TongHoaHongDoanhThu");
                             excel.Columns.Remove("TongHoaHongThucThu");
                             excel.Columns.Remove("TongAllAll");
@@ -8749,7 +8756,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu.xlsx");
                             fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu.xlsx");
                             break;
-                        case 6:
+                        case 6:// bc chitiet: not hide column
+                            lstParam.ColumnsHide = null;
                             List<SP_ReportDiscountSales_Detail> data2 = reportHoaHong.DiscountSale_byIDNhanVien(lstParam);
                             excel = classOffice.ToDataTable<SP_ReportDiscountSales_Detail>(data2);
                             excel.Columns.Remove("LaPhanTram");

@@ -31,7 +31,6 @@
         else {
             self.inforLogin.ID_DonVi = idDonVi;
         }
-        console.log('thanhtoanHD', self.inforLogin)
 
         self.ThietLap_TichDiem = {
             DuocThietLap: false,
@@ -155,6 +154,7 @@
             TongPhiThanhToan: 0,
             PhiThanhToan_PTGiaTri: 0,
             PhiThanhToan_LaPhanTram: true,
+            PhiThanhToan_PTGiaTriTheoHoaDon: 0,// nếu chi phí Thanh toán = VND -> tính và chia % theo hóa đơn (TongChiPhi/TongPOS)
 
             ListTKPos: [],
             ListTKChuyenKhoan: [],
@@ -362,10 +362,16 @@
                             let arrNVienCK = $.grep(arrCK, function (x) {
                                 return x.ID_HoaDon === itFor.ID;
                             });
+                            // format ChietKhauMacDinh --> show at modal
+                            for (let k = 0; k < arrNVienCK.length; k++) {
+                                arrNVienCK[k].ChietKhauMacDinh = formatNumber3Digit(arrNVienCK[k].ChietKhauMacDinh);
+                            }
                             self.listData.HoaDons[i].BH_NhanVienThucHiens = arrNVienCK;
                         }
                     }
-                    self.AssignMoney_InHoaDonDebit();
+                    if (self.formType!==1) {
+                        self.AssignMoney_InHoaDonDebit();
+                    }
                 })
             }
         },
@@ -473,6 +479,7 @@
                 TongPhiThanhToan: 0,
                 PhiThanhToan_PTGiaTri: 0,
                 PhiThanhToan_LaPhanTram: true,
+                PhiThanhToan_PTGiaTriTheoHoaDon: 0,
 
                 ListTKPos: [self.newPhuongThucTT(true)],
                 ListTKChuyenKhoan: [self.newPhuongThucTT(false)],
@@ -667,7 +674,7 @@
         },
         GetChiPhi_Visa: function () {
             let self = this;
-            let tongChiPhi = 0, gtriPTram = 0;
+            let tongChiPhi = 0, gtriPTram = 0, tongPOS = 0;
             let laPhanTram = true;
             for (let i = 0; i < self.newPhieuThu.ListTKPos.length; i++) {
                 let itFor = self.newPhieuThu.ListTKPos[i];
@@ -676,6 +683,7 @@
                     gtriPTram = itFor.ChiPhiThanhToan;
                     if (itFor.TheoPhanTram) {
                         tongChiPhi += formatNumberToFloat(itFor.TienPOS) * itFor.ChiPhiThanhToan / 100;
+                        tongPOS += formatNumberToFloat(itFor.TienPOS);
                     }
                     else {
                         tongChiPhi += itFor.ChiPhiThanhToan;
@@ -685,6 +693,12 @@
             self.newPhieuThu.TongPhiThanhToan = tongChiPhi;
             self.newPhieuThu.PhiThanhToan_PTGiaTri = gtriPTram;
             self.newPhieuThu.PhiThanhToan_LaPhanTram = laPhanTram;
+            if (laPhanTram) {
+                self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon = gtriPTram;
+            }
+            else {
+                self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon = tongChiPhi / tongPOS * 100;
+            }
             return tongChiPhi;
         },
         CaculatorDaThanhToan: function (isChangeTienThu = false) {
@@ -757,14 +771,15 @@
         },
         ChangeAccountCK: function (item) {
             let self = this;
+            // chuyenkhoan: khong tinh phi nganhang
             for (let i = 0; i < self.newPhieuThu.ListTKChuyenKhoan.length; i++) {
                 if (i === self.CK_indexChosing) {
                     self.newPhieuThu.ListTKChuyenKhoan[i].ID_TaiKhoanChuyenKhoan = item.ID.toUpperCase();
                     self.newPhieuThu.ListTKChuyenKhoan[i].TenTaiKhoanCK = item.TenChuThe;
                     self.newPhieuThu.ListTKChuyenKhoan[i].SoTaiKhoanCK = item.SoTaiKhoan;
                     self.newPhieuThu.ListTKChuyenKhoan[i].TenNganHangCK = item.TenNganHang;
-                    self.newPhieuThu.ListTKChuyenKhoan[i].ChiPhiThanhToan = item.ChiPhiThanhToan;
-                    self.newPhieuThu.ListTKChuyenKhoan[i].TheoPhanTram = item.TheoPhanTram;
+                    self.newPhieuThu.ListTKChuyenKhoan[i].ChiPhiThanhToan = 0;
+                    self.newPhieuThu.ListTKChuyenKhoan[i].TheoPhanTram = true;
                     self.newPhieuThu.ListTKChuyenKhoan[i].ThuPhiThanhToan = item.ThuPhiThanhToan;
                     self.newPhieuThu.ListTKChuyenKhoan[i].MacDinh = item.MacDinh;
                     break;
@@ -938,7 +953,8 @@
                     for (let i = 0; i < hd.BH_NhanVienThucHiens.length; i++) {
                         let nv = hd.BH_NhanVienThucHiens[i];
                         if (parseInt(nv.TinhChietKhauTheo) === 1) {
-                            self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau = thucthu * (nv.PT_ChietKhau / 100) * nv.HeSo;
+                            let chiphiNganHang = formatNumberToFloat(hd.TongPhiNganHang);
+                            self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau = formatNumber3Digit((thucthu - chiphiNganHang) * (nv.PT_ChietKhau / 100) * nv.HeSo);
                         }
                     }
                     break;
@@ -1523,8 +1539,8 @@
             else {
                 ghichu = ghichu.concat(' / ', tenDoiTuong, ' (', self.ddl_textVal.cusCode, ')');
             }
-
             var objShare = self.UpdateThucThu_EachHoaDonDebit();
+          
             let tongthu = objShare.TienCoc + objShare.TienMat + objShare.TienPOS + objShare.TienChuyenKhoan
                 + objShare.TienTheGiaTri + objShare.TTBangDiem;
 
@@ -1927,7 +1943,6 @@
             };
 
             if (lstQuyCT.length > 0) {
-                console.log('quyhd ', myData);
                 if (self.typeUpdate === 0) {
                     ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/PostQuy_HoaDon_DefaultIDDoiTuong', 'POST', myData).done(function (x) {
                         self.isLoading = false;
@@ -1978,7 +1993,6 @@
                                 // only add nvien (don't remove)
                                 ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'Post_BHNhanVienThucHien', 'POST', data1).done(function (data) {
                                     if (data.res == false) {
-                                        console.log(data.mes);
                                     }
                                 })
                             }
@@ -2246,17 +2260,22 @@
             var tienck = money.TienChuyenKhoan;
             var tienthe = money.TienTheGiaTri;
             var tiendiem = money.TTBangDiem;
-
+            let ptPhiNganHang = self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon;
+            if (commonStatisJs.CheckNull(ptPhiNganHang)) {
+                ptPhiNganHang = 0;
+            }
             for (let i = 0; i < self.listData.HoaDons.length; i++) {
                 let itFor = self.listData.HoaDons[i];
                 let tienThucTeThu = formatNumberToFloat(itFor.TienThu);
+
+                self.listData.HoaDons[i].PhiThanhToan_LaPhanTram = self.newPhieuThu.PhiThanhToan_LaPhanTram;
                 if (tienThucTeThu > 0) {
-                    console.log('tienck ', tienck, ' mat ', tienmat)
                     let obj = self.shareMoney_QuyHD(tienThucTeThu, tiendiem, tienmat, tienpos, tienck, tienthe, tiendatcoc);
                     obj.ID_HoaDonLienQuan = itFor.ID;
                     obj.MaHoaDon = itFor.MaHoaDon;
                     obj.TienThu = tienThucTeThu;
                     self.QuyHD_Share.push(obj);
+                    self.listData.HoaDons[i].TongPhiNganHang = obj.TienPOS * ptPhiNganHang / 100;
                     self.listData.HoaDons[i].ThucThu = obj.TienMat + obj.TienPOS + obj.TienChuyenKhoan + obj.TienCoc;
 
                     // tinh lai cho tung hoadon
@@ -2268,6 +2287,7 @@
                     tiendiem = tiendiem - obj.TTBangDiem;
                 }
                 else {
+                    self.listData.HoaDons[i].TongPhiNganHang = 0;
                     self.listData.HoaDons[i].ThucThu = 0;
                 }
                 // tinh ThucThu tung HoaDon (khong tinh thu tu TheGiaTri)
@@ -2286,9 +2306,14 @@
         // hoahong nv hoadon
         showModalDiscount: function (item) {
             var self = this;
+            self.GetChiPhi_Visa();// used to get %ChiPhi of phieuthu
             self.UpdateThucThu_EachHoaDonDebit();
 
             if (self.typeUpdate === 1) {
+                //if (self.newPhieuThu.ListTKPos.length > 0) {
+                item.PhiThanhToan_LaPhanTram = self.newPhieuThu.PhiThanhToan_LaPhanTram;
+                item.TongPhiNganHang = self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon * formatNumberToFloat(item.TienPOS) / 100;
+                //}
                 vmHoaHongHoaDon.GetChietKhauHoaDon_byID(item, self.newPhieuThu);
             }
             else {
@@ -2302,6 +2327,8 @@
                             TongThanhToan: itFor.TongThanhToan,
                             TongTienThue: itFor.TongTienThue,
                             ThucThu: itFor.ThucThu,
+                            TongPhiNganHang: itFor.TongPhiNganHang,
+                            PhiThanhToan_LaPhanTram: itFor.PhiThanhToan_LaPhanTram,
                             DaThuTruoc: itFor.DaThuTruoc,
                             ConNo: itFor.PhaiThu - itFor.DaThuTruoc - formatNumberToFloat(itFor.TienThu),
                         }
@@ -2374,7 +2401,6 @@
                             let lstIDDoituong = $.unique(self.listData.HoaDons.map(function (x) {
                                 return x.ID_DoiTuong;
                             }));
-                            console.log('lstIDDoituong ', lstIDDoituong);// todo
                             for (let i = 0; i < lstIDDoituong.length; i++) {
                                 self.NangNhomKhachHang(lstIDDoituong[i]);
                             }
@@ -2431,6 +2457,9 @@
                                     let sumCT = arrCT.reduce(function (_this, xx) {
                                         return _this + xx.TienThu;
                                     }, 0);
+                                    let sumPOS = arrCT.filter(x => x.HinhThucThanhToan === 2).reduce(function (_this, xx) {
+                                        return _this + xx.TienThu;
+                                    }, 0);
 
                                     let hd = {
                                         ID: itFor.ID_HoaDonLienQuan,
@@ -2444,6 +2473,7 @@
                                         DaThuTruoc: itFor.DaThuTruoc,
                                         CanThu: Math.abs(itFor.TongThanhToanHD - itFor.DaThuTruoc),// neu khach thanh toan khi dathang > gtri hoadon
                                         TienThu: formatNumber3Digit(sumCT),
+                                        TienPOS: sumPOS,
                                         BH_NhanVienThucHiens: [],
                                     }
                                     sumNoHD += hd.CanThu;

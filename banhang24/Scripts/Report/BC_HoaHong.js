@@ -116,6 +116,7 @@
         GetAllChiNhanh();
         GetHT_Quyen_ByNguoiDung();
         GetTree_NhomHangHoa();
+        GetAllPhongBan();
         console.log('bchh')
     }
 
@@ -196,6 +197,94 @@
                 }
             })
         }
+    }
+
+    var tree = '';
+    self.ListDepartment = ko.observableArray();
+    self.ListDepartmentID = ko.observableArray([]);
+    function GetAllPhongBan() {
+        $.getJSON('/api/DanhMuc/NS_NhanVienAPI/' + "GetTreePhongBan?chinhanhId=" + VHeader.IdDonVi, function (data) {
+            self.ListDepartment(data);
+
+            tree = $('#treePhongBan1').tree({
+                primaryKey: 'id',
+                uiLibrary: 'bootstrap',
+                dataSource: data,
+                checkboxes: false,
+            }).on('select', function (e, node, id) {
+                reportDiscount.PhongBan_getAllChild(id);
+            })
+        });
+    }
+
+    self.PhongBan_getAllChild = function (idNhom) {
+        var arrID = [];
+        var nhom = $.grep(self.ListDepartment(), function (x) {
+            return x.id === idNhom;
+        });
+        if (nhom.length > 0) {
+            for (let i = 0; i < nhom[0].children.length; i++) {
+                arrID.push(nhom[0].children[i].id);
+
+                for (let j = 0; j < nhom[0].children[i].children.length; j++) {
+                    arrID.push(nhom[0].children[i].children[j].id);
+                }
+            }
+        }
+        arrID.push(idNhom);
+        self.ListDepartmentID(arrID);
+        SearchReport();
+    }
+
+    function GetChildren_Phong(arrParent, arrJson, txtSearch, arr, isRoot) {
+        if (txtSearch === '') {
+            //return self.ListDepartment();
+        }
+        for (let i = 0; i < arrJson.length; i++) {
+            let tenNhom = locdau(arrJson[i].text);
+            if (tenNhom.indexOf(txtSearch) > -1) {
+                if (isRoot) {
+                    arr.push(arrJson[i]);
+                }
+                else {
+                    var ex = $.grep(arr, function (x) {
+                        return x.id === arrParent.id;
+                    })
+                    if (ex.length === 0) {
+                        arr.push(arrParent);
+                    }
+                    else {
+                        // neu da ton tai, thoat vong for of children
+                        return;
+                    }
+                }
+            }
+            if (arrJson[i].children.length > 0) {
+                GetChildren_Phong(arrJson[i], arrJson[i].children, txtSearch, arr, false);
+            }
+        }
+        return arr;
+    }
+
+    $('#txtSearchPB1').keypress(function (e) {
+        if (e.keyCode === 13) {
+            var filter = locdau($(this).val());
+            var arr = GetChildren_Phong([], self.ListDepartment(), filter, [], true);
+            tree.destroy();
+            tree = $('#treePhongBan1').tree({
+                primaryKey: 'id',
+                uiLibrary: 'bootstrap',
+                dataSource: arr,
+                checkboxes: false,
+            }).on('select', function (e, node, id) {
+                reportDiscount.PhongBan_getAllChild(id);
+            });
+        }
+    });
+
+    self.selectAllPhongBan = function () {
+        self.ListDepartmentID([]);
+        SearchReport();
     }
 
     function AddCheckAfterLi(idChiNhanh) {
@@ -550,11 +639,12 @@
                 self.TotalPage(data.TotalPage);
 
                 self.ReportProduct_SumGiatriCK(data.DoanhThuHD);
-                self.ReportInvoice_SumDoanhThu(data.SumDoanhThu);
+                self.ReportInvoice_TongGtriThucThu(data.TongThucThuHD);
+                self.ReportInvoice_SumDoanhThu(data.SumCPNganHang);// muon truong
+                self.ReportProduct_SumGiatriSauHeSo(data.SumThucThu_ThucTinh);// muon truong
                 self.ReportInvoice_SumThucThu(data.SumThucThu);
                 self.ReportInvoice_SumVND(data.SumVND);
                 self.ReportInvoice_SumAll(data.SumAll);
-                self.ReportInvoice_TongGtriThucThu(data.TongThucThuHD);
 
                 GetListNumberPaging();
                 Caculator_FromToPaging(data.LstData);
@@ -1101,6 +1191,7 @@
             ID_NhanVienLogin: _idNhanVien,
             LaHangHoas: arr,
             LoaiChungTus: arrChungTu,
+            DepartmentIDs: self.ListDepartmentID(),
         }
 
         if (isExport) {
@@ -1597,14 +1688,6 @@
 
     var _columnHide = '';
     self.ExportExcel = function () {
-         let table = $('#tblHoaHongHHCT');
-            TableToExcel.convert(table[0], { 
-                name: `export.xlsx`, 
-                sheet: {
-                    name: 'Sheet 1' 
-                }
-            });
-        return;
 
         _columnHide = '';
         var tblName = '';
@@ -1668,17 +1751,24 @@
                     lenData = self.ReportInvoice_Detail().length;
 
                     let cloumAdd2 = '';
-                    if (_columnHide.indexOf('11') > -1) {
-                        cloumAdd2 += '11_12_';
+                    
+                    if (_columnHide.indexOf('10') > -1) {
+                        cloumAdd2 += '10_11_';
                     }
+                    if (_columnHide.indexOf('13') > -1) {
+                        cloumAdd2 += '14_15_';
+                    }
+
+                    if (_columnHide.indexOf('14') > -1 && cloumAdd2.indexOf('15') == -1) {
+                        _columnHide = _columnHide.replace('14', '16');
+                    }
+
                     if (_columnHide.indexOf('12') > -1) {
-                        cloumAdd2 += '13_14_';
+                        _columnHide = _columnHide.replace('12', '13');
                     }
-                    if (_columnHide.indexOf('11') > -1 && cloumAdd2.indexOf('12') == -1) {
-                        _columnHide = _columnHide.replace('11', '');
-                    }
-                    if (_columnHide.indexOf('12') > -1 && cloumAdd2.indexOf('11') == -1) {
-                        _columnHide = _columnHide.replace('12', '');
+
+                    if (_columnHide.indexOf('11') > -1 && cloumAdd2.indexOf('10') == -1) {
+                        _columnHide = _columnHide.replace('11', '12');
                     }
 
                     _columnHide = _columnHide + cloumAdd2;

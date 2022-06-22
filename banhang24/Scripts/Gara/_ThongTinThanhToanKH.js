@@ -1453,7 +1453,6 @@
 
         AgreeThanhToan: function () {
             var self = this;
-            self.saveOK = true;
             let sumCK = 0;
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 let itFor = self.GridNVienBanGoi_Chosed[i];
@@ -1465,6 +1464,8 @@
                 commonStatisJs.ShowMessageDanger("Tổng phân bổ không được vượt quá " + formatNumber3Digit(thucTinh));
                 return;
             }
+
+            self.saveOK = true;
             switch (self.formType) {
                 case 1:// gara
                     newModelBanLe.saveHoaDonTraHang();

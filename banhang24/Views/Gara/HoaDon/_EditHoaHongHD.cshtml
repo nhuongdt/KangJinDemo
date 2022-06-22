@@ -17,12 +17,15 @@
                 padding-right: 0;
             }
             @@media (max-width: 1024px) {
-                HoaHongNhanVienHD .position-relative.table-frame {
+                #HoaHongNhanVienHD .position-relative.table-frame {
                     height: initial !important;
                     min-height: 230px;
                     max-height: 310px;
                 }
             }
+    #HoaHongNhanVienHD table thead tr {
+       text-align:center;
+    }
     
 </style>
 <div class="modal fade" id="HoaHongNhanVienHD">
@@ -48,16 +51,16 @@
                             <div class="op-ck-right">
                                 <div class="flex flex-between" style="line-height:24px; padding:3px;">
                                     <div>
-                                        <span>Doanh thu: </span>
-                                        <span>{{formatNumber3Digit(inforHoaDon.TongThanhToan - inforHoaDon.TongTienThue,2)}}</span>
-                                    </div>
-                                    <div>
                                         <span>Thực thu: </span>
                                         <span class="red">{{formatNumber3Digit(inforHoaDon.ThucThu,2)}}</span>
                                     </div>
                                     <div>
-                                        <span>Còn nợ: </span>
-                                        <span>{{formatNumber3Digit(inforHoaDon.ConNo,2)}}</span>
+                                        <span>Phí ngân hàng: </span>
+                                        <span class="red">{{formatNumber3Digit(inforHoaDon.TongPhiNganHang,2)}}</span>
+                                    </div>
+                                    <div>
+                                        <span>Thực tính: </span>
+                                        <span class="red">{{formatNumber3Digit(inforHoaDon.ThucThu -inforHoaDon.TongPhiNganHang)}}</span>
                                     </div>
                                 </div>
                                 <div class="flex flex-row">
@@ -84,11 +87,11 @@
                                         <table class="table position-relative" style="padding-bottom:50px">
                                             <thead>
                                                 <tr>
-                                                    <th>Nhân viên</th>
-                                                    <th>Chiết khấu</th>
-                                                    <th>Hệ số</th>
-                                                    <th>Tiền được nhận</th>
-                                                    <th></th>
+                                                    <th>Tên nhân viên</th>
+                                                    <th style="width:25%">% Chiết khấu</th>
+                                                    <th style="width:5%">Hệ số</th>
+                                                    <th style="width:25%">Thành tiền</th>
+                                                    <th style="width:5%"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -97,20 +100,20 @@
                                                         <div >{{item.TenNhanVien}}</div>
                                                     </td>
                                                     <td style="text-align: center">
-                                                        <input class="input-simple text-right width-100"
-                                                               v-bind:value="parseInt(item.TinhChietKhauTheo) !== 3? item.ChietKhauMacDinh: formatNumber3Digit(item.ChietKhauMacDinh,2)"
-                                                               v-on:click="HoaHongHD_ShowDivChietKhau(item, index)" />
+                                                        <input class='input-simple text-right'
+                                                               v-model="item.ChietKhauMacDinh"
+                                                               v-on:keyup.13="HoaHongHD_KeyEnter(1)"
+                                                               v-on:keyup="HoaHongHD_EditChietKhau(item, index)" />
 
                                                     </td>
                                                     <td style="text-align: center">
-                                                        <input class="input-simple text-right width-100"
-                                                               onkeypress="keypressNumber_limitNumber(event,this)"
-                                                               v-model="item.HeSo"
-                                                               v-bind:disabled=" parseInt(IsShareDiscount) === 1"
-                                                               v-on:keyup="HoaHongHD_EditHeSo(item,index)" />
+                                                        {{item.HeSo}}
                                                     </td>
                                                     <td class="text-center">
-                                                        <span>{{ formatNumber3Digit(item.TienChietKhau,2)}}</span>
+                                                        <input class='input-simple text-right'
+                                                               v-model="item.TienChietKhau"
+                                                               v-on:keyup.13="HoaHongHD_KeyEnter(3)"
+                                                               v-on:keyup="HoaHongHD_EditThanhTien(item, index)" />
                                                     </td>
                                                     <td>
                                                         <a class="btn btn-link" title="Xóa"

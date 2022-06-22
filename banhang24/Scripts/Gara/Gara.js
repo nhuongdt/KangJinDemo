@@ -4106,7 +4106,7 @@ var NewModel_BanHangLe = function () {
         tongSuDungThe_TruocDo = tongSuDungThe_TruocDo < 0 ? 0 : tongSuDungThe_TruocDo;
         soDuConLai_TruocDo = soDuConLai_TruocDo < 0 ? 0 : soDuConLai_TruocDo;
 
-        objPrint.TongCong = formatNumber3Digit(tongcong);
+        objPrint.TongCong = formatNumber3Digit(objHD.TongThanhToan);
         objPrint.TongTienTraHang = formatNumber3Digit(objHD.TongGiaGocHangTra);
         objPrint.TongTienTra = formatNumber3Digit(objHD.TongTienTra);
         objPrint.TongChiPhi = formatNumber3Digit(objHD.TongChiPhi);

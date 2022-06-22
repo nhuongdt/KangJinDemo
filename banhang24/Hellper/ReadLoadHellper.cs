@@ -1670,7 +1670,7 @@ namespace banhang24.Hellper
              { TypeRChietKhau.manhanvien.ToString(),"Mã nhân viên" },
              { TypeRChietKhau.tennhanvien.ToString(),"Tên nhân viên" },
              { TypeRChietKhau.hoahongthuchien.ToString(),"Hoa hồng thực hiện" },
-             { TypeRChietKhau.hoahongthuchien_theoyc.ToString(),"Hoa hồng thực hiện theo Y/cầu" },
+             { TypeRChietKhau.hoahongthuchien_theoyc.ToString(),"Hoa hồng NV hỗ trợ" },
              { TypeRChietKhau.hoahongtuvan.ToString(),"Hoa hồng tư vấn" },
              { TypeRChietKhau.hoahongdichvu.ToString(),"Hoa hồng bán gói dịch vụ" },
              { TypeRChietKhau.tong.ToString(),"Tổng" },
@@ -1694,7 +1694,7 @@ namespace banhang24.Hellper
              { TypeRpDiscountInvoice.heso.ToString(),"Hệ số" },
              { TypeRChietKhau.gtriSauHeSo.ToString(),"Giá trị tính" },
              { TypeRChietKhau.hoahongthuchien.ToString(),"Hoa hồng thực hiện" },
-             { TypeRChietKhau.hoahongthuchien_theoyc.ToString(),"Hoa hồng thực hiện theo Y/cầu" },
+             { TypeRChietKhau.hoahongthuchien_theoyc.ToString(),"Hoa hồng NV hỗ trợ" },
              { TypeRChietKhau.hoahongtuvan.ToString(),"Hoa hồng tư vấn" },
              { TypeRChietKhau.hoahongdichvu.ToString(),"Hoa hồng bán gói dịch vụ" },
              { TypeRChietKhau.tong.ToString(),"Tổng" },
@@ -2324,6 +2324,8 @@ namespace banhang24.Hellper
             theohoadon,
             theodoanhso,
             tongckall,
+            chiphiNganHang,
+            thucthu_thuctinh
         }
 
         public static Dictionary<string, string> RpDiscountInvoice = new Dictionary<string, string>()
@@ -2348,8 +2350,9 @@ namespace banhang24.Hellper
              { TypeRpDiscountInvoice.tennhanvien.ToString(),"Tên nhân viên" },
              { TypeRpDiscountInvoice.doanhthu.ToString(),"Doanh thu" },
              { TypeRpDiscountInvoice.thucthu.ToString(),"Thực thu" },
+             { TypeRpDiscountInvoice.chiphiNganHang.ToString(),"Chi phí ngân hàng" },
+             { TypeRpDiscountInvoice.thucthu_thuctinh.ToString(),"Thực thu - thực tính" },
              { TypeRpDiscountInvoice.heso.ToString(),"Hệ số" },
-             { TypeRpDiscountInvoice.hoahongdoanhthu.ToString(),"Hoa hồng theo doanh thu" },
              { TypeRpDiscountInvoice.hoahongthucthu.ToString(),"Hoa hồng theo thực thu" },
              { TypeRpDiscountInvoice.hoahongvnd.ToString(),"Hoa hồng theo VNĐ" },
              { TypeRpDiscountInvoice.tong.ToString(),"Tổng" },

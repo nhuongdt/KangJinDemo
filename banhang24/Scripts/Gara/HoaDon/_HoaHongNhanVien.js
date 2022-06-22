@@ -7,7 +7,7 @@
         saveOK: false,
         isNew: true,
         IsShareDiscount: '2',
-        LoaiChietKhauHD_NV: '2',
+        LoaiChietKhauHD_NV: '1',
         RoleChange_ChietKhauNV: true,
         ID_DonVi: $('#txtDonVi').val(),
         itemChosing: {},
@@ -21,6 +21,7 @@
             DaThuTruoc: 0,
             ThucThu: 0,
             ConNo: 0,
+            TongPhiNganHang: 0,
         },
         GridNVienBanGoi_Chosed: [],
         listData: {
@@ -40,7 +41,7 @@
         console.log('ckHoaDon')
     },
     methods: {
-        GetChietKhauHoaDon_byID: function (objHoaDon, objPhieuThu = null, isUpdate = true ) {
+        GetChietKhauHoaDon_byID: function (objHoaDon, objPhieuThu = null, isUpdate = true) {
             var self = this;
             let idPhieuThu = null;
             self.inforPhieuThu = {};
@@ -54,10 +55,10 @@
                         self.GridNVienBanGoi_Chosed = x.data;
                         for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                             let itFor = self.GridNVienBanGoi_Chosed[i];
-                            itFor.ChietKhauMacDinh = itFor.PT_ChietKhau;
+                            itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.PT_ChietKhau);
                             switch (itFor.TinhChietKhauTheo) {
                                 case 3:
-                                    itFor.ChietKhauMacDinh = itFor.TienChietKhau / itFor.HeSo;
+                                    itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.TienChietKhau / itFor.HeSo);
                                     break;
                             }
                         }
@@ -114,16 +115,17 @@
                 }
             }
 
+            let chiphiNganHang = formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             // update chietkhaumacdinh
             for (let i = 0; i < lenNVHD; i++) {
                 let itFor = self.GridNVienBanGoi_Chosed[i];
                 itFor.ChietKhauMacDinh = itFor.PT_ChietKhau;
                 switch (itFor.TinhChietKhauTheo) {
                     case 1:
-                        itFor.TienChietKhau = itFor.PT_ChietKhau * self.inforHoaDon.ThucThu * itFor.HeSo / 100;
+                        itFor.TienChietKhau = formatNumber3Digit(itFor.PT_ChietKhau * (self.inforHoaDon.ThucThu - chiphiNganHang) * itFor.HeSo / 100);
                         break;
                     case 3:
-                        itFor.ChietKhauMacDinh = itFor.TienChietKhau / itFor.HeSo;
+                        itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.TienChietKhau / itFor.HeSo);
                         break;
                 }
             }
@@ -133,7 +135,7 @@
         newNhanVien_ChietKhauHoaDon: function (itemCK, itemNV, exitChietKhau) {
             var self = this;
             var doanhThu = self.inforHoaDon.TongThanhToan - self.inforHoaDon.TongTienThue;
-            var thucThu = self.inforHoaDon.ThucThu;
+            var thucThu = self.inforHoaDon.ThucThu - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             if (exitChietKhau) {
                 var tinhCKTheo = parseInt(itemCK.TinhChietKhauTheo);
                 var valChietKhau = itemCK.GiaTriChietKhau;
@@ -161,9 +163,9 @@
                     TheoYeuCau: false,
                     HeSo: 1,
                     TinhChietKhauTheo: tinhCKTheo.toString(),
-                    TienChietKhau: tienCK_NV,
+                    TienChietKhau: formatNumber3Digit(tienCK_NV),
                     PT_ChietKhau: ptramCK,
-                    ChietKhauMacDinh: valChietKhau,
+                    ChietKhauMacDinh: formatNumber3Digit(valChietKhau),
                 }
             }
             else {
@@ -175,7 +177,7 @@
                     ThucHien_TuVan: false,
                     TheoYeuCau: false,
                     HeSo: 1,
-                    TinhChietKhauTheo: '2',
+                    TinhChietKhauTheo: '1',
                     TienChietKhau: 0,
                     PT_ChietKhau: 0,
                     ChietKhauMacDinh: 0,
@@ -197,13 +199,20 @@
             }
             self.HoaHongHD_UpdateHeSo_AndBind();
         },
-        HoaHongHD_EditChietKhau: function () {
+        HoaHongHD_KeyEnter: function (columnEdit) {
+            let thisObj = $(event.currentTarget);
+            let trClosest = $(thisObj).closest('tr');
+            let tdNext = trClosest.next().find('td');
+            $(tdNext).eq(columnEdit).find('input').focus().select();
+        },
+        HoaHongHD_EditChietKhau: function (item, index) {
             var self = this;
-            var item = self.itemChosing;
-            var thisObj = event.currentTarget;
-            var gtriNhap = formatNumberToFloat($(thisObj).val());
-            var tinhCKTheo = parseInt(self.LoaiChietKhauHD_NV);
-            var ptramCK = 0;
+            item.Index = index;
+            self.itemChosing = item;
+            let thisObj = event.currentTarget;
+            let gtriNhap = formatNumberToFloat($(thisObj).val());
+            let tinhCKTheo = parseInt(self.LoaiChietKhauHD_NV);
+            let ptramCK = 0;
             if (tinhCKTheo === 3) {
                 formatNumberObj($(thisObj))
             }
@@ -213,16 +222,38 @@
                 }
             }
             // get gtri after check % or VND
-            var gtriCK_After = formatNumberToFloat($(thisObj).val());
+            let gtriCK_After = formatNumberToFloat($(thisObj).val());
             if (tinhCKTheo !== 3) {
                 ptramCK = gtriCK_After;
             }
-            var tienCK = self.CaculatorAgain_TienDuocNhan(gtriCK_After, item.HeSo, tinhCKTheo);
+            let tienCK = self.CaculatorAgain_TienDuocNhan(gtriCK_After, item.HeSo, tinhCKTheo);
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 if (i === item.Index) {
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
-                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = tienCK;
-                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = gtriCK_After;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(gtriCK_After);
+                    break;
+                }
+            }
+        },
+        HoaHongHD_EditThanhTien: function (item, index) {
+            let self = this;
+            item.Index = index;
+            self.itemChosing = item;
+
+            let thisObj = $(event.currentTarget);
+            let gtriNhap = formatNumberToFloat(thisObj.val());
+            formatNumberObj(thisObj)
+
+            let chiphiNganHang = formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
+            let thucthu = self.inforHoaDon.ThucThu - chiphiNganHang;
+            let ptramCK = gtriNhap / thucthu * 100;
+
+            for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                if (i === item.Index) {
+                    self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = thisObj.val();
+                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(ptramCK);
                     break;
                 }
             }
@@ -279,7 +310,7 @@
             if (self.IsShareDiscount === '1') {
                 heso = RoundDecimal(1 / lenGrid, 2);
             }
-            var thucthu = formatNumberToFloat(self.inforHoaDon.ThucThu);
+            var thucthu = formatNumberToFloat(self.inforHoaDon.ThucThu) - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             var doanhthu = formatNumberToFloat(self.inforHoaDon.TongThanhToan) - self.inforHoaDon.TongTienThue;
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 let itemFor = self.GridNVienBanGoi_Chosed[i];
@@ -295,15 +326,15 @@
                         break;
                     case 3:// vnd, keep heso =1
                         if (heso !== 1) {
-                            tienCK = itemFor.ChietKhauMacDinh * heso;
+                            tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) * heso;
                         }
                         else {
-                            tienCK = itemFor.ChietKhauMacDinh / heso;
+                            tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) / heso;
                         }
                         break;
                 }
                 self.GridNVienBanGoi_Chosed[i].HeSo = heso;
-                self.GridNVienBanGoi_Chosed[i].TienChietKhau = tienCK;
+                self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
             }
         },
 
@@ -344,10 +375,10 @@
             });
         },
         CaculatorAgain_TienDuocNhan: function (gtriCK, heso, tinhCKTheo) {
-            var self = this;
-            var doanhthu = self.inforHoaDon.TongThanhToan - self.inforHoaDon.TongTienThue;
-            var thucthu = self.inforHoaDon.ThucThu;
-            var tienCK = 0;
+            let self = this;
+            let doanhthu = self.inforHoaDon.TongThanhToan - self.inforHoaDon.TongTienThue;
+            let thucthu = self.inforHoaDon.ThucThu - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
+            let tienCK = 0;
             switch (parseInt(tinhCKTheo)) {
                 case 1:
                     tienCK = Math.round(thucthu * gtriCK / 100 * heso);
@@ -374,7 +405,7 @@
             var ptramCK = gtriCK;
             var chietKhauMacDinh = 0;
             var doanhthu = formatNumberToFloat(self.inforHoaDon.TongThanhToan) - self.inforHoaDon.TongTienThue;
-            var thucthu = formatNumberToFloat(self.inforHoaDon.ThucThu);
+            var thucthu = formatNumberToFloat(self.inforHoaDon.ThucThu) - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             var loaiCK_Old = parseInt(self.LoaiChietKhauHD_NV);
             if (loaiCK_Old === 3) {
                 switch (loaiCK) {
@@ -410,9 +441,9 @@
                 if (i === item.Index) {
                     self.GridNVienBanGoi_Chosed[i].TinhChietKhauTheo = loaiCK.toString();
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
-                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = tienCK;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
                     if (chietKhauMacDinh !== 0 || (chietKhauMacDinh === 0 && tienCK === 0)) {
-                        self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = chietKhauMacDinh;
+                        self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(chietKhauMacDinh);
                     }
                     break;
                 }
@@ -436,6 +467,17 @@
 
         AgreeDiscount: function () {
             var self = this;
+            let sumCK = 0;
+            for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                let itFor = self.GridNVienBanGoi_Chosed[i];
+                sumCK += formatNumberToFloat(itFor.TienChietKhau);
+            }
+            let thucTinh = self.inforHoaDon.ThucThu - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
+            if (sumCK > thucTinh) {
+                commonStatisJs.ShowMessageDanger("Tổng phân bổ không được vượt quá " + formatNumber3Digit(thucTinh));
+                return;
+            }
+
             self.saveOK = true;
             if (self.isNew === false) {
                 self.UpdateChietKhauNVHoaDon_toDB();

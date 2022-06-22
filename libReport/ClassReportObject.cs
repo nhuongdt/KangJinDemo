@@ -890,6 +890,7 @@ namespace libReport
         public Guid? ID_NhanVienLogin { get; set; }
         public List<string> LaHangHoas { get; set; } // 1.lahanghoa, 2.ladichvu, 3.combo
         public List<string> LoaiChungTus { get; set; } //1.hdban, 6.tra, 19.gdv, 22.thegiatri, 25.hdsc
+        public List<string> DepartmentIDs { get; set; }
     }
 
     public class BaoCaoChietKhau_TongHopPRC
@@ -986,9 +987,12 @@ namespace libReport
         public string TenNhanVien { get; set; }
         public double? DoanhThu { get; set; }
         public double? ThucThu { get; set; }
-        public double? HeSo { get; set; }
         public double? PTDoanhThu { get; set; }
         public double? HoaHongDoanhThu { get; set; }
+        public double? ChiPhiNganHang { get; set; }
+        public double? TongChiPhiNganHang { get; set; }
+        public double? ThucThu_ThucTinh { get; set; }
+        public double? HeSo { get; set; }
         public double? PTThucThu { get; set; }
         public double? HoaHongThucThu { get; set; }
         public double? HoaHongVND { get; set; }
@@ -1000,6 +1004,8 @@ namespace libReport
         public double TongHoaHongThucThu { get; set; }
         public double TongHoaHongVND { get; set; }
         public double TongAllAll { get; set; }
+        public double? SumAllChiPhiNganHang { get; set; }
+        public double? SumThucThu_ThucTinh { get; set; }
         public int TotalRow { get; set; }
         public double TotalPage { get; set; }
     }
