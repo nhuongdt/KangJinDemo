@@ -1715,6 +1715,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [AcceptVerbs("GET", "POST")]
+        public IHttpActionResult GetInforTheGiaTri_byID(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
+                    List<BH_HoaDonTheNapDTO> data = classHoaDon.GetInforTheGiaTri_byID(id);
+                    return ActionTrueData(data);
+                }
+                catch (Exception e)
+                {
+                    return ActionTrueNotData(e.InnerException + e.Message);
+                }
+            }
+        }
+
+        [AcceptVerbs("GET", "POST")]
         public IHttpActionResult Comapre_DoanhThuByTheGiaTri(ModelHoaDonTheNap model)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -5871,60 +5889,84 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     try
                     {
-
-
                         ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                         BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                         string sMaHoaDon = string.Empty;
 
-                        BH_HoaDon itemBH_HoaDon = new BH_HoaDon { };
-                        itemBH_HoaDon.ID = Guid.NewGuid();
-                        if (objHoaDon.MaHoaDon == null || objHoaDon.MaHoaDon == "")
+                        if (string.IsNullOrEmpty(objHoaDon.MaHoaDon))
                         {
                             sMaHoaDon = classhoadon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, objHoaDon.NgayLapHoaDon);
                         }
                         else
                         {
+                            bool exist = false;
+                            if (objHoaDon.ID == null || objHoaDon.ID == Guid.Empty)
+                            {
+                                exist= classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
+                            }
+                            else
+                            {
+                                exist= classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon, objHoaDon.ID);
+                            }
+                            if (exist)
+                            {
+                                return ActionFalseNotData("Mã hóa đơn đã tồn tại");
+                            }
                             sMaHoaDon = objHoaDon.MaHoaDon;
                         }
-                        itemBH_HoaDon.MaHoaDon = sMaHoaDon;
-                        itemBH_HoaDon.ID_NhanVien = objHoaDon.ID_NhanVien;
-                        itemBH_HoaDon.NguoiTao = objHoaDon.NguoiTao;
-                        itemBH_HoaDon.ID_DoiTuong = objHoaDon.ID_DoiTuong;
-                        itemBH_HoaDon.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
-                        itemBH_HoaDon.TongChiPhi = objHoaDon.TongChiPhi; //mức nạp
-                        itemBH_HoaDon.TongChietKhau = objHoaDon.TongChietKhau; //khuyến mại nạp thẻ
-                        itemBH_HoaDon.TongTienHang = objHoaDon.TongTienHang; //tổng tiền nạp
-                        itemBH_HoaDon.TongTienThue = objHoaDon.TongTienThue; //số dư sau nạp
-                        itemBH_HoaDon.TongGiamGia = objHoaDon.TongGiamGia; //giảm giá cả hóa đơn
-                        itemBH_HoaDon.PhaiThanhToan = objHoaDon.PhaiThanhToan; //phải thanh toán (= Tiền khách trả)
-                        itemBH_HoaDon.TongThanhToan = objHoaDon.TongThanhToan;
-                        itemBH_HoaDon.ID_DonVi = objHoaDon.ID_DonVi;
-                        itemBH_HoaDon.NgayTao = DateTime.Now;
-                        itemBH_HoaDon.ChoThanhToan = objHoaDon.ChoThanhToan;
-                        itemBH_HoaDon.DienGiai = objHoaDon.DienGiai;
-                        itemBH_HoaDon.LoaiHoaDon = objHoaDon.LoaiHoaDon;
-                        classhoadon.Add_HoaDon(itemBH_HoaDon);
+                      
+                        if (objHoaDon.ID == null || objHoaDon.ID == Guid.Empty)
+                        {
+                            objHoaDon.ID = Guid.NewGuid();
+                            objHoaDon.MaHoaDon = sMaHoaDon;
+                            objHoaDon.NgayTao = DateTime.Now;
+                            db.BH_HoaDon.Add(objHoaDon);
+                        }
+                        else
+                        {
+                            BH_HoaDon objU = db.BH_HoaDon.Find(objHoaDon.ID);
+                            if (objU != null)
+                            {
+                                objU.MaHoaDon = sMaHoaDon;
+                                objU.ID_NhanVien = objHoaDon.ID_NhanVien;
+                                objU.ID_DoiTuong = objHoaDon.ID_DoiTuong;
+                                objU.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
+                                objU.TongChiPhi = objHoaDon.TongChiPhi; //mức nạp
+                                objU.TongChietKhau = objHoaDon.TongChietKhau; //khuyến mại nạp thẻ
+                                objU.TongTienHang = objHoaDon.TongTienHang; //tổng tiền nạp
+                                objU.TongTienThue = objHoaDon.TongTienThue; //số dư sau nạp
+                                objU.TongGiamGia = objHoaDon.TongGiamGia; //giảm giá cả hóa đơn
+                                objU.PhaiThanhToan = objHoaDon.PhaiThanhToan; //phải thanh toán (= Tiền khách trả)
+                                objU.TongThanhToan = objHoaDon.TongThanhToan;
+                                objU.ID_DonVi = objHoaDon.ID_DonVi;
+                                objU.NgaySua = DateTime.Now;
+                                objU.NguoiSua = objHoaDon.NguoiSua;
+                                objU.ChoThanhToan = objHoaDon.ChoThanhToan;
+                                objU.DienGiai = objHoaDon.DienGiai;
+                                objU.LoaiHoaDon = objHoaDon.LoaiHoaDon;
+                            }
+                        }
+                        db.SaveChanges();
                         trans.Commit();
 
                         BH_HoaDonDTO objReturn = new BH_HoaDonDTO
                         {
-                            ID = itemBH_HoaDon.ID,
-                            MaHoaDon = itemBH_HoaDon.MaHoaDon,
-                            ID_NhanVien = itemBH_HoaDon.ID_NhanVien,
-                            ID_DoiTuong = itemBH_HoaDon.ID_DoiTuong,
-                            DienGiai = itemBH_HoaDon.DienGiai,
-                            NgayLapHoaDon = itemBH_HoaDon.NgayLapHoaDon,
-                            PhaiThanhToan = itemBH_HoaDon.PhaiThanhToan,
-                            TongChietKhau = itemBH_HoaDon.TongChietKhau,
-                            TongGiamGia = itemBH_HoaDon.TongGiamGia,
-                            TongChiPhi = itemBH_HoaDon.TongChiPhi,
-                            TongTienHang = itemBH_HoaDon.TongTienHang,
-                            ChoThanhToan = itemBH_HoaDon.ChoThanhToan,
-                            NgayTao = itemBH_HoaDon.NgayTao,
-                            ID_DonVi = itemBH_HoaDon.ID_DonVi,
-                            LoaiHoaDon = itemBH_HoaDon.LoaiHoaDon,
-                            TongTienThue = itemBH_HoaDon.TongTienThue,
+                            ID = objHoaDon.ID,
+                            MaHoaDon = objHoaDon.MaHoaDon,
+                            ID_NhanVien = objHoaDon.ID_NhanVien,
+                            ID_DoiTuong = objHoaDon.ID_DoiTuong,
+                            DienGiai = objHoaDon.DienGiai,
+                            NgayLapHoaDon = objHoaDon.NgayLapHoaDon,
+                            PhaiThanhToan = objHoaDon.PhaiThanhToan,
+                            TongChietKhau = objHoaDon.TongChietKhau,
+                            TongGiamGia = objHoaDon.TongGiamGia,
+                            TongChiPhi = objHoaDon.TongChiPhi,
+                            TongTienHang = objHoaDon.TongTienHang,
+                            ChoThanhToan = objHoaDon.ChoThanhToan,
+                            NgayTao = objHoaDon.NgayTao,
+                            ID_DonVi = objHoaDon.ID_DonVi,
+                            LoaiHoaDon = objHoaDon.LoaiHoaDon,
+                            TongTienThue = objHoaDon.TongTienThue,
                         };
                         return ActionTrueData(objReturn);
                     }
