@@ -100,97 +100,99 @@
                                            v-on:keyup="searchGDV">
                                 </div>
                                 <div class="container-fluid nopadding nhat-ky-dv-chi-tiet">
-                                    <table class="table-dich-vu" v-for="(item, index) in listData.GoiDichVu">
-                                        <thead>
-                                            <tr class="tr-title tr-goi-dich-vu">
-                                                <td colspan="8">
-                                                    {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}:
-                                                    <span>{{item.MaHoaDon}}</span>
-                                                    - Ngày mua:
-                                                    <span>{{item.NgayLapHoaDon}}</span>
-                                                    - Áp dụng:
-                                                    <span>{{item.NgayApDungGoiDV}}</span>
-                                                    - Hết hạn:
-                                                    <span>{{item.HanSuDungGoiDV}}</span>
-                                                </td>
-                                            </tr>
-                                            <tr v-if="item.BienSo">
-                                                <td colspan="8">
-                                                    <span> Biển số xe: </span>
-                                                    <span>{{item.BienSo}}</span>
-                                                </td>
-                                            </tr>
-                                            <tr class="tr-thead tr-goi-dich-vu">
-                                                <td>Mã dịch vụ </td>
-                                                <td>Tên dịch vụ </td>
-                                                <td>Số lượng </td>
-                                                <td>Đơn giá</td>
-                                                <td>Chiết khấu</td>
-                                                <td class="color-red">Đã sử dụng</td>
-                                                <td class="color-red">Còn lại</td>
-                                                <td>
-                                                    <input class="form-check-input" title="Chọn tất cả" type="checkbox"
-                                                           v-on:change="GVD_ChangeCheckAll(item)">
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <template v-for="(ct, index2) in item.lstDetail">
-                                                <template v-for="(combo, index3) in ct.ComBo">
-                                                    <tr v-if="combo.SoThuTu == 0">
-                                                        <td colspan="8" style="background: #eee" class="bold">
-                                                            {{combo.TenHangHoa}}
-                                                        </td>
-                                                    </tr>
-                                                    <tr v-if="index3 == 0 && combo.ID_ParentCombo == null && ct.ComBo.filter(x=>x.SoThuTu===0).length == 0 && item.lstDetail.length > 1">
-                                                        <td colspan="8" style="background: #eee" class="bold">
-                                                            Hàng ngoài combo
-                                                        </td>
-                                                    </tr>
-                                                    <tr v-if="combo.ID_ParentCombo !== combo.ID_ChiTietGoiDV">
-                                                        <td>
-                                                            <span>
-                                                                {{combo.MaHangHoa}}
-                                                            </span>
-                                                            <span class="bg-pink" style="display:none">
-                                                                (KM)
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span>
+                                    <div style="overflow:auto">
+                                        <table class="table-dich-vu" v-for="(item, index) in listData.GoiDichVu">
+                                            <thead>
+                                                <tr class="tr-title tr-goi-dich-vu">
+                                                    <td colspan="8">
+                                                        {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}:
+                                                        <span>{{item.MaHoaDon}}</span>
+                                                        - Ngày mua:
+                                                        <span>{{item.NgayLapHoaDon}}</span>
+                                                        - Áp dụng:
+                                                        <span>{{item.NgayApDungGoiDV}}</span>
+                                                        - Hết hạn:
+                                                        <span>{{item.HanSuDungGoiDV}}</span>
+                                                    </td>
+                                                </tr>
+                                                <tr v-if="item.BienSo">
+                                                    <td colspan="8">
+                                                        <span> Biển số xe: </span>
+                                                        <span>{{item.BienSo}}</span>
+                                                    </td>
+                                                </tr>
+                                                <tr class="tr-thead tr-goi-dich-vu">
+                                                    <td>Mã dịch vụ </td>
+                                                    <td>Tên dịch vụ </td>
+                                                    <td>Số lượng </td>
+                                                    <td>Đơn giá</td>
+                                                    <td>Chiết khấu</td>
+                                                    <td class="color-red">Đã sử dụng</td>
+                                                    <td class="color-red">Còn lại</td>
+                                                    <td>
+                                                        <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                                               v-on:change="GVD_ChangeCheckAll(item)">
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template v-for="(ct, index2) in item.lstDetail">
+                                                    <template v-for="(combo, index3) in ct.ComBo">
+                                                        <tr v-if="combo.SoThuTu == 0">
+                                                            <td colspan="8" style="background: #eee" class="bold">
                                                                 {{combo.TenHangHoa}}
-                                                            </span><br />
-                                                            <span v-if="combo.GhiChu">
-                                                                (<i>{{combo.GhiChu}}</i>)
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-right">{{combo.TangKem?combo.SoLuongTang:combo.SoLuongMua}}</td>
-                                                        <td class="text-right">{{formatNumber3Digit(combo.GiaBan)}}</td>
-                                                        <td class="text-right">{{formatNumber3Digit(combo.TienChietKhau)}}</td>
-                                                        <td class="text-right"> {{combo.SoLuongDung}}</td>
-                                                        <td class="text-right"> {{combo.SoLuongConLai}}</td>
-                                                        <td style="width:40px">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                   v-bind:id="combo.ID_ChiTietGoiDV"
-                                                                   v-on:change="GVD_ChangeCheckItem(combo, item)">
-                                                        </td>
-                                                    </tr>
-                                                </template>
+                                                            </td>
+                                                        </tr>
+                                                        <tr v-if="index3 == 0 && combo.ID_ParentCombo == null && ct.ComBo.filter(x=>x.SoThuTu===0).length == 0 && item.lstDetail.length > 1">
+                                                            <td colspan="8" style="background: #eee" class="bold">
+                                                                Hàng ngoài combo
+                                                            </td>
+                                                        </tr>
+                                                        <tr v-if="combo.ID_ParentCombo !== combo.ID_ChiTietGoiDV">
+                                                            <td>
+                                                                <span>
+                                                                    {{combo.MaHangHoa}}
+                                                                </span>
+                                                                <span class="bg-pink" style="display:none">
+                                                                    (KM)
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span>
+                                                                    {{combo.TenHangHoa}}
+                                                                </span><br />
+                                                                <span v-if="combo.GhiChu">
+                                                                    (<i>{{combo.GhiChu}}</i>)
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-right">{{combo.TangKem?combo.SoLuongTang:combo.SoLuongMua}}</td>
+                                                            <td class="text-right">{{formatNumber3Digit(combo.GiaBan)}}</td>
+                                                            <td class="text-right">{{formatNumber3Digit(combo.TienChietKhau)}}</td>
+                                                            <td class="text-right"> {{combo.SoLuongDung}}</td>
+                                                            <td class="text-right"> {{combo.SoLuongConLai}}</td>
+                                                            <td style="width:40px">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                       v-bind:id="combo.ID_ChiTietGoiDV"
+                                                                       v-on:change="GVD_ChangeCheckItem(combo, item)">
+                                                            </td>
+                                                        </tr>
+                                                    </template>
 
-                                            </template>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr class="tr-title tr-goi-dich-vu">
-                                                <td>Tổng</td>
-                                                <td></td>
-                                                <td class="text-right">{{item.TongSLMua}}</td>
-                                                <td colspan="2"></td>
-                                                <td class="text-right">{{item.TongSLDaDung}}</td>
-                                                <td class="text-right">{{item.TongSLConLai}}</td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
+                                                </template>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="tr-title tr-goi-dich-vu">
+                                                    <td>Tổng</td>
+                                                    <td></td>
+                                                    <td class="text-right">{{item.TongSLMua}}</td>
+                                                    <td colspan="2"></td>
+                                                    <td class="text-right">{{item.TongSLDaDung}}</td>
+                                                    <td class="text-right">{{item.TongSLConLai}}</td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
 
@@ -324,8 +326,10 @@
                             <div class="tab-pane " id="nhatkythegiatri">
                                 <div class="container-fluid  nhat-ky-dv-giao-dich">
                                     <div style="overflow:auto">
-                                        <label> Lịch sử nạp tiền
-                                        <span class="blue">(Số dư hiện tại:<span class="red">{{formatNumber($root.soduTheGiaTri)}}</span></span>)</label>
+                                        <label>
+                                            Lịch sử nạp tiền
+                                            <span class="blue">(Số dư hiện tại:<span class="red">{{formatNumber($root.soduTheGiaTri)}}</span></span>)
+                                        </label>
                                         <table class="table-dich-vu" style="width:100%!important">
                                             <thead>
                                                 <tr class="tr-thead tr-goi-dich-vu">
@@ -753,7 +757,7 @@
                             if (self.listData.LichSuNapThe.length > 0) {
                                 tongnap = self.listData.LichSuNapThe[0].SoDuSauNap;
                             }
-                            if (self.listData.NhatKySuDungThe.length> 0) {
+                            if (self.listData.NhatKySuDungThe.length > 0) {
                                 tongSD = self.listData.NhatKySuDungThe[0].TongPhatSinhGiam;
                             }
                             self.soduTheGiaTri = tongnap - tongSD;
