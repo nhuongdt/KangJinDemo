@@ -1259,27 +1259,30 @@ namespace banhang24.Areas.DanhMuc.Controllers
             return resurt;
         }
         [HttpPost]
-        public string SaoChep_CaiDatHoaHong(array_SaoChepChietKhau array_Search)
+        public IHttpActionResult SaoChep_CaiDatHoaHong(array_SaoChepChietKhau param)
         {
-            string resurt = string.Empty;
             try
             {
+                string idNhanViens = string.Empty;
+                if (param.arrID != null && param.arrID.Count > 0)
+                {
+                    idNhanViens = string.Join(",", param.arrID);
+                }
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
                     List<SqlParameter> parameter = new List<SqlParameter>();
-                    parameter.Add(new SqlParameter("ID_DonVi", array_Search.ID_DonVi));
-                    parameter.Add(new SqlParameter("ID_NhanVien", array_Search.ID_NhanVien));
-                    parameter.Add(new SqlParameter("ID_NhanVien_new", array_Search.ID_NhanVien_new));
-                    parameter.Add(new SqlParameter("PhuongThuc", array_Search.PhuongThuc));
+                    parameter.Add(new SqlParameter("ID_DonVi", param.ID_DonVi));
+                    parameter.Add(new SqlParameter("ID_NhanVien", param.ID_NhanVien));
+                    parameter.Add(new SqlParameter("ID_NhanVien_new", idNhanViens));
+                    parameter.Add(new SqlParameter("PhuongThuc", param.PhuongThuc));
                     db.Database.ExecuteSqlCommand("exec insert_SaoChepCaiDatHoaHong @ID_DonVi, @ID_NhanVien, @ID_NhanVien_new, @PhuongThuc", parameter.ToArray());
                 }
-                resurt = "SCCDHH";
+                return ActionTrueData(string.Empty);
             }
             catch (Exception ex)
             {
-                resurt = string.Concat(ex.Message, ex.InnerException);
+                return ActionFalseNotData(ex.InnerException+ ex.Message);
             }
-            return resurt;
         }
 
         // nhan vien
@@ -5084,7 +5087,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         public Guid ID { get; set; }
         public string TenNhanVien { get; set; }
     }
-    public class NS_NhanVienCaiDatChietKhau
+    public class NS_NhanVienCaiDatChietKhau : NS_PhongBan_PROC
     {
         public Guid ID_NhanVien { get; set; }
         public string MaNhanVien { get; set; }
