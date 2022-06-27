@@ -1717,27 +1717,27 @@
                     lenData = self.ReportProduct_Detail().length;
                     let cloumAdd = '';
                     // neu an cot hoahongthuchien --> an luon 2 cot % + VND
+                    if (_columnHide.indexOf('15') > -1) {
+                        cloumAdd += '15_16_';
+                    }
                     if (_columnHide.indexOf('16') > -1) {
-                        cloumAdd += '16_17_';
+                        cloumAdd += '17_18_';
                     }
                     if (_columnHide.indexOf('17') > -1) {
-                        cloumAdd += '18_19_';
+                        cloumAdd += '19_20_';
                     }
                     if (_columnHide.indexOf('18') > -1) {
-                        cloumAdd += '20_21_';
-                    }
-                    if (_columnHide.indexOf('19') > -1) {
-                        cloumAdd += '22_23_';
+                        cloumAdd += '21_22_';
                     }
 
-                    if (_columnHide.indexOf('17') > -1 && cloumAdd.indexOf('16') == -1) {
+                    if (_columnHide.indexOf('16') > -1 && cloumAdd.indexOf('15') == -1) {
+                        _columnHide = _columnHide.replace('16', '');
+                    }
+                    if (_columnHide.indexOf('17') > -1 && cloumAdd.indexOf('18') == -1) {
                         _columnHide = _columnHide.replace('17', '');
                     }
-                    if (_columnHide.indexOf('18') > -1 && cloumAdd.indexOf('19') == -1) {
+                    if (_columnHide.indexOf('18') > -1 && cloumAdd.indexOf('17') == -1) {
                         _columnHide = _columnHide.replace('18', '');
-                    }
-                    if (_columnHide.indexOf('19') > -1 && cloumAdd.indexOf('18') == -1) {
-                        _columnHide = _columnHide.replace('19', '');
                     }
 
                     _columnHide = _columnHide + cloumAdd;
@@ -1755,17 +1755,14 @@
                     if (_columnHide.indexOf('10') > -1) {
                         cloumAdd2 += '10_11_';
                     }
-                    if (_columnHide.indexOf('13') > -1) {
-                        cloumAdd2 += '14_15_';
-                    }
-
-                    if (_columnHide.indexOf('14') > -1 && cloumAdd2.indexOf('15') == -1) {
-                        _columnHide = _columnHide.replace('14', '16');
-                    }
-
                     if (_columnHide.indexOf('12') > -1) {
-                        _columnHide = _columnHide.replace('12', '13');
+                        cloumAdd2 += '13_14_';
                     }
+
+                    if (_columnHide.indexOf('13') > -1 && cloumAdd2.indexOf('14') == -1) {
+                        _columnHide = _columnHide.replace('13', '15');
+                    }
+
 
                     if (_columnHide.indexOf('11') > -1 && cloumAdd2.indexOf('10') == -1) {
                         _columnHide = _columnHide.replace('11', '12');
