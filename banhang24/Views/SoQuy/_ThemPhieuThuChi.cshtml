@@ -18,7 +18,7 @@
                     <i class="material-icons">close</i>
                 </button>
                 <h4 class="modal-title">
-                    {{typeUpdate==1?'Thêm mới':'Cập nhật'}} {{isPhieuThu?'phiếu thu':'phiếu chi'}} {{loaiNapTien==0?'tiền gửi':''}}
+                    {{typeUpdate==1?'Thêm mới':typeUpdate==4?'Sao chép':'Cập nhật'}} {{isPhieuThu?'phiếu thu':'phiếu chi'}} {{loaiNapTien==0?'tiền gửi':''}}
                 </h4>
             </div>
             <div class="modal-body floatleft">
@@ -179,25 +179,29 @@
                         <i class="fa fa-ban"></i> Bỏ qua
                     </button>
                     <button type="button" class="btn btn-cancel"
-                            v-if="typeUpdate != 1 && $root.role.Delete && newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-if="typeUpdate != 1 && typeUpdate != 4 && $root.role.Delete && newPhieuThu.TrangThai && !$root.isKhoaSo"
                             v-on:click="$root.HuyPhieu">
                         <i class="fa fa-trash"></i> Xóa
                     </button>
                     <button type="button" class="btn bg-recycle"
-                            v-if="typeUpdate != 1 && $root.role.Delete && !newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-if="typeUpdate != 1 && typeUpdate != 4 && $root.role.Delete && !newPhieuThu.TrangThai && !$root.isKhoaSo"
                             v-on:click="$root.KhoiPhuc">
                         <i class="fa fa-trash"></i> Khôi phục
                     </button>
                     <button type="button" class="btn btn-save" v-if="!isLoading && typeUpdate == 1 && !$root.isKhoaSo"
                             v-on:click="Save">
                         <i class="fa fa-save"></i> Lưu
+                    </button> 
+                    <button type="button" class="btn btn-save" v-if="!isLoading && typeUpdate == 4 && !$root.isKhoaSo"
+                            v-on:click="Save">
+                        <i class="fa fa-save"></i> Đồng ý
                     </button>
                     <button type="button" class="btn btn-save"
                             v-if="!isLoading && typeUpdate == 1 && !$root.isKhoaSo" v-on:click="Save(true)">
                         <i class="fa fa-save"></i> Lưu và in
                     </button>
                     <button type="button" class="btn btn-save"
-                            v-if="!isLoading && typeUpdate != 1 && $root.role.Update && newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-if="!isLoading && typeUpdate != 1 && typeUpdate != 4 && $root.role.Update && newPhieuThu.TrangThai && !$root.isKhoaSo"
                             v-on:click="Save">
                         <i class="fa fa-save"></i> Cập nhật
                     </button>
@@ -245,7 +249,7 @@
         data: {
             saveOK: false,
             isNew: true,
-            typeUpdate: 1,// insert, 2.update
+            typeUpdate: 1,// insert, 2.update, 3.delete, 4.copy 
             isPhieuThu: true,
             loaiNapTien: 1,//1.mat, 0.ngan hang,
             isLoading: false,
@@ -481,12 +485,18 @@
                     }
                 })
             },
-            showModalUpdate: function (quyHD, qct) {
+            showModalUpdate: function (quyHD, qct, isCopy = false) {
                 let self = this;
                 self.phieuThuOld = $.extend({}, quyHD);
                 self.qctOld = $.extend({}, qct);
                 self.isNew = false;
-                self.typeUpdate = 2;
+                if (isCopy) {
+                    self.typeUpdate = 4;// copy phiuethu/chi khong lien quan hoadon
+                }
+                else {
+                    self.typeUpdate = 2;
+                }
+                
                 self.showBtnResetNguoiNop = true;
                 self.isPhieuThu = quyHD.LoaiHoaDon === 11;
                 self.isKhoaSo = !commonStatisJs.CheckNull(self.qctOld[0].ID_BangLuongChiTiet)
@@ -585,7 +595,6 @@
             },
             HuyPhieu: function () {
                 var self = this;
-                debugger
                 let khoaSo = VHeader.CheckKhoaSo(moment(self.phieuThuOld.NgayLapPhieuThu).format('YYYY-MM-DD'),
                     self.phieuThuOld.ID_DonVi);
                 if (khoaSo) {
@@ -811,7 +820,7 @@
                 }
                 console.log('myData ', myData)
 
-                if (self.typeUpdate === 1) {
+                if (self.typeUpdate === 1 || self.typeUpdate === 4) {
                     ajaxHelper(self.UrlQuyHoaDonAPI + "Check_MaSoQuyExist?maSoQuy=" + mahoadon, 'POST').done(function (data) {
                         if (data) {
                             ShowMessage_Danger('Mã phiếu đã tồn tại');
