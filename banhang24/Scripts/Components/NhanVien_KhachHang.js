@@ -100,11 +100,19 @@ var ComponentChoseStaff = {
 
 // list search NV show left
 var cmpSearchNVDisscount = {
-    props: ['listAll', 'listSearch'],
+    props: {
+        listAll: { default: [] },
+        listSearch: { default: [] },
+        idChosing: { default: null},
+        showCol2: { default: true },
+        showCol3: { default: true },
+        showCol4: { default: false },
+        showCol5: { default: false },
+    },
     template: `
     <div class="flex flex-column">
             <div class="position-relative">
-                    <input class="form-control textSearchNV" placeholder="Nhập tên nhân viên" style="padding-left:30px;" autocomplete="off"
+                    <input class="form-control textSearchNV" placeholder="Tìm nhân viên" style="padding-left:30px;" autocomplete="off"
                                 v-model="textSearch"
                                 v-on:keyup="search"
                                 v-on:keyup.13="keyEnter"
@@ -114,6 +122,7 @@ var cmpSearchNVDisscount = {
             </div>
             <ul style="max-height:400px;overflow:auto; overflow-x:hidden; width:100%" >
                 <li v-for="(item, index) in listSearch" class="list-img-user"
+                    v-bind:style="[idChosing === item.ID_NhanVien ? {'background':'#f9f9f9'} : {'background':'none'}]"
                     v-on:click="SelectItem(item)">
                     <label style="display:flex; align-items:center; padding:7px" class="floatleft">
                             <span class="img-user">
@@ -124,14 +133,16 @@ var cmpSearchNVDisscount = {
                                     Mã NV: <span>{{item.MaNhanVien}}</span>
                                 </span>
                                 <span class="floatleft">{{item.TenNhanVien}}</span>
-                                <span class="floatleft" style="font-weight:normal">SDT :<span>{{item.SoDienThoai}}</span> </span>
-                                <span class="floatleft" style="font-weight:normal">
+                                <span class="floatleft" style="font-weight:normal" v-if="showCol2">SDT :<span>{{item.SoDienThoai}}</span> </span>
+                                <span class="floatleft" style="font-weight:normal" v-if="showCol3">
                                     Trạng thái : <span
                                               :class="{red: item.StatusCV==1}">
                                             {{item.StatusCV==1?'Đang bận':'Đang rảnh'}}
                                             </span>
                                 </span>
+                                <small class="floatleft"  v-if="showCol4">{{item.TenPhongBan}}</small>
                             </span>
+                         <input type="checkbox" v-if="showCol5" v-on:click="choseNhanVien(item)" />
                         </label>
                     </li>
             </ul>
@@ -183,7 +194,7 @@ var cmpSearchNVDisscount = {
             }
         },
         keyDown: function () {// key = 40
-            var self = this;
+            let self = this;
             if (self.indexFocus > self.listSearch.length) {
                 self.indexFocus = 0;
             }
@@ -192,7 +203,12 @@ var cmpSearchNVDisscount = {
             }
         },
         SelectItem: function (item) {
-            this.$emit('select-item', item);
+            let self = this;
+            self.$emit('select-item', item);
+        },
+        choseNhanVien: function (item) {
+            let self = this;
+            this.$emit('select-item-check', item);
         }
     }
 };
