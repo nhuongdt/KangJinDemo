@@ -1,241 +1,439 @@
-﻿
-<style>
-
-    .list-img-user .img-user {
-        width: 55px;
-        height: 50px;
-        position: unset;
-        border-radius: 5px;
-        background: none;
-        object-fit: cover;
-        border: 1px dashed #ccc;
-        margin: 0 5px;
-    }
-
-        
-    .list-img-user .detail-user-discount {
-        padding-left: 0;
-        min-height: 0;
-    }
-
-    .list-img-user .form-group input[type="checkbox"] {
-        position: absolute;
-        top: 8px;
-    }
-
-    .detail-user-discount p {
-        margin: 0px !important;
-        padding-top: 3px !important
-    }
-
-    .title-user {
-        font-weight: bold;
-    }
-
-    .line-space {
-        padding-left: 3px;
-        padding-right: 3px;
-    }
-
-
-    .search-img-user button {
-        position: absolute;
-        top: 0px;
-        left: 282px;
-        width: 36px;
-        float: right;
-        height: 30px;
-        background: var(--color-button);
+﻿<style>
+    ._table-input tbody tr td {
         border: none;
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px;
-        margin-right: 6px;
-        color: white;
     }
 
-    
-
-    .tab-discount-user li.active {
-        border-top: 1px solid #32b7b3;
-        border-left: 1px solid #32b7b3;
-        border-right: 1px solid #32b7b3;
-        border-bottom: none !important;
+    #vmSaoChepHoaHongDV .textSearchNV {
+        padding-left: 30px;
+        border: none;
+        border-bottom: 1px solid #cccc;
+        border-radius: unset;
     }
 
-    .tab-discount-user li a {
-        margin: 0px !important;
-        font-weight: bold;
+    #vmSaoChepHoaHongDV .liAllActive {
+        background: #337ab7;
     }
 
-    .tab-discount-user {
-        padding-bottom: 13px !important;
-    }
-
-        .tab-discount-user .nav-tabs {
-            border-bottom: 1px solid #32b7b3;
+        #vmSaoChepHoaHongDV .liAllActive a {
+            color: white;
         }
 
-    .note-discount-money p span {
-        color: #f81600;
-    }
-
-    .note-discount-money p img {
-        margin-right: 10px;
-    }
-
-    .content-tree-user {
-        max-height: 350px;
-        overflow: auto;
-    }
-
-    .background-detailNV {
-        background-color: #d6f1f0;
+    #vmSaoChepHoaHongDV .liAll {
+        padding: 7px 9px;
     }
 </style>
-<div class="modal fade" id="modalSaoChepNhanVien">
-    <div class=" modal-dialog draggable modal-md ">
-        <div class="modal-content ">
-            <div class="modal-header">
+<div class="modal fade" id="vmSaoChepHoaHongDV">
+    <div class=" modal-dialog draggable modal-lg ">
+        <div class="modal-content  ui-draggable">
+            <div class="modal-header ui-draggable-handle">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
-                <h5 class="modal-title">
-                    Sao chép cài đặt hoa hồng nhân viên
-                </h5>
+                <h4 class="modal-title">
+                    Sao chép cài đặt hoa hồng từ '{{fromNhanVien.TenNhanVien}}'
+                </h4>
             </div>
             <div class="modal-body">
-                <div class="col-md-12 no-padding-left">
-                    <div class="col-md-12 nopadding tab-form-old">
-                        <ul class="nav nav-tabs ">
-                            <li class="active"><a data-toggle="tab" href="#nhanvienchuacaidat">Nhân viên chưa cài đặt</a></li>
-                            <li><a data-toggle="tab" href="#nhanviendacaidat">Nhân viên đã cài đặt</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="nhanvienchuacaidat">
-                                <div class="floatleft" id="el_NVien" style="position:relative">
-                                    <input type="text" class="input-simple floatleft" style="padding-left:30px" placeholder="Tìm kiếm nhân viên" id="txtSearchNV_ChuaCaiDat">
-                                    <i class="fa fa-search" style="  position:absolute; top:7px; left:7px"></i>
-                                </div>
-                                <div class="col-md-12 tab-col-12" style="border-bottom:1px solid #ccc">
-                                    <div class="col-md-5 "style="padding-left:9px">
-                                        <label>
-                                            <input type="checkbox" name="rdNhomHang" id="all_nhanvienchuacaidat" onclick="SetCheckAllChildsCCD(this)" />  Tất cả
-                                        </label>
-                                    </div>
-                                    <div class="col-md-7 nopadding tree-title-delete">
-                                        <a href="javascript:void(0)" class="pull-right" data-bind="click: clearn_ChuaCaiDat">Xóa chọn tất cả</a>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 tab-col-12 content-tree-user NhanVien_ChuaCaiDat checkall" style="display:block" id="divNhanVien_CK" data-bind="foreach: NhanVienSaoChep1">
-                                    <div class=" col-md-12 nopadding list-img-user ">
-                                        <label style="display:flex; align-items:center; padding:7px" class="floatleft">
-                                            <input type="checkbox" name="rdNhomHang" data-bind="attr:{id: ID_NhanVien}" onclick="SetCheckAllChild2sCCD(this)" />
-                                            <span class="img-user">
-                                                @*<img src="~/Content/images/icon/gioi-tinh-nam.png" />*@
-                                                <img data-bind="attr:{src: URLAnh === '' || URLAnh === undefined  ? GioiTinh === true ? '/Content/images/icon/gioi-tinh-nam.png' : '/Content/images/icon/gioi-tinh-nu.png' : Open24FileManager.hostUrl + URLAnh}" />
-                                            </span>
-                                            <span class="detail-user-discount">
-                                                <span style="font-weight:normal">
-                                                    Mã NV: <span data-bind="text: MaNhanVien">NV00173</span>
-                                                </span>
-                                                <br>
-                                                <span>
-                                                    <b data-bind="text: TenNhanVien">Jonh Nam</b>
-                                                </span>
-                                                <br>
-                                                <span style="font-weight:normal">SDT :<span data-bind="text: DienThoaiDiDong"></span> </span>
-                                            </span>
-                                        </label>
-
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div class="tab-pane " id="nhanviendacaidat">
-                                <div class="floatleft" style="position:relative" id="el_NVien">
-                                    <input type="text" class="input-simple floatleft" style="padding-left:30px" placeholder="Tìm kiếm nhân viên" id="txtSearchNV_DaCaiDat">
-                                    <i class="fa fa-search" style="  position:absolute; top:7px; left:7px"></i>
-                                </div>
-                                <div class="col-md-12 tab-col-12" style="border-bottom:1px solid #ccc">
-                                    <div class="col-md-5 " style="padding-left:9px">
-                                        <label>
-                                            <input type="checkbox" name="rdNhomHang" id="all_nhanviendacaidat" onclick="SetCheckAllChildsDCD(this)" />  Tất cả
-                                        </label>
-                                    </div>
-                                    <div class="col-md-7 nopadding tree-title-delete">
-                                        <a href="javascript:void(0)" class="pull-right" data-bind="click: clearn_DaCaiDat">Xóa chọn tất cả</a>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 tab-col-12 content-tree-user NhanVien_DaCaiDat" id="divNhanVien_CK" data-bind="foreach: NhanVienSaoChep2">
-
-                                    <div class="col-md-12 nopadding list-img-user">
-                                        <label style="display:flex; align-items:center; padding:7px" class="floatleft">
-                                            <input type="checkbox" name="rdNhomHang" data-bind="attr:{id: ID_NhanVien}" onclick="SetCheckAllChild2sDCD(this)" />
-                                            <span class="img-user">
-                                                <img data-bind="attr:{src: URLAnh === '' || URLAnh === undefined  ? GioiTinh === true ? '/Content/images/icon/gioi-tinh-nam.png' : '/Content/images/icon/gioi-tinh-nu.png' : Open24FileManager.hostUrl + URLAnh}" />
-                                            </span>
-                                            <span class="detail-user-discount">
-                                                <span style="font-weight:normal">
-                                                    Mã NV: <span data-bind="text: MaNhanVien">NV00173</span>
-                                                </span>
-                                                <br>
-                                                <span>
-                                                    <b data-bind="text: TenNhanVien">Jonh Nam</b>
-                                                </span>
-                                                <br>
-                                                <span style="font-weight:normal">SDT :<span data-bind="text: DienThoaiDiDong"></span> </span>
-                                            </span>
-                                        </label>
-
-                                    </div>
-
-
-                                </div>
-                                <div class="col-md-12 nopadding nhom-khach-hang" style="margin-top: 10px !important;">
-                                    
-                                            <label class="col-md-8">Cập nhật lại hàng hóa đã được cài đặt hoa hồng</label>
-                                            <div class="col-md-4">
-                                                <div class="col-md-6">
-                                                    <div class="form-check nopadding">
-                                                        <input type="radio" class="form-check-input" name="rdcokhong" data-bind="checked: checkCapNhat" value="1" id="cbCapNhatHangHoaCo">
-                                                        <label class="form-check-label" for="cbCapNhatHangHoaCo">Có</label>
-                                                    </div>
+                <div class="col-md-12 ">
+                    <div class="row">
+                        <div class="tab-news-modal _tab-chieu-khau-hoa-don">
+                            <ul class="nav nav-tabs ">
+                                <li class="active"><a data-toggle="tab" href="#_tabNhanVien">Nhân viên áp dụng</a></li>
+                                <li class="active" style="float:right">
+                                    <label>
+                                        <input type="checkbox" v-model="isCheckSaoChepLai"
+                                               v-on:change="changeCheckSaoChepLai" />  Sao chép lại hoa hồng cho nhân viên đã cài đặt
+                                    </label>
+                                </li>
+                            </ul>
+                            <div class="tab-content ">
+                                <div class="tab-pane active" id="_nhanvienchietkhauhd">
+                                    <div class="col-md-12 nopadding floatleft">
+                                        <div class="container-fluid row">
+                                            <div class="col-md-3 cai-dat-hoa-hong-l">
+                                                <div class=" floatleft title-table-ck">
+                                                    <span>Phòng ban</span>
                                                 </div>
-                                                <div class="col-md-6 nopadding">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="rdcokhong" data-bind="checked: checkCapNhat" value="2" id="cbCapNhatHangHoaKhong">
-                                                        <label class="form-check-label" for="cbCapNhatHangHoaKhong">Không</label>
+                                                <div class=" floatleft">
+                                                    <div class="seach-nhomhang">
+                                                        <input type="text" placeholder="Tìm kiếm phòng ban"
+                                                               autocomplete="off" class="form-control number-price-new"
+                                                               v-on:keyup="searchTree">
+                                                        <i class="fa fa-search" style="position: absolute; top: 7px; left: 7px;"></i>
                                                     </div>
+                                                    <div class="">
+                                                        <ul>
+                                                            <li class="liAll"
+                                                                v-bind:class="{liAllActive: arrPhongBan_Chosed.length === 0}"
+                                                                v-on:click="PhongBan_clickAll">
+                                                                <a href="javascript:void(0)"> Tất cả</a>
+                                                            </li>
+                                                        </ul>
+
+                                                    </div>
+                                                    <div id="treeDepartment">
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class=" floatleft  title-table-ck">
+                                                    <span>Sao chép từ</span>
+                                                </div>
+                                                <div class="floatleft">
+                                                    <nvien-hoadon-search :list-all="listData.NhanVien_DaCaiDatFilter"
+                                                                         :list-search="listData.NhanVien_DaCaiDatFilter"
+                                                                         :id-chosing="fromNhanVien.ID"
+                                                                         :show-col2="false"
+                                                                         :show-col3="false"
+                                                                         :show-col4="true"
+                                                                         v-on:select-item="NVSaoChep_Chose">
+                                                    </nvien-hoadon-search>
                                                 </div>
                                             </div>
+                                            <div class="col-md-1 nopadding">
+                                                <div class="btn-chon-nhan-vien  cai-dat-hoa-hong-l">
+                                                    <button class="btn btn-main floatleft" style="margin-bottom:5px">Đến <i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class=" floatleft  title-table-ck">
+                                                    <input type="checkbox" class="checkbox-modal" style=" float: right;margin-right: 5px;"
+                                                           v-on:change="NVApply_checkAll">
+                                                    <span>Nhân viên áp dụng</span>
+                                                </div>
+                                                <div class="floatleft" id="jsListNVApDung">
+                                                    <nvien-hoadon-search :list-all="listData.NhanVien_ChuaCaiDatFilter"
+                                                                         :list-search="listData.NhanVien_ChuaCaiDatFilter"
+                                                                         :show-col2="false"
+                                                                         :show-col3="false"
+                                                                         :show-col4="true"
+                                                                         :show-col5="true"
+                                                                         v-on:select-item-check="NVApply_checkOne">
+                                                    </nvien-hoadon-search>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-12 tab-col-12 select_CapNhat">
-                                <p>
-                                    <span style="color:var(--color-main);font-weight:bold"> (*)</span> Sao chép cài đặt hoa hồng từ một nhân viên cho nhân viên khác
-                                </p>
-
-                            </div>
                         </div>
-
                     </div>
-
                 </div>
-
-
-
-            </div>
-            <div class="modal-footer">
-                <div class="container-fluid">
-                    <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
-                    <button type="button" class="btn btn-main " id="add_HoaHong" data-bind="click: ApDung_SaoChep">
-                        <i class="fa fa-check" aria-hidden="true"></i> Áp dụng
-                    </button>
+                <div class="col-md-12 nopadding">
+                    <div class="modal-footer nopadding">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Bỏ qua</button>
+                        <button type="button" class="btn btn-save" v-on:click="Agree">
+                            <i class="fa fa-save"></i>&nbsp; Áp dụng
+                        </button>
+                        <button type="button" class="btn btn-save" v-if="isLoading">
+                            <i class="fa fa-save"></i>&nbsp; Đang lưu
+                        </button>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
+<script>
+    $(function () {
+        $.datetimepicker.setLocale('vi');
+        $('.datetime_TuNgay').datetimepicker({
+            timepicker: false,
+            mask: true,
+            format: 'd/m/Y',
+        });
+    });
 
+    var treePhongBan = '';
+    var vmSaoChepHoaHongDV = new Vue({
+        el: '#vmSaoChepHoaHongDV',
+        components: {
+            'nvien-hoadon-search': cmpSearchNVDisscount,
+        },
+        created: function () {
+            console.log('vmSaoChepHoaHongDV')
+        },
+        computed: {
+
+        },
+        data: {
+            saveOK: false,
+            isNew: true,
+            isLoading: false,
+            formType: 0,
+            isCheckSaoChepLai: 0,
+
+            inforOld: {},
+            listData: {
+                AllNhanViens: [],
+                PhongBans: [],
+                NhanVien_DaCaiDatAll: [],
+                NhanVien_DaCaiDatFilter: [],
+                NhanVien_ChuaCaiDatAll: [],
+                NhanVien_ChuaCaiDatFilter: [],
+            },
+            fromNhanVien:
+            {
+                ID: null,
+                MaNhanVien: '',
+                TenNhanVien: '',
+                TenPhongBan: ''
+            },
+            To_ListIDNhanVien: [],
+            arrPhongBan_Chosed: [],
+        },
+        methods: {
+            getlistNhanVien_CaiDatChietKhau: function (trangthai = 0) {
+                let self = this;
+                ajaxHelper('/api/DanhMuc/NS_NhanVienAPI/' + "getlistNhanVien_CaiDatChietKhau?ID_DonVi=" + VHeader.IdDonVi
+                    + "&MaNhanVien=''" + "&TrangThai=" + trangthai, 'GET').done(function (data) {
+                        if (trangthai===0) {
+                            self.listData.NhanVien_ChuaCaiDatAll = data;
+                            self.listData.NhanVien_ChuaCaiDatFilter = data;
+                        }
+                        else {
+                            self.listData.NhanVien_DaCaiDatAll = data;
+                            self.listData.NhanVien_DaCaiDatFilter = data;
+                        }
+                    });
+            },
+            searchTree: function () {
+                let self = this;
+                treePhongBan.destroy();
+                if (commonStatisJs.CheckNull(self.textSearch)) {
+                    treePhongBan = $('#treeDepartment').tree({
+                        primaryKey: 'id',
+                        uiLibrary: 'bootstrap',
+                        dataSource: self.listData.PhongBans,
+                        checkboxes: false,
+                    });
+                }
+                else {
+                    let txt = locdau(self.textSearch);
+                    let arr = self.GetChildren([], self.listData.PhongBans, txt, [], true);
+                    treePhongBan = $('#treeDepartment').tree({
+                        primaryKey: 'id',
+                        uiLibrary: 'bootstrap',
+                        dataSource: arr,
+                        checkboxes: false,
+                    });
+                }
+            },
+            GetChildren: function (arrParent, arrJson, txtSearch, arr, isRoot) {
+                let self = this;
+                if (commonStatisJs.CheckNull(txtSearch)) {
+                    return self.listData.PhongBans;
+                }
+                for (let i = 0; i < arrJson.length; i++) {
+                    let tenNhom = locdau(arrJson[i].text);
+                    if (tenNhom.indexOf(txtSearch) > -1) {
+                        if (isRoot) {
+                            arr.push(arrJson[i]);
+                        }
+                        else {
+                            var ex = $.grep(arr, function (x) {
+                                return x.id === arrParent.id;
+                            })
+                            if (ex.length === 0) {
+                                arr.push(arrParent);
+                            }
+                            else {
+                                // neu da ton tai, thoat vong for of children
+                                return;
+                            }
+                        }
+                    }
+                    if (arrJson[i].children.length > 0) {
+                        self.GetChildren(arrJson[i], arrJson[i].children, txtSearch, arr, false);
+                    }
+                }
+                return arr;
+            },
+            PhongBan_getAllChild: function (idNhom) {
+                let self = this;
+                let arrID = [];
+                let nhom = $.grep(self.listData.PhongBans, function (x) {
+                    return x.id === idNhom;
+                });
+                if (nhom.length > 0) {
+                    for (let i = 0; i < nhom[0].children.length; i++) {
+                        arrID.push(nhom[0].children[i].id);
+
+                        for (let j = 0; j < nhom[0].children[i].children.length; j++) {
+                            arrID.push(nhom[0].children[i].children[j].id);
+                        }
+                    }
+                }
+                arrID.push(idNhom);
+                self.arrPhongBan_Chosed = arrID;
+                self.GetNhanVien();
+            },
+            PhongBan_clickAll: function () {
+                let self = this;
+                self.arrPhongBan_Chosed = [];
+                self.GetNhanVien();
+                $('#treeDepartment .list-group-item').removeClass('active');
+            },
+            GetNhanVien: function () {
+                let self = this;
+                if (self.arrPhongBan_Chosed.length === 0) {
+                    // khong loc phong ban
+                    if (self.isCheckSaoChepLai) {
+                        self.listData.NhanVien_DaCaiDatFilter = self.listData.NhanVien_DaCaiDatAll;// saochep NV da caidat --> NV #
+                        self.listData.NhanVien_ChuaCaiDatFilter = self.listData.AllNhanViens;// NV chua caidat (getAll)
+                    }
+                    else {
+                        // chi sao chep tu NV cai dat --> chua cai dat
+                        self.listData.NhanVien_DaCaiDatFilter = self.listData.NhanVien_DaCaiDatAll;
+                        self.listData.NhanVien_ChuaCaiDatFilter = self.listData.NhanVien_ChuaCaiDatAll;
+                    }
+                }
+                else {
+                    // loc theo phong ban
+                    if (self.isCheckSaoChepLai) {
+                        self.listData.NhanVien_DaCaiDatFilter = $.grep(self.listData.NhanVien_DaCaiDatAll, function (x) {
+                            return $.inArray(x.ID_PhongBan, self.arrPhongBan_Chosed) > -1;
+                        });
+                        self.listData.NhanVien_ChuaCaiDatFilter = $.grep(self.listData.AllNhanViens, function (x) {
+                            return $.inArray(x.ID_PhongBan, self.arrPhongBan_Chosed) > -1;
+                        });
+                    }
+                    else {
+                        // chi sao chep tu NV cai dat --> chua cai dat
+                        self.listData.NhanVien_DaCaiDatFilter = $.grep(self.listData.NhanVien_DaCaiDatAll, function (x) {
+                            return $.inArray(x.ID_PhongBan, self.arrPhongBan_Chosed) > -1;
+                        });
+                        self.listData.NhanVien_ChuaCaiDatFilter = $.grep(self.listData.NhanVien_ChuaCaiDatAll, function (x) {
+                            return $.inArray(x.ID_PhongBan, self.arrPhongBan_Chosed) > -1;
+                        });
+                    }
+                }
+            },
+
+            showModal: function () {
+                let self = this;
+                self.saveOK = false;
+                self.isNew = true;
+                self.isLoading = false;
+                self.isCheckDaCaiDat = false;
+                self.fromNhanVien = {
+                    ID: null,
+                    MaNhanVien: '',
+                    TenNhanVien: '',
+                    TenPhongBan: ''
+                };
+                self.To_ListIDNhanVien = [];
+                self.arrPhongBan_Chosed = [];
+                $('#jsListNVApDung input[type=checkbox]').prop("checked", false);
+                $('#treeDepartment .list-group-item').removeClass('active');
+
+                self.getlistNhanVien_CaiDatChietKhau(0);
+                self.getlistNhanVien_CaiDatChietKhau(1);
+
+                treePhongBan = $('#treeDepartment').tree({
+                    primaryKey: 'id',
+                    uiLibrary: 'bootstrap',
+                    dataSource: vmSaoChepHoaHongDV.listData.PhongBans,
+                    checkboxes: false,
+                }).on('select', function (e, node, id) {
+                    vmSaoChepHoaHongDV.PhongBan_getAllChild(id);
+                })
+                $('#vmSaoChepHoaHongDV').modal('show');
+            },
+            changeCheckSaoChepLai: function () {
+                let self = this;
+                self.GetNhanVien();
+            },
+
+            NVSaoChep_Chose: function (item) {
+                let self = this;
+                self.fromNhanVien = {
+                    ID: item.ID_NhanVien,
+                    MaNhanVien: item.MaNhanVien,
+                    TenNhanVien: item.TenNhanVien,
+                    TenPhongBan: item.TenPhongBan
+                };
+            },
+
+            NVApply_checkAll: function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                $('#jsListNVApDung input[type=checkbox]').prop("checked", isCheck);
+                if (isCheck) {
+                    self.To_ListIDNhanVien = $.map(self.listData.NhanVien_ChuaCaiDatFilter, function (x) {
+                        return x.ID_NhanVien;
+                    });
+                }
+                else {
+                    self.To_ListIDNhanVien = [];
+                }
+            },
+
+            NVApply_checkOne: function (item) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                if (isCheck) {
+                    if ($.inArray(item.ID, self.To_ListIDNhanVien) === -1) {
+                        self.To_ListIDNhanVien.push(item.ID_NhanVien);
+                    }
+                }
+                else {
+                    self.To_ListIDNhanVien = self.To_ListIDNhanVien.filter(x => x !== item.ID_NhanVien);
+                }
+            },
+            Agree: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.fromNhanVien.ID)) {
+                    ShowMessage_Danger('Vui lòng chọn nhân viên sao chép');
+                    return false;
+                }
+                if (self.To_ListIDNhanVien.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn nhân viên áp dụng');
+                    return false;
+                }
+                self.isLoading = true;
+
+                let sNVApply = '';
+                let arr = $.grep(self.listData.NhanVien_ChuaCaiDatFilter, function (x) {
+                    return $.inArray(x.ID_NhanVien, self.To_ListIDNhanVien);
+                });
+                if (arr.length > 0) {
+                    sNVApply = arr.map(function (x) {
+                        return x.TenNhanVien + ' (' + x.MaNhanVien + ')';
+                    }).toString()
+                }
+                let param = {
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: self.fromNhanVien.ID,
+                    arrID: self.To_ListIDNhanVien,
+                    PhuongThuc: self.isCheckSaoChepLai ? 1 : 2,// 1. cập nhật lại hoa hồng, 2. không câp nhật
+                }
+                ajaxHelper('/api/DanhMuc/NS_NhanVienAPI/' + "SaoChep_CaiDatHoaHong", "POST", param).done(function (x) {
+                    if (x.res) {
+                        ShowMessage_Success('Sao chép cài đặt hoa hồng thành công')
+
+                        let diary = {
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            LoaiNhatKy: 1,
+                            ChucNang: 'Sao chép hoa hồng',
+                            NoiDung: 'Sao chép cài đặt hoa hồng từ '.concat(self.fromNhanVien.TenNhanVien, ' (', self.fromNhanVien.MaNhanVien, ')'),
+                            NoiDungChiTiet: 'Sao chép cài đặt hoa hồng từ <b> '.concat(self.fromNhanVien.TenNhanVien, ' </b> đến : ', sNVApply),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                        $('#vmSaoChepHoaHongDV').modal('hide');
+                    }
+                    else {
+                        ShowMessage_Danger('Sao chép cài đặt hoa hồng không thành công')
+                    }
+                }).always(function (x) {
+                    self.isLoading = false;
+                });
+            }
+        }
+    })
+</script>

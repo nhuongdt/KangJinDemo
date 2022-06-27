@@ -117,12 +117,18 @@
     function GetNhanVien_byChiNhanh() {
         ajaxHelper(NhanVienUri + "getListNhanVien_DonVi?ID_ChiNhanh=" + _IDchinhanh + "&nameNV=null", 'GET').done(function (data) {
             self.NhanViens(data);
+
             vm_NhanVien.reset(data);
+
+            data.map(function (x) {
+                x['ID_NhanVien'] = x.ID
+            });
+            vmSaoChepHoaHongDV.listData.AllNhanViens = data;
+            console.log(3, data)
         });
     }
+
     var tree = '';
-
-
     function GetTree_NhomHangHoa() {
         if (navigator.onLine) {
             ajaxHelper('/api/DanhMuc/DM_NhomHangHoaAPI/' + 'GetTree_NhomHangHoa', 'GET').done(function (obj) {
@@ -1380,6 +1386,15 @@
                     + "&ID_NhomHang=null" + "&maHH=" + maHHSearch + "&ID_DonVi=" + _IDchinhanh, 'GET').done(function (result) {
                         ShowMessage_Success("Xóa cài đặt hoa hồng hàng hóa thành công", "success");
                         GetAllChietKhau_ByNhanVien();
+                        let diary = {
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            LoaiNhatKy: 3,
+                            ChucNang: 'Xóa cài đặt hoa hồng',
+                            NoiDung: 'Xóa tất cả cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed),
+                            NoiDungChiTiet: 'Xóa tất cả cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed, ' <br /> Người xóa: ', VHeader.UserLogin),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
                     })
             })
     }
@@ -1767,15 +1782,7 @@
     }
 
     self.ShowModalSaoChep = function () {
-        var nvChosing = $.grep(self.ListNhanVien_Chosed(), function (x) {
-            return x.ID === self.selectedNhanVien();
-        });
-        if (nvChosing.length === 0) {
-            ShowMessage_Danger('Vui lòng chọn nhân viên nhân viên để lấy dữ liệu sao chép');
-            return;
-        }
-        $('#modalSaoChepNhanVien .modal-title').text('Sao chép cài đặt hoa hồng từ nhân viên ' + nvChosing[0].TenNhanVien + ' đến ');
-        $('#modalSaoChepNhanVien').modal('show');
+        vmSaoChepHoaHongDV.showModal();
     }
 
     self.ApDung_SaoChep = function () {
@@ -1881,6 +1888,8 @@
         }
         ajaxHelper(NhanVienUri + "getlistNhanVien_CaiDatChietKhau?ID_DonVi=" + _IDchinhanh + "&MaNhanVien=" + _nhanvienchuaCD + "&TrangThai=" + 0, 'GET').done(function (data) {
             self.NhanVienSaoChep1(data);
+            //vmSaoChepHoaHongDV.listData.NhanVien_ChuaCaiDatAll = data;
+            //vmSaoChepHoaHongDV.listData.NhanVien_ChuaCaiDatFilter = data;
         });
     };
 
@@ -1891,6 +1900,8 @@
 
         ajaxHelper(NhanVienUri + "getlistNhanVien_CaiDatChietKhau?ID_DonVi=" + _IDchinhanh + "&MaNhanVien=" + _nhanviendaCD + "&TrangThai=" + 1, 'GET').done(function (data) {
             self.NhanVienSaoChep2(data);
+            //vmSaoChepHoaHongDV.listData.NhanVien_DaCaiDatAll = data;
+            //vmSaoChepHoaHongDV.listData.NhanVien_DaCaiDatFilter = data;
 
             // change ID_NhanVien --> ID (same list NhanViens {ID, MaNhanVien,..)
             var arr = $.extend(true, [], data);
@@ -1905,6 +1916,7 @@
         $.getJSON(NhanVienUri + "GetTreePhongBan?chinhanhId=" + _IDchinhanh, function (data) {
             // mượn tạm trường TenNhanVien_GC (TenPhongBan)
             self.AllPhongBans(data);
+            vmSaoChepHoaHongDV.listData.PhongBans = data;
         });
     }
 
