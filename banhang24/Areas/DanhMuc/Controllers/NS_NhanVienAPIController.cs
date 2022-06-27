@@ -831,17 +831,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        [HttpGet]
-        public void deleteAllChietKhau(Guid ID_NhanVien, Guid? ID_NhomHang, string maHH, Guid? ID_DonVi)
+        [HttpGet, HttpPost]
+        public IHttpActionResult deleteAllChietKhau(Param_ChietKhauNhomHang param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                classNS_NhanVien_ChiTiet _classNS_NhanVien_ChiTiet = new classNS_NhanVien_ChiTiet(db);
-                List<NhanVienChiTietDTO> lstAllGBs = _classNS_NhanVien_ChiTiet.GetNhanVien_NhomHang(ID_NhanVien, ID_NhomHang, maHH, ID_DonVi);
-                for (int i = 0; i < lstAllGBs.Count(); i++)
+                try
                 {
-                    Guid id = lstAllGBs[i].ID;
-                    _classNS_NhanVien_ChiTiet.deleteChiTietbyID(id);
+                    classNS_NhanVien_ChiTiet classNhanVienChiTiet = new classNS_NhanVien_ChiTiet(db);
+                    List<ChietKhauMacDinh_NhanVienPRC> data = classNhanVienChiTiet.GetCaiDatChietKhau_HangHoa(param);
+                    var lstID = data.Select(x => x.ID).ToList();
+                    var lstRemove = db.ChietKhauMacDinh_NhanVien.Where(x => lstID.Contains(x.ID)).AsEnumerable();
+                    db.ChietKhauMacDinh_NhanVien.RemoveRange(lstRemove);
+                    db.SaveChanges();
+                    return ActionTrueData(string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
                 }
             }
         }

@@ -1377,13 +1377,23 @@
             }
         }
 
-        var maHHSearch = $('#text_MaHangHoa').val();
-
+        var maHangHoa = $('#text_MaHangHoa').val();
+        if (!commonStatisJs.CheckNull(maHangHoa)) {
+            maHangHoa = maHangHoa.trim();
+        }
         // delete all HangHoa from list after search
         dialogConfirm('Xác nhận xóa', 'Bạn có chắc chắn xóa tất cả hàng hóa của nhân viên <b>' + tenNhanVienChosed
             + ' </b> khỏi danh sách chiết khấu không?', function () {
-                ajaxHelper(NhanVienUri + "deleteAllChietKhau?ID_NhanVien=" + id
-                    + "&ID_NhomHang=null" + "&maHH=" + maHHSearch + "&ID_DonVi=" + _IDchinhanh, 'GET').done(function (result) {
+                let param = {
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: id,
+                    ID_NhomHangs: self.ListIDNhomHang_Chosed(),
+                    TextSearch: maHangHoa,
+                    CurrentPage: self.currentPage() - 1,
+                    PageSize: self.TotalRecord(),
+                }
+                ajaxHelper(NhanVienUri + "deleteAllChietKhau", 'POST', param).done(function (x) {
+                    if (x.res) {
                         ShowMessage_Success("Xóa cài đặt hoa hồng hàng hóa thành công", "success");
                         GetAllChietKhau_ByNhanVien();
                         let diary = {
@@ -1391,11 +1401,15 @@
                             ID_NhanVien: VHeader.IdNhanVien,
                             LoaiNhatKy: 3,
                             ChucNang: 'Xóa cài đặt hoa hồng',
-                            NoiDung: 'Xóa tất cả cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed),
-                            NoiDungChiTiet: 'Xóa tất cả cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed, ' <br /> Người xóa: ', VHeader.UserLogin),
+                            NoiDung: 'Xóa cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed),
+                            NoiDungChiTiet: 'Xóa cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed,
+                                ' <br /> Nhóm hàng: ', self.ListIDNhomHang_Chosed(),
+                                ' <br /> Mã hàng: ', maHangHoa,
+                                ' <br /> Người xóa: ', VHeader.UserLogin),
                         }
                         Insert_NhatKyThaoTac_1Param(diary);
-                    })
+                    }
+                })
             })
     }
 
