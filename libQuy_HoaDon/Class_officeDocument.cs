@@ -10246,17 +10246,17 @@ namespace libQuy_HoaDon
                         if (dienthoai != "")
                         {
                             bool isNumber = IsNumberInt(dienthoai);
-                            if (isNumber == false)
-                            {
-                                lstErr.Add(new ErrorDMHangHoa
-                                {
-                                    TenTruongDuLieu = "Điện thoại",
-                                    ViTri = rowIndex,
-                                    ThuocTinh = dienthoai,
-                                    DienGiai = "Điện thoại không hợp lệ",
-                                    rowError = i
-                                });
-                            }
+                            //if (isNumber == false)
+                            //{
+                            //    lstErr.Add(new ErrorDMHangHoa
+                            //    {
+                            //        TenTruongDuLieu = "Điện thoại",
+                            //        ViTri = rowIndex,
+                            //        ThuocTinh = dienthoai,
+                            //        DienGiai = "Điện thoại không hợp lệ",
+                            //        rowError = i
+                            //    });
+                            //}
 
                             if (chophepTrungSDT == 0)
                             {
