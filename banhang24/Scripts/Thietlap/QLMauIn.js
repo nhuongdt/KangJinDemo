@@ -118,6 +118,9 @@ var PrintModel_HoaDon = function () {
     //===============================
     self.AddNewMauIn = function () {
         if (self.TenMauInAddNew() !== null && self.TenMauInAddNew().replace(/\s+/g, '') !== "") {
+            if (self.MaChungTu()==='DH') {
+                self.MaChungTu('BG');
+            }
             var khogiay = $('#SelecttedKhoGiay').val();
             var model = {
                 Id: self.MauInID(),

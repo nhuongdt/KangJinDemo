@@ -362,7 +362,7 @@ namespace banhang24.Hellper
     {
         public static class MauInTeamPlates
         {
-            public const string DatHang = "DH";
+            public const string DatHang = "BG";
             public const string HoaDon = "HDBL";
             public const string GoiDV = "GDV";
             public const string TraHang = "TH";
