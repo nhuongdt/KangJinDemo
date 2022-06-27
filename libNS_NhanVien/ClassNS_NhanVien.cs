@@ -112,6 +112,7 @@ namespace libNS_NhanVien
                     ID = t.ID,
                     MaNhanVien = t.MaNhanVien,
                     TenNhanVien = t.TenNhanVien,
+                    ID_PhongBan = t.ID_PhongBan,
                     TenNhanVien_GC = CommonStatic.ConvertToUnSign(t.TenNhanVien).ToLower(),
                     TenNhanVien_CV = CommonStatic.GetCharsStart(t.TenNhanVien).ToLower()
                 });
@@ -2190,6 +2191,7 @@ namespace libNS_NhanVien
         public double STT { get; set; }
         public string MaPhongBan { get; set; }
         public string TenPhongBan { get; set; }
+        public Guid? ID_PhongBan { get; set; }
     }
     public class NS_NhanVien_DonVi
     {
