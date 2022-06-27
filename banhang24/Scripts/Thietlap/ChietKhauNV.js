@@ -1888,8 +1888,6 @@
         }
         ajaxHelper(NhanVienUri + "getlistNhanVien_CaiDatChietKhau?ID_DonVi=" + _IDchinhanh + "&MaNhanVien=" + _nhanvienchuaCD + "&TrangThai=" + 0, 'GET').done(function (data) {
             self.NhanVienSaoChep1(data);
-            //vmSaoChepHoaHongDV.listData.NhanVien_ChuaCaiDatAll = data;
-            //vmSaoChepHoaHongDV.listData.NhanVien_ChuaCaiDatFilter = data;
         });
     };
 
@@ -1900,8 +1898,6 @@
 
         ajaxHelper(NhanVienUri + "getlistNhanVien_CaiDatChietKhau?ID_DonVi=" + _IDchinhanh + "&MaNhanVien=" + _nhanviendaCD + "&TrangThai=" + 1, 'GET').done(function (data) {
             self.NhanVienSaoChep2(data);
-            //vmSaoChepHoaHongDV.listData.NhanVien_DaCaiDatAll = data;
-            //vmSaoChepHoaHongDV.listData.NhanVien_DaCaiDatFilter = data;
 
             // change ID_NhanVien --> ID (same list NhanViens {ID, MaNhanVien,..)
             var arr = $.extend(true, [], data);
