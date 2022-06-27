@@ -68,6 +68,12 @@ namespace libDM_DoiTuong
             }
         }
 
+        public List<BH_HoaDonTheNapDTO> GetInforTheGiaTri_byID(Guid id)
+        {
+            SqlParameter param = new SqlParameter("ID", id);
+            return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetInforTheGiaTri_byID @ID", param).ToList();
+        }
+
         public List<BH_HoaDonTheNapDTO> LoadDanhMucTheGiaTri(ModelHoaDonTheNap model)
         {
             var isDonVis = string.Join(",", model.arrChiNhanh);
@@ -806,7 +812,14 @@ namespace libDM_DoiTuong
                             dto.NgayLapHoaDon = item.NgayLapHoaDon.AddSeconds(1);// HD tra phai sau HD mua --> show in list His ThanhToan right
                             break;
                         case 12: // PhieuChi
-                            dto.strLoaiHoaDon = "Phiếu chi";
+                            if (item.LoaiThanhToan == 4)
+                            {
+                                dto.strLoaiHoaDon = "Phiếu chi";
+                            }
+                            else
+                            {
+                                dto.strLoaiHoaDon = "Trả lại số dư cọc";
+                            }
                             break;
                         case 19: // PhieuChi
                             dto.strLoaiHoaDon = "Gói dịch vụ";
@@ -2138,6 +2151,8 @@ namespace libDM_DoiTuong
                 ID_LichBaoDuong = p.ID_LichBaoDuong,
                 LoaiHangHoa = p.LoaiHangHoa,
                 HoaHongTruocChietKhau = p.HoaHongTruocChietKhau,
+                ChietKhauMD_NV = p.ChietKhauMD_NV,
+                ChietKhauMD_NVTheoPT = p.ChietKhauMD_NVTheoPT,
                 DonViTinh = _ClassDVQD.Gets(ct => ct.ID_HangHoa == p.ID_HangHoa && ct.Xoa != true).Select(x => new DonViTinh
                 {
                     ID_HangHoa = p.ID_HangHoa,
