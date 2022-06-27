@@ -2104,7 +2104,6 @@
                     }
                 }
 
-                debugger
                 if (commonStatisJs.CheckNull(idKhoanThuChi)) {
                     ktc = self.GetKhoanThuChi_byLoaiChungTu(loaiThuChi === 11);
                 }
