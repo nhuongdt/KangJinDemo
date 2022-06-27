@@ -491,6 +491,10 @@ var ViewModelQuyHD = function () {
         });
     }
 
+    self.copySoQuy = function (item) {
+        vmThemPhieuThuChi.showModalUpdate(item, self.ChiTietQuys(), true);
+    }
+
     self.editSQ = function (item) {
         if (item.PhieuDieuChinhCongNo === 2) {
             // nap tien coc
