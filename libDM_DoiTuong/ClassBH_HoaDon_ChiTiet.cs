@@ -739,6 +739,8 @@ namespace libDM_DoiTuong
         public Guid? ID_ParentCombo { get; set; }
         public List<BH_HoaDon_ChiTietDTO> ThanhPhanComBo { get; set; }
         public int? HoaHongTruocChietKhau { get; set; }// TinhHoaHongTruocCK (0,1)
+        public double? ChietKhauMD_NV { get; set; }
+        public bool? ChietKhauMD_NVTheoPT { get; set; }
     }
 
     public class ChiPhiDichVuDTO
@@ -887,7 +889,9 @@ namespace libDM_DoiTuong
         public bool? LaHangHoa { get; set; }
         public double? GiaVon { get; set; }
         public double? TienChietKhau { get; set; } 
-        public double? PTChietKhau { get; set; } 
+        public double? PTChietKhau { get; set; }  
+        public double? ChietKhauMD_NV { get; set; } 
+        public bool? ChietKhauMD_NVTheoPT { get; set; } 
     }
 
     public class SP_NhatKySuDung_GoiDV
@@ -970,6 +974,8 @@ namespace libDM_DoiTuong
         public DateTime? NgaySanXuat { get; set; }
         public DateTime? NgayHetHan { get; set; }
         public double? GiaBanHH { get; set; } /// used to nhaphang from hoadon
+        public double? ChietKhauMD_NV { get; set; } 
+        public bool? ChietKhauMD_NVTheoPT { get; set; } 
     }
 
     public class SP_InvoiceNewest
