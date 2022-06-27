@@ -462,7 +462,7 @@
             let laPhanTram = true;
             for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
                 let itFor = self.PhieuThuKhach.ListTKPos[i];
-                if (itFor.ChiPhiThanhToan>0) {
+                if (itFor.ChiPhiThanhToan > 0) {
                     laPhanTram = itFor.TheoPhanTram;
                     gtriPTram = itFor.ChiPhiThanhToan;
                     if (itFor.TheoPhanTram) {
@@ -1172,36 +1172,69 @@
             let self = this;
             let heso = 1;
             let lenGrid = self.GridNVienBanGoi_Chosed.length;
-            if (self.IsShareDiscount === '1') {
-                heso = RoundDecimal(1 / lenGrid, 2);
-            }
+
             let chiphiNganHang = self.GetChiPhi_Visa();
             let thucthu = formatNumberToFloat(self.PhieuThuKhach.ThucThu) + formatNumberToFloat(self.PhieuThuBaoHiem.ThucThu)
                 - chiphiNganHang;
             let doanhthu = formatNumberToFloat(self.inforHoaDon.TongThanhToan) - self.inforHoaDon.TongTienThue;
-            for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
-                let itemFor = self.GridNVienBanGoi_Chosed[i];
-                let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
-                let ptCK = formatNumberToFloat(itemFor.PT_ChietKhau);
-                let tienCK = formatNumberToFloat(itemFor.TienChietKhau);
-                switch (tinhCKTheo) {
-                    case 1:
-                        tienCK = Math.round(thucthu * ptCK / 100 * heso);
-                        break;
-                    case 2:
-                        tienCK = Math.round(doanhthu * ptCK / 100 * heso);
-                        break;
-                    case 3:// vnd, keep heso =1
-                        if (heso !== 1) {
-                            tienCK = itemFor.ChietKhauMacDinh * heso;
-                        }
-                        else {
-                            tienCK = itemFor.ChietKhauMacDinh / heso;
-                        }
-                        break;
+
+            if (self.IsShareDiscount === '1') {
+                // same pt ckThucThu all nhan vien
+                let ptCK_Share = 100 / lenGrid;
+                let tienCK_Share = thucthu / lenGrid;
+
+                for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                    let itemFor = self.GridNVienBanGoi_Chosed[i];
+                    let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
+                    let ptCK = formatNumberToFloat(itemFor.PT_ChietKhau);
+                    let tienCK = formatNumberToFloat(itemFor.TienChietKhau);
+                    switch (tinhCKTheo) {
+                        case 1:
+                            tienCK = Math.round(thucthu * ptCK_Share / 100 * heso);
+                            break;
+                        case 2:
+                            tienCK = Math.round(doanhthu * ptCK_Share / 100 * heso);
+                            break;
+                        case 3:// vnd, keep heso =1
+                            if (heso !== 1) {
+                                tienCK = itemFor.ChietKhauMacDinh * heso;
+                            }
+                            else {
+                                tienCK = itemFor.ChietKhauMacDinh / heso;
+                            }
+                            break;
+                    }
+                    self.GridNVienBanGoi_Chosed[i].HeSo = heso;
+                    self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptCK_Share;
+                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(ptCK_Share);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
                 }
-                self.GridNVienBanGoi_Chosed[i].HeSo = heso;
-                self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+            }
+            else {
+                for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                    let itemFor = self.GridNVienBanGoi_Chosed[i];
+                    let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
+                    let ptCK = formatNumberToFloat(itemFor.PT_ChietKhau);
+                    let tienCK = formatNumberToFloat(itemFor.TienChietKhau);
+                    switch (tinhCKTheo) {
+                        case 1:
+                            tienCK = Math.round(thucthu * ptCK / 100 * heso);
+                            break;
+                        case 2:
+                            tienCK = Math.round(doanhthu * ptCK / 100 * heso);
+                            break;
+                        case 3:// vnd, keep heso =1
+                            if (heso !== 1) {
+                                tienCK = itemFor.ChietKhauMacDinh * heso;
+                            }
+                            else {
+                                tienCK = itemFor.ChietKhauMacDinh / heso;
+                            }
+                            break;
+                    }
+                    self.GridNVienBanGoi_Chosed[i].HeSo = heso;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                }
             }
         },
 
@@ -2030,32 +2063,32 @@
             var hd = self.inforHoaDon;
             vmThemMoiKhach.inforLogin.ID_DonVi = hd.ID_DonVi;// used to check nangnhomkh
 
-            let ghichu = hd.DienGiai;
-            var idHoaDon = hd.ID;
+            let idHoaDon = hd.ID;
             let idDoiTuong = hd.ID_DoiTuong;
             let tenDoiTuong = hd.TenDoiTuong;
-            var ptKhach = self.PhieuThuKhach;
+            let maDoiTuong = hd.MaDoiTuong;
+            let ptKhach = self.PhieuThuKhach;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
             let sKhoanThuChi = '';
+            let arrPhuongThuc = [];
 
-            var loaiThuChi = 11;
-            var sLoai = 'thu';
-            var tiendatcoc = formatNumberToFloat(ptKhach.TienDatCoc), soduDatCoc = hd.SoDuDatCoc;
-            var maPhieuThuChi = 'TT' + hd.MaHoaDon;
-            var chitracoc = self.isCheckTraLaiCoc;
+            let ghichu = hd.DienGiai;
+            if (commonStatisJs.CheckNull(ghichu)) {
+                ghichu = ghichu.concat(tenDoiTuong, ' (', maDoiTuong, ') /', hd.MaHoaDon);
+            }
+            else {
+                ghichu = ghichu.concat(' / ', tenDoiTuong, ' (', maDoiTuong, ') /', hd.MaHoaDon);
+            }
 
+            let loaiThuChi = 11;
+            let sLoai = 'thu';
+            let tiendatcoc = formatNumberToFloat(ptKhach.TienDatCoc), soduDatCoc = formatNumberToFloat(hd.SoDuDatCoc);
+            let maPhieuThuChi = 'TT' + hd.MaHoaDon;
+            let chitracoc = self.isCheckTraLaiCoc;
             let ktc = [];
-            if (commonStatisJs.CheckNull(idKhoanThuChi)) {
-                ktc = self.GetKhoanThuChi_byLoaiChungTu(hd.LoaiHoaDon !== 6);
-                console.log('ktc ', ktc)
-            }
-            if (ktc.length > 0) {
-                idKhoanThuChi = ktc[0].ID;
-                sKhoanThuChi = ktc[0].NoiDungThuChi;
-            }
 
             if (soduDatCoc > 0 && hd.ChenhLechTraMua != 0) {
-                self.SavePhieuThu_HDDoiTra();
+                self.SavePhieuThu_HDDoiTra();// chưa dùng đến
             }
             else {
                 if ((hd.HoanTraTamUng > 0 && soduDatCoc <= 0) || ptKhach.HoanTraTamUng > 0) {
@@ -2065,10 +2098,19 @@
                 var khach_PhieuThuTT = hd.PhaiThanhToan;
                 if (ptKhach.HoanTraTamUng > 0) {
                     // chitracoc
-                    khach_PhieuThuTT = ptKhach.PhaiThanhToan;
+                    khach_PhieuThuTT = hd.HoanTraTamUng;
                     if (tiendatcoc > 0) {
                         idHoaDon = null; // neu tiencoc > 0 & hoantra tiencho khach --> khong gan idHoaDon (vi no bi bu tru congno)
                     }
+                }
+
+                debugger
+                if (commonStatisJs.CheckNull(idKhoanThuChi)) {
+                    ktc = self.GetKhoanThuChi_byLoaiChungTu(loaiThuChi === 11);
+                }
+                if (ktc.length > 0) {
+                    idKhoanThuChi = ktc[0].ID;
+                    sKhoanThuChi = ktc[0].NoiDungThuChi;
                 }
                 //  used to get save diary
                 if (ptKhach.DaThanhToan > 0) {
@@ -2108,7 +2150,10 @@
                             HinhThucThanhToan: 6,
                         });
                         lstQuyCT.push(qct);
-                        phuongthucTT = 'Tiền cọc, ';
+
+                        if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
+                            arrPhuongThuc.push(qct.HinhThucThanhToan);
+                        }
                     }
 
                     if (tienmat > 0) {
@@ -2122,41 +2167,144 @@
                             HinhThucThanhToan: 1,
                             LoaiThanhToan: chitracoc ? 1 : 0,
                         });
-                        phuongthucTT += 'Tiền mặt, ';
                         lstQuyCT.push(qct);
+
+                        if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
+                            arrPhuongThuc.push(qct.HinhThucThanhToan);
+                        }
                     }
 
                     if (tienpos > 0) {
-                        khach_idPos = ptKhach.ID_TaiKhoanPos;
-                        let qct = newQuyChiTiet({
-                            ID_HoaDonLienQuan: idHoaDon,
-                            ID_KhoanThuChi: idKhoanThuChi,
-                            ID_DoiTuong: idDoiTuong,
-                            GhiChu: ghichu,
-                            TienThu: tienpos,
-                            TienPOS: tienpos,
+                        let qct = {
                             HinhThucThanhToan: 2,
-                            ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanPos,
-                            LoaiThanhToan: chitracoc ? 1 : 0,
-                        });
+                        }
+                        if (!commonStatisJs.CheckNull(ptKhach.ListTKPos)) {
+                            for (let i = 0; i < ptKhach.ListTKPos.length; i++) {
+                                let itFor = ptKhach.ListTKPos[i];
+                                let item_TienPos = formatNumberToFloat(itFor.TienPOS);
+                                if (tienpos > item_TienPos) {
+                                    tienpos = tienpos - item_TienPos;
+
+                                    qct = newQuyChiTiet({
+                                        ID_HoaDonLienQuan: idHoaDon,
+                                        ID_KhoanThuChi: idKhoanThuChi,
+                                        ID_DoiTuong: idDoiTuong,
+                                        GhiChu: itFor.TenTaiKhoanPos.concat(' - ', itFor.TenNganHangPos),
+                                        TienThu: item_TienPos,
+                                        TienPOS: item_TienPos,
+                                        HinhThucThanhToan: 2,
+                                        ID_TaiKhoanNganHang: itFor.ID_TaiKhoanPos,
+                                        LoaiThanhToan: chitracoc ? 1 : 0,
+                                    });
+                                    qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
+                                    qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    lstQuyCT.push(qct);
+                                    ghichu += ' / ' + qct.GhiChu;
+                                }
+                                else {
+                                    qct = newQuyChiTiet({
+                                        ID_HoaDonLienQuan: idHoaDon,
+                                        ID_KhoanThuChi: idKhoanThuChi,
+                                        ID_DoiTuong: idDoiTuong,
+                                        GhiChu: itFor.TenTaiKhoanPos.concat(' - ', itFor.TenNganHangPos),
+                                        TienThu: tienpos,
+                                        TienPOS: tienpos,
+                                        HinhThucThanhToan: 2,
+                                        ID_TaiKhoanNganHang: itFor.ID_TaiKhoanPos,
+                                        LoaiThanhToan: chitracoc ? 1 : 0,
+                                    });
+                                    qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
+                                    qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    lstQuyCT.push(qct);
+                                    tienpos = 0;
+                                    ghichu += ' / ' + qct.GhiChu;
+                                }
+                            }
+                        }
+                        else {
+                            qct = newQuyChiTiet({
+                                ID_HoaDonLienQuan: idHoaDon,
+                                ID_KhoanThuChi: idKhoanThuChi,
+                                ID_DoiTuong: idDoiTuong,
+                                GhiChu: ghichu,
+                                TienThu: tienpos,
+                                TienPOS: tienpos,
+                                HinhThucThanhToan: 2,
+                                ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanPos,
+                                LoaiThanhToan: chitracoc ? 1 : 0,
+                            });
+                            lstQuyCT.push(qct);
+                        }
                         lstQuyCT.push(qct);
-                        phuongthucTT += 'POS, ';
+
+                        if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
+                            arrPhuongThuc.push(qct.HinhThucThanhToan);
+                        }
                     }
+
                     if (tienck > 0) {
-                        khach_idCK = ptKhach.ID_TaiKhoanChuyenKhoan;
-                        let qct = newQuyChiTiet({
-                            ID_HoaDonLienQuan: idHoaDon,
-                            ID_KhoanThuChi: idKhoanThuChi,
-                            ID_DoiTuong: idDoiTuong,
-                            GhiChu: ghichu,
-                            TienThu: tienck,
-                            TienChuyenKhoan: tienck,
+                        let qct = {
                             HinhThucThanhToan: 3,
-                            ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanChuyenKhoan,
-                            LoaiThanhToan: chitracoc ? 1 : 0,
-                        });
-                        lstQuyCT.push(qct);
-                        phuongthucTT += 'Chuyển khoản, ';
+                        }
+                        if (!commonStatisJs.CheckNull(ptKhach.ListTKChuyenKhoan)) {
+                            for (let i = 0; i < ptKhach.ListTKChuyenKhoan.length; i++) {
+                                let itFor = ptKhach.ListTKChuyenKhoan[i];
+                                let item_TienCK = formatNumberToFloat(itFor.TienCK);
+                                if (tienck > item_TienCK) {
+                                    tienck = tienck - item_TienCK;
+
+                                    qct = newQuyChiTiet({
+                                        ID_HoaDonLienQuan: idHoaDon,
+                                        ID_KhoanThuChi: idKhoanThuChi,
+                                        ID_DoiTuong: idDoiTuong,
+                                        GhiChu: itFor.TenTaiKhoanCK.concat(' - ', itFor.TenNganHangCK),
+                                        TienThu: item_TienCK,
+                                        HinhThucThanhToan: 3,
+                                        ID_TaiKhoanNganHang: itFor.ID_TaiKhoanChuyenKhoan,
+                                    });
+                                    qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
+                                    qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    lstQuyCT.push(qct);
+                                    ghichu += ' / ' + qct.GhiChu;
+                                    khach_idCK = qct.ID_TaiKhoanNganHang;
+                                }
+                                else {
+                                    qct = newQuyChiTiet({
+                                        ID_HoaDonLienQuan: idHoaDon,
+                                        ID_KhoanThuChi: idKhoanThuChi,
+                                        ID_DoiTuong: idDoiTuong,
+                                        GhiChu: itFor.TenTaiKhoanCK.concat(' - ', itFor.TenNganHangCK),
+                                        TienThu: tienck,
+                                        HinhThucThanhToan: 3,
+                                        ID_TaiKhoanNganHang: itFor.ID_TaiKhoanChuyenKhoan,
+                                        LoaiThanhToan: chitracoc ? 1 : 0,
+                                    });
+                                    qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
+                                    qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    lstQuyCT.push(qct);
+                                    tienGui = 0;
+                                    ghichu += ' / ' + qct.GhiChu;
+                                }
+                            }
+                        }
+                        else {
+                            khach_idCK = ptKhach.ID_TaiKhoanChuyenKhoan;
+                            qct = newQuyChiTiet({
+                                ID_HoaDonLienQuan: idHoaDon,
+                                ID_KhoanThuChi: idKhoanThuChi,
+                                ID_DoiTuong: idDoiTuong,
+                                GhiChu: ghichu,
+                                TienThu: tienck,
+                                TienChuyenKhoan: tienck,
+                                HinhThucThanhToan: 3,
+                                ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanChuyenKhoan,
+                                LoaiThanhToan: chitracoc ? 1 : 0,
+                            });
+                            lstQuyCT.push(qct);
+                        }
+                        if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
+                            arrPhuongThuc.push(qct.HinhThucThanhToan);
+                        }
                     }
                     if (tienthe > 0) {
                         let qct = newQuyChiTiet({
@@ -2169,7 +2317,10 @@
                             HinhThucThanhToan: 4,
                         });
                         lstQuyCT.push(qct);
-                        phuongthucTT += 'Thẻ giá trị, ';
+
+                        if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
+                            arrPhuongThuc.push(qct.HinhThucThanhToan);
+                        }
                     }
                     if (tiendiem > 0) {
                         let qct = newQuyChiTiet({
@@ -2183,13 +2334,35 @@
                             DiemThanhToan: ptKhach.DiemQuyDoi,
                         });
                         lstQuyCT.push(qct);
-                        phuongthucTT += 'Điểm, ';
+                        if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
+                            arrPhuongThuc.push(qct.HinhThucThanhToan);
+                        }
                     }
 
-                    //if (commonStatisJs.CheckNull(idDoiTuong) && tongthu < ptKhach.DaThanhToan) {
-                    //    commonStatisJs.ShowMessageDanger("Là khách lẻ, không cho phép nợ");
-                    //    return;
-                    //}
+                    arrPhuongThuc = $.unique(arrPhuongThuc);
+                    for (let i = 0; i < arrPhuongThuc.length; i++) {
+                        switch (arrPhuongThuc[i]) {
+                            case 1:
+                                phuongthucTT += 'Tiền mặt, ';
+                                break;
+                            case 2:
+                                phuongthucTT += 'POS, ';
+                                break;
+                            case 3:
+                                phuongthucTT += 'Chuyển khoản,  ';
+                                break;
+                            case 4:
+                                phuongthucTT += 'Thẻ giá trị, ';
+                                break;
+                            case 5:
+                                phuongthucTT += 'Điểm, ';
+                                break;
+                            case 6:
+                                phuongthucTT += 'Thu từ cọc, ';
+                                break;
+                        }
+                    }
+
                     var nowSeconds = (new Date()).getSeconds() + 1;
                     let quyhd = {
                         LoaiHoaDon: loaiThuChi,
@@ -2207,6 +2380,8 @@
                     }
                     phuongthucTT = Remove_LastComma(phuongthucTT);
                     quyhd.PhuongThucTT = phuongthucTT;
+                    quyhd.NoiDungThu = ghichu;
+
                     self.PhieuThuKhachPrint.PhuongThucTT = phuongthucTT;
 
                     let myData = {
