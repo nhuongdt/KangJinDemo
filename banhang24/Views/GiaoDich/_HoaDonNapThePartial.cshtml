@@ -302,9 +302,9 @@
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <h5>Thông tin thanh toán</h5>
                         <div class="form-group floatleft">
-                            <label>Thành tiền</label>
+                            <label>Phải thanh toán</label>
                             <div class="form-news">
-                                <span style="float:right;">{{newHoaDon.TongChiPhi}}</span>
+                                <span style="float:right;">{{formatNumber3Digit(newHoaDon.PhaiThanhToan)}}</span>
                             </div>
                         </div>
                         <div class="form-group floatleft" style="display:none">
@@ -328,13 +328,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group floatleft">
-                            <label>Phải thanh toán</label>
+
+                        <div class="form-group floatleft" v-if="newHoaDon.KhachDaTra > 0">
+                            <label>Khách đã trả</label>
                             <div class="form-news">
-                                <span style="float:right;">{{formatNumber(newHoaDon.PhaiThanhToan)}}</span>
+                                <span style="float:right;">{{formatNumber3Digit(newHoaDon.KhachDaTra)}}</span>
                             </div>
                         </div>
-                        <div class="form-group floatleft" style="display:flex">
+                        <div class="form-group floatleft" v-if="newHoaDon.KhachDaTra > 0 && newHoaDon.TongCong > 0">
+                            <label>Tổng phải trả</label>
+                            <div class="form-news">
+                                <span style="float:right;">{{formatNumber3Digit(newHoaDon.PhaiThanhToan- newHoaDon.KhachDaTra)}}</span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" v-if="newHoaDon.HoanTraTamUng > 0">
+                            <label>Hoàn trả</label>
+                            <div class="form-news">
+                                <span style="float:right;">{{formatNumber3Digit(newHoaDon.HoanTraTamUng)}}</span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" style="display:flex" v-if="typeUpdate === 1 || newHoaDon.TongCong > 0">
                             <div style="width:130px">
                                 <label v-on:click="showModalThanhToan">Tiền khách đưa(F9)</label>
                                 <div style="position:absolute; bottom:-10px">
@@ -354,8 +367,28 @@
                             </div>
                             <p></p>
                         </div>
+                        <div class="form-group floatleft" style="display:flex" v-if="newHoaDon.HoanTraTamUng > 0">
+                            <div style="width:130px">
+                                <label v-on:click="showModalThanhToan">Tiền trả(F9)</label>
+                                <div style="position:absolute; bottom:-10px">
+                                    <small>
+                                        {{newHoaDon.TenLoaiTien}}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-news">
+                                <input type="text"
+                                       class="form-control text-right"
+                                       onclick="this.select()"
+                                       autocomplete="off"
+                                       onkeypress="keypressNumber_limitNumber(event, this)"
+                                       v-model="newHoaDon.DaThanhToan"
+                                       v-on:keyup="EditTienKhachDua">
+                            </div>
+                            <p></p>
+                        </div>
                         <div class="form-group floatleft">
-                            <label>{{newHoaDon.TienThua > 0?'Tiền trả lại khách':'Tiền khách thiếu'}} </label>
+                            <label>{{newHoaDon.TienThua > 0?'Tiền thừa':'Tiền thiếu'}} </label>
                             <div class="form-news">
                                 <input type="text" readonly class="form-control text-right" autocomplete="off"
                                        v-bind:value="formatNumber(Math.abs(newHoaDon.TienThua))">
@@ -440,11 +473,17 @@
                 <button type="button" class="btn btn-main" v-on:click="showLSNapTien">
                     <i class="fa fa-history" aria-hidden="true"></i>   Lịch sử nạp tiền
                 </button>
-                <button type="button" class="btn btn-save" v-on:click="SaveTheNap(true)">
+                <button type="button" class="btn btn-save" v-if="typeUpdate === 1 && !isLoading" v-on:click="SaveTheNap(true)">
                     <i class="fa fa-print" aria-hidden="true"></i>Lưu và in
                 </button>
-                <button type="button" class="btn btn-save" v-on:click="SaveTheNap(false)">
+                <button type="button" class="btn btn-save" v-if="typeUpdate === 1 && !isLoading" v-on:click="SaveTheNap(false)">
                     <i class="fa fa-save" aria-hidden="true"></i>Lưu
+                </button>
+                <button type="button" class="btn btn-save" v-if="typeUpdate === 2 && !isLoading" v-on:click="SaveTheNap(false)">
+                    <i class="fa fa-save" aria-hidden="true"></i>Cập nhật
+                </button>
+                <button type="button" class="btn btn-save" v-if="isLoading" v-on:click="SaveTheNap(false)">
+                    <i class="fa fa-save" aria-hidden="true"></i>Đang lưu
                 </button>
             </div>
         </div>

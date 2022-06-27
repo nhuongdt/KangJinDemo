@@ -272,10 +272,20 @@
         });
     };
 
+    self.showModalUpdateTGT = function (item) {
+        vmThanhToanGara.listData.ChietKhauHoaDons = vmHoaHongHoaDon.listData.ChietKhauHoaDons;
+        vmThemMoiTheNap.showModalUpdate(item.ID);
+    };
+
     self.showpopupNapTien = function () {
         vmThanhToanGara.listData.ChietKhauHoaDons = vmHoaHongHoaDon.listData.ChietKhauHoaDons;
         vmThemMoiTheNap.showModalAddNew();
     };
+
+    self.showPopHoanTra = function () {
+        vmNapTienDatCoc.loaiMenu = 1;// loaiMenu (0.thu, 1.chi)
+        vmNapTienDatCoc.showModalAddNew(false,1);//1. tra lai tien da nop tu TGT, 0.#
+    }
 
     shortcut.add("F9", function () {
         self.ThanhToanThe();
@@ -499,6 +509,7 @@
     function Get_SoDuTheGiaTri_ofKhachHang(idDoiTuong, datetime, isChoseKH) {
         ajaxHelper(DMDoiTuongUri + 'Get_SoDuTheGiaTri_ofKhachHang?idDoiTuong=' + idDoiTuong + '&datetime=' + datetime, 'GET').done(function (data) {
             if (data != null && data.length > 0) {
+                // used to get when print
                 self.TongTaiKhoanThe(data[0].TongThuTheGiaTri);
                 self.SoDuTheGiaTri(data[0].SoDuTheGiaTri);
                 self.SuDungThe(data[0].SuDungThe);
@@ -544,6 +555,7 @@
                 vmThanhToanGara.listData.NhanViens = lstNV_byDonVi;
                 vmThanhToan.listData.NhanViens = lstNV_byDonVi;
                 vmThemMoiKhach.listData.NhanViens = lstNV_byDonVi;
+                vmNapTienDatCoc.listData.NhanViens = data;
             }
         });
     }
@@ -1126,6 +1138,7 @@
                 item.MaDoiTuong = item.MaKhachHang;
                 item.TenDoiTuong = item.TenKhachHang;
                 item.DienThoai = item.SoDienThoai;
+                item.LoaiHoaDon = 22;
                 vmThanhToan.showModalThanhToan(item);
             }
         })
@@ -1150,6 +1163,7 @@
                     }
                     vmThanhToanGara.listData.AccountBanks = data; // use at form new TheGiaTri
                     vmThanhToan.listData.AccountBanks = data;// use at btnThanhToan
+                    vmNapTienDatCoc.listData.AccountBanks = data;
                 }
             })
         }
@@ -1169,6 +1183,8 @@
                 });
                 self.KhoanChis(khoanchi);
                 vmThanhToan.listData.KhoanThuChis = khoanthu;
+                vmThanhToanGara.listData.KhoanThuChis = data;
+                vmNapTienDatCoc.listData.AllKhoanThuChis = data;
             }
         })
     }
@@ -1295,6 +1311,15 @@
                 }
                 self.MangNhomDV.push(obj);
                 vmThemMoiNhomKhach.listData.ChiNhanhs = data;
+              
+
+                let cn = $.grep(self.ChiNhanhs(), function (x) {
+                    return x.ID === VHeader.IđonVi;
+                });
+                if (cn.length > 0) {
+                    vmNapTienDatCoc.inforCongTy.TenChiNhanh = cn[0].TenDonVi;
+                    vmNapTienDatCoc.inforCongTy.DienThoaiChiNhanh = cn[0].DienThoai;
+                }
             }
         });
     }
@@ -1353,6 +1378,11 @@
                     DiaChiCuaHang: self.CongTy()[0].DiaChi,
                     LogoCuaHang: Open24FileManager.hostUrl + self.CongTy()[0].DiaChiNganHang,
                     TenChiNhanh: VHeader.TenDonVi,
+                };
+                vmNapTienDatCoc.inforCongTy = {
+                    TenCongTy: data[0].TenCongTy,
+                    DiaChiCuaHang: data[0].DiaChi,
+                    LogoCuaHang: Open24FileManager.hostUrl + data[0].DiaChiNganHang
                 };
             }
         });
