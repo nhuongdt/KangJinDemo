@@ -4477,6 +4477,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     Xoa = item.Xoa,
                                     ID_Xe = item.ID_Xe,
                                     BienSo = item.BienSo,
+                                    ChietKhauMD_NV = item.ChietKhauMD_NV,
+                                    ChietKhauMD_NVTheoPT = item.ChietKhauMD_NVTheoPT,
                                     DonViTinh = _classDVQD.Gets(ct => ct.ID_HangHoa == item.ID && ct.Xoa != true).Select(x => new DonViTinh
                                     {
                                         ID_HangHoa = item.ID,
@@ -4519,6 +4521,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                         Xoa = o.Xoa,
                                         ID_Xe = item.ID_Xe,
                                         BienSo = item.BienSo,
+                                        ChietKhauMD_NV = item.ChietKhauMD_NV,
+                                        ChietKhauMD_NVTheoPT = item.ChietKhauMD_NVTheoPT,
                                         DonViTinh = _classDVQD.Gets(ct => ct.ID_HangHoa == o.ID && ct.Xoa != true).Select(x => new DonViTinh
                                         {
                                             TenDonViTinh = x.TenDonViTinh,
@@ -5270,6 +5274,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     tp.DichVuTheoGio,
                                     TonKho = hhTK != null ? hhTK.TonKho : 0,
                                     HoaHongTruocChietKhau = tp.HoaHongTruocChietKhau != null ? tp.HoaHongTruocChietKhau : 0,
+                                    ChietKhauMD_NV = tp.ChietKhauMD_NV != null ? tp.ChietKhauMD_NV : 0,
+                                    ChietKhauMD_NVTheoPT = tp.ChietKhauMD_NVTheoPT != null ? tp.ChietKhauMD_NVTheoPT : true,
                                 }).ToList();
                     return ActionTrueData(data);
                 }
@@ -5314,7 +5320,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ct.LoaiHangHoa = dM_HangHoa.LoaiHangHoa == null ? dM_HangHoa.LaHangHoa == true ? 1 : 2 : dM_HangHoa.LoaiHangHoa;
                 ct.LoaiBaoDuong = dM_HangHoa.LoaiBaoDuong ?? 0;
                 ct.SoKmBaoHanh = dM_HangHoa.SoKmBaoHanh ?? 0;
-                ct.ID_Xe = dM_HangHoa.ID_Xe;
+                ct.ID_Xe = dM_HangHoa.ID_Xe;  
+                ct.ChietKhauMD_NV = dM_HangHoa.ChietKhauMD_NV ?? 0;
+                ct.ChietKhauMD_NVTheoPT = dM_HangHoa.ChietKhauMD_NVTheoPT??true;
 
                 DonViQuiDoi dm_DVQD = dM_HangHoa.DonViQuiDois.Where(p => p.LaDonViChuan == true && p.Xoa != true).FirstOrDefault();
                 DM_GiaVon dmgv = db.DM_GiaVon.Where(p => p.ID_DonViQuiDoi == dm_DVQD.ID && p.ID_DonVi == iddonvi && p.ID_LoHang == null).FirstOrDefault();
@@ -7190,7 +7198,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     try
                     {
-
                         ClassDM_HangHoa _classDMHH = new ClassDM_HangHoa(db);
                         classDM_NhomHangHoa _classDMNHH = new classDM_NhomHangHoa(db);
                         classDonViQuiDoi _classDVQD = new classDonViQuiDoi(db);

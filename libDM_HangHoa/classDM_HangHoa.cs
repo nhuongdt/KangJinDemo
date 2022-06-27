@@ -1288,6 +1288,8 @@ namespace libDM_HangHoa
                           HoaHongTruocChietKhau = hh.HoaHongTruocChietKhau != null ? hh.HoaHongTruocChietKhau : 0,
                           ID_Xe = hhxe != null ? hhxe.ID : Guid.Empty,
                           BienSo = hhxe != null ? hhxe.BienSo : string.Empty,
+                          ChietKhauMD_NV = hh.ChietKhauMD_NV??0,
+                          ChietKhauMD_NVTheoPT = hh.ChietKhauMD_NVTheoPT ?? true,
                       };
             tbl = tbl.Where(p => (p.ID_DonVi == iddonvi || p.ID_DonVi == Guid.Empty));
             List<DM_HangHoaDTO> lst = new List<DM_HangHoaDTO>();
@@ -1320,7 +1322,9 @@ namespace libDM_HangHoa
                 dM_HangHoaDTO.LoaiHangHoa = item.LoaiHangHoa;
                 dM_HangHoaDTO.GhiChu = item.GhiChu;
                 dM_HangHoaDTO.ID_Xe = item.ID_Xe;
-                dM_HangHoaDTO.BienSo = item.BienSo;
+                dM_HangHoaDTO.BienSo = item.BienSo; 
+                dM_HangHoaDTO.ChietKhauMD_NV = item.ChietKhauMD_NV;
+                dM_HangHoaDTO.ChietKhauMD_NVTheoPT = item.ChietKhauMD_NVTheoPT;
                 dM_HangHoaDTO.DonViTinh = _classDVQD.Gets(p => p.ID_HangHoa == item.ID && p.Xoa != true).Select(p => new DonViTinh
                 {
                     ID = p.ID,
@@ -1379,6 +1383,8 @@ namespace libDM_HangHoa
                           GhiChu = dvt.GhiChu,
                           ID_Xe = hhxe != null ? hhxe.ID : Guid.Empty,
                           BienSo = hhxe != null ? hhxe.BienSo : "",
+                          ChietKhauMD_NV = hh.ChietKhauMD_NV ?? 0,
+                          ChietKhauMD_NVTheoPT = hh.ChietKhauMD_NVTheoPT ?? true,
                       };
 
             List<DM_HangHoaDTO> lst = new List<DM_HangHoaDTO>();
@@ -1409,6 +1415,8 @@ namespace libDM_HangHoa
                 dM_HangHoaDTO.GhiChu = item.GhiChu;
                 dM_HangHoaDTO.ID_Xe = item.ID_Xe;
                 dM_HangHoaDTO.BienSo = item.BienSo;
+                dM_HangHoaDTO.ChietKhauMD_NV = item.ChietKhauMD_NV;
+                dM_HangHoaDTO.ChietKhauMD_NVTheoPT = item.ChietKhauMD_NVTheoPT;
                 dM_HangHoaDTO.DonViTinh = _classDVQD.Gets(p => p.ID_HangHoa == item.ID && p.Xoa != true).Select(p => new DonViTinh
                 {
                     ID = p.ID,
@@ -1895,6 +1903,8 @@ namespace libDM_HangHoa
                     Xoa = t.FirstOrDefault().Xoa,
                     ID_Xe = t.FirstOrDefault().ID_Xe,
                     BienSo = t.FirstOrDefault().BienSo,
+                    ChietKhauMD_NV = t.FirstOrDefault().ChietKhauMD_NV,
+                    ChietKhauMD_NVTheoPT = t.FirstOrDefault().ChietKhauMD_NVTheoPT,
                 }).ToList();
                 listTon = listTon.GroupBy(o => o.ID_HangHoaCungLoai).Select(t => new DM_HangHoaDTO
                 {
@@ -1934,6 +1944,8 @@ namespace libDM_HangHoa
                     Xoa = t.FirstOrDefault().Xoa,
                     ID_Xe = t.FirstOrDefault().ID_Xe,
                     BienSo = t.FirstOrDefault().BienSo,
+                    ChietKhauMD_NV = t.FirstOrDefault().ChietKhauMD_NV,
+                    ChietKhauMD_NVTheoPT = t.FirstOrDefault().ChietKhauMD_NVTheoPT,
                 }).ToList();
                 listTon = listTon.OrderByDescending(p => p.NgayTao).ToList();
                 if (sort == "0")
@@ -3127,6 +3139,8 @@ namespace libDM_HangHoa
                     objUpd.SoKmBaoDuong = objHHNew.SoKmBaoDuong;
                     objUpd.HoaHongTruocChietKhau = objHHNew.HoaHongTruocChietKhau;
                     objUpd.ID_Xe = objHHNew.ID_Xe;
+                    objUpd.ChietKhauMD_NV = objHHNew.ChietKhauMD_NV;
+                    objUpd.ChietKhauMD_NVTheoPT = objHHNew.ChietKhauMD_NVTheoPT;
 
                     objUpd.TenHangHoa_KhongDau = CommonStatic.ConvertToUnSign(objHHNew.TenHangHoa).ToLower();
                     objUpd.TenHangHoa_KyTuDau = CommonStatic.GetCharsStart(objHHNew.TenHangHoa).ToLower();
