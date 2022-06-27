@@ -2176,6 +2176,7 @@ var XuatKhoChiTiet = function () {
         objHD.TongSoLuongHang = formatNumber3Digit(self.TongSoLuongHH());
         objHD.TongCong = formatNumber3Digit(tongtien, 2);
         objHD.NguoiTaoHD = _userLogin;
+        objHD.MaHoaDonTraHang = objHD.MaHoaDonSuaChua;
 
         // cong ty, chi nhanh
         let chinhanhchuyen = $.grep(self.DonVis(), function (x) {
