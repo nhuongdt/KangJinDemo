@@ -64,6 +64,8 @@ var FormModel_HangHoaDichVu = function () {
     self.DuocTichDiem = ko.observable(0);
     self.ID_Xe = ko.observable();
     self.BienSo = ko.observable();
+    self.ChietKhauMD_NV = ko.observable(0);
+    self.ChietKhauMD_NVTheoPT = ko.observable(true);
 
     self.SetData = function (item) {
         self.ID(item.ID);
@@ -99,6 +101,8 @@ var FormModel_HangHoaDichVu = function () {
         self.DuocTichDiem(item.DuocTichDiem);
         self.ID_Xe(item.ID_Xe);
         self.BienSo(item.BienSo);
+        self.ChietKhauMD_NV(item.ChietKhauMD_NV);
+        self.ChietKhauMD_NVTheoPT(item.ChietKhauMD_NVTheoPT);
     };
 };
 
@@ -5477,7 +5481,8 @@ var ViewModel = function () {
             SoKmBaoHanh: self.newHangHoa().SoKmBaoHanh(),
             ChiPhiTinhTheoPT: self.newHangHoa().ChiPhiTinhTheoPT(),
             ChiPhiThucHien: formatNumberToFloat(self.newHangHoa().ChiPhiThucHien()),
-            SoPhutThucHien: self.newHangHoa().SoPhutThucHien(),
+            ChietKhauMD_NV: formatNumberToFloat(self.newHangHoa().ChietKhauMD_NV()),
+            ChietKhauMD_NVTheoPT: self.newHangHoa().ChietKhauMD_NVTheoPT(),
             NguoiTao: _txtTenTaiKhoan,
             ID_Xe: self.HangHoa_LaXe() ? self.newHangHoa().ID_Xe() : null,
         }
@@ -6995,7 +7000,25 @@ var ViewModel = function () {
         }
     };
 
-    self.PhiDV_ClickPtramVND = function () {
+    self.editChietKhauMacDinhNV = function () {
+        var $this = $(event.currentTarget);
+        if (self.newHangHoa().ChietKhauMD_NVTheoPT()) {
+            if (formatNumberToFloat($this.val()) > 100) {
+                $this.val(100);
+                self.newHangHoa().ChietKhauMD_NV(100);
+            }
+        }
+        else {
+            formatNumberObj($this);
+        }
+    };
+
+    self.ChietKhauMacDinhNV_ClickPtramVND = function () {
+        self.newHangHoa().ChietKhauMD_NVTheoPT(!self.newHangHoa().ChietKhauMD_NVTheoPT());
+        self.newHangHoa().ChietKhauMD_NV(0);
+    }
+
+    self.HoaHongDV_ClickPtramVND = function () {
         self.newHangHoa().ChiPhiTinhTheoPT(!self.newHangHoa().ChiPhiTinhTheoPT());
         self.newHangHoa().ChiPhiThucHien(0);
     }
