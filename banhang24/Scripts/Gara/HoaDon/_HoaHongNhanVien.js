@@ -307,34 +307,64 @@
             var self = this;
             var heso = 1;
             var lenGrid = self.GridNVienBanGoi_Chosed.length;
-            if (self.IsShareDiscount === '1') {
-                heso = RoundDecimal(1 / lenGrid, 2);
-            }
+           
             var thucthu = formatNumberToFloat(self.inforHoaDon.ThucThu) - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             var doanhthu = formatNumberToFloat(self.inforHoaDon.TongThanhToan) - self.inforHoaDon.TongTienThue;
-            for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
-                let itemFor = self.GridNVienBanGoi_Chosed[i];
-                let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
-                let ptCK = itemFor.PT_ChietKhau;
-                let tienCK = itemFor.TienChietKhau;
-                switch (tinhCKTheo) {
-                    case 1:
-                        tienCK = Math.round(thucthu * ptCK / 100 * heso);
-                        break;
-                    case 2:
-                        tienCK = Math.round(doanhthu * ptCK / 100 * heso);
-                        break;
-                    case 3:// vnd, keep heso =1
-                        if (heso !== 1) {
-                            tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) * heso;
-                        }
-                        else {
-                            tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) / heso;
-                        }
-                        break;
+
+            if (self.IsShareDiscount === '1') {
+                let ptCK_Share = 100 / lenGrid;
+
+                for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                    let itemFor = self.GridNVienBanGoi_Chosed[i];
+                    let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
+                    let tienCK = itemFor.TienChietKhau;
+                    switch (tinhCKTheo) {
+                        case 1:
+                            tienCK = Math.round(thucthu * ptCK_Share / 100 * heso);
+                            break;
+                        case 2:
+                            tienCK = Math.round(doanhthu * ptCK_Share / 100 * heso);
+                            break;
+                        case 3:// vnd, keep heso =1
+                            if (heso !== 1) {
+                                tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) * heso;
+                            }
+                            else {
+                                tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) / heso;
+                            }
+                            break;
+                    }
+                    self.GridNVienBanGoi_Chosed[i].HeSo = heso;
+                    self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptCK_Share;
+                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(ptCK_Share);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
                 }
-                self.GridNVienBanGoi_Chosed[i].HeSo = heso;
-                self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+            }
+            else {
+                for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                    let itemFor = self.GridNVienBanGoi_Chosed[i];
+                    let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
+                    let ptCK = itemFor.PT_ChietKhau;
+                    let tienCK = itemFor.TienChietKhau;
+                    switch (tinhCKTheo) {
+                        case 1:
+                            tienCK = Math.round(thucthu * ptCK / 100 * heso);
+                            break;
+                        case 2:
+                            tienCK = Math.round(doanhthu * ptCK / 100 * heso);
+                            break;
+                        case 3:// vnd, keep heso =1
+                            if (heso !== 1) {
+                                tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) * heso;
+                            }
+                            else {
+                                tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) / heso;
+                            }
+                            break;
+                    }
+                    self.GridNVienBanGoi_Chosed[i].HeSo = heso;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                }
             }
         },
 
