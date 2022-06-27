@@ -5704,17 +5704,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     else
                     {
                         timeStart = DateTime.Parse("2010-01-01");
-                    }    
+                    }
                 }
                 DateTime timeEnd = DateTime.Now;
                 if (objIn["TimeEnd"] != null)
                 {
-                    if(objIn["TimeEnd"].ToObject<string>() != "")
+                    if (objIn["TimeEnd"].ToObject<string>() != "")
                         timeEnd = objIn["TimeEnd"].ToObject<DateTime>();
                     else
                     {
                         timeEnd = DateTime.Now.AddMonths(1);
-                    }    
+                    }
                 }
                 string LoaiKH = "";
                 if (objIn["LoaiKH"] != null && objIn["LoaiKH"].ToObject<List<int>>().Count > 0)
@@ -8627,6 +8627,36 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             break;
                         case 2:
                             List<BaoCaoChietKhau_ChiTietPRC> lstCT = reportHoaHong.SP_ReportDiscountProduct_Detail(lstParam);
+                            lstCT = lstCT.Select(x => new BaoCaoChietKhau_ChiTietPRC
+                            {
+                                MaHoaDon = x.MaHoaDon,
+                                NgayLapHoaDon = x.NgayLapHoaDon,
+                                MaKhachHang = x.MaKhachHang,
+                                TenKhachHang = x.TenKhachHang,
+                                DienThoaiKH = x.DienThoaiKH,
+                                TenNhomHangHoa = x.TenNhomHangHoa,
+                                MaHangHoa = x.MaHangHoa,
+                                TenHangHoaFull = x.TenHangHoaFull,
+                                TenHangHoa = x.TenHangHoa,
+                                TenDonViTinh = x.TenDonViTinh,
+                                ThuocTinh_GiaTri = x.ThuocTinh_GiaTri,
+                                TenLoHang = x.TenLoHang,
+                                MaNhanVien = x.MaNhanVien,
+                                TenNhanVien = x.TenNhanVien,
+                                SoLuong = x.SoLuong,
+                                ThanhTien = x.ThanhTien,
+                                HeSo = x.HeSo,
+                                GtriSauHeSo = x.GtriSauHeSo,
+                                PTThucHien = x.PTThucHien == 0 ? x.HoaHongThucHien / x.SoLuong : x.HoaHongThucHien,
+                                HoaHongThucHien = x.HoaHongThucHien,
+                                PTThucHien_TheoYC = x.PTThucHien_TheoYC == 0 ? x.HoaHongThucHien_TheoYC / x.SoLuong : x.HoaHongThucHien_TheoYC,
+                                HoaHongThucHien_TheoYC = x.HoaHongThucHien_TheoYC,
+                                PTTuVan = x.PTTuVan,
+                                HoaHongTuVan = x.HoaHongTuVan,
+                                PTBanGoi = x.PTBanGoi,
+                                HoaHongBanGoiDV = x.HoaHongBanGoiDV,
+                                TongAll = x.TongAll,
+                            }).ToList();
                             excel = classOffice.ToDataTable<BaoCaoChietKhau_ChiTietPRC>(lstCT);
                             excel.Columns.Remove("TenHangHoa");
                             excel.Columns.Remove("TongSoLuong");
@@ -8643,6 +8673,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("ID_HoaDon");
                             excel.Columns.Remove("ID_DonViQuiDoi");
                             excel.Columns.Remove("ID_ChiTietHoaDon");
+                            excel.Columns.Remove("GtriSauHeSo");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHangHoa_ChiTiet.xlsx");
                             fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoChiTietHoaHongNhanVien.xlsx");
                             break;
@@ -8707,6 +8738,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("SumThucThu_ThucTinh");
                             excel.Columns.Remove("PTDoanhThu");
                             excel.Columns.Remove("HoaHongDoanhThu");
+                            excel.Columns.Remove("HeSo");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
                             fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
                             break;
@@ -9628,7 +9660,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                           x.Key.ID_HangHoa,
                           x.Key.TenDonVi,
                           x.Key.MaPhieuTiepNhan,
-                          x.Key.NgayVaoXuong, 
+                          x.Key.NgayVaoXuong,
                           x.Key.TenNhomHangHoa,
                           x.Key.MaHangHoa,
                           x.Key.TenHangHoa,
