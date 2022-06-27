@@ -1316,13 +1316,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     err = classHoaDon.CheckTheDaSuDung(quyctCus.ID_HoaDonLienQuan ?? Guid.Empty);
                                     if (err == string.Empty)
                                     {
-                                        // only huyhd if tongthu = mucnap
-                                        if (hd.PhaiThanhToan == quyhd.TongTienThu)
-                                        {
-                                            hd.ChoThanhToan = null;
-                                            db.Entry(hd).State = EntityState.Modified;
-                                            db.SaveChanges();
-                                        }
+                                        // không hủy phiếu thu TGT
+                                        //if (hd.PhaiThanhToan == quyhd.TongTienThu)
+                                        //{
+                                        //    hd.ChoThanhToan = null;
+                                        //    db.Entry(hd).State = EntityState.Modified;
+                                        //    db.SaveChanges();
+                                        //}
                                         quyhd.TrangThai = false;
                                         _classQHD.Update_QuyHoaDon(quyhd);
                                     }
