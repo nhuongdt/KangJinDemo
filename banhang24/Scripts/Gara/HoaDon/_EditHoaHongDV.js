@@ -14,7 +14,7 @@
             XemChietKhau: true,
             ThayDoiChietKhau: true,
         },
-        IsShareDiscount_DichVu: '2',// 1.share, 2.no share
+        IsShareDiscount_DichVu: '1',// 1.share, 2.no share
         IsChosingNV_ThucHien: 1,
         LaPhanTram: true,
         inforHoaDon: {
@@ -58,7 +58,7 @@
             self.isNew = true;
             self.isDoiTra = isDoiTra;
             self.isCombo = isCombo;
-            self.IsShareDiscount_DichVu = '2';
+            self.IsShareDiscount_DichVu = '1';
             self.DichVu_isDoing = item;
             if (commonStatisJs.CheckNull(item.HoaHongTruocChietKhau)) {
                 item.HoaHongTruocChietKhau = 0;
@@ -84,7 +84,7 @@
             self.saveOK = false;
             self.isNew = false;
             self.isCombo = isTPComBo;// is TPCombo
-            self.IsShareDiscount_DichVu = '2';
+            self.IsShareDiscount_DichVu = '1';
             self.DichVu_isDoing = item;
 
             if (self.GridNV_TVTH.length > 0) {
@@ -103,7 +103,7 @@
                 self.IsChosingNV_ThucHien = 1;
             }
             self.CheckUncheck_rdoShareDiscountDV();
-           
+
             if (isTPComBo) {
                 item.TongPhiDichVu = item.PhiDichVu * item.SoLuong;
                 if (item.LaPTPhiDichVu) {
@@ -148,8 +148,14 @@
             var arrHeSo = $.grep(self.GridNV_TVTH, function (x) {
                 return x.HeSo !== 1 && x.TacVu === self.IsChosingNV_ThucHien;
             });
-            if (arrHeSo.length > 0) self.IsShareDiscount_DichVu = '1';
-            else self.IsShareDiscount_DichVu = '2';
+            console.log('arrHeSo ', arrHeSo)
+            if (arrHeSo.length === 0 && self.IsChosingNV_ThucHien ===1) {
+                self.IsShareDiscount_DichVu = '1';
+            }
+            else {
+                if (arrHeSo.length > 0) self.IsShareDiscount_DichVu = '1';
+                else self.IsShareDiscount_DichVu = '2';
+            }
         },
         AddNhanVien_TVTH: function (item) {
             var self = this;
@@ -575,12 +581,36 @@
             }
         },
 
-        AgreeNhanVien_TVTH: function () {
-            var self = this;
-            self.saveOK = true;
+        Check_OverBudget: function () {
+            let self = this;
+            let sumCK = 0;
+            // check vuot dinhmuc
+            let maxGtriCK = formatNumberToFloat(self.DichVu_isDoing.ChietKhauMD_NV);
+            let isPtram = self.DichVu_isDoing.ChietKhauMD_NVTheoPT;
+            if (isPtram) {
+                maxGtriCK = self.GetGiaTriTinhCK() * maxGtriCK / 100;
+            }
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 let itemFor = self.GridNV_TVTH[i];
-                let valCK = formatNumber(itemFor.TienChietKhau);
+                let valCK = formatNumberToFloat(itemFor.TienChietKhau);
+                sumCK += valCK;
+            }
+            if (sumCK > maxGtriCK) {
+                ShowMessage_Danger('Tổng giá trị chiết khấu không được vượt quá ' + formatNumber3Digit(maxGtriCK));
+                return true;
+            }
+            return false;
+        },
+
+        AgreeNhanVien_TVTH: function () {
+            let self = this;
+            let check = self.Check_OverBudget();
+            if (check) {
+                return;
+            }
+            for (let i = 0; i < self.GridNV_TVTH.length; i++) {
+                let itemFor = self.GridNV_TVTH[i];
+                let valCK = formatNumberToFloat(itemFor.TienChietKhau);
                 if (itemFor.PT_ChietKhau > 0) {
                     valCK = itemFor.PT_ChietKhau;
                 }
@@ -590,12 +620,16 @@
                     self.GridNV_TVTH[i].ChietKhauMacDinh = formatNumberToFloat(valCK) / formatNumberToFloat(itemFor.HeSo) / self.DichVu_isDoing.SoLuong;
                 }
             }
+            self.saveOK = true;
             $('#vmEditHoaHongDV').modal('hide');
         },
 
         SaveCKNVien_toDB: function () {
             var self = this;
-
+            let check = self.Check_OverBudget();
+            if (check) {
+                return;
+            }
             var lstNV = self.GridNV_TVTH;
             var myData = {
                 NhanViens: lstNV,
