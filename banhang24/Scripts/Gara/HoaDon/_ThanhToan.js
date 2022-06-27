@@ -47,6 +47,7 @@
         };
 
         self.GetHT_TichDiem();
+        console.log('thu tien HD')
     },
     computed: {
         sLoai: function () {
@@ -179,9 +180,39 @@
         },
         HinhThucTT: { ID: 0, Text: 'Tất cả' },
         Pos_indexChosing: 0,
-        CK_indexChosing: 0
+        CK_indexChosing: 0,
+        LoaiHoaDon: 0,
     },
     methods: {
+        Async_GetInforTheGiaTri: async function (idDoiTuong) {
+            let obj = {
+                SoDuTheGiaTri: 0,
+                CongNoThe: 0,
+                TongNapThe: 0,
+                SuDungThe: 0,
+            }
+            if (!commonStatisJs.CheckNull(idDoiTuong) && idDoiTuong !== const_GuidEmpty) {
+                let date = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+                let objXX = await ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'Get_SoDuTheGiaTri_ofKhachHang?idDoiTuong=' + idDoiTuong
+                    + '&datetime=' + date, 'GET').done(function () {
+                    }).then(function (data) {
+                        if (data != null && data.length > 0) {
+                            let soduX = data[0].SoDuTheGiaTri;
+                            soduX = soduX > 0 ? soduX : 0;
+                            obj = {
+                                SoDuTheGiaTri: soduX,
+                                CongNoThe: data[0].CongNoThe,
+                                TongNapThe: data[0].TongThuTheGiaTri,
+                                SuDungThe: data[0].SuDungThe,
+                            }
+                        }
+                        return obj;
+                    });
+                return objXX;
+            }
+            return obj;
+        },
+
         newPhuongThucTT: function (tkPos = true) {
             if (tkPos) {
                 return {
@@ -369,7 +400,7 @@
                             self.listData.HoaDons[i].BH_NhanVienThucHiens = arrNVienCK;
                         }
                     }
-                    if (self.formType!==1) {
+                    if (self.formType !== 1) {
                         self.AssignMoney_InHoaDonDebit();
                     }
                 })
@@ -433,6 +464,7 @@
             var self = this;
             self.ResetHinhThucTT();
             self.formType = formType;
+            self.LoaiHoaDon = item.LoaiHoaDon;
             self.typeUpdate = 0;
             self.isThuTienThua = false;
             self.isKhoaSo = false;
@@ -1540,7 +1572,7 @@
                 ghichu = ghichu.concat(' / ', tenDoiTuong, ' (', self.ddl_textVal.cusCode, ')');
             }
             var objShare = self.UpdateThucThu_EachHoaDonDebit();
-          
+
             let tongthu = objShare.TienCoc + objShare.TienMat + objShare.TienPOS + objShare.TienChuyenKhoan
                 + objShare.TienTheGiaTri + objShare.TTBangDiem;
 
@@ -2415,6 +2447,7 @@
         showModalUpdate: function (id, nohientai = 0, formType = 0) {
             let self = this;
             self.typeUpdate = 1;
+            self.LoaiHoaDon = 0;// reset LoaiHoaDon vì chưa biết loại gì
             self.saveOK = false;
             self.formType = formType;
             self.isThuTienThua = false;
@@ -2478,6 +2511,8 @@
                                     }
                                     sumNoHD += hd.CanThu;
                                     self.listData.HoaDons.push(hd);
+
+                                    self.LoaiHoaDon = itFor.LoaiHoaDonHD;
                                 }
 
                                 switch (itFor.HinhThucThanhToan) {
