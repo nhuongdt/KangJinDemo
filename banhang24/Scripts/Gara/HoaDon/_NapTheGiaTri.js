@@ -15,9 +15,11 @@
     },
     data: {
         saveOK: false,
+        isLoading: false,
         typeUpdate: 1,
         formType: 0,// 0.from DSTheGT, 1. from DS KhachHang
         isShowList: false,
+        tgtOld: {},
         role: {
             ChangeNgayNapThe: true,
         },
@@ -46,6 +48,7 @@
             DateRange: '',
         },
         inforTheGiaTri: {// used to print
+            SoDuTheGiaTri: 0,
         },
 
         newHoaDon: {
@@ -61,6 +64,7 @@
             var xx = VHeader.Quyen.indexOf(maquyen) > -1;
             return xx;
         },
+
         GetSoDuTheGiaTri: function (idDoiTuong) {
             var self = this;
             let sodu = 0;
@@ -70,6 +74,9 @@
                     if (data != null && data.length > 0) {
                         sodu = data[0].SoDuTheGiaTri;
                         sodu = sodu > 0 ? sodu : 0;
+                    }
+                    if (self.formType === 2) {
+                        sodu = sodu - self.newHoaDon.TongTienHang;
                     }
                     self.inforTheGiaTri.SoDuTheGiaTri = sodu;
                     self.inforTheGiaTri.TongTaiKhoanThe = data[0].TongThuTheGiaTri;
@@ -150,9 +157,68 @@
             return ((page.pageNumber - 1) === self.LichSuNapTien.CurrentPage) ? "click" : "";
         },
 
+        showModalUpdate: function (idThe, formType = 0) {
+            let self = this;
+            self.saveOk = false;
+            self.isLoading = false;
+            self.typeUpdate = 2;
+            self.formType = formType;
+
+            ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/GetInforTheGiaTri_byID?id=' + idThe).done(function (x) {
+                if (x.res && x.dataSoure.length > 0) {
+                    let data = x.dataSoure[0];
+                    self.tgtOld = $.extend({}, true, data);
+
+                    self.newHoaDon = {
+                        ID: data.ID,
+                        MaHoaDon: data.MaHoaDon,
+                        LoaiHoaDon: data.LoaiHoaDon,
+                        ChoThanhToan: data.ChoThanhToan,
+                        NgayLapHoaDon: moment(data.NgayLapHoaDon).format('YYYY-MM-DD HH:mm'),
+                        ID_DonVi: data.ID_DonVi,
+                        ID_NhanVien: data.ID_NhanVien,
+                        NguoiTao: data.NguoiTao,
+                        ID_DoiTuong: data.ID_DoiTuong,
+                        TongChiPhi: formatNumber3Digit(data.MucNap),
+                        TongChietKhau: data.KhuyenMaiVND,
+                        TongTienHang: data.TongTienNap,
+                        TongGiamGia: data.TongGiamGia,
+                        TongTienThue: data.SoDuSauNap,
+                        PhaiThanhToan: data.PhaiThanhToan,
+                        TongThanhToan: data.PhaiThanhToan,
+                        KhachDaTra: data.KhachDaTra,
+                        DienGiai: data.GhiChu,
+
+                        PTKhuyenMai: data.PTKhuyenMai,
+                        PTChietKhau: data.PTChietKhau,
+
+                        DaThanhToan: 0,
+                        ThucThu: 0,
+                        TienThua: 0,
+                        NoHienTai: 0,
+                        TenLoaiTien: '(Tiền mặt)',
+                        BH_NhanVienThucHiens: [],
+                        TongCong: data.PhaiThanhToan - data.KhachDaTra
+                    };
+
+                    self.GetSoDuTheGiaTri(data.ID_DoiTuong);
+
+                    self.cusChosing = {
+                        MaDoiTuong: data.MaKhachHang,
+                        TenDoiTuong: data.TenKhachHang,
+                        DienThoai: data.SoDienThoai,
+                        DiaChi: data.DiaChiKhachHang,
+                    }
+
+                    $('#vmThemMoiTheNap').modal('show');
+                }
+            })
+
+        },
         showModalAddNew: function (formType = 0) {
             var self = this;
             self.saveOk = false;
+            self.isLoading = false;
             self.typeUpdate = 1;
             self.formType = formType;
 
@@ -175,9 +241,10 @@
                 TongThanhToan: 0, // = phaitt
                 DienGiai: '',
 
-                PTKhuyenMai: '',
-                PTChietKhau: '',
+                PTKhuyenMai: 0,
+                PTChietKhau: 0,
 
+                KhachDaTra: 0,
                 DaThanhToan: 0,
                 ThucThu: 0,
                 TienThua: 0,
@@ -242,11 +309,21 @@
             self.newHoaDon.TongTienHang = mucnap + gtriKM;
             self.newHoaDon.TongGiamGia = formatNumber(gtriCK);
             self.newHoaDon.PhaiThanhToan = mucnap - gtriCK;
-            self.newHoaDon.DaThanhToan = formatNumber(self.newHoaDon.PhaiThanhToan);
             self.newHoaDon.ThucThu = mucnap - gtriCK;
             self.newHoaDon.TienThua = 0;
+            let khachcantra = mucnap - gtriCK - self.newHoaDon.KhachDaTra;
+            if (khachcantra < 0) {
+                self.newHoaDon.HoanTraTamUng = Math.abs(khachcantra);
+                self.newHoaDon.TongCong = 0;
+                self.newHoaDon.DaThanhToan = formatNumber3Digit(self.newHoaDon.HoanTraTamUng);
+            }
+            else {
+                self.newHoaDon.HoanTraTamUng = 0;
+                self.newHoaDon.TongCong = khachcantra;
+                self.newHoaDon.DaThanhToan = formatNumber3Digit(khachcantra);
+            }
             self.inforTheGiaTri.SoDuTheSauNap = self.inforTheGiaTri.SoDuTheGiaTri + self.newHoaDon.TongTienHang;
-            self.Assign_ValueKhachThanhToan(self.newHoaDon.PhaiThanhToan);
+            self.Assign_ValueKhachThanhToan(self.newHoaDon.DaThanhToan);
         },
 
         EditMucNap: function () {
@@ -314,6 +391,7 @@
             self.Assign_ValueKhachThanhToan(daTT);
         },
         Assign_ValueKhachThanhToan: function (daTT) {
+            let self = this;
             vmThanhToanGara.PhieuThuKhach.TienMat = daTT;
             vmThanhToanGara.PhieuThuKhach.TienPOS = 0;
             vmThanhToanGara.PhieuThuKhach.TienCK = 0;
@@ -321,6 +399,12 @@
             vmThanhToanGara.PhieuThuKhach.DiemQuyDoi = 0;
             vmThanhToanGara.PhieuThuKhach.TTBangDiem = 0;
             vmThanhToanGara.PhieuThuKhach.DaThanhToan = daTT;
+            if (self.newHoaDon.HoanTraTamUng > 0) {
+                vmThanhToanGara.PhieuThuKhach.HoanTraTamUng = self.newHoaDon.HoanTraTamUng;
+            }
+            else {
+                vmThanhToanGara.PhieuThuKhach.HoanTraTamUng = 0;
+            }
         },
 
         SaveTheNap: function (print) {
@@ -336,56 +420,72 @@
                 ShowMessage_Danger(VHeader.warning.ChotSo.Update);
                 return;
             }
+            self.isLoading = true;
 
             var nowSeconds = (new Date()).getSeconds();
             hd.NgayLapHoaDon = moment(hd.NgayLapHoaDon).add(nowSeconds, 'seconds').format('YYYY-MM-DD HH:mm:ss');
             hd.TongThanhToan = hd.PhaiThanhToan;
             hd.TongTienThue = self.inforTheGiaTri.SoDuTheSauNap;
 
+            if (self.typeUpdate === 2) {
+                hd.NguoiSua = VHeader.UserLogin;
+            }
+
             var myData = {
                 objHoaDon: hd
             }
-            ajaxHelper('/api/DanhMuc/Bh_HoaDonAPI/' + "Check_MaHoaDonExist?maHoaDon=" + hd.MaHoaDon, 'POST').done(function (data) {
-                if (data) {
-                    commonStatisJs.ShowMessageDanger('Mã hóa đơn đã tồn tại');
-                    return;
-                }
 
-                ajaxHelper('/api/DanhMuc/Bh_HoaDonAPI/PostBH_HoaDonNapThe', 'POST', myData).done(function (x) {
-                    console.log(x)
-                    if (x.res === true) {
-                        self.saveOK = true;
-                        self.newHoaDon.ID = x.dataSoure.ID;
-                        self.newHoaDon.MaHoaDon = x.dataSoure.MaHoaDon;
-                        commonStatisJs.ShowMessageSuccess('Nạp thẻ thành công');
+            let sDiary = '<br /> <b>Thông tin chi tiết </b>'.concat(
+                '<br /> - Mã hóa đơn: ', hd.MaHoaDon,
+                '<br /> - Khách hàng: ', self.cusChosing.TenDoiTuong, '(', self.cusChosing.MaDoiTuong, ')',
+                '<br /> - Mức nạp: ', hd.TongChiPhi,
+                '<br /> - Khuyến mãi: ', hd.TongChietKhau, ' (', hd.PTKhuyenMai, ' %)',
+                '<br /> - Chiết khấu: ', hd.TongGiamGia, ' (', hd.PTChietKhau, ' %)',
+                '<br /> - Phải thanh toán: ', formatNumber(hd.PhaiThanhToan),
+                '<br /> - Ngày nạp: ', hd.NgayLapHoaDon
+            )
+            ajaxHelper('/api/DanhMuc/Bh_HoaDonAPI/PostBH_HoaDonNapThe', 'POST', myData).done(function (x) {
+                console.log(x)
+                if (x.res === true) {
+                    self.saveOK = true;
+                    self.newHoaDon.ID = x.dataSoure.ID;
+                    self.newHoaDon.MaHoaDon = x.dataSoure.MaHoaDon;
+                    commonStatisJs.ShowMessageSuccess('Nạp thẻ thành công');
 
-                        let diary = {
-                            LoaiNhatKy: 1,
-                            ID_DonVi: VHeader.IdDonVi,
-                            ID_NhanVien: VHeader.IdNhanVien,
-                            ChucNang: 'Nạp thẻ',
-                            NoiDung: 'Tạo mới thẻ nạp '.concat(self.newHoaDon.MaHoaDon, ' cho khách hàng ', self.cusChosing.TenDoiTuong),
-                            NoiDungChiTiet: 'Tạo mới thẻ nạp '.concat(self.newHoaDon.MaHoaDon,
-                                '<br /> - Khách hàng: ', self.cusChosing.TenDoiTuong, '(', self.cusChosing.MaDoiTuong, ')',
-                                '<br /> - Mức nạp: ', self.newHoaDon.TongChiPhi,
-                                '<br /> - Khuyến mãi: ', self.newHoaDon.TongChietKhau, ' (', self.newHoaDon.PTKhuyenMai, ' %)',
-                                '<br /> - Chiết khấu: ', self.newHoaDon.TongGiamGia, ' (', self.newHoaDon.PTChietKhau, ' %)',
-                                '<br /> - Phải thanh toán: ', formatNumber(self.newHoaDon.PhaiThanhToan),
-                                '<br /> - Ngày nạp: ', moment(x.dataSoure.NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')
-                            ),
-                        }
-                        Insert_NhatKyThaoTac_1Param(diary);
-
-                        vmThanhToanGara.inforHoaDon = self.newHoaDon;
-                        vmThanhToanGara.inforHoaDon.TenDoiTuong = self.cusChosing.TenDoiTuong;
-                        vmThanhToanGara.inforHoaDon.MaDoiTuong = self.cusChosing.MaDoiTuong;
-                        vmThanhToanGara.SavePhieuThu();
-
-                        if (print) {
-                            self.InPhieuThu();
-                        }
+                    let diary = {
+                        LoaiNhatKy: 1,
+                        ID_DonVi: VHeader.IdDonVi,
+                        ID_NhanVien: VHeader.IdNhanVien,
+                        ChucNang: 'Nạp thẻ',
+                        NoiDung: (self.typeUpdate === 1 ? 'Tạo mới thẻ nạp ' : 'Cập nhật thẻ nạp ').concat(self.newHoaDon.MaHoaDon, ' cho khách hàng ', self.cusChosing.TenDoiTuong),
+                        NoiDungChiTiet: sDiary
                     }
-                })
+                    console.log('VHeader.IdNhanVien', VHeader.IdNhanVien)
+
+                    if (self.typeUpdate === 2) {
+                        diary.LoaiNhatKy = 2;
+                        diary.NoiDungChiTiet = sDiary.concat('<br /> <b>Thông tin cũ: </b>',
+                            '<br /> - Mã hóa đơn: ', self.tgtOld.MaHoaDon,
+                            '<br /> - Khách hàng: ', self.tgtOld.TenKhachHang, '(', self.tgtOld.MaKhachHang, ')',
+                            '<br /> - Mức nạp: ', self.tgtOld.TongChiPhi,
+                            '<br /> - Khuyến mãi: ', self.tgtOld.KhuyenMaiVND, ' (', self.tgtOld.PTKhuyenMai, ' %)',
+                            '<br /> - Chiết khấu: ', self.tgtOld.TongGiamGia, ' (', self.tgtOld.PTChietKhau, ' %)',
+                            '<br /> - Phải thanh toán: ', formatNumber(self.tgtOld.PhaiThanhToan),
+                            '<br /> - Ngày nạp: ', moment(self.tgtOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss'));
+                    }
+                    Insert_NhatKyThaoTac_1Param(diary);
+
+                    vmThanhToanGara.inforHoaDon = self.newHoaDon;
+                    vmThanhToanGara.inforHoaDon.TenDoiTuong = self.cusChosing.TenDoiTuong;
+                    vmThanhToanGara.inforHoaDon.MaDoiTuong = self.cusChosing.MaDoiTuong;
+                    vmThanhToanGara.SavePhieuThu();
+
+                    if (print) {
+                        self.InPhieuThu();
+                    }
+                }
+            }).always(function () {
+                self.isLoading = false;
                 $('#vmThemMoiTheNap').modal('hide');
             })
         },
@@ -455,7 +555,7 @@
                 LoaiHoaDon: 22,
                 SoDuDatCoc: 0,
                 SoDuTheGiaTri: 0,
-                HoanTraTamUng: 0,
+                HoanTraTamUng: self.newHoaDon.HoanTraTamUng,
                 PhaiThanhToan: self.newHoaDon.PhaiThanhToan,
                 PhaiThanhToanBaoHiem: 0,
                 TongThanhToan: self.newHoaDon.PhaiThanhToan,
