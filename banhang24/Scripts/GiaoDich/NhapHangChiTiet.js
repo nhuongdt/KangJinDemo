@@ -4311,7 +4311,7 @@ var NhapHangChiTiet = function () {
     }
 
     function CheckXuLyHet_DonDatHang(loaiHoaDon, idHoaDon, idDatHang) {
-        if (loaiHoaDon === 4 && commonStatisJs.CheckNull(idDatHang)) {
+        if (loaiHoaDon === 4 && !commonStatisJs.CheckNull(idDatHang)) {
             ajaxHelper(BH_HoaDonUri + 'CheckXuLyHet_DonDathang?idHoaDon=' + idHoaDon + '&idDatHang=' + idDatHang, 'GET').done(function (x) {
                 if (x === true) {
                     UpdateStatudHD(idDatHang, 3);
