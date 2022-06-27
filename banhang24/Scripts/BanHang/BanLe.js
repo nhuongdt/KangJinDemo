@@ -10204,7 +10204,7 @@ var NewModel_BanHangLe = function () {
 
     // type: 1.soluong, 2.price, 3 giaBH
     function Enter_SoLuongPriceCTHD(itemCT, e, charStart, type) {
-        if (false) {
+        if (self.SubDomain() === '') {
             Huongha_Enter_SoLuongPriceCTHD(itemCT, e, charStart, type)
         }
         else {
@@ -24032,6 +24032,15 @@ var NewModel_BanHangLe = function () {
         else {
             cthd = JSON.parse(cthd);
         }
+        if (ob1.QuanLyTheoLoHang) {
+            let objLot = $.extend({}, ob1);
+            objLot.ListDonViTinh = [];
+            objLot.HangCungLoais = [];
+            objLot.DM_LoHang = [];
+            objLot.ThanhPhan_DinhLuong = [];
+            objLot.BH_NhanVienThucHien = [];
+            ob1.DM_LoHang.push(objLot);
+        }
         cthd.unshift(ob1);
 
         localStorage.setItem(lcListCTHD, JSON.stringify(cthd));
@@ -24110,7 +24119,7 @@ var NewModel_BanHangLe = function () {
 
         self.ItemHH_LoChosing(itemChose);
 
-        if (false) {
+        if (self.SubDomain()==='') {
             huonghasalon_AddHang(type)
         }
         else {
