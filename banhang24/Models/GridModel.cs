@@ -67,6 +67,7 @@ namespace banhang24.Models
         public Guid ID_NhanVien { get; set; }
         public string ID_NhanVien_new { get; set; }
         public int PhuongThuc { get; set; }
+        public List<string> arrID { get; set; }
     }
     //trinhpv Class report
     public class array_TongQuan
