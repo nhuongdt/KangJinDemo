@@ -4028,6 +4028,7 @@ var NewModel_BanHangLe = function () {
         objPrint.TongTichDiem = tongdiemKH;
         objPrint.TenNhomKhach = Remove_LastComma(tenNhomKH);
         objPrint.MaSoThue = cusTax;
+        objPrint.NguoiTaoHD = objPrint.NguoiTao;
 
         if (objHD.NgayLapHoaDon === null) {
             objPrint.NgayLapHoaDon = moment(new Date()).format('DD/MM/YYYY HH:mm');
