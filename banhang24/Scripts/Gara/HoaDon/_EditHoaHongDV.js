@@ -134,7 +134,7 @@
                 let ptCK = itemFor.PT_ChietKhau;
                 let tienCK = itemFor.TienChietKhau;
                 if (ptCK > 0) {
-                    tienCK = Math.round(gtriTinhCK * ptCK / 100 * itemFor.HeSo);
+                    tienCK = gtriTinhCK * ptCK / 100 * itemFor.HeSo;
                 }
                 else {
                     tienCK = itemFor.ChietKhauMacDinh * self.DichVu_isDoing.SoLuong * itemFor.HeSo;
@@ -148,13 +148,11 @@
             var arrHeSo = $.grep(self.GridNV_TVTH, function (x) {
                 return x.HeSo !== 1 && x.TacVu === self.IsChosingNV_ThucHien;
             });
-            console.log('arrHeSo ', arrHeSo)
-            if (arrHeSo.length === 0 && self.IsChosingNV_ThucHien ===1) {
+            if (self.GridNV_TVTH.length === 0 || arrHeSo.length > 0) {
                 self.IsShareDiscount_DichVu = '1';
             }
             else {
-                if (arrHeSo.length > 0) self.IsShareDiscount_DichVu = '1';
-                else self.IsShareDiscount_DichVu = '2';
+                self.IsShareDiscount_DichVu = '2';
             }
         },
         AddNhanVien_TVTH: function (item) {
@@ -227,7 +225,7 @@
                         break;
                 }
                 if (isPTram) {
-                    tienCK_NV = Math.round((valChietKhau / 100) * gtriTinhCK - self.DichVu_isDoing.TongPhiDichVu);
+                    tienCK_NV = valChietKhau / 100 * gtriTinhCK - self.DichVu_isDoing.TongPhiDichVu;
                     ptramCK = valChietKhau;
                 }
                 else {
@@ -275,39 +273,65 @@
 
         HoaHongDV_UpdateHeSo_AndBind: function () {
             let self = this;
-            let heso = 1;
-            // count NV thuchien/tuvan/bangoi
             let tacVu = self.IsChosingNV_ThucHien;
-            let arrTacVu = [tacVu];
-            if (tacVu === 1) {
-                arrTacVu = [1, 3];
-            }
-            let arrTH = $.grep(self.GridNV_TVTH, function (x) {
-                return $.inArray(x.TacVu, arrTacVu) > -1;
-            });
-            if (self.IsShareDiscount_DichVu === '1') {
-                heso = RoundDecimal(1 / arrTH.length, 2);
-            }
 
-            let gtriTinhCK = self.DichVu_isDoing.GiaTriTinhCK;
-            for (let i = 0; i < self.GridNV_TVTH.length; i++) {
-                let itemFor = self.GridNV_TVTH[i];
-                let ptCK = itemFor.PT_ChietKhau;
-                let tienCK = itemFor.TienChietKhau;
-                if ($.inArray(itemFor.TacVu, arrTacVu) > -1) { // nếu đang active tab (tư vấn/thực hiện): chia đều theo hệ số
-                    if (ptCK > 0) {
-                        tienCK = Math.round(gtriTinhCK * ptCK / 100 * heso);
-                    }
-                    else {
-                        if (heso !== 1) {
-                            tienCK = itemFor.ChietKhauMacDinh * self.DichVu_isDoing.SoLuong * heso;
+            // nếu đang ở tab Tư vấn, sau đó check/uncheck 'Là NV hỗ trợ' (todo: không biết làm cách nào để phân biệt có đang share discount không)
+            if (self.IsShareDiscount_DichVu === '1') {
+                if (tacVu === 1 || tacVu === 3) {
+                    // count by tacVu
+                    let lenTH = self.GridNV_TVTH.filter(x => x.TacVu === 1).length;
+                    lenTH = lenTH === 0 ? 1 : lenTH;
+                    let lenTH_theoYC = self.GridNV_TVTH.filter(x => x.TacVu === 3).length;
+                    lenTH_theoYC = lenTH_theoYC === 0 ? 1 : lenTH_theoYC;
+                    for (let i = 0; i < self.GridNV_TVTH.length; i++) {
+                        let itFor = self.GridNV_TVTH[i];
+                        if (itFor.TacVu === 1 || itFor.TacVu === 3) {
+                            switch (itFor.TacVu) {
+                                case 1:
+                                    self.GridNV_TVTH[i].HeSo = 1 / lenTH;
+                                    break;
+                                case 3:
+                                    self.GridNV_TVTH[i].HeSo = 1 / lenTH_theoYC;
+                                    break;
+                                default:
+                            }
+                            if (itFor.PT_ChietKhau > 0) {
+                                self.GridNV_TVTH[i].TienChietKhau =itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo;
+                            }
+                            else {
+                                self.GridNV_TVTH[i].TienChietKhau = itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong;
+                            }
                         }
-                        else {
-                            tienCK = tienCK / self.GridNV_TVTH[i].HeSo;
+                    }
+                }
+                else {
+                    if (tacVu === 2 || tacVu === 4) {
+                        let lenTV = self.GridNV_TVTH.filter(x => x.TacVu === 2).length;
+                        lenTV = lenTV === 0 ? 1 : lenTV;
+                        let lenBG = self.GridNV_TVTH.filter(x => x.TacVu === 4).length;
+                        lenBG = lenBG === 0 ? 1 : lenBG;
+
+                        for (let i = 0; i < self.GridNV_TVTH.length; i++) {
+                            let itFor = self.GridNV_TVTH[i];
+                            if (itFor.TacVu === 2 || itFor.TacVu === 4) {
+                                switch (itFor.TacVu) {
+                                    case 2:
+                                        self.GridNV_TVTH[i].HeSo = 1 / lenTV;
+                                        break;
+                                    case 4:
+                                        self.GridNV_TVTH[i].HeSo = 1 / lenBG;
+                                        break;
+                                    default:
+                                }
+                                if (itFor.PT_ChietKhau > 0) {
+                                    self.GridNV_TVTH[i].TienChietKhau = itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo;
+                                }
+                                else {
+                                    self.GridNV_TVTH[i].TienChietKhau = itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong;
+                                }
+                            }
                         }
                     }
-                    self.GridNV_TVTH[i].HeSo = heso;
-                    self.GridNV_TVTH[i].TienChietKhau = tienCK;
                 }
             }
         },
@@ -353,7 +377,7 @@
                     var gtriCKTH = itemCK[0].ChietKhau_ThucHien;
                     if (theoCKTH === 0) {
                         if (isPTram) {
-                            tienCK_NV = Math.round((valChietKhau / 100) * gtriTinhCK) * item.HeSo;
+                            tienCK_NV = valChietKhau / 100 * gtriTinhCK * item.HeSo;
                             ckMacDinh = ptramCK = valChietKhau;
                         }
                         else {
@@ -366,11 +390,11 @@
                         if (isPTramTH) {
                             if (isPTram) {
                                 ckMacDinh = ptramCK = valChietKhau + gtriCKTH;
-                                tienCK_NV = Math.round((ptramCK / 100) * gtriTinhCK) * item.HeSo;
+                                tienCK_NV = ptramCK / 100 * gtriTinhCK * item.HeSo;
                             }
                             else {
                                 ptramCK = 0;
-                                tienCK_NV = Math.round((gtriCKTH / 100) * gtriTinhCK) + valChietKhau * soluong;// quy ve VND neu khac loai
+                                tienCK_NV = gtriCKTH / 100 * gtriTinhCK + valChietKhau * soluong;// quy ve VND neu khac loai
                                 ckMacDinh = tienCK_NV;
                                 tienCK_NV = tienCK_NV * item.HeSo;
                             }
@@ -379,8 +403,8 @@
                             // thuchien = vnd
                             if (isPTram) {
                                 ptramCK = 0;
-                                tienCK_NV = Math.round((valChietKhau / 100) * gtriTinhCK) + gtriCKTH * soluong;// quy ve VND neu khac loai
-                                ckMacDinh = tienCK_NV; //??
+                                tienCK_NV = valChietKhau / 100 * gtriTinhCK + gtriCKTH * soluong;// quy ve VND neu khac loai
+                                ckMacDinh = tienCK_NV; 
                                 tienCK_NV = tienCK_NV * item.HeSo;
                             }
                             else {
@@ -393,7 +417,7 @@
                 }
                 else {
                     if (isPTram) {
-                        tienCK_NV = Math.round((valChietKhau / 100) * gtriTinhCK) * item.HeSo;
+                        tienCK_NV = valChietKhau / 100 * gtriTinhCK * item.HeSo;
                         ckMacDinh = ptramCK = valChietKhau;
                     }
                     else {
@@ -403,6 +427,7 @@
                     }
                 }
             }
+
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 if (i === index) {
                     self.GridNV_TVTH[i].TacVu = tacVu;
@@ -413,6 +438,8 @@
                     break;
                 }
             }
+
+            self.HoaHongDV_UpdateHeSo_AndBind();
         },
 
         ShowDiv_ChietKhauNV: function (item, index) {
@@ -466,7 +493,7 @@
             var ptCK = item.PT_ChietKhau;
 
             if (ptCK > 0) {
-                tienCK = Math.round(ptCK * gtritinhCK / 100) * heso;
+                tienCK = ptCK * gtritinhCK / 100 * heso;
             }
             else {
                 tienCK = item.ChietKhauMacDinh * heso * self.DichVu_isDoing.SoLuong;
@@ -503,7 +530,7 @@
                     thisVal = 100;
                     thisObj.val(100);
                 }
-                tienCK = Math.round((thisVal / 100) * gtritinhCK) * item.HeSo;
+                tienCK = thisVal / 100 * gtritinhCK * item.HeSo;
                 ptramCK = thisVal;
             }
             else {
@@ -557,7 +584,7 @@
             if (self.LaPhanTram) {
                 gtriCKNew = item.TienChietKhau / item.HeSo;
                 isPtramNew = false;
-                ckMacDinh = Math.round(gtriCKNew / self.DichVu_isDoing.SoLuong);
+                ckMacDinh = gtriCKNew / self.DichVu_isDoing.SoLuong;
             }
             else {
                 isPtramNew = true;
@@ -604,10 +631,7 @@
 
         AgreeNhanVien_TVTH: function () {
             let self = this;
-            let check = self.Check_OverBudget();
-            if (check) {
-                return;
-            }
+            
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 let itemFor = self.GridNV_TVTH[i];
                 let valCK = formatNumberToFloat(itemFor.TienChietKhau);
@@ -626,10 +650,7 @@
 
         SaveCKNVien_toDB: function () {
             var self = this;
-            let check = self.Check_OverBudget();
-            if (check) {
-                return;
-            }
+           
             var lstNV = self.GridNV_TVTH;
             var myData = {
                 NhanViens: lstNV,
