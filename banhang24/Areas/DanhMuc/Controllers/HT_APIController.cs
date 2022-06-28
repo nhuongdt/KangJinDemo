@@ -427,7 +427,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "TheGiaTri_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(6, "Khách hàng đặt cọc", "Khách hàng đặt cọc", UrlPage.NapTienTheGiaTri, "e/NapTienTheGiaTri", false, "fa fa-credit-card", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(6, "Thẻ giá trị", "Thẻ giá trị", UrlPage.NapTienTheGiaTri, "e/NapTienTheGiaTri", false, "fa fa-credit-card", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "TraHang_XemDS").FirstOrDefault() != null)
@@ -753,7 +753,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "TheGiaTri_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuBanHang.Add(new HeaderMenu(4, "Khách hàng đặt cọc", "Khách hàng đặt cọc", UrlPage.NapTienTheGiaTri, "x/TheGiaTri", false, "fa fa-usd", new List<HeaderMenu>()));
+                    lstSubMenuBanHang.Add(new HeaderMenu(4, "Thẻ giá trị", "Thẻ giá trị", UrlPage.NapTienTheGiaTri, "x/TheGiaTri", false, "fa fa-usd", new List<HeaderMenu>()));
                     lstSubMenuBanHangCheck = true;
                 }
 
