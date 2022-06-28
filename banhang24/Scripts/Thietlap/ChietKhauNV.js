@@ -124,7 +124,6 @@
                 x['ID_NhanVien'] = x.ID
             });
             vmSaoChepHoaHongDV.listData.AllNhanViens = data;
-            console.log(3, data)
         });
     }
 
@@ -1403,7 +1402,6 @@
                             ChucNang: 'Xóa cài đặt hoa hồng',
                             NoiDung: 'Xóa cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed),
                             NoiDungChiTiet: 'Xóa cài đặt hoa hồng của nhân viên '.concat(tenNhanVienChosed,
-                                ' <br /> Nhóm hàng: ', self.ListIDNhomHang_Chosed(),
                                 ' <br /> Mã hàng: ', maHangHoa,
                                 ' <br /> Người xóa: ', VHeader.UserLogin),
                         }
