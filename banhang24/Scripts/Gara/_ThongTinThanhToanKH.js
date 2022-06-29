@@ -2085,6 +2085,7 @@
             let tiendatcoc = formatNumberToFloat(ptKhach.TienDatCoc), soduDatCoc = formatNumberToFloat(hd.SoDuDatCoc);
             let maPhieuThuChi = 'TT' + hd.MaHoaDon;
             let chitracoc = self.isCheckTraLaiCoc;
+            let tienmat = 0, tienpos = 0, tienck = 0, tienthe = 0, tiendiem = 0, tongthu = 0;
             let ktc = [];
 
             if (soduDatCoc > 0 && hd.ChenhLechTraMua != 0) {
@@ -2111,8 +2112,9 @@
                     idKhoanThuChi = ktc[0].ID;
                     sKhoanThuChi = ktc[0].NoiDungThuChi;
                 }
+
                 //  used to get save diary
-                if (ptKhach.DaThanhToan > 0) {
+                if (formatNumberToFloat(ptKhach.DaThanhToan) > 0) {
                     let lstQuyCT = [];
                     let phuongthucTT = '';
                     let dataReturn = self.shareMoney_QuyHD(khach_PhieuThuTT, ptKhach.TTBangDiem,
@@ -2172,7 +2174,7 @@
                             arrPhuongThuc.push(qct.HinhThucThanhToan);
                         }
                     }
-
+                    
                     if (tienpos > 0) {
                         let qct = {
                             HinhThucThanhToan: 2,
@@ -2234,7 +2236,6 @@
                             });
                             lstQuyCT.push(qct);
                         }
-                        lstQuyCT.push(qct);
 
                         if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                             arrPhuongThuc.push(qct.HinhThucThanhToan);
