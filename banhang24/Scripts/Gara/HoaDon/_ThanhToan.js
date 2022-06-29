@@ -2342,10 +2342,16 @@
             self.UpdateThucThu_EachHoaDonDebit();
 
             if (self.typeUpdate === 1) {
-                //if (self.newPhieuThu.ListTKPos.length > 0) {
+                let tongCP = 0;
+                for (let i = 0; i < self.listData.HoaDons.length; i++) {
+                    let itFor = self.listData.HoaDons[i];
+                    if (itFor.ID === item.ID) {
+                        tongCP = itFor.TongPhiNganHang;
+                        break;
+                    }
+                }
                 item.PhiThanhToan_LaPhanTram = self.newPhieuThu.PhiThanhToan_LaPhanTram;
-                item.TongPhiNganHang = self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon * formatNumberToFloat(item.TienPOS) / 100;
-                //}
+                item.TongPhiNganHang = tongCP;
                 vmHoaHongHoaDon.GetChietKhauHoaDon_byID(item, self.newPhieuThu);
             }
             else {
