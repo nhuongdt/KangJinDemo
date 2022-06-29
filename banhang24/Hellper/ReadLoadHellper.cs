@@ -2726,9 +2726,14 @@ namespace banhang24.Hellper
         {
               { ColumnPurchaseOrder.mahoadon.ToString(),"Mã hóa đơn" },
               { ColumnPurchaseOrder.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
+               { ColumnPurchaseOrder.makhachhang.ToString(),"Mã nhà cung cấp" },
+              { ColumnPurchaseOrder.tenkhachhang.ToString(),"Tên nhà cung cấp" },
               { ColumnPurchaseOrder.nguoiban.ToString(),"NV lập hóa đơn" },
               { ColumnPurchaseOrder.tenchinhanh.ToString(),"Chi nhánh" },
               { ColumnPurchaseOrder.tongtienhang.ToString(),"Tổng tiền hàng" },
+                 { ColumnPurchaseOrder.cantrakhach.ToString(),"Cần trả NCC" },
+                   { ColumnPurchaseOrder.datrakhach.ToString(),"Đã trả NCC" },
+                       { ColumnInvoices.conno.ToString(),"Còn nợ" },
               { ColumnPurchaseOrder.ghichu.ToString(),"Ghi chú" },
               { ColumnPurchaseOrder.trangthai.ToString(),"Trạng thái" },
         };
