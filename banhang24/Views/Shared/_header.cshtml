@@ -700,6 +700,7 @@ var VHeader = new Vue({
         UserAvata: '',
         TenCongTy: '',
         Registered: false,
+        roleXemGiaVon: false,
         urlApi: {
             HTApi: '/api/DanhMuc/HT_API/',
             NguoiDungApi: '/api/DanhMuc/HT_NguoiDungAPI/',
@@ -860,6 +861,18 @@ var VHeader = new Vue({
             $("#op-popup-thongbao").removeClass("showed");
             $("#op-popup-thongbao").toggleClass("showed");
             Tawk_API.hideWidget();
+        },
+        CheckRole_XemGiaVon: function () {
+            let self = this;
+            $.getJSON('/api/DanhMuc/ReportAPI/' + "getQuyenXemGiaVon?ID_NguoiDung=" + self.IdNguoiDung + "&MaQuyen=" + "HangHoa_XemGiaVon")
+                .done(function (data) {
+                    if (data !== '') {
+                        self.roleXemGiaVon = true;
+                    }
+                    else {
+                        self.roleXemGiaVon = false;
+                    }
+                });
         },
         GetQuyenAndMenu: function () {
             let self = this;
@@ -1166,10 +1179,10 @@ var VHeader = new Vue({
         self.GetCauHinhHeThong();
         self.GetCaiDatChotSo();
         self.LoadCauHinhThongBao();
+        self.CheckRole_XemGiaVon();
         self.warning = {
             ChotSo: {Update:'', Delete:''}
         }
-
 
         if (self.IdNganhNgheKinhDoanh === "C16EDDA0-F6D0-43E1-A469-844FAB143014") {
             self.TenNganhNghe = "Gara";
