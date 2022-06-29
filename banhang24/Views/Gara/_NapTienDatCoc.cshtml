@@ -47,6 +47,10 @@
             white-space: nowrap;
             display: block;
         }
+
+    #NapTienDatCoc .gara-detail-information label {
+        font-weight: bold;
+    }
 </style>
 <div class="modal fade" id="NapTienDatCoc">
     <div class="modal-dialog draggable modal-lg">
@@ -78,7 +82,7 @@
                                 </nhanviens>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-xs-12 ">
+                        <div class="col-lg-6 col-xs-12 nopadding-left">
                             <div class="gara-detail-information nopadding">
                                 <label>Thời gian</label>
                                 <my-date-time :date-chose="newPhieuThu.NgayLapHoaDon"
@@ -156,7 +160,11 @@
 
 
                     <div class="gara-detail-information">
-                        <label>&nbsp;</label>   <div style="padding:15px; padding-left:0; background:#ccc; display:inline-block; ">
+                        <label>&nbsp;</label>   <div style="        padding: 15px;
+        padding-left: 0;
+        background: #e9e6e2;
+        display: inline-block;
+">
                             <div class="floatleft form-group">
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
@@ -167,7 +175,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="floatleft form-group" v-if="inforNguoiNop.CongNoThe > 0">
+                            <div class="floatleft form-group" v-if="formType ===1">
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
@@ -177,7 +185,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="floatleft form-group">
+                            <div class="floatleft form-group" v-if="formType !==1">
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
                                 </div>
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
@@ -189,8 +197,47 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="floatleft form-group">
+                            <div class="floatleft form-group" v-if="formType===1">
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"><label>Hoàn trả</label></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <input type="text" class="form-control text-right" onclick="this.select()"
+                                           onkeypress="return keypressNumber_limitNumber(event, this)"
+                                           v-model="newHoaDonTGT.TongTienHang"
+                                           v-on:keyup="EditTongTienHang" />
+                                </div>
+                            </div>
+                            <div class="floatleft form-group" v-if="formType===1">
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"><label>Phí hoàn thẻ</label></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
 
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right flex">
+                                    <input class="form-control text-right" maxlength="15" onclick="this.select()"
+                                           style="width: calc(100% - 70px)"
+                                           onkeypress="return keypressNumber_limitNumber(event, this)"
+                                           v-model="$root.newHoaDonTGT.PhiHoanTra_LaPtram? $root.newHoaDonTGT.TongChietKhau: $root.newHoaDonTGT.TongGiamGia"
+                                           v-on:keyup="EditPhiHoanTra">
+                                    <div class="toogle toogle-report js-toggle"
+                                         v-on:click="$root.PhiHoanTra_ClickPtramVND"
+                                         v-bind:class="{'active-re': newHoaDonTGT.PhiHoanTra_LaPtram}">
+                                        <span class="poison">VNĐ</span>
+                                        <span class="transverse">%</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="floatleft form-group" style="border-bottom:1px solid #cccc" v-if="formType===1">
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <div style="display:flex; justify-content:space-between">
+                                        <span class="bold">Tổng cần trả</span>
+                                        <span class="bold text-right">{{formatNumber3Digit($root.newHoaDonTGT.PhaiThanhToan)}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="floatleft form-group">
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"><label>Tiền mặt</label></div>
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
                                 <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
@@ -220,12 +267,22 @@
                                            v-bind:disabled="newPhieuThu.ID_TaiKhoanChuyenKhoan==null" />
                                 </div>
                             </div>
-
+                            <div class="floatleft form-group"  v-if="formType===1">
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"></div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right"> </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 nopadding-right">
+                                    <div style="display:flex; justify-content:space-between">
+                                        <span class="bold">
+                                            {{$root.newHoaDonTGT.TienThua > 0?'Tiền thừa':'Tiền thiếu'}}
+                                        </span>
+                                        <span class="bold text-right">
+                                            {{formatNumber3Digit(Math.abs($root.newHoaDonTGT.TienThua))}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-
-
 
                     <div class="gara-detail-information">
                         <label>Nội dung {{$root.sLoaiThuChi}}</label>
@@ -245,9 +302,14 @@
                             v-on:click="$root.HuyPhieu">
                         <i class="fa fa-trash"></i> Xóa
                     </button>
+
                     <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew" v-on:click="SavePhieuThu(false)">
                         <i class="fa fa-save"></i>
                         Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew " v-on:click="SavePhieuThu(true)">
+                        <i class="fa fa-print"></i>
+                        Lưu và in
                     </button>
                     <button type="button" class="btn btn-save"
                             v-if="!$root.isLoading && !isNew && newPhieuThu.TrangThai && $root.role.SoQuy.Update && !$root.isKhoaSo"
@@ -255,10 +317,16 @@
                         <i class="fa fa-save"></i>
                         Cập nhật
                     </button>
-                    <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew" v-on:click="SavePhieuThu(true)">
+
+                    <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew && formType ===1" v-on:click="$root.SaveHoaDonHoanTraTGT(false)">
+                        <i class="fa fa-save"></i>
+                        Lưu
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="!$root.isLoading && isNew && formType ===1" v-on:click="$root.SaveHoaDonHoanTraTGT(true)">
                         <i class="fa fa-print"></i>
                         Lưu và in
                     </button>
+
                     <button type="button" class="btn btn-save" v-if="$root.isLoading">
                         <i class="fa fa-save"></i> Đang lưu
                     </button>

@@ -45,6 +45,7 @@
         ddl_textVal: {
             staffName: '',
             accountCKName: '',
+            bankName: '',
             khoanthu: '',
         },
 
@@ -61,6 +62,25 @@
             DiaChiCuaHang: '',
             LogoCuaHang: ''
         },
+        newHoaDonTGT: {
+            ID: '00000000-0000-0000-0000-000000000000',
+            MaHoaDon: '',
+            LoaiHoaDon: 32,
+            ID_DoiTuong: null,
+            NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+            TongTienHang: 0,
+            TongChietKhau: 0,
+            TongGiamGia: 0,
+            PhaiThanhToan: 0,
+            TongThanhToan: 0,
+            PhiHoanThe_LaPtram: true,
+            ID_DonVi: null,
+            ID_NhanVien: null,
+            NguoiTao: '',
+            ChoThanhToan: false,
+            TienThua: 0,
+        },
+
         newPhieuThu: {
             ID: '00000000-0000-0000-0000-000000000000',
             LoaiHoaDon: 11,
@@ -79,7 +99,7 @@
             NguoiTao: '',
             ID_DonVi: null,
             HachToanKinhDoanh: true,
-            PhieuDieuChinhCongNo: 0,
+            PhieuDieuChinhCongNo: 2,
             TrangThai: true,
             TenNhanVien: '',
         },
@@ -154,6 +174,7 @@
             var self = this;
             self.newPhieuThu.ID_DoiTuong = item.ID;
             self.newPhieuThu.NguoiNopTien = item.TenDoiTuong;
+            self.newHoaDonTGT.ID_DoiTuong = item.ID;
             self.inforNguoiNop = {
                 MaDoiTuong: item.MaDoiTuong,
                 TenDoiTuong: item.TenDoiTuong,
@@ -165,6 +186,64 @@
         },
         showListNguoiNop: function () {
             $(event.currentTarget).next().show();
+        },
+        TGT_Caculator: function () {
+            let self = this;
+            self.newHoaDonTGT.PhaiThanhToan = formatNumberToFloat(self.newHoaDonTGT.TongTienHang)
+                - formatNumberToFloat(self.newHoaDonTGT.TongGiamGia);
+            self.newHoaDonTGT.TongThanhToan = self.newHoaDonTGT.PhaiThanhToan;
+
+            // set deafult tienmat for phieuthu
+            self.newPhieuThu.TienMat = formatNumber3Digit(self.newHoaDonTGT.PhaiThanhToan);
+            self.newPhieuThu.TongTienThu = self.newHoaDonTGT.PhaiThanhToan;
+            self.newPhieuThu.TienCK = 0;
+            self.newHoaDonTGT.TienThua = 0;
+        },
+        PhiHoanTra_ClickPtramVND: function () {
+            let self = this;
+            self.newHoaDonTGT.PhiHoanTra_LaPtram = !self.newHoaDonTGT.PhiHoanTra_LaPtram;
+            if (!self.newHoaDonTGT.PhiHoanTra_LaPtram) {
+                self.newHoaDonTGT.TongChietKhau = 0;
+            }
+            else {
+                self.newHoaDonTGT.TongGiamGia = self.newHoaDonTGT.TongChietKhau * formatNumberToFloat(self.newHoaDonTGT.TongTienHang) / 100;
+            }
+        },
+        EditPhiHoanTra: function () {
+            let self = this;
+            let $this = $(event.currentTarget);
+            let gtri = formatNumberToFloat($this.val());
+            if (self.newHoaDonTGT.PhiHoanTra_LaPtram) {
+                if (gtri > 100) {
+                    $this.val(100);
+                }
+                self.newHoaDonTGT.TongChietKhau = formatNumberToFloat($this.val());
+                self.newHoaDonTGT.TongGiamGia = self.newHoaDonTGT.TongChietKhau * formatNumberToFloat(self.newHoaDonTGT.TongTienHang) / 100;
+            }
+            else {
+                formatNumberObj($this);
+                if (gtri > formatNumberToFloat(self.newHoaDonTGT.TongTienHang)) {
+                    self.newHoaDonTGT.TongGiamGia = self.newHoaDonTGT.TongTienHang;
+                }
+                else {
+                    self.newHoaDonTGT.TongGiamGia = $this.val();
+                }
+            }
+            self.TGT_Caculator();
+        },
+        EditTongTienHang: function () {
+            let self = this;
+            let $this = $(event.currentTarget);
+            formatNumberObj($this);
+
+            let gtri = formatNumberToFloat($this.val());
+            if (gtri > self.inforNguoiNop.SoDuDatCoc) {
+                ShowMessage_Danger('Vui lòng không nhập quá số dư hiện tại');
+                self.newHoaDonTGT.TongTienHang = formatNumber3Digit(self.inforNguoiNop.SoDuDatCoc);
+                return;
+            }
+            self.newHoaDonTGT.TongTienHang = formatNumber3Digit(gtri);
+            self.TGT_Caculator();
         },
         showModalAddNew: function (isNapTien, formType = 0) { // 1. tra lai tien TGT, 0.con lai
             var self = this;
@@ -225,7 +304,7 @@
                 NguoiNopTien: '',
                 TongTienThu: 0,
                 HachToanKinhDoanh: true,
-                PhieuDieuChinhCongNo: 0,
+                PhieuDieuChinhCongNo: 2,
                 TrangThai: true,
                 ID_DonVi: self.inforLogin.ID_DonVi,
                 NguoiTao: self.inforLogin.UserLogin,
@@ -240,7 +319,27 @@
                 DiaChi: '',
                 SoDuDatCoc: 0,
             };
+
+            self.newHoaDonTGT = {
+                ID: '00000000-0000-0000-0000-000000000000',
+                MaHoaDon: '',
+                LoaiHoaDon: 32,// hoan tra TGT
+                ID_DoiTuong: null,
+                NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                TongTienHang: 0,
+                TongChietKhau: 0,
+                TongGiamGia: 0,
+                PhaiThanhToan: 0,
+                TongThanhToan: 0,
+                PhiHoanTra_LaPtram: true,
+                ID_DonVi: self.inforLogin.ID_DonVi,
+                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                NguoiTao: self.inforLogin.UserLogin,
+                ChoThanhToan: false,
+                TienThua: 0,
+            };
             self.ddl_textVal.accountCKName = '';
+            self.ddl_textVal.bankName = '';
             $('#NapTienDatCoc').modal('show');
         },
         showModalUpdate: async function (quyHD, qct) {
@@ -293,7 +392,7 @@
                 NguoiNopTien: quyHD.NguoiNopTien,
                 TongTienThu: ck + tienmat,
                 HachToanKinhDoanh: quyHD.HachToanKinhDoanh,
-                PhieuDieuChinhCongNo: 0,
+                PhieuDieuChinhCongNo: 2,
                 TrangThai: quyHD.TrangThai,
                 ID_DonVi: quyHD.ID_DonVi,
                 NguoiTao: '',
@@ -309,6 +408,7 @@
                 SoDuDatCoc: 0,
             };
             self.ddl_textVal.accountCKName = quyHD.TenTaiKhoanNOTPOS;
+            self.ddl_textVal.bankName = '';// todo
             self.ddl_textVal.khoanthu = quyHD.NoiDungThuChi;
             self.GetSoDuDatCoc(qct0.ID_DoiTuong);
             $('#NapTienDatCoc').modal('show');
@@ -356,45 +456,27 @@
             var self = this;
             self.newPhieuThu.TenNhanVien = item.TenNhanVien;
             self.newPhieuThu.ID_NhanVien = item.ID;
+            self.newHoaDonTGT.ID_NhanVien = item.ID;
         },
-        Check_OverSoDuTGT: function () {
-            let self = this;
-            let tiemat = formatNumberToFloat(self.newPhieuThu.TienMat);
-            let tienck = formatNumberToFloat(self.newPhieuThu.TienCK);
-            let tongthu = tiemat + tienck;
-            if (!self.isNapTien) {
-                if (tongthu > self.inforNguoiNop.SoDuDatCoc) {
-                    ShowMessage_Danger('Vui lòng không trả quá số dư thẻ');
-                    if (tiemat > 0) {
-                        self.newPhieuThu.TienMat = formatNumber3Digit(self.inforNguoiNop.SoDuDatCoc);
-                        self.newPhieuThu.TienCK = 0;
-                    }
-                    else {
-                        if (tienck > 0) {
-                            self.newPhieuThu.TienCK = formatNumber3Digit(self.inforNguoiNop.SoDuDatCoc);
-                            self.newPhieuThu.TienMat = 0;
-                        }
-                    }
-                    return;
-                }
-            }
-        },
+
         CaculatorDaThanhToan: function () {
             let self = this;
-            self.Check_OverSoDuTGT();
-            let tiemat = formatNumberToFloat(self.newPhieuThu.TienMat);
+            let tienmat = formatNumberToFloat(self.newPhieuThu.TienMat);
             let tienck = formatNumberToFloat(self.newPhieuThu.TienCK);
-            self.newPhieuThu.TongTienThu = tiemat + tienck;
+            self.newPhieuThu.TongTienThu = tienmat + tienck;
+            self.newHoaDonTGT.TienThua = tienmat + tienck - self.newHoaDonTGT.PhaiThanhToan;
         },
         ChangeAccountCK: function (item) {
             var self = this;
             self.ddl_textVal.accountCKName = item.TenChuThe;
+            self.ddl_textVal.bankName = item.TenNganHang;
             self.newPhieuThu.ID_TaiKhoanChuyenKhoan = item.ID;
             self.newPhieuThu.ID_NganHang = item.ID_NganHang;
         },
         ResetAccountCK: function () {
             var self = this;
             self.ddl_textVal.accountCKName = '';
+            self.ddl_textVal.bankName = '';
             self.newPhieuThu.TienCK = 0;
             self.newPhieuThu.ID_TaiKhoanChuyenKhoan = null;
             self.CaculatorDaThanhToan();
@@ -417,6 +499,7 @@
                 ShowMessage_Danger(VHeader.warning.ChotSo.Update);
             }
             self.newPhieuThu.NgayLapHoaDon = dt;
+            self.newHoaDonTGT.NgayLapHoaDon = dt;
         },
         EditTienMat: function () {
             var self = this;
@@ -443,12 +526,12 @@
             self.CaculatorDaThanhToan();
         },
 
-        SavePhieuThu: function (print) {
+        CheckSave: function () {
             let self = this;
             let khoaSo = VHeader.CheckKhoaSo(moment(self.newPhieuThu.NgayLapHoaDon, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD'), self.newPhieuThu.ID_DonVi);
             if (khoaSo) {
                 ShowMessage_Danger(VHeader.warning.ChotSo.Update);
-                return;
+                return false;
             }
             if (commonStatisJs.CheckNull(self.newPhieuThu.ID_NhanVien)) {
                 commonStatisJs.ShowMessageDanger('Vui lòng chọn nhân viên lập phiếu');
@@ -456,15 +539,57 @@
             }
             if (commonStatisJs.CheckNull(self.newPhieuThu.ID_DoiTuong)) {
                 commonStatisJs.ShowMessageDanger('Vui lòng chọn người nộp tiền');
-                return;
+                return false;
             }
+           
             if (self.newPhieuThu.TongTienThu === 0) {
                 commonStatisJs.ShowMessageDanger('Vui lòng nhập số tiền cần thanh toán');
+                return false;
+            }
+            return true;
+        },
+
+        SaveHoaDonHoanTraTGT: function (print) {
+            let self = this;
+            let ptKhach = self.newPhieuThu;
+            if (formatNumberToFloat(self.newHoaDonTGT.TongTienHang) === 0) {
+                commonStatisJs.ShowMessageDanger('Vui lòng nhập số tiền hoàn trả');
                 return;
             }
-            self.Check_OverSoDuTGT();
+            if (self.newHoaDonTGT.TienThua < 0) {
+                commonStatisJs.ShowMessageDanger('Vui lòng nhập đủ số tiền cần thanh toán');
+                return;
+            }
             self.isLoading = true;
 
+            let myData = {
+                objHoaDon: self.newHoaDonTGT,
+            }
+            ajaxHelper('/api/DanhMuc/Bh_HoaDonAPI/PostBH_HoaDonNapThe', 'POST', myData).done(function (x) {
+                if (x.res === true) {
+                    self.saveOK = true;
+                    self.newHoaDonTGT.ID = x.dataSoure.ID;
+                    self.newHoaDonTGT.MaHoaDon = x.dataSoure.MaHoaDon;
+
+                    self.SavePhieuThu(print);
+                }
+                console.log(x);
+            }).always(function () {
+                self.isLoading = false;
+                $('#vmThemMoiTheNap').modal('hide');
+            })
+        },
+
+        SavePhieuThu: function (print) {
+            let self = this;
+            let checkSave = self.CheckSave();
+            if (!checkSave) {
+                return;
+            }
+            self.isLoading = true;
+
+            let hdTGT = self.newHoaDonTGT;
+            let idHoaDonLienQuan = hdTGT.ID;
             let ptKhach = self.newPhieuThu;
             let ghichu = ptKhach.NoiDungThu;
             let idDoiTuong = ptKhach.ID_DoiTuong;
@@ -476,14 +601,43 @@
             let mahoadon = ptKhach.MaHoaDon ? ptKhach.MaHoaDon : '';
             let lstQuyCT = [];
             let loaiThanhToan = 1;
+            let inforTGT = '';
             if (self.formType === 1) {// tra lai tien khach da nap TheGiaTri
                 loaiThanhToan = 4;
+                ptKhach.PhieuDieuChinhCongNo = 4;
+            }
+
+            if (commonStatisJs.CheckNull(idHoaDonLienQuan) || idHoaDonLienQuan === '00000000-0000-0000-0000-000000000000') {
+                idHoaDonLienQuan = null;
+            }
+            else {
+                // caculator if mat + ck phaitt
+                if (tienmat + tienck > hdTGT.PhaiThanhToan) {
+                    if (tienck >= hdTGT.PhaiThanhToan) {
+                        tienck = hdTGT.PhaiThanhToan;
+                        tienck = tienmat;
+                    }
+                    else {
+                        tienmat = hdTGT.PhaiThanhToan - tienck;
+                    }
+                    ptKhach.TongTienThu = tienmat + tienck;
+                }
+                inforTGT = ''.concat(' <br /> - Giá trị trả: ', hdTGT.TongTienHang,
+                    '; Phí hoàn thẻ: ', hdTGT.TongGiamGia, ' (', hdTGT.TongChietKhau,
+                    ' %) --> Tổng cần trả: ', formatNumber3Digit(hdTGT.PhaiThanhToan))
+            }
+            if (commonStatisJs.CheckNull(ghichu)) {
+                ghichu = self.inforNguoiNop.TenDoiTuong.concat(' (', self.inforNguoiNop.MaDoiTuong, ')');
+            }
+            else {
+                ghichu = ghichu.concat(' /', self.inforNguoiNop.TenDoiTuong, ' (', self.inforNguoiNop.MaDoiTuong, ')');
             }
 
             if (tienmat > 0) {
                 let qct = newQuyChiTiet({
                     ID_KhoanThuChi: idKhoanThuChi,
                     ID_DoiTuong: idDoiTuong,
+                    ID_HoaDonLienQuan: idHoaDonLienQuan,
                     GhiChu: ghichu,
                     TienThu: tienmat,
                     TienMat: tienmat,
@@ -497,7 +651,8 @@
                 let qct = newQuyChiTiet({
                     ID_KhoanThuChi: idKhoanThuChi,
                     ID_DoiTuong: idDoiTuong,
-                    GhiChu: ghichu,
+                    ID_HoaDonLienQuan: idHoaDonLienQuan,
+                    GhiChu: self.ddl_textVal.accountCKName.concat(' - ', self.ddl_textVal.bankName),
                     TienThu: tienck,
                     TienChuyenKhoan: tienck,
                     HinhThucThanhToan: 3,
@@ -507,8 +662,10 @@
                 });
                 lstQuyCT.push(qct);
                 phuongthucTT += 'Chuyển khoản, ';
+                ghichu += '/ ' + qct.GhiChu;
             }
             ptKhach.PhuongThucTT = Remove_LastComma(phuongthucTT);
+            ptKhach.NoiDungThu = ghichu;
 
             var textFirst = "Tạo phiếu ";
             if (!self.isNew) {
@@ -548,6 +705,7 @@
                         NoiDungChiTiet: textFirst + sLoai + ' đặt cọc ' + ' <a style="cursor: pointer" onclick = "LoadHoaDon_byMaHD('.concat(mahoadon, ')" >', mahoadon, '</a> ',
                             '<br />- ', self.labelNopTra, ' (', self.sLoaiDoiTuong, '): ',
                             '<a style="cursor: pointer" onclick="LoadKhachHang_byMaKH(', ptKhach.NguoiNopTien, ')" >', ptKhach.NguoiNopTien, '</a> ',
+                            inforTGT,
                             '<br />- Giá trị: ', formatNumber(ptKhach.TongTienThu),
                             '<br/ >- Phương thức thanh toán: ', ptKhach.PhuongThucTT,
                             '<br/ >- Thời gian: ', moment(ptKhach.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
@@ -556,11 +714,11 @@
                     }
 
                     if (self.isNew) {
-                        commonStatisJs.ShowMessageSuccess('Nạp tiền cọc thành công');
+                        commonStatisJs.ShowMessageSuccess('Tạo phiếu ' + sLoai + ' thành công');
                         diary.LoaiNhatKy = 1;
                     }
                     else {
-                        commonStatisJs.ShowMessageSuccess('Cập nhật phiếu nạp cọc thành công');
+                        commonStatisJs.ShowMessageSuccess('Cập nhật phiếu ' + sLoai + ' thành công');
 
                         let nguoiNopOld = '';
                         switch (self.newPhieuThu.LoaiDoiTuong) {
@@ -627,7 +785,6 @@
             }
 
             dialogConfirm('Xác nhận xóa', 'Bạn có chắc chắn muốn hủy phiếu ' + title + ' <b> ' + self.newPhieuThu.MaHoaDon + ' </b> không?', function () {
-
                 ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + "DeleteQuy_HoaDon/" + self.newPhieuThu.ID, 'DELETE').done(function (x) {
                     if (x === "") {
                         ShowMessage_Success("Xóa sổ quỹ thành công");
@@ -771,6 +928,9 @@
         labelNopTra: function () {
             let self = this;
             if (self.isNapTien) {
+                if (self.newPhieuThu.LoaiHoaDon ===12) {
+                    return "Nộp cho";
+                }
                 return "Người nộp";
             }
             else {
