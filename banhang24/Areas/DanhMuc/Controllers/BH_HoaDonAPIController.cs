@@ -1065,10 +1065,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 List<Excel_NhapKhoNoiBoDTO> lst = lstAllHDs.Select(x => new Excel_NhapKhoNoiBoDTO()
                 {
                     MaHoaDon = x.MaHoaDon,
-                    NgayLapHoaDon = x.NgayLapHoaDon,
+                    NgayLapHoaDon = x.NgayLapHoaDon, 
+                    MaDoiTuong = x.MaDoiTuong,
+                    TenDoiTuong = x.TenDoiTuong,
                     TenNhanVien = x.TenNhanVien,
                     TenDonVi = x.TenDonVi,
                     TongTienHang = x.TongTienHang,
+                    PhaiThanhToan = x.PhaiThanhToan,
+                    DaThanhToan = x.KhachDaTra,
+                    ConNo = x.ConNo,
                     DienGiai = x.DienGiai,
                     TrangThai = x.TrangThai,
                 }).ToList();
