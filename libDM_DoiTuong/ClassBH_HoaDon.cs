@@ -6186,8 +6186,13 @@ namespace libDM_DoiTuong
         public string MaHoaDon { get; set; }
         public DateTime? NgayLapHoaDon { get; set; }
         public string TenNhanVien { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
         public string TenDonVi { get; set; }
         public double? TongTienHang { get; set; }
+        public double? PhaiThanhToan { get; set; }
+        public double? DaThanhToan { get; set; }
+        public double? ConNo { get; set; }
         public string DienGiai { get; set; }
         public string TrangThai { get; set; }
     }
