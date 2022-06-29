@@ -804,21 +804,6 @@
 		) nhoms on dt.ID= nhoms.ID_DoiTuong
 	where dt.ID like @ID_DoiTuong");
 
-            Sql(@"ALTER PROCEDURE [dbo].[getListNhanVien_allDonVi]
-    @ID_ChiNhanh [nvarchar](max)
-AS
-BEGIN
-    Select 
-    	nv.ID,
-    	nv.MaNhanVien,
-    nv.TenNhanVien
-    	From NS_NhanVien nv
-    	inner join NS_QuaTrinhCongTac ct on nv.ID = ct.ID_NhanVien
-    	where ct.ID_DonVi in (Select * from splitstring(@ID_ChiNhanh)) 
-		and (nv.TrangThai is null or nv.TrangThai = 1) and nv.DaNghiViec = 0
-    	GROUP by nv.ID, nv.MaNhanVien, nv.TenNhanVien
-END");
-
             Sql(@"ALTER PROCEDURE [dbo].[SelectDanhSachNhanVien]
     @donviID [nvarchar](max),
     @phongban [nvarchar](max),
