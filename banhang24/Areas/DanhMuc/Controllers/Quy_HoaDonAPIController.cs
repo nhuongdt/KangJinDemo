@@ -1899,7 +1899,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 qhd.TongTienThu = quyHD.TongTienThu;
                                 qhd.NguoiNopTien = quyHD.NguoiNopTien;
                                 qhd.HachToanKinhDoanh = quyHD.HachToanKinhDoanh;
-                                qhd.PhieuDieuChinhCongNo = 2;// muontamtruong: phieudatcoc
+                                qhd.PhieuDieuChinhCongNo = quyHD.PhieuDieuChinhCongNo;// 2. phieudatcoc, 4.hoantra sodu TGT
                                 qhd.NguoiSua = quyHD.NguoiTao;
                                 qhd.NgaySua = DateTime.Now;
                             }
@@ -1908,7 +1908,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 idQuyHD = Guid.NewGuid();
                                 quyHD.ID = idQuyHD;
                                 quyHD.MaHoaDon = sMaHoaDon;
-                                quyHD.PhieuDieuChinhCongNo = 2;// muontamtruong: phieudatcoc
+                                quyHD.PhieuDieuChinhCongNo = quyHD.PhieuDieuChinhCongNo;//2. phieudatcoc, 4.hoantra sodu TGT
                                 classQuyHD.Add_SoQuy(quyHD);
                             }
 
