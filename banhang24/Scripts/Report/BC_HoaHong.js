@@ -41,6 +41,9 @@
             ID: 1, TenChungTu: 'Hóa đơn bán lẻ',
         },
         {
+            ID: 2, TenChungTu: 'Hóa đơn bảo hành',
+        },
+        {
             ID: 6, TenChungTu: 'Hóa đơn trả hàng',
         },
         {
@@ -52,10 +55,13 @@
         {
             ID: 25, TenChungTu: 'Hóa đơn sửa chữa',
         },
+        {
+            ID: 32, TenChungTu: 'Hoàn trả thẻ',
+        },
     ])
 
     if (VHeader.IdNganhNgheKinhDoanh.toUpperCase() !== 'C16EDDA0-F6D0-43E1-A469-844FAB143014') {
-        self.MangChungTu.splice(5, 1);
+        self.MangChungTu.splice(6, 1);
     }
     self.ArrMangChungTu = ko.observableArray($.extend([], true, self.MangChungTu()));
 
@@ -1373,15 +1379,15 @@
                 }
                 break;
             case 2:
-                //$('.trangthaiHD').show();
                 if (val == true) {
                     Key_Form = 'Key_RpDiscountInvoice_Detail';
                     typeCheck = 10;
-
+                    $('.showChungTu').show();
                 }
                 else {
                     Key_Form = 'Key_RpDiscountInvoice';
                     typeCheck = 9;
+                    $('.showChungTu').hide();
                 }
                 break;
         }
@@ -1820,7 +1826,16 @@
 
                 self.TongSLHang(slHang);
 
-                $('#modalpopup_PhieuBH').modal('show');
+                switch (data.LoaiHoaDon) {
+                    case 22:
+                        vmThemMoiTheNap.showModalUpdate(data.ID,1)
+                        break;
+                    case 32:
+                        break;
+                    default:
+                        $('#modalpopup_PhieuBH').modal('show');
+                        break;
+                }
             }
         })
     }
@@ -1841,6 +1856,9 @@
         switch (self.LoaiHoaDon_MoPhieu()) {
             case 1:
                 url = "/#/Invoices";
+                break;
+            case 2:
+                url = "/#/HoaDonBaoHanh";
                 break;
             case 3:
                 url = "/#/Order";
