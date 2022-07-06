@@ -546,7 +546,7 @@
                 })
         },
 
-        showModalThanhToan: function (item) {
+        showModalThanhToan: function () {
             var self = this;
             vmThanhToanGara.GridNVienBanGoi_Chosed = [];
             var obj = {
@@ -628,6 +628,10 @@
 
         }
     }
+})
+
+shortcut.add('F9', function () {
+    vmThemMoiTheNap.showModalThanhToan();
 })
 
 $(function () {
