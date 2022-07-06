@@ -208,6 +208,10 @@
                     self.theGiaTriCus.CongNoThe = item0.CongNoThe;
                     self.theGiaTriCus.TongNapThe = item0.TongThuTheGiaTri;
                     self.theGiaTriCus.SuDungThe = item0.SuDungThe;
+
+                    if ($('#vmNKGoiBaoDuong').length) {
+                        vmNKGoiBaoDuong.soduTheGiaTri = sodu;
+                    }
                 }
             });
         },
@@ -2259,6 +2263,7 @@
                                         ID_DoiTuong: idDoiTuong,
                                         GhiChu: itFor.TenTaiKhoanCK.concat(' - ', itFor.TenNganHangCK),
                                         TienThu: item_TienCK,
+                                        TienChuyenKhoan: item_TienCK,
                                         HinhThucThanhToan: 3,
                                         ID_TaiKhoanNganHang: itFor.ID_TaiKhoanChuyenKhoan,
                                     });
@@ -2275,6 +2280,7 @@
                                         ID_DoiTuong: idDoiTuong,
                                         GhiChu: itFor.TenTaiKhoanCK.concat(' - ', itFor.TenNganHangCK),
                                         TienThu: tienck,
+                                        TienChuyenKhoan: tienck,
                                         HinhThucThanhToan: 3,
                                         ID_TaiKhoanNganHang: itFor.ID_TaiKhoanChuyenKhoan,
                                         LoaiThanhToan: chitracoc ? 1 : 0,
