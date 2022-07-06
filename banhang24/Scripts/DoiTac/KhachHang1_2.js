@@ -4476,7 +4476,19 @@
     self.LoaiHoaDon_MoPhieu = ko.observable(0);
     self.MaHoaDon_MoPhieu = ko.observable('');
     self.ShowPopup_InforHD = function (item) {
-        vmChiTietHoaDon.showModalChiTietHoaDon(item.ID);
+        switch (item.LoaiHoaDon) {
+            case 22:
+                vmThemMoiTheNap.showModalUpdate(item.ID, 1);
+                break;
+            case 32:
+                if (commonStatisJs.CheckNull(item.ID_SoQuy)) {
+                    vmNapTienDatCoc.getQuyHoaDon_byID(item.ID_SoQuy, true, 1);// 1.formType: tra lai tiencoc
+                }
+                break;
+            default:
+                vmChiTietHoaDon.showModalChiTietHoaDon(item.ID);
+                break;
+        }
     }
     self.NKyCoc_ShowPopupInforHD = function (item) {
         vmChiTietHoaDon.showModalChiTietHoaDon(item.ID_HoaDonGoc);
@@ -4513,6 +4525,14 @@
                     VueChiPhi.CTHD_GetChiPhiDichVu([item.ID], 2, [self.IDDT()]);
                 }
                 break;
+            case 22: // nap thegiatri
+                vmThemMoiTheNap.showModalUpdate(item.ID, 1);
+                break;
+            case 32: // hoan tra thegiatri
+                if (commonStatisJs.CheckNull(item.ID_SoQuy)) {
+                    vmNapTienDatCoc.getQuyHoaDon_byID(item.ID_SoQuy, true, 1);// 1.formType: tra lai tiencoc
+                }
+                break;
             default:
                 vmChiTietHoaDon.showModalChiTietHoaDon(item.ID);
                 break;
@@ -4526,6 +4546,9 @@
         switch (self.LoaiHoaDon_MoPhieu()) {
             case 1:
                 url = "/#/Invoices";
+                break;
+            case 2:
+                url = "/#/HoaDonBaoHanh";
                 break;
             case 3:
                 url = "/#/Order";
@@ -5126,6 +5149,8 @@
                 self.ListLSNapThe(x.lst);
                 self.PageCountNT(x.pageCount);
                 self.TotalRecordNT(x.Rowcount);
+                self.TongTienTang(x.TongTang);
+                self.TongTienGiam(x.TongGiam);
             }
         });
     }
