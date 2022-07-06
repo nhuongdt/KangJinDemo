@@ -98,7 +98,7 @@
         GetKhoanThuChi_byLoaiChungTu: function (lakhoanthu = true) {
             let self = this;
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu === self.inforHoaDon.LoaiHoaDon.toString() && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu.indexOf(self.inforHoaDon.LoaiHoaDon) > -1 && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },
