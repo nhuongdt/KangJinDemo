@@ -2048,6 +2048,9 @@
                 case 1:
                     url = "/#/Invoices";
                     break;
+                case 2:
+                    url = "/#/HoaDonBaoHanh";
+                    break;
                 case 3:
                     url = "/#/Order";
                     break;
