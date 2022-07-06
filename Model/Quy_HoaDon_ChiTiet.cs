@@ -76,7 +76,7 @@ namespace Model
         public int? HinhThucThanhToan { get; set; } = 1;// 1.mat, 2.pos, 3.ck, 4.thegiatri, 5.diem, 6.coc
 
         [Column(TypeName = "int")]
-        public int? LoaiThanhToan { get; set; } = 0;// 0.default, 1.tiencoc, 3.khong butru cong no, 4.hoàn trả tiền thẻ
+        public int? LoaiThanhToan { get; set; } = 0;// 0.default, 1.tiencoc, 3.khong butru cong no
 
         public virtual BH_HoaDon BH_HoaDon { get; set; }
 
