@@ -122,7 +122,7 @@ var cmpSearchNVDisscount = {
             </div>
             <ul style="max-height:400px;overflow:auto; overflow-x:hidden; width:100%" >
                 <li v-for="(item, index) in listSearch" class="list-img-user"
-                    v-bind:style="[idChosing === item.ID_NhanVien ? {'background':'#f9f9f9'} : {'background':'none'}]"
+                    v-bind:style="[idChosing === item.ID_NhanVien ? {'background':'rgb(200 220 255)'} : {'background':'none'}]"
                     v-on:click="SelectItem(item)">
                     <label style="display:flex; align-items:center; padding:7px" class="floatleft">
                             <span class="img-user">
@@ -1246,7 +1246,6 @@ var cmpDropdown1Item = {
 var cmpDropdownMultipleItem = {
     props: {
         listAll: { default: function () { return [] } },
-        listSearch: { default: function () { return [] } },
         listChosed: { default: function () { return [] } },
         textSearch: { default: '' },
         typeData: { default: 1 },
@@ -1268,7 +1267,7 @@ var cmpDropdownMultipleItem = {
                         <ul >
                             <li class="" v-for="(item,index) in listChosed">
                                 <span> {{item.Text1}}
-                                </span> - 
+                                </span> <span v-if="colshow > 1">  - </span>
                                 <span> {{item.Text2}}
                                 </span>&nbsp;
                                 <span v-on:click="RemoveItem(item)">
@@ -1285,16 +1284,16 @@ var cmpDropdownMultipleItem = {
                     <ul class="dropdown-menu  "style="width:100%">
                          <li v-on:click="OnSelect(null)" v-if="showItemAll">
                             <div>
-                                <span style="color:var(--color-main)">--Tat ca --- </span>
+                                <span style="color:var(--color-main)">-- Tất cả --- </span>
                              </div>
                          </li>
                         <li v-for="(item, index) in listAfter" 
                             v-on:click="OnSelect(item)"
                             >
-                              <div v-if="colshow >= 2">
+                              <div>
                                     <span style="color:var(--color-main)" >{{lbl1}} {{item.Text1}}</span>
                                </div>
-                               <div v-if="colshow >= 1">
+                               <div v-if="colshow > 1">
                                     <span >{{lbl2}} {{item.Text2}}</span>
                                </div>
                         </li>
@@ -1306,10 +1305,10 @@ var cmpDropdownMultipleItem = {
         let self = this;
         self.timmer = null;
         self.ID_DonVi = $('#txtDonVi').val();
+        self.listAfter = self.listAll;
         if (commonStatisJs.CheckNull(self.ID_DonVi)) {
             self.ID_DonVi = VHeader.IdDonVi;
         }
-        //self.listAfter = self.listSearch;
     },
     data: function () {
         return {
@@ -1323,19 +1322,17 @@ var cmpDropdownMultipleItem = {
         },
         showList: function () {
             var self = this;
-            self.listAfter = self.listSearch;
             $(event.currentTarget).next().show();
         },
         search: function () {
             var self = this;
-            console.log(53)
             if (self.listAll.length > 0) {
                 if (commonStatisJs.CheckNull(self.textSearch)) {
-                    self.listSearch = self.listAll.slice(0, 20);
+                    self.listAfter = self.listAll.slice(0, 20);
                 }
                 else {
                     let txt = locdau(self.textSearch);
-                    self.listSearch = self.listAll.filter(e =>
+                    self.listAfter = self.listAll.filter(e =>
                         locdau(e.Text1).indexOf(txt) >= 0
                         || locdau(e.Text2).indexOf(txt) >= 0
                     );
@@ -1357,7 +1354,7 @@ var cmpDropdownMultipleItem = {
             var self = this;
             var txt = locdau(self.textSearch).trim();
             if (commonStatisJs.CheckNull(txt)) {
-                self.listSearch = [];
+                self.listAfter = [];
                 this.$emit('reset-item-chose');
                 return;
             }
@@ -1390,8 +1387,6 @@ var cmpDropdownMultipleItem = {
                         Text3: item.MaNguoiNop,
                     }
                 })
-                console.log('dt ', data)
-                self.listSearch = data;
                 self.listAfter = data;
             });
         },
@@ -1402,8 +1397,7 @@ var cmpDropdownMultipleItem = {
             }
             if (item === null) {
                 // chose all
-                self.listSearch = self.listAll;
-                self.listAfter = self.listSearch;
+                self.listAfter = self.listAll;
                 self.listChosed = [{ ID: null, Text1: '', Text2: 'Tất cả' }];
             }
             else {
@@ -1412,7 +1406,7 @@ var cmpDropdownMultipleItem = {
                     self.listChosed.push(item);
                     arr.push(item.ID)
 
-                    let arrAfter = $.grep(self.listSearch, function (x) {
+                    let arrAfter = $.grep(self.listAll, function (x) {
                         return $.inArray(x.ID, arr) === -1;
                     })
                     self.listAfter = arrAfter;
@@ -1475,7 +1469,6 @@ var cmpDropdownMultipleItem = {
         },
     },
 }
-
 
 $(document).mouseup(function (e) {
     var container = $(".gara-search-dropbox");
