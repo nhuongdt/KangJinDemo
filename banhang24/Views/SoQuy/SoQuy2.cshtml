@@ -56,21 +56,7 @@
                     </aside>
                 </article>
                 <!--/ko-->
-                <article class="boxLeft">
-                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                        <img src="~/Content/images/icon/trangthai (1).png" />   Trạng thái
-                    </h3>
-                    <aside class="op-filter-container">
-                        <div class="menuCheckbox">
-                            <div class="form-group">
-                                <label><input type="checkbox" value="0" data-bind="checked: TT_DaThanhToan"> Đã thanh toán</label>
-                            </div>
-                            <div class="form-group">
-                                <label><input type="checkbox" value="1" data-bind="checked: TT_DaHuy"> Đã hủy</label>
-                            </div>
-                        </div>
-                    </aside>
-                </article>
+
                 <article class="boxLeft ">
                     <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                         <img src="/Content/images/icon/loaithuchi.png">  Chi nhánh
@@ -180,6 +166,43 @@
                         </div>
                     </aside>
                 </article>
+                <article class="boxLeft">
+                    <!--ko if: $root.Role_KhoanThuChi_ThemMoi() -->
+                    <a class="op-js-themmoinhomhang" title="Thêm khoản thu chi"
+                       data-bind="click: showpopuploaithuchi" style="right:32px;">
+                        <i class="plus_not fa fa-plus" style=" margin-top:5px;"></i>
+                    </a>
+                    <!--/ko-->
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <img src="~/Content/images/icon/loaithuchi.png" />  Khoản thu chi
+                    </h3>
+                    <aside class="op-filter-container ">
+                        <div class="flex flex-row ">
+                            <input type="text" name="dropdownKhoanThuChi" id="ddKhoanThuChi" class="form-control" readonly value="-- Tất cả --" />
+                            <button type="button" class="btn btn-default floatright" data-bind="click: editLoaiThuChi, enable: selectedLoaiThuChi" style="display:inline-block">
+                                <span class="fa fa-pencil-square-o"></span>
+                            </button>
+
+                        </div>
+                        <div id="ulddKhoanThuChi" class="dropdown-menu">
+                            <input type="text" id="ddKhoanThuChiSearch" class="form-control" data-bind="value: $root.KhoanThuChiSearch, valueUpdate: 'keyup'" />
+                            <ul class="">
+                                <li class="form-check-label" data-bind="click: function(){ KhoanThuChiSelect('', '-- Tất cả --')}">
+                                    -- Tất cả --
+                                </li>
+                                <li class="form-check-label" data-bind="click: function(){KhoanThuChiSelect('00000000-0000-0000-0000-000000000001', 'Thu chi mặc định')}">
+                                    Thu chi mặc định
+                                </li>
+                                <!--ko foreach: $root.arrFilterKhoanThuChi-->
+                                <li data-bind="text: NoiDungThuChi, click: function(){ $root.KhoanThuChiSelect(ID, NoiDungThuChi) } " class="form-check-label">
+
+                                </li>
+                                <!--/ko-->
+                            </ul>
+                        </div>
+                    </aside>
+                </article>
+
                 <!--ko if: $root.isGara() -->
                 <article class="boxLeft">
                     <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
@@ -232,42 +255,6 @@
                     </aside>
                 </article>
                 <article class="boxLeft">
-                    <!--ko if: $root.Role_KhoanThuChi_ThemMoi() -->
-                    <a class="op-js-themmoinhomhang" title="Thêm khoản thu chi"
-                       data-bind="click: showpopuploaithuchi" style="right:32px;">
-                        <i class="plus_not fa fa-plus" style=" margin-top:5px;"></i>
-                    </a>
-                    <!--/ko-->
-                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                        <img src="~/Content/images/icon/loaithuchi.png" />  Khoản thu chi
-                    </h3>
-                    <aside class="op-filter-container ">
-                        <div class="flex flex-row ">
-                            <input type="text" name="dropdownKhoanThuChi" id="ddKhoanThuChi" class="form-control" readonly value="-- Tất cả --" />
-                            <button type="button" class="btn btn-default floatright" data-bind="click: editLoaiThuChi, enable: selectedLoaiThuChi" style="display:inline-block">
-                                <span class="fa fa-pencil-square-o"></span>
-                            </button>
-
-                        </div>
-                        <div id="ulddKhoanThuChi" class="dropdown-menu">
-                            <input type="text" id="ddKhoanThuChiSearch" class="form-control" data-bind="value: $root.KhoanThuChiSearch, valueUpdate: 'keyup'" />
-                            <ul class="">
-                                <li class="form-check-label" data-bind="click: function(){ KhoanThuChiSelect('', '-- Tất cả --')}">
-                                    -- Tất cả --
-                                </li>
-                                <li class="form-check-label" data-bind="click: function(){KhoanThuChiSelect('00000000-0000-0000-0000-000000000001', 'Thu chi mặc định')}">
-                                    Thu chi mặc định
-                                </li>
-                                <!--ko foreach: $root.arrFilterKhoanThuChi-->
-                                <li data-bind="text: NoiDungThuChi, click: function(){ $root.KhoanThuChiSelect(ID, NoiDungThuChi) } " class="form-check-label">
-
-                                </li>
-                                <!--/ko-->
-                            </ul>
-                        </div>
-                    </aside>
-                </article>
-                <article class="boxLeft">
                     <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                         <img src="~/Content/images/icon/ketquakinhdoanh.png" />       Kết quả kinh doanh
                     </h3>
@@ -284,6 +271,21 @@
                                     <label><input type="radio" name="rdKinhDoanhTM" data-bind="checked: Loc_HoatDongKinhDoanh, checkedvalue: true" value="2" />Tất cả</label>
                                 </li>
                             </ul>
+                        </div>
+                    </aside>
+                </article>
+                <article class="boxLeft">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <img src="~/Content/images/icon/trangthai (1).png" />   Trạng thái
+                    </h3>
+                    <aside class="op-filter-container">
+                        <div class="menuCheckbox">
+                            <div class="form-group">
+                                <label><input type="checkbox" value="0" data-bind="checked: TT_DaThanhToan"> Đã thanh toán</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input type="checkbox" value="1" data-bind="checked: TT_DaHuy"> Đã hủy</label>
+                            </div>
                         </div>
                     </aside>
                 </article>

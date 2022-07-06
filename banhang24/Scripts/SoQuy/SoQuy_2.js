@@ -514,7 +514,6 @@ var ViewModelQuyHD = function () {
                 }
             }
             else {
-                //ShowModal_byInforSoQuy(item);
                 switch (item.LoaiDoiTuong) {
                     case 0:
                     case 1:
