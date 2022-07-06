@@ -73,6 +73,11 @@ namespace libDM_DoiTuong
             SqlParameter param = new SqlParameter("ID", id);
             return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetInforTheGiaTri_byID @ID", param).ToList();
         }
+        public List<BH_HoaDonTheNapDTO> GetInfor_PhieuHoanTraCoc(Guid id)
+        {
+            SqlParameter param = new SqlParameter("ID", id);
+            return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetInforTheGiaTri_byID @ID", param).ToList();
+        }
 
         public List<BH_HoaDonTheNapDTO> LoadDanhMucTheGiaTri(ModelHoaDonTheNap model)
         {
@@ -93,9 +98,15 @@ namespace libDM_DoiTuong
                     sTrangThai = "%0%";
                     break;
             }
+            var sLoaiHoaDon = "22";
+            if (model.ArrLoaiHoaDon != null && model.ArrLoaiHoaDon.Count > 0)
+            {
+                sLoaiHoaDon = string.Join(",", model.ArrLoaiHoaDon);
+            }
 
             List<SqlParameter> lstParam = new List<SqlParameter>();
             lstParam.Add(new SqlParameter("IDDonVis", isDonVis));
+            lstParam.Add(new SqlParameter("LoaiHoaDons", sLoaiHoaDon));
             lstParam.Add(new SqlParameter("TextSearch", txtSearch));
             lstParam.Add(new SqlParameter("FromDate", model.dayStart));
             lstParam.Add(new SqlParameter("ToDate", model.dayEnd));
@@ -111,12 +122,12 @@ namespace libDM_DoiTuong
             lstParam.Add(new SqlParameter("CurrentPage", model.currentPage));
             lstParam.Add(new SqlParameter("PageSize", model.pageSize));
 
-            return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetListTheGiaTri @IDDonVis, @TextSearch, @FromDate, @ToDate," +
+            return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetListTheGiaTri @IDDonVis, @LoaiHoaDons, @TextSearch, @FromDate, @ToDate," +
                  "@TrangThais, @MucNapFrom, @MucNapTo, @KhuyenMaiFrom, @KhuyenMaiTo, @KhuyenMaiLaPTram, @ChietKhauFrom, @ChietKhauTo, " +
                  "@ChietKhauLaPTram, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
-        public List<BH_HoaDonTheNapDTO> GetHisChargeValueCard(ModelLichSuNapThe model)
+        public List<TGT_LichSuNapTraDTO> GetHisChargeValueCard(ModelLichSuNapThe model)
         {
             var isDonVis = string.Join(",", model.arrChiNhanh);
             List<SqlParameter> lstParam = new List<SqlParameter>();
@@ -126,7 +137,7 @@ namespace libDM_DoiTuong
             lstParam.Add(new SqlParameter("ToDate", model.dayEnd));
             lstParam.Add(new SqlParameter("CurrentPage", model.currentPage));
             lstParam.Add(new SqlParameter("PageSize", model.pageSize));
-            return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetHisChargeValueCard @ID_DoiTuong, @IDChiNhanhs, @FromDate, @ToDate," +
+            return db.Database.SqlQuery<TGT_LichSuNapTraDTO>("EXEC GetHisChargeValueCard @ID_DoiTuong, @IDChiNhanhs, @FromDate, @ToDate," +
                  " @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
@@ -654,7 +665,7 @@ namespace libDM_DoiTuong
                                 LoaiHoaDon = hd.LoaiHoaDon,
                                 MaHoaDon = hd.MaHoaDon,
                                 NgayLapHoaDon = hd.NgayLapHoaDon,
-                                PhaiThanhToan = hd.LoaiHoaDon == 6 ? -hd.PhaiThanhToan : hd.PhaiThanhToan,
+                                PhaiThanhToan = hd.LoaiHoaDon == 6 || hd.LoaiHoaDon == 32 ? -hd.PhaiThanhToan : hd.PhaiThanhToan,// trahang + hoantra soduTGT
                                 TenNhanVien = nv.TenNhanVien,
                                 ChoThanhToan = hd.ChoThanhToan,
                                 NguoiTao = hd.NguoiTao,
@@ -797,6 +808,9 @@ namespace libDM_DoiTuong
                         case 1: // HD
                             dto.strLoaiHoaDon = "Bán hàng";
                             break;
+                        case 2: 
+                            dto.strLoaiHoaDon = "Hóa đơn bảo hành";
+                            break;
                         case 3: // HD
                             dto.strLoaiHoaDon = "Đặt hàng";
                             break;
@@ -812,16 +826,9 @@ namespace libDM_DoiTuong
                             dto.NgayLapHoaDon = item.NgayLapHoaDon.AddSeconds(1);// HD tra phai sau HD mua --> show in list His ThanhToan right
                             break;
                         case 12: // PhieuChi
-                            if (item.LoaiThanhToan == 4)
-                            {
-                                dto.strLoaiHoaDon = "Phiếu chi";
-                            }
-                            else
-                            {
-                                dto.strLoaiHoaDon = "Trả lại số dư cọc";
-                            }
+                            dto.strLoaiHoaDon = "Phiếu chi";
                             break;
-                        case 19: // PhieuChi
+                        case 19:
                             dto.strLoaiHoaDon = "Gói dịch vụ";
                             break;
                         case 22: // TheGiaTri
@@ -838,6 +845,9 @@ namespace libDM_DoiTuong
                             break;
                         case 125: // CP dichvu giacong (hoadon 1 + hdsc)
                             dto.strLoaiHoaDon = "Chi phí hóa đơn";
+                            break;
+                        case 32: // HD datcoc
+                            dto.strLoaiHoaDon = "Trả lại số dư cọc";
                             break;
                     }
                     lstReturn.Add(dto);
@@ -3540,6 +3550,7 @@ namespace libDM_DoiTuong
             switch (param.LoaiHoaDon)
             {
                 case 1:
+                case 2:
                 case 25:
                     sql.Add(new SqlParameter("IDViTris", idViTris));
                     sql.Add(new SqlParameter("IDBangGias", idBangGias));
@@ -6069,6 +6080,85 @@ namespace libDM_DoiTuong
         public string DienGiai { get; set; }
         public string ChoThanhToan { get; set; }
     }
+    public class HoaDonBaoHanhExcel
+    {
+        public string MaHoaDon { get; set; }
+        public string MaHoaDonGoc { get; set; }
+        public DateTime NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+        public string DiaChiKhachHang { get; set; }
+        public string KhuVuc { get; set; }
+        public string TenDonVi { get; set; }
+        public string TenNhanVien { get; set; }
+        public string NguoiTao { get; set; }
+        public string DienGiai { get; set; }
+        public string TrangThai { get; set; }
+    }
+
+    public class HoaDonBanExcel
+    {
+        public string MaHoaDon { get; set; }
+        public string MaHoaDonGoc { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+        public string DiaChiKhachHang { get; set; }
+        public string KhuVuc { get; set; }
+        public string TenDonVi { get; set; }
+        public string TenNhanVien { get; set; }
+        public string NguoiTao { get; set; }
+        public double? ThanhTienChuaCK { get; set; }
+        public double? GiamGiaCT { get; set; }
+        public double? GiaTriSuDung { get; set; }// used to sudung gdv
+        public double? TongTienHang { get; set; }
+        public double? TongChiPhi { get; set; }
+        public double? TongTienThue { get; set; }
+        public double? TongGiamGia { get; set; }
+        public double? TongPhaiTra { get; set; }
+        public double? PhaiThanhToan { get; set; }//= khachcantra
+        public double? KhachDaTra { get; set; }
+        public double? TienMat { get; set; }
+        public double? ChuyenKhoan { get; set; }
+        public double? TienATM { get; set; }
+        public double? TienDoiDiem { get; set; }
+        public double? ThuTuThe { get; set; }
+        public double? ConNo { get; set; }
+        public string DienGiai { get; set; }
+        public string TrangThai { get; set; }
+    } 
+    public class GoiDichVuExcel
+    {
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string NgayApDungGoiDV { get; set; }
+        public string HanSuDungGoiDV { get; set; }
+        public string BienSo { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+        public string DiaChiKhachHang { get; set; }
+        public string KhuVuc { get; set; }
+        public string TenDonVi { get; set; }
+        public string TenNhanVien { get; set; }
+        public string NguoiTao { get; set; }
+        public double? TongTienHang { get; set; }
+        public double? TongTienThue { get; set; }
+        public double? TongGiamGia { get; set; }
+        public double? PhaiThanhToan { get; set; }//= khachcantra
+        public double? KhachDaTra { get; set; }
+        public double? TienMat { get; set; }
+        public double? ChuyenKhoan { get; set; }
+        public double? TienATM { get; set; }
+        public double? TienDoiDiem { get; set; }
+        public double? ThuTuThe { get; set; }
+        public double? ConNo { get; set; }
+        public string DienGiai { get; set; }
+        public string TrangThai { get; set; }
+    }
+
     public class BH_HoaDon_Excel
     {
         public string MaHoaDon { get; set; }
@@ -6400,6 +6490,7 @@ public class ModelHoaDonTheNap
     public string time { get; set; }
     //public List<string> tenchinhanh { get; set; }
     public string columnsHide { get; set; }
+    public List<string> ArrLoaiHoaDon { get; set; }
 }
 
 public class SP_HoaDonAndSoQuy
