@@ -2200,11 +2200,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         {
                             x.ID,
                             x.MaKhoanThuChi,
-                            NoiDungThuChi = x.NoiDungThuChi == null ? string.Empty : x.NoiDungThuChi,
+                            NoiDungThuChi = x.NoiDungThuChi ?? string.Empty,
                             x.LaKhoanThu,
                             x.BuTruCongNo,
                             x.TinhLuong,
-                            x.LoaiChungTu,
+                            LoaiChungTu = x.LoaiChungTu ?? string.Empty,
                         });
                     return Json(new { res = true, data = data });
                 }
