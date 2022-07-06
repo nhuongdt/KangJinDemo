@@ -456,7 +456,7 @@
                 loaiHD = 1;
             }
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu === loaiHD.toString() && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu.indexOf(loaiHD) > -1 && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },
