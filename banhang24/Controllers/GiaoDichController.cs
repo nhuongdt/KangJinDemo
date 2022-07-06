@@ -28,7 +28,7 @@ namespace banhang24.Controllers
                 // get cookie nganh nghe kinh doanh
                 ViewBag.ShopCookies = CookieStore.GetCookieAes("shop").ToUpper();
                 ViewBag.cookieUserLogin = objUser_Cookies.TaiKhoan;
-                ViewBag.LoaiHoaDon = id.Substring(0,1);
+                ViewBag.LoaiHoaDon = id.Split('?')[0];
                 if (objUser_Cookies != null)
                 {
                     return View();
