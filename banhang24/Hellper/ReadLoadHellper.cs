@@ -122,6 +122,7 @@ namespace banhang24.Hellper
         public const string DanhSachXe = "DanhSachXe";
         public const string DanhSachPhieuTiepNhan = "DanhSachPhieuTiepNhan";
         public const string HoaDonSuaChua = "HoaDonSuaChua";
+        public const string HoaDonBaoHanh = "HoaDonBaoHanh";
         public const string TongQuanGara = "TongQuanGara";
         public const string BaoCaoSuaChua = "BaoCaoSuaChua";
         public const string BaoCaoHoatDongXe = "BaoCaoHoatDongXe";
@@ -2236,8 +2237,8 @@ namespace banhang24.Hellper
              {ColumnReportValueCard_HisUsed. mahoadon.ToString(),"Hóa đơn liên quan" },
              {ColumnReportValueCard_HisUsed. maphieuthuchi.ToString(),"Phiếu sử dụng " },
              {ColumnReportValueCard_HisUsed.sodudauky.ToString(),"Số dư trước phát sinh" },
-             //{ ColumnReportValueCard_HisUsed. phatsinhtang.ToString(),"Phát sinh tăng" },
              {ColumnReportValueCard_HisUsed. phatsinhgiam.ToString(),"Phát sinh giảm" },
+             { ColumnReportValueCard_HisUsed. phatsinhtang.ToString(),"Phát sinh tăng" },
              {ColumnReportValueCard_HisUsed. soducuoiky.ToString(),"Số dư sau phát sinh" },
         };
 
@@ -2250,7 +2251,7 @@ namespace banhang24.Hellper
              { ColumnReportValueCard_HisUsed. mahoadon.ToString(),"Hóa đơn liên quan" },
              {ColumnReportValueCard_HisUsed. maphieuthuchi.ToString(),"Phiếu sử dụng " },
              {ColumnReportValueCard_HisUsed. phatsinhgiam.ToString(),"Phát sinh giảm" },
-             //{ ColumnReportValueCard_HisUsed. phatsinhtang.ToString(),"Phát sinh tăng" },
+             { ColumnReportValueCard_HisUsed. phatsinhtang.ToString(),"Phát sinh tăng" },
              {ColumnReportValueCard_HisUsed. mahanghoa.ToString(),"Mã hàng hóa" },
              {ColumnReportValueCard_HisUsed. tenhanghoa.ToString(),"Tên hàng hóa" },
              {ColumnReportValueCard_HisUsed.soluong.ToString(),"Số lượng" },
@@ -2459,6 +2460,39 @@ namespace banhang24.Hellper
               { ColumnInvoices.mahoadon.ToString(),"Mã hóa đơn" },
               { ColumnInvoices.madathang.ToString(),"Mã đặt hàng" },
               { ColumnInvoices.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
+              { ColumnInvoices.makhachhang.ToString(),"Mã khách hàng" },
+              { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
+              { ColumnInvoices.sodienthoai.ToString(),"Số điện thoại" },
+              { ColumnInvoices.diachi.ToString(),"Địa chỉ" },
+              { ColumnOrders.khuvuc.ToString(),"Tỉnh thành" },
+              { ColumnInvoices.tenchinhanh.ToString(),"Chi nhánh" },
+              { ColumnInvoices.nguoiban.ToString(),"Nhân viên bán" },
+              { ColumnInvoices.nguoitao.ToString(),"Người lập hóa đơn" },
+              { ColumnInvoices.thanhtienchuack.ToString(),"Tổng tiền chi tiết" },
+              { ColumnInvoices.giamgiact.ToString(),"Giảm giá chi tiết" },
+              { ColumnInvoices.giatrisudung.ToString(),"Giá trị sử dụng" },
+              { ColumnInvoices.tongtienhang.ToString(),"Tổng tiền hàng" },
+              { ColumnInvoices.tongchiphi.ToString(),"Tổng chi phí" },
+              { ColumnInvoices.tienthue.ToString(),"Tiền thuế" },
+              { ColumnInvoices.tonggiamgia.ToString(),"Tổng giảm giá" },
+              { ColumnInvoices.tongphaitra.ToString(),"Tổng phải trả" },
+              { ColumnInvoices.khachcantra.ToString(),"Khách cần trả" },
+              { ColumnInvoices.khachdatra.ToString(),"Khách đã trả" },
+
+              { ColumnInvoices.tienmat.ToString(),"Tiền mặt" },
+              { ColumnInvoices.chuyenkhoan.ToString(),"Chuyển khoản" },
+              { ColumnInvoices.pos.ToString(),"Tiền POS" },
+              { ColumnInvoices.tiendoidiem.ToString(),"Tiền đổi điểm" },
+              { ColumnInvoices.thegiatri.ToString(),"Tiền thẻ giá trị" },
+              { ColumnInvoices.conno.ToString(),"Còn nợ" },
+              { ColumnInvoices.ghichu.ToString(),"Ghi chú" },
+              { ColumnInvoices.trangthai.ToString(),"Trạng thái" },
+        };
+        public static Dictionary<string, string> ListColumnInvoicesSuaChua = new Dictionary<string, string>()
+        {
+              { ColumnInvoices.mahoadon.ToString(),"Mã hóa đơn" },
+              { ColumnInvoices.madathang.ToString(),"Mã đặt hàng" },
+              { ColumnInvoices.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
               { ColumnInvoices.maphieutiepnhan.ToString(),"Mã phiếu tiếp nhận" },
               { ColumnInvoices.bienso.ToString(),"Biển số xe" },
               { ColumnInvoices.makhachhang.ToString(),"Mã khách hàng" },
@@ -2497,6 +2531,23 @@ namespace banhang24.Hellper
               { ColumnInvoices.tiendoidiem.ToString(),"Tiền đổi điểm" },
               { ColumnInvoices.thegiatri.ToString(),"Tiền thẻ giá trị" },
               { ColumnInvoices.conno.ToString(),"Còn nợ" },
+              { ColumnInvoices.ghichu.ToString(),"Ghi chú" },
+              { ColumnInvoices.trangthai.ToString(),"Trạng thái" },
+        };
+
+        public static Dictionary<string, string> ListColumnInvoicesBaoHanh = new Dictionary<string, string>()
+        {
+              { ColumnInvoices.mahoadon.ToString(),"Mã hóa đơn" },
+              { ColumnInvoices.madathang.ToString(),"Mã hóa đơn gốc" },
+              { ColumnInvoices.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
+              { ColumnInvoices.makhachhang.ToString(),"Mã khách hàng" },
+              { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
+              { ColumnInvoices.sodienthoai.ToString(),"Số điện thoại" },
+              { ColumnInvoices.diachi.ToString(),"Địa chỉ" },
+              { ColumnOrders.khuvuc.ToString(),"Tỉnh thành" },
+              { ColumnInvoices.tenchinhanh.ToString(),"Chi nhánh" },
+              { ColumnInvoices.nguoiban.ToString(),"Nhân viên bán" },
+              { ColumnInvoices.nguoitao.ToString(),"Người lập hóa đơn" },
               { ColumnInvoices.ghichu.ToString(),"Ghi chú" },
               { ColumnInvoices.trangthai.ToString(),"Trạng thái" },
         };
@@ -2620,20 +2671,17 @@ namespace banhang24.Hellper
         public static Dictionary<string, string> ListColumnValueCard = new Dictionary<string, string>()
         {
               { ColumnValueCard.mahoadon.ToString(),"Mã hóa đơn" },
-              { ColumnValueCard.ngaylaphoadon.ToString(),"Ngày nạp" },
+              { ColumnValueCard.ngaylaphoadon.ToString(),"Ngày lập phiếu" },
               { ColumnValueCard.makhachhang.ToString(),"Mã khách hàng" },
               { ColumnValueCard.tenkhachhang.ToString(),"Tên khách hàng" },
               { ColumnValueCard.sodienthoai.ToString(),"Số điện thoại" },
-              { ColumnValueCard.mucnap.ToString(),"Mức nạp" },
-              { ColumnValueCard.khuyenmai.ToString(),"Khuyến mãi" },
-              { ColumnValueCard.tongtiennap.ToString(),"Tổng tiền nạp" },
-              { ColumnValueCard.sodusaunap.ToString(),"Số dư sau nạp" },
-              { ColumnValueCard.chietkhau.ToString(),"Chiết khấu" },
-              { ColumnValueCard.khachcantra.ToString(),"Khách cần trả" },
+              { ColumnValueCard.tongtiennap.ToString(),"Tổng tiền nạp/ trả" },
+               { ColumnInvoices.tongchiphi.ToString(),"Phí hoàn thẻ" },
+              { ColumnValueCard.khachcantra.ToString(),"Phải thanh toán" },
               { ColumnValueCard.tienmat.ToString(),"Tiền mặt" },
               { ColumnValueCard.chuyenkhoan.ToString(),"Chuyển khoản" },
               { ColumnValueCard.pos.ToString(),"Tiền POS" },
-              { ColumnValueCard.khachdatra.ToString(),"Khách đã trả" },
+              { ColumnValueCard.khachdatra.ToString(),"Đã thanh toán" },
               { ColumnValueCard.nvthuchien.ToString(),"Nhân viên bán" },
               { ColumnValueCard.ghichu.ToString(),"Ghi chú" },
               { ColumnValueCard.trangthai.ToString(),"Trạng thái" },
