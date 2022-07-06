@@ -417,7 +417,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "HoaDon_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuHoatDong.Add(new HeaderMenu(4, "Hóa đơn", "Hóa đơn", UrlPage.HoaDon, "e/hoadon", false, "fa fa-list", new List<HeaderMenu>()));
+                    lstSubMenuHoatDong.Add(new HeaderMenu(4, "Hóa đơn", "Hóa đơn", UrlPage.HoaDon, "e/hoadon/1", false, "fa fa-list", new List<HeaderMenu>()));
+                    lstSubMenuHoatDongCheck = true;
+                } 
+                if (lstQuyen.Where(p => p == "HoaDonBaoHanh_XemDS").FirstOrDefault() != null)
+                {
+                    lstSubMenuHoatDong.Add(new HeaderMenu(4, "Hóa đơn bảo hành", "Hóa đơn bảo hành", UrlPage.HoaDonBaoHanh, "e/hoadon/2", false, "fas fa-shield-alt", new List<HeaderMenu>()));
                     lstSubMenuHoatDongCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "GoiDichVu").FirstOrDefault() != null && (NganhNgheKinhDoanh == "AC9DF2ED-FF08-488F-9A64-08433E541020" || NganhNgheKinhDoanh == "83894499-AEFA-4F58-96B4-5EC1A0B16A76"))
@@ -670,7 +675,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                 if (lstQuyen.Where(p => p == "HoaDon_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuSuaChuaXe.Add(new HeaderMenu(5, "Hóa đơn sửa chữa", "Hóa đơn sửa chữa", UrlPage.HoaDonSuaChua, "e/hoadon/1", false, "fa fa-list", new List<HeaderMenu>()));
+                    lstSubMenuSuaChuaXe.Add(new HeaderMenu(5, "Hóa đơn sửa chữa", "Hóa đơn sửa chữa", UrlPage.HoaDonSuaChua, "e/hoadon/25", false, "fa fa-list", new List<HeaderMenu>()));
                 }
                 if (lstQuyen.Where(p => p == "GoiDichVu").FirstOrDefault() != null)
                 {
@@ -743,7 +748,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 if (lstQuyen.Where(p => p == "HoaDon_XemDS").FirstOrDefault() != null)
                 {
-                    lstSubMenuBanHang.Add(new HeaderMenu(2, "Bán hàng", "Bán hàng", UrlPage.HoaDon, "e/hoadon/0", false, "fa fa-list", new List<HeaderMenu>()));
+                    lstSubMenuBanHang.Add(new HeaderMenu(2, "Bán hàng", "Bán hàng", UrlPage.HoaDon, "e/hoadon/1", false, "fa fa-list", new List<HeaderMenu>()));
                     lstSubMenuBanHangCheck = true;
                 }
                 if (lstQuyen.Where(p => p == "TraHang_XemDS").FirstOrDefault() != null)
