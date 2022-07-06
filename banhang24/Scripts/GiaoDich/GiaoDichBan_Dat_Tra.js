@@ -213,7 +213,6 @@
 
     var sLoai = '';
     var Key_Form = "KeyInvoices";
-    console.log('loaiHoaDon ', self.LoaiHoaDonMenu())
     switch (loaiHoaDon) {
         case 0:
         case 1:
