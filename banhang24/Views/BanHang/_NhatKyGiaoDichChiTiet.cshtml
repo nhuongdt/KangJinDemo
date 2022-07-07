@@ -1,0 +1,338 @@
+﻿
+@using banhang24.Hellper
+<div class="modal fade" id="vmNhatKyGiaoDichChiTiet">
+    <div class="modal-dialog draggable   modal-lgmax" role="document" style="    width: 80vw;    margin: 30px auto;">
+        <div class="modal-content  ">
+            <div class="modal-header draggable ">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    Nhật ký giao dịch
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="flex flex-row flex-between " style="padding:0 0  10px 0">
+                    <div class="col-xs-12 col-md-7 col-lg-6">
+                        <div class="col-xs-6 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label class="width-75" style="margin-right:5px;">Từ ngày</label>
+                                <date-time :date-chose="filter.DateFrom" placeholder="Từ ngày" style="width:125px"
+                                           :format="TypeFormat"
+                                           :role-change-date="true"
+                                           v-on:change-date="DateFrom_Change">
+                                </date-time>
+                            </div>
+                        </div>
+                        <div class="col-xs-6 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label class="width-75">Đến ngày</label>
+                                <date-time :date-chose="filter.DateTo" placeholder="Đến ngày" style="width:125px"
+                                           :format="TypeFormat"
+                                           :role-change-date="true"
+                                           v-on:change-date="DateTo_Change">
+                                </date-time>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-5 col-lg-6">
+                        <div class="col-xs-12 col-md-12 col-lg-12">
+                            <div class="form-group">
+                                <input type="text" class="form-control " placeholder="Tìm kiếm hóa đơn, dịch vụ, khách hàng"
+                                       v-model="filter.TextSearch"
+                                       v-on:keyup.enter="IconSearch_Click" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-column">
+                    <div class="table-reponsive" style="width:100%;">
+                        <table class='table'>
+                            <tr>
+                                <th>Mã hóa đơn</th>
+                                <th>Ngày lập hóa đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Mã dịch vụ</th>
+                                <th>Tên dịch vụ</th>
+                                <th>Số lượng</th>
+                                <th>Hoa hồng</th>
+                                <th>Nhân viên thực hiện</th>
+                                <th>
+                                    <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                           v-on:change="GVD_ChangeCheckAll">
+                                </th>
+                            </tr>
+                            <tbody>
+                                <tr v-for="(item,index) in ListData">
+                                    <td>
+                                        <a>
+                                            {{item.MaHoaDon}}
+                                        </a>
+                                    </td>
+                                    <td>{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                    <td>
+                                        <span>
+                                            {{item.TenDoiTuong}}
+                                        </span>
+                                        <span v-if="item.DienThoai">
+                                            <a>({{item.DienThoai}})</a>
+                                        </span>
+                                    </td>
+                                    <td>{{item.MaHangHoa}}</td>
+                                    <td style="text-align:left">{{item.TenHangHoa}}</td>
+                                    <td class="text-right">{{item.SoLuongMua}}</td>
+                                    <td style="text-align:right">{{formatNumber3Digit(item.TongChietKhau)}}</td>
+                                    <td style="text-align:left">{{Remove_LastComma(item.NhanVienThucHien)}}</td>
+                                    <td>
+                                        <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                               v-on:change="GVD_ChangeCheckItem(item)">
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="tr-title tr-goi-dich-vu bold" v-if="ListData.length > 0">
+                                    <td>Tổng cộng:</td>
+                                    <td colspan="4"></td>
+                                    <td class="text-right">{{ListData[0].TongSoLuong}}</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <page-list v-bind:currentpage="filter.CurrentPage + 1"
+                               v-bind:pagesize="filter.PageSize"
+                               v-bind:listpage="filter.ListPage"
+                               v-bind:pageview="filter.PageView"
+                               v-bind:numberofpage="filter.TotalPage"
+                               v-on:pageselected="ChangePage"></page-list>
+                </div>
+            </div>
+            <div class="modal-footer ">
+                <button type="button" class="btn btn-cancel">
+                    <i class="fa fa-ban"></i> Bỏ qua
+                </button>
+                <button type="button" class="btn btn-main" v-on:click="Agree">
+                    <i class="fa fa-check"></i> Chọn bảo hành
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+<script>
+    var vmNhatKyGiaoDichChiTiet = new Vue({
+        el: '#vmNhatKyGiaoDichChiTiet',
+        components: {
+            'date-time': cpmDatetime,
+        },
+        created: function () {
+            this.TypeFormat = 'DD/MM/YYYY';
+            console.log('baohanh')
+        },
+        data: {
+            saveOK: true,
+            cusChosing: { ID: null, MaDoiTuong: '', TenDoiTuong: '' },
+
+            ListData: [],
+            ListItemChosed: [],
+            ListIDChosed: [],
+
+            filter: {
+                DateFrom: null,
+                DateTo: null,
+                TextSearch: '',
+                CurrentPage: 0,
+                PageSize: 10,
+                PageView: '',
+                ListPage: [],
+                TotalPage: 0,
+            },
+        },
+        methods: {
+            showModal: function (cus = {}) {
+                let self = this;
+                self.saveOK = false;
+                self.filter.CurrentPage = 0;
+                self.filter.TextSearch = '';
+                self.ListItemChosed = [];
+                self.ListIDChosed = [];
+                self.cusChosing = {};
+                self.GetNhatKySuDung_GDV();
+                $('#vmNhatKyGiaoDichChiTiet').modal('show');
+
+                $('#vmNhatKyGiaoDichChiTiet th input[type=checkbox]').prop('checked', false);
+                let $tr = $('#vmNhatKyGiaoDichChiTiet table tbody tr');
+                $tr.each(function () {
+                    let chk = $(this).find('input[type=checkbox]');
+                    $(chk).prop('checked', false);
+                })
+            },
+            IconSearch_Click: function () {
+                let self = this;
+                self.filter.CurrentPage = 0;
+                self.GetNhatKySuDung_GDV();
+            },
+
+            GVD_ChangeCheckAll: async function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+
+                if (isCheck) {
+                    for (let i = 0; i < self.ListData.length; i++) {
+                        let itFor = self.ListData[i];
+                        if (self.ListIDChosed.length === 0) {
+                            self.ListIDChosed.push(itFor.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(itFor);
+                            self.cusChosing = {
+                                ID: itFor.ID_DoiTuong,
+                                MaDoiTuong: itFor.MaDoiTuong,
+                                TenDoiTuong: itFor.TenDoiTuong,
+                            }
+                        }
+                        else {
+                            if (itFor.ID_DoiTuong !== self.cusChosing.ID) {
+                                ShowMessage_Danger('Vui lòng không áp dụng nhiều khách hàng cùng lúc');
+                                return;
+                            }
+                            self.ListIDChosed.push(itFor.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(itFor);
+                        }
+                    }
+                }
+                else {
+                    let arrPage = self.ListData.map(function (x) {
+                        return x.ID_ChiTietGoiDV;
+                    });
+                    self.ListItemChosed = $.grep(self.ListItemChosed, function (x) {
+                        return $.inArray(x.ID_ChiTietGoiDV, arrPage) === -1;
+                    })
+                    self.ListIDChosed = $.grep(self.ListIDChosed, function (x) {
+                        return $.inArray(x, arrPage) === -1;
+                    })
+                }
+
+                let $tr = $this.closest('table').find('tbody tr');
+                $tr.each(function () {
+                    let chk = $(this).find('input[type=checkbox]');
+                    $(chk).prop('checked', isCheck);
+                })
+            },
+            GVD_ChangeCheckItem: function (item) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                if (isCheck) {
+                    if ($.inArray(item.ID_ChiTietGoiDV, self.ListIDChosed) === -1) {
+                        if (self.ListIDChosed.length === 0) {
+                            self.ListIDChosed.push(item.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(item);
+
+                            self.cusChosing = {
+                                ID: item.ID_DoiTuong,
+                                MaDoiTuong: item.MaDoiTuong,
+                                TenDoiTuong: item.TenDoiTuong,
+                            }
+                        }
+                        else {
+                            if (item.ID_DoiTuong !== self.cusChosing.ID) {
+                                ShowMessage_Danger('Vui lòng không áp dụng nhiều khách hàng cùng lúc');
+                                return;
+                            }
+                            self.ListIDChosed.push(item.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(item);
+                        }
+                    }
+                }
+                else {
+                    self.ListIDChosed = self.ListIDChosed.filter(x => x !== item.ID_ChiTietGoiDV);
+                    for (let i = 0; i < self.ListItemChosed.length; i++) {
+                        if (self.ListItemChosed[i].ID_ChiTietGoiDV === item.ID_ChiTietGoiDV) {
+                            self.ListItemChosed.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+
+                // count check in this gdv
+                let count = 0;
+                let $tr = $this.closest('table').find('tbody tr');
+                $tr.each(function () {
+                    let chk = $(this).find('input[type=checkbox]');
+                    if (chk.is(':checked')) {
+                        count += 1;
+                    }
+                })
+            },
+
+            GetNhatKySuDung_GDV: function () {
+                let self = this;
+                $('#vmNhatKyGiaoDichChiTiet .modal-content').gridLoader({ show: true});
+                let arrCus = [];
+                if (!$.isEmptyObject(self.cusChosing) && !commonStatisJs.CheckNull(self.filter.TextSearch)) {
+                    arrCus = [self.cusChosing.ID];
+                }
+                let param = {
+                    IDCustomers: arrCus,
+                    DateFrom: self.filter.DateFrom,
+                    DateTo: self.filter.DateTo,
+                    TextSearch: self.filter.TextSearch,
+                    CurrentPage: self.filter.CurrentPage,
+                    PageSize: self.filter.PageSize,
+                }
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetNhatKySuDung_GDV', 'POST', param).done(function (x) {
+                    let dataS = x.dataSoure;
+                    $('#vmNhatKyGiaoDichChiTiet .modal-content').gridLoader({ show: false });
+                    if (x.res && dataS.data !== null) {
+                        self.ListData = dataS.data;
+                        self.filter.ListFilter = dataS.data;
+                        self.filter.ListPage = dataS.listpage;
+                        self.filter.isPrev = dataS.isprev;
+                        self.filter.isNext = dataS.isnext;
+                        self.filter.TotalPage = dataS.countpage;
+                        self.filter.PageView = dataS.pageview;
+                    }
+                });
+            },
+
+            DateFrom_Change: function (e) {
+                let self = this;
+                var dt = moment(e).format('YYYY-MM-DD');
+                self.filter.DateFrom = dt;
+                self.GetNhatKySuDung_GDV();
+            },
+            DateTo_Change: function (e) {
+                let self = this;
+                var dt = moment(e).format('YYYY-MM-DD');
+                self.filter.DateTo = dt;
+                self.GetNhatKySuDung_GDV();
+            },
+            ChangePage: function (value) {
+                let self = this;
+                let currentPage = value.currentPage - 1;
+                if (self.filter.CurrentPage !== currentPage) {
+                    self.filter.CurrentPage = currentPage;
+                    self.GetNhatKySuDung_GDV();
+                } else if (self.filter.PageSize !== value.pageSize) {
+                    self.filter.PageSize = value.pageSize;
+                    self.GetNhatKySuDung_GDV();
+                }
+            },
+            Agree: function (item) {
+                let self = this;
+                self.saveOK = true;
+                if (self.ListIDChosed.length===0) {
+                    ShowMessage_Danger('Vui lòng chọn dịch vụ bảo hành');
+                    return;
+                }
+                self.cusChosing = {
+                    ID: self.ListItemChosed[0].ID_DoiTuong,
+                    MaDoiTuong: self.ListItemChosed[0].MaDoiTuong,
+                    TenDoiTuong: self.ListItemChosed[0].TenDoiTuong,
+                }
+                $('#vmNhatKyGiaoDichChiTiet').modal('hide');
+            },
+        }
+    })
+</script>
