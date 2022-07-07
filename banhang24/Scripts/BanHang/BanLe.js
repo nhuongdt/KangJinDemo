@@ -11234,7 +11234,7 @@ var NewModel_BanHangLe = function () {
                                 * (cthd[i].HangCungLoais[j].GiaBan - cthd[i].HangCungLoais[j].TienChietKhau + cthd[i].HangCungLoais[j].TienThue);
 
                             if (cthd[i].HangCungLoais[j].LaPTPhiDichVu) {
-                                cthd[i].HangCungLoais[j].TongPhiDichVu = Math.round(cthd[i].HangCungLoais[j].PhiDichVu * cthd[i].DM_LoHang[j].GiaBan * cthd[i].DM_LoHang[j].SoLuong / 100);
+                                cthd[i].HangCungLoais[j].TongPhiDichVu = Math.round(cthd[i].HangCungLoais[j].PhiDichVu * cthd[i].HangCungLoais[j].GiaBan * cthd[i].HangCungLoais[j].SoLuong / 100);
                             }
                             else {
                                 cthd[i].HangCungLoais[j].TongPhiDichVu = cthd[i].HangCungLoais[j].PhiDichVu * cthd[i].HangCungLoais[j].SoLuong;
@@ -11697,6 +11697,19 @@ var NewModel_BanHangLe = function () {
         }
         vmTraHang.showModal();
     }
+    self.showPopupBaoHanh = function () {
+        let cus = self.ChiTietDoiTuong();
+        let obj = {};
+        if (cus !== null && cus.length > 0) {
+            obj = {
+                ID: cus[0].ID,
+                MaDoiTuong: cus[0].MaDoiTuong,
+                TenDoiTuong: cus[0].TenDoiTuong,
+                DienThoai: cus[0].DienThoai,
+            };
+        }
+        vmNhatKyGiaoDichChiTiet.showModal(obj);
+    }
 
     self.showModalAnhKH = function () {
         if (self.HangHoaAfterAdds().length > 0) {
@@ -11760,6 +11773,86 @@ var NewModel_BanHangLe = function () {
             }
         }
     })
+
+    $('#vmNhatKyGiaoDichChiTiet').on('hidden.bs.modal', function () {
+        if (vmNhatKyGiaoDichChiTiet.saveOK) {
+            let hd = localStorage.getItem(lcListHD);
+            if (hd !== null) {
+                hd = JSON.parse(hd);
+            }
+            else {
+                hd = [];
+            }
+            let cthd = localStorage.getItem(lcListCTHD);
+            if (cthd !== null) {
+                cthd = JSON.parse(cthd);
+            }
+            else {
+                cthd = [];
+            }
+            // find hoadon baohanh by iddoituong
+            let itemEx = $.grep(hd, function (x) {
+                return x.LoaiHoaDon === 2 && x.ID_DoiTuong === vmNhatKyGiaoDichChiTiet.cusChosing.ID;
+            });
+
+            let idRandomHD = '';
+            if (itemEx.length === 0) {
+                let max = GetMax_MaHoaDon(2, hd);
+                _maHoaDon = nameHD_BaoHanh + (max + 1);
+                let newObj = newHoaDon(_maHoaDon, 2);
+                newObj.ID_DoiTuong = vmNhatKyGiaoDichChiTiet.cusChosing.ID;
+                hd.push(newObj);
+                localStorage.setItem(lcListHD, JSON.stringify(hd));
+                idRandomHD = newObj.IDRandom;
+                itemEx = newObj;
+            }
+            else {
+                idRandomHD = itemEx[0].IDRandom;
+                itemEx = itemEx[0];
+                _maHoaDon = itemEx.MaHoaDon;
+            }
+
+            GetInforKhachHangFromDB_ByID(itemEx.ID_DoiTuong);
+
+            for (let i = 0; i < vmNhatKyGiaoDichChiTiet.ListItemChosed.length; i++) {
+                let itFor = vmNhatKyGiaoDichChiTiet.ListItemChosed[i];
+                itFor.LoaiBaoHanh = itFor.LoaiThoiGianBH;
+                itFor.SoLuong = itFor.SoLuongMua;
+                itFor.GiaBan = 0;
+                itFor.DonGia = 0;
+                itFor.PTChietKhau = 0;
+                itFor.TienChietKhau = 0;
+                itFor.PTThue = 0;
+                itFor.TienThue = 0;
+                itFor.ThanhTien = 0;
+                itFor.ThanhToan = 0;
+                let obj = newHangHoa(itFor, itemEx);
+                cthd.push(obj);
+            }
+            localStorage.setItem(lcListCTHD, JSON.stringify(cthd));
+
+            UpdateSoThuTu_CTHD_DichVu(false, idRandomHD);
+            Caculator_AmountProduct();
+            UpdateAgain_ListDVT_forCTHD(false, idRandomHD);
+
+            for (let i = 0; i < cthd.length; i++) {
+                if (cthd[i].IDRandomHD === idRandomHD) {
+                    UpdateChietKhauNV_inCTHD(cthd[i].IDRandom, false, cthd[i]);
+                    if (cthd[i].ThanhPhanComBo.length > 0) {
+                        ChangeSoLuongParent_UpdateCombo(cthd[i].IDRandom, cthd[i].SoLuong, false);
+                    }
+                    UpdateSoLuong_TPDinhLuong_ofCTHD(idRandomHD, cthd[i].IDRandom, cthd[i].SoLuong, false);
+                }
+            }
+
+            UpdateCacheHDLe(idRandomHD, false);
+            UpdateDiemGiaoDich_andResetDiemQuyDoi_forHoaDon();
+            BindHD_byIDRandom(idRandomHD);
+            BindCTHD_byIDRandomHD(idRandomHD);
+            GetCurrentPage_byMaHoaDon(_maHoaDon);// used to bind tab list hoadon
+        }
+    })
+
     self.clickChonTraHang = function (item) {
         ClearTextSearch();
 
