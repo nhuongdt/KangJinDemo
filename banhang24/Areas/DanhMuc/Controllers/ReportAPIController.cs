@@ -5111,7 +5111,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     return ActionTrueData(new
                     {
                         data = lst,
-                        sTongThuChi = lst.Sum(p => p.ThuChi)
+                        sTongThuChi = lst.Sum(p => p.ThuChi),
+                        sTongTienMat = lst.Sum(p => p.TienMat),
+                        sTongTienGui = lst.Sum(p => p.TienGui),
+                        sTongTienPOS = lst.Sum(p => p.TienPOS),
                     });
                 }
             }
@@ -5196,6 +5199,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     List<BaoCaoTaiChinh_ThuChiPRC> lst = new List<BaoCaoTaiChinh_ThuChiPRC>();
                     lst = reportTaiChinh.GetBaoCaoTaiChinh_ThuChi_v2(textSearch, timeStart, timeEnd, IdChiNhanh, LoaiKH, IdNhomDoiTuong, LoaiThuChi, HachToanKinhDoanh);
                     DataTable excel = classOffice.ToDataTable<BaoCaoTaiChinh_ThuChiPRC>(lst);
+                    excel.Columns.Remove("ThuChi");
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoNhatKyThuTien.xlsx");
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoNhatKyThuTien.xlsx");
                     fileSave = classOffice.createFolder_Download(fileSave);
@@ -5286,6 +5290,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     List<BaoCaoTaiChinh_ThuChiPRC> lst = new List<BaoCaoTaiChinh_ThuChiPRC>();
                     lst = reportTaiChinh.GetBaoCaoTaiChinh_ThuChi_v2(textSearch, timeStart, timeEnd, IdChiNhanh, LoaiKH, IdNhomDoiTuong, LoaiThuChi, HachToanKinhDoanh);
                     DataTable excel = classOffice.ToDataTable<BaoCaoTaiChinh_ThuChiPRC>(lst);
+                    excel.Columns.Remove("ThuChi");
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoNhatKyChiTien.xlsx");
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoNhatKyChiTien.xlsx");
                     fileSave = classOffice.createFolder_Download(fileSave);
@@ -5778,8 +5783,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         TonDauKy = (double?)lst.FirstOrDefault().TonDauKy ?? 0;
                     }
-                    double TongThu = 0;
-                    double TongChi = 0;
+                    double TongThu = 0, TongThuTienMat = 0, TongThuTienGui = 0, TongThuTienPOS = 0;
+                    double TongChi = 0, TongChiTienMat = 0, TongChiTienGui = 0, TongChiTienPOS = 0;
                     if (intLoaiTien == 1)
                     {
                         TongThu = lst.Sum(x => x.ThuTienMat);
@@ -5794,6 +5799,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         TongThu = lst.Sum(x => x.TienThu);
                         TongChi = lst.Sum(x => x.TienChi);
+                        TongThuTienMat = lst.Sum(x => x.ThuTienMat);
+                        TongThuTienGui = lst.Sum(x => x.ThuTienGui);
+                        TongThuTienPOS = lst.Sum(x => x.ThuTienPOS);
+                        TongChiTienMat = lst.Sum(x => x.ChiTienMat);
+                        TongChiTienGui = lst.Sum(x => x.ChiTienGui);
+                        TongChiTienPOS = lst.Sum(x => x.ChiTienPOS);
                     }
 
                     double PhatSinhTrongKy = TongThu - TongChi;
@@ -5808,7 +5819,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         data = lst,
                         TongThu = TongThu,
+                        TongThuTienMat = TongThuTienMat,
+                        TongThuTienGui = TongThuTienGui,
+                        TongThuTienPOS = TongThuTienPOS,
                         TongChi = TongChi,
+                        TongChiTienMat = TongChiTienMat,
+                        TongChiTienGui = TongChiTienGui,
+                        TongChiTienPOS = TongChiTienPOS,
                         SoDuDauKy = TonDauKy,
                         PhatSinhTrongKy = PhatSinhTrongKy,
                         SoDuCuoiKy = SoDuCuoiKy
@@ -7349,12 +7366,32 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                 }
                 List<int> lstColHide = new List<int>();
+                List<int> lstColHideFix = new List<int>();
                 if (objIn["ColHide"] != null)
                     lstColHide = objIn["ColHide"].ToObject<List<int>>();
-                string strColHide = "";
-                if (lstColHide.Count > 0)
+                foreach(var item in lstColHide)
                 {
-                    strColHide = string.Join("_", lstColHide);
+                    if(item == 4)
+                    {
+                        lstColHideFix.Add(item);
+                        lstColHideFix.Add(5);
+                        lstColHideFix.Add(6);
+                    }    
+                    else if(item == 7)
+                    {
+                        lstColHideFix.Add(item);
+                        lstColHideFix.Add(8);
+                        lstColHideFix.Add(9);
+                    }    
+                    else
+                    {
+                        lstColHideFix.Add(item);
+                    }    
+                }
+                string strColHide = "";
+                if (lstColHideFix.Count > 0)
+                {
+                    strColHide = string.Join("_", lstColHideFix);
                 }
                 string BaoCaoThoiGian = "";
                 if (objIn["BaoCaoThoiGian"] != null && objIn["BaoCaoThoiGian"].ToObject<string>() != "")
@@ -7377,10 +7414,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TonDauKy");
                     excel.Columns.Remove("TienMat");
                     excel.Columns.Remove("TienGui");
-                    excel.Columns.Remove("ThuTienMat");
-                    excel.Columns.Remove("ChiTienMat");
-                    excel.Columns.Remove("ThuTienGui");
-                    excel.Columns.Remove("ChiTienGui");
+                    excel.Columns.Remove("TienThu");
+                    excel.Columns.Remove("TienChi");
+                    //excel.Columns.Remove("ThuTienMat");
+                    //excel.Columns.Remove("ChiTienMat");
+                    //excel.Columns.Remove("ThuTienGui");
+                    //excel.Columns.Remove("ChiTienGui");
                     excel.Columns.Remove("TonLuyKeTienGui");
                     excel.Columns.Remove("TonLuyKeTienMat");
                     excel.Columns.Remove("IDDonVi");
@@ -7388,7 +7427,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoSoQuyTongQuy.xlsx");
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoSoQuyTongQuy.xlsx");
                     fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel_StypeSQ(fileTeamplate, fileSave, excel, 4, 28, 24, true, strColHide, BaoCaoThoiGian, BaoCaoChiNhanh, 9, TonDauKy);
+                    classOffice.listToOfficeExcel_StypeSQ(fileTeamplate, fileSave, excel, 5, 28, 23, true, strColHide, BaoCaoThoiGian, BaoCaoChiNhanh, 13, TonDauKy);
 
                     fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoSoQuyTongQuy.xlsx");
                     return ActionTrueNotData(fileSave);
