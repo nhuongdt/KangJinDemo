@@ -316,12 +316,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group floatleft">
-                            <label>Số dư sau trả:</label>
-                            <div class="form-news" style="text-align:right">
-                                <span>  {{formatNumber(inforTheGiaTri.SoDuTheSauNap)}}</span>
-                            </div>
-                        </div>
+
                         <div class="form-group floatleft" style="align-items:flex-start">
                             <label>Ghi chú</label>
                             <div class="form-news">
@@ -331,6 +326,12 @@
                     </div>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <h5>Thông tin thanh toán</h5>
+                        <div class="form-group floatleft">
+                            <label>Số dư sau trả:</label>
+                            <div class="form-news" style="text-align:right">
+                                <span>  {{formatNumber(inforTheGiaTri.SoDuTheSauNap)}}</span>
+                            </div>
+                        </div>
                         <div class="form-group floatleft">
                             <label>Phải trả khách</label>
                             <div class="form-news">
@@ -554,6 +555,7 @@
             },
             inforTheGiaTri: {// used to print
                 SoDuTheGiaTri: 0,
+                CongNoThe:0,
             },
 
             newHoaDon: {
@@ -572,20 +574,28 @@
 
             GetSoDuTheGiaTri: function (idDoiTuong) {
                 var self = this;
-                let sodu = 0;
                 var date = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
                 ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'Get_SoDuTheGiaTri_ofKhachHang?idDoiTuong=' + idDoiTuong
                     + '&datetime=' + date, 'GET').done(function (data) {
+                        let sodu = 0, congno = 0, tongthu = 0;
+                        console.log(3, data)
                         if (data != null && data.length > 0) {
                             sodu = data[0].SoDuTheGiaTri;
-                            sodu = sodu > 0 ? sodu : 0;
+                            sodu = sodu > 0 ? sodu : 0; 
+
+                            congno = data[0].CongNoThe;
+                            congno = congno > 0 ? congno : 0;
+
+                            tongthu = data[0].TongThuTheGiaTri;
+                            tongthu = tongthu > 0 ? tongthu : 0;
                         }
                         if (self.formType === 2) {
                             sodu = sodu - self.newHoaDon.TongTienHang;
                         }
                         self.inforTheGiaTri.SoDuTheGiaTri = sodu;
-                        self.inforTheGiaTri.TongTaiKhoanThe = data[0].TongThuTheGiaTri;
+                        self.inforTheGiaTri.TongTaiKhoanThe = tongthu;
                         self.inforTheGiaTri.SoDuTheSauNap = sodu;
+                        self.inforTheGiaTri.CongNoThe = congno;
                     });
             },
 
