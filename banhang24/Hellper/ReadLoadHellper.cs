@@ -2538,7 +2538,6 @@ namespace banhang24.Hellper
         public static Dictionary<string, string> ListColumnInvoicesBaoHanh = new Dictionary<string, string>()
         {
               { ColumnInvoices.mahoadon.ToString(),"Mã hóa đơn" },
-              { ColumnInvoices.madathang.ToString(),"Mã hóa đơn gốc" },
               { ColumnInvoices.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
               { ColumnInvoices.makhachhang.ToString(),"Mã khách hàng" },
               { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
