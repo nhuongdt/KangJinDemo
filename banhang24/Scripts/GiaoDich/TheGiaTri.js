@@ -17,6 +17,9 @@
     self.TT_DaHuy = ko.observable();
     self.filter = ko.observable();
 
+    self.LaHD_NapThe = ko.observable(true);
+    self.LaHD_HoanTraThe = ko.observable();
+
     self.MucNapTu = ko.observable();
     self.MucNapDen = ko.observable();
     self.KhuyenMaiTu = ko.observable();
@@ -283,13 +286,9 @@
     };
 
     self.showPopHoanTra = function () {
-        vmNapTienDatCoc.loaiMenu = 1;// loaiMenu (0.thu, 1.chi)
-        vmNapTienDatCoc.showModalAddNew(false,1);//1. tra lai tien da nop tu TGT, 0.#
+        vmTraLaiTGT.showModalAddNew();
     }
 
-    shortcut.add("F9", function () {
-        self.ThanhToanThe();
-    });
     self.showPopupAddKH = function () {
         vmThemMoiKhach.showModalAdd();
     };
@@ -555,7 +554,6 @@
                 vmThanhToanGara.listData.NhanViens = lstNV_byDonVi;
                 vmThanhToan.listData.NhanViens = lstNV_byDonVi;
                 vmThemMoiKhach.listData.NhanViens = lstNV_byDonVi;
-                vmNapTienDatCoc.listData.NhanViens = data;
             }
         });
     }
@@ -656,10 +654,6 @@
         }
         var MucNapTu = $('.currencytu').val();
         var MucNapDen = $('.currencyden').val();
-        var KhuyenMaiTu = $('.currencytu1').val();
-        var KhuyenMaiDen = $('.currencyden1').val();
-        var ChietKhauTu = $('.currencytu2').val();
-        var ChietKhauDen = $('.currencyden2').val();
         var txtMaHDon = self.filter();
 
         var statusInvoice = 1;
@@ -678,6 +672,18 @@
             else {
                 statusInvoice = 4;
             }
+        }
+
+        let arrLoaiHD = [];
+        if (self.LaHD_NapThe()) {
+            arrLoaiHD.push(22);
+        }
+        if (self.LaHD_HoanTraThe()) {
+            arrLoaiHD.push(32);
+        }
+
+        if (arrLoaiHD.length === 0) {
+            arrLoaiHD = [22, 32];
         }
 
         // NgayLapHoaDon
@@ -791,17 +797,18 @@
             mucnaptu: MucNapTu === '' ? 0 : MucNapTu,
             mucnapden: MucNapDen === '' ? null : MucNapDen,
             loaikhuyenmai: loaikhuyenmai,
-            khuyenmaitu: KhuyenMaiTu === '' ? 0 : KhuyenMaiTu,
-            khuyenmaiden: KhuyenMaiDen === '' ? null : KhuyenMaiDen,
+            khuyenmaitu: 0,
+            khuyenmaiden: null,
             loaichietkhau: loaichietkhau,
-            chietkhautu: ChietKhauTu === '' ? 0 : ChietKhauTu,
-            chietkhauden: ChietKhauDen === '' ? null : ChietKhauDen,
+            chietkhautu: 0,
+            chietkhauden: null,
             trangThai: statusInvoice,
             dayStart: dayStart,
             dayEnd: dayEnd,
             arrChiNhanh: self.MangIDDV(),
             iddonvi: idDonVi,
-            columnsHide: columnHide
+            columnsHide: columnHide,
+            ArrLoaiHoaDon: arrLoaiHD,
         };
 
         console.log('model ', model)
@@ -945,6 +952,14 @@
     };
 
     self.TT_HoanThanh.subscribe(function (newVal) {
+        self.currentPage(0);
+        SearchTheNap();
+    });
+    self.LaHD_NapThe.subscribe(function (newVal) {
+        self.currentPage(0);
+        SearchTheNap();
+    });
+    self.LaHD_HoanTraThe.subscribe(function (newVal) {
         self.currentPage(0);
         SearchTheNap();
     });
@@ -1163,7 +1178,6 @@
                     }
                     vmThanhToanGara.listData.AccountBanks = data; // use at form new TheGiaTri
                     vmThanhToan.listData.AccountBanks = data;// use at btnThanhToan
-                    vmNapTienDatCoc.listData.AccountBanks = data;
                 }
             })
         }
@@ -1184,7 +1198,6 @@
                 self.KhoanChis(khoanchi);
                 vmThanhToan.listData.KhoanThuChis = khoanthu;
                 vmThanhToanGara.listData.KhoanThuChis = data;
-                vmNapTienDatCoc.listData.AllKhoanThuChis = data;
             }
         })
     }
@@ -1311,15 +1324,6 @@
                 }
                 self.MangNhomDV.push(obj);
                 vmThemMoiNhomKhach.listData.ChiNhanhs = data;
-              
-
-                let cn = $.grep(self.ChiNhanhs(), function (x) {
-                    return x.ID === VHeader.IđonVi;
-                });
-                if (cn.length > 0) {
-                    vmNapTienDatCoc.inforCongTy.TenChiNhanh = cn[0].TenDonVi;
-                    vmNapTienDatCoc.inforCongTy.DienThoaiChiNhanh = cn[0].DienThoai;
-                }
             }
         });
     }
@@ -1379,11 +1383,7 @@
                     LogoCuaHang: Open24FileManager.hostUrl + self.CongTy()[0].DiaChiNganHang,
                     TenChiNhanh: VHeader.TenDonVi,
                 };
-                vmNapTienDatCoc.inforCongTy = {
-                    TenCongTy: data[0].TenCongTy,
-                    DiaChiCuaHang: data[0].DiaChi,
-                    LogoCuaHang: Open24FileManager.hostUrl + data[0].DiaChiNganHang
-                };
+                vmTraLaiTGT.inforCongTy = vmThemMoiTheNap.inforCongTy;
             }
         });
     }
@@ -1531,6 +1531,7 @@
             ThucThu: daTT,
             DaThuTruoc: daTT,
             ConNo: phaiTT - daTT,
+            TongPhiNganHang: 0,
         }
         vmHoaHongHoaDon.GetChietKhauHoaDon_byID(obj);
     }

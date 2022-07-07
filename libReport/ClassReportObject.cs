@@ -1258,8 +1258,8 @@ namespace libReport
         public int LoaiHoaDonSQ { get; set; }// 11. su dung the, 12. Hoan tra giatri the
         public double TienThe { get; set; }
         public double SoDuTruoc { get; set; }
-        public double? PhatSinhTang { get; set; }
         public double? PhatSinhGiam { get; set; }
+        public double? PhatSinhTang { get; set; }
         public double SoDuSau { get; set; }
         public string DienGiai { get; set; }
 
@@ -1282,7 +1282,7 @@ namespace libReport
         public string MaHoaDon { get; set; }
         public string MaPhieuThu { get; set; }
         public double PhatSinhGiam { get; set; }
-        //public double PhatSinhTang { get; set; }
+        public double PhatSinhTang { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoa { get; set; }
         public double SoLuong { get; set; }

@@ -413,8 +413,9 @@
             self.GetSoDuDatCoc(qct0.ID_DoiTuong);
             $('#NapTienDatCoc').modal('show');
         },
-        getQuyHoaDon_byID: function (idQuyHD, isShowModal = false) {
+        getQuyHoaDon_byID: function (idQuyHD, isShowModal = false, formType = 0) {
             let self = this;
+            self.formType = formType;
             ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + 'GetQuyChiTiet_byIDQuy/' + idQuyHD, 'GET').done(function (x) {
                 if (x.res && x.dataSoure.length > 0) {
                     let quyHD = x.dataSoure[0];
@@ -541,7 +542,7 @@
                 commonStatisJs.ShowMessageDanger('Vui lòng chọn người nộp tiền');
                 return false;
             }
-           
+
             if (self.newPhieuThu.TongTienThu === 0) {
                 commonStatisJs.ShowMessageDanger('Vui lòng nhập số tiền cần thanh toán');
                 return false;
@@ -603,8 +604,8 @@
             let loaiThanhToan = 1;
             let inforTGT = '';
             if (self.formType === 1) {// tra lai tien khach da nap TheGiaTri
-                loaiThanhToan = 4;
-                ptKhach.PhieuDieuChinhCongNo = 4;
+                loaiThanhToan = 0;
+                ptKhach.PhieuDieuChinhCongNo = 0;
             }
 
             if (commonStatisJs.CheckNull(idHoaDonLienQuan) || idHoaDonLienQuan === '00000000-0000-0000-0000-000000000000') {
@@ -928,7 +929,7 @@
         labelNopTra: function () {
             let self = this;
             if (self.isNapTien) {
-                if (self.newPhieuThu.LoaiHoaDon ===12) {
+                if (self.newPhieuThu.LoaiHoaDon === 12) {
                     return "Nộp cho";
                 }
                 return "Người nộp";

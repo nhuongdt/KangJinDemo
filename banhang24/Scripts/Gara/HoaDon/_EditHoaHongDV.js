@@ -466,7 +466,7 @@
             }
             else {
                 self.LaPhanTram = false;
-                gtriCK = formatNumber(item.TienChietKhau);
+                gtriCK = formatNumber3Digit(item.TienChietKhau);
             }
             $(function () {
                 let inputNext = $('.jsDiscount').children('div').eq(0).find('input');
@@ -535,7 +535,7 @@
             }
             else {
                 ckMacDinh = formatNumberToFloat(thisVal) / self.DichVu_isDoing.SoLuong;
-                tienCK = formatNumberToInt(thisVal) * item.HeSo;
+                tienCK = formatNumberToFloat(thisVal) * item.HeSo;
             }
 
             // update infor %CK, tienCK into grid

@@ -1371,7 +1371,7 @@
 
         if (isExport) {
             $('.table-reponsive').gridLoader();
-            ajaxHelper(BH_HoaDonUri + 'ExportExcel_HoaDons', 'POST', Params_GetListHoaDon).done(function (url) {
+            ajaxHelper(BH_HoaDonUri + 'ExportExcel_GoiDichVu', 'POST', Params_GetListHoaDon).done(function (url) {
                 $('.table-reponsive').gridLoader({ show: false });
                 if (url !== "") {
                     self.DownloadFileTeamplateXLSX(url);
@@ -1808,7 +1808,6 @@
                 columnHide += lstAfter[i].toString() + '_';
             }
         }
-        console.log('columnHide', columnHide);
         SearchHoaDon(false, true);
     }
     self.ExportExcel_ChiTietHoaDon = function (item) {
@@ -4292,6 +4291,7 @@
             ThucThu: daTT - item.ThuTuThe - item.TienDoiDiem,
             DaThuTruoc: daTT,
             ConNo: tongTT - daTT,
+            TongPhiNganHang: 0,
         }
         vmHoaHongHoaDon.GetChietKhauHoaDon_byID(obj);
     }

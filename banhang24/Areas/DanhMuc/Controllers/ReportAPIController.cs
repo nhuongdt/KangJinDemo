@@ -7999,7 +7999,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     o.MaHoaDon,
                     o.MaPhieuThu,
                     o.PhatSinhGiam,
-                    //o.PhatSinhTang,
+                    o.PhatSinhTang,
                 }).Select(o => new
                 {
                     ID_HoaDon = o.Key.ID_HoaDon,
@@ -8011,13 +8011,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     MaHoaDon = o.Key.MaHoaDon,
                     MaPhieuThu = o.Key.MaPhieuThu,
                     PhatSinhGiam = o.Key.PhatSinhGiam,
-                    //PhatSinhTang = o.Key.PhatSinhTang,
+                    PhatSinhTang = o.Key.PhatSinhTang,
                     LstHangHoas = o.ToList()
                 }).AsEnumerable();
                 int totalRow = result.Count();
                 double totalPage = Math.Ceiling(totalRow * 1.0 / pageSize);
                 double? giam = result.Sum(x => x.PhatSinhGiam);
-                //double? tang = result.Sum(x => x.PhatSinhTang);
+                double? tang = result.Sum(x => x.PhatSinhTang);
 
                 return Json(new
                 {
@@ -8026,7 +8026,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     TotalRow = totalRow,
                     TotalPage = totalPage,
                     TongGiam = giam,
-                    TongTang = 0,
+                    TongTang = tang,
                 });
             }
         }
@@ -8062,8 +8062,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     else
                     {
-                        valExcel1 = lstParam.DateFrom.Substring(6, 2) + "/" + lstParam.DateFrom.Substring(4, 2) + "/" + lstParam.DateFrom.Substring(0, 4) +
-                            " - " + lstParam.DateTo.Substring(6, 2) + "/" + lstParam.DateTo.Substring(4, 2) + "/" + lstParam.DateTo.Substring(0, 4);
+                        valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
                     classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
 
@@ -8116,8 +8115,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     else
                     {
-                        valExcel1 = lstParam.DateFrom.Substring(6, 2) + "/" + lstParam.DateFrom.Substring(4, 2) + "/" + lstParam.DateFrom.Substring(0, 4) +
-                            " - " + lstParam.DateTo.Substring(6, 2) + "/" + lstParam.DateTo.Substring(4, 2) + "/" + lstParam.DateTo.Substring(0, 4);
+                        valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
                     classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
 
@@ -8159,11 +8157,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     else
                     {
-                        valExcel1 = lstParam.DateFrom.Substring(6, 2) + "/" + lstParam.DateFrom.Substring(4, 2) + "/" + lstParam.DateFrom.Substring(0, 4) +
-                            " - " + lstParam.DateTo.Substring(6, 2) + "/" + lstParam.DateTo.Substring(4, 2) + "/" + lstParam.DateTo.Substring(0, 4);
+                        valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
                     classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
-
                     int index = fileSave.IndexOf(@"\Template");
                     fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
                     fileSave = fileSave.Replace(@"\", "/");

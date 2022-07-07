@@ -174,8 +174,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
             switch (loaiHD)
             {
                 case 1:
-                case 25:
                     data = commonEnum.ListColumnInvoices.ToList();
+                    break;  
+                case 2:// hoadon baohanh
+                    data = commonEnum.ListColumnInvoicesBaoHanh.ToList();
+                    break;  
+                case 25:
+                    data = commonEnum.ListColumnInvoicesSuaChua.ToList();
                     break;
                 case 3:
                     data = commonEnum.ListColumnOrders.ToList();

@@ -1,4 +1,10 @@
-﻿<div id="vmKhoanThuChi" class="modal fade">
+﻿<style>
+    #vmKhoanThuChi .dropdown-menu li {
+        padding: 3px 8px;
+        border-bottom: 1px solid #cccc;
+    }
+</style>
+<div id="vmKhoanThuChi" class="modal fade">
     <div class="modal-dialog draggable modal-md" role="document">
         <div class="modal-content ">
             <div class="modal-header">
@@ -13,12 +19,15 @@
                 <div class="form-group floatleft">
                     <label>Loại chứng từ</label>
                     <div class="form-news">
-                        <chungtus :list-all="ChungTus"
-                                  :text-search="newKhoanThuChi.TenLoaiChungTu"
-                                  :id-chosing="newKhoanThuChi.LoaiChungTu"
-                                  v-on:on-select-item="ChoseChungTu"
-                                  v-on:reset-item="ResetChungTu">
-                        </chungtus>
+                        <dropdown-multiple placeholder="Chọn loại chứng từ"
+                                           :list-all="ChungTus"
+                                           :list-chosed="newKhoanThuChi.arrLoaiChungTu"
+                                           :colshow="1"
+                                           :type-data="6"
+                                           :have-condition="true"
+                                           :show-item-all="true"
+                                           v-on:on-select-item="ChoseChungTu">
+                        </dropdown-multiple>
                     </div>
                 </div>
                 <div class="form-group floatleft">
@@ -78,7 +87,8 @@
     var vmKhoanThuChi = new Vue({
         el: '#vmKhoanThuChi',
         components: {
-            'chungtus': cmpLoaiChungTu,
+            //'chungtus': cmpLoaiChungTu,
+            'dropdown-multiple': cmpDropdownMultipleItem,
         },
         created: function () {
             let self = this;
@@ -109,13 +119,14 @@
             inforLogin: {},
             ListBanks: [],
             ChungTus: [
-                { ID: 1, TenLoaiChungTu: 'Hóa đơn bán lẻ' },
-                { ID: 4, TenLoaiChungTu: 'Nhập hàng' },
-                { ID: 6, TenLoaiChungTu: 'Khách trả hàng' },
-                { ID: 7, TenLoaiChungTu: 'Trả hàng nhà cung cấp' },
-                { ID: 13, TenLoaiChungTu: 'Nhập kho nội bộ' },
-                { ID: 19, TenLoaiChungTu: 'Gói dịch vụ' },
-                { ID: 22, TenLoaiChungTu: 'Thẻ giá trị' },
+                { ID: 1, Text1: 'Hóa đơn bán lẻ' },
+                { ID: 4, Text1: 'Nhập hàng', Text2: '' },
+                { ID: 6, Text1: 'Khách trả hàng', Text2: '' },
+                { ID: 7, Text1: 'Trả hàng nhà cung cấp', Text2: '' },
+                { ID: 13, Text1: 'Nhập kho nội bộ', Text2: '' },
+                { ID: 19, Text1: 'Gói dịch vụ', Text2: '' },
+                { ID: 22, Text1: 'Thẻ giá trị', Text2: '' },
+                { ID: 32, Text1: 'Hoàn thẻ giá trị', Text2: '' },
             ],
             role: {
                 Update: false,
@@ -131,9 +142,17 @@
                 GhiChu: '',
                 NguoiTao: '',
                 TrangThai: 1,
-                LoaiChungTu: null,
-                TenLoaiChungTu: '',
+                arrLoaiChungTu: [],
             },
+        },
+        computed: {
+            sLoai: function () {
+                let self = this;
+                if (self.newKhoanThuChi.LaKhoanThu) {
+                    return 'thu';
+                }
+                return 'chi';
+            }
         },
 
         methods: {
@@ -152,8 +171,7 @@
                     GhiChu: '',
                     NguoiTao: '',
                     TrangThai: 1,
-                    LoaiChungTu: 0,
-                    TenLoaiChungTu: '',
+                    arrLoaiChungTu: [],
                 };
                 $('#vmKhoanThuChi').modal('show');
             },
@@ -161,30 +179,26 @@
                 let self = this;
                 self.saveOK = false;
                 self.typeUpdate = 2;
-                item.TenLoaiChungTu = '';
+                item.arrLoaiChungTu = [];
                 if (!commonStatisJs.CheckNull(item.LoaiChungTu)) {
                     let ct = $.grep(self.ChungTus, function (x) {
-                        return x.ID === item.LoaiChungTu;
+                        return item.LoaiChungTu.indexOf(x.ID) > -1;
                     });
-                    if (ct.length > 0) {
-                        item.TenLoaiChungTu = ct[0].TenLoaiChungTu;
-                    }
+                    item.arrLoaiChungTu = ct;
                 }
-                self.newKhoanThuChi = item;
+                self.newKhoanThuChi = $.extend({}, item);
 
                 self.itemOld = $.extend({}, item);
                 $('#vmKhoanThuChi').modal('show');
             },
 
-            ChoseChungTu: function (item) {
+            ChoseChungTu: function (lst) {
                 let self = this;
-                self.newKhoanThuChi.LoaiChungTu = item.ID;
-                self.newKhoanThuChi.TenLoaiChungTu = item.TenLoaiChungTu;
+                self.newKhoanThuChi.arrLoaiChungTu = lst;
             },
             ResetChungTu: function () {
                 let self = this;
-                self.newKhoanThuChi.LoaiChungTu = null;
-                self.newKhoanThuChi.TenLoaiChungTu = '';
+                self.newKhoanThuChi.arrLoaiChungTu = [];
             },
 
             CheckSave: function () {
@@ -204,6 +218,15 @@
                     return;
                 }
 
+                let ids = '', tenLoais = '';
+                if (self.newKhoanThuChi.arrLoaiChungTu.length > 0) {
+                    ids = self.newKhoanThuChi.arrLoaiChungTu.map(function (x) {
+                        return x.ID;
+                    }).toString();
+                    tenLoais = self.newKhoanThuChi.arrLoaiChungTu.map(function (x) {
+                        return x.Text1;
+                    }).toString();
+                }
                 let obj = {
                     ID: self.newKhoanThuChi.ID,
                     NoiDungThuChi: self.newKhoanThuChi.NoiDungThuChi,
@@ -211,14 +234,14 @@
                     LaKhoanThu: self.newKhoanThuChi.LaKhoanThu,
                     NguoiTao: self.inforLogin.UserLogin,
                     TinhLuong: self.newKhoanThuChi.TinhLuong,
-                    LoaiChungTu: self.newKhoanThuChi.LoaiChungTu,
+                    LoaiChungTu: ids,
                     TrangThai: 1,
                 };
 
                 self.isLoading = true;
 
-                let sNKy = '<br /> - Tên khoản thu/chi: '.concat(self.newKhoanThuChi.NoiDungThuChi,
-                    '<br /> - Loại chứng từ: ', self.newKhoanThuChi.TenLoaiChungTu,
+                let sNKy = '<br /> - Tên khoản '.concat(self.sLoai, ': ', self.newKhoanThuChi.NoiDungThuChi,
+                    '<br /> - Loại chứng từ: ', tenLoais,
                     '<br /> - Mô tả: ', self.newKhoanThuChi.GhiChu);
 
                 if (self.typeUpdate === 1) {
@@ -235,8 +258,8 @@
                             ID_NhanVien: self.inforLogin.ID_NhanVien,
                             LoaiNhatKy: 1,
                             ChucNang: 'Khoản thu chi',
-                            NoiDung: 'Thêm mới khoản thu chi '.concat(self.newKhoanThuChi.NoiDungThuChi),
-                            NoiDungChiTiet: 'Thêm mới khoản thu chi. <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
+                            NoiDung: 'Thêm mới khoản '.concat(self.sLoai, ': ', self.newKhoanThuChi.NoiDungThuChi),
+                            NoiDungChiTiet: 'Thêm mới khoản ' + self.sLoai + '  <br /> <b> Nội dung chi tiết: </b>'.concat(sNKy,
                                 '<br /> <b> Người tạo: </b>', self.inforLogin.UserLogin),
                         }
                         Insert_NhatKyThaoTac_1Param(diary);

@@ -185,7 +185,7 @@
                 loaiHD = 4;
             }
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu === loaiHD.toString() && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu.indexOf(loaiHD) > -1 && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },
@@ -984,9 +984,9 @@
             let idDoiTuong = ptKhach.ID_DoiTuong;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
             let tenDoiTuong = self.ddl_textVal.cusName;
-            let sMaHoaDon = '', sTaiKhoan='';
+            let sMaHoaDon = '', sTaiKhoan = '';
             let lstQuyCT = [], arrPhuongThuc = [];
-            let loaiThuChi = self.LoaiHoaDon === 4 ? 12 : 11;
+            let loaiThuChi = self.LoaiHoaDon === 7 ? 11 : 12;
             let phuongthucTT = '';
             self.QuyHD_Share = [];
             let tongthu = 0, tienmat = 0, tienpos = 0, tienck = 0, tienthe = 0, tiendiem = 0, tiendatcoc = 0;
@@ -1075,7 +1075,7 @@
                         ID_TaiKhoanNganHang: ptKhach.ID_TaiKhoanPos,
                     });
                     lstQuyCT.push(qct);
-                    sTaiKhoan += '/ '+ qct.GhiChu;
+                    sTaiKhoan += '/ ' + qct.GhiChu;
 
                     if ($.inArray(qct.HinhThucThanhToan, arrPhuongThuc) === -1) {
                         arrPhuongThuc.push(qct.HinhThucThanhToan);

@@ -3535,6 +3535,7 @@ var ViewModel = function () {
         });
         switch (item.LoaiHoaDon) {
             case 1:
+            case 2:
             case 19:
                 $('#modalpopup_PhieuBH').modal('show');
                 break;
@@ -3581,8 +3582,14 @@ var ViewModel = function () {
             case 1:
                 url = "/#/Invoices";
                 break;
+            case 2:
+                url = "/#/HoaDonBaoHanh";
+                break;
             case 4:
                 url = "/#/PurchaseOrder";
+                break;
+            case 13:
+                url = "/#/NhapNoiBo";
                 break;
             case 6:
                 url = "/#/Returns";

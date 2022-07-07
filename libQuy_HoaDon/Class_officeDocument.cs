@@ -962,9 +962,7 @@ namespace libQuy_HoaDon
         {
             Aspose.Cells.Workbook wbook = new Aspose.Cells.Workbook(strFileTemplatePath);
             Aspose.Cells.Worksheet wSheet = wbook.Worksheets[sheet];
-            // định dạng
-            wSheet.Cells[2, 1].Value = txtValue1;
-            wSheet.Cells[3, 1].Value = txtValue2;
+           
             int dkrange = (tblDuLieu.Rows.Count) / rowNumber;
             if (dkrange >= 1)
             {
@@ -996,7 +994,9 @@ namespace libQuy_HoaDon
                     wSheet.Cells.DeleteColumn(columH[i]);
                 }
             }
-
+            // định dạng
+            wSheet.Cells[2, 1].Value = txtValue1;
+            wSheet.Cells[3, 1].Value = txtValue2;
             wbook.Save(exportPath, Aspose.Cells.SaveFormat.Xlsx);
         }
 

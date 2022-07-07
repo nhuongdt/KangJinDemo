@@ -29,13 +29,14 @@
     self.TT_TamLuu = ko.observable(true);
     self.TT_GiaoHang = ko.observable(true);
     self.TT_DaDuyet = ko.observable(true);
-    self.La_HDBan = ko.observable(LoaiHoaDonMenu === '0');
-    self.La_HDSuaChua = ko.observable(LoaiHoaDonMenu === '1');
+    self.La_HDBan = ko.observable(LoaiHoaDonMenu === '1');
+    self.La_HDSuaChua = ko.observable(LoaiHoaDonMenu === '25');
+    self.LoaiHoaDonMenu = ko.observable(parseInt($('#txtLoaiHoaDon').val()));
     self.Quyen_NguoiDung = ko.observableArray();
     // hoa don ban
     self.RoleView_Invoice = ko.observable(false);
-    self.RoleView_Invoice = ko.observable(false);
     self.RoleInsert_Invoice = ko.observable(false);
+    self.RoleInsert_HoaDonBaoHanh = ko.observable(false);
     self.RoleUpdate_Invoice = ko.observable(false);
     self.RoleDelete_Invoice = ko.observable(false);
     self.RoleExport_Invoice = ko.observable(false);
@@ -215,6 +216,18 @@
     switch (loaiHoaDon) {
         case 0:
         case 1:
+            loaiHoaDon = self.LoaiHoaDonMenu();
+            switch (self.LoaiHoaDonMenu()) {
+                case 1:
+                    sLoai = 'hóa đơn bán hàng';
+                    break;
+                case 2:
+                    sLoai = 'hóa đơn bảo hành';
+                    Key_Form = "KeyHDBaoHanh";
+                    break;
+                case 25:
+                    break;
+            }
             sLoai = 'hóa đơn bán hàng';
             break;
         case 3:
@@ -229,6 +242,7 @@
             sLoai = 'hóa đơn sửa chữa';
             break;
     }
+
     function PageLoad() {
         console.log('bdt')
         loadCheckbox();
@@ -275,22 +289,23 @@
         }
     }
     function loadCheckbox() {
+        if (loaiHoaDon === 1) {
+            loaiHoaDon = self.LoaiHoaDonMenu();
+        }
         $.getJSON("api/DanhMuc/BaseApi/GetListColumnInvoices?loaiHD=" + loaiHoaDon, function (data) {
-            if (!self.IsGara()) {
-                data = $.grep(data, function (x) {
-                    return $.inArray(x.Key, ['maphieutiepnhan', 'bienso', 'mabaohiem', 'tenbaohiem', 'baohiemcantra',
-                        'baohiemdatra', 'tiencoc',
-                        "tongtienBHduyet", "khautrutheovu", "giamtruboithuong", "BHchitratruocVAT", "tongthueBH"]) === -1;
-                })
-            }
-            self.ListCheckBox(data);
-            if (loaiHoaDon === 1 && self.IsGara()) {
+            if (loaiHoaDon === 25) {
                 self.NumberColum_Div2(Math.ceil(data.length / 3));
             }
             else {
+                if (loaiHoaDon === 3 && !self.IsGara()) {
+                    data = $.grep(data, function (x) {
+                        return $.inArray(x.Key, ['maphieutiepnhan','bienso']) === -1;
+                    })
+                }
                 self.NumberColum_Div2(Math.ceil(data.length / 2));
             }
             self.NumberColum_Div3(Math.ceil(data.length / 3 * 2));
+            self.ListCheckBox(data);
         });
     }
     function HideShowColumn() {
@@ -319,24 +334,8 @@
             if (data.ID !== null) {
                 self.Quyen_NguoiDung(data.HT_Quyen_NhomDTO);
 
-                switch (loaiHoaDon) {
-                    case 0:
-                    case 1:
-                    case 25:
-                        self.Role_PrintHoaDon(CheckQuyenExist('HoaDon_In'));
-                        HideShowButton_HoaDon();
-                        break;
-                    case 3:
-                        self.Role_PrintHoaDon(CheckQuyenExist('DatHang_In'));
-                        self.RoleApprove_Order(CheckQuyenExist('DatHang_DuyetBaoGia'));
-                        HideShowButton_DatHang();
-                        break;
-                    case 6:
-                        self.Role_PrintHoaDon(CheckQuyenExist('TraHang_In'));
-                        HideShowButton_HoaDon();// used to check DoiTra
-                        HideShowButton_TraHang();
-                        break;
-                }
+                CheckRole_Invoice();
+
                 // check role update/delete soquy
                 self.Show_BtnUpdateSoQuy(CheckQuyenExist('SoQuy_CapNhat'));
                 self.Show_BtnDeleteSoQuy(CheckQuyenExist('SoQuy_Xoa'));
@@ -382,7 +381,15 @@
     }
 
     self.clickbanhang = function () {
-        localStorage.setItem('fromHoaDon', true);
+        switch (loaiHoaDon) {
+            case 1:
+            case 25:
+                localStorage.setItem('fromHoaDon', true);
+                break;
+            case 2:
+                localStorage.setItem('fromBaoHanh', true);
+                break;
+        }
         self.gotoGara();
     }
     self.selectedCN = function (item) {
@@ -970,25 +977,11 @@
             var lstAfter = [];
             switch (loaiHoaDon) {
                 case 1:
+                case 2:
                 case 25:
+                case 6:
                     for (let i = 0; i < lstColumn.length; i++) {
-                        let itFor = parseInt(lstColumn[i])
-                        if (itFor > 2) {
-                            if (itFor <= 7) {
-                                lstAfter.push(itFor + 2);// 2 cot: maphieuTN + bienso
-                            }
-                            else {
-                                if (itFor <= 20) {
-                                    lstAfter.push(itFor + 4); // (2 cột + 2 cot: mabaohiem, tenbaohiem)
-                                }
-                                else {
-                                    lstAfter.push(itFor + 12); // 4 cọt + 8 cot: tongtienBHduyet --> tiencoc
-                                }
-                            }
-                        }
-                        else {
-                            lstAfter.push(itFor);
-                        }
+                        lstAfter.push(formatNumberToFloat(lstColumn[i]));
                     }
                     break;
                 case 3:
@@ -1073,14 +1066,6 @@
         }
         if (self.TT_DaHuy()) {
             arrStatus.push('4');
-        }
-        // hoadon ban/suachua
-        var arrLoai = [];
-        if (self.La_HDBan()) {
-            arrLoai.push('0');
-        }
-        if (self.La_HDSuaChua()) {
-            arrLoai.push('1');
         }
 
         // NgayLapHoaDon
@@ -1186,7 +1171,7 @@
             CurrentPage: self.currentPage(),
             PageSize: self.pageSize(),
             LoaiHoaDon: loaiHoaDon,
-            LaHoaDonSuaChua: arrLoai,
+            LaHoaDonSuaChua: [self.LoaiHoaDonMenu()],
             MaHoaDon: locdau(txtMaHDon).trim(),
             MaHoaDonGoc: locdau(txtMaHDgoc.trim()),
             ID_ChiNhanhs: self.MangIDDV(),
@@ -1211,13 +1196,22 @@
         if (isExport) {
             $('.content-table').gridLoader();
             var txtLoaiHD = 'Hóa đơn';
-            var funcName = 'ExportExcel_HoaDons'; // loai 1, 19
+            var funcName = 'ExportExcel_HoaDonBanLe'; // loai 1, 19, 2
             var noidungNhatKy = "Xuất excel danh sách hóa đơn";
 
             switch (loaiHoaDon) {
                 case 1:
+                    GetColumHide(1);
+                    funcName = 'ExportExcel_HoaDonBanLe';
+                    break;
                 case 25:
                     GetColumHide(1);
+                    break;
+                case 2:
+                    GetColumHide(1);
+                    txtLoaiHD = 'Hóa đơn bảo hành';
+                    funcName = 'ExportExcel_HoaDonBaoHanh';
+                    noidungNhatKy = "Xuất excel danh sách hóa đơn bảo hành";
                     break;
                 case 3:
                     GetColumHide(0);
@@ -1256,6 +1250,7 @@
             switch (loaiHoaDon) {
                 case 0:
                 case 1:
+                case 2:
                 case 25:
                     hasPermission = self.RoleView_Invoice();
                     break;
@@ -1793,11 +1788,16 @@
     };
     self.gotoHoaDonGoc = function (item) {
         localStorage.setItem('FindHD', item.MaHoaDonGoc);
-        if (item.LoaiHoaDonGoc === 1) {
-            window.location.href = '/#/Invoices';
-        }
-        else {
-            window.location.href = '/#/ServicePackage';
+        switch (item.LoaiHoaDonGoc) {
+            case 1:
+                window.location.href = '/#/Invoices';
+                break;
+            case 2:
+                window.location.href = '/#/HoaDonBaoHanh';
+                break;
+            case 19:
+                window.location.href = '/#/ServicePackage';
+                break;
         }
     }
     self.gotoSoQuy = function (item) {
@@ -2260,6 +2260,7 @@
         switch (loaiHoaDon) {
             case 0:
             case 1:
+            case 2:
             case 25:
                 CheckQuyen_HoaDonMua(item);
                 // chietkhau NV --> use when SaoChep/MoPhieu
@@ -2275,20 +2276,6 @@
                 break;
             case 3:
                 GetLichSuThanhToan_ofDatHang(item.ID);
-                if (self.NganhKinhDoanh() === 3) {
-                    self.Show_BtnCopy(false);
-                }
-                else {
-                    var roleCopy_Order = $.grep(self.Quyen_NguoiDung(), function (x) {
-                        return x.MaQuyen.indexOf('DatHang_SaoChep') > -1;
-                    });
-                    if (self.RoleInsert_Order() && roleCopy_Order.length > 0) {
-                        self.Show_BtnCopy(true);
-                    }
-                    else {
-                        self.Show_BtnCopy(false);
-                    }
-                }
 
                 if (self.RoleUpdate_Order()) {
                     // role change NgayLapHD
@@ -2351,20 +2338,6 @@
                 break;
             case 6:
                 self.MaHoaDonParent(item.MaHoaDon); // get MaHoaDon Parent --> go to gotoHoaDonTH (go to itself)
-                var roleCopy_Return = $.grep(self.Quyen_NguoiDung(), function (x) {
-                    return x.MaQuyen.indexOf('TraHang_SaoChep') > -1;
-                });
-                if (self.NganhKinhDoanh() === 3) {
-                    self.Show_BtnCopy(false);
-                }
-                else {
-                    if (self.RoleInsert_Return() && roleCopy_Return.length > 0) {
-                        self.Show_BtnCopy(true);
-                    }
-                    else {
-                        self.Show_BtnCopy(false);
-                    }
-                }
 
                 if (self.RoleUpdate_Return()) {
                     var roleChangeNgayLapHD_TH = $.grep(self.Quyen_NguoiDung(), function (x) {
@@ -2485,18 +2458,6 @@
         }
         else {
             self.Show_BtnThanhToanCongNo(false);
-        }
-        var roleCopy_Invoice = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen.indexOf('HoaDon_SaoChep') > -1;
-        });
-        if (self.NganhKinhDoanh() === 3) {
-            self.Show_BtnCopy(false);
-        }
-        else {
-            self.Show_BtnCopy(false);
-            if (self.RoleInsert_Invoice() && roleCopy_Invoice.length > 0) {
-                self.Show_BtnCopy(true);
-            }
         }
 
         // open HDTamLuu if ChoThanhToan = true
@@ -3119,7 +3080,7 @@
         frameDoc.document.close();
         setTimeout(function () {
             window.frames["frame1"].focus();
-            window.frames["frame1"].print();           
+            window.frames["frame1"].print();
             frame1.remove();
         }, 500);
     }
@@ -4557,150 +4518,82 @@
         });
         return role.length > 0;
     }
-    // Check quyen user
-    function HideShowButton_HoaDon() {
-        var arrRoleHD = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen.indexOf('HoaDon_') > -1;
-        });
-        var itemView = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('HoaDon_XemDS') > -1;
-        });
-        if (itemView.length > 0) {
-            self.RoleView_Invoice(true);
-            $('#btnViewCheck').show();
-            $('.bangchung').show();
-            $('#myList').css('display', '');
-            SearchHoaDon();
+
+    function CheckRole_Invoice() {
+        switch (loaiHoaDon) {
+            case 1:
+            case 25:
+                self.RoleView_Invoice(CheckQuyenExist('HoaDon_XemDS'));
+                self.RoleInsert_Invoice(CheckQuyenExist('HoaDon_ThemMoi'));
+                self.RoleUpdate_Invoice(CheckQuyenExist('HoaDon_CapNhat'));
+                self.RoleDelete_Invoice(CheckQuyenExist('HoaDon_Xoa'));
+                self.Show_BtnCopy(CheckQuyenExist('HoaDon_SaoChep'));
+                self.RoleExport_Invoice(CheckQuyenExist('HoaDon_XuatFile'));
+                self.Role_PrintHoaDon(CheckQuyenExist('HoaDon_In'));
+                self.RoleInsert_HoaDonBaoHanh(CheckQuyenExist('HoaDonBaoHanh_ThemMoi'));
+
+                if (self.RoleView_Invoice()) {
+                    SearchHoaDon();
+                }
+                else {
+                    ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai)
+                }
+                break;
+            case 2:
+                self.RoleView_Invoice(CheckQuyenExist('HoaDonBaoHanh_XemDS'));
+                self.RoleInsert_HoaDonBaoHanh(CheckQuyenExist('HoaDonBaoHanh_ThemMoi'));
+                self.RoleUpdate_Invoice(CheckQuyenExist('HoaDonBaoHanh_CapNhat'));
+                self.RoleDelete_Invoice(CheckQuyenExist('HoaDonBaoHanh_Xoa'));
+                self.Show_BtnCopy(CheckQuyenExist('HoaDonBaoHanh_SaoChep'));
+                self.RoleExport_Invoice(CheckQuyenExist('HoaDonBaoHanh_XuatFile'));
+                self.Role_PrintHoaDon(CheckQuyenExist('HoaDonBaoHanh_In'));
+
+                if (self.RoleView_Invoice()) {
+                    SearchHoaDon();
+                }
+                else {
+                    ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai)
+                }
+                break;
+            case 3:
+                self.RoleView_Order(CheckQuyenExist('DatHang_XemDS'));
+                self.RoleInsert_Order(CheckQuyenExist('DatHang_ThemMoi'));
+                self.RoleUpdate_Order(CheckQuyenExist('DatHang_CapNhat'));
+                self.RoleDelete_Order(CheckQuyenExist('DatHang_Xoa'));
+                self.Show_BtnCopy(CheckQuyenExist('HoaDonBaoHanh_SaoChep'));
+                self.RoleExport_Order(CheckQuyenExist('DatHang_XuatFile'));
+                self.Role_PrintHoaDon(CheckQuyenExist('DatHang_In'));
+                self.RoleApprove_Order(CheckQuyenExist('DatHang_DuyetBaoGia'));
+
+                if (self.RoleView_Order()) {
+                    SearchHoaDon();
+                }
+                else {
+                    ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai)
+                }
+                break;
+            case 6:
+                self.RoleView_Return(CheckQuyenExist('TraHang_XemDS'));
+                self.RoleInsert_Return(CheckQuyenExist('TraHang_ThemMoi'));
+                self.RoleUpdate_Return(CheckQuyenExist('TraHang_CapNhat'));
+                self.RoleDelete_Return(CheckQuyenExist('TraHang_Xoa'));
+                self.Show_BtnCopy(CheckQuyenExist('TraHang_SaoChep'));
+                self.RoleExport_Return(CheckQuyenExist('TraHang_XuatFile'));
+                self.Role_PrintHoaDon(CheckQuyenExist('TraHang_In'));
+                if (self.RoleView_Return()) {
+                    SearchHoaDon();
+                }
+                else {
+                    ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai)
+                }
+                break;
         }
-        else {
-            ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai)
-        }
-        // them moi
-        var itemInsert = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('HoaDon_ThemMoi') > -1;
-        });
-        if (self.RoleView_Invoice() && itemInsert.length > 0) {
-            self.RoleInsert_Invoice(true);
-        }
-        // cap nhat
-        var itemUpdate = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen === 'HoaDon_CapNhat';
-        });
-        if (self.RoleView_Invoice() && itemUpdate.length > 0) {
-            self.RoleUpdate_Invoice(true);
-        }
-        // xoa
-        var itemDelete = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('HoaDon_Xoa') > -1;
-        });
-        if (self.RoleView_Invoice() && itemDelete.length > 0) {
-            self.RoleDelete_Invoice(true);
-        }
-        // xuat file
-        var itemExport = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('HoaDon_XuatFile') > -1;
-        });
-        if (self.RoleView_Invoice() && itemExport.length > 0) {
-            self.RoleExport_Invoice(true);
-            $('#btnExport').show();
-        }
-    }
-    function HideShowButton_DatHang() {
-        var arrRoleHD = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen.indexOf('DatHang_') > -1;
-        });
-        var itemView = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('DatHang_XemDS') > -1;
-        });
-        if (itemView.length > 0) {
-            self.RoleView_Order(true);
-            $('#btnViewCheck').show();
-            $('.bangchung').show();
-            $('#myList').css('display', '');
-            SearchHoaDon();
-        }
-        else {
-            ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai);
-        }
-        // them moi
-        var itemInsert = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('DatHang_ThemMoi') > -1;
-        });
-        if (self.RoleView_Order() && itemInsert.length > 0) {
-            self.RoleInsert_Order(true);
-            $('.clickDH').css('display', 'block');
-        }
-        // cap nhat
-        var itemUpdate = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('DatHang_CapNhat') > -1;
-        });
-        if (self.RoleView_Order() && itemUpdate.length > 0) {
-            self.RoleUpdate_Order(true);
-        }
-        // xoa
-        var itemDelete = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('DatHang_Xoa') > -1;
-        });
-        if (self.RoleView_Order() && itemDelete.length > 0) {
-            self.RoleDelete_Order(true);
-        }
-        // xuat file
-        var itemExport = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('DatHang_XuatFile') > -1;
-        });
-        if (self.RoleView_Order() && itemExport.length > 0) {
-            self.RoleExport_Order(true);
-            $('#btnExport').show();
+
+        if (self.NganhKinhDoanh() === 3) {
+            self.Show_BtnCopy(false);
         }
     }
-    function HideShowButton_TraHang() {
-        var arrRoleHD = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen.indexOf('TraHang_') > -1;
-        });
-        var itemView = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('TraHang_XemDS') > -1;
-        });
-        if (itemView.length > 0) {
-            self.RoleView_Return(true);
-            $('#btnViewCheck').show();
-            $('.bangchung').show();
-            $('#myList').css('display', '');
-            SearchHoaDon();
-        }
-        else {
-            ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai);
-        }
-        // them moi
-        var itemInsert = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('TraHang_ThemMoi') > -1;
-        });
-        if (self.RoleView_Return() && itemInsert.length > 0) {
-            self.RoleInsert_Return(true);
-            $('.clickTH').css('display', 'block');
-        }
-        // cap nhat
-        var itemUpdate = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('TraHang_CapNhat') > -1;
-        });
-        if (self.RoleView_Return() && itemUpdate.length > 0) {
-            self.RoleUpdate_Return(true);
-        }
-        // xoa
-        var itemDelete = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('TraHang_Xoa') > -1;
-        });
-        if (self.RoleView_Return() && itemDelete.length > 0) {
-            self.RoleDelete_Return(true);
-        }
-        // xuat file
-        var itemExport = $.grep(arrRoleHD, function (x) {
-            return x.MaQuyen.indexOf('TraHang_XuatFile') > -1;
-        });
-        if (self.RoleView_Return() && itemExport.length > 0) {
-            self.RoleExport_Return(true);
-            $('#btnExport').show();
-        }
-    }
+
     self.ListTypeMauIn = ko.observableArray();
     function loadMauIn() {
         $.ajax({
@@ -5357,7 +5250,7 @@
         var arr = $.grep(arrCTsort, function (x) {
             return x.PTChietKhau === arrCTsort[0].PTChietKhau;
         });
-        if (arr.length === arrCTsort.length) {
+        if (arrCTsort.length > 0 && arr.length === arrCTsort.length) {
             ptCKHang = arrCTsort[0].PTChietKhau;
         }
 
@@ -5432,7 +5325,6 @@
         // assign again ID = constGuid_Empty at BanLe.js
         switch (type) {
             case 0:// saochep
-                newHD.ID_HoaDon = null;
                 newHD.KhachDaTra = 0;
                 newHD.BaoHiemDaTra = 0;
                 newHD.DaThanhToan = self.IsGara() ? 0 : newHD.PhaiThanhToan;
@@ -5445,7 +5337,6 @@
                 newHD.TienTheGiaTri = newHD.ThuTuThe;
                 SetCache_ifGara('TN_copyHD');
                 SetCache_ifNotGara(3);
-
                 break;
             case 1:// update HDTamLuu
                 maHD = newHD.MaHoaDon;
@@ -5480,6 +5371,29 @@
                 SetCache_ifGara('TN_updateHD');
                 SetCache_ifNotGara(8);
                 break;
+            case 3:// baohanh
+                maHD = newHD.MaHoaDon;
+                newHD.LoaiHoaDon = 2;
+                newHD.TrangThaiHD = 1;
+                newHD.ID_HoaDon = newHD.ID;
+                newHD.TongTienHang = 0;
+                newHD.TongGiamGia = 0;
+                newHD.TongChietKhau = 0;
+                newHD.TongTienThue = 0;
+                newHD.TongThanhToan = 0;
+                newHD.PTThueHoaDon = 0;
+                newHD.PhaiThanhToan = 0;
+                newHD.DaThanhToan = 0;
+                newHD.KhachDaTra = 0;
+                newHD.TienMat = 0;
+                newHD.TienGui = 0;
+                newHD.TienATM = 0;
+                newHD.TienTheGiaTri = 0;
+                newHD.TienDoiDiem = 0;
+                newHD.TienDatCoc = 0;
+                SetCache_ifGara('TN_copyHD');
+                SetCache_ifNotGara(9);
+                break;
         }
         var lstKMCTHD = localStorage.getItem('productKM_HoaDon');
         if (lstKMCTHD !== null) {
@@ -5497,7 +5411,7 @@
         if (self.BH_HoaDonChiTiets() !== null) {
             var giamgiaKM_HD = newHD.KhuyeMai_GiamGia;
             newHD.Status = 1;
-            newHD.MaHoaDonDB = maHD;
+            newHD.MaHoaDonDB = type == 3 ? '' : maHD;
             newHD.YeuCau = 1;
             newHD.ChoThanhToan = false;
             newHD.StatusOffline = false;
@@ -5519,8 +5433,8 @@
             newHD.TongGiamGiaKM_HD = newHD.TongGiamGia + giamgiaKM_HD;
             newHD.PTThueDB = 0;
             newHD.TongThueDB = 0;
-            newHD.TongTienHangChuaCK = self.TongTienHangChuaCK();
-            newHD.TongGiamGiaHang = self.TongGiamGiaHang();
+            newHD.TongTienHangChuaCK = type === 3 ? 0 : self.TongTienHangChuaCK();
+            newHD.TongGiamGiaHang = type === 3 ? 0 : self.TongGiamGiaHang();
 
             newHD.DiemHienTai = 0;
             newHD.DiemCong = 0;
@@ -5922,6 +5836,54 @@
                 var x = a.SoThuTu, y = b.SoThuTu;
                 return x < y ? 1 : x > y ? -1 : 0;
             });
+
+            if (type === 3) {// baohanh --> reset dongia, thanhtien
+                for (let i = 0; i < cthdLoHang.length; i++) {
+                    cthdLoHang[i].DonGia = 0;
+                    cthdLoHang[i].GiaBan = 0;
+                    cthdLoHang[i].PTThue = 0;
+                    cthdLoHang[i].TienThue = 0;
+                    cthdLoHang[i].PTChietKhau = 0;
+                    cthdLoHang[i].TienChietKhau = 0;
+                    cthdLoHang[i].ThanhToan = 0;
+                    cthdLoHang[i].ThanhTien = 0;
+                    cthdLoHang[i].ID_ChiTietGoiDV = cthdLoHang[i].ID;
+
+                    for (let j = 0; j < cthdLoHang[i].DM_LoHang.length; j++) {
+                        cthdLoHang[i].DM_LoHang[j].DonGia = 0;
+                        cthdLoHang[i].DM_LoHang[j].GiaBan = 0;
+                        cthdLoHang[i].DM_LoHang[j].PTThue = 0;
+                        cthdLoHang[i].DM_LoHang[j].TienThue = 0;
+                        cthdLoHang[i].DM_LoHang[j].PTChietKhau = 0;
+                        cthdLoHang[i].DM_LoHang[j].TienChietKhau = 0;
+                        cthdLoHang[i].DM_LoHang[j].ThanhTien = 0;
+                        cthdLoHang[i].DM_LoHang[j].ThanhToan = 0;
+                        cthdLoHang[i].DM_LoHang[j].ID_ChiTietGoiDV = cthdLoHang[i].DM_LoHang[j].ID;
+                    }
+                    for (let j = 0; j < cthdLoHang[i].HangCungLoais.length; j++) {
+                        cthdLoHang[i].HangCungLoais[j].DonGia = 0;
+                        cthdLoHang[i].HangCungLoais[j].GiaBan = 0;
+                        cthdLoHang[i].HangCungLoais[j].PTThue = 0;
+                        cthdLoHang[i].HangCungLoais[j].TienThue = 0;
+                        cthdLoHang[i].HangCungLoais[j].PTChietKhau = 0;
+                        cthdLoHang[i].HangCungLoais[j].TienChietKhau = 0;
+                        cthdLoHang[i].HangCungLoais[j].ThanhTien = 0;
+                        cthdLoHang[i].HangCungLoais[j].ThanhToan = 0;
+                        cthdLoHang[i].HangCungLoais[j].ID_ChiTietGoiDV = cthdLoHang[i].HangCungLoais[j].ID;
+                    }
+                    for (let j = 0; j < cthdLoHang[i].ThanhPhanComBo.length; j++) {
+                        cthdLoHang[i].ThanhPhanComBo[j].DonGia = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].GiaBan = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].PTThue = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].TienThue = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].PTChietKhau = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].TienChietKhau = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].ThanhTien = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].ThanhToan = 0;
+                        cthdLoHang[i].ThanhPhanComBo[j].ID_ChiTietGoiDV = cthdLoHang[i].ThanhPhanComBo[j].ID;
+                    }
+                }
+            }
             // tinh ThoiGianThucHien DichVu
             var totalTime = 0;
             if (newHD.ID_ViTri !== null) {
@@ -6240,6 +6202,7 @@
             ThucThu: daTT,
             DaThuTruoc: daTT,
             ConNo: tongTT - daTT,
+            TongPhiNganHang: 0,
         }
         vmHoaHongHoaDon.GetChietKhauHoaDon_byID(obj);
     }

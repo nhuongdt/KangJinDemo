@@ -21,6 +21,25 @@ namespace Model
         public double? KhachDaTra { get; set; }
         public string DienGiai { get; set; }
     }
+    public class TGT_LichSuNapTraDTO
+    {
+        public Guid? ID { get; set; }
+        public Guid? ID_DonVi { get; set; }
+        public Guid? ID_SoQuy { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string MaHoaDon { get; set; }
+        public int? LoaiHoaDon { get; set; }
+        public string SLoaiHoaDon { get; set; }
+        public double? PhatSinhTang { get; set; }
+        public double? PhatSinhGiam { get; set; }
+        public double? PhaiThanhToan { get; set; }
+        public double? DaThanhToan { get; set; }
+        public string DienGiai { get; set; }
+        public int? TotalRow { get; set; }
+        public double? TotalPage { get; set; }
+        public double? TongTang { get; set; }
+        public double? TongGiam { get; set; }
+    }
     public class BaoCaoHoatDongXe_TongHop
     {
         public Guid? ID_Xe { get; set; }
