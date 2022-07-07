@@ -782,7 +782,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     List<HoaDonBaoHanhExcel> lst = lstAllHDs.Select(x => new HoaDonBaoHanhExcel
                     {
                         MaHoaDon = x.MaHoaDon,
-                        MaHoaDonGoc = x.MaHoaDonGoc,
                         NgayLapHoaDon = x.NgayLapHoaDon,
                         MaDoiTuong = x.MaDoiTuong,
                         TenDoiTuong = x.TenDoiTuong,
@@ -3375,36 +3374,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
         #endregion
 
         #region Service package
-        [HttpPost, HttpGet]
-        public IHttpActionResult Get_HisUsed_ofServicePackage([FromBody] JObject data, int currentPage, int pageSize)
-        {
-            using (SsoftvnContext db = SystemDBContext.GetDBContext())
-            {
-                var idDonVi = data["ID_DonVi"].ToObject<Guid>();
-                var lstID = data["lstID"].ToObject<List<Guid>>();
-                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
-                List<SP_NhatKySuDung_GoiDV> lst = classhoadon.SP_NhatKySuDung_GoiDV(lstID, idDonVi, currentPage, pageSize);
-
-                int count = 0, page = 0;
-                if (lst != null && lst.Count > 0)
-                {
-                    count = lst[0].TotalRow ?? 0;
-                    page = lst[0].TotalRow ?? 0;
-                }
-                var listpage = GetListPage(count, pageSize, currentPage, ref page);
-                return ActionTrueData(new
-                {
-                    data = lst,
-                    listpage,
-                    pagenow = currentPage,
-                    pageview = "Hiển thị " + (currentPage * pageSize + 1) + " - " + (currentPage * pageSize + lst.Count) + " trên tổng số " + count + " bản ghi",
-                    isprev = currentPage > 3 && page > 5,
-                    isnext = currentPage < page - 2 && page > 5,
-                    countpage = page
-                });
-            }
-        }
-
         [HttpGet, HttpPost]
         public IHttpActionResult GetNhatKySuDung_GDV(ParamNKyGDV param)
         {
