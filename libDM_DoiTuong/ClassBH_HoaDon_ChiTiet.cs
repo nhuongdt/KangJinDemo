@@ -846,9 +846,9 @@ namespace libDM_DoiTuong
 
     public class GoiDichVu_KhachHang
     {
-        public Guid ID_GoiDV { get; set; }
+        public Guid? ID_GoiDV { get; set; }
         public string MaHoaDon { get; set; } // = MagoiDV
-        public string NgayLapHoaDon { get; set; }
+        public DateTime NgayLapHoaDon { get; set; }
         public string NgayApDungGoiDV { get; set; }
         public string HanSuDungGoiDV { get; set; }
         public Guid ID_DonViQuiDoi { get; set; }
@@ -856,15 +856,15 @@ namespace libDM_DoiTuong
         public string MaHangHoa { get; set; }
         public string TenHangHoa { get; set; }
         public double GiaBan { get; set; } // = DonGia - ChietKhau
-        public double SoLuongMua { get; set; }
+        public double? SoLuongMua { get; set; }
         public double? SoLuongTang { get; set; }
-        public double SoLuongDung { get; set; }
-        public double SoLuongConLai { get; set; }
+        public double? SoLuongDung { get; set; }
+        public double? SoLuongConLai { get; set; }
         public string TenDonViTinh { get; set; }
         public Guid ID_HangHoa { get; set; }
         public Guid? ID_NhomHangHoa { get; set; }
         public string TenNhomHangHoa { get; set; }
-        public bool TangKem { get; set; }
+        public bool? TangKem { get; set; }
         public Guid? ID_TangKem { get; set; }
         public double? PhiDichVu { get; set; }
         public bool? LaPTPhiDichVu { get; set; }
@@ -894,15 +894,13 @@ namespace libDM_DoiTuong
         public bool? ChietKhauMD_NVTheoPT { get; set; } 
     }
 
-    public class SP_NhatKySuDung_GoiDV
+    public class SP_NhatKySuDung_GoiDV: GoiDichVu_KhachHang
     {
-        public Guid? ID_Xe { get; set; }
-        public string MaHoaDon { get; set; }
-        public DateTime? NgayLapHoaDon { get; set; }
-        public string MaHangHoa { get; set; }
-        public string TenHangHoa { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
         public string TenHangHoa_KhongDau { get; set; }
-        public double? SoLuong { get; set; }
+        public string ThuocTinh_GiaTri { get; set; }
+        public double? TonKho { get; set; }
         public string NhanVienThucHien { get; set; } // list TenNhanVien thuc hien dich vu
         public double? TongChietKhau { get; set; }
         public double? TongSoLuong { get; set; }

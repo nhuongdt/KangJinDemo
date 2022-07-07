@@ -2026,18 +2026,17 @@ namespace libDM_DoiTuong
             {
                 idCus = string.Join(",", param.IDCustomers);
             }
-            var idCar = string.Empty;
-            if (param.IDCars != null && param.IDCars.Count > 0)
-            {
-                idCar = string.Join(",", param.IDCars);
-            }
             List<SqlParameter> sql = new List<SqlParameter>();
             sql.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs ?? (object)DBNull.Value));
             sql.Add(new SqlParameter("IDCustomers", idCus ?? (object)DBNull.Value));
-            sql.Add(new SqlParameter("IDCars", idCar ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("DateFrom", param.DateFrom ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("DateTo", param.DateTo ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("LoaiHoaDons", param.LoaiHoaDons ?? (object)DBNull.Value));
             sql.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? (object)DBNull.Value));
             sql.Add(new SqlParameter("PageSize", param.PageSize ?? (object)DBNull.Value));
-            return db.Database.SqlQuery<SP_NhatKySuDung_GoiDV>("exec GetNhatKySuDung_GDV @IDChiNhanhs, @IDCustomers, @IDCars, @CurrentPage, @PageSize", sql.ToArray()).ToList();
+            return db.Database.SqlQuery<SP_NhatKySuDung_GoiDV>("exec GetNhatKySuDung_GDV @IDChiNhanhs, @IDCustomers, @TextSearch," +
+                "@DateFrom, @DateTo, @LoaiHoaDons, @CurrentPage, @PageSize", sql.ToArray()).ToList();
         }
 
         public List<SP_InforServicePackage> GetNhatKyGiaoDich_ofCus(ParamNKyGDV param)
@@ -6083,7 +6082,6 @@ namespace libDM_DoiTuong
     public class HoaDonBaoHanhExcel
     {
         public string MaHoaDon { get; set; }
-        public string MaHoaDonGoc { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
