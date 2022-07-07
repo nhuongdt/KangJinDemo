@@ -642,7 +642,12 @@ namespace libReport
         public DateTime NgayLapHoaDon { get; set; }
         public string MaNguoiNop { get; set; }
         public string TenNguoiNop { get; set; }
+        public double TienMat { get; set; }
+        public double TienGui { get; set; }
+        public double TienPOS { get; set; }
         public double ThuChi { get; set; }
+        public string SoTaiKhoan { get; set; }
+        public string TenNganHang { get; set; }
         public string NoiDungThuChi { get; set; }
         public string GhiChu { get; set; }
         public string LoaiThuChi { get; set; }
@@ -662,9 +667,11 @@ namespace libReport
         public double TienThu { get; set; }
         public double TienChi { get; set; }
         public double ThuTienMat { get; set; }
-        public double ChiTienMat { get; set; }
         public double ThuTienGui { get; set; }
+        public double ThuTienPOS { get; set; }
+        public double ChiTienMat { get; set; }
         public double ChiTienGui { get; set; }
+        public double ChiTienPOS { get; set; }
         public double TonLuyKe { get; set; }
         public double TonLuyKeTienGui { get; set; }
         public double TonLuyKeTienMat { get; set; }
