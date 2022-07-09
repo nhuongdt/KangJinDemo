@@ -3205,7 +3205,7 @@
         }
         var tongcong = formatNumberToFloat(objPrint.TongTienHang) - formatNumberToFloat(objPrint.TongGiamGia)
             - formatNumberToFloat(objPrint.KhuyeMai_GiamGia)
-            - formatNumberToFloat(objPrint.TongChiPhi) + formatNumberToFloat(objPrint.TongTienThue);
+            + formatNumberToFloat(objPrint.TongTienThue);
 
         objPrint.NgayLapHoaDon = moment(objHD.NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss');
         objPrint.Ngay = moment(objHD.NgayLapHoaDon).format('DD');

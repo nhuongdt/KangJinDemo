@@ -141,7 +141,11 @@
                                        onclick="this.select()"
                                        data-bind="value: formatNumber3Digit(DonGia,2),
                                                attr: {id : 'giavon_' + IDRandom }, event:{keyup: $parent.EditGiaNhap},
+                                                visible: ID_ChiTietGoiDV == null,
                                                enable: $root.HangHoa_GiaNhap()" />
+
+                                <label data-bind="text: formatNumber3Digit(DonGia,2), visible: ID_ChiTietGoiDV !== null,">
+                                </label>
                             </td>
                             <td>
                                 <div style="position:relative" class="text-right">
@@ -850,7 +854,7 @@
             <div class="op-function-box" style="padding-left:10px!important">
                 @Html.Partial("~/Views/BanHang/_Shortcut_Keys.cshtml")
             </div>
-            <div class="detail-infor floatleft " style="position:relative" >
+            <div class="detail-infor floatleft " style="position:relative">
                 <div>
                     <div class="seach-supplier floatleft" style="position:relative">
                         <jqauto-customer params="showDiv: true,
@@ -899,19 +903,40 @@
                        value: newHoaDon().NgayLapHoaDon() == null? $root.DateHDDefault(): newHoaDon().NgayLapHoaDon()" type="text">
             </div>
             <div class="form-group floatleft replus ">
-                <label class="css-form-label">Nhân viên :</label>
+                <label class="css-form-label">User lập phiếu:</label>
                 <div class="css-form-detail">
-                    <select id="selectedNV" class="form-control nhanvien" data-bind="options: NhanViens ? NhanViens : [],
-                                                optionsText: 'TenNhanVien', optionsValue: 'ID', value: newHoaDon().ID_NhanVien,
-                                                 enable: $root.NhapHang_ThayDoiNhanVien()"></select>
+                    <label data-bind="text: newHoaDon().NguoiTao">
+                    </label>
                 </div>
             </div>
+            <!--ko if: $root.LoaiHoaDonMenu() == 13 -->
+            <div class="form-group floatleft replus ">
+                <label class="css-form-label">Nhân viên cung cấp:</label>
+                <div class="css-form-detail">
+                    <div class="outselect " style="width:100%!important">
+                        <div class="choose-person floatleft " data-toggle="dropdown" aria-expanded="true">
+                            <input onclick="this.select()" data-bind="event: {keyup: SearchNhanVien}, value: textSearch, valueUpdate:'afterkeydown'"
+                                   placeholder="Chọn nhân viên..." style="width:100% !important" />
+                            <i class="fa fa-search" style="width:18px;height:18px; right:7px; top:6px;position:absolute; font-size:16px;" aria-hidden="true"></i>
+                        </div>
+                        <ul class="selec-person dropdown-menu floatleft" data-bind="foreach: ListNVienSearch">
+                            <li data-bind="attr: {ID_NhanVien: ID}, click: $parent.ChoseNhanVien">
+                                <a class="text-ellipsis" href="javascript:void(0)" data-bind="text: TenNhanVien"></a>
+                                <i class="fa fa-check pull-right" aria-hidden="true"></i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!--/ko -->
             <div class="form-group floatleft replus ">
                 <label class="css-form-label">Ghi chú :</label>
                 <div class="css-form-detail">
-                    <textarea type="text" placeholder="Ghi chú" rows="1" data-bind="value: newHoaDon().DienGiai, event:{keyup: UpdateGhiChuHD}"></textarea>
+                    <textarea type="text" placeholder="Ghi chú" rows="1" style="padding-bottom:0px"
+                              data-bind="value: newHoaDon().DienGiai, event:{keyup: UpdateGhiChuHD}"></textarea>
                 </div>
             </div>
+
             <table class="table">
                 <tbody>
                     <tr>
@@ -994,16 +1019,22 @@
                         </td>
                     </tr>
 
-
+                    <tr class="border-bottom bold ">
+                        <td>
+                            Chi phí ship
+                        </td>
+                        <td>
+                            <input autocomplete="off" class="form-control price-pay-end text-right bold" type="text"
+                                   style="padding-right:3px !important"
+                                   onkeypress="return keypressNumber_limitNumber(event,this)"
+                                   data-bind="value: formatNumber3Digit(newHoaDon().TongChiPhi(),2), event:{keyup: editTongChiPhi}">
+                        </td>
+                    </tr>
 
                     <tr data-bind="visible: newHoaDon().PhaiThanhToan() > 0">
                         <td>
                             <span class="span_inline_block">
                                 Cần thanh toán
-                                @*<span data-bind="visible: newHoaDon().SoDuDatCoc() > 0, click: $root.showPayBill">
-                        (F9)
-                        <img src="/Content/images/iconketchen/m4.png" data-toggle="modal">
-                    </span>*@
                             </span>
                         </td>
                         <td>
@@ -1038,10 +1069,6 @@
                         <td>
                             <span class="span_inline_block">
                                 Hoàn trả
-                                @*<span data-bind="visible: newHoaDon().SoDuDatCoc() > 0, click: $root.showPayBill">
-                        (F9)
-                        <img src="/Content/images/iconketchen/m4.png" data-toggle="modal">
-                    </span>*@
                             </span>
                         </td>
                         <td class="text-right">
@@ -1050,25 +1077,9 @@
                                    data-bind="value: formatNumber3Digit(newHoaDon().HoanTra(),2), event:{keyup: EditHoanTra}">
                         </td>
                     </tr>
-                    <!--hiển thị khi hoàn trả > 0 và click F9 agree-->
-                    @*<tr class="border-bottom bold "
-            data-bind="visible: newHoaDon().HoanTra() > 0 && newHoaDon().DaThanhToan() > 0">
-            <td>
-                <span class="span_inline_block">
-                    Tiền trả
-                </span>
-            </td>
-            <td lass="p01">
-                <input autocomplete="off" class="form-control price-pay-end text-right bold" type="text"
-                       style="padding-right:3px !important"
-                       onkeypress="return keyPress(event)"
-                       data-bind="value: formatNumber3Digit(newHoaDon().DaThanhToan(),2)">
-            </td>
-        </tr>*@
-                    <!--end-->
 
-                    <tr class="border-bottom bold "
-                        >
+                    <!--ko if: $root.role_InsertSoQuy()-->
+                    <tr class="border-bottom bold ">
                         <td>
                             <span class="span_inline_block">
                                 Tiền trả (F9)
@@ -1096,6 +1107,7 @@
                             </div>
                         </td>
                     </tr>
+                    <!--/ko-->
                 </tbody>
             </table>
         </div>
@@ -1262,9 +1274,6 @@
     });
 </script>
 <script>
-    //$(".import-dropdown").click(function () {
-    //    $(this).next().toggle();
-    //})
     $(document).mouseup(function (e) {
         var container = $(".import-dropbox");
         if (!container.is(e.target) && container.has(e.target).length === 0) {

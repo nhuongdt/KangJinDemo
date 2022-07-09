@@ -573,6 +573,9 @@ namespace libReport
         public string MaHoaDon { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
         public string BienSo { get; set; }
+        public string NguoiTao { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }  
         public string TenNhomHang { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoaFull { get; set; }
@@ -596,15 +599,22 @@ namespace libReport
         public DateTime NgayLapHoaDon { get; set; }
         public string MaPhieuTiepNhan { get; set; }
         public string BienSo { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
         public string MaDonVi { get; set; }
         public string TenDonVi { get; set; }
         public string TenNhanVien { get; set; }
         public string NhomDichVu { get; set; }
+        public Guid? ID_DichVu { get; set; }
         public string MaDichVu { get; set; }
         public string TenDichVu { get; set; }
         public string TenDonViDichVu { get; set; }
         public double SoLuongDichVu { get; set; }
+        public double? GiaBanDichVu { get; set; }
+        public double? ThanhTienDichVu { get; set; }
         public double GiaTriDichVu { get; set; }
+        public double? PtramSuDung { get; set; }
+        public string NVThucHiens { get; set; }
         public string TenNhomHang { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoaFull { get; set; }

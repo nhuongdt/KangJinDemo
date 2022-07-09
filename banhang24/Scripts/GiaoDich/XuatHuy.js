@@ -259,6 +259,7 @@ function ViewModel() {
     self.ChungTus = ko.observableArray([
         { ID: 1, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
         { ID: 2, TenChungTu: 'Xuất bán lẻ' },
+        { ID: 12,TenChungTu: 'Xuất bảo hành' },
         { ID: 8, TenChungTu: 'Xuất kho' },
         { ID: 3, TenChungTu: 'Xuất sữa chữa' },
     ]);

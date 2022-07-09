@@ -5,6 +5,7 @@
     self.ID_DonVi = ko.observable();
     self.ID_HoaDon = ko.observable();
     self.ID_NhanVien = ko.observable(VHeader.IdNhanVien);
+    self.NguoiTao = ko.observable(VHeader.UserLogin);
     self.ID_PhieuTiepNhan = ko.observable();
     self.MaHoaDonSuaChua = ko.observable();
     self.TongTienHang = ko.observable(0);
@@ -19,6 +20,7 @@
         self.ID_DonVi(item.ID_DonVi);
         self.ID_HoaDon(item.ID_HoaDon);
         self.ID_NhanVien(item.ID_NhanVien);
+        self.NguoiTao(item.NguoiTao);
         self.ID_PhieuTiepNhan(item.ID_PhieuTiepNhan);
         self.MaHoaDonSuaChua(item.MaHoaDonSuaChua);
         self.TongTienHang(item.TongTienHang);
@@ -963,9 +965,9 @@ var XuatKhoChiTiet = function () {
 
     function CTHD_UpdateWarning(ctDoing) {
         if (ctDoing !== null) {
-            let  quanlytheolo = ctDoing.QuanLyTheoLoHang;
-            let  lotParent = ctDoing.LotParent;
-            let  idRandom = ctDoing.ID_Random;
+            let quanlytheolo = ctDoing.QuanLyTheoLoHang;
+            let lotParent = ctDoing.LotParent;
+            let idRandom = ctDoing.ID_Random;
 
             var cthd = localStorage.getItem(lcCTXuatKho);
             if (cthd !== null) {
@@ -1431,7 +1433,7 @@ var XuatKhoChiTiet = function () {
                         cthd[i].ThanhTien = item.GiaVon * cthd[i].SoLuong;
                         cthd[i].GiaVon = item.GiaVon;
                         cthd[i].TonKho = item.TonKho;
-                        cthd[i].CssWarning = RoundDecimal(item.TonKho) < RoundDecimal(cthd[i].SoLuong) ;
+                        cthd[i].CssWarning = RoundDecimal(item.TonKho) < RoundDecimal(cthd[i].SoLuong);
                     }
                     if (itFor.ID_Random === idRandom) {
                         cthd[i].DM_LoHang[j].ID_LoHang = idLoHang;
@@ -2561,8 +2563,13 @@ var XuatKhoChiTiet = function () {
         var keyCode = event.keyCode;
 
         if ($.inArray(keyCode, [13, 38, 40]) === -1) {
-            if (txt === '') return self.NhanViens().slice(0, 20);
-            var arr = $.grep(self.NhanViens(), function (x) {
+            let arr = [];
+            if (txt === '') {
+                arr = self.NhanViens().slice(0, 20);
+                self.ListNVienSearch(arr);
+                return;
+            }
+            arr = $.grep(self.NhanViens(), function (x) {
                 x.NameFull = x.MaNhanVien.concat(' ', x.TenNhanVien, ' ', x.SoDienThoai);
                 return locdau(x.NameFull).indexOf(txt) > -1;
             })
@@ -2913,12 +2920,6 @@ var XuatKhoChiTiet = function () {
                     hd = [obj];
                 }
                 localStorage.setItem(lcHDXuatKho, JSON.stringify(hd));
-
-                //self.textSearchHDSC(item.MaHoaDon);
-                //self.newHoaDon().ID_HoaDon(item.ID);
-                //self.newHoaDon().MaHoaDon('');
-                //self.newHoaDon().ID_PhieuTiepNhan(item.ID_PhieuTiepNhan);
-                //self.newHoaDon().HasTPDinhLuong(exTPDL.length > 0);
 
                 UpDate_InforHD(cthdLoHang);
             }

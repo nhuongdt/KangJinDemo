@@ -57,6 +57,7 @@
     self.ThanhTienChuaCK = ko.observable();
     self.GiamGiaCT = ko.observable();
     self.TongTienHang = ko.observable();
+    self.TongChiPhi = ko.observable();
     self.TongKhachTra = ko.observable();
     self.TongTienMat = ko.observable();
     self.TongPOS = ko.observable();
@@ -996,6 +997,7 @@
                     self.ThanhTienChuaCK(firstR.SumThanhTienChuaCK);
                     self.GiamGiaCT(firstR.SumGiamGiaCT);
                     self.TongTienHang(firstR.SumTongTienHang);
+                    self.TongChiPhi(firstR.SumTongChiPhi);
                     self.TongTienThue(firstR.SumTongTienThue);
                     self.TongGiamGia(firstR.SumTongGiamGia);
                     self.TongPhaiTraKhach(firstR.SumTongThanhToan);
@@ -1611,6 +1613,7 @@
             ctNew.PhaiThanhToan = phaitt;
             ctNew.TongThanhToan = phaitt;
             ctNew.KhachDaTra = khachdatra;
+            ctNew.TongChiPhi = item.TongChiPhi;// chiphi tra NCC
             ctNew.DaThanhToan = 0;
             ctNew.ID_NhanVien = item.ID_NhanVien;
             ctNew.NgayLapHoaDon = type !== 0 ? item.NgayLapHoaDon : null;

@@ -1265,9 +1265,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     NgayLapHoaDon = x.NgayLapHoaDon,
                     MaDoiTuong = x.MaDoiTuong,
                     TenDoiTuong = x.TenDoiTuong,
-                    TenNhanVien = x.TenNhanVien,
+                    NguoiTao = x.NguoiTao,
                     TenDonVi = x.TenDonVi,
                     TongTienHang = x.TongTienHang,
+                    TongGiamGia = x.TongGiamGia,
+                    TongChiPhi = x.TongChiPhi,
                     PhaiThanhToan = x.PhaiThanhToan,
                     DaThanhToan = x.KhachDaTra,
                     ConNo = x.ConNo,
@@ -1322,11 +1324,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DM.TenDoiTuong = item.TenDoiTuong ?? "Nhà cung cấp lẻ";
                     DM.SoDienThoai = item.DienThoai;
                     DM.DiaChi = item.DiaChiKhachHang;
-                    DM.NguoiBan = item.TenNhanVien;
+                    DM.NguoiBan = item.NguoiTao;
                     DM.TenDonVi = item.TenDonVi;
                     DM.TongTienHang = item.TongTienHang;
                     DM.TongTienThue = item.TongTienThue;
                     DM.TongGiamGia = item.TongGiamGia;
+                    DM.TongChiPhi = item.TongChiPhi;
                     DM.PhaiThanhToan = item.PhaiThanhToan;
                     DM.ThanhTienChuaCK = item.ThanhTienChuaCK;
                     DM.TongChietKhau = item.GiamGiaCT;

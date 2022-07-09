@@ -1768,6 +1768,7 @@ namespace libQuy_HoaDon
         public string BienSo { get; set; }
         public string LoaiPhieu { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
+        public string TenDoiTuong { get; set; }
         public string TenChiNhanh { get; set; }
         public string TenNhanVien { get; set; }
         public double TongTienHang { get; set; }

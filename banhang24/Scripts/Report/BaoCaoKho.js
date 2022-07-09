@@ -321,23 +321,23 @@
                         colspan = colspan + 1;
                     }
                     switch (i) {
-                        case 7:
+                        case 9:
                             $('#_dinhluongchungtu').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 13:
+                        case 19:
                             $('#_dinhluongdichvu').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 20:
+                        case 26:
                             $('#_dinhluonghanghoa').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 22:
+                        case 28:
                             $('#_dinhluongthucte').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 25:
+                        case 31:
                             $('#_dinhluongchenhlech').attr('colspan', colspan);
                             colspan = 0;
                             break;
@@ -351,23 +351,23 @@
                     }
 
                     switch (i) {
-                        case 5:
+                        case 7:
                             $('#_dinhluongchungtu').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 11:
+                        case 17:
                             $('#_dinhluongdichvu').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 18:
+                        case 24:
                             $('#_dinhluonghanghoa').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 20:
+                        case 26:
                             $('#_dinhluongthucte').attr('colspan', colspan);
                             colspan = 0;
                             break;
-                        case 23:
+                        case 29:
                             $('#_dinhluongchenhlech').attr('colspan', colspan);
                             colspan = 0;
                             break;
@@ -678,11 +678,11 @@
             { ID: 10, TenChungTu: 'Chuyển hàng' },
             { ID: 2, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
             { ID: 3, TenChungTu: 'Xuất bán dịch vụ định lượng' },
+            { ID: 12, TenChungTu: 'Xuất bảo hành' },
             { ID: 11, TenChungTu: 'Xuất sửa chữa' },
             { ID: 4, TenChungTu: 'Phiếu nhập kho' },
             { ID: 6, TenChungTu: 'Trả hàng' },
             { ID: 9, TenChungTu: 'Phiếu kiểm kê' },
-            { ID: 10, TenChungTu: 'Chuyển hàng' },
         ]);
 
     if (self.role_NhapKhoNoiBo()) {
@@ -700,9 +700,9 @@
     };
     self.getListDM_LoaiChungTuXuatKho = function (item) {
         self.MangChungTu([]);
-        _idChungTuSeach = '1,2,3,7,8,9,10';
+        _idChungTuSeach = '1,2,3,7,8,9,10,12';// 12.xuat baohanh
         let arr = $.grep(self.AllLoaiChungTu(), function (x) {
-            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10]) > -1;
+            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10,12]) > -1;
         })
         self.ChungTus(arr);
         if (self.isGara()) {

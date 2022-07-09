@@ -4600,6 +4600,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     columnRemove += param.columnsHide;
                 }
                 excel.Columns.Remove("TenHangHoa");
+                excel.Columns.Remove("ID_DichVu");
                 excel.Columns.Remove("ThuocTinh_GiaTri");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/Teamplate_BaoCaoHangXuatKhoTheoDichVuDinhLuong.xlsx");
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoHangXuatKhoTheoDichVuDinhLuong.xlsx");
@@ -4618,7 +4619,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassReportKho reportKho = new ClassReportKho(db);
                 List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst = reportKho.GetBaoCaoKho_XuatDichVuDinhLuong(param);
                 int Rown = lst.Count();
-                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
+                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon,x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
                 {
                     SoLuongDichVu = t.FirstOrDefault().SoLuongDichVu,
                     GiaTriDichVu = t.FirstOrDefault().GiaTriDichVu

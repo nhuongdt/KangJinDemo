@@ -5931,6 +5931,7 @@ namespace libDM_DoiTuong
         public DateTime NgayLapHoaDon { get; set; }
         public DateTime? NgayTao { get; set; }
         public DateTime? NgaySua { get; set; }
+        public int? LoaiDoiTuong { get; set; }// nhaphang: 2.nhacungcap, 4.nhanvien
         public string TenDoiTuong { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDonVi { get; set; }
@@ -6248,17 +6249,18 @@ namespace libDM_DoiTuong
         public string MaHoaDon { get; set; }
         public string MaHoaDonGoc { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
+        public string NguoiBan { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
         public string SoDienThoai { get; set; }
         public string DiaChi { get; set; }
-        public string NguoiBan { get; set; }
         public string TenDonVi { get; set; }
         public double? ThanhTienChuaCK { get; set; }
         public double? TongChietKhau { get; set; }
         public double TongTienHang { get; set; }
         public double? TongTienThue { get; set; }
         public double TongGiamGia { get; set; }
+        public double? TongChiPhi { get; set; }
         public double PhaiThanhToan { get; set; }
         public double? TienMat { get; set; }
         public double? TienPOS { get; set; }
@@ -6273,11 +6275,13 @@ namespace libDM_DoiTuong
     {
         public string MaHoaDon { get; set; }
         public DateTime? NgayLapHoaDon { get; set; }
-        public string TenNhanVien { get; set; }
+        public string NguoiTao { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
         public string TenDonVi { get; set; }
         public double? TongTienHang { get; set; }
+        public double? TongGiamGia { get; set; }
+        public double? TongChiPhi { get; set; }
         public double? PhaiThanhToan { get; set; }
         public double? DaThanhToan { get; set; }
         public double? ConNo { get; set; }
