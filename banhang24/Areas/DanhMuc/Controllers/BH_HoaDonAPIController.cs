@@ -1410,12 +1410,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     BH_PhieuTraHangNhap_Excel DM = new BH_PhieuTraHangNhap_Excel();
                     DM.MaHoaDon = item.MaHoaDon;
+                    DM.MaHoaDonGoc = item.MaHoaDonGoc;
                     DM.NgayLapHoaDon = item.NgayLapHoaDon;
                     DM.MaDoiTuong = item.MaDoiTuong;
                     DM.TenDoiTuong = item.TenDoiTuong ?? "Nhà cung cấp lẻ";
                     DM.SoDienThoai = item.DienThoai;
                     DM.DiaChi = item.DiaChiKhachHang;
-                    DM.NguoiBan = item.TenNhanVien;
+                    DM.NguoiTao = item.NguoiTaoHD;
                     DM.TenDonVi = item.TenDonVi;
                     DM.TongTienHang = item.TongTienHang;
                     DM.TongGiamGia = item.TongGiamGia;
