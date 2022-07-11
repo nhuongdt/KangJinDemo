@@ -623,6 +623,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             content = content.Replace("{PTChiPhi}", "<span data-bind=\"text: formatNumber(PTChiPhi)\"></span>");
             content = content.Replace("{TienChiPhi}", "<span data-bind=\"text: formatNumber(TienChiPhi)\"></span>");
             content = content.Replace("{TongChietKhau}", "<span data-bind=\"text: formatNumber(TongChietKhau)\"></span>");
+            content = content.Replace("{TonKho}", "<span data-bind=\"text: formatNumber(TonKho)\"></span>");
+            content = content.Replace("{TonLuyKe}", "<span data-bind=\"text: formatNumber(TonLuyKe)\"></span>");
 
             // sudung dv
             content = content.Replace("{SLDVDaSuDung}", "<span data-bind=\"text: formatNumber(SoLuongDVDaSuDung)\"></span>");
