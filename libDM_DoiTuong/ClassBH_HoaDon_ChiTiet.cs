@@ -660,7 +660,8 @@ namespace libDM_DoiTuong
         public double? GiaVon { get; set; }
         public double SoLuong { get; set; }
         public double SoThuTu { get; set; }
-        public double TonKho { get; set; }
+        public double TonKho { get; set; }// tonkho hientai
+        public double? TonLuyKe { get; set; }// tonkho tai thoidiem {NgayLapHoaDon}
         public double ThanhTien { get; set; }
         public double ThanhToan { get; set; }
         public double TyLeChuyenDoi { get; set; }
@@ -888,13 +889,13 @@ namespace libDM_DoiTuong
         public int? LoaiHangHoa { get; set; }
         public bool? LaHangHoa { get; set; }
         public double? GiaVon { get; set; }
-        public double? TienChietKhau { get; set; } 
-        public double? PTChietKhau { get; set; }  
-        public double? ChietKhauMD_NV { get; set; } 
-        public bool? ChietKhauMD_NVTheoPT { get; set; } 
+        public double? TienChietKhau { get; set; }
+        public double? PTChietKhau { get; set; }
+        public double? ChietKhauMD_NV { get; set; }
+        public bool? ChietKhauMD_NVTheoPT { get; set; }
     }
 
-    public class SP_NhatKySuDung_GoiDV: GoiDichVu_KhachHang
+    public class SP_NhatKySuDung_GoiDV : GoiDichVu_KhachHang
     {
         public string TenDoiTuong { get; set; }
         public string DienThoai { get; set; }
@@ -972,8 +973,8 @@ namespace libDM_DoiTuong
         public DateTime? NgaySanXuat { get; set; }
         public DateTime? NgayHetHan { get; set; }
         public double? GiaBanHH { get; set; } /// used to nhaphang from hoadon
-        public double? ChietKhauMD_NV { get; set; } 
-        public bool? ChietKhauMD_NVTheoPT { get; set; } 
+        public double? ChietKhauMD_NV { get; set; }
+        public bool? ChietKhauMD_NVTheoPT { get; set; }
     }
 
     public class SP_InvoiceNewest
