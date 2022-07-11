@@ -1073,7 +1073,7 @@ namespace banhang24.Hellper
         {
                 { TypeReportOrder.Order_machungtu.ToString(),"Mã chứng từ" },
                     {TypeReportOrder.Order_ngay.ToString(),"Ngày chứng từ" },
-                  {TypeReportOrder.Order_khachhang.ToString(),"Khách hàng" },
+                  {TypeReportOrder.Order_khachhang.ToString(),"Nhà cung cấp" },
                             {TypeReportOrder.Order_mahang.ToString(),"Mã hàng" },
                    { TypeReportOrder.Order_tenhang.ToString(),"Tên hàng" },
                      {TypeReportOrder.Order_donvitinh.ToString(),"Đvt" },
@@ -1083,7 +1083,6 @@ namespace banhang24.Hellper
                     {TypeReportOrder.Order_giamgia.ToString(),"Giảm giá HĐ" },
                       {TypeReportOrder.Order_giatri.ToString(),"Giá trị đặt" },
                           {TypeReportOrder.Order_soluongnhan.ToString(),"Số lượng nhận" },
-                        {TypeReportOrder.Order_nhanvien.ToString(),"Nhân viên" },
                         {TypeReportOrder.Order_ghichu.ToString(),"Ghi chú" },
 
         };
@@ -2720,13 +2719,14 @@ namespace banhang24.Hellper
         public static Dictionary<string, string> ListColumnPurchaseReturns = new Dictionary<string, string>()
         {
               { ColumnPurchaseReturns.mahoadon.ToString(),"Mã hóa đơn" },
+              { ColumnInvoices.madathang.ToString(),"Mã phiếu nhập" },
               { ColumnPurchaseReturns.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
               { ColumnPurchaseReturns.makhachhang.ToString(),"Mã nhà cung cấp" },
               { ColumnPurchaseReturns.tenkhachhang.ToString(),"Tên nhà cung cấp" },
               { ColumnPurchaseReturns.sodienthoai.ToString(),"Số điện thoại" },
               { ColumnPurchaseReturns.diachi.ToString(),"Địa chỉ" },
               { ColumnPurchaseReturns.tenchinhanh.ToString(),"Chi nhánh" },
-              { ColumnPurchaseReturns.nguoiban.ToString(),"NV lập hóa đơn" },
+              { ColumnInvoices.nguoitao.ToString(),"User lập phiếu" },
               { ColumnPurchaseReturns.tongtienhang.ToString(),"Tổng tiền hàng" },
               { ColumnInvoices.tienthue.ToString(),"Tổng tiền thuế" },
               { ColumnPurchaseReturns.tonggiamgia.ToString(),"Tổng giảm giá" },
