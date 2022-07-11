@@ -1,6 +1,7 @@
 ﻿@using System.Web.Optimization
 @using banhang24.Hellper;
 @using Model;
+@using banhang24.AppCache
 @model banhang24.Models.NhanVienRoleModel
 @{
     Layout = null;
@@ -13,6 +14,10 @@
 @Html.Hidden("RoleLoaiLuong_Update", Model.RoleLoaiLuong_Update == true ? 1 : 0, new { @id = "RoleLoaiLuong_Update" })
 @Html.Hidden("RoleLoaiLuong_Delete", Model.RoleLoaiLuong_Delete == true ? 1 : 0, new { @id = "RoleLoaiLuong_Delete" })
 <style>
+    #treePhongBan1 list-group-item.active .display:after {
+        content: '\f0da';
+        font-family: FontAwesome;
+    }
 </style>
 <head>
     <link type="text/css" rel="stylesheet" href="~/Content/Nhansu2.css" />
@@ -21,12 +26,14 @@
     <title>Nhân Viên</title>
 </head>
 <style>
-    .filter-list-2{
+    .filter-list-2 {
         width: 376px;
     }
-        .filter-list-2 > ul{
+
+        .filter-list-2 > ul {
             width: 376px;
         }
+
             .filter-list-2 > ul > li {
                 width: 183px;
             }
@@ -39,32 +46,29 @@
                 <section class="op-filter-body" id="filter-nv">
                     @if (Model.IsHRM)
                     {
-                    <article class="boxLeft">
-                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                            <img src="/Content/images/icon/Iconbanhanggg-02.png">   Phòng ban
+                        <article class="boxLeft">
+                            <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                                <img src="/Content/images/icon/Iconbanhanggg-02.png">   Phòng ban
 
-                        </h3>
-                        @if (Model.RolePhongBan_Insert)
-                        {
-                            <button class="op-filter-add op-js-themmoinhomhang" title="Thêm mới phòng ban" data-bind="click:ShowPopupPhongban">
-                                <i class="fa fa-plus" style="color: var(--color-primary)"></i>
-                            </button>
-                            @*<a class="op-filter-add" title="Thêm phòng ban" href="javascript:void(0)" data-bind="click:ShowPopupPhongban" style="right:32px; left:unset;">
-                <i class="fa fa-plus" style="color:var(--color-primary)"></i>
-            </a>*@
-                        }
-                    <aside class="op-filter-container">
-                        <div class="seach-nhomhang floatleft" style="position:relative">
-                            <input type="text" class="dropdown" id="txtSearchPB1" data-bind="value:searchPB" placeholder="Tìm kiếm phòng ban" style="border-bottom:1px solid #ccc">
-                            <i class="fa fa-search" style="position:absolute;left:5px; top:7px;"></i>
-                        </div>
-                        <div class="treename yellow" data-bind="click:selectAllPhongBan">
-                            Tất cả
-                        </div>
-                        <div id="treePhongBan1"></div>
-                        <hr />
-                    </aside>
-                    </article>
+                            </h3>
+                            @if (Model.RolePhongBan_Insert)
+                            {
+                                <button class="op-filter-add op-js-themmoinhomhang" title="Thêm mới phòng ban" data-bind="click:ShowPopupPhongban">
+                                    <i class="fa fa-plus" style="color: var(--color-primary)"></i>
+                                </button>
+                            }
+                            <aside class="op-filter-container">
+                                <div class="seach-nhomhang floatleft" style="position:relative">
+                                    <input type="text" class="dropdown" id="txtSearchPB1" data-bind="value:searchPB" placeholder="Tìm kiếm phòng ban" style="border-bottom:1px solid #ccc">
+                                    <i class="fa fa-search" style="position:absolute;left:5px; top:7px;"></i>
+                                </div>
+                                <div class="treename yellow" data-bind="click:selectAllPhongBan">
+                                    Tất cả
+                                </div>
+                                <div id="treePhongBan1"></div>
+                                <hr />
+                            </aside>
+                        </article>
                         <article class="boxLeft sortTime">
                             <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                                 <img src="~/Content/images/icon/gioi-tinh.png" />    Giới tính
@@ -521,761 +525,122 @@
                                     </tr>
                                 </thead>
                                 @*<thead>
-                                    <tr data-bind="foreach: headers">
-                                        <th data-bind="click: $parent.sort, text: title, attr:{class: name, id: nameid, href: link}">
-                                        </th>
-                                    </tr>
-                                </thead>*@
+                                        <tr data-bind="foreach: headers">
+                                            <th data-bind="click: $parent.sort, text: title, attr:{class: name, id: nameid, href: link}">
+                                            </th>
+                                        </tr>
+                                    </thead>*@
                             }
                             <tbody data-bind="foreach: NhanViens">
                                 @if (Model.IsHRM)
                                 {
-                                <tr class="prev-tr-hide" data-bind="css:{bggray : $index()%2 == 1}">
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 0).length > 0-->
-                                    <td data-bind="text: MaNhanVien"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 1).length > 0-->
-                                    <td data-bind="text: TenNhanVien"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 2).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.ngaysinh" data-bind="text:convertDateTime(NgaySinh)"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 3).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.gioitinh" data-bind="text:  GioiTinh==false?'Nữ':'Nam'"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 4).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.noisinh" data-bind="text: NoiSinh"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 5).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.dienthoai" data-bind="text: DienThoaiDiDong"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 6).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.email" data-bind="text: Email"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 7).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.cmnd" data-bind="text:  CMND"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 8).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.ngaycap" data-bind="text: convertDateTime(CMND_NgayCap)"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 9).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.noicap" data-bind="text:  CMND_NoiCap"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 10).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.dantoc" data-bind="text:  DanToc"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 11).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.tongiao" data-bind="text:  TonGiao"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 12).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.honnhan" data-bind="text:  TinhTrangHonNhan"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 13).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.quoctich" data-bind="text: QuocTich"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 14).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.hkdiachi" data-bind="text:  HK_DiaChi"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 15).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.hkxaphuong" data-bind="text: HK_XP"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 16).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.hkquanhuyen" data-bind="text:  HK_QH"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 17).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.hktinhthanh" data-bind="text: HK_TT"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 18).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.ttdiachi" data-bind="text:  TT_DiaChi"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 19).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.ttxaphuong" data-bind="text:  TT_XP"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 20).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.ttquanhuyen" data-bind="text:  TT_QH"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 21).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.tttinhthanh" data-bind="text:  TT_TT"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 22).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.phongban" data-bind="text:  PhongBan"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 23).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.ngayvaolamviec" data-bind="text:  convertDateTime(NgayVaolam)"></td>
-                                    <!--/ko-->
-                                    <!--ko if: $root.ListHeaderSelected().filter(p => p === 24).length > 0-->
-                                    <td class="@commonEnum.TypeColumnNhanVien.trangthai" data-bind="text: DaNghiViec==false?'Đang làm việc':'Đã nghỉ việc'"></td>
-                                    <!--/ko-->
-                                </tr>
+                                    <tr class="prev-tr-hide" data-bind="css:{bggray : $index()%2 == 1}">
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 0).length > 0-->
+                                        <td data-bind="text: MaNhanVien"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 1).length > 0-->
+                                        <td data-bind="text: TenNhanVien"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 2).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.ngaysinh" data-bind="text:convertDateTime(NgaySinh)"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 3).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.gioitinh" data-bind="text:  GioiTinh==false?'Nữ':'Nam'"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 4).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.noisinh" data-bind="text: NoiSinh"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 5).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.dienthoai" data-bind="text: DienThoaiDiDong"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 6).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.email" data-bind="text: Email"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 7).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.cmnd" data-bind="text:  CMND"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 8).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.ngaycap" data-bind="text: convertDateTime(CMND_NgayCap)"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 9).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.noicap" data-bind="text:  CMND_NoiCap"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 10).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.dantoc" data-bind="text:  DanToc"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 11).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.tongiao" data-bind="text:  TonGiao"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 12).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.honnhan" data-bind="text:  TinhTrangHonNhan"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 13).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.quoctich" data-bind="text: QuocTich"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 14).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.hkdiachi" data-bind="text:  HK_DiaChi"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 15).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.hkxaphuong" data-bind="text: HK_XP"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 16).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.hkquanhuyen" data-bind="text:  HK_QH"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 17).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.hktinhthanh" data-bind="text: HK_TT"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 18).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.ttdiachi" data-bind="text:  TT_DiaChi"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 19).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.ttxaphuong" data-bind="text:  TT_XP"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 20).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.ttquanhuyen" data-bind="text:  TT_QH"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 21).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.tttinhthanh" data-bind="text:  TT_TT"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 22).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.phongban" data-bind="text:  PhongBan"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 23).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.ngayvaolamviec" data-bind="text:  convertDateTime(NgayVaolam)"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 24).length > 0-->
+                                        <td class="@commonEnum.TypeColumnNhanVien.trangthai" data-bind="text: DaNghiViec==false?'Đang làm việc':'Đã nghỉ việc'"></td>
+                                        <!--/ko-->
+                                    </tr>
                                     <tr class="op-js-tr-hide">
                                         <td data-bind="attr: { colspan : $root.ListHeaderSelected().length }">
                                             <div class="op-object-detail tab-detail-staff tab-nav-pills" style="padding:10px;">
-                                                    <ul class="nav nav-pills nav-stacked col-md-2 col-xs-12">
-                                                        <li class="active"><a data-toggle="tab" data-bind=" attr: { href: '#home'+ ID }">Thông tin</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#hopdong'+ ID },click:$parent.ShowHopDong">Hợp đồng</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#baohiem'+ ID },click:$parent.ShowBaoHiem">Bảo hiểm</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#khenthuong'+ ID },click:$parent.ShowKhenThuong">Khen thưởng</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#luong'+ ID },click:$parent.ShowLuongPhuCap">Lương, phụ cấp</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#miengiamthue'+ ID },click:$parent.ShowMienGiam">Miễn giảm thuế</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#training'+ ID },click:$parent.ShowQuyTrinhDaoTao">Quy trình đào tạo</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#collaborate'+ ID },click:$parent.ShowQuaTrinhCongTac">Quá trình công tác</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#family'+ ID },click:$parent.ShowThongTinGD">Thông tin gia đình</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#politic'+ ID },click:$parent.ShowThongTinCT">Thông tin chính trị</a></li>
-                                                        <li><a data-toggle="tab" data-bind=" attr: { href: '#health'+ ID },click:$parent.ShowTTSucKhoe">Thông tin sức khỏe</a></li>
-                                                    </ul>
-                                                    <div class=" col-md-10 col-xs-12 nopadding">
-                                                        <div class="tab-content">
-                                                            <div class="tab-pane active" data-bind="attr: { id: 'home'+ ID }">
-                                                                <div class="flex flex-column ">
-                                                                    <div class="flex flex-row">
-                                                                        <div class="col-md-4 col-xs-12">
-                                                                            <!-- ko if:(Image.length !== 1) && (Image !== null) && (Image !=='')-->
-                                                                            <img style="width:100%; object-fit:cover" data-bind="attr: { src: Open24FileManager.hostUrl + Image}" src="~/Content/images/img-prp.png" />
-                                                                            <!--/ko-->
-                                                                            <!-- ko if:(Image.length == 1)|| (Image == null)|| (Image =='')-->
-                                                                            <img style="width:100%; object-fit:cover" src="~/Content/empty-avatar.png" />
-                                                                            <!--/ko-->
-                                                                        </div>
-                                                                            <div class="col-md-4 col-xs-12">
-                                                                                    <div class="form-group floatleft">
-                                                                                        <label class="css-form-label ">Mã nhân viên:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: MaNhanVien"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft">
-                                                                                        <label class="css-form-label ">Tên nhân viên:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: TenNhanVien"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft">
-                                                                                        <label class="css-form-label ">Ngày sinh:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: moment(NgaySinh).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySinh).format('DD/MM/YYYY'):''"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft">
-                                                                                        <label class="css-form-label ">Giới tính:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: (GioiTinh==true?'Nam':'Nữ')"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft">
-                                                                                        <label class="css-form-label ">Quê quán:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: NguyenQuan">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft ">
-                                                                                        <label class="css-form-label ng-binding">Email:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: Email"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft border-end">
-                                                                                        <label class="css-form-label ng-binding"> Địa chỉ:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: ThuongTru"></div>
-                                                                                    </div>
-                                                                            </div>
-                                                                            <div class="col-md-4 col-xs-12">
-                                                                                    <div class="form-group floatleft ">
-                                                                                        <label class="css-form-label ng-binding">Điện Thoại:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: DienThoaiDiDong"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft ">
-                                                                                        <label class="css-form-label ng-binding">Số CMT:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: SoCMND"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft ">
-                                                                                        <label class="css-form-label ng-binding">Số bảo hiểm:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: SoBHXH"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft ">
-                                                                                        <label class="css-form-label ng-binding">Tình trạng:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: DaNghiViec==false?'Đang làm việc':'Đã nghỉ việc'"></div>
-                                                                                    </div>
-                                                                                    <div class="form-group floatleft border-end">
-                                                                                        <label class="css-form-label ng-binding">Ghi chú:</label>
-                                                                                        <div class="css-form-detail" data-bind="text: GhiChu"></div>
-                                                                                    </div>
-                                                                                </div>
-                                                                    </div>
-                                                                            <div class="op-object-detail-function">
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <button class="btn btn-main editNVchild" data-bind="click: $parent.editNV">
-                                                                                        <i class="fa fa-check-square"></i> Sửa đổi
-                                                                                    </button>
-                                                                                }
-                                                                                <button class="btn btn-main btnPrint" data-bind="click: $parent.PrintHsnv">
-                                                                                    <i class="fa fa-print"></i> In
-                                                                                </button>
-                                                                                @if (Model.RoleExport)
-                                                                                {
-                                                                                    <button class="btn btn-main btnExportDetail" data-bind="click: $parent.ExportWord">
-                                                                                        <i class="fa fa-file-word-o" aria-hidden="true"></i> Xuất file word
-                                                                                    </button>
-                                                                                }
-                                                                                @if (Model.UserRoleDelete)
-                                                                                {
-                                                                                    <button class="btn btn-cancel xoaNVchild" data-bind="visible: ID != $parent.ID_NhanVienAdmin(), click: $parent.modalDelete">
-                                                                                        <i class="fa fa-trash"></i> Xóa
-                                                                                    </button>
-                                                                                }
-                                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'hopdong'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Số hợp đồng</th>
-                                                                            <th>Loại hợp đồng</th>
-                                                                            <th>Ngày ký</th>
-                                                                            <th>Thời hạn</th>
-                                                                            <th>Ghi chú</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:60px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvHopDong">
-                                                                            <tr>
-                                                                                <td data-bind="text:SoHopDong">hh0001</td>
-                                                                                <td data-bind="text:TextLoaiHopDong">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayKy)">hh0001</td>
-                                                                                <td data-bind="text:ThoiHanText">hh0001</td>
-                                                                                <td data-bind="text:GhiChu">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvHopDong"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvTTHopDong"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvHopDong" class="btn btn-main  btn-main">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'baohiem'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Loại bảo hiểm</th>
-                                                                            <th>Nơi bảo hiểm</th>
-                                                                            <th>Sổ bảo hiểm</th>
-                                                                            <th>Ngày cấp</th>
-                                                                            <th>Ngày hết hạn</th>
-                                                                            <th>Ghi chú</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:60px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvBaoHiem">
-                                                                            <tr>
-                                                                                <td data-bind="text:TextLoaiBaoHiem">hh0001</td>
-                                                                                <td data-bind="text:NoiBaoHiem">hh0001</td>
-                                                                                <td data-bind="text:SoBaoHiem">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayCap)">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayHetHan)">hh0001</td>
-                                                                                <td data-bind="text:GhiChu">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvHBaoHiem"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvBaoHiem"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvBaoHiem" class="btn btn-main  btn-main">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'khenthuong'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Hình thức</th>
-                                                                            <th>Số quyết định</th>
-                                                                            <th>Ngày ban hành</th>
-                                                                            <th>Nội dung tóm tắt</th>
-                                                                            <th>Ghi chú</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:60px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvKhenThuong">
-                                                                            <tr>
-                                                                                <td data-bind="text:HinhThuc">hh0001</td>
-                                                                                <td data-bind="text:SoQuyetDinh">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayBanHang)">hh0001</td>
-                                                                                <td data-bind="text:NoiDung">hh0001</td>
-                                                                                <td data-bind="text:GhiChu">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvKhenThuong"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvKhenthuong"><i class="fa fa-times" aria-hidden="true"> </i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvKhenThuong" class="btn btn-main  btn-main">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane t" data-bind="attr: { id: 'luong'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <!--ko if: $root.role_ThietLapLuongXemDS()-->
-                                                                        <tr>
-                                                                            <th>Loại</th>
-                                                                            <th>Tên loại lương, phụ cấp</th>
-                                                                            <th>Ngày áp dụng</th>
-                                                                            <th>Ngày kết thúc</th>
-                                                                            <th>Số tiền</th>
-                                                                            <th>Hệ số</th>
-                                                                            <th>Bậc</th>
-                                                                            <th>Nội dung</th>
-                                                                            <!--ko if: $root.role_ThietLapLuongInsert || $root.role_ThietLapLuongUpdate-->
-                                                                            <th style="width:60px;">Xử lý</th>
-                                                                            <!--/ko -->
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvLuongPhuCap">
-                                                                            <tr>
-                                                                                <td data-bind="text: LoaiLuong < 5 ?'Lương':  LoaiLuong.toString().indexOf('5') > -1?'Phụ cấp':'Giảm trừ'"></td>
-                                                                                <td data-bind="text:TenLoaiLuong">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayApDung)">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayKetThuc)">
-                                                                                </td>
-                                                                                <!--ko if: LoaiLuong < 5 || LoaiLuong == 52 || LoaiLuong == 62 -->
-                                                                                <td data-bind="text:commonStatisJs.ConvertVnd(SoTien)"></td>
-                                                                                <!--/ko -->
-                                                                                <!--ko if: LoaiLuong == 51 -->
-                                                                                <td data-bind="text:commonStatisJs.ConvertVnd(SoTien) + '/ ngày'"></td>
-                                                                                <!--/ko -->
-                                                                                <!--ko if: LoaiLuong == 53 -->
-                                                                                <td data-bind="text: SoTien + ' % lương chính'"></td>
-                                                                                <!--/ko -->
-                                                                                <!--ko if: LoaiLuong == 61 -->
-                                                                                <td data-bind="text:commonStatisJs.ConvertVnd(SoTien) +' /lần'"></td>
-                                                                                <!--/ko -->
-                                                                                <!--ko if: LoaiLuong == 63 -->
-                                                                                <td data-bind="text: SoTien +' % lương nhận'"></td>
-                                                                                <!--/ko -->
-                                                                                <td data-bind="text:HeSo">hh0001</td>
-                                                                                <td data-bind="text:Bac">hh0001</td>
-                                                                                <td data-bind="text:NoiDung">hh0001</td>
-                                                                                <td>
-                                                                                    <!--ko if: $root.role_ThietLapLuongInsert-->
-                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvLUongPhuCap"><i class="fa fa-edit"></i></a>
-                                                                                    <!--/ko-->
-                                                                                    <!--ko if: $root.role_ThietLapLuongUpdate-->
-                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvLuongPhuCap"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    <!--/ko-->
-                                                                                </td>
-                                                                            </tr>
-                                                                        </tbody>
-                                                                        <!--/ko -->
-                                                                        <!--ko if: !$root.role_ThietLapLuongXemDS() -->
-                                                                        <tfoot class="Report_Empty text-center">
-                                                                            <tr>
-                                                                                <td colspan="8">
-                                                                                    <i>Không có quyền xem thiết lập lương</i>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </tfoot>
-                                                                        <!--/ko -->
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        <!--ko if: $root.role_ThietLapLuongInsert-->
-                                                                        <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvLuongPhuCap" class="btn btn-main  btn-main">
-                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                        </a>
-                                                                        <!--/ko-->
-                                                                        <!--ko if: $root.role_ThietLapLuongCopy-->
-                                                                        <a href="javascript:void(0)" data-bind="click:$parent.SaoChepThietLapLuongTuNvien" class="btn btn-main  btn-main">
-                                                                            <i class="fa fa-files-o"></i><font>Sao chép thiết lập lương</font>
-                                                                        </a>
-                                                                        <!--/ko-->
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane" data-bind="attr: { id: 'miengiamthue'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Khoản miễn giảm</th>
-                                                                            <th>Số tiền</th>
-                                                                            <th>Ngày áp dụng</th>
-                                                                            <th>Ngày kết thúc</th>
-                                                                            <th>Ghi chú</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:60px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvMienGiam">
-                                                                            <tr>
-                                                                                <td data-bind="text:KhoanMienGiam">hh0001</td>
-                                                                                <td data-bind="text:commonStatisJs.ConvertVnd(SoTien)">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayApDung)">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(NgayKetThuc)">hh0001</td>
-                                                                                <td data-bind="text:GhiChu">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvMienGiam"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvMienGiam"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvMienGiam" class="btn btn-main  btn-main">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'training'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Từ ngày</th>
-                                                                            <th>Đến ngày</th>
-                                                                            <th>Nơi học</th>
-                                                                            <th>Ngành học</th>
-                                                                            <th>Hệ đào tạo</th>
-                                                                            <th>Bằng cấp</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:40px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvQtDaoTao">
-                                                                            <tr>
-                                                                                <td data-bind="text:convertDateTime(TuNgay)">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(DenNgay)">hh0001</td>
-                                                                                <td data-bind="text:NoiHoc">hh0001</td>
-                                                                                <td data-bind="text:NganhHoc">hh0001</td>
-                                                                                <td data-bind="text:HeDaoTao">hh0001</td>
-                                                                                <td data-bind="text:BangCap">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvQtDaoTao"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvQTDaoTao"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvDaoTao" class="btn btn-main  btn-main">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'collaborate'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Từ ngày</th>
-                                                                            <th>Đến ngày</th>
-                                                                            <th>Cơ quan</th>
-                                                                            <th>Vị trí</th>
-                                                                            <th>Địa chỉ</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:40px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvQtCongTac">
-                                                                            <tr>
-                                                                                <td data-bind="text:convertDateTime(TuNgay)">hh0001</td>
-                                                                                <td data-bind="text:convertDateTime(DenNgay)">hh0001</td>
-                                                                                <td data-bind="text:CoQuan">hh0001</td>
-                                                                                <td data-bind="text:ViTri">hh0001</td>
-                                                                                <td data-bind="text:DiaChi">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvQtCongTac"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvQTCongTac"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" class="btn btn-main  btn-main" data-bind="click:$parent.ShowPopupNvCongTac">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'family'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Họ và tên</th>
-                                                                            <th>Ngày sinh</th>
-                                                                            <th>Nơi ở</th>
-                                                                            <th>Quan hệ(Cha, mẹ...)</th>
-                                                                            <th>Địa chỉ</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:40px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listTTGiaDinh">
-                                                                            <tr>
-                                                                                <td data-bind="text:HoTen">hh0001</td>
-                                                                                <td data-bind="text:NgaySinh">hh0001</td>
-                                                                                <td data-bind="text:NoiO">hh0001</td>
-                                                                                <td data-bind="text:QuanHe">hh0001</td>
-                                                                                <td data-bind="text:DiaChi">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editTTGD"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvGiaDinh"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" class="btn btn-main  btn-main" data-bind="click:$parent.showPopupGiaDinh">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'politic'+ ID }">
-                                                                <div class="col-md-12 nopadding thong-tin-chinh-tri">
-                                                                    <div class="col-md-4 col-sm-12 col-xs-12">
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Ngày vào đoàn</label>
-                                                                            <div class="form-news add-icon-date">
-                                                                                <input type="text" class="form-control News_ngayvaodoan" data-bind="value:convertDateTime(NgayVaoDoan)">
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Ngày vào đảng</label>
-                                                                            <div class="form-news add-icon-date">
-                                                                                <input type="text" class="form-control News_ngayvaodang" data-bind="value:convertDateTime(NgayVaoDang)">
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-4 col-sm-12 col-xs-12 ">
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Nơi vào đoàn</label>
-                                                                            <div class="form-news">
-                                                                                <input type="text" class="form-control" data-bind="value:NoiVaoDoan">
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Ngày chính thức</label>
-                                                                            <div class="form-news add-icon-date">
-                                                                                <input type="text" class="form-control News_ngayvaochinhthuc" data-bind="value:convertDateTime(NgayVaoDangChinhThuc)">
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-4 col-sm-12 col-xs-12 ">
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Ngày nhập ngũ</label>
-                                                                            <div class="form-news add-icon-date">
-                                                                                <input type="text" class="form-control News_ngaynhapngu" data-bind="value:convertDateTime(NgayNhapNgu)">
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label style="letter-spacing:-1px">Ngày ra khỏi đảng</label>
-                                                                            <div class="form-news add-icon-date">
-                                                                                <input type="text" class="form-control News_ngayradang" data-bind="value:convertDateTime(NgayRoiDang)">
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-4 col-sm-12 col-xs-12 ">
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Ngày xuất ngũ</label>
-                                                                            <div class="form-news add-icon-date">
-                                                                                <input type="text" class="form-control News_ngayxuatngu" data-bind="value:convertDateTime(NgayXuatNgu)">
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Thông tin</label>
-                                                                            <div class="form-news">
-                                                                                <input type="text" class="form-control" data-bind="value:NoiSinhHoatDang">
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-8 col-sm-12 col-xs-12">
-                                                                        <div class="form-group   detail-label-input">
-                                                                            <label>Lý do</label>
-                                                                            <div class="form-news">
-                                                                                <textarea rows="2" type="text" data-bind="value:GhiChuThongTinChinhTri" />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding ">
-                                                                    <div class="group-btn floatleft text-right">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" class="btn btn-main editNVchild" data-bind="click:$parent.SavettChinhTri">
-                                                                                <i class="fa fa-floppy-o" aria-hidden="true" style="color:white"></i> Lưu
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="tab-pane " data-bind="attr: { id: 'health'+ ID }">
-                                                                <div class="table-res">
-                                                                    <table class='table'>
-                                                                        <tr>
-                                                                            <th>Ngày khám</th>
-                                                                            <th>Chiều cao</th>
-                                                                            <th>Cân nặng</th>
-                                                                            <th>Tình hình sức khỏe</th>
-                                                                            @if (Model.UserRoleUpdate)
-                                                                            {
-                                                                                <th style="width:60px;">Xử lý</th>
-                                                                            }
-                                                                        </tr>
-                                                                        <tbody data-bind="foreach:$root.listNvTTSucKhoe">
-                                                                            <tr>
-                                                                                <td data-bind="text:convertDateTime(NgayKham)">hh0001</td>
-                                                                                <td data-bind="text:ChieuCao">hh0001</td>
-                                                                                <td data-bind="text:CanNang">hh0001</td>
-                                                                                <td data-bind="text:TinhHinhSucKhoe">hh0001</td>
-                                                                                @if (Model.UserRoleUpdate)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.editNvTTSucKhoe"><i class="fa fa-edit"></i></a>
-                                                                                        <a href="javascript:void(0)" data-bind="click:$root.removeNvTTSucKhoe"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                                                    </td>
-                                                                                }
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="col-md-12 nopadding group-btn-left">
-                                                                    <div class="group-btn floatleft text-left">
-                                                                        @if (Model.UserRoleUpdate)
-                                                                        {
-                                                                            <a href="javascript:void(0)" class="btn btn-main  btn-main" data-bind="click:$parent.ShowPopupNvTTSucKhoe">
-                                                                                <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                                            </a>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                                else
-                                {
-                            <tr class="prev-tr-hide" data-bind="click: $parent.loadQTCongTac ,css:{bggray : $index()%2 == 1},">
-                                <!--ko if: $root.ListHeaderSelected().filter(p => p === 0).length > 0-->
-                                <td class="m0" data-bind="text: MaNhanVien"></td>
-                                <!--/ko-->
-                                <!--ko if: $root.ListHeaderSelected().filter(p => p === 1).length > 0-->
-                                <td class="m1" data-bind="text: TenNhanVien"></td>
-                                <!--/ko-->
-                                <!--ko if: $root.ListHeaderSelected().filter(p => p === 5).length > 0-->
-                                <td class="m2" data-bind="text: DienThoaiDiDong"></td>
-                                <!--/ko-->
-                                <!--ko if: $root.ListHeaderSelected().filter(p => p === 6).length > 0-->
-                                <td class="m3" data-bind="text: Email"></td>
-                                <!--/ko-->
-                                <!--ko if: $root.ListHeaderSelected().filter(p => p === 24).length > 0-->
-                                <td class="m4" data-bind="text: DaNghiViec==false?'Đang làm việc':'Đã nghỉ việc'"></td>
-                                <!--/ko-->
-                                <td class="btn-hover-edit" style="position:absolute !important">
-                                    <div class=" text-right">
-                                        <a href="javascript:void(0)" data-bind="click: $parent.editNV" title="Sửa nhân viên">
-                                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                                        </a>
-                                        <a href="javascript:void(0)" title="Xóa nhân viên" data-bind="visible: ID != $parent.ID_NhanVienAdmin(), click: $parent.modalDelete">
-                                            <i class="fa fa-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                                    <tr class="op-js-tr-hide">
-                                        <td data-bind="attr: { colspan : $root.ListHeader.filter(p=>p.isHRM === false).filter(p=> $root.ListHeaderSelected().includes(p.index)).length }">
-                                            <div class="tab-detail-staff"> @* op-object-detail *@
-                                                <ul class="nav nav-tabs">
+                                                <ul class="nav nav-pills nav-stacked col-md-2 col-xs-12">
                                                     <li class="active"><a data-toggle="tab" data-bind=" attr: { href: '#home'+ ID }">Thông tin</a></li>
-                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#infor'+ ID }">Hóa đơn</a></li>
-                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#contac'+ ID }">Sổ quỹ</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#hopdong'+ ID },click:$parent.ShowHopDong">Hợp đồng</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#baohiem'+ ID },click:$parent.ShowBaoHiem">Bảo hiểm</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#khenthuong'+ ID },click:$parent.ShowKhenThuong">Khen thưởng</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#luong'+ ID },click:$parent.ShowLuongPhuCap">Lương, phụ cấp</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#miengiamthue'+ ID },click:$parent.ShowMienGiam">Miễn giảm thuế</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#training'+ ID },click:$parent.ShowQuyTrinhDaoTao">Quy trình đào tạo</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#collaborate'+ ID },click:$parent.ShowQuaTrinhCongTac">Quá trình công tác</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#family'+ ID },click:$parent.ShowThongTinGD">Thông tin gia đình</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#politic'+ ID },click:$parent.ShowThongTinCT">Thông tin chính trị</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#health'+ ID },click:$parent.ShowTTSucKhoe">Thông tin sức khỏe</a></li>
                                                 </ul>
-                                                <div class="tab-content">
-                                                    <div class="tab-pane active" data-bind="attr: { id: 'home'+ ID }">
-                                                        <div class="op-object-detail " style="min-width:calc(100vw - 300px)">
-                                                            <div class="col-md-12">
-                                                                <div class="col-md-4">
-                                                                    <div class="img-product" style="max-width:250px;">
-                                                                        <a href="javascript:void(0)" data-bind="if:(Image.length !== 1)&& (Image !==null)&& (Image !=='')">
-                                                                            <img data-bind="attr: { src: Open24FileManager.hostUrl + Image}" src="~/Content/images/img-prp.png" />
-                                                                        </a>
-                                                                        <span data-bind="if:(Image.length == 1)|| (Image ==null)|| (Image =='')">
-                                                                            <img src="~/Content/empty-avatar.png" style="height:100%;width:100%;" />
-                                                                        </span>
+                                                <div class=" col-md-10 col-xs-12 nopadding">
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane active" data-bind="attr: { id: 'home'+ ID }">
+                                                            <div class="flex flex-column ">
+                                                                <div class="flex flex-row">
+                                                                    <div class="col-md-4 col-xs-12">
+                                                                        <!-- ko if:(Image.length !== 1) && (Image !== null) && (Image !=='')-->
+                                                                        <img style="width:100%; object-fit:cover" data-bind="attr: { src: Open24FileManager.hostUrl + Image}" src="~/Content/images/img-prp.png" />
+                                                                        <!--/ko-->
+                                                                        <!-- ko if:(Image.length == 1)|| (Image == null)|| (Image =='')-->
+                                                                        <img style="width:100%; object-fit:cover" src="~/Content/empty-avatar.png" />
+                                                                        <!--/ko-->
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-md-4">
+                                                                    <div class="col-md-4 col-xs-12">
                                                                         <div class="form-group floatleft">
                                                                             <label class="css-form-label ">Mã nhân viên:</label>
                                                                             <div class="css-form-detail" data-bind="text: MaNhanVien"></div>
@@ -1305,8 +670,8 @@
                                                                             <label class="css-form-label ng-binding"> Địa chỉ:</label>
                                                                             <div class="css-form-detail" data-bind="text: ThuongTru"></div>
                                                                         </div>
-                                                                </div>
-                                                                <div class="col-md-4">
+                                                                    </div>
+                                                                    <div class="col-md-4 col-xs-12">
                                                                         <div class="form-group floatleft ">
                                                                             <label class="css-form-label ng-binding">Điện Thoại:</label>
                                                                             <div class="css-form-detail" data-bind="text: DienThoaiDiDong"></div>
@@ -1327,15 +692,655 @@
                                                                             <label class="css-form-label ng-binding">Ghi chú:</label>
                                                                             <div class="css-form-detail" data-bind="text: GhiChu"></div>
                                                                         </div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="op-object-detail-function">
+                                                                <div class="op-object-detail-function">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
                                                                         <button class="btn btn-main editNVchild" data-bind="click: $parent.editNV">
                                                                             <i class="fa fa-check-square"></i> Sửa đổi
                                                                         </button>
+                                                                    }
+                                                                    <button class="btn btn-main btnPrint" data-bind="click: $parent.PrintHsnv">
+                                                                        <i class="fa fa-print"></i> In
+                                                                    </button>
+                                                                    @if (Model.RoleExport)
+                                                                    {
+                                                                        <button class="btn btn-main btnExportDetail" data-bind="click: $parent.ExportWord">
+                                                                            <i class="fa fa-file-word-o" aria-hidden="true"></i> Xuất file word
+                                                                        </button>
+                                                                    }
+                                                                    @if (Model.UserRoleDelete)
+                                                                    {
                                                                         <button class="btn btn-cancel xoaNVchild" data-bind="visible: ID != $parent.ID_NhanVienAdmin(), click: $parent.modalDelete">
                                                                             <i class="fa fa-trash"></i> Xóa
                                                                         </button>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'hopdong'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Số hợp đồng</th>
+                                                                        <th>Loại hợp đồng</th>
+                                                                        <th>Ngày ký</th>
+                                                                        <th>Thời hạn</th>
+                                                                        <th>Ghi chú</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:60px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvHopDong">
+                                                                        <tr>
+                                                                            <td data-bind="text:SoHopDong">hh0001</td>
+                                                                            <td data-bind="text:TextLoaiHopDong">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayKy)">hh0001</td>
+                                                                            <td data-bind="text:ThoiHanText">hh0001</td>
+                                                                            <td data-bind="text:GhiChu">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvHopDong"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvTTHopDong"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvHopDong" class="btn btn-main  btn-main">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'baohiem'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Loại bảo hiểm</th>
+                                                                        <th>Nơi bảo hiểm</th>
+                                                                        <th>Sổ bảo hiểm</th>
+                                                                        <th>Ngày cấp</th>
+                                                                        <th>Ngày hết hạn</th>
+                                                                        <th>Ghi chú</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:60px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvBaoHiem">
+                                                                        <tr>
+                                                                            <td data-bind="text:TextLoaiBaoHiem">hh0001</td>
+                                                                            <td data-bind="text:NoiBaoHiem">hh0001</td>
+                                                                            <td data-bind="text:SoBaoHiem">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayCap)">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayHetHan)">hh0001</td>
+                                                                            <td data-bind="text:GhiChu">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvHBaoHiem"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvBaoHiem"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvBaoHiem" class="btn btn-main  btn-main">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'khenthuong'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Hình thức</th>
+                                                                        <th>Số quyết định</th>
+                                                                        <th>Ngày ban hành</th>
+                                                                        <th>Nội dung tóm tắt</th>
+                                                                        <th>Ghi chú</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:60px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvKhenThuong">
+                                                                        <tr>
+                                                                            <td data-bind="text:HinhThuc">hh0001</td>
+                                                                            <td data-bind="text:SoQuyetDinh">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayBanHang)">hh0001</td>
+                                                                            <td data-bind="text:NoiDung">hh0001</td>
+                                                                            <td data-bind="text:GhiChu">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvKhenThuong"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvKhenthuong"><i class="fa fa-times" aria-hidden="true"> </i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvKhenThuong" class="btn btn-main  btn-main">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane t" data-bind="attr: { id: 'luong'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <!--ko if: $root.role_ThietLapLuongXemDS()-->
+                                                                    <tr>
+                                                                        <th>Loại</th>
+                                                                        <th>Tên loại lương, phụ cấp</th>
+                                                                        <th>Ngày áp dụng</th>
+                                                                        <th>Ngày kết thúc</th>
+                                                                        <th>Số tiền</th>
+                                                                        <th>Hệ số</th>
+                                                                        <th>Bậc</th>
+                                                                        <th>Nội dung</th>
+                                                                        <!--ko if: $root.role_ThietLapLuongInsert || $root.role_ThietLapLuongUpdate-->
+                                                                        <th style="width:60px;">Xử lý</th>
+                                                                        <!--/ko -->
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvLuongPhuCap">
+                                                                        <tr>
+                                                                            <td data-bind="text: LoaiLuong < 5 ?'Lương':  LoaiLuong.toString().indexOf('5') > -1?'Phụ cấp':'Giảm trừ'"></td>
+                                                                            <td data-bind="text:TenLoaiLuong">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayApDung)">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayKetThuc)">
+                                                                            </td>
+                                                                            <!--ko if: LoaiLuong < 5 || LoaiLuong == 52 || LoaiLuong == 62 -->
+                                                                            <td data-bind="text:commonStatisJs.ConvertVnd(SoTien)"></td>
+                                                                            <!--/ko -->
+                                                                            <!--ko if: LoaiLuong == 51 -->
+                                                                            <td data-bind="text:commonStatisJs.ConvertVnd(SoTien) + '/ ngày'"></td>
+                                                                            <!--/ko -->
+                                                                            <!--ko if: LoaiLuong == 53 -->
+                                                                            <td data-bind="text: SoTien + ' % lương chính'"></td>
+                                                                            <!--/ko -->
+                                                                            <!--ko if: LoaiLuong == 61 -->
+                                                                            <td data-bind="text:commonStatisJs.ConvertVnd(SoTien) +' /lần'"></td>
+                                                                            <!--/ko -->
+                                                                            <!--ko if: LoaiLuong == 63 -->
+                                                                            <td data-bind="text: SoTien +' % lương nhận'"></td>
+                                                                            <!--/ko -->
+                                                                            <td data-bind="text:HeSo">hh0001</td>
+                                                                            <td data-bind="text:Bac">hh0001</td>
+                                                                            <td data-bind="text:NoiDung">hh0001</td>
+                                                                            <td>
+                                                                                <!--ko if: $root.role_ThietLapLuongInsert-->
+                                                                                <a href="javascript:void(0)" data-bind="click:$root.editNvLUongPhuCap"><i class="fa fa-edit"></i></a>
+                                                                                <!--/ko-->
+                                                                                <!--ko if: $root.role_ThietLapLuongUpdate-->
+                                                                                <a href="javascript:void(0)" data-bind="click:$root.removeNvLuongPhuCap"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                <!--/ko-->
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                    <!--/ko -->
+                                                                    <!--ko if: !$root.role_ThietLapLuongXemDS() -->
+                                                                    <tfoot class="Report_Empty text-center">
+                                                                        <tr>
+                                                                            <td colspan="8">
+                                                                                <i>Không có quyền xem thiết lập lương</i>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                    <!--/ko -->
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    <!--ko if: $root.role_ThietLapLuongInsert-->
+                                                                    <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvLuongPhuCap" class="btn btn-main  btn-main">
+                                                                        <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                    </a>
+                                                                    <!--/ko-->
+                                                                    <!--ko if: $root.role_ThietLapLuongCopy-->
+                                                                    <a href="javascript:void(0)" data-bind="click:$parent.SaoChepThietLapLuongTuNvien" class="btn btn-main  btn-main">
+                                                                        <i class="fa fa-files-o"></i><font>Sao chép thiết lập lương</font>
+                                                                    </a>
+                                                                    <!--/ko-->
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane" data-bind="attr: { id: 'miengiamthue'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Khoản miễn giảm</th>
+                                                                        <th>Số tiền</th>
+                                                                        <th>Ngày áp dụng</th>
+                                                                        <th>Ngày kết thúc</th>
+                                                                        <th>Ghi chú</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:60px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvMienGiam">
+                                                                        <tr>
+                                                                            <td data-bind="text:KhoanMienGiam">hh0001</td>
+                                                                            <td data-bind="text:commonStatisJs.ConvertVnd(SoTien)">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayApDung)">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(NgayKetThuc)">hh0001</td>
+                                                                            <td data-bind="text:GhiChu">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvMienGiam"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvMienGiam"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvMienGiam" class="btn btn-main  btn-main">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'training'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Từ ngày</th>
+                                                                        <th>Đến ngày</th>
+                                                                        <th>Nơi học</th>
+                                                                        <th>Ngành học</th>
+                                                                        <th>Hệ đào tạo</th>
+                                                                        <th>Bằng cấp</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:40px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvQtDaoTao">
+                                                                        <tr>
+                                                                            <td data-bind="text:convertDateTime(TuNgay)">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(DenNgay)">hh0001</td>
+                                                                            <td data-bind="text:NoiHoc">hh0001</td>
+                                                                            <td data-bind="text:NganhHoc">hh0001</td>
+                                                                            <td data-bind="text:HeDaoTao">hh0001</td>
+                                                                            <td data-bind="text:BangCap">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvQtDaoTao"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvQTDaoTao"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" data-bind="click:$parent.ShowPopupNvDaoTao" class="btn btn-main  btn-main">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'collaborate'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Từ ngày</th>
+                                                                        <th>Đến ngày</th>
+                                                                        <th>Cơ quan</th>
+                                                                        <th>Vị trí</th>
+                                                                        <th>Địa chỉ</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:40px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvQtCongTac">
+                                                                        <tr>
+                                                                            <td data-bind="text:convertDateTime(TuNgay)">hh0001</td>
+                                                                            <td data-bind="text:convertDateTime(DenNgay)">hh0001</td>
+                                                                            <td data-bind="text:CoQuan">hh0001</td>
+                                                                            <td data-bind="text:ViTri">hh0001</td>
+                                                                            <td data-bind="text:DiaChi">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvQtCongTac"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvQTCongTac"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" class="btn btn-main  btn-main" data-bind="click:$parent.ShowPopupNvCongTac">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'family'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Họ và tên</th>
+                                                                        <th>Ngày sinh</th>
+                                                                        <th>Nơi ở</th>
+                                                                        <th>Quan hệ(Cha, mẹ...)</th>
+                                                                        <th>Địa chỉ</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:40px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listTTGiaDinh">
+                                                                        <tr>
+                                                                            <td data-bind="text:HoTen">hh0001</td>
+                                                                            <td data-bind="text:NgaySinh">hh0001</td>
+                                                                            <td data-bind="text:NoiO">hh0001</td>
+                                                                            <td data-bind="text:QuanHe">hh0001</td>
+                                                                            <td data-bind="text:DiaChi">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editTTGD"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvGiaDinh"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" class="btn btn-main  btn-main" data-bind="click:$parent.showPopupGiaDinh">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'politic'+ ID }">
+                                                            <div class="col-md-12 nopadding thong-tin-chinh-tri">
+                                                                <div class="col-md-4 col-sm-12 col-xs-12">
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Ngày vào đoàn</label>
+                                                                        <div class="form-news add-icon-date">
+                                                                            <input type="text" class="form-control News_ngayvaodoan" data-bind="value:convertDateTime(NgayVaoDoan)">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Ngày vào đảng</label>
+                                                                        <div class="form-news add-icon-date">
+                                                                            <input type="text" class="form-control News_ngayvaodang" data-bind="value:convertDateTime(NgayVaoDang)">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 col-sm-12 col-xs-12 ">
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Nơi vào đoàn</label>
+                                                                        <div class="form-news">
+                                                                            <input type="text" class="form-control" data-bind="value:NoiVaoDoan">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Ngày chính thức</label>
+                                                                        <div class="form-news add-icon-date">
+                                                                            <input type="text" class="form-control News_ngayvaochinhthuc" data-bind="value:convertDateTime(NgayVaoDangChinhThuc)">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 col-sm-12 col-xs-12 ">
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Ngày nhập ngũ</label>
+                                                                        <div class="form-news add-icon-date">
+                                                                            <input type="text" class="form-control News_ngaynhapngu" data-bind="value:convertDateTime(NgayNhapNgu)">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label style="letter-spacing:-1px">Ngày ra khỏi đảng</label>
+                                                                        <div class="form-news add-icon-date">
+                                                                            <input type="text" class="form-control News_ngayradang" data-bind="value:convertDateTime(NgayRoiDang)">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4 col-sm-12 col-xs-12 ">
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Ngày xuất ngũ</label>
+                                                                        <div class="form-news add-icon-date">
+                                                                            <input type="text" class="form-control News_ngayxuatngu" data-bind="value:convertDateTime(NgayXuatNgu)">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Thông tin</label>
+                                                                        <div class="form-news">
+                                                                            <input type="text" class="form-control" data-bind="value:NoiSinhHoatDang">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-8 col-sm-12 col-xs-12">
+                                                                    <div class="form-group   detail-label-input">
+                                                                        <label>Lý do</label>
+                                                                        <div class="form-news">
+                                                                            <textarea rows="2" type="text" data-bind="value:GhiChuThongTinChinhTri" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding ">
+                                                                <div class="group-btn floatleft text-right">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" class="btn btn-main editNVchild" data-bind="click:$parent.SavettChinhTri">
+                                                                            <i class="fa fa-floppy-o" aria-hidden="true" style="color:white"></i> Lưu
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane " data-bind="attr: { id: 'health'+ ID }">
+                                                            <div class="table-res">
+                                                                <table class='table'>
+                                                                    <tr>
+                                                                        <th>Ngày khám</th>
+                                                                        <th>Chiều cao</th>
+                                                                        <th>Cân nặng</th>
+                                                                        <th>Tình hình sức khỏe</th>
+                                                                        @if (Model.UserRoleUpdate)
+                                                                        {
+                                                                            <th style="width:60px;">Xử lý</th>
+                                                                        }
+                                                                    </tr>
+                                                                    <tbody data-bind="foreach:$root.listNvTTSucKhoe">
+                                                                        <tr>
+                                                                            <td data-bind="text:convertDateTime(NgayKham)">hh0001</td>
+                                                                            <td data-bind="text:ChieuCao">hh0001</td>
+                                                                            <td data-bind="text:CanNang">hh0001</td>
+                                                                            <td data-bind="text:TinhHinhSucKhoe">hh0001</td>
+                                                                            @if (Model.UserRoleUpdate)
+                                                                            {
+                                                                                <td>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.editNvTTSucKhoe"><i class="fa fa-edit"></i></a>
+                                                                                    <a href="javascript:void(0)" data-bind="click:$root.removeNvTTSucKhoe"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-12 nopadding group-btn-left">
+                                                                <div class="group-btn floatleft text-left">
+                                                                    @if (Model.UserRoleUpdate)
+                                                                    {
+                                                                        <a href="javascript:void(0)" class="btn btn-main  btn-main" data-bind="click:$parent.ShowPopupNvTTSucKhoe">
+                                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr class="prev-tr-hide" data-bind="click: $parent.loadQTCongTac ,css:{bggray : $index()%2 == 1},">
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 0).length > 0-->
+                                        <td class="m0" data-bind="text: MaNhanVien"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 1).length > 0-->
+                                        <td class="m1" data-bind="text: TenNhanVien"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 5).length > 0-->
+                                        <td class="m2" data-bind="text: DienThoaiDiDong"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 6).length > 0-->
+                                        <td class="m3" data-bind="text: Email"></td>
+                                        <!--/ko-->
+                                        <!--ko if: $root.ListHeaderSelected().filter(p => p === 24).length > 0-->
+                                        <td class="m4" data-bind="text: DaNghiViec==false?'Đang làm việc':'Đã nghỉ việc'"></td>
+                                        <!--/ko-->
+                                        <td class="btn-hover-edit" style="position:absolute !important">
+                                            <div class=" text-right">
+                                                <a href="javascript:void(0)" data-bind="click: $parent.editNV" title="Sửa nhân viên">
+                                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                </a>
+                                                <a href="javascript:void(0)" title="Xóa nhân viên" data-bind="visible: ID != $parent.ID_NhanVienAdmin(), click: $parent.modalDelete">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="op-js-tr-hide">
+                                        <td data-bind="attr: { colspan : $root.ListHeader.filter(p=>p.isHRM === false).filter(p=> $root.ListHeaderSelected().includes(p.index)).length }">
+                                            <div class="tab-detail-staff">
+                                                @* op-object-detail *@
+                                                <ul class="nav nav-tabs">
+                                                    <li class="active"><a data-toggle="tab" data-bind=" attr: { href: '#home'+ ID }">Thông tin</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#infor'+ ID }">Hóa đơn</a></li>
+                                                    <li><a data-toggle="tab" data-bind=" attr: { href: '#contac'+ ID }">Sổ quỹ</a></li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane active" data-bind="attr: { id: 'home'+ ID }">
+                                                        <div class="op-object-detail " style="min-width:calc(100vw - 300px)">
+                                                            <div class="col-md-12">
+                                                                <div class="col-md-4">
+                                                                    <div class="img-product" style="max-width:250px;">
+                                                                        <a href="javascript:void(0)" data-bind="if:(Image.length !== 1)&& (Image !==null)&& (Image !=='')">
+                                                                            <img data-bind="attr: { src: Open24FileManager.hostUrl + Image}" src="~/Content/images/img-prp.png" />
+                                                                        </a>
+                                                                        <span data-bind="if:(Image.length == 1)|| (Image ==null)|| (Image =='')">
+                                                                            <img src="~/Content/empty-avatar.png" style="height:100%;width:100%;" />
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Mã nhân viên:</label>
+                                                                        <div class="css-form-detail" data-bind="text: MaNhanVien"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Tên nhân viên:</label>
+                                                                        <div class="css-form-detail" data-bind="text: TenNhanVien"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Ngày sinh:</label>
+                                                                        <div class="css-form-detail" data-bind="text: moment(NgaySinh).format('DD/MM/YYYY')!='Invalid date'? moment(NgaySinh).format('DD/MM/YYYY'):''"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Giới tính:</label>
+                                                                        <div class="css-form-detail" data-bind="text: (GioiTinh==true?'Nam':'Nữ')"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label ">Quê quán:</label>
+                                                                        <div class="css-form-detail" data-bind="text: NguyenQuan">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label ng-binding">Email:</label>
+                                                                        <div class="css-form-detail" data-bind="text: Email"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <label class="css-form-label ng-binding"> Địa chỉ:</label>
+                                                                        <div class="css-form-detail" data-bind="text: ThuongTru"></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label ng-binding">Điện Thoại:</label>
+                                                                        <div class="css-form-detail" data-bind="text: DienThoaiDiDong"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label ng-binding">Số CMT:</label>
+                                                                        <div class="css-form-detail" data-bind="text: SoCMND"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label ng-binding">Số bảo hiểm:</label>
+                                                                        <div class="css-form-detail" data-bind="text: SoBHXH"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label ng-binding">Tình trạng:</label>
+                                                                        <div class="css-form-detail" data-bind="text: DaNghiViec==false?'Đang làm việc':'Đã nghỉ việc'"></div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <label class="css-form-label ng-binding">Ghi chú:</label>
+                                                                        <div class="css-form-detail" data-bind="text: GhiChu"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="op-object-detail-function">
+                                                                <button class="btn btn-main editNVchild" data-bind="click: $parent.editNV">
+                                                                    <i class="fa fa-check-square"></i> Sửa đổi
+                                                                </button>
+                                                                <button class="btn btn-cancel xoaNVchild" data-bind="visible: ID != $parent.ID_NhanVienAdmin(), click: $parent.modalDelete">
+                                                                    <i class="fa fa-trash"></i> Xóa
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1482,7 +1487,7 @@
                                 <div class="form-group floatleft">
                                     <label class="css-form-label">Hôn nhân</label>
                                     <div class="css-form-detail">
-                                        <div id="IsFamily" class="flex " >
+                                        <div id="IsFamily" class="flex ">
                                             @foreach (var item in commonEnumHellper.ListFamily)
                                             {
                                                 <label data-id="@item.Key" class="flex css-form-label"><input name="optradio" type="radio"> @item.Value &nbsp;</label>
@@ -2057,7 +2062,7 @@
         $('.btn-hover-edit').hide();
     });
 </script>
-<script type="text/javascript" src="@Scripts.Url("~/bundles/AppDanhMuc/NhanVienList")"></script>
+<script type="text/javascript" src="@Html.WriteRenderFile(Scripts.Url("~/bundles/AppDanhMuc/NhanVienList"))"></script>
 <script>
     function openfilter() {
         $(".col-left").show("slow");

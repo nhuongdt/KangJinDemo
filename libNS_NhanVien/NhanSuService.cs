@@ -423,6 +423,7 @@ namespace libNS_NhanVien
                                 parentId = o.ID_PhongBanCha,
                                 ID_DonVi = o.ID_DonVi,
                                 text = o.TenPhongBan,
+                                icon = "<i class='fal fa-edit'></i>",
                                 active = true,
                                 children = GetChildren(result, o.ID, o.TenPhongBan)
                             });
@@ -4164,6 +4165,7 @@ namespace libNS_NhanVien
         public Guid? ID_DonVi { get; set; }
         public string parentText { get; set; }
         public bool active { get; set; }
+        public string icon { get; set; }
         public List<PhongBanChiNhanhView> children { get; set; }
 
     }

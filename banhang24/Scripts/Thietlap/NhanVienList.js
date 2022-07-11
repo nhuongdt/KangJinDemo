@@ -86,6 +86,9 @@ var ViewModel = function () {
     self.loc_DaNghiViec = ko.observable("2");
     self.TieuDeThemNhanVien = ko.observable('Thêm mới nhân viên');
     self.Quyen_NguoiDung = ko.observableArray();
+    self.rolePhongBan_Insert = ko.observable(CheckQuyenExist('NS_PhongBan_ThemMoi'));
+    self.rolePhongBan_Update = ko.observable(CheckQuyenExist('NS_PhongBan_CapNhat'));
+    self.rolePhongBan_Delete = ko.observable(CheckQuyenExist('NS_PhongBan_Xoa'));
 
     //Start HeaderInit
     self.ListHeader = ko.observableArray();
@@ -181,6 +184,10 @@ var ViewModel = function () {
         return role.length > 0;
     }
 
+    function CheckQuyenExist(maquyen) {
+        return VHeader.Quyen.indexOf(maquyen) > -1;
+    }
+
     function GetListPhongBan_byChiNhanh(idChiNhanh) {
         $.getJSON(NhanVienUri + "GetTreePhongBan?chinhanhId=" + idChiNhanh, function (data) {
             self.listAddChiNhanh()[0].listPhongBan = data;
@@ -214,6 +221,7 @@ var ViewModel = function () {
             format: 'd/m/Y',
         });
     }
+
     self.editNV = function (item) {
         ajaxHelper(NhanVienUri + "getlistQTCongTac?ID_NhanVien=" + item.ID, "GET").done(function (data) {
             self.MangChiNhanhNhanVien(data);
@@ -672,12 +680,10 @@ var ViewModel = function () {
         })
     }
     self.showModelPhongBan = function (item) {
-        vmNsPhongBan.listChiNhanh = self.DonVis();
         vmNsPhongBan.Insert(item.ID_ChiNhanh);
         //self.ShowPopupPhongban();
     }
     self.ShowEditPhongBan = function (item) {
-        vmNsPhongBan.listChiNhanh = self.DonVis();
         vmNsPhongBan.edit(item, $('#RolePhongBan_Update').val(), $('#RolePhongBan_Delete').val());
     }
     var _maNhanVien_seach = null;
@@ -1395,6 +1401,7 @@ var ViewModel = function () {
     function getDonVi() {
         ajaxHelper(BH_DonViUri + "GetListDonVi1", "GET").done(function (data) {
             self.DonVis(data);
+            vmNsPhongBan.listChiNhanh = self.DonVis();
         });
     }
     getDonVi();
@@ -2002,33 +2009,6 @@ var ViewModel = function () {
                 if (item.res === true) {
                     self.News_IdNhanVienOld(item.dataSoure);
                     if (totalFiles > 0) {
-                        //$.ajax({
-                        //    type: "POST",
-                        //    url: NhanVienUri + "UploadImageStaff?nhanvienId=" + item.dataSoure,
-                        //    data: formData,
-                        //    dataType: 'json',
-                        //    contentType: false,
-                        //    processData: false,
-                        //    success: function (response) {
-                        //        if (response.res === true) {
-                        //            if (self.news_Idnhanvien() == null)
-                        //                bottomrightnotify("Thêm mới nhân viên thành công!", "success");
-                        //            else
-                        //                bottomrightnotify("Cập nhật nhân viên thành công!", "success");
-
-                        //            if (IsNew !== true) {
-                        //                getAllNhanViens(true);
-                        //                changeButtonPopup();
-                        //            }
-                        //            else {
-                        //                SaveAgain();
-                        //            }
-                        //        }
-                        //        else {
-                        //            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + response.mess, "danger");
-                        //        }
-                        //    },
-                        //});
                         let myData = {};
                         myData.Subdomain = VHeader.SubDomain;
                         myData.Function = "8"; //8. Nhân viên
@@ -2609,14 +2589,33 @@ var ViewModel = function () {
             tree = $('#treePhongBan1').tree({
                 primaryKey: 'id',
                 uiLibrary: 'bootstrap',
+                imageHtmlField: 'icon',
                 dataSource: data,
-                checkboxes: false,
             }).on('select', function (e, node, id) {
                 model_nv.PhongBan_getAllChild(id);
             })
         });
     }
 
+    $('#modalNsPhongBan').on('hidden.bs.modal', function () {
+        if (vmNsPhongBan.saveOK) {
+            tree.destroy();
+            loadPhongBan();
+        }
+    })
+
+    $(document).on('click', '#treePhongBan1 .list-group-item .fa-edit', function () {
+        var $li = $(this).closest('.list-group-item').attr('data-id');
+        let nodeItem = tree.getDataById($li);
+        if (!model_nv.rolePhongBan_Update()) {
+            ShowMessage_Danger('Bạn không có quyền cập nhật phòng ban');
+            return;
+        }
+        if (nodeItem.ID_DonVi !== null) {// phongban macdinh
+            vmNsPhongBan.edit(nodeItem);
+        }
+    });
+   
     function GetChildren_Phong(arrParent, arrJson, txtSearch, arr, isRoot) {
         if (txtSearch === '') {
             return self.listphongbanold();
@@ -2689,21 +2688,16 @@ var ViewModel = function () {
         return o.children.length > 0 && o.children.some(evensearch1);
     };
     self.ShowPopupPhongban = function () {
-        vmNsPhongBan.listChiNhanh = self.DonVis();
         vmNsPhongBan.Insert();
-
     }
 
     self.editPhongBan = function (item) {
-        vmNsPhongBan.listChiNhanh = self.DonVis();
         vmNsPhongBan.edit(item, $('#RolePhongBan_Update').val(), $('#RolePhongBan_Delete').val());
     }
     self.editPhongBan1 = function (item) {
-        vmNsPhongBan.listChiNhanh = self.DonVis();
         vmNsPhongBan.edit(item, $('#RolePhongBan_Update').val(), $('#RolePhongBan_Delete').val());
     }
     self.editPhongBan2 = function (item) {
-        vmNsPhongBan.listChiNhanh = self.DonVis();
         vmNsPhongBan.edit(item, $('#RolePhongBan_Update').val(), $('#RolePhongBan_Delete').val());
     }
     $('body').on('InsertNsPhongBanSuccess', function () {

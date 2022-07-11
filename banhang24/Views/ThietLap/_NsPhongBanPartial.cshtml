@@ -2,10 +2,12 @@
     #lstphongbancha li {
         padding-left: 15px !important;
     }
+
         #lstphongbancha li div {
             width: 100%;
             height: 30px;
         }
+
         #lstphongbancha li i {
             position: absolute;
             left: 5px;
@@ -14,13 +16,15 @@
             color: var(--color-main);
             width: 10px;
         }
-            #lstphongbancha li:hover {
-                background: white !important;
-            }
+
+        #lstphongbancha li:hover {
+            background: white !important;
+        }
+
         #lstphongbancha li div:hover {
             color: #0097c4 !important;
         }
-    </style>
+</style>
 <div class="modal fade" id="modalNsPhongBan">
     <div class=" modal-dialog draggable modal-md ">
         <div class="modal-content ">
@@ -102,24 +106,26 @@
             ID: null,
             tenphongban: "",
             phongbanchaID: 0,
-            tenphongbancha:'',
+            tenphongbancha: '',
             listPhongBan: [],
             listChiNhanh: [],
             Isnew: true,
-            IsRole:true,
-            textsearch:"",
+            IsRole: true,
+            saveOK: false,
+            textsearch: "",
             title: "",
             error: '',
-            ChinhanhId:null,
+            ChinhanhId: null,
         },
         methods: {
             messageError: function (input) {
                 this.error = input;
             },
-            Insert: function (id=null) {
+            Insert: function (id = null) {
                 $('#modalNsPhongBan').modal("show");
                 var self = this;
                 self.IsRole = true;
+                self.saveOK = false;
                 self.ID = null;
                 self.Isnew = true;
                 self.error = '';
@@ -130,8 +136,7 @@
                 self.title = "Thêm mới phòng ban";
                 $('#chinhanh_phongban').prop('disabled', false);
                 sleep(500).then(() => {
-                    if (id != null)
-                    {
+                    if (id != null) {
                         self.ChinhanhId = id;
                     }
                     else {
@@ -141,20 +146,11 @@
                     self.loadphongban();
                 });
             },
-            edit: function (model,IsroleUpdate,IsRoleDelete) {
+            edit: function (model) {
                 if (model !== null && !commonStatisJs.CheckNull(model.id)) {
-                    if (IsroleUpdate === '1') {
-                        this.IsRole = true;
-                    }
-                    else {
-                        this.IsRole = false;
-                    }
-                    if (IsRoleDelete === '1') {
-                        this.Isnew = false;
-                    }
-                    else {
-                        this.Isnew = true;
-                    }
+                    this.IsRole = VHeader.Quyen.indexOf('NS_PhongBan_CapNhat') > -1;
+                    this.Isnew = false;
+                    this.saveOK = false;
                     this.ID = model.id;
                     this.tenphongban = model.text;
                     this.phongbanchaID = model.parentId;
@@ -192,10 +188,10 @@
                 }
                 return true;
             },
-            evensearch1 : function (o) {
+            evensearch1: function (o) {
                 return commonStatisJs.convertVieToEng(o.text).indexOf(commonStatisJs.convertVieToEng(this.textsearch)) >= 0;
             },
-            evensearch2 : function (o) {
+            evensearch2: function (o) {
                 return o.children.length > 0 && o.children.some(evensearch1);
             },
             Saveroom: function (event) {
@@ -203,10 +199,10 @@
                 if (commonStatisJs.CheckNull(self.tenphongban)) {
                     self.messageError("Vui lòng nhập tên phòng ban");
                 }
-                else if (self.ID!==null && self.phongbanchaID===self.ID) {
+                else if (self.ID !== null && self.phongbanchaID === self.ID) {
                     self.messageError("Không thể chọn phòng ban cha là phong ban hiện tại ");
                 }
-                else if (self.phongbanchaID ===0 &&($('#chinhanh_phongban').val() === null || $('#chinhanh_phongban').val()==='')) {
+                else if (self.phongbanchaID === 0 && ($('#chinhanh_phongban').val() === null || $('#chinhanh_phongban').val() === '')) {
                     self.messageError("Vui lòng chọn đơn vị");
                 }
                 else {
@@ -231,6 +227,7 @@
                         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                         success: function (item) {
                             if (item.res === true) {
+                                self.saveOK = true;
                                 $('#modalNsPhongBan').modal("hide");
                                 bottomrightnotify(item.mess, "success");
                                 $('body').trigger("InsertNsPhongBanSuccess");
@@ -246,6 +243,7 @@
                 vmModalRemove.show("/api/DanhMuc/NS_NhanVienAPI/deletePhongBanNv?id=" + this.ID, "Xác nhận",
                     "Bạn có chắc chắn muốn xóa phòng ban không", "InsertNsPhongBanSuccess");
                 $('#modalNsPhongBan').modal("hide");
+                this.saveOK = true;
             },
             loadphongban: function () {
                 var self = this;
