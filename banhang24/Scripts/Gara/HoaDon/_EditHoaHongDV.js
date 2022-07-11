@@ -296,7 +296,7 @@
                                 default:
                             }
                             if (itFor.PT_ChietKhau > 0) {
-                                self.GridNV_TVTH[i].TienChietKhau =itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo;
+                                self.GridNV_TVTH[i].TienChietKhau = itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo;
                             }
                             else {
                                 self.GridNV_TVTH[i].TienChietKhau = itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong;
@@ -404,7 +404,7 @@
                             if (isPTram) {
                                 ptramCK = 0;
                                 tienCK_NV = valChietKhau / 100 * gtriTinhCK + gtriCKTH * soluong;// quy ve VND neu khac loai
-                                ckMacDinh = tienCK_NV; 
+                                ckMacDinh = tienCK_NV;
                                 tienCK_NV = tienCK_NV * item.HeSo;
                             }
                             else {
@@ -628,10 +628,32 @@
             }
             return false;
         },
+        CheckOver_HeSo: function (tacvu = 1) {//1.thuchien, 3.hotro
+            let self = this;
+            let arTH = $.grep(self.GridNV_TVTH, function (x) {
+                return x.TacVu === tacvu;
+            });
+            let hs_TH = arTH.reduce(function (_this, val) {
+                return formatNumberToFloat(_this) + formatNumberToFloat(val.HeSo);
+            }, 0);
+            if (hs_TH > 1) {
+                ShowMessage_Danger('Tổng hệ số phân bổ không được vượt quá 1');
+                return false;
+            }
+            return true;
+        },
 
         AgreeNhanVien_TVTH: function () {
             let self = this;
-            
+            let check = self.CheckOver_HeSo(1);
+            if (!check) {
+                return;
+            }
+            check = self.CheckOver_HeSo(3);
+            if (!check) {
+                return;
+            }
+
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 let itemFor = self.GridNV_TVTH[i];
                 let valCK = formatNumberToFloat(itemFor.TienChietKhau);
@@ -650,7 +672,16 @@
 
         SaveCKNVien_toDB: function () {
             var self = this;
-           
+
+            let check = self.CheckOver_HeSo(1);
+            if (!check) {
+                return;
+            }
+            check = self.CheckOver_HeSo(3);
+            if (!check) {
+                return;
+            }
+
             var lstNV = self.GridNV_TVTH;
             var myData = {
                 NhanViens: lstNV,
