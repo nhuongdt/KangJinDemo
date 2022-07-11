@@ -49,6 +49,7 @@ var dataMauIn = function () {
         GiaVon: '10,000',
         GiaTriHuy: '10,000',
 
+        TonLuyKe: '2',
         TonKho: '10',
         KThucTe: '1',
         SLLech: '-9',
@@ -108,6 +109,7 @@ var dataMauIn = function () {
         GiaVon: '10,000',
         GiaTriHuy: '10,000',
 
+        TonLuyKe: '3',
         TonKho: '10',
         KThucTe: '2',
         SLLech: '-8',
@@ -170,6 +172,7 @@ var dataMauIn = function () {
         GiaVon: '10,000',
         GiaTriHuy: '10,000',
 
+        TonLuyKe: '4',
         TonKho: '10',
         KThucTe: '2',
         SLLech: '-8',
@@ -231,6 +234,7 @@ var dataMauIn = function () {
         GiaVon: '10,000',
         GiaTriHuy: '10,000',
 
+        TonLuyKe: '5',
         TonKho: '10',
         KThucTe: '2',
         SLLech: '-8',

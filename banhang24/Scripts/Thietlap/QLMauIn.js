@@ -362,6 +362,7 @@ function ReplaceCTHD(content) {
     content = content.allReplace(
         {
             '{MaHangHoa}': '<span data-bind=\"text: MaHangHoa\"></span>',
+            '{TonLuyKe}': '<span data-bind=\"text: TonLuyKe\"></span>',
             '{MaLoHang}': '<span data-bind=\"text: MaLoHang\"></span>',
             '{TenHangHoa}': '<span data-bind=\"text: TenHangHoa\"></span>',
             '{TenHangHoaThayThe}': '<span data-bind=\"text: TenHangHoaThayThe\"></span>',
