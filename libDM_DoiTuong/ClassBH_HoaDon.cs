@@ -2117,6 +2117,7 @@ namespace libDM_DoiTuong
                 DonGia = p.DonGia,
                 GiaVon = p.GiaVon ?? 0,
                 SoLuong = p.SoLuong,
+                SoLuongConLai = p.SoLuongConLai,// used to check nhapmua from PO
                 SoThuTu = p.SoThuTu,
                 ThanhTien = p.ThanhTien,
                 TienChietKhau = p.GiamGia,
@@ -2124,6 +2125,8 @@ namespace libDM_DoiTuong
                 TienThue = p.TienThue,
                 ID_DonViQuiDoi = p.ID_DonViQuiDoi,
                 ID_HangHoa = p.ID_HangHoa,
+                ID_ChiTietGoiDV = p.ID_ChiTietGoiDV,// used to check nhapmua from PO
+                ID_ChiTietDinhLuong = p.ID_ChiTietDinhLuong,
                 TenDonViTinh = p.TenDonViTinh,
                 MaHangHoa = p.MaHangHoa,
                 GiamGia = p.GiamGia,
@@ -2145,6 +2148,7 @@ namespace libDM_DoiTuong
                 ID_LoHang = p.ID_LoHang,
                 MaLoHang = p.MaLoHang,
                 TonKho = p.TonKho,
+                TonLuyKe = p.TonLuyKe,
                 ID_DonVi = p.ID_DonVi,
                 GiaNhap = p.GiaNhap,
                 GiaBanMaVach = p.GiaBanMaVach,
@@ -6291,13 +6295,14 @@ namespace libDM_DoiTuong
     public class BH_PhieuTraHangNhap_Excel
     {
         public string MaHoaDon { get; set; }
+        public string MaHoaDonGoc { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
         public string SoDienThoai { get; set; }
         public string DiaChi { get; set; }
         public string TenDonVi { get; set; }
-        public string NguoiBan { get; set; }
+        public string NguoiTao { get; set; }
         public double TongTienHang { get; set; }
         public double? TongTienThue { get; set; }
         public double TongGiamGia { get; set; }
