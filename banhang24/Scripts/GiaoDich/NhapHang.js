@@ -1559,6 +1559,23 @@
         }
     }
 
+    async function CheckHD_DaXuatKho(item, type) {
+        if (type === 2) {
+            let loaiHDCheck = item.LoaiHoaDon === 31 ? 4 : 7;
+            let xx = $.getJSON('/api/DanhMuc/GaraAPI/' + 'CheckHoaDon_DaXuLy?idHoaDon=' + item.ID + '&loaiHoaDon=' + loaiHDCheck).done(function (x) {
+            }).then(function (x) {
+                if (x == true) {
+                    return !x;
+                }
+                return true;
+            });
+            return xx;
+        }
+        else {
+            return true;
+        }
+    }
+
     function GetPTThue_PTChietKhauHang(item) {
         var ptCKHang = 0;
         var arrCTsort = self.BH_HoaDonChiTietsThaoTac();
@@ -1576,7 +1593,19 @@
         }
     }
 
-    self.SaoChep_Edit = function (item, type) {
+    self.SaoChep_Edit = async function (item, type) {
+        let check = await CheckHD_DaXuatKho(item, type);
+        if (!check) {
+            if (item.LoaiHoaDon === 31) {
+                ShowMessage_Danger('Phiếu đặt hàng đã nhập mua. Không thể sửa đổi');
+                return;
+            }
+            if (item.LoaiHoaDon === 4) {
+                ShowMessage_Danger('Đã tồn tại phiếu trả hàng từ phiếu nhập. Không thể sửa đổi');
+                return;
+            }
+        }
+
         var hd = $.extend({}, item);
         var arrCTsort = self.BH_HoaDonChiTietsThaoTac();
         var arrIDQuiDoi = [];
@@ -1599,8 +1628,8 @@
 
         for (let i = 0; i < arrCTsort.length; i++) {
             var ctNew = $.extend({}, arrCTsort[i]);
-            //delete ctNew["ID"];
             ctNew.ID_HoaDon = idHoaDon;
+            ctNew.ID_HoaDonGoc = type == 2 ? item.ID_HoaDon : null;// update again nhaphang from PO (get ID_HoaDon of PO)
             ctNew.TenDoiTuong = item.TenDoiTuong;
             ctNew.TongTienHangChuaCK = self.TongTienHangChuaCK();
             ctNew.TongGiamGiaHang = self.TongGiamGiaHang();
@@ -2239,7 +2268,8 @@
                     cthdLoHang[0].TongGiamGia = tonggiamHD;
                     cthdLoHang[0].TongTienThue = tongthueHD;
                     cthdLoHang[0].TongChietKhau = item.TongChietKhau;
-                    cthdLoHang[0].PhaiThanhToan = tongtienhang + tongthueHD - tonggiamHD;
+                    cthdLoHang[0].TongChiPhi = item.TongChiPhi;
+                    cthdLoHang[0].PhaiThanhToan = tongtienhang + tongthueHD - tonggiamHD + item.TongChiPhi;
                     cthdLoHang[0].TongThanhToan = cthdLoHang[0].PhaiThanhToan;
                     cthdLoHang[0].KhachDaTra = dathanhtoan;
                     cthdLoHang[0].DaThanhToan = 0;
