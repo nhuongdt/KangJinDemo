@@ -1288,7 +1288,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
             catch (Exception ex)
             {
-                return ActionFalseNotData(ex.InnerException+ ex.Message);
+                return ActionFalseNotData(ex.InnerException + ex.Message);
             }
         }
 
@@ -3276,6 +3276,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     using (SsoftvnContext db = SystemDBContext.GetDBContext())
                     {
                         string sMaNhanVien = string.Empty;
+                        string sOld = string.Empty;
                         if (objNhanVien.ID == null || objNhanVien.ID == new Guid()) //Insert
                         {
 
@@ -3338,6 +3339,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 modelNv.MaNhanVien = objNhanVien.MaNhanVien.ToUpper();
                             }
+                            // get itemold by id
+                            sOld = string.Concat("<b> <br />Thông tin cũ: </b>",
+                               "<br />Mã nhân viên: ", modelNv.MaNhanVien,
+                               "<br />Tên nhân viên: ", modelNv.TenNhanVien,
+                               "<br />Điện thoại: ", modelNv.DienThoaiDiDong);
+
+
                             modelNv.NguoiSua = objNhanVien.NguoiTao;
                             modelNv.NgaySua = DateTime.Now;
                             modelNv.TenNhanVien = objNhanVien.TenNhanVien;
@@ -3450,7 +3458,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             ChucNang = "Nhân viên",
                             ThoiGian = DateTime.Now,
                             NoiDung = IsNew ? "Thêm mới nhân viên: " + objNhanVien.TenNhanVien : "Cập nhật thông tin nhân viên: " + objNhanVien.TenNhanVien,
-                            NoiDungChiTiet = (IsNew ? "Thêm mới nhân viên" : "Cập nhật thông tin nhân viên") + ": <a style= \"cursor: pointer\" onclick = \"loadNhanVienbyMaKM('" + objNhanVien.MaNhanVien + "')\" >" + objNhanVien.MaNhanVien + "</a> <br>" + chitiet_km,
+                            NoiDungChiTiet = (IsNew ? "Thêm mới nhân viên" : "Cập nhật thông tin nhân viên") + ": <a style= \"cursor: pointer\" onclick = \"loadNhanVienbyMaKM('" + objNhanVien.MaNhanVien + "')\" >" + objNhanVien.MaNhanVien + "</a> <br>" + chitiet_km + sOld,
                             LoaiNhatKy = IsNew ? 1 : 2
                         };
                         db.HT_NhatKySuDung.Add(hT_NhatKySuDung);
