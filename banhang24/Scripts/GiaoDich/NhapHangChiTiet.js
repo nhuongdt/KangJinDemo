@@ -40,6 +40,7 @@ var ModelProduct = function () {
 var FormModel_NewHoaDon = function () {
     var self = this;
     self.ID = ko.observable();
+    self.ID_HoaDon = ko.observable();
     self.IDRandom = ko.observable();
     self.MaHoaDon = ko.observable();
     self.ID_DonVi = ko.observable();
@@ -84,6 +85,7 @@ var FormModel_NewHoaDon = function () {
 
     self.SetData = function (item) {
         self.ID(item.ID);
+        self.ID_HoaDon(item.ID_HoaDon);
         self.IDRandom(item.IDRandom);
         self.ID_DonVi(item.ID_DonVi);
         self.ID_DoiTuong(item.ID_DoiTuong);
@@ -460,10 +462,15 @@ var NhapHangChiTiet = function () {
             if (!commonStatisJs.CheckNull(ngaylapHD)) {
                 ngaylapHD = moment(ngaylapHD).format('DD/MM/YYYY HH:mm');
             }
+            let idHDGoc = cthd[0].ID_HoaDonGoc;
+            if (commonStatisJs.CheckNull(idHDGoc)) {
+                idHDGoc = null;
+            }
 
             let idRanDomHD = CreateIDRandom('HD_');
             let objHD = {
                 ID: cthd[0].ID_HoaDon,
+                ID_HoaDon: idHDGoc,
                 ID_DonVi: commonStatisJs.CheckNull(cthd[0].ID_DonVi) ? _idDonVi : cthd[0].ID_DonVi,
                 LoaiHoaDon: commonStatisJs.CheckNull(cthd[0].LoaiHoaDon) ? 4 : cthd[0].LoaiHoaDon,
                 IDRandom: idRanDomHD,
@@ -2532,6 +2539,11 @@ var NhapHangChiTiet = function () {
         let idQuiDoi = item.ID_DonViQuiDoi;
         let idRandomHD = self.newHoaDon().IDRandom();
 
+        if (item.ID_ChiTietGoiDV !== null) {
+            ShowMessage_Danger('Phiếu nhập từ PO. Vui lòng không thêm hàng');
+            return;
+        }
+
         let cthd = localStorage.getItem(lcCTNhapHang);
         if (cthd !== null) {
             cthd = JSON.parse(cthd);
@@ -3054,7 +3066,26 @@ var NhapHangChiTiet = function () {
         }
     }
 
+    function CheckNhapMua_fromPO() {
+        var cthd = localStorage.getItem(lcCTNhapHang);
+        if (cthd !== null) {
+            cthd = JSON.parse(cthd);
+            let ctNhapMua = $.grep(cthd, function (x) {
+                return x.IDRandomHD === self.newHoaDon().IDRandom() && x.ID_ChiTietGoiDV !== null;
+            })
+            if (ctNhapMua.length > 0) {
+                ShowMessage_Danger('Phiếu nhập từ PO. Vui lòng không thay đổi thông tin');
+                return false;
+            }
+        }
+        return true;
+    }
+
     self.ShowDiv_ChietKhauHangHoa = function () {
+        let check = CheckNhapMua_fromPO();
+        if (!check) {
+            return;
+        }
         var $thisNext = $(event.currentTarget).next();
         $thisNext.show();
         $thisNext.find('.picked').removeClass('picked');
@@ -3150,6 +3181,10 @@ var NhapHangChiTiet = function () {
     }
 
     self.ShowDivTax_HD = function () {
+        let check = CheckNhapMua_fromPO();
+        if (!check) {
+            return;
+        }
         var $thisNext = $(event.currentTarget).next();
         $thisNext.show();
         $thisNext.find('.picked').removeClass('picked')
