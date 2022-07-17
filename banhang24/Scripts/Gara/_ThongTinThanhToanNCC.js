@@ -674,7 +674,13 @@
         SavePhieuThu: function () {
             var self = this;
             var hd = self.inforHoaDon;
-            let ghichu = ''.concat(hd.TenDoiTuong, ' (', hd.MaDoiTuong, ') / ', hd.MaHoaDon);
+            let ghichu = hd.DienGiai;
+            if (commonStatisJs.CheckNull(ghichu)) {
+                ghichu = ''.concat(hd.TenDoiTuong, ' (', hd.MaDoiTuong, ') / ', hd.MaHoaDon);
+            }
+            else {
+                ghichu = ghichu.concat('/ ',hd.TenDoiTuong, ' (', hd.MaDoiTuong, ') / ', hd.MaHoaDon);
+            }
             var idHoaDon = hd.ID;
             let idDoiTuong = hd.ID_DoiTuong;
             idDoiTuong = idDoiTuong ? idDoiTuong : '00000000-0000-0000-0000-000000000002';
