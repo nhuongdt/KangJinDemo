@@ -1954,6 +1954,8 @@ var XuatKhoChiTiet = function () {
         self.textSearchHDSC('');
         self.textSearchPhieuTN('');
         self.textSearch(VHeader.TenNhanVien);
+        let arrNV = self.NhanViens().slice(0, 20);
+        self.ListNVienSearch(arrNV);
     }
 
     function RemoveCache() {
