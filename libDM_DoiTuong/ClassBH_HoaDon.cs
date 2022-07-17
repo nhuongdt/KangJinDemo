@@ -6317,6 +6317,28 @@ namespace libDM_DoiTuong
     {
         public string MaHoaDon { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
+        public string MaKhachHang { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoaiKH { get; set; }
+        public string DiaChiKH { get; set; }
+        public string KhuVuc { get; set; }
+        public string TenChiNhanh { get; set; }
+        public string NguoiBan { get; set; }
+        public string NguoiTao { get; set; }
+        public double TongTienHang { get; set; }
+        public double TongTienThue { get; set; }
+        public double GiamGia { get; set; }
+        public double TongChiPhi { get; set; }
+        public double KhachCanTra { get; set; }
+        public double KhachDaTra { get; set; }
+        public string GhiChu { get; set; }
+        public string TrangThai { get; set; }
+    }
+
+    public class Excel_BaoGiaSuaChua
+    {
+        public string MaHoaDon { get; set; }
+        public DateTime NgayLapHoaDon { get; set; }
         public string MaPhieuTiepNhan { get; set; }
         public string BienSoXe { get; set; }
         public string MaKhachHang { get; set; }
