@@ -400,7 +400,7 @@
                             self.listData.HoaDons[i].BH_NhanVienThucHiens = arrNVienCK;
                         }
                     }
-                    if (self.formType !== 1) {
+                    if (self.typeUpdate !== 1) {// dont'set agian TienThu if show modal update phieuthu
                         self.AssignMoney_InHoaDonDebit();
                     }
                 })
