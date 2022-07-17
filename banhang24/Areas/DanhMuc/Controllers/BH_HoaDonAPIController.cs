@@ -1036,63 +1036,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
 
                     DataTable excel = _classOFDCM.ToDataTable<BH_HoaDon_Excel>(lst);
-                    var tempFile = string.Empty;
-                    var tempDown = string.Empty;
-                    var columnRemove = string.Empty;
+                    excel.Columns.Remove("NgayApDungGoiDV");
+                    excel.Columns.Remove("HanSuDungGoiDV");
 
-                    var nganhnghe = CookieStore.GetCookieAes("shop").ToUpper();
-                    switch (listParams.LoaiHoaDon)
-                    {
-                        case 1:
-                        case 25:
-                            tempFile = "Teamplate_GiaoDichHoaDon.xlsx";
-                            tempDown = "GiaoDichHoaDon.xlsx";
-                            if (nganhnghe != "C16EDDA0-F6D0-43E1-A469-844FAB143014")// gara
-                            {
-                                // remove phieutn, biensoxe, ma, tenbaohiem, bhcantra, bhdatra, thutucoc...
-                                columnRemove = "3_4_10_11_25_26_27_28_29_30_31_32_";
-                            }
-                            if (!string.IsNullOrEmpty(listParams.ColumnsHide))
-                            {
-                                columnRemove += listParams.ColumnsHide;
-                            }
-                            excel.Columns.Remove("NgayApDungGoiDV");
-                            excel.Columns.Remove("HanSuDungGoiDV");
-                            break;
-                        case 19:
-                            tempFile = "Teamplate_GoiDichVu.xlsx";
-                            tempDown = "GoiDichVu.xlsx";
-                            if (nganhnghe != "C16EDDA0-F6D0-43E1-A469-844FAB143014")// gara
-                            {
-                                // remove biensoxe
-                                columnRemove = "4_";
-                            }
-                            if (!string.IsNullOrEmpty(listParams.ColumnsHide))
-                            {
-                                columnRemove += listParams.ColumnsHide;
-                            }
-
-                            excel.Columns.Remove("MaHoaDonGoc");
-                            excel.Columns.Remove("ThuTuCoc");
-                            excel.Columns.Remove("TongChiPhi");
-                            excel.Columns.Remove("MaBaoHiem");
-                            excel.Columns.Remove("TenBaoHiem");
-                            excel.Columns.Remove("PhaiThanhToanBaoHiem");
-                            excel.Columns.Remove("BaoHiemDaTra");
-                            excel.Columns.Remove("TongTienBHDuyet");
-                            excel.Columns.Remove("KhauTruTheoVu");
-                            excel.Columns.Remove("GiamTruBoiThuong");
-                            excel.Columns.Remove("BHThanhToanTruocThue");
-                            excel.Columns.Remove("TongTienThueBaoHiem");
-                            excel.Columns.Remove("TongPhaiTra");
-                            excel.Columns.Remove("MaPhieuTiepNhan");
-                            excel.Columns.Remove("ThanhTienChuaCK");
-                            excel.Columns.Remove("GiamGiaCT");
-                            excel.Columns.Remove("GiaTriSuDung");
-                            break;
-                    }
-                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + tempFile);
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + tempDown);
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_GiaoDichHoaDon_Gara.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachHoaDonSuaChua.xlsx" );
                     fileSave = _classOFDCM.createFolder_Download(fileSave);
                     var valExcel1 = string.Empty;
                     if (listParams.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
@@ -1104,7 +1052,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         valExcel1 = listParams.NgayTaoHD_TuNgay + " - " + listParams.NgayTaoHD_DenNgay;
                     }
                     // xuất excel hoadon: không ẩn cột (assign columnhide = null)
-                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, columnRemove, valExcel1, listParams.ValueText);
+                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
 
                     var index = fileSave.IndexOf(@"\Template");
                     fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
@@ -1477,7 +1425,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 _classOFDCM.downloadFile(fileSave);
             }
         }
-        // nhuongdt phiếu đặt hàng
+
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public string ExportExcel_DatHang(Params_GetListHoaDon listParams)
         {
@@ -1488,17 +1436,75 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 string fileSave = string.Empty;
                 try
                 {
-                    var nganhnghe = CookieStore.GetCookieAes("shop").ToUpper();
-                    var isGara = false;
-                    if (nganhnghe == "C16EDDA0-F6D0-43E1-A469-844FAB143014")
-                    {
-                        isGara = true;
-                    }
                     var lstAllHDs = classhoadon.GetListInvoice_Paging(listParams);
                     List<BH_PhieuDatHang_Excel> lst = new List<BH_PhieuDatHang_Excel>();
                     foreach (var item in lstAllHDs)
                     {
                         BH_PhieuDatHang_Excel DM = new BH_PhieuDatHang_Excel();
+                        DM.MaHoaDon = item.MaHoaDon;
+                        DM.NgayLapHoaDon = item.NgayLapHoaDon;
+                        DM.MaKhachHang = item.MaDoiTuong;
+                        DM.TenDoiTuong = item.TenDoiTuong ?? "Khách lẻ";
+                        DM.DienThoaiKH = item.DienThoai;
+                        DM.DiaChiKH = item.DiaChiKhachHang;
+                        DM.KhuVuc = item.KhuVuc;
+                        DM.TenChiNhanh = item.TenDonVi;
+                        DM.NguoiBan = item.TenNhanVien;
+                        DM.NguoiTao = item.NguoiTaoHD;
+                        DM.TongTienHang = item.TongTienHang;
+                        DM.TongTienThue = item.TongTienThue;
+                        DM.GiamGia = item.TongGiamGia;
+                        DM.TongChiPhi = item.TongChiPhi;
+                        DM.KhachCanTra = item.PhaiThanhToan;
+                        DM.KhachDaTra = item.KhachDaTra;
+                        DM.GhiChu = item.DienGiai;
+                        DM.TrangThai = item.TrangThai;
+                        lst.Add(DM);
+                    }
+                    var columnRemove = string.Empty;
+                    DataTable excel = _classOFDCM.ToDataTable<BH_PhieuDatHang_Excel>(lst);
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + "Teamplate_HoaDonDatHang.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + "HoaDonDatHang.xlsx");
+                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    var valExcel1 = string.Empty;
+                    if (listParams.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
+                    {
+                        valExcel1 = "Toàn thời gian";
+                    }
+                    else
+                    {
+                        valExcel1 = listParams.NgayTaoHD_TuNgay + " - " + listParams.NgayTaoHD_DenNgay;
+                    }
+                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
+
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("ExportExcel_DatHang listParams " + ex.InnerException + ex.Message);
+                }
+                return fileSave;
+            }
+        }
+
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public string ExportExcel_BaoGiaSuaChua(Params_GetListHoaDon listParams)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                string fileSave = string.Empty;
+                try
+                {
+                    var lstAllHDs = classhoadon.GetListInvoice_Paging(listParams);
+                    List<Excel_BaoGiaSuaChua> lst = new List<Excel_BaoGiaSuaChua>();
+                    foreach (var item in lstAllHDs)
+                    {
+                        Excel_BaoGiaSuaChua DM = new Excel_BaoGiaSuaChua();
                         DM.MaHoaDon = item.MaHoaDon;
                         DM.NgayLapHoaDon = item.NgayLapHoaDon;
                         DM.MaPhieuTiepNhan = item.MaPhieuTiepNhan;
@@ -1518,22 +1524,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         DM.KhachCanTra = item.PhaiThanhToan;
                         DM.KhachDaTra = item.KhachDaTra;
                         DM.GhiChu = item.DienGiai;
-                        DM.TrangThai = isGara ? item.Gara_TrangThaiBG : item.TrangThai;
+                        DM.TrangThai = item.Gara_TrangThaiBG;
                         lst.Add(DM);
                     }
-                    var columnRemove = string.Empty;
-                    DataTable excel = _classOFDCM.ToDataTable<BH_PhieuDatHang_Excel>(lst);
-                    if (!isGara)
-                    {
-                        columnRemove = "2_3_";
-                    }
-                    if (!string.IsNullOrEmpty(listParams.ColumnsHide))
-                    {
-                        columnRemove += listParams.ColumnsHide;
-                    }
-
-                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + "Teamplate_HoaDonDatHang.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + "HoaDonDatHang.xlsx");
+                    DataTable excel = _classOFDCM.ToDataTable<Excel_BaoGiaSuaChua>(lst);
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + "Teamplate_DanhSachBaoGiaSuaChua.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + "DanhSachBaoGiaSuaChua.xlsx");
                     fileSave = _classOFDCM.createFolder_Download(fileSave);
                     var valExcel1 = string.Empty;
                     if (listParams.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
@@ -1544,7 +1540,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = listParams.NgayTaoHD_TuNgay + " - " + listParams.NgayTaoHD_DenNgay;
                     }
-                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, columnRemove, valExcel1, listParams.ValueText);
+                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
 
                     var index = fileSave.IndexOf(@"\Template");
                     fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
