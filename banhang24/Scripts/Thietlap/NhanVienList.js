@@ -681,7 +681,6 @@ var ViewModel = function () {
     }
     self.showModelPhongBan = function (item) {
         vmNsPhongBan.Insert(item.ID_ChiNhanh);
-        //self.ShowPopupPhongban();
     }
     self.ShowEditPhongBan = function (item) {
         vmNsPhongBan.edit(item, $('#RolePhongBan_Update').val(), $('#RolePhongBan_Delete').val());
