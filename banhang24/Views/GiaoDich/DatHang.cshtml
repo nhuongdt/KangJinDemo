@@ -40,7 +40,7 @@
                         </div>
                     </aside>
                 </article>
-                <!--ko if: $root.IsGara()-->
+                <!--ko if: $root.LoaiHoaDonMenu() === 1-->
                 <article class="boxLeft" style="display:none">
                     <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                         <i class="fa fa-list"></i>
@@ -128,7 +128,7 @@
                     <aside class="op-filter-container">
                         <div class="menuCheckbox">
                             <ul>
-                                <!--ko if: !$root.IsGara() -->
+                                <!--ko if: $root.LoaiHoaDonMenu() !== 1 -->
                                 <li>
                                     <label><input type="checkbox" data-bind="checked: TT_TamLuu"> Phiếu tạm</label>
                                 </li>
@@ -145,7 +145,7 @@
                                     <label><input type="checkbox" data-bind="checked: TT_DaHuy"> Đã hủy</label>
                                 </li>
                                 <!--/ko-->
-                                <!--ko if: $root.IsGara()-->
+                                <!--ko if: $root.LoaiHoaDonMenu() === 1-->
                                 <li>
                                     <label><input type="checkbox" data-bind="checked: TT_TamLuu"> Chờ duyệt</label>
                                 </li>
@@ -201,12 +201,14 @@
                     <button class="btn-link shownhapxuat " id="shownhapxuat" title="Chức năng nhập xuất" style="width:30px;">
                         <i class="material-icons"> more_vert</i>
                     </button>
+                    <!--ko if: $root.RoleExport_Order() -->
                     <div class="btn-group" style="margin-right: 3px;">
                         <button type="button" class=" btn btn-main dropdown-toggle btnExport" data-toggle="dropdown" hidden
                                 data-bind="click: ExportExcel_DatHang" id="btnExport">
                             <i class="fa fa-file-excel-o"></i> Xuất file
                         </button>
                     </div>
+                    <!-- /ko -->
                     <div class="btn-dropdown open pull-right" style="position: relative;">
                         <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)"
                                 id="btnViewCheck" hidden>
@@ -264,34 +266,17 @@
             <div class="table-frame">
                 <table class="table table-new table-hover" id="tb">
                     <thead class="thead-boder">
-                        <tr>
-                            @if ((string)ViewBag.ShopCookies == "C16EDDA0-F6D0-43E1-A469-844FAB143014")
-                            {
-                                // gara
-                                foreach (var item in commonEnum.ListColumnOrders)
-                                {
-                                    <th class="@item.Key">
-                                        <a href="javascript:void(0)">@item.Value</a>
-                                    </th>
-                                }
-                            }
-                            else
-                            {
-                                string[] keyGara = { "maphieutiepnhan", "bienso" };
-                                foreach (var item in commonEnum.ListColumnOrders.Where(x => x.Key.Any(y => keyGara.Contains(x.Key) == false)))
-                                {
-                                    <th class="@item.Key">
-                                        <a href="javascript:void(0)">@item.Value</a>
-                                    </th>
-                                }
-                            }
+                        <tr data-bind="foreach: $root.ListCheckBox()">
+                            <th data-bind="attr:{class: Key}">
+                                <a href="javascript:void(0)" data-bind="text: Value"></a>
+                            </th>
                         </tr>
                     </thead>
                     <tbody data-bind="foreach: HoaDons">
                         <tr class="prev-tr-hide" id="table" data-bind="click: $parent.LoadChiTietHD,css:{bggray : $index()%2 == 1}">
                             <td class="@commonEnum.ColumnOrders.madathang" data-bind="text: MaHoaDon "></td>
                             <td class="@commonEnum.ColumnOrders.ngaylaphoadon "><span data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></span></td>
-                            <!--ko if: $root.IsGara() -->
+                            <!--ko if: $root.LoaiHoaDonMenu() === 1 -->
                             <td class="@commonEnum.ColumnOrders.maphieutiepnhan ">
                                 <a href="=javascript:void(0)" data-bind="text: MaPhieuTiepNhan, click: function(){ $root.gotoKhachHang($data,2)}"></a>
                             </td>
@@ -345,12 +330,12 @@
                             <td class="@commonEnum.ColumnOrders.ghichu">
                                 <span data-bind="text: DienGiai"></span>
                             </td>
-                            <!--ko if: !$root.IsGara() -->
+                            <!--ko if: $root.LoaiHoaDonMenu() !== 1 -->
                             <td class="@commonEnum.ColumnOrders.trangthai">
                                 <span data-bind="text: TrangThai"></span>
                             </td>
                             <!--/ko-->
-                            <!--ko if: $root.IsGara() -->
+                            <!--ko if: $root.LoaiHoaDonMenu() === 1 -->
                             <td class="@commonEnum.ColumnOrders.trangthai">
                                 <span data-bind="text: Gara_TrangThaiBG"></span>
                             </td>
@@ -402,7 +387,7 @@
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <!--ko if: $root.IsGara()-->
+                                                    <!--ko if: $root.LoaiHoaDonMenu() === 1-->
                                                     <div class="form-group floatleft">
                                                         <label class="css-form-label">Tên công ty BH:</label>
                                                         <div class="css-form-detail">
@@ -431,10 +416,10 @@
                                                     <div class="form-group floatleft">
                                                         <label class="css-form-label">Trạng thái:</label>
                                                         <div class="css-form-detail">
-                                                            <!--ko if: !$root.IsGara() -->
+                                                            <!--ko if: !$root.LoaiHoaDonMenu() !== 1 -->
                                                             <span data-bind="text: TrangThai"></span>
                                                             <!--/ko-->
-                                                            <!--ko if: $root.IsGara() -->
+                                                            <!--ko if: $root.LoaiHoaDonMenu() === 1 -->
                                                             <span data-bind="text: Gara_TrangThaiBG"></span>
                                                             <!--/ko-->
                                                         </div>
@@ -489,11 +474,11 @@
                                                                     <th>Đơn giá</th>
                                                                     <th>Chiết khấu</th>
                                                                     <th class="text-right">Giá bán</th>
-                                                                    <!--ko if: $root.IsGara()-->
+                                                                    <!--ko if: $root.LoaiHoaDonMenu() === 1-->
                                                                     <th>Thuế</th>
                                                                     <!--/ko-->
                                                                     <th class="text-right">Thành tiền</th>
-                                                                    <!--ko if: $root.IsGara()-->
+                                                                    <!--ko if: $root.LoaiHoaDonMenu() === 1-->
                                                                     <th>Thanh toán</th>
                                                                     <!--/ko-->
                                                                 </tr>
@@ -518,11 +503,11 @@
                                                                     <td class="text-right" data-bind="text: formatNumber3Digit(DonGia) "></td>
                                                                     <td class="text-right" data-bind="text: formatNumber3Digit(GiamGia)"></td>
                                                                     <td class="text-right" data-bind="text: formatNumber3Digit(GiaBan)"></td>
-                                                                    <!--ko if: $root.IsGara()-->
+                                                                    <!--ko if: $root.LoaiHoaDonMenu() === 1-->
                                                                     <td class="text-right" data-bind="text: formatNumber3Digit(TienThue)"></td>
                                                                     <!--/ko-->
                                                                     <td class="text-right" data-bind="text: formatNumber3Digit(ThanhTien) "></td>
-                                                                    <!--ko if: $root.IsGara() -->
+                                                                    <!--ko if: $root.LoaiHoaDonMenu() === 1 -->
                                                                     <td class="text-right" data-bind="text: formatNumber3Digit(ThanhToan,2) "></td>
                                                                     <!--/ko-->
                                                                 </tr>
@@ -622,7 +607,7 @@
                                                         <i class="fa fa-save"></i> Lưu
                                                     </button>
                                                     <!--/ko-->
-                                                    <!--ko if: $root.IsGara() && $root.RoleApprove_Order() && $root.Enable_NgayLapHD()-->
+                                                    <!--ko if: $root.LoaiHoaDonMenu() === 1 && $root.RoleApprove_Order() && $root.Enable_NgayLapHD()-->
                                                     <button href="javascript:void(0)" class="btn btn-main btnXuLiDH"
                                                             data-bind="click: $root.DuyetBaoGia, visible: ChoThanhToan">
                                                         <i class="fa fa-recycle"></i>Duyệt báo giá
@@ -655,12 +640,12 @@
                                                     </button>
                                                     <!--/ko-->
                                                     <!-- ko if: $root.Show_BtnCopy()-->
-                                                    <button href="javascript:void(0)" class="btn btn-main btnCopy" data-bind="click: $parent.CopyDatHang">
+                                                    <button href="javascript:void(0)" class="btn btn-main " data-bind="click: $parent.CopyDatHang">
                                                         <i class="fa fa-cut"></i> Sao chép
                                                     </button>
                                                     <!--/ko-->
-                                                    <!-- ko if: $root.Show_BtnDelete() && $root.Enable_NgayLapHD()-->
-                                                    <button href="javascript:void(0)" class="btn btn-cancel btnDelete"
+                                                    <!-- ko if: $root.RoleDelete_Order() && $root.Enable_NgayLapHD()-->
+                                                    <button href="javascript:void(0)" class="btn btn-cancel "
                                                             data-bind="click: $root.HuyHoaDon_updateChoThanhToan, visible: YeuCau !=='4'">
                                                         <i class="fa fa-close"></i> Hủy bỏ
                                                     </button>
@@ -756,7 +741,7 @@
                         <tr class="border-bottom">
                             <td class="bg12 bold @commonEnum.ColumnOrders.madathang">Tổng cộng</td>
                             <td class="bg12 @commonEnum.ColumnOrders.ngaylaphoadon"></td>
-                            <!--ko if: $root.IsGara() -->
+                            <!--ko if: $root.LoaiHoaDonMenu() === 1 -->
                             <td class="bg12 @commonEnum.ColumnOrders.maphieutiepnhan"></td>
                             <td class="bg12 @commonEnum.ColumnOrders.bienso "></td>
                             <!--/ko-->
