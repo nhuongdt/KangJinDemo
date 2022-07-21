@@ -16,6 +16,7 @@
             self.role.PhieuThu.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
             self.role.PhieuThu.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
             self.role.PhieuThu.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+            self.role.PhieuThu.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
 
             self.inforLogin = {
                 ID_NhanVien: VHeader.IdNhanVien,
@@ -110,7 +111,7 @@
             khoanthu: '',
         },
         role: {
-            PhieuThu: { Insert: true, Update: true, Delete: false, ChangeNgayLap: false }
+            PhieuThu: { Insert: true, Update: true, Delete: false, ChangeNgayLap: false, ChangeNVLap: true }
         },
         inforLogin: {
             ID_NhanVien: null,
