@@ -18,6 +18,7 @@
     self.GridNVienBanGoi_Chosed = ko.observableArray();
     self.DoiTuongs = ko.observableArray();
     self.NhomDoiTuongs = ko.observableArray();
+    self.AllNhomDoiTuongs = ko.observableArray();
     self.TinhThanhs = ko.observableArray();
     self.QuanHuyens = ko.observableArray();
     self.AllQuanHuyens = ko.observableArray();
@@ -559,6 +560,8 @@
                     tenNhom = tenNhom.concat(' ', locdau(tenNhom), ' ', GetChartStart(tenNhom));
                     data[i].Text_Search = tenNhom;
                 }
+                self.AllNhomDoiTuongs(data);// used to chuyennhom khach
+
                 if (self.ThietLap().QuanLyKhachHangTheoDonVi) {
                     // only get Nhom chua cai dat ChiNhanh or in this ChiNhanh
                     var arrNhom = [];
@@ -2954,7 +2957,7 @@
             data: function () {
                 return {
                     query_NhomDT: '',
-                    data_kh: self.NhomDoiTuongs()
+                    data_kh: self.AllNhomDoiTuongs()
                 }
             },
             methods: {
