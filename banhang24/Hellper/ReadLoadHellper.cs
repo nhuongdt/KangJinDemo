@@ -33,7 +33,9 @@ namespace banhang24.Hellper
         public const string DatHangNCC = "DatHangNCC";
         public const string DatHangNCCItem = "DatHangNCCItem";
         public const string NhapNoiBo = "NhapNoiBo";
-        public const string NhapNoiBoItem = "NhapNoiBoItem";
+        public const string NhapNoiBoItem = "NhapNoiBoItem";   
+        public const string NhapHangThua = "NhapHangThua";
+        public const string NhapHangThuaItem = "NhapHangThuaItem";
         public const string NhapHangItem = "PurchaseOrderItem";
         public const string NhapHangItem2 = "PurchaseOrderItem2";
         public const string TraHangNhap = "PurchaseReturns";
@@ -1280,6 +1282,7 @@ namespace banhang24.Hellper
                 { TypeReportWarehouse.Warehouse_MaChiNhanh.ToString(),"Mã chi nhánh" },
                    { TypeReportWarehouse.Warehouse_TenChiNhanh.ToString(),"Tên chi nhánh" },
                     {TypeReportWarehouse.Warehouse_soluong.ToString(),"Số lượng" },
+                     {TypeReportWarehouse.Warehouse_dongia.ToString(),"Giá nhập" },
                      {TypeReportWarehouse.Warehouse_thanhtien.ToString(),"Giá trị nhập" },
                      {TypeReportWarehouse.Warehouse_ghichuct.ToString(),"Ghi chú" },
                      {ColumnInvoices.ghichu.ToString(),"Ghi chú hóa đơn" },
@@ -2793,6 +2796,24 @@ namespace banhang24.Hellper
               { ColumnPurchaseOrder.tongtienhang.ToString(),"Tổng tiền hàng" },
               { ColumnPurchaseOrder.tonggiamgia.ToString(),"Tổng giảm giá" },
               { ColumnInvoices.tongchiphi.ToString(),"Chi phí ship" },
+                 { ColumnPurchaseOrder.cantrakhach.ToString(),"Phải thanh toán" },
+                   { ColumnPurchaseOrder.datrakhach.ToString(),"Đã thanh toán" },
+                       { ColumnInvoices.conno.ToString(),"Còn nợ" },
+              { ColumnPurchaseOrder.ghichu.ToString(),"Ghi chú" },
+              { ColumnPurchaseOrder.trangthai.ToString(),"Trạng thái" },
+        };
+
+        public static Dictionary<string, string> ListColumnNhapHangThua = new Dictionary<string, string>()
+        {
+              { ColumnPurchaseOrder.mahoadon.ToString(),"Mã hóa đơn" },
+              { ColumnPurchaseOrder.ngaylaphoadon.ToString(),"Ngày lập hóa đơn" },
+              { ColumnInvoices.nguoitao.ToString(),"User lập phiếu" },
+               { ColumnPurchaseOrder.makhachhang.ToString(),"Mã khách hàng" },
+              { ColumnPurchaseOrder.tenkhachhang.ToString(),"Tên khách hàng" },
+              { ColumnPurchaseOrder.tenchinhanh.ToString(),"Chi nhánh" },
+              { ColumnPurchaseOrder.tongtienhang.ToString(),"Tổng tiền hàng" },
+              { ColumnPurchaseOrder.tonggiamgia.ToString(),"Tổng giảm giá" },
+               { ColumnInvoices.tongchiphi.ToString(),"Chi phí ship" },
                  { ColumnPurchaseOrder.cantrakhach.ToString(),"Phải thanh toán" },
                    { ColumnPurchaseOrder.datrakhach.ToString(),"Đã thanh toán" },
                        { ColumnInvoices.conno.ToString(),"Còn nợ" },

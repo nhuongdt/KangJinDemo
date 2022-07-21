@@ -191,6 +191,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 case 13:
                     data = commonEnum.ListColumnNhapNoiBo.ToList();
                     break;
+                case 14:
+                    data = commonEnum.ListColumnNhapHangThua.ToList();
+                    break;
                 case 6:
                     data = commonEnum.ListColumnReturns.ToList();
                     break;
