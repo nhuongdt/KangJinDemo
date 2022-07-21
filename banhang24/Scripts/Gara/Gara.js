@@ -13716,7 +13716,7 @@ var NewModel_BanHangLe = function () {
                 }
                 else {
                     hd[i].NgayApDungGoiDV = null;
-                    hd[i].NgayApDungGoiDV = null;
+                    hd[i].HanSuDungGoiDV = null;
                 }
                 break;
             }
@@ -13960,7 +13960,7 @@ var NewModel_BanHangLe = function () {
                             }
                             else {
                                 hd[i].NgayApDungGoiDV = null;
-                                hd[i].NgayApDungGoiDV = null;
+                                hd[i].HanSuDungGoiDV = null;
                                 hd[i].DiemGiaoDich = 0;
                             }
                             break;
