@@ -816,6 +816,12 @@ namespace libDM_DoiTuong
                             break;
                         case 4: // Nhap hang
                             dto.strLoaiHoaDon = "Nhập hàng";
+                            break;  
+                        case 13: 
+                            dto.strLoaiHoaDon = "Nhập kho nội bộ";
+                            break;  
+                        case 14: 
+                            dto.strLoaiHoaDon = "Nhập hàng khách thừa";
                             break;
                         case 11: // PhieuThu
                             dto.strLoaiHoaDon = "Phiếu thu";
