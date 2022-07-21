@@ -112,7 +112,6 @@ var ViewModelQuyHD = function () {
     var userLogin = VHeader.UserLogin;
     var Key_Form = 'KeyForm_CashFlow';
     self.LoaiHoaDonMenu = $('#txtLoaiHoaDon').val();
-    vmNapTienDatCoc.loaiMenu = 1;// spa: mặc định là đặt cọc nhà cung cấp
 
     self.TenChiNhanh = ko.observable($('#_txtTenDonVi').html());
     self.TodayBC = ko.observable('Tháng này');
@@ -498,6 +497,12 @@ var ViewModelQuyHD = function () {
     self.editSQ = function (item) {
         if (item.PhieuDieuChinhCongNo === 2) {
             // nap tien coc
+            if (item.LoaiHoaDon === 12) {
+                vmNapTienDatCoc.loaiMenu = 1;
+            }
+            else {
+                vmNapTienDatCoc.loaiMenu = 0;
+            }
             vmNapTienDatCoc.showModalUpdate(item, self.ChiTietQuys());
         }
         else {
@@ -1801,13 +1806,18 @@ var ViewModelQuyHD = function () {
     }
 
     self.selectedTaiKhoan.subscribe(function (newValue) {
-        console.log('newValue ', newValue)
         ResetCurrentPage();
         SearchHoaDon(false);
     })
 
     // nap tien coc
     self.ShowModalNapTienCoc = function (isNapTien) {
+        if (isNapTien) {
+            vmNapTienDatCoc.loaiMenu = 1;//chi
+        }
+        else {
+            vmNapTienDatCoc.loaiMenu = 0;// thu
+        }
         vmNapTienDatCoc.showModalAddNew(isNapTien);
     }
 
