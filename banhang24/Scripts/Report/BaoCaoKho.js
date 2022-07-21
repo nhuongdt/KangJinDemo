@@ -689,11 +689,15 @@
         self.AllLoaiChungTu.push({ ID: 13, TenChungTu: 'Nhập kho nội bộ' });
     }
 
+    if (self.role_NhapHangKhachThua()) {
+        self.AllLoaiChungTu.push({ ID: 14, TenChungTu: 'Nhập hàng khách thừa' });
+    }
+
     self.getListDM_LoaiChungTuNhapKho = function (item) {
         self.MangChungTu([]);
         _idChungTuSeach = '4,6,9,10,13,14';
         let arr = $.grep(self.AllLoaiChungTu(), function (x) {
-            return $.inArray(x.ID, [4, 6, 9, 10,13,14]) > -1;
+            return $.inArray(x.ID, [4, 6, 9, 10, 13, 14]) > -1;
         })
         self.ChungTus(arr);
         self.searchChungTu(arr);
@@ -702,7 +706,7 @@
         self.MangChungTu([]);
         _idChungTuSeach = '1,2,3,7,8,9,10,12';// 12.xuat baohanh
         let arr = $.grep(self.AllLoaiChungTu(), function (x) {
-            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10,12]) > -1;
+            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10, 12]) > -1;
         })
         self.ChungTus(arr);
         if (self.isGara()) {
@@ -2107,7 +2111,6 @@
                 break;
             case parseInt($('#ID_thhangnhapkho').val()):
                 $('#tonghophangnhapkho .tab-content .tab-pane').each(function (i) {
-                    console.log('xxx ', $(this).data('id'))
                     lisstcolumn.push({ main: i, detail: LocalCaches.LoadColumnGrid(Key_Form + $(this).data('id')).map(x => x.Value) });
                 });
                 arrayColumn = lisstcolumn[0].detail;
@@ -2322,7 +2325,7 @@
                         for (let i = 0; i < lstColumn.length; i++) {
                             let itFor = parseInt(lstColumn[i]);
                             if (itFor > 2) {
-                                lstAfter.push(itFor + 2);
+                                lstAfter.push(itFor + 1);// cot BienSo (index = 3)
                             }
                             else {
                                 lstAfter.push(itFor);
@@ -2459,7 +2462,7 @@
     };
 
     self.gotoDanhSachXe = function (item) {
-        window.open('/#/DanhSachXe?' + item.BienSo,'_blank');
+        window.open('/#/DanhSachXe?' + item.BienSo, '_blank');
     }
     self.LoadHoaDon_byMaHD = function (item) {
         var url = '';
@@ -2472,10 +2475,10 @@
             else {
                 localStorage.setItem('FindHD', maHD);
                 if (maHD.indexOf('HD') > -1) {
-                    url = "/#/Invoices"; 
+                    url = "/#/Invoices";
                 }
                 else if (maHD.indexOf('GDV') > -1) {
-                    url = "/#/ServicePackage"; 
+                    url = "/#/ServicePackage";
                 }
                 else if (maHD.indexOf('PNK') > -1) {
                     url = "/#/PurchaseOrder";
