@@ -23,6 +23,7 @@
         self.role.SoQuy.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+        self.role.SoQuy.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
     },
     computed: {
         sLoaiThuChi: function () {
@@ -50,7 +51,7 @@
             TenNganHangCK: '',
         },
         role: {
-            SoQuy: {},
+            SoQuy: { ChangeNVLap: true },
         },
         inforLogin: {
             ID_NhanVien: null,
