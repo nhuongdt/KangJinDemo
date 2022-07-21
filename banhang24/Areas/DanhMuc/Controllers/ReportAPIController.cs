@@ -4572,6 +4572,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 DataTable excelCT = classOffice.ToDataTable<BaoCaoKho_ChiTietHangNhapKhoPRC>(lstCT);
                 excelCT.Columns.Remove("TenHangHoa");
                 excelCT.Columns.Remove("ThuocTinh_GiaTri");
+                excelCT.Columns.Remove("GiaNhap");
                 classOffice.listToOfficeExcel_Sheet(fileSave, fileSave, excelCT, 4, 28, 24, true, param.columnsHideCT, 1, param.TodayBC, param.TenChiNhanh);
                 HttpResponse Response = HttpContext.Current.Response;
                 fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoTongHopHangXuatKho.xlsx");
