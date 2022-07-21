@@ -586,6 +586,7 @@ namespace libReport
         public string MaDonVi { get; set; }
         public string TenDonVi { get; set; }
         public double SoLuong { get; set; }
+        public double? GiaNhap { get; set; } // dongia sau ck
         public double ThanhTien { get; set; }
         public string GhiChu { get; set; }
         public string DienGiai { get; set; }
