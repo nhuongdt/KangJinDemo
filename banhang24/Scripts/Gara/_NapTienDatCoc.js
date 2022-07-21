@@ -23,6 +23,7 @@
         self.role.SoQuy.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+        self.role.SoQuy.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
 
         self.role.Customer.Insert = VHeader.Quyen.indexOf('KhachHang_ThemMoi') > -1;
         self.role.Vendor.Insert = VHeader.Quyen.indexOf('NhaCungCap_ThemMoi') > -1;
@@ -37,7 +38,7 @@
         formType: 0, // 1. tra lai tien TGT, 0.con lai
         loaiMenu: 0,// 0.thu, 1.chi, 2.all (0.1 used to ds soquy, 2.ds hoadon + khachhang + ncc)
         role: {
-            SoQuy: {},
+            SoQuy: { ChangeNVLap: true },
             Customer: {},
             Vendor: {},
         },
