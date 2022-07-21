@@ -180,6 +180,10 @@ var NhapHangChiTiet = function () {
             lcCTNhapHang = 'ctNhapNoiBo';
             lcHDNhapHang = 'hdNhapNoiBo';
             break;
+        case 14:
+            lcCTNhapHang = 'ctNhapHangThua';
+            lcHDNhapHang = 'hdNhapHangThua';
+            break;
         case 31:
             lcCTNhapHang = 'ctDatNCC';
             lcHDNhapHang = 'hdDatNCC';
@@ -751,6 +755,10 @@ var NhapHangChiTiet = function () {
                             self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
                             self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
                             break;
+                        case 14:
+                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
+                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                            break;
                         case 31:
                             self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
                             self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('DatHangNCC_ThayDoiNhanVien'));
@@ -838,9 +846,9 @@ var NhapHangChiTiet = function () {
 
     function newCTNhap(addCungLoai, itemHH, soluong) {
         let dongia = itemHH.DonGia;
-        if (self.newHoaDon().LoaiHoaDon() === 14) {
-            dongia = 0;
-        }
+        //if (self.newHoaDon().LoaiHoaDon() === 14) {
+        //    dongia = 0;
+        //}
         let ptThue = self.newHoaDon().PTThueHoaDon() > 0 ? self.newHoaDon().PTThueHoaDon() : 0;
         let ptCKHangHoa = self.newHoaDon().PTChietKhauHH() > 0 ? self.newHoaDon().PTChietKhauHH() : 0;
         let tienCK = ptCKHangHoa * dongia / 100;
@@ -900,9 +908,9 @@ var NhapHangChiTiet = function () {
             }
             let gianhap = dongia;
             gianhap = gianhap == 0 ? itemHH.GiaVon : gianhap;
-            if (self.newHoaDon().LoaiHoaDon() === 14) {
-                gianhap = 0;
-            }
+            //if (self.newHoaDon().LoaiHoaDon() === 14) {
+            //    gianhap = 0;
+            //}
             tienCK = ptCKHangHoa * gianhap / 100;
             tienThue = ptThue * (gianhap - tienCK) / 100;
             return {
@@ -977,9 +985,9 @@ var NhapHangChiTiet = function () {
         }
 
         var dongia = itemHH.DonGia;
-        if (self.newHoaDon().LoaiHoaDon() === 14) {
-            dongia = 0;
-        }
+        //if (self.newHoaDon().LoaiHoaDon() === 14) {
+        //    dongia = 0;
+        //}
         var ptThue = self.newHoaDon().PTThueHoaDon() > 0 ? self.newHoaDon().PTThueHoaDon() : 0;
         var ptCKHangHoa = self.newHoaDon().PTChietKhauHH() > 0 ? self.newHoaDon().PTChietKhauHH() : 0;
         var tienCK = ptCKHangHoa * dongia / 100;
@@ -2472,9 +2480,9 @@ var NhapHangChiTiet = function () {
                     let mahang = data[0].MaHangHoa;
                     let giaban = data[0].GiaBanHH;
                     let tonkho = data[0].TonKho;
-                    if (self.newHoaDon().LoaiHoaDon() === 14) {
-                        gianhap = 0;
-                    }
+                    //if (self.newHoaDon().LoaiHoaDon() === 14) {
+                    //    gianhap = 0;
+                    //}
 
                     for (let i = 0; i < cthd.length; i++) {
                         let itFor = cthd[i];
@@ -2692,9 +2700,9 @@ var NhapHangChiTiet = function () {
         var idLoHang = item.ID_LoHang;
         var maLoHang = item.MaLoHang;
         let gianhap = item.GiaNhap;
-        if (self.newHoaDon().LoaiHoaDon() === 14) {
-            gianhap = 0;
-        }
+        //if (self.newHoaDon().LoaiHoaDon() === 14) {
+        //    gianhap = 0;
+        //}
         var idRandom = $($this.closest('.js-IDlohang')).find('span').eq(0).attr('id');
 
         var ptThue = self.newHoaDon().PTThueHoaDon();
@@ -4032,6 +4040,9 @@ var NhapHangChiTiet = function () {
 
     self.showPopupNCC = function () {
         vmThemMoiNCC.showModalAdd();
+    };
+
+     self.showPopupKH = function () {
     };
 
     self.showPopupEditNCC = function (item) {

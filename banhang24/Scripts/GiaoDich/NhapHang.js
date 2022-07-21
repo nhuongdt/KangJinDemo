@@ -140,14 +140,22 @@
         case 4:
             self.LoaiHoaDon_31(false);
             self.LoaiHoaDon_13(false);
+            self.LoaiHoaDon_14(false);
             break;
         case 13:
             self.LoaiHoaDon_4(false);
             self.LoaiHoaDon_31(false);
+            self.LoaiHoaDon_14(false);
             break;
         case 31:
             self.LoaiHoaDon_4(false);
             self.LoaiHoaDon_13(false);
+            self.LoaiHoaDon_14(false);
+            break;
+        case 14:
+            self.LoaiHoaDon_4(false);
+            self.LoaiHoaDon_13(false);
+            self.LoaiHoaDon_31(false);
             break;
     }
 
@@ -172,8 +180,11 @@
 
     function LoadColumnCheck() {
         let sLoai = 4;
-        if (self.LoaiHoaDonMenu() === 13) {
-            sLoai = self.LoaiHoaDonMenu();
+        switch (self.LoaiHoaDonMenu()) {
+            case 13:
+            case 14:
+                sLoai = self.LoaiHoaDonMenu();
+                break;
         }
         ajaxHelper('/api/DanhMuc/BaseAPI/' + "GetListColumnInvoices?loaiHD=" + sLoai, 'GET').done(function (data) {
             self.ListCheckBox(data);
@@ -250,6 +261,17 @@
 
                     switch (self.LoaiHoaDonMenu()) {
                         case 4:
+                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
+                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                            self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
+                            self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
+                            self.Show_BtnCopy(CheckQuyenExist('NhapHang_SaoChep'));
+                            self.Show_BtnEdit(CheckQuyenExist('NhapHang_CapNhat'));
+                            self.Show_BtnUpdate(CheckQuyenExist('NhapHang_CapNhat'));
+                            self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
+                            self.Show_BtnExcelDetail(CheckQuyenExist('NhapHang_XuatFile'));
+                            break;
+                        case 14:
                             self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
                             self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
                             self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
@@ -1077,6 +1099,11 @@
         SearchHoaDon();
     });
 
+    self.LoaiHoaDon_31.subscribe(function (newVal) {
+        ResetSearch();
+        SearchHoaDon();
+    });
+
     self.filterNgayLapHD.subscribe(function (newVal) {
         ResetSearch();
         SearchHoaDon();
@@ -1555,6 +1582,9 @@
                 break;
             case 13:
                 window.open('/#/NhapNoiBoItem', '_blank');
+                break;
+            case 14:
+                window.open('/#/NhapHangThuaItem', '_blank');
                 break;
         }
     }
@@ -2310,7 +2340,7 @@
         param.columnsHide = columnHide;
 
         let url = 'ExportExcel_PhieuNhapHang';
-        if (self.LoaiHoaDon_13()) {
+        if (self.LoaiHoaDon_13() || self.LoaiHoaDon_14()) {
             url = 'ExportExcel_PhieuNhapKhoNoiBo';
         }
 
