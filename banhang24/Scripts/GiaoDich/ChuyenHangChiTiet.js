@@ -8,6 +8,7 @@
     self.NgayLapHoaDon = ko.observable(null);
     self.DienGiai = ko.observable();
     self.YeuCau = ko.observable('1');
+    self.NguoiTao = ko.observable(VHeader.UserLogin);
 
     self.SetData = function (item) {
         self.ID(item.ID);
@@ -18,6 +19,7 @@
         self.NgayLapHoaDon(item.NgayLapHoaDon);
         self.DienGiai(item.DienGiai);
         self.YeuCau(item.YeuCau);
+        self.NguoiTao(item.NguoiTao);
     }
 }
 
@@ -70,6 +72,7 @@ var ChuyenHangChiTiet = function () {
     // check cache tonkho
 
     function PageLoad() {
+        UpdateProperties_ifUndefined();
         GetHT_Quyen_ByNguoiDung();
         Check_QuyenXemGiaVon();
         GetInforCongTy();
@@ -80,6 +83,19 @@ var ChuyenHangChiTiet = function () {
     console.log(1)
 
     PageLoad();
+
+    function UpdateProperties_ifUndefined() {
+        var hd = localStorage.getItem(lcHDChuyenHang);
+        if (hd !== null) {
+            hd = JSON.parse(hd);
+            for (let i = 0; i < hd.length; i++) {
+                if (commonStatisJs.CheckNull(hd[i].NguoiTao)) {
+                    hd[i].NguoiTao = _userLogin;
+                }
+            }
+            localStorage.setItem(lcHDChuyenHang, JSON.stringify(hd));
+        }
+    }
 
     function CheckLocTonKho() {
         var tk = localStorage.getItem('chuyenhang_isTonKho');
@@ -166,6 +182,7 @@ var ChuyenHangChiTiet = function () {
                         let idCNNhan = hd[0].ID_CheckIn;
                         self.HangHoaAfterAdd(cthd);
                         self.newHoaDon().SetData(hd[0]);
+                        console.log('hd[0]', hd[0])
                         Caculator_AmountProduct();
                         if (idCNNhan !== null && idCNNhan !== undefined) {
                             if (idCNNhan === _idDonVi) {// nhanhang: bind chinhanh chuyen
@@ -1421,6 +1438,7 @@ var ChuyenHangChiTiet = function () {
             NgayLapHoaDon: self.newHoaDon().NgayLapHoaDon(),
             TongTienHang: self.newHoaDon().TongTienHang(),
             ID_CheckIn: self.newHoaDon().ID_CheckIn(),
+            NguoiTao: _userLogin,
         }];
         localStorage.setItem(lcHDChuyenHang, JSON.stringify(objHD));
     }
