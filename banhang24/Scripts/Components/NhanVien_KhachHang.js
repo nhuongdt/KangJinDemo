@@ -30,6 +30,7 @@ var ComponentChoseStaff = {
         searchList: { default: [] },
         idChosing: { default: null },
         showbuttonReset: { default: false },
+        roleChangeStaff: { default: true }
     },
     components: {
         'staffs': componentListStaff,
@@ -44,7 +45,7 @@ var ComponentChoseStaff = {
         <input class="gara-search-HH " placeholder="Chọn nhân viên" style="padding-right: 27px!important"
                 onclick= "this.select()"
                 v-model="textSearch" v-on:keyup="searchStaff" v-on:click="showList" />
-        <div class="gara-search-dropbox drop-search ">
+        <div class="gara-search-dropbox drop-search " v-if="roleChangeStaff">
                <ul>
                 <staffs v-for="(item, index) in searchList"
                            v-bind:id="item.ID"
@@ -103,7 +104,7 @@ var cmpSearchNVDisscount = {
     props: {
         listAll: { default: [] },
         listSearch: { default: [] },
-        idChosing: { default: null},
+        idChosing: { default: null },
         showCol2: { default: true },
         showCol3: { default: true },
         showCol4: { default: false },
