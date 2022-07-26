@@ -1071,6 +1071,8 @@ var ViewModelQuyHD = function () {
         var maHDFind = localStorage.getItem('FindMaPhieuChi');
         if (maHDFind !== null) {
             self.filter(maHDFind);
+            self.filterNgayLapHD('0');
+            self.filterNgayLapHD_Quy('toanthoigian');
         }
 
         var txtMaHDon = self.filter();
