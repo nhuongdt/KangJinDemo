@@ -17,7 +17,7 @@
         saveOK: false,
         isLoading: false,
         typeUpdate: 1,
-        formType: 0,// 0.from DSTheGT, 1. from DS KhachHang
+        formType: 0,// 0.from DSTheGT, 1. from DS KhachHang, 2. baocao
         isShowList: false,
         tgtOld: {},
         role: {
@@ -622,6 +622,11 @@
             self.inforTheGiaTri.SoDuTheSauNap = 0;
             self.LichSuNapTien = [];
         },
+        GotoTheGiaTri: function () {
+            let self = this;
+            localStorage.setItem('FindHD', self.newHoaDon.MaHoaDon);
+            window.open('/#/RechargeValueCard');
+        }
     },
     computed: {
         PageList_Display: function () {
