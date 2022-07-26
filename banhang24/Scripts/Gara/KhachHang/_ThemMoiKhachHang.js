@@ -88,7 +88,7 @@
             TheoDoi: false,// false: dang hoatdong, true: daxoa
             ChiaSe: false,
             ID_Index: 0,
-            MaSoThue: 0,
+            MaSoThue: '',
             TaiKhoanNganHang: '',
 
             TenNguoiGioiThieu: '',
@@ -137,7 +137,7 @@
                 TheoDoi: false,
                 ChiaSe: false,
                 ID_Index: 0,
-                MaSoThue: 0,
+                MaSoThue: '',
                 TongBanTruTraHang: 0,
                 TongBan: 0,
                 TongMua: 0,
