@@ -94,7 +94,8 @@
                                         <th v-if="!$root.hideBottom">Tiền thuế</th>
                                         <th v-if="!$root.hideBottom">Thanh toán</th>
                                         <th style="text-align:center"
-                                            v-if="formType!=2  && formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6]) > -1">#</th>
+                                            v-if="formType!=2  && formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6,2]) > -1"> #
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -124,7 +125,7 @@
                                             <span> {{formatNumber3Digit(ct.SoLuong)}}</span>
                                             <span v-on:click="showChiTietXuatKho(ct)"
                                                   v-if="HoaDon.LoaiHoaDon === 25 && ((ct.LaHangHoa && ct.SoLuongXuat > 0) || (!ct.LaHangHoa))">
-                                                <i class="fa fa-info-circle"></i>
+                                                <i class="fa fa-list-alt"></i>
                                             </span>
                                         </td>
                                         <td class="text-right" v-if="HoaDon.LoaiHoaDon === 8">{{formatNumber3Digit(ct.GiaVon)}}</td>
@@ -132,10 +133,16 @@
                                         <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.GiamGia)}}</td>
                                         <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.TienThue,2)}}</td>
                                         <td class="text-right">{{formatNumber3Digit(ct.ThanhToan,2)}}</td>
-                                        <td v-on:click="showVmEditCKDichVu(ct)"
-                                            v-if="formType!=2 &&  formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6]) > -1">
-                                            <a href="javascript:void(0)">
-                                                <i title="Chọn nhân viên để cài đặt chiết khấu" class="fa fa-user"></i>
+                                        <td class="text-center" 
+                                            v-if="formType!=2 &&  formType!==3 && !$root.isKhoaSo && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6,2]) > -1">
+                                            <a href="javascript:void(0)" v-if="$root.role.CapNhatHoaHongDichVu"
+                                               v-on:click="showVmEditCKDichVu(ct)">
+                                                <i title="Thay đổi chiết khấu nhân viên" class="fa fa-user"></i>
+                                            </a>
+                                            &nbsp;
+                                            <a href="javascript:void(0)" v-if="$root.role.ThayDoiThanhPhanDinhLuong && ct.LoaiHangHoa == 2"
+                                               v-on:click="showThanhPhanDinhLuong(ct)">
+                                                <i title="Thay đổi thành phần định lượng" class="fa fa-list-alt"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -263,6 +270,7 @@
                     return x === 'BanHang_HoaDongDichVu_CapNhat';
                 })
                 self.role.CapNhatHoaHongDichVu = hhDV.length > 0;
+                self.role.ThayDoiThanhPhanDinhLuong = VHeader.Quyen.indexOf('HoaDon_ThayDoiThanhPhanDinhLuong') > -1;
                 self.isGara = VHeader.IdNganhNgheKinhDoanh.toUpperCase() === 'C16EDDA0-F6D0-43E1-A469-844FAB143014';
                 console.log('vmThongTinHD ')
             }
@@ -358,7 +366,7 @@
         data: {
             isKhoaSo: false,
             isGara: false,
-            role: { CapNhatHoaHongDichVu: false },
+            role: { CapNhatHoaHongDichVu: false, ThayDoiThanhPhanDinhLuong: false },
             HoaDon: { LoaiHoaDon: 1 },
             CTHD_ChangeCKNV: [],// ds dichvu bi thay doi hoahong nhanvien
         },
@@ -619,6 +627,10 @@
                 else {
                     vmHDSC_chitietXuat.showModal(item)
                 }
+            },
+            showThanhPhanDinhLuong: function (item) {
+                let self = this;
+                vmThanhPhanDinhLuong.showModalUpdate(item, self.HoaDon);// pass HoaDon: used to update TonKho if save suscess TPDLuong
             }
         }
     })
