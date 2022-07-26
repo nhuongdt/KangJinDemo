@@ -87,6 +87,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return _classDMHH.SP_GetInfor_TPDinhLuong(idChiNhanh, Guid.Empty);
             }
         }
+
+        [HttpGet]
+        public IHttpActionResult GetThanhPhanDinhLuong_byIDCTHD(Guid id)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
+                    List<SP_ThanhPhanDinhLuong> data = classhoadonchitiet.SP_GetThanhPhanDinhLuong_CTHD(id);
+                    return ActionTrueData(data);
+                }
+            }
+            catch (Exception e)
+            {
+                return ActionFalseNotData(e.InnerException + e.Message);
+            }
+        }
+
         [HttpGet, HttpPost]
         public IHttpActionResult GetTPDinhLuong_ofHoaDon([FromBody] JObject data)
         {
@@ -106,6 +125,49 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 catch (Exception ex)
                 {
                     return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult CTHD_UpdateThanhPhanDinhLuong(Guid idCTHD, [FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        List<BH_HoaDon_ChiTiet> lstTPhan = new List<BH_HoaDon_ChiTiet>();
+
+                        // get all tpdluong of dichvu --> assisgn ChatLieu =5'
+                        db.BH_HoaDon_ChiTiet.Where(x => x.ID_ChiTietDinhLuong == idCTHD && x.ID_ChiTietDinhLuong != x.ID)
+                            .ToList()
+                            .ForEach(x => x.ChatLieu = "5");
+
+                        if (data != null && data["lstTPhan"] != null)
+                        {
+                            lstTPhan = data["lstTPhan"].ToObject<List<BH_HoaDon_ChiTiet>>();
+
+                            List<BH_HoaDon_ChiTiet> lstNew = new List<BH_HoaDon_ChiTiet>();
+                            foreach (var item in lstTPhan)
+                            {
+                                item.ID = Guid.NewGuid();
+                                lstNew.Add(item);
+                            }
+
+                            db.BH_HoaDon_ChiTiet.AddRange(lstNew);
+                            db.SaveChanges();
+                            trans.Commit();
+                            return ActionTrueData(string.Empty);
+                        }
+                        return ActionFalseNotData("Tham số null");
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.InnerException + ex.Message);
+                    }
                 }
             }
         }
@@ -1040,7 +1102,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("HanSuDungGoiDV");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_GiaoDichHoaDon_Gara.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachHoaDonSuaChua.xlsx" );
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachHoaDonSuaChua.xlsx");
                     fileSave = _classOFDCM.createFolder_Download(fileSave);
                     var valExcel1 = string.Empty;
                     if (listParams.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
@@ -10723,7 +10785,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                        TienChietKhau = x.TienChietKhau,
                        ThanhTien = x.ThanhTien,
                        ThanhToan = x.ThanhToan,
-                       ChatLieu = "5", // ct delete assign chatlie="5" !important
+                       ChatLieu = "5", // ct delete assign chatlieu="5" !important
                        GiaVon = x.GiaVon,
                        TienThue = x.TienThue,
                        PTChiPhi = x.PTChiPhi,
