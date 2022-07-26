@@ -8552,6 +8552,75 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpGet, HttpPost]
+        public IHttpActionResult GetListHoaDon_ChuaPhanBoCK(ParamReportDiscount lstParam)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    db.Database.CommandTimeout = 60 * 60;
+                    ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
+                    List<HoaDon_ChuaPhanBoHoaHong> data = reportHoaHong.GetListHoaDon_ChuaPhanBoCK(lstParam);
+                    if (data.Count() > 0)
+                    {
+                        var firstRow = data[0];
+                        var lstGr = data.GroupBy(x => new
+                        {
+                            x.ID,
+                            x.MaHoaDon,
+                            x.NgayLapHoaDon,
+                            x.MaDoiTuong,
+                            x.TenDoiTuong,
+                            x.DienThoai,
+                            x.DoanhThu,
+                        })
+                            .Select(x => new
+                            {
+                                x.Key.ID,
+                                x.Key.MaHoaDon,
+                                x.Key.NgayLapHoaDon,
+                                x.Key.MaDoiTuong,
+                                x.Key.TenDoiTuong,
+                                x.Key.DienThoai,
+                                x.Key.DoanhThu,
+                                lstDetail = x,
+                            });
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = lstGr,
+                            SumDoanhThu = firstRow.TongDoanhThu,
+                            SumThucThu = firstRow.TongThucThu,
+                            TotalRow = firstRow.TotalRow,
+                            TotalPage = firstRow.TotalPage,
+                        });
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = new List<HoaDon_ChuaPhanBoHoaHong>(),
+                            SumDoanhThu = 0,
+                            SumThucThu = 0,
+
+                            TotalRow = 0,
+                            TotalPage = 0,
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    res = false,
+                    mes = ex.InnerException + ex.Message
+                });
+            }
+        }
+
+        [HttpGet, HttpPost]
         public IHttpActionResult ReportDiscountAll(ParamReportDiscount lstParam)
         {
             try
@@ -8907,6 +8976,43 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet, HttpPost]
+        public IHttpActionResult ExportExcel_DSHoaDonChuaPhanBoCK(ParamReportDiscount lstParam)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    db.Database.CommandTimeout = 60 * 60;
+                    Class_officeDocument classOffice = new Class_officeDocument(db);
+                    ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
+                    List<HoaDon_ChuaPhanBoHoaHong> data = reportHoaHong.GetListHoaDon_ChuaPhanBoCK(lstParam);
+                    DataTable excel = classOffice.ToDataTable<HoaDon_ChuaPhanBoHoaHong>(data);
+
+                    excel.Columns.Remove("ID");
+                    excel.Columns.Remove("IDSoQuy");
+                    excel.Columns.Remove("TongDoanhThu");
+                    excel.Columns.Remove("TongThucThu");
+                    excel.Columns.Remove("TotalRow");
+                    excel.Columns.Remove("TotalPage");
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_DanhSachHoaDon_ChuaPhanBoHoaHong.xlsx");
+                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/DanhSachHoaDon_ChuaPhanBoHoaHong.xlsx");
+
+                    fileSave = classOffice.createFolder_Download(fileSave);
+                    classOffice.ExportExcel_RemoveColumn(fileTeamplate, fileSave, excel, 5, 29, 24, true, lstParam.ColumnsHide, lstParam.TodayBC, lstParam.TextReport);
+
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                    return Json(new { res = true, data = fileSave });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { res = false, mes = ex.InnerException + ex.Message });
+            }
+        }
         #endregion
 
         #region ExportExcel Gara
