@@ -1101,6 +1101,8 @@
         var maHDFind = localStorage.getItem('FindHD');
         if (maHDFind !== null) {
             self.filter(maHDFind);
+            self.filterNgayLapHD('0');
+            self.filterNgayLapHD_Quy(0);
         }
 
         var txtMaHDon = self.filter();
