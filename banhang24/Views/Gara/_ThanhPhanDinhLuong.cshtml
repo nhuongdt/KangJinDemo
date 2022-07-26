@@ -229,9 +229,13 @@
                     <button type="button" class="btn btn-cancel" data-dismiss="modal">
                         <i class="fa fa-ban"></i>&nbsp;Bỏ qua
                     </button>
-                    <button type="button" class="btn btn-save"
+                    <button type="button" class="btn btn-save" v-if="$root.typeUpdate !=2"
                             v-on:click="Agree_TPDinhLuong">
                         <i class="fa fa-save"></i> Đồng ý
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="$root.typeUpdate ==2"
+                            v-on:click="Agree_TPDinhLuong">
+                        <i class="fa fa-save"></i> Cập nhật
                     </button>
                 </div>
             </div>
@@ -247,6 +251,7 @@
         },
         created: function () {
             var self = this;
+            console.log('abc')
             self.ID_DonVi = $('#txtDonVi').val();
             if (commonStatisJs.CheckNull(self.ID_DonVi)) {
                 self.ID_DonVi = VHeader.IdDonVi;
@@ -265,6 +270,7 @@
         },
         data: {
             saveOK: false,
+            typeUpdate: 1, // 1.insert, 2.update
             isCombo: false,
             isDoiTra: false,
             typeSearchProduct: '11',// 11.hanghoa, 12.dichvu, 23.combo
@@ -272,6 +278,8 @@
             Grid_TPDinhLuongChosed: [],
             All_DinhLuongDichVu: [],
             roleXemGiaVon: false,
+            inforHoaDon: {},
+            TPDLuongOld: [],
         },
         methods: {
             GetAllDinhLuongDV: function () {
@@ -284,11 +292,48 @@
             },
             showModal: function (isDoiTra = false, isCombo = false) {
                 var self = this;
+                self.typeUpdate = 1;
                 self.isCombo = isCombo;
                 self.isDoiTra = isDoiTra;
                 self.saveOK = false;
                 $('.jsSearchProduct .gara-search-HH').val('');
                 $('#vmThanhPhanDinhLuong').modal('show');
+            },
+            showModalUpdate: function (item, hd) {
+                let self = this;
+                self.typeUpdate = 2;
+                self.isCombo = false;
+                self.isDoiTra = false;
+                self.saveOK = false;
+                self.inforHoaDon = {
+                    ID: hd.ID,
+                    MaHoaDon: hd.MaHoaDon,
+                    LoaiHoaDon: hd.LoaiHoaDon,
+                    NgayLapHoaDon: hd.NgayLapHoaDon,
+                };
+                $('.jsSearchProduct .gara-search-HH').val('');
+
+                let soluongDV = item.SoLuong;
+                self.DichVu_isDoing = item;
+
+                $.getJSON("/api/DanhMuc/BH_HoaDonAPI/GetThanhPhanDinhLuong_byIDCTHD?id=" + self.DichVu_isDoing.ID, function (x) {
+                    let arr = [];
+                    console.log(x)
+                    if (x.res) {
+                        $('#vmThanhPhanDinhLuong').modal('show');
+                        for (let i = 0; i < x.dataSoure.length; i++) {
+                            let itFor = x.dataSoure[i];
+                            itFor.isDefault = false;
+                            itFor.SoLuongMacDinh = 1 / soluongDV;
+                            itFor.SoLuongQuyCach = itFor.QuyCach * itFor.SoLuong;
+                            itFor.GiaVonAfter = itFor.GiaVon * soluongDV;
+                            arr.push(itFor);
+                        }
+                    }
+                    self.Grid_TPDinhLuongChosed = arr;
+                    self.TPDLuongOld = $.extend([], true, arr);
+                    self.UpdateSTT();
+                });
             },
             ChoseDinhLuong: function (item) {
                 var self = this;
@@ -310,7 +355,7 @@
                     self.Grid_TPDinhLuongChosed = $.extend(true, [], self.Grid_TPDinhLuongChosed);
                 }
                 else {
-                    var len = self.Grid_TPDinhLuongChosed.length;
+                    let len = self.Grid_TPDinhLuongChosed.length;
                     item.STT = len + 1;
                     item.SoLuong = 1;
                     item.isDefault = false;// neu la dluong macdinh bandau (caidat hanghoa), isDefault = true
@@ -413,9 +458,77 @@
                 $(tdNext).eq(columnEdit).find('input').focus().select();
             },
             Agree_TPDinhLuong: function () {
-                var self = this;
-                self.saveOK = true;
-                $('#vmThanhPhanDinhLuong').modal('hide');
+                let self = this;
+                if (self.typeUpdate === 2) { // update in DB
+
+                    let sTPNew = '', sTPOld = '';
+
+                    // delete TPold: assign ChatLieu ='5': used to chay Tonkho, giavon
+                    self.Grid_TPDinhLuongChosed = self.Grid_TPDinhLuongChosed.filter(x => formatNumberToFloat(x.SoLuong) > 0);
+                    //for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                    //    let itFor = self.Grid_TPDinhLuongChosed[i];
+                    //    if (formatNumberToFloat(itFor.SoLuong) === 0) {
+                    //        self.Grid_TPDinhLuongChosed[i].ID_HoaDon = self.DichVu_isDoing.ID_HoaDon;
+                    //        self.Grid_TPDinhLuongChosed[i].ID_ChiTietDinhLuong = self.DichVu_isDoing.ID;
+                    //        self.Grid_TPDinhLuongChosed[i].ID_ChiTietGoiDV = self.DichVu_isDoing.ID_ChiTietGoiDV;// used to tính giá vốn dịch vụ khi sử dụng gdv
+                    //        self.Grid_TPDinhLuongChosed[i].ChatLieu = '5';
+                    //    }
+                    //}
+
+                    for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                        let itFor = self.Grid_TPDinhLuongChosed[i];
+                        if (formatNumberToFloat(itFor.SoLuong) > 0) {
+                            self.Grid_TPDinhLuongChosed[i].ID_HoaDon = self.DichVu_isDoing.ID_HoaDon;
+                            self.Grid_TPDinhLuongChosed[i].ID_ChiTietDinhLuong = self.DichVu_isDoing.ID;
+                            self.Grid_TPDinhLuongChosed[i].ID_ChiTietGoiDV = self.DichVu_isDoing.ID_ChiTietGoiDV;// used to tính giá vốn dịch vụ khi sử dụng gdv
+                            self.Grid_TPDinhLuongChosed[i].ChatLieu = self.DichVu_isDoing.ChatLieu;
+
+                            sTPNew += '<br /> - '.concat(itFor.TenHangHoa, ' (', itFor.MaHangHoa, ') Số lượng: ', itFor.SoLuong);
+                        }
+                    }
+
+                    for (let i = 0; i < self.TPDLuongOld.length; i++) {
+                        let itFor = self.TPDLuongOld[i];
+                        sTPOld += '<br /> - '.concat(itFor.TenHangHoa, ' (', itFor.MaHangHoa, ') Số lượng: ', itFor.SoLuong);
+                    }
+
+                    let myData = { lstTPhan: self.Grid_TPDinhLuongChosed };
+                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'CTHD_UpdateThanhPhanDinhLuong?idCTHD=' + self.DichVu_isDoing.ID,
+                        'POST', myData).done(function (x) {
+                            console.log(x)
+                            if (x.res) {
+                                self.saveOK = true;
+                                ShowMessage_Success('Cập nhật thành thành phần định lượng thành công');
+
+                                // run tonkho, giavon
+                                let diary = {
+                                    ID_DonVi: VHeader.IdDonVi,
+                                    ID_NhanVien: VHeader.IdNhanVien,
+                                    LoaiNhatKy: 2,
+                                    ChucNang: 'Cập nhật thành phần định lượng',
+                                    NoiDung: 'Cập nhật thành phần định lượng cho hóa đơn ' + self.inforHoaDon.MaHoaDon,
+                                    NoiDungChiTiet: 'Cập nhật thành phần định lượng cho hóa đơn '.concat(self.inforHoaDon.MaHoaDon,
+                                        '<br /> <b> Thông tin chi tiết </b>',
+                                        '<br /> Dịch vụ: ', self.DichVu_isDoing.TenHangHoa,
+                                        '<br /> Thành phần: ', sTPNew,
+                                        '<br /> <b> Thông tin cũ </b>', sTPOld
+                                    ),
+                                    LoaiHoaDon: self.inforHoaDon.LoaiHoaDon,
+                                    ID_HoaDon: self.inforHoaDon.ID,
+                                    ThoiGianUpdateGV: self.inforHoaDon.NgayLapHoaDon,
+                                }
+                                Post_NhatKySuDung_UpdateGiaVon(diary);
+                                $('#vmThanhPhanDinhLuong').modal('hide');
+                            }
+                            else {
+                                ShowMessage_Danger(x.mess);
+                            }
+                        })
+                }
+                else {
+                    self.saveOK = true;
+                    $('#vmThanhPhanDinhLuong').modal('hide');
+                }
             },
         }
     })
