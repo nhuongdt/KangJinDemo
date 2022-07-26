@@ -108,6 +108,28 @@ namespace libReport
             return data;
         }
 
+        public List<HoaDon_ChuaPhanBoHoaHong> GetListHoaDon_ChuaPhanBoCK(ParamReportDiscount lstParam)
+        {
+            string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
+            string loaichungtus = "1,6,19,22,25,2,32";
+            if (lstParam.LoaiChungTus != null && lstParam.LoaiChungTus.Count > 0)
+            {
+                loaichungtus = string.Join(",", lstParam.LoaiChungTus);
+            }
+            List<SqlParameter> paramSql = new List<SqlParameter>();
+            paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
+            paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
+            paramSql.Add(new SqlParameter("LoaiChungTus", loaichungtus));
+            paramSql.Add(new SqlParameter("DateFrom", lstParam.DateFrom));
+            paramSql.Add(new SqlParameter("DateTo", lstParam.DateTo));
+            paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
+            paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
+            List<HoaDon_ChuaPhanBoHoaHong> data = _db.Database.SqlQuery<HoaDon_ChuaPhanBoHoaHong>("EXEC GetListHoaDon_ChuaPhanBoCK @ID_ChiNhanhs, @ID_NhanVienLogin,  @TextSearch, " +
+                "@LoaiChungTus, @DateFrom, @DateTo, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
+            return data;
+        }
+
         public List<SP_ReportDiscountInvoice_General> SP_ReportDiscountInvoice_General(ParamReportDiscount lstParam)
         {
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);

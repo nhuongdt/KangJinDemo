@@ -990,6 +990,24 @@ namespace libReport
         public double TongAllAll { get; set; }
         public int TotalRow { get; set; }
         public double TotalPage { get; set; }
+    } 
+    public class HoaDon_ChuaPhanBoHoaHong
+    {
+        public Guid? ID { get; set; }// idhoadon
+        public Guid? IDSoQuy { get; set; }
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+        public double? DoanhThu { get; set; }
+        public string MaPhieuThu { get; set; }
+        public DateTime? NgayLapPhieuThu { get; set; }
+        public double? ThucThu { get; set; }
+        public double? TongDoanhThu { get; set; }
+        public double? TongThucThu { get; set; }
+        public int TotalRow { get; set; }
+        public double TotalPage { get; set; }
     }
 
     public class SP_ReportDiscountInvoice_Detail

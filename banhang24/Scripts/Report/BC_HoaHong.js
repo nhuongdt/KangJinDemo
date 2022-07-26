@@ -10,7 +10,7 @@
     var Key_Form = 'Key_RpDiscountProduct';
     var typeCheck = 7;// use when load checkbox and check hide/show colum after load grid
 
-    self.TypeReport = ko.observable(4);
+    self.TypeReport = ko.observable(4);// 4. baocaotonghop, 1.hanghoa, 2.hoadon, 3.daonhthu
     self.TypeReport_Parent = ko.observable(4);
     self.RdoTypeTime = ko.observable('1');
     self.TodayBC = ko.observable();
@@ -81,6 +81,7 @@
     self.ReportSales_Detail = ko.observableArray();
     self.ReportSales_ItemChosing = ko.observableArray([]);
     self.ReportDiscount_All = ko.observableArray();
+    self.DSHoaDon_ChuaPhanBoCK = ko.observableArray();
 
     // sum footer
     self.ReportProduct_SumSoLuong = ko.observable(0);
@@ -148,12 +149,34 @@
         }
     }
 
+    var arrColumnType5 = [
+        { Key: 'mahoadon', Value: 'Mã hóa đơn' },
+        { Key: 'ngaylap', Value: 'Ngày lập' },
+        { Key: 'makhachhang', Value: 'Mã khách hàng' },
+        { Key: 'tenkhachhang', Value: 'Tên khách hàng' },
+        { Key: 'dienthoaikh', Value: 'Điện thoại' },
+        { Key: 'doanhthu', Value: 'Doanh thu' },
+        { Key: 'maphieuthuchi', Value: 'Mã phiếu thu' },
+        { Key: 'ngaylapphieuthu', Value: 'Ngày lập phiếu thu' },
+        { Key: 'thucthu', Value: 'Thực thu' },
+    ]
+
     function LoadCheckBox(typeCheck) {
-        $.getJSON("api/DanhMuc/BaseApi/GetCheckedStatic?type=" + typeCheck, function (data) {
-            self.ListCheckBox(data);
-            self.NumberColum_Div2(Math.ceil(data.length / 2));
+        // typeReport: 1.hanghoa, 2.hoadon, 3.doanhso, 4.all
+        // typeCheck:  hanghoa(7.tonghop, 8.chitiet); hoadon (9.tonghop, 10.chitiet)
+        // doanhso(typecheck = 11); all (typecheck = 12); dshoadon  (typecheck = 13)
+        if (typeCheck === 13) {
+            self.ListCheckBox(arrColumnType5);
+            self.NumberColum_Div2(Math.ceil(arrColumnType5.length / 2));
             LoadHtmlGrid();
-        });
+        }
+        else {
+            $.getJSON("api/DanhMuc/BaseApi/GetCheckedStatic?type=" + typeCheck, function (data) {
+                self.ListCheckBox(data);
+                self.NumberColum_Div2(Math.ceil(data.length / 2));
+                LoadHtmlGrid();
+            });
+        }
     }
 
     function LoadHtmlGrid() {
@@ -490,6 +513,7 @@
     $('.choose_txtTime li').on('click', function () {
         $('.ip_TimeReport').val($(this).text());
         self.LiInput_Time($(this).val());
+        self.ResetCurrentPage();
         SearchReport();
     });
 
@@ -694,9 +718,30 @@
 
                 GetListNumberPaging();
                 Caculator_FromToPaging(data.LstData);
-                //LoadCheckBox(typeCheck);
 
                 self.role_XemBaoCao(CheckRoleExist('BCCK_TongHop'));
+            }
+        });
+    }
+
+    function GetListHoaDon_ChuaPhanBoCK(array_Seach) {
+        $('.table-reponsive').gridLoader();
+        ajaxHelper(ReportUri + "GetListHoaDon_ChuaPhanBoCK", "POST", array_Seach).done(function (data) {
+            $('.table-reponsive').gridLoader({ show: false });
+            if (data.res == true) {
+                self.DSHoaDon_ChuaPhanBoCK(data.LstData);
+
+                self.TotalRow(data.TotalRow);
+                self.TotalPage(data.TotalPage);
+
+                self.ReportInvoice_SumDoanhThu(data.SumDoanhThu);
+                self.ReportInvoice_SumThucThu(data.SumThucThu);
+
+                GetListNumberPaging();
+                Caculator_FromToPaging(data.LstData);
+                LoadCheckBox(typeCheck);
+                //self.role_XemBaoCao(CheckRoleExist('BCCK_TongHop'));
+                self.role_XemBaoCao(true);
             }
         });
     }
@@ -1248,6 +1293,12 @@
                     array_Seach.TypeReport = 7;
                     txtFunc = 'tổng hợp';
                     break;
+                case 5:
+                    funcExcel = 'ExportExcel_DSHoaDonChuaPhanBoCK';
+                    array_Seach.TypeReport = 8;
+                    array_Seach.IsExport = true;
+                    txtFunc = 'tổng hợp';
+                    break;
 
             }
 
@@ -1256,19 +1307,19 @@
                 $('.table-reponsive').gridLoader({ show: false });
                 if (obj.res === true) {
                     self.DownloadFileTeamplateXLSX(obj.data);
+
+                    detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
+                    var objDiary = {
+                        ID_NhanVien: _idNhanVien,
+                        ID_DonVi: _idDonVi,
+                        ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
+                        NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
+                        NoiDungChiTiet: detail,
+                        LoaiNhatKy: 6
+                    };
+                    Insert_NhatKyThaoTac_1Param(objDiary);
                 }
             })
-
-            detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
-            var objDiary = {
-                ID_NhanVien: _idNhanVien,
-                ID_DonVi: _idDonVi,
-                ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
-                NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
-                NoiDungChiTiet: detail,
-                LoaiNhatKy: 6
-            };
-            Insert_NhatKyThaoTac_1Param(objDiary);
         }
         else {
             $('#select-column').show();
@@ -1301,6 +1352,9 @@
                 case 4:
                     $('#select-column').hide();// xuat TongHop: khong cho an/hien cot
                     Load_ReprotAll(array_Seach);
+                    break;
+                case 5:
+                    GetListHoaDon_ChuaPhanBoCK(array_Seach);
                     break;
             }
         }
@@ -1422,18 +1476,6 @@
         SearchReport();
     };
 
-    //self.TypeReport_Parent.subscribe(function (newVal) {
-    //    if (newVal == '4') {
-    //        self.TypeReport(4);
-    //        $('#hoahongtonghop').addClass('active');
-    //        $('#theohanghoa').removeClass('active');
-    //    }
-    //    else {
-    //        self.TypeReport(1);
-    //        $('#hoahongtonghop').removeClass('active');
-    //        $('#theohanghoa').addClass('active');
-    //    }
-    //})
     /*$('ul.chose_kieubang li').unbind("click");*/
     $('ul.chose_kieubang li').click(function () {
         $('.chi-tiet-hoa-hong').hide();
@@ -1460,34 +1502,26 @@
                 $("#hoahongtonghop").show();
                 $("#hoahongtonghop").siblings().hide();
                 break;
-
+            case 5:
+                $('#tblHDChuaPhanBo').show();
+                $("#tblHDChuaPhanBo").siblings().hide();
+                break;
             default:
                 $("#hoahongtonghop").show();
                 $("#hoahongtonghop").siblings().hide();
                 break;
 
         }
-        ////if (thisVal === 5) {
-        ////    $(".chose_kieubang li").each(function (i) {
-        ////        if (i > 1) {
-        ////            $(this).show();
-        ////        }
-        ////    });
-        ////}
-        ////else if (thisVal === 4) {
-        ////    $(".chose_kieubang li.subReport").each(function (i) {
-
-        ////            $(this).hide();
-
-        ////    });
-        ////}
         //// neu thay doi loai bao cao--> reset tab, nguoc lai khong reset
         $('.divSearchHH').hide();
         $('.divSearchNhomHH').hide();
         var loaiBC = self.TypeReport();
+
+        $('.jsPhongBan').show();
+
         switch (thisVal) {
             case 1:
-            case 5:
+            //case 5:
                 $('a[href = "#theohanghoa"]').addClass('box-tab');
                 $('a[href = "#hoahongchitiet"]').addClass('box-tab');
                 $('#theohanghoa').addClass('active');
@@ -1536,6 +1570,17 @@
                     $('.trangthaiHD, .showChungTu, .jsLoaiHang').hide();
                 }
                 break;
+            case 5:
+                $('.jsPhongBan').hide();
+                $('.showChungTu').show();
+                if (loaiBC !== thisVal) {
+                    $('#hdReport').text('Danh sách hóa đơn chưa phân bổ hoa hồng');
+                    Key_Form = 'Key_DSHoaDonChuaPhanBoCK';
+                    typeCheck = 13;
+                    loaiBC = 5;
+                    $('.trangthaiHD,  .jsLoaiHang').hide();
+                }
+                break;
         }
 
         // nếu click checkbox DoanhThu/ThucThu/VND --> không reset tab
@@ -1545,7 +1590,6 @@
         self.TypeReport(loaiBC);
         ResetInforSearch();
         SearchReport();
-        /*return false;*/
     });
 
     self.PageListPaging = ko.observableArray();
@@ -1757,7 +1801,7 @@
                     lenData = self.ReportInvoice_Detail().length;
 
                     let cloumAdd2 = '';
-                    
+
                     if (_columnHide.indexOf('10') > -1) {
                         cloumAdd2 += '10_11_';
                     }
@@ -1785,6 +1829,9 @@
                 break;
             case 4:// chietkhau all
                 lenData = self.ReportDiscount_All().length;
+                break;
+            case 5:// chietkhau all
+                lenData = self.DSHoaDon_ChuaPhanBoCK().length;
                 break;
         }
 
@@ -1828,9 +1875,10 @@
 
                 switch (data.LoaiHoaDon) {
                     case 22:
-                        vmThemMoiTheNap.showModalUpdate(data.ID,1)
+                        vmThemMoiTheNap.showModalUpdate(data.ID, 2); //2. baocao: hide btn Update
                         break;
                     case 32:
+                        vmTraLaiTGT.showModalUpdate(data.ID, 2);
                         break;
                     default:
                         $('#modalpopup_PhieuBH').modal('show');
@@ -1845,6 +1893,14 @@
             localStorage.setItem('FindKhachHang', item.MaKhachHang);
             var url = "/#/Customers";
             window.open(url);
+        }
+    }
+
+    self.GotoSoQuy = function (item) {
+        if (!commonStatisJs.CheckNull(item.MaPhieuThu)) {
+            localStorage.removeItem('FindHD');
+            localStorage.setItem('FindMaPhieuChi', item.MaPhieuThu);
+            window.open('/#/CashFlow2');
         }
     }
 
@@ -1870,7 +1926,7 @@
             case 12:
                 localStorage.removeItem('FindHD');
                 localStorage.setItem('FindMaPhieuChi', self.MaHoaDon_MoPhieu());
-                url = '/#/CashFlow';
+                url = '/#/CashFlow2';
                 break;
             case 19:
                 url = "/#/ServicePackage";
