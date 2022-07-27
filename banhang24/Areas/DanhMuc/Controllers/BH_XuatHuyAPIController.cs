@@ -27,7 +27,7 @@ using System.Globalization;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
-    public class BH_XuatHuyAPIController : ApiController
+    public class BH_XuatHuyAPIController : BaseApiController
     {
         [HttpPost, HttpPut]
         public IHttpActionResult PutBH_XuatKho([FromBody] JObject data, Guid ID_NhanVien)
@@ -208,7 +208,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             });
                         }
 
-                       
+
                         ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
                         DateTime ngaylapHD = objHoaDon.NgayLapHoaDon.AddMilliseconds(DateTime.Now.Millisecond);
                         BH_HoaDon hdOld = db.BH_HoaDon.Find(objHoaDon.ID);
@@ -974,6 +974,23 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 classOffice.listToOfficeExcel(teamplateFile, fileSave, excel, 4, 28, 24, true, null);
                 HttpResponse Response = HttpContext.Current.Response;
                 classOffice.downloadFile(fileSave);
+            }
+        }
+
+        public IHttpActionResult JqAutoHangHoa_withGiaVonTieuChuan(CommonParamSearch param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassDM_HangHoa classHangHoa = new ClassDM_HangHoa(db);
+                    List<DieuChinhGiaVon_HangHoaDTO> data = classHangHoa.JqAutoHangHoa_withGiaVonTieuChuan(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
             }
         }
         // getlist danh sách hàng có tồn kho
