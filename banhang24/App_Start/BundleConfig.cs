@@ -208,6 +208,11 @@ namespace banhang24
                     "~/Content/Framework/Knockout/knockout-{version}.js",
                     "~/Scripts/knockout-jqAutocomplete.min.js",
                     "~/Scripts/GiaoDich/DieuChinh.js"
+                    )); 
+            bundles.Add(new ScriptBundle("~/bundles/DieuChinhChiTiet").Include(
+                    "~/Content/Framework/Knockout/knockout-{version}.js",
+                       "~/Scripts/Components/Ko-component.js",
+                    "~/Scripts/GiaoDich/PhieuDieuChinhChiTiet.js"
                     ));
             bundles.Add(new ScriptBundle("~/bundles/HangHoaBC").Include(
                     "~/Content/Framework/Knockout/knockout-{version}.js",
