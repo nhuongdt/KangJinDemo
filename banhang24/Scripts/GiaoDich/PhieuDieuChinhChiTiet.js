@@ -478,84 +478,61 @@ var PhieuDieuChinhChiTiet = function () {
         });
     }
 
-    function newCTHD(addCungLoai, itemHH) {
+    function newCTHD(itemHH) {
         let idRandomHD = self.newHoaDon().IDRandom();
         let lotParent = itemHH.QuanLyTheoLoHang ? true : false;
-        if (addCungLoai) {
-            return {
-                ID_HangHoa: itemHH.ID_HangHoa,
-                SoThuTu: 1,
-                IDRandom: CreateIDRandom('CTHD_'),
-                IDRandomHD: itemHH.IDRandomHD,
-                ID_DonViQuiDoi: itemHH.ID_DonViQuiDoi,
-                MaHangHoa: itemHH.MaHangHoa,
-                TenHangHoa: itemHH.TenHangHoa,
-                TenDonViTinh: itemHH.TenDonViTinh,
-                ThuocTinh_GiaTri: itemHH.ThuocTinh_GiaTri,
-                QuanLyTheoLoHang: itemHH.QuanLyTheoLoHang,
-                TonKho: itemHH.TonKho,
-                DonGia: itemHH.GiaVon,
-                GiaVon: itemHH.GiaVon,
-                SoLuong: 0,
-                TienChietKhau: 0,
-                PTChietKhau: 0,
-                ThanhTien: 0,
-                ThanhToan: 0,
-                GhiChu: '',
-                ID_LoHang: itemHH.ID_LoHang,
-                MaLoHang: '',
-                NgaySanXuat: '',
-                NgayHetHan: '',
-                DM_LoHang: [],
-                HangCungLoais: [],
-                DonViTinh: [],
-                LotParent: false,
-                LaConCungLoai: addCungLoai,
-                PTThue: 0,
-                TienThue: 0,
-            }
-        }
-        else {
-            var ngaysx = moment(itemHH.NgaySanXuat).format('DD/MM/YYYY');
-            var hethan = moment(itemHH.NgayHetHan).format('DD/MM/YYYY');
-            if (ngaysx === 'Invalid date') {
-                ngaysx = '';
-            }
 
-            if (hethan === 'Invalid date') {
-                hethan = '';
-            }
-            return {
-                ID_HangHoa: itemHH.ID_HangHoa,
-                SoThuTu: 1,
-                IDRandom: CreateIDRandom('CTHD_'),
-                IDRandomHD: idRandomHD,
-                ID_DonViQuiDoi: itemHH.ID_DonViQuiDoi,
-                MaHangHoa: itemHH.MaHangHoa,
-                TenHangHoa: itemHH.TenHangHoa,
-                TenDonViTinh: itemHH.TenDonViTinh,
-                DonViTinh: [],
-                ThuocTinh_GiaTri: itemHH.ThuocTinh_GiaTri,
-                QuanLyTheoLoHang: itemHH.QuanLyTheoLoHang,
-                TonKho: itemHH.TonKho,
-                DonGia: itemHH.GiaVon,
-                GiaVon: itemHH.GiaVon,
-                SoLuong: 0,
-                TienChietKhau: 0,
-                ThanhTien: 0,
-                ThanhToan: 0,
-                GhiChu: '',
-                ID_LoHang: itemHH.ID_LoHang,
-                MaLoHang: itemHH.MaLoHang,
-                NgaySanXuat: ngaysx,
-                NgayHetHan: hethan,
-                DM_LoHang: [],
-                HangCungLoais: [],
-                LotParent: lotParent,
-                LaConCungLoai: addCungLoai,
-                PTThue: 0,
-                TienThue: 0,
-            }
+        var ngaysx = moment(itemHH.NgaySanXuat).format('DD/MM/YYYY');
+        var hethan = moment(itemHH.NgayHetHan).format('DD/MM/YYYY');
+        if (ngaysx === 'Invalid date') {
+            ngaysx = '';
+        }
+
+        if (hethan === 'Invalid date') {
+            hethan = '';
+        }
+
+        let dongia=0, thanhtien = 0;
+        switch (self.LoaiHoaDonMenu) {
+            case 16:
+                dongia = itemHH.GiaVonTieuChuan;
+                thanhtien = itemHH.GiaVonTieuChuan;
+                break;
+            case 18:
+                dongia = itemHH.GiaVon;
+                thanhtien = 0;
+                break;
+        }
+        return {
+            ID_HangHoa: itemHH.ID_HangHoa,
+            SoThuTu: 1,
+            IDRandom: CreateIDRandom('CTHD_'),
+            IDRandomHD: idRandomHD,
+            ID_DonViQuiDoi: itemHH.ID_DonViQuiDoi,
+            MaHangHoa: itemHH.MaHangHoa,
+            TenHangHoa: itemHH.TenHangHoa,
+            TenDonViTinh: itemHH.TenDonViTinh,
+            DonViTinh: [],
+            ThuocTinh_GiaTri: itemHH.ThuocTinh_GiaTri,
+            QuanLyTheoLoHang: itemHH.QuanLyTheoLoHang,
+            TonKho: itemHH.TonKho,
+            DonGia: dongia,
+            GiaVon: itemHH.GiaVon,
+            SoLuong: 0,
+            TienChietKhau: 0,
+            ThanhTien: thanhtien,
+            ThanhToan: 0,
+            GhiChu: '',
+            ID_LoHang: itemHH.ID_LoHang,
+            MaLoHang: itemHH.MaLoHang,
+            NgaySanXuat: ngaysx,
+            NgayHetHan: hethan,
+            DM_LoHang: [],
+            HangCungLoais: [],
+            LotParent: lotParent,
+            LaConCungLoai: false,
+            PTThue: 0,
+            TienThue: 0,
         }
     }
 
@@ -767,17 +744,6 @@ var PhieuDieuChinhChiTiet = function () {
     });
 
     self.JqAutoSelectItem = function (itemChose) {
-        console.log(itemChose)
-        let giavon = 0;
-        switch (self.LoaiHoaDonMenu) {
-            case 16:
-                giavon = itemChose.GiaVonTieuChuan;
-                break;
-            case 18:
-                giavon = itemChose.GiaVon;
-                break;
-        }
-        itemChose.GiaVon = giavon;
         itemChose.ID_HangHoa = itemChose.ID;
         self.ItemChosing(itemChose);
         AddCTHD(itemChose, 1);
@@ -876,7 +842,7 @@ var PhieuDieuChinhChiTiet = function () {
             }
         }
         else {
-            let newCT = newCTHD(false, item);
+            let newCT = newCTHD(item);
             if (item.QuanLyTheoLoHang) {
                 let objLo = newLot(newCT, true);
                 newCT.DM_LoHang.push(objLo);
@@ -942,7 +908,14 @@ var PhieuDieuChinhChiTiet = function () {
                         cthd[i].PTChietKhau = chenhlech;// lechtang
                         cthd[i].TienChietKhau = 0;
                     }
-                    cthd[i].GiaVon = formatNumberToFloat(gtri);
+                    switch (self.LoaiHoaDonMenu) {
+                        case 16:
+                            cthd[i].ThanhTien = formatNumberToFloat(gtri);
+                            break;
+                        case 18:
+                            cthd[i].GiaVon = formatNumberToFloat(gtri);
+                            break;
+                    }
                     $('#GiaVonChenhLech_' + idRandom).html(formatNumber3Digit(chenhlech));
                     break;
                 }
@@ -1188,16 +1161,6 @@ var PhieuDieuChinhChiTiet = function () {
                     }
                 }
             }
-            else {
-                // add hangcungloai
-                for (let i = 0; i < cthd.length; i++) {
-                    if (cthd[i].IDRandomHD === idRandomHD && cthd[i].ID_DonViQuiDoi === idQuiDoi) {
-                        let obj = newCTHD(true, cthd[i], 1);
-                        cthd[i].HangCungLoais.push(obj);
-                        break;
-                    }
-                }
-            }
             localStorage.setItem(lcCTDieuChinh, JSON.stringify(cthd));
 
             Bind_UpdateHD();
@@ -1317,6 +1280,18 @@ var PhieuDieuChinhChiTiet = function () {
         }
         console.log('idRandom ', idRandom)
 
+        let dongia = 0, thanhtien = 0;
+        switch (self.LoaiHoaDonMenu) {
+            case 16:
+                dongia = itemHH.GiaVonTieuChuan;
+                thanhtien = itemHH.GiaVonTieuChuan;
+                break;
+            case 18:
+                dongia = itemHH.GiaVon;
+                thanhtien = 0;
+                break;
+        }
+
         // update TonKho, GiaVon, GiaBan, Lo
         var cthd = localStorage.getItem(lcCTDieuChinh);
         if (cthd !== null) {
@@ -1329,7 +1304,8 @@ var PhieuDieuChinhChiTiet = function () {
                         cthd[i].MaLoHang = maLoHang;
                         cthd[i].NgaySanXuat = ngaysx;
                         cthd[i].NgayHetHan = hethan;
-                        cthd[i].DonGia = item.GiaVon;
+                        cthd[i].DonGia = dongia;
+                        cthd[i].ThanhTien = thanhtien;
                         cthd[i].GiaVon = item.GiaVon;
                         cthd[i].TienChietKhau = 0;
                         cthd[i].PTChietKhau = 0;
@@ -1339,7 +1315,8 @@ var PhieuDieuChinhChiTiet = function () {
                         cthd[i].DM_LoHang[j].MaLoHang = maLoHang;
                         cthd[i].DM_LoHang[j].NgaySanXuat = ngaysx;
                         cthd[i].DM_LoHang[j].NgayHetHan = hethan;
-                        cthd[i].DM_LoHang[j].DonGia = item.GiaVon;
+                        cthd[i].DM_LoHang[j].DonGia = dongia;
+                        cthd[i].DM_LoHang[j].ThanhTien = thanhtien;
                         cthd[i].DM_LoHang[j].GiaVon = item.GiaVon;
                         cthd[i].DM_LoHang[j].TienChietKhau = 0;
                         cthd[i].DM_LoHang[j].PTChietKhau = 0;
@@ -1855,15 +1832,31 @@ var PhieuDieuChinhChiTiet = function () {
     }
 
     function GetCTHDPrint_Format(arrCTHD) {
-        for (var i = 0; i < arrCTHD.length; i++) {
-            arrCTHD[i].SoThuTu = i + 1;
-            arrCTHD[i].TenHangHoa = arrCTHD[i].TenHangHoa.split('(')[0] + (arrCTHD[i].TenDonViTinh !== "" && arrCTHD[i].TenDonViTinh !== null ? "(" + arrCTHD[i].TenDonViTinh + ")" : "") + (arrCTHD[i].ThuocTinh_GiaTri !== null ? arrCTHD[i].ThuocTinh_GiaTri : "") + (arrCTHD[i].MaLoHang !== "" && arrCTHD[i].MaLoHang !== null ? "(Lô: " + arrCTHD[i].MaLoHang + ")" : "");
-            arrCTHD[i].DonGia = formatNumber3Digit(arrCTHD[i].DonGia);
-            arrCTHD[i].GiaVon = formatNumber3Digit(arrCTHD[i].GiaVon);
-            arrCTHD[i].GiaVonHienTai = formatNumber3Digit(arrCTHD[i].DonGia);
-            arrCTHD[i].TienChietKhau = formatNumber3Digit(arrCTHD[i].TienChietKhau);
-            arrCTHD[i].ThanhTien = formatNumber3Digit(arrCTHD[i].ThanhTien);
-            arrCTHD[i].ThanhToan = formatNumber3Digit(arrCTHD[i].ThanhToan, 2);
+        switch (self.LoaiHoaDonMenu) {
+            case 16:
+                for (var i = 0; i < arrCTHD.length; i++) {
+                    arrCTHD[i].SoThuTu = i + 1;
+                    arrCTHD[i].DonGia = formatNumber3Digit(arrCTHD[i].DonGia);
+                    arrCTHD[i].GiaVon = formatNumber3Digit(arrCTHD[i].GiaVon);
+                    arrCTHD[i].GiaVonHienTai = formatNumber3Digit(arrCTHD[i].DonGia);
+                    arrCTHD[i].GiaVonMoi = formatNumber3Digit(arrCTHD[i].ThanhTien);
+                    arrCTHD[i].TienChietKhau = formatNumber3Digit(arrCTHD[i].TienChietKhau);
+                    arrCTHD[i].ThanhTien = formatNumber3Digit(arrCTHD[i].ThanhTien);
+                    arrCTHD[i].ChenhLech = formatNumber3Digit(arrCTHD[i].TienChietKhau);
+                }
+                break;
+            case 18:
+                for (var i = 0; i < arrCTHD.length; i++) {
+                    arrCTHD[i].SoThuTu = i + 1;
+                    arrCTHD[i].DonGia = formatNumber3Digit(arrCTHD[i].DonGia);
+                    arrCTHD[i].GiaVon = formatNumber3Digit(arrCTHD[i].GiaVon);
+                    arrCTHD[i].GiaVonHienTai = formatNumber3Digit(arrCTHD[i].DonGia);
+                    arrCTHD[i].GiaVonMoi = formatNumber3Digit(arrCTHD[i].GiaVon);
+                    arrCTHD[i].TienChietKhau = formatNumber3Digit(arrCTHD[i].TienChietKhau);
+                    arrCTHD[i].ThanhTien = formatNumber3Digit(arrCTHD[i].ThanhTien);
+                    arrCTHD[i].ChenhLech = formatNumber3Digit(arrCTHD[i].TienChietKhau, 2);
+                }
+                break;
         }
         return arrCTHD;
     }
