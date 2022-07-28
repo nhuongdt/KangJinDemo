@@ -105,51 +105,51 @@ namespace libDM_DoiTuong
             return data;
         }
 
-        public List<BH_HoaDon_ChiTietDTO> GetCTHD_DVQD_byIDHoaDon(Guid idHoaDon)
+        public List<PhieuDieuChinhChiTietDTO> GetListGiaVonTieuChuan_ChiTiet(CommonParamSearch param)
         {
-            List<BH_HoaDon_ChiTietDTO> lstCTHD = new List<BH_HoaDon_ChiTietDTO>();
-            if (db == null)
+            string idChiNhanhs = string.Empty, status = string.Empty;
+            if (param.IDChiNhanhs!=null && param.IDChiNhanhs.Count> 0)
             {
-                return null;
+                idChiNhanhs = string.Join(",", param.IDChiNhanhs);
             }
-            else
+            if (param.TrangThais != null && param.TrangThais.Count> 0)
             {
-                var data = (from cthd in db.BH_HoaDon_ChiTiet
-                            join dvqd in db.DonViQuiDois on cthd.ID_DonViQuiDoi equals dvqd.ID
-                            join hh in db.DM_HangHoa on dvqd.ID_HangHoa equals hh.ID
-                            where cthd.ID_HoaDon == idHoaDon
-                            select new
-                            {
-                                ID_DonViQuiDoi = dvqd.ID,
-                                ID_LoHang = cthd.ID_LoHang,
-                                SoLuong = cthd.SoLuong,
-                                DonGia = cthd.DonGia,
-                                MaHangHoa = dvqd.MaHangHoa,
-                                TenHangHoa = hh.TenHangHoa,
-                                TenDonViTinh = dvqd.TenDonViTinh,
-                                LaDonViChuan = dvqd.LaDonViChuan,
-                                TyLeChuyenDoi = dvqd.TyLeChuyenDoi,
-                                QuyCach = hh.QuyCach,
-                            }).ToList();
-
-                foreach (var item in data)
-                {
-                    BH_HoaDon_ChiTietDTO itemCT = new BH_HoaDon_ChiTietDTO();
-                    itemCT.ID_DonViQuiDoi = item.ID_DonViQuiDoi;
-                    itemCT.ID_LoHang = item.ID_LoHang;
-                    itemCT.SoLuong = item.SoLuong;
-                    itemCT.DonGia = item.DonGia;
-                    itemCT.MaHangHoa = item.MaHangHoa;
-                    itemCT.TenHangHoa = item.TenHangHoa;
-                    itemCT.TenDonViTinh = item.TenDonViTinh;
-                    itemCT.LaDonViChuan = item.LaDonViChuan;
-                    itemCT.TyLeChuyenDoi = item.TyLeChuyenDoi;
-                    itemCT.QuyCach = item.QuyCach;
-
-                    lstCTHD.Add(itemCT);
-                }
-                return lstCTHD;
+                status = string.Join(",", param.TrangThais);
             }
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs));
+            lstParam.Add(new SqlParameter("TextSearch", param.TextSearch));
+            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom??DateTime.Now));
+            lstParam.Add(new SqlParameter("DateTo", param.DateTo ?? DateTime.Now));
+            lstParam.Add(new SqlParameter("TrangThais", status));
+            lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
+            lstParam.Add(new SqlParameter("PageSize", param.PageSize ?? 0));
+            var data = db.Database.SqlQuery<PhieuDieuChinhChiTietDTO>("EXEC dbo.GetListGiaVonTieuChuan_ChiTiet @IDChiNhanhs, @TextSearch, @DateFrom, @DateTo," +
+                "@TrangThais, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
+            return data;
+        } 
+        public List<PhieuDieuChinhDTO> GetListGiaVonTieuChuan_TongHop(CommonParamSearch param)
+        {
+            string idChiNhanhs = string.Empty, status = string.Empty;
+            if (param.IDChiNhanhs!=null && param.IDChiNhanhs.Count> 0)
+            {
+                idChiNhanhs = string.Join(",", param.IDChiNhanhs);
+            }
+            if (param.TrangThais != null && param.TrangThais.Count> 0)
+            {
+                status = string.Join(",", param.TrangThais);
+            }
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs));
+            lstParam.Add(new SqlParameter("TextSearch", param.TextSearch));
+            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom??DateTime.Now));
+            lstParam.Add(new SqlParameter("DateTo", param.DateTo ?? DateTime.Now));
+            lstParam.Add(new SqlParameter("TrangThais", status));
+            lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
+            lstParam.Add(new SqlParameter("PageSize", param.PageSize ?? 0));
+            var data = db.Database.SqlQuery<PhieuDieuChinhDTO>("EXEC dbo.GetListGiaVonTieuChuan_TongHop @IDChiNhanhs, @TextSearch, @DateFrom, @DateTo," +
+                "@TrangThais, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
+            return data;
         }
 
         public List<BH_HoaDon_ChiTiet> GetsPhieuHuy(Expression<Func<XH_HoaDon_ChiTietDTO, bool>> query)
