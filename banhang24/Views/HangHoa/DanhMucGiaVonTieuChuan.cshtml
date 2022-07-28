@@ -1,0 +1,254 @@
+﻿@using System.Web.Optimization
+@using banhang24.Hellper
+@{
+    Layout = null;
+}
+
+<div class="op-container" id="vmGiaVonTieuChuan">
+    <div class="container-fluid nopadding">
+        <div class="op-baocao-type">
+            <ul>
+                <li>
+                    <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                    <label for="baocaochitiet">
+                        Chi tiết
+                    </label>
+                </li>
+                <li>
+                    <input type="radio" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                    <label for="baocaotonghop">
+                        Tổng hợp
+                    </label>
+                </li>
+            </ul>
+        </div>
+        <div class="col-left">
+            <div class=" op-filter">
+                <article class="boxLeft op-baocao-classic">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <i class="fa fa-chalkboard-teacher"></i> Dạng hiển thị
+                    </h3>
+                    <aside class="op-filter-container">
+                        <ul>
+                            <li>
+                                <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                                <label for="baocaochitiet">
+                                    Chi tiết
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                                <label for="baocaotonghop">
+                                    Tổng hợp
+                                </label>
+                            </li>
+                        </ul>
+
+                    </aside>
+                </article>
+                <section class="op-filter-body">
+                    <article class="boxLeft ">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="far fa-exchange"></i>  Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="listData.ChiNhanhs" v-on:callfunctionloaddata="BeforeLoadData"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-toggle-on"></i>  Trạng Thái
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuCheckbox">
+                                <ul>
+                                    <li>
+                                        <label><input type="checkbox" name="checkTamLuu" v-model="filter.TT_TamLuu"> Phiếu tạm</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" name="checkHoanThanh" v-model="filter.TT_HoanThanh"> Đã điều chỉnh</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" name="checkHuy" v-model="filter.TT_Huy"> Đã hủy</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-calendar-alt"></i>       Thời gian
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-datetime radioname="rdThoiGian" v-bind:typetime="filter.TypeTime"
+                                             v-on:callfunction="onCallThoiGian"
+                                             v-bind:selectvalue="5"></filter-datetime>
+                        </aside>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header container-fluid">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">Danh mục giá vốn tiêu chuẩn</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class="op-header-button">
+                        <div class=" header-button-left">
+                            <div style="margin-right:3px" v-if="role.Insert">
+                                <button class="btn btn-main clickkiemhang btn-main">
+                                    <i class="fa fa-plus"></i>
+                                    <span class="tit-none">Điều chỉnh</span>
+                                </button>
+                            </div>
+                            <button class="btn btn-main pull-right" v-if="role.Export"
+                                    v-on:click="ExportExcel">
+                                <i class="fa fa-file-excel-o"></i> Xuất file
+                            </button>
+                            <div class="btn-dropdown pull-right">
+                                <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false" onclick="showCollumnFilter(this)">
+                                    <i class="fa fa-angle-double-down"></i>
+                                </button>
+                                <ul>
+                                    <li v-for="item in GetListHeader()" >
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                <span></span>{{item.colText}}
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" placeholder="Theo mã phiếu" autocomplete="off"
+                                    v-model="filter.TextSearch" v-on:keyup="EnterKeyup">
+                            <button type="button" class=" op-search-button "  v-on:click="BeforeLoadData">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="content-table tab-content">
+                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao==2 }">
+                    <div class="table-frame">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th v-for="item in BaoCaoChiTietHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                    <th>#</th>
+                                </tr>
+                            </thead>
+                            <tbody v-for="(item, index) in BaoCaoChiTiet.data">
+                                <tr class="op-tr-show">
+                                    <td v-if="ChiTiet_CheckColShow('colMaHoaDon')" class="text-left">{{item.MaHoaDon}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colNgayLapHoaDon')" class="text-left">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colTenNhomHang')" class="text-left">{{item.TenNhomHangHoa}} </td>
+                                    <td v-if="ChiTiet_CheckColShow('colMaHangHoa')" class="text-left">
+                                        <a v-on:click="gotoPage(item,1)">
+                                            {{item.MaHangHoa}}
+                                        </a>
+                                    </td>
+                                    <td v-if="ChiTiet_CheckColShow('colTenHangHoa')" class="text-right">{{item.TenHangHoa}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colGiaVonCu')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.DonGia)}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colGiaVonMoi')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ThanhTien)}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colGiaVonTB')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.GiaVon)}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colGhiChu')" class="text-left">{{item.GhiChu}}</td>
+                                    <th>
+                                        <i class="fal fa-times" title="Xóa chi tiết"></i>
+                                    </th>
+                                </tr>
+                                <tr class="op-tr-hide">
+                                </tr>
+                            </tbody>
+                            <tfoot v-if="BaoCaoChiTiet.data.length > 0">
+                                <tr style="background:#e3e4e8;font-weight: 700">
+                                    <td v-bind:colspan="BaoCaoChiTietHeader.filter(p=>p.colShow === true">Tổng cộng</td>
+                                </tr>
+                            </tfoot>
+                            <tfoot class="Report_Empty" v-show="BaoCaoChiTiet.data.length < 1">
+                                <tr>
+                                    <td class="bg12 text-center" colspan="14"><i>Không có dữ liệu</i></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <page-list v-bind:pagesize="BaoCaoChiTiet.PageSize"
+                               v-bind:listpage="BaoCaoChiTiet.ListPage"
+                               v-bind:currentpage="BaoCaoChiTiet.currentPage"
+                               v-bind:pageview="BaoCaoChiTiet.PageView"
+                               v-bind:numberofpage="BaoCaoChiTiet.NumberOfPage"
+                               v-on:pageselected="BaoCaoChiTietPageChange"></page-list>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/filter-chinhanh.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/filter-datetime.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/page-list.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/Components/Input.js")"></script>
+<script src="@Url.ContentVersioned("~/Scripts/DanhMuc/GiaVonTieuChuan.js")"></script>
+
+<script>
+    $(function () {
+        $('.daterange').daterangepicker({
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tìm kiếm",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+    });
+</script>
+
+
