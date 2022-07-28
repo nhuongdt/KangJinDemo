@@ -28,6 +28,23 @@ namespace libDM_HangHoa
             return db.Database.SqlQuery<GetListHangHoaDatLichCheckinResult>("exec GetListHangHoaDatLichCheckin").ToList();
         }
 
+        public List<DieuChinhGiaVon_HangHoaDTO> JqAutoHangHoa_withGiaVonTieuChuan(CommonParamSearch param)
+        {
+            string idChiNhanhs = string.Empty;
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
+            {
+                idChiNhanhs = string.Join(",", param.IDChiNhanhs);
+            }
+            List<SqlParameter> prm = new List<SqlParameter>();
+            prm.Add(new SqlParameter("ID_DonVi", idChiNhanhs));
+            prm.Add(new SqlParameter("TextSearch", param.TextSearch));
+            prm.Add(new SqlParameter("DateTo", param.DateFrom ?? DateTime.Now));
+            prm.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
+            prm.Add(new SqlParameter("PageSize", param.PageSize ?? 500));
+            var xx = db.Database.SqlQuery<DieuChinhGiaVon_HangHoaDTO>("exec dbo.SearchHangHoa_withGiaVonTieuChuan @ID_DonVi, @TextSearch," +
+                " @DateTo, @CurrentPage, @PageSize", prm.ToArray()).ToList();
+            return xx;
+        }
         public List<SP_DM_HangHoaDTO> Gara_JqAutoHangHoa(Gara_ParamSearchHangHoa param)
         {
             List<SqlParameter> prm = new List<SqlParameter>();
@@ -1288,7 +1305,7 @@ namespace libDM_HangHoa
                           HoaHongTruocChietKhau = hh.HoaHongTruocChietKhau != null ? hh.HoaHongTruocChietKhau : 0,
                           ID_Xe = hhxe != null ? hhxe.ID : Guid.Empty,
                           BienSo = hhxe != null ? hhxe.BienSo : string.Empty,
-                          ChietKhauMD_NV = hh.ChietKhauMD_NV??0,
+                          ChietKhauMD_NV = hh.ChietKhauMD_NV ?? 0,
                           ChietKhauMD_NVTheoPT = hh.ChietKhauMD_NVTheoPT ?? true,
                       };
             tbl = tbl.Where(p => (p.ID_DonVi == iddonvi || p.ID_DonVi == Guid.Empty));
@@ -1322,7 +1339,7 @@ namespace libDM_HangHoa
                 dM_HangHoaDTO.LoaiHangHoa = item.LoaiHangHoa;
                 dM_HangHoaDTO.GhiChu = item.GhiChu;
                 dM_HangHoaDTO.ID_Xe = item.ID_Xe;
-                dM_HangHoaDTO.BienSo = item.BienSo; 
+                dM_HangHoaDTO.BienSo = item.BienSo;
                 dM_HangHoaDTO.ChietKhauMD_NV = item.ChietKhauMD_NV;
                 dM_HangHoaDTO.ChietKhauMD_NVTheoPT = item.ChietKhauMD_NVTheoPT;
                 dM_HangHoaDTO.DonViTinh = _classDVQD.Gets(p => p.ID_HangHoa == item.ID && p.Xoa != true).Select(p => new DonViTinh
@@ -2591,7 +2608,7 @@ namespace libDM_HangHoa
                 paramlist.Add(new SqlParameter("ID_HangHoa", idhanghoa));
                 paramlist.Add(new SqlParameter("IDChiNhanh", iddonvi));
                 paramlist.Add(new SqlParameter("ID_LoHang", idlohang));
-               return db.Database.SqlQuery<DM_TheKhoDTO>("Exec ListHangHoaTheKhoTheoLoHang @ID_HangHoa, @IDChiNhanh, @ID_LoHang", paramlist.ToArray()).ToList();
+                return db.Database.SqlQuery<DM_TheKhoDTO>("Exec ListHangHoaTheKhoTheoLoHang @ID_HangHoa, @IDChiNhanh, @ID_LoHang", paramlist.ToArray()).ToList();
 
             }
             return lst;
