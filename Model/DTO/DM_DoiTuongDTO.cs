@@ -42,6 +42,7 @@ namespace Model
     public class CommonParamSearch
     {
         public List<string> IDChiNhanhs { get; set; }
+        public List<string> TrangThais { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public string TextSearch { get; set; }
