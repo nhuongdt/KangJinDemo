@@ -386,6 +386,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lstSubMenuHangHoa.Add(new HeaderMenu(3, "Điều chỉnh giá vốn", "Điều chỉnh giá vốn", UrlPage.PhieuDieuChinh, "p/phieudieuchinh", false, "fa fa-search", new List<HeaderMenu>()));
                     lstSubMenuHangHoaCheck = true;
                 }
+                if (lstQuyen.Where(p => p == "DanhMucGiaVonTieuChuan").FirstOrDefault() != null)
+                {
+                    lstSubMenuHangHoa.Add(new HeaderMenu(3, "Danh mục giá vốn tiêu chuẩn", "Danh mục giá vốn tiêu chuẩn", UrlPage.DanhMucGiaVonTieuChuan, "p/DanhMucGiaVonTieuChuan", false, "fal fa-atom-alt", new List<HeaderMenu>()));
+                    lstSubMenuHangHoaCheck = true;
+                } 
                 if (lstQuyen.Where(p => p == "LoHang").FirstOrDefault() != null)
                 {
                     lstSubMenuHangHoa.Add(new HeaderMenu(4, "Lô hàng hóa", "Lô hàng hóa", UrlPage.LoHangHoa, "p/LoHangHoa", false, "fa fa-cube", new List<HeaderMenu>()));
