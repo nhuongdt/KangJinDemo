@@ -173,6 +173,18 @@ namespace banhang24.Controllers
             return View();
         }
 
+        [RBACAuthorize(RoleKey = RoleKey.DanhMucGiaVonTieuChuan)]
+        public ActionResult DanhMucGiaVonTieuChuan()
+        {
+            return View();
+        }
+        [RBACAuthorize(RoleKey = RoleKey.PhieuDieuChinh_ThemMoi)]
+        public ActionResult ThemPhieuDieuChinh(string id)
+        {
+            ViewBag.LoaiHoaDon = id.Split('?')[0];
+            return View();
+        }
+
         public ActionResult _editLoHang()
         {
             return PartialView();
