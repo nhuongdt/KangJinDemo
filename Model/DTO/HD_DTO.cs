@@ -127,4 +127,34 @@ namespace Model
     {
         public int? Loai { get; set; }
     }
+
+    public class PhieuDieuChinhDTO
+    {
+        public Guid? ID { get; set; }
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string TenDonVi { get; set; }
+        public string NguoiTao { get; set; }
+        public string DienGiai { get; set; }
+        public string TrangThai { get; set; }
+        public bool? ChoThanhToan { get; set; }
+        public double? TongSLMatHang { get; set; }
+        public int? TotalRow { get; set; }
+        public double? TotalPage { get; set; }
+    }
+
+    public class PhieuDieuChinhChiTietDTO: PhieuDieuChinhDTO
+    {
+        public Guid? ID_ChiTiet { get; set; }
+        public string TenNhomHangHoa { get; set; }
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public string MaLoHang { get; set; }
+        public string TenDonViTinh { get; set; }
+        public string ThuocTinhGiaTri { get; set; }
+        public double? DonGia { get; set; }// giavoncu
+        public double? ThanhTien { get; set; }// giavonmoi
+        public double? GiaVon { get; set; }// giavonTB
+        public string GhiChu { get; set; }
+    }
 }
