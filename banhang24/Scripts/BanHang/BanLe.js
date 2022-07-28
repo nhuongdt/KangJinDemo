@@ -17007,14 +17007,7 @@ var NewModel_BanHangLe = function () {
                         return;
                     }
                 }
-                if (loaiHD === 1) {
-                    if (objAdd[0].PhaiThanhToan > objAdd[0].DaThanhToan) {
-                        msgErr = "Là hóa đơn bán lẻ, không cho phép nợ";
-                        ShowMessage_Danger(msgErr);
-                        SaveHD_RemoveDisable();
-                        return false;
-                    }
-                }
+                
                 // update DonGia= GiaBan
                 for (let i = 0; i < objCTAdd.length; i++) {
                     objCTAdd[i].DonGia = objCTAdd[i].GiaBan;
