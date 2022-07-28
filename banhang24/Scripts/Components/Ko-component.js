@@ -376,15 +376,30 @@ ko.components.register('jqauto-product', {
                     TextSearch: txt,
                     LaHangHoa: self.loaiHangHoa,
                     QuanLyTheoLo: '%%',
-                    ConTonKho: modelTypeSearchProduct.ConTonKho(),
                     Form: self.formType,
                     CurrentPage: self.currentPage(),
                     PageSize: 30,
                 };
+                console.log('self.formType ', self.formType, self.idChiNhanh())
+
+                let urlAPI = '/api/DanhMuc/DM_HangHoaAPI/Gara_JqAutoHangHoa';
+                if (formatNumberToFloat(self.formType) === 18 || formatNumberToFloat(self.formType) === 16) {// dieuchinh gv
+                    param = {
+                        IDChiNhanhs: [self.idChiNhanh()],
+                        TextSearch: txt,
+                        DateTo: moment(new Date()).add(1,'minutes').format('YYYY-MM-DD'),
+                        CurrentPage: self.currentPage(),
+                        PageSize: 30,
+                    };
+                    urlAPI = '/api/DanhMuc/BH_XuatHuyAPI/JqAutoHangHoa_withGiaVonTieuChuan';
+                }
+                else {
+                    param.ConTonKho = modelTypeSearchProduct.ConTonKho();
+                }
 
                 $.ajax({
                     type: 'POST',
-                    url: '/api/DanhMuc/DM_HangHoaAPI/Gara_JqAutoHangHoa',
+                    url: urlAPI,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     data: param ? JSON.stringify(param) : null,
