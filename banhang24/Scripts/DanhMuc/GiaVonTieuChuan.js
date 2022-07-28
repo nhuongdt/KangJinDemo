@@ -18,7 +18,6 @@
         console.log('arr ', arr);
         self.listData.ChiNhanhs = arr;
 
-        debugger
         if (localStorage.getItem('DMGiaVon_TongHop') === null) {
             self.BaoCaoTongHopHeader = self.InitBaoCaoTongHopHeader();
         }
@@ -55,7 +54,6 @@
                 }
             }
         }
-        self.LoadData();
     },
     data: {
         isLoading: false,
@@ -73,7 +71,7 @@
 
         filter: {
             TextSearch: '',
-            TT_TamLuu: true,
+            TT_TamLuu: false,
             TT_HoanThanh: true,
             TT_Huy: false,
 
@@ -187,7 +185,6 @@
                     myData.DateTo = self.BCTongHop_ToDate;
                     myData.PageSize = self.BaoCaoTongHop.TotalRow;
                     myData.ReportText.ColumnHide = self.BaoCaoTongHopHeader.filter(p => p.colShow === false).map(p => p.index);
-                    myData.ReportText.ReportTime = self.BaoCaoTongHop_ThoiGianText;
                     urlExport = 'ExportExcel_';
                     break;
                 case 2:
@@ -231,6 +228,16 @@
                 self.LoadBaoCaoTongHop();
             }
         },
+        BaoCaoChiTietPageChange: function (value) {
+            let self = this;
+            if (self.BaoCaoChiTiet.currentPage !== value.currentPage) {
+                self.BaoCaoChiTiet.currentPage = value.currentPage;
+                self.LoadBaoCaoChiTiet();
+            } else if (self.BaoCaoChiTiet.PageSize !== value.pageSize) {
+                self.BaoCaoChiTiet.currentPage = 1;
+                self.LoadBaoCaoChiTiet();
+            }
+        },
         BeforeLoadData: function () {
             let self = this;
             self.LoadData();
@@ -253,10 +260,10 @@
             let self = this;
             let arrTT = [];
             if (self.filter.TT_TamLuu) {
-                arrTT.push(0);
+                arrTT.push(1);
             }
             if (self.filter.TT_HoanThanh) {
-                arrTT.push(1);
+                arrTT.push(0);
             }
             if (self.filter.TT_Huy) {
                 arrTT.push(2);
@@ -278,7 +285,6 @@
             param.PageSize = self.BaoCaoTongHop.PageSize;
             
             ajaxHelper(self.urlApi.BHDieuChinh + "GetListGiaVonTieuChuan_TongHop", 'POST', param).done(function (data) {
-                console.log(data)
                 if (data.res === true) {
                     let obj = data.dataSoure;
                     self.BaoCaoTongHop.data = obj.data;
@@ -298,6 +304,7 @@
             let param = self.GetParamSearch();
             param.CurrentPage = self.BaoCaoChiTiet.currentPage - 1;
             param.PageSize = self.BaoCaoChiTiet.PageSize;
+            console.log('LoadBaoCaoChiTiet ', param.DateFrom, param.DateFrom)
 
             ajaxHelper(self.urlApi.BHDieuChinh + "GetListGiaVonTieuChuan_ChiTiet", 'POST', param).done(function (data) {
                 console.log(data)
@@ -318,29 +325,28 @@
             var dt = moment(e).format('YYYY-MM-DD');
             self.BCTongHop_ToDate = dt;
             self.BaoCaoTongHop.currentPage = 1;
-            self.BaoCaoTongHop_ThoiGianText = 'Đến ngày: ' + moment(e).format('DD/MM/YYYY');
             self.LoadData();
         },
 
         onCallThoiGian: function (value) {
             let self = this;
-            if (self.ThoiGianFrom !== value.fromdate || self.ThoiGianTo !== value.todate) {
+            if (self.filter.DateFrom !== value.fromdate || self.filter.DateTo !== value.todate) {
                 if (value.fromdate !== '2016-01-01') {
-                    self.ThoiGianFrom = value.fromdate;
-                    self.ThoiGianTo = value.todate;
-                    self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.ThoiGianFrom).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.ThoiGianTo).add(-1, 'days').format('DD/MM/YYYY');
+                    self.filter.DateFrom = value.fromdate;
+                    self.filter.DateTo = value.todate;
+                    self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.filter.DateFrom).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.filter.DateTo).add(-1, 'days').format('DD/MM/YYYY');
                 }
                 else {
-                    self.ThoiGianFrom = '';
-                    self.ThoiGianTo = '';
+                    self.filter.DateFrom = '';
+                    self.filter.DateTo = '';
                     self.BaoCaoThoiGianText = 'Toàn thời gian';
                 }
                 if (self.onRefresh === false) {
                     self.LoadData();
                 }
             }
-            self.ThoiGianTypeTime = value.radioselect;
-            self.BaoCaoTongHop_ThoiGianText = 'Đến ngày: ' + moment(self.ThoiGianTo, 'YYYY-MM-DD').format('DD/MM/YYYY');
+            self.filter.TypeTime = value.radioselect;
+            self.LoadData();
         },
         EnterKeyup: function (e) {
             if (e.keyCode === 13) {
@@ -356,7 +362,18 @@
                     break;
             }
             window.open(url);
-        }
+        },
+        ThemPhieuDieuChinh: function () {
+            let self = this;
+            window.open('/#/ThemPhieuDieuChinh');
+        },
+        DeleteRow: function (item) {
+            let self = this;
+            dialogConfirm('Thông báo xóa', 'Bạn có chắc chắn muốn xóa giá vốn tiêu chuẩn của hàng <b>' + item.MaHangHoa
+                + ' </b> đã điều chỉnh vào ngày <b> ' + moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm') + ' </b> không?', function () {
+                
+            })
+        },
     },
     computed: {
 
