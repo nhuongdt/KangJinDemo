@@ -5175,10 +5175,10 @@ var NhapHangChiTiet = function () {
                             let idRandomHD = self.newHoaDon().IDRandom();
                             if (commonStatisJs.CheckNull(idRandomHD)) {
                                 let obj = CreateNewHoaDon();
-                                obj.NgayLapHoaDon = $input.val();
                                 hd.push(obj);
                                 idRandomHD = obj.IDRandom;
                                 self.newHoaDon().IDRandom(idRandomHD);
+                                localStorage.setItem(lcHDNhapHang, JSON.stringify(hd));
                             }
 
                             let arrCTsort = item;
@@ -5194,8 +5194,10 @@ var NhapHangChiTiet = function () {
                                 ctNew.TonKho = ctNew.TonKho;
                                 ctNew.GiaTraLai = ctNew.DonGia;
                                 ctNew.LaConCungLoai = false;
+                                ctNew.SoLuongConLai = 0;
                                 ctNew.GhiChu = '';
                                 ctNew.DVTinhGiam = 'VND';
+                                ctNew.ID_ChiTietGoiDV = null;
                                 if (ctNew.PTThue > 0) {
                                     ctNew.TienThue = (ctNew.DonGia - ctNew.TienChietKhau) * ctNew.PTThue / 100;
                                 }
