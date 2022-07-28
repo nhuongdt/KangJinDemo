@@ -28,6 +28,8 @@ namespace banhang24.Hellper
         public const string TonKho = "StockTakes/inventory";
         public const string HoaDon = "Invoices";
         public const string LoHangHoa = "Shipment";
+        public const string DanhMucGiaVonTieuChuan = "DanhMucGiaVonTieuChuan";
+        public const string ThemPhieuDieuChinh = "ThemPhieuDieuChinh";
         public const string TraHang = "Returns";
         public const string NhapHang = "PurchaseOrder";
         public const string DatHangNCC = "DatHangNCC";
@@ -175,6 +177,11 @@ namespace banhang24.Hellper
         public const string SoQuy_XemDS_PhongBan = "SoQuy_XemDS_PhongBan";
         public const string SoQuy_XemDS_HeThong = "SoQuy_XemDS_HeThong";
         public const string SoQuy_XuatFile = "SoQuy_XuatFile";
+
+        public const string PhieuDieuChinh = "PhieuDieuChinh";
+        public const string PhieuDieuChinh_XemDS = "PhieuDieuChinh_XemDS";
+        public const string PhieuDieuChinh_ThemMoi = "PhieuDieuChinh_ThemMoi";
+        public const string DanhMucGiaVonTieuChuan = "DanhMucGiaVonTieuChuan";
 
         public const string MauIn_xemDs = "MauIn_XemDS";
         public const string NguoiDung_XemDS = "NguoiDung_XemDS";
