@@ -9,6 +9,24 @@ namespace Model
     public class DM_Ton
     {
         public double? TonKho { get; set; }
+    }  
+    public class DieuChinhGiaVon_HangHoaDTO
+    {
+        public Guid ID { get; set; }
+        public Guid ID_DonViQuiDoi { get; set; }
+        public Guid? ID_LoHang { get; set; }
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public string TenDonViTinh { get; set; }
+        public string ThuocTinh_GiaTri { get; set; }
+        public string MaLoHang { get; set; }
+        public DateTime? NgaySanXuat { get; set; }
+        public DateTime? NgayHetHan { get; set; }
+        public bool? QuanLyTheoLoHang { get; set; }
+        public double? TonKho { get; set; }
+        public double? GiaVon { get; set; }
+        public double? GiaVonTieuChuan { get; set; }
+        public string SrcImage { get; set; }
     }
 
     public class DM_HangHoaDTO
