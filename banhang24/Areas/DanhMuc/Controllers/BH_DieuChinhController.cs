@@ -1,6 +1,7 @@
 ﻿using libDM_DoiTuong;
 using libDM_HangHoa;
 using libQuy_HoaDon;
+using libDonViQuiDoi;
 using Model;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,10 +14,11 @@ using System.Net.Http;
 using System.Threading;
 using System.Web;
 using System.Web.Http;
+using System.Globalization;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
-    public class BH_DieuChinhController : ApiController
+    public class BH_DieuChinhController : BaseApiController
     {
         #region insert
         [HttpPost, ActionName("PostBH_DieuChinh")]
@@ -133,8 +135,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     if (objHoaDon.ChoThanhToan == false)
                     {
                         idHoaDon = objHoaDon.ID;
-                        //Thread st1 = new Thread(() => classHoaDon.UpdateGiaVonDM_GiaVonLT(objHoaDon.ID, ID_DonVi, objHoaDon.NgayLapHoaDon, 1, str)); //1:Thêm mới, 2:Cập nhật, 3:Xóa //chạy qua khi hàm đang chạy
-                        //st1.Start();
                     }
                     HT_NhatKySuDung hT_NhatKySuDung = new HT_NhatKySuDung
                     {
@@ -175,6 +175,143 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpPost, HttpGet]
+        public IHttpActionResult Post_PhieuDieuChinh([FromBody] JObject data, Guid? idNhanVien = null)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    try
+                    {
+                        ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
+                        ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                        classDonViQuiDoi classQuiDoi = new classDonViQuiDoi(db);
+                        string err = string.Empty;
+                        string noidung = "";
+                        string chitiet = "";
+
+                        BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
+                        List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
+
+                        var ngaylapHD = objHoaDon.NgayLapHoaDon;
+                        var newHD = objHoaDon;
+                        newHD.ID = Guid.NewGuid();
+                        newHD.NgayLapHoaDon = ngaylapHD;
+                        string sMaHoaDon = string.Empty;
+                        if (objHoaDon.MaHoaDon == null || objHoaDon.MaHoaDon == "")
+                        {
+                            sMaHoaDon = classHoaDon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, objHoaDon.NgayLapHoaDon);
+                        }
+                        else
+                        {
+                            bool exist = classHoaDon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
+                            if (exist)
+                            {
+                                return Json(new { res = false, mes = "Mã hóa đơn đã tồn tại" });
+                            }
+                            sMaHoaDon = classHoaDon.GetMaHoaDon_Copy(objHoaDon.MaHoaDon);
+                        }
+                        newHD.MaHoaDon = sMaHoaDon;
+                        newHD.NgayTao = DateTime.Now;
+                        newHD.TyGia = 1;
+                        err = classHoaDon.Add_HoaDon(newHD);
+                        if (err == string.Empty)
+                        {
+                            foreach (var item in objCTHoaDon)
+                            {
+                                var malo = item.MaLoHang != null && item.MaLoHang != string.Empty ? string.Concat("(Lô: ", item.MaLoHang, ") : Giá vốn cũ: ") : " Giá vốn cũ:  ";
+                                chitiet = string.Concat(chitiet, "- <a onclick=\"FindMaHangHoa('", item.MaHangHoa, "')\">" + item.MaHangHoa, " </a> "
+                                    , malo, item.DonGia, ", Giá vốn mới: ", item.GiaVon, "</br>");
+
+                                BH_HoaDon_ChiTiet ctHoaDon = new BH_HoaDon_ChiTiet
+                                {
+                                    ID = Guid.NewGuid(),
+                                    ID_DonViQuiDoi = item.ID_DonViQuiDoi,
+                                    SoThuTu = item.SoThuTu,
+                                    DonGia = item.DonGia,
+                                    GiaVon = item.GiaVon,
+                                    ID_HoaDon = newHD.ID,
+                                    TienChietKhau = item.TienChietKhau,
+                                    PTChietKhau = item.PTChietKhau,
+                                    ID_LoHang = item.ID_LoHang == null ? null : item.ID_LoHang,
+                                    GhiChu = item.GhiChu,
+                                    TenHangHoaThayThe = item.TenHangHoaThayThe
+                                };
+                                err = classHoaDonCT.Add_ChiTietHoaDon(ctHoaDon);
+                            }
+
+                            #region nhatky
+                            string tenChucNang = string.Empty;
+                            string txtFirst = string.Empty;
+
+                            switch (objHoaDon.LoaiHoaDon)
+                            {
+                                case 16:
+                                    tenChucNang = "Giá vốn tiêu chuẩn";
+                                    if (objHoaDon.ChoThanhToan.Value == false)
+                                    {
+                                        txtFirst = "Nhập giá vốn tiêu chuẩn: ";
+                                    }
+                                    else
+                                    {
+                                        txtFirst = "Lưu tạm phiếu nhập giá vốn tiêu chuẩn: ";
+                                    }
+                                    break;
+                                case 18:
+                                    tenChucNang = "Điều chỉnh giá vốn";
+                                    if (objHoaDon.ChoThanhToan.Value == false)
+                                    {
+                                        txtFirst = "Tạo mới phiếu điều chỉnh giá vốn: ";
+                                    }
+                                    else
+                                    {
+                                        txtFirst = "Lưu tạm phiếu điều chỉnh giá vốn: ";
+                                    }
+                                    break;
+                            }
+                            noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", ", Thời gian: ", ngaylapHD.ToString("dd/MM/yyy HH:mm:ss"));
+                            chitiet = string.Concat(noidung, " bao gồm: <br />", chitiet);
+
+                            HT_NhatKySuDung nky = new HT_NhatKySuDung
+                            {
+                                ID = Guid.NewGuid(),
+                                ID_DonVi = objHoaDon.ID_DonVi,
+                                LoaiHoaDon = objHoaDon.LoaiHoaDon,
+                                ID_NhanVien = idNhanVien ?? objHoaDon.ID_NhanVien,
+                                ChucNang = tenChucNang,
+                                LoaiNhatKy = 1,
+                                NoiDung = noidung,
+                                NoiDungChiTiet = chitiet,
+                                ThoiGian = DateTime.Now,
+                                ID_HoaDon = newHD.ID,
+                                ThoiGianUpdateGV = newHD.NgayLapHoaDon,
+                            };
+                            db.HT_NhatKySuDung.Add(nky);
+                            db.SaveChanges();
+                            if (objHoaDon.ChoThanhToan.Value == false)
+                            {
+                                new SaveDiary().AddQueueJob(nky);
+                            }
+
+                            #endregion
+                            trans.Commit();
+                            return Json(new { res = true, data = new { ID = newHD.ID, MaHoaDon = sMaHoaDon, NgayLapHoaDon = ngaylapHD, ID_DoiTuong = newHD.ID_DoiTuong, ID_NhanVien = newHD.ID_NhanVien } });
+                        }
+                        else
+                        {
+                            return Json(new { res = false, mes = err });
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        trans.Rollback();
+                        return Json(new { res = false, mes = e.InnerException + e.Message });
+                    }
+                }
+            }
+        }
         #endregion
         #region update
         [HttpPost, ActionName("deleteHoaDonDieuChinh")]
@@ -224,6 +361,41 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
         #endregion
         #region Select
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetListGiaVonTieuChuan_ChiTiet(CommonParamSearch param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                    List<PhieuDieuChinhChiTietDTO> data = classHoaDonCT.GetListGiaVonTieuChuan_ChiTiet(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException+ ex.Message);
+                }
+            }
+        } 
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetListGiaVonTieuChuan_TongHop(CommonParamSearch param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                    List<PhieuDieuChinhDTO> data = classHoaDonCT.GetListGiaVonTieuChuan_TongHop(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException+ ex.Message);
+                }
+            }
+        }
+
         [HttpGet]
         public IHttpActionResult getListHangHoaBy_MaHangHoa(string MaHangHoa)
         {
