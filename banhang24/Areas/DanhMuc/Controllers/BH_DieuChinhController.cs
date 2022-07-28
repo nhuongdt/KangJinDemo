@@ -370,7 +370,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
                     List<PhieuDieuChinhChiTietDTO> data = classHoaDonCT.GetListGiaVonTieuChuan_ChiTiet(param);
-                    return ActionTrueData(data);
+                    int count = 0, page = 0;
+                    int pageSize = param.PageSize ?? 10;
+                    int pageNow = param.CurrentPage ?? 0;
+                    if (data != null && data.Count() > 0)
+                    {
+                        count = data.FirstOrDefault().TotalRow ?? 0;
+                    }
+                    int[] listpage = GetListPage(count, pageSize, pageNow, ref page);
+
+                    return ActionTrueData(new
+                    {
+                        data = data,
+                        listpage,
+                        pageview = "Hiển thị " + (pageNow * pageSize + 1) + " - " + (pageNow * pageSize + data.Count()) + " trên tổng số " + count + " bản ghi",
+                        isprev = pageNow > 3 && page > 5,
+                        isnext = pageNow < page - 2 && page > 5,
+                        countpage = page,
+                        totalRow = count,
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -387,7 +405,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
                     List<PhieuDieuChinhDTO> data = classHoaDonCT.GetListGiaVonTieuChuan_TongHop(param);
-                    return ActionTrueData(data);
+                    int count = 0, page = 0;
+                    int pageSize = param.PageSize ?? 10;
+                    int pageNow = param.CurrentPage ?? 0;
+                    if (data != null && data.Count() > 0)
+                    {
+                        count = data.FirstOrDefault().TotalRow ?? 0;
+                    }
+                    int[] listpage = GetListPage(count, pageSize, pageNow, ref page);
+
+                    return ActionTrueData(new
+                    {
+                        data = data,
+                        listpage,
+                        pageview = "Hiển thị " + (pageNow * pageSize + 1) + " - " + (pageNow * pageSize + data.Count()) + " trên tổng số " + count + " bản ghi",
+                        isprev = pageNow > 3 && page > 5,
+                        isnext = pageNow < page - 2 && page > 5,
+                        countpage = page,
+                        totalRow = count,
+                    });
                 }
                 catch (Exception ex)
                 {
