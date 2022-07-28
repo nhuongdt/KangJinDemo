@@ -2578,61 +2578,6 @@ BEGIN
 	RETURN @SoDu
 END");
 
-
-            Sql(@"ALTER PROCEDURE [dbo].[GetHisChargeValueCard]
-    @ID_DoiTuong [uniqueidentifier],
-    @IDChiNhanhs [nvarchar](max),
-	@FromDate datetime,
-	@ToDate datetime,
-	@CurrentPage int,
-	@PageSize int
-AS
-BEGIN
-    SET NOCOUNT ON;
-	with data_cte
-		as(
-		select *, ISNULL(b.TienThu,0) as KhachDaTra
-		from  
-    		   (select hd.ID, MaHoaDon, LoaiHoaDon, NgayLapHoaDon, 			
-    				TongChiPhi as MucNap,
-    				TongChiPhi as ThanhTien,
-    				ISNULL(TongTienThue,0) as SoDuSauNap ,
-    				ISNULL(TongChietKhau,0) as KhuyenMaiVND,
-    				ISNULL(hd.TongChietKhau,0) / ISNULL(IIF(hd.TongChiPhi=0,1,hd.TongChiPhi),1) * 100 as KhuyenMaiPT,
-    				ISNULL(hd.TongGiamGia,0) / IIF(hd.TongChiPhi=0,1,hd.TongChiPhi) * 100 as ChietKhauPT,
-    				TongTienHang as TongTienNap,
-    				TongGiamGia as ChietKhauVND,
-    				ISNULL(hd.DienGiai,'') as GhiChu,
-    				hd.NguoiTao,
-    				PhaiThanhToan, TenDoiTuong as TenKhachHang, DienThoai as SoDienThoai, TenDonVi
-    			from BH_HoaDon hd
-    			join DM_DoiTuong dt on hd.ID_DoiTuong= dt.ID
-    			join DM_DonVi dv on hd.ID_DonVi= dv.ID
-    			where LoaiHoaDon in (22,23) and ChoThanhToan='0' and ID_DoiTuong= @ID_DoiTuong
-				and hd.NgayLapHoaDon >=@FromDate and hd.NgayLapHoaDon <@ToDate
-    			) a
-    		left join (select qct.ID_HoaDonLienQuan, sum(qct.TienThu) as TienThu, MAX(qhd.MaHoaDon) as MaPhieuThu
-    					from Quy_HoaDon_ChiTiet qct 
-    					join Quy_HoaDon qhd on qct.ID_HoaDon = qhd.ID
-    					where qct.ID_DoiTuong= @ID_DoiTuong
-    					and qhd.TrangThai ='1'
-    					group by qct.ID_HoaDonLienQuan) b
-    		on a.ID= b.ID_HoaDonLienQuan
-			),
-			count_cte
-		as (
-			select count(ID) as TotalRow,
-				CEILING(COUNT(ID) / CAST(@PageSize as float ))  as TotalPage				
-			from data_cte
-		)
-		select dt.*, cte.*
-		from data_cte dt
-		cross join count_cte cte
-		order by dt.NgayLapHoaDon desc
-		OFFSET (@CurrentPage* @PageSize) ROWS
-		FETCH NEXT @PageSize ROWS ONLY
-END");
-
             Sql(@"ALTER PROCEDURE [dbo].[GetListChiTietHoaDonXuatFile]
     @IDHoaDon [uniqueidentifier]
 AS
