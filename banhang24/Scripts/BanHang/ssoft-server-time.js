@@ -2,29 +2,34 @@
     var sDatetime;
     var tout;
     var tintervalGetServertime;
-    var host = location.host === "localhost:44332" ? "" : "https://tserver1.open24.vn";
+    var host = location.host === "localhost:44332" || location.host === "localhost:44382" ? "" : "https://tserver1.open24.vn";
     var LastUpdate;
     var getDatetimeServer = function () {
         var timeresult;
-        try {
-            $.ajax({
-                url: host + "/api/time/GetDateTime",
-                type: "GET",
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                success: function (time) {
-                    timeresult = new Date(time);
-                },
-                async: false,
-                
-            }).fail(function () {
-                console.log("Localtime");
-                timeresult = new Date();
-            });
-        }
-        catch (err)
-        {
-            console.log(err.message);
+        if (host === "") {
+            console.log("Localtime");
             timeresult = new Date();
+        }
+        else {
+            try {
+                $.ajax({
+                    url: host + "/api/time/GetDateTime",
+                    type: "GET",
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function (time) {
+                        timeresult = new Date(time);
+                    },
+                    async: false,
+
+                }).fail(function () {
+                    console.log("Localtime");
+                    timeresult = new Date();
+                });
+            }
+            catch (err) {
+                console.log(err.message);
+                timeresult = new Date();
+            }
         }
         LastUpdate = new Date();
         return timeresult;
