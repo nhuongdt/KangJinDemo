@@ -7777,6 +7777,380 @@ BEGIN
 
 END");
 
+            Sql(@"ALTER PROCEDURE [dbo].[BaoCaoTaiChinh_ThuChi_v2]
+    @TextSearch [nvarchar](max),
+    @timeStart [datetime],
+    @timeEnd [datetime],
+    @ID_ChiNhanh [nvarchar](max),
+    @loaiKH [nvarchar](max),
+    @ID_NhomDoiTuong [nvarchar](max),
+    @lstThuChi [nvarchar](max),
+    @HachToanKD [bit]
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @tblSearch TABLE (Name [nvarchar](max));
+    DECLARE @count int;
+    INSERT INTO @tblSearch(Name) select  Name from [dbo].[splitstringByChar](@TextSearch, ' ') where Name!='';
+    Select @count =  (Select count(*) from @tblSearch);
+    
+    SELECT 
+    MAX(b.TenNhomDoiTuong) as NhomDoiTuong,
+    b.MaHoaDon,
+    MAX(b.MaPhieuThu) as MaPhieuThu,
+    MAX(b.NgayLapHoaDon) as NgayLapHoaDon,
+    MAX(b.ManguoiNop) as ManguoiNop, 
+    MAX(b.TenNguoiNop) as TenNguoiNop, 
+	MAX(b.TienMat) AS TienMat,
+	MAX(b.TienGui) AS TienGui,
+	MAX(b.TienPOS) AS TienPOS,
+    MAX(b.ThuChi) as ThuChi, 
+    MAX(b.NoiDungThuChi) as NoiDungThuChi,
+    MAX(b.GhiChu) as GhiChu,
+    MAX(b.LoaiThuChi) as LoaiThuChi,
+    	dv.TenDonVi AS TenChiNhanh,
+		b.SoTaiKhoan, b.TenNganHang
+    FROM
+    (
+    	  select 
+    		a.ID_DoiTuong,
+    		a.ID_HoaDon,
+    		a.TenNhomDoiTuong,
+    		a.ID_NhomDoiTuong,
+    	a.MaHoaDon,
+    		a.MaPhieuThu,
+    	a.NgayLapHoaDon,
+    		a.MaNguoiNop,
+    	a.TenNguoiNop,
+    	--a.ThuChi,
+		a.TienMat,
+		a.TienGui,
+		a.TienPOS,
+    		a.TienMat + a.TienGui + a.TienPOS as ThuChi,
+    	a.NoiDungThuChi,
+    	a.GhiChu,
+    	Case when a.LoaiThuChi = 1 then N'Phiếu thu khác'  
+    	when a.LoaiThuChi = 2 then N'Phiếu chi khác' 
+    	when a.LoaiThuChi = 3 then N'Thu tiền khách trả'  
+    	when a.LoaiThuChi = 4 then N'Chi tiền đổi trả hàng'  
+    	when a.LoaiThuChi = 5 then N'Thu tiền nhà NCC'  
+    	when a.LoaiThuChi = 6 then N'Chi tiền trả NCC' else '' end as LoaiThuChi,
+    		a.ID_DonVi,
+			a.SoTaiKhoan,
+			a.TenNganHang
+    	From
+    	(
+    		select 
+    			qhd.LoaiHoaDon,
+    			MAX(qhd.ID) as ID_HoaDon,
+    			MAX(dt.ID) as ID_DoiTuong,
+    			MAX(ktc.NoiDungThuChi) as NoiDungThuChi,
+    			tknh.SoTaiKhoan as SoTaiKhoan,
+    			MAX (nh.TenNganHang) as NganHang,
+    				--Max(dt.TenNhomDoiTuongs) as TenNhomDoiTuong,
+    				case when qhdct.ID_NhanVien is not null then N'Nhân viên' else MAX(dt.TenNhomDoiTuongs) end as TenNhomDoiTuong,
+    			qhd.HachToanKinhDoanh,
+    			Case when qhd.LoaiHoaDon = 11 and hd.LoaiHoaDon is null then 1 -- phiếu thu khác
+    			when (qhd.LoaiHoaDon = 12 and hd.LoaiHoaDon is null) or ((hd.LoaiHoaDon = 1 or hd.LoaiHoaDon = 3 or hd.LoaiHoaDon = 19) and qhd.LoaiHoaDon = 12) then 2-- phiếu chi khác
+    			when (hd.LoaiHoaDon = 1 or hd.LoaiHoaDon = 3 or hd.LoaiHoaDon = 19 or hd.LoaiHoaDon = 22 or hd.LoaiHoaDon = 25) and qhd.LoaiHoaDon = 11 then 3 -- bán hàng 
+    			when hd.LoaiHoaDon = 6  then 4 -- Đổi trả hàng
+    			when hd.LoaiHoaDon = 7 then 5 -- trả hàng NCC
+    			when hd.LoaiHoaDon = 4 then 6 else ''end as LoaiThuChi, -- nhập hàng NCC
+    			dt.MaDoiTuong as MaKhachHang,
+    			Case WHEN qhdct.ID_NhanVien is not null
+    				then
+    				'00000000-0000-0000-0000-000000000000' 
+    				else 
+    				case When dtn.ID_NhomDoiTuong is null 
+    					
+    				then '00000000-0000-0000-0000-000000000000'  else dtn.ID_NhomDoiTuong 
+    				end
+    				end as ID_NhomDoiTuong,
+    			dt.DienThoai,
+    			qhd.MaHoaDon as MaPhieuThu,
+    			qhd.NguoiNopTien as TenNguoiNop,
+    				case when qhdct.ID_NhanVien is not null then nv.MaNhanVien else dt.MaDoiTuong end as ManguoiNop,
+    			Sum(qhdct.TienMat) as TienMat,
+    			IIF(tknh.TaiKhoanPOS = 1, 0, Sum(qhdct.TienGui)) as TienGui,
+				IIF(tknh.TaiKhoanPOS = 1, SUM(qhdct.TienGui), 0) AS TienPOS,
+    			qhd.NgayLapHoaDon,
+    			MAX(qhd.NoiDungThu) as GhiChu,
+    			hd.MaHoaDon,
+    				qhd.ID_DonVi,
+				nh.TenNganHang
+    		From Quy_HoaDon qhd 			
+    			join Quy_HoaDon_ChiTiet qhdct on qhd.ID = qhdct.ID_HoaDon
+    				left join NS_NhanVien nv on qhdct.ID_NhanVien= nv.ID
+    			left join BH_HoaDon hd on qhdct.ID_HoaDonLienQuan = hd.ID
+    			left join DM_DoiTuong dt on qhdct.ID_DoiTuong = dt.ID
+    			left join DM_DoiTuong_Nhom dtn on dt.ID = dtn.ID_DoiTuong
+    			left join Quy_KhoanThuChi ktc on qhdct.ID_KhoanThuChi = ktc.ID
+    			left join DM_TaiKhoanNganHang tknh on qhdct.ID_TaiKhoanNganHang = tknh.ID
+    			left join DM_NganHang nh on tknh.ID_NganHang = nh.ID
+    		where qhd.NgayLapHoaDon BETWEEN @timeStart and @timeEnd 
+    				and (qhd.TrangThai != '0' OR qhd.TrangThai is null)
+    				and (qhd.PhieuDieuChinhCongNo !='1' or qhd.PhieuDieuChinhCongNo is null)
+    			and (IIF(qhdct.ID_NhanVien is not null, 4, dt.loaidoituong) in (select * from splitstring(@loaiKH)))
+    			and qhd.ID_DonVi in (select * from splitstring(@ID_ChiNhanh))
+    			and (qhdct.DiemThanhToan is null or qhdct.DiemThanhToan = 0)
+    			and (qhd.HachToanKinhDoanh = @HachToanKD OR @HachToanKD IS NULL)
+				and qhdct.HinhThucThanhToan NOT IN (4, 5, 6)
+    				AND ((select count(Name) from @tblSearch b where     			
+    			dt.MaDoiTuong like '%'+b.Name+'%'
+    			or dt.TenDoiTuong like '%'+b.Name+'%'
+    				or dt.TenDoiTuong_ChuCaiDau like '%'+b.Name+'%'
+    				or dt.TenDoiTuong_KhongDau like '%'+b.Name+'%'
+    				or qhd.MaHoaDon like '%' + b.Name + '%'
+    				or hd.MaHoaDon like '%' + b.Name + '%'
+    			)=@count or @count=0)
+    		Group by qhd.LoaiHoaDon, hd.LoaiHoaDon, qhdct.ID_NhanVien, dt.MaDoiTuong,dt.LoaiDoiTuong,  nv.MaNhanVien,
+    			 qhd.HachToanKinhDoanh, dt.DienThoai, qhd.MaHoaDon, qhd.NguoiNopTien, qhd.NgayLapHoaDon, hd.MaHoaDon, dtn.ID_NhomDoiTuong,dtn.ID, qhd.ID_DonVi,
+				 tknh.TaiKhoanPOS, tknh.SoTaiKhoan, nh.TenNganHang
+    		)a
+    		where a.LoaiThuChi in (select * from splitstring(@lstThuChi)) 
+    	) b
+    		inner join DM_DonVi dv ON dv.ID = b.ID_DonVi
+    		where b.ID_NhomDoiTuong in (select * from splitstring(@ID_NhomDoiTuong)) OR @ID_NhomDoiTuong = ''
+    	Group by b.ID_HoaDon, b.ID_DoiTuong, b.MaHoaDon, b.ID_DonVi, dv.TenDonVi, b.SoTaiKhoan, b.TenNganHang
+    	ORDER BY NgayLapHoaDon DESC
+END");
+
+            Sql(@"ALTER PROCEDURE [dbo].[BaoCaoTaiChinh_SoQuy_v2]
+    @TextSearch [nvarchar](max),
+    @timeStart [datetime],
+    @timeEnd [datetime],
+    @ID_ChiNhanh [nvarchar](max),
+    @loaiKH [nvarchar](max),
+    @ID_NhomDoiTuong [nvarchar](max),
+    @lstThuChi [nvarchar](max),
+    @HachToanKD [bit],
+    @LoaiTien [nvarchar](max)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    	DECLARE @tblSearch TABLE (Name [nvarchar](max));
+    DECLARE @count int;
+    INSERT INTO @tblSearch(Name) select  Name from [dbo].[splitstringByChar](@TextSearch, ' ') where Name!='';
+    Select @count =  (Select count(*) from @tblSearch);
+    --	tinh ton dau ky
+    	Declare @TonDauKy float
+    	Set @TonDauKy = (Select
+    	CAST(ROUND(SUM(TienThu - TienChi), 0) as float) as TonDauKy
+    	FROM
+    	(
+    		select 
+    			case when qhd.LoaiHoaDon = 11 then qhdct.TienThu else 0 end as TienThu,
+    			Case when qhd.LoaiHoaDon = 12 then qhdct.TienThu else 0 end as TienChi,
+    			Case when qhdct.TienMat > 0 and qhdct.TienGui = 0 then '1' 
+    			when qhdct.TienGui > 0 and qhdct.TienMat = 0 then '2'
+    			when qhdct.TienGui > 0 and qhdct.TienMat > 0 then '12' else '' end as LoaiTien,
+    				qhd.HachToanKinhDoanh as HachToanKinhDoanh
+    		From Quy_HoaDon qhd 
+    		inner join Quy_HoaDon_ChiTiet qhdct on qhd.ID = qhdct.ID_HoaDon
+    		where qhd.NgayLapHoaDon < @timeStart
+    		and (qhd.TrangThai != '0' OR qhd.TrangThai is null)
+    			and (qhd.PhieuDieuChinhCongNo !='1' or qhd.PhieuDieuChinhCongNo is null)
+    		and qhd.ID_DonVi in (select * from splitstring(@ID_ChiNhanh))
+    		and (qhdct.DiemThanhToan is null OR qhdct.DiemThanhToan = 0)
+    			and qhdct.HinhThucThanhToan not in (4,5,6)
+    		) a 
+    		where LoaiTien like @LoaiTien
+    			and (HachToanKinhDoanh = @HachToanKD OR @HachToanKD IS NULL)
+    	) 
+    		
+    	if (@TonDauKy is null)
+    	BeGin
+    		Set @TonDauKy = 0;
+    	END
+    	Declare @tmp table (ID_HoaDon UNIQUEIDENTIFIER,MaPhieuThu nvarchar(max), NgayLapHoaDon datetime, KhoanMuc nvarchar(max), TenDoiTac nvarchar(max),
+    	TienMat float, TienGui float, TienThu float, TienChi float, ThuTienMat float, ChiTienMat float, ThuTienGui float, ThuTienPOS FLOAT,
+		ChiTienGui float, ChiTienPOS FLOAT, TonLuyKeTienMat float,TonLuyKeTienGui float,TonLuyKe float, SoTaiKhoan nvarchar(max), NganHang nvarchar(max), GhiChu nvarchar(max),
+    		IDDonVi UNIQUEIDENTIFIER, TenDonVi NVARCHAR(MAX));
+    	Insert INTO @tmp
+    		 SELECT 
+    				b.ID_HoaDon,
+    				b.MaPhieuThu as MaPhieuThu,
+    			b.NgayLapHoaDon as NgayLapHoaDon,
+    				MAX(b.NoiDungThuChi) as KhoanMuc,
+    			MAX(b.TenNguoiNop) as TenDoiTac, 
+    			SUM (b.TienMat) as TienMat,
+    			SUM (b.TienGui) as TienGui,
+    			SUM (b.TienThu) as TienThu,
+    			SUM (b.TienChi) as TienChi,
+    			SUM (b.ThuTienMat) as ThuTienMat,
+    			SUM (b.ChiTienMat) as ChiTienMat, 
+    			SUM (b.ThuTienGui) as ThuTienGui,
+				SUM (b.ThuTienPOS) as ThuTienPOS,
+    			SUM (b.ChiTienGui) as ChiTienGui, 
+				SUM (b.ChiTienPOS) as ChiTienPOS, 
+    				0 as TonLuyKe,
+    			0 as TonLuyKeTienMat,
+    			0 as TonLuyKeTienGui,
+    			MAX(b.SoTaiKhoan) as SoTaiKhoan,
+    			MAX(b.NganHang) as NganHang,
+    			MAX(b.GhiChu) as GhiChu,
+    				dv.ID,
+    				dv.TenDonVi
+    		FROM
+    		(
+    				select 
+    			a.HachToanKinhDoanh,
+    			a.ID_DoiTuong,
+    			a.ID_HoaDon,
+    			a.MaHoaDon,
+    			a.MaPhieuThu,
+    			a.NgayLapHoaDon,
+    			a.TenNguoiNop,
+    			a.TienMat,
+    			a.TienGui,
+				IIF(a.LoaiHoaDon = 11, IIF(a.TaiKhoanPOS = 1, 0, a.TienGui) , 0) AS ThuTienGui,
+				IIF(a.LoaiHoaDon = 11, IIF(a.TaiKhoanPOS = 1, a.TienGui, 0) , 0) AS ThuTienPOS,
+    			--case when a.LoaiHoaDon = 11 then a.TienGui else 0 end as ThuTienGui,
+				IIF(a.LoaiHoaDon = 12, IIF(a.TaiKhoanPOS = 1, 0, a.TienGui) , 0) AS ChiTienGui,
+				IIF(a.LoaiHoaDon = 12, IIF(a.TaiKhoanPOS = 1, a.TienGui, 0) , 0) AS ChiTienPOS,
+    			--Case when a.LoaiHoaDon = 12 then a.TienGui else 0 end as ChiTienGui,
+    			case when a.LoaiHoaDon = 11 then a.TienMat else 0 end as ThuTienMat,
+    			Case when a.LoaiHoaDon = 12 then a.TienMat else 0 end as ChiTienMat,
+    			case when a.LoaiHoaDon = 11 then a.TienThu else 0 end as TienThu,
+    			Case when a.LoaiHoaDon = 12 then a.TienThu else 0 end as TienChi,
+    			a.NoiDungThuChi,
+    			a.NganHang,
+    			a.SoTaiKhoan,
+    			a.GhiChu,
+    			Case when a.TienMat > 0 and TienGui = 0 then '1'  
+    			 when a.TienGui > 0 and TienMat = 0 then '2' 
+    			 when a.TienGui > 0 and TienMat > 0 then '12' else '' end  as LoaiTien,
+    				a.ID_DonVi
+    		From
+    		(
+    		select 
+    			qhd.LoaiHoaDon,
+    			MAX(qhd.ID) as ID_HoaDon,
+    			MAX(dt.ID) as ID_DoiTuong,
+    			MAX(ktc.NoiDungThuChi) as NoiDungThuChi,
+    			tknh.SoTaiKhoan as SoTaiKhoan,
+    			nh.TenNganHang as NganHang,
+    			qhd.HachToanKinhDoanh,
+    			Case when qhd.LoaiHoaDon = 11 and hd.LoaiHoaDon is null then 1 -- phiếu thu khác
+    			when (qhd.LoaiHoaDon = 12 and hd.LoaiHoaDon is null) or ((hd.LoaiHoaDon = 1 or hd.LoaiHoaDon = 3 or hd.LoaiHoaDon = 19) and qhd.LoaiHoaDon = 12) then 2-- phiếu chi khác
+    			when (hd.LoaiHoaDon = 1 or hd.LoaiHoaDon = 3 or hd.LoaiHoaDon = 19 or hd.LoaiHoaDon = 22 or hd.LoaiHoaDon = 25) and qhd.LoaiHoaDon = 11 then 3 -- bán hàng 
+    			when hd.LoaiHoaDon = 6  then 4 -- Đổi trả hàng
+    			when hd.LoaiHoaDon = 7 then 5 -- trả hàng NCC
+    			when hd.LoaiHoaDon = 4 then 6 else 4 end as LoaiThuChi, -- nhập hàng NCC
+    			dt.MaDoiTuong as MaKhachHang,
+    			dt.DienThoai,
+    			qhd.MaHoaDon as MaPhieuThu,
+    			qhd.NguoiNopTien as TenNguoiNop,
+    			max(IIF(qhdct.HinhThucThanhToan = 1, qhdct.TienThu, 0)) as TienMat,
+    			max(IIF(qhdct.HinhThucThanhToan IN (2,3) , qhdct.TienThu, 0)) as TienGui,
+    			max(qhdct.TienThu) as TienThu,
+    			qhd.NgayLapHoaDon,
+    			MAX(qhd.NoiDungThu) as GhiChu,
+    			hd.MaHoaDon,
+    				qhd.ID_DonVi,
+					tknh.TaiKhoanPOS
+    		From Quy_HoaDon qhd 
+    			inner join Quy_HoaDon_ChiTiet qhdct on qhd.ID = qhdct.ID_HoaDon
+    			left join BH_HoaDon hd on qhdct.ID_HoaDonLienQuan = hd.ID
+    			left join DM_DoiTuong dt on qhdct.ID_DoiTuong = dt.ID
+    			left join DM_DoiTuong_Nhom dtn on dt.ID = dtn.ID_DoiTuong
+    			left join Quy_KhoanThuChi ktc on qhdct.ID_KhoanThuChi = ktc.ID
+    			left join DM_TaiKhoanNganHang tknh on qhdct.ID_TaiKhoanNganHang = tknh.ID
+    			left join DM_NganHang nh on tknh.ID_NganHang = nh.ID
+    		where qhd.NgayLapHoaDon BETWEEN @timeStart AND @timeEnd
+    			and (qhd.TrangThai != '0' OR qhd.TrangThai is null)
+    				and (qhd.PhieuDieuChinhCongNo !='1' or qhd.PhieuDieuChinhCongNo is null)
+    			and (IIF(qhdct.ID_NhanVien is not null, 4, IIF(dt.loaidoituong IS NULL, 1, dt.LoaiDoiTuong)) in (select * from splitstring(@loaiKH)))
+    			and qhd.ID_DonVi in (select * from splitstring(@ID_ChiNhanh))
+    			and (qhdct.DiemThanhToan is null OR qhdct.DiemThanhToan = 0)
+    			and (qhd.HachToanKinhDoanh = @HachToanKD OR @HachToanKD IS NULL)
+    				and (dtn.ID_NhomDoiTuong in (select * from splitstring(@ID_NhomDoiTuong)) OR @ID_NhomDoiTuong = '')
+    				and qhdct.HinhThucThanhToan not in (4,5,6)
+    				AND ((select count(Name) from @tblSearch b where     			
+    			dt.TenDoiTuong like '%'+b.Name+'%'
+    				or dt.TenDoiTuong_ChuCaiDau like '%'+b.Name+'%'
+    				or dt.TenDoiTuong_KhongDau like '%'+b.Name+'%'
+    				or qhd.MaHoaDon like '%' + b.Name + '%'
+    				or qhd.NguoiNopTien like '%' + b.Name + '%'
+    			)=@count or @count=0)
+    		Group by qhd.LoaiHoaDon, hd.LoaiHoaDon, dt.MaDoiTuong,dt.LoaiDoiTuong, dt.TenDoiTuong_ChuCaiDau, dt.TenDoiTuong_KhongDau,qhdct.ID_NhanVien,
+    			 qhd.HachToanKinhDoanh, dt.DienThoai, qhd.MaHoaDon, qhd.NguoiNopTien, qhd.NgayLapHoaDon, hd.MaHoaDon, qhd.ID_DonVi, qhdct.ID, qhdct.HinhThucThanhToan,
+				 tknh.TaiKhoanPOS, tknh.SoTaiKhoan, nh.TenNganHang
+    		)a
+    		where a.LoaiThuChi in (select * from splitstring(@lstThuChi))
+    		) b
+    			inner join DM_DonVi dv ON dv.ID = b.ID_DonVi
+    			where LoaiTien like @LoaiTien
+    		Group by b.ID_HoaDon, b.ID_DoiTuong, b.MaPhieuThu, b.NgayLapHoaDon, dv.TenDonVi, dv.ID, b.SoTaiKhoan
+    		ORDER BY NgayLapHoaDon
+    -- tính tồn lũy kế
+    	    IF (EXISTS (select * from @tmp))
+    		BEGIN
+    			DECLARE @Ton float;
+    			SET @Ton = @TonDauKy;
+    			DECLARE @TonTienMat float;
+    			SET @TonTienMat = @TonDauKy;
+    			DECLARE @TonTienGui float;
+    			SET @TonTienGui = @TonDauKy;
+    			
+    			DECLARE @TienThu float;
+    			DECLARE @TienChi float;
+    			DECLARE @ThuTienMat float;
+    			DECLARE @ChiTienMat float;
+    			DECLARE @ThuTienGui float;
+    			DECLARE @ChiTienGui float;
+    			DECLARE @TonLuyKe float;
+				DECLARE @ThuTienPOS float;
+				DECLARE @ChiTienPOS float;
+    				DECLARE @ID_HoaDon UNIQUEIDENTIFIER;
+    	DECLARE CS_ItemUpDate CURSOR SCROLL LOCAL FOR SELECT TienThu, TienChi, ThuTienGui, ThuTienMat, ChiTienGui, ChiTienMat, ID_HoaDon, ThuTienPOS, ChiTienPOS FROM @tmp ORDER BY NgayLapHoaDon
+    	OPEN CS_ItemUpDate 
+    FETCH FIRST FROM CS_ItemUpDate INTO @TienThu, @TienChi, @ThuTienGui, @ThuTienMat, @ChiTienGui, @ChiTienMat, @ID_HoaDon, @ThuTienPOS, @ChiTienPOS
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+    	SET @Ton = @Ton + @ThuTienMat + @ThuTienGui + @ThuTienPOS - @ChiTienMat - @ChiTienGui - @ChiTienPOS;
+    	SET @TonTienMat = @TonTienMat + @ThuTienMat - @ChiTienMat;
+    	SET @TonTienGui = @TonTienGui + @ThuTienGui - @ChiTienGui + @ThuTienPOS - @ChiTienPOS;
+    	UPDATE @tmp SET TonLuyKe = @Ton, TonLuyKeTienMat = @TonTienMat, TonLuyKeTienGui = @TonTienGui WHERE ID_HoaDon = @ID_HoaDon
+		AND ThuTienMat = @ThuTienMat AND ThuTienGui = @ThuTienGui AND ThuTienPOS = @ThuTienPOS
+		AND ChiTienMat = @ChiTienMat AND ChiTienGui = @ChiTienGui AND ChiTienPOS = @ChiTienPOS
+    	FETCH NEXT FROM CS_ItemUpDate INTO @TienThu, @TienChi, @ThuTienGui, @ThuTienMat, @ChiTienGui, @ChiTienMat, @ID_HoaDon, @ThuTienPOS, @ChiTienPOS
+    END
+    CLOSE CS_ItemUpDate
+    DEALLOCATE CS_ItemUpDate
+    	END
+    	ELSE
+    	BEGIN
+    		Insert INTO @tmp
+    	SELECT '00000000-0000-0000-0000-000000000000', 'TRINH0001', '1989-04-07','','','0','0','0','0','0','0','0','0', '0', '0', @TonDauKy, @TonDauKy, @TonDauKy, '','','', '00000000-0000-0000-0000-000000000000', ''
+    	END
+    	Select 
+    		ID_HoaDon,
+    	MaPhieuThu,
+    	NgayLapHoaDon,
+    	KhoanMuc,
+    	TenDoiTac,
+    	@TonDauKy as TonDauKy,
+    	TienMat,
+    	TienGui,
+    	TienThu,
+    	TienChi,
+    	ThuTienMat,
+    	ChiTienMat,
+    	ThuTienGui,
+		ThuTienPOS,
+    	ChiTienGui,
+		ChiTienPOS,
+    	TonLuyKe,
+    	TonLuyKeTienMat,
+    	TonLuyKeTienGui,
+    	SoTaiKhoan, 
+    	NganHang, 
+    	GhiChu,
+    		IDDonVi, TenDonVi
+    	 from @tmp order by NgayLapHoaDon
+END");
         }
         
         public override void Down()
