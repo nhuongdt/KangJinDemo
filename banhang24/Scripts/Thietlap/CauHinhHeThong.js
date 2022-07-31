@@ -1895,6 +1895,15 @@ var ViewModel = function () {
                                     itemFor.KiTuNganCachs = arrKiTuNganCach;
                                     itemFor.NgayThangNams = arrNgayThangNam;
 
+                                    switch (itemFor.ID_LoaiChungTu) {
+                                        case 33:
+                                            itemFor.MaLoaiChungTu = '';
+                                            break;
+                                        case 34:
+                                            itemFor.MaLoaiChungTu = '';
+                                            break;
+                                    }
+
                                     // concat string --> Mau
                                     let sDate = '';
                                     let machinhanh = '';
