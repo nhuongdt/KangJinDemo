@@ -39,7 +39,7 @@ namespace Model
         public double GiaTri { get; set; }
         public double? TongTichDiem { get; set; }
     }
-    public class CommonParamSearch
+    public class CommonParamSearch: Param_ReportText
     {
         public List<string> IDChiNhanhs { get; set; }
         public List<string> TrangThais { get; set; }
