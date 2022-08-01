@@ -138,23 +138,44 @@ namespace Model
         public string DienGiai { get; set; }
         public string TrangThai { get; set; }
         public bool? ChoThanhToan { get; set; }
-        public double? TongSLMatHang { get; set; }
+        public int? TongSLMatHang { get; set; }
         public int? TotalRow { get; set; }
         public double? TotalPage { get; set; }
+        public Guid? ID_NhanVien { get; set; }
+        public Guid? ID_DonVi { get; set; }
     }
 
-    public class PhieuDieuChinhChiTietDTO: PhieuDieuChinhDTO
+    public class PhieuDieuChinhChiTietDTO : PhieuDieuChinhDTO
     {
         public Guid? ID_ChiTiet { get; set; }
         public string TenNhomHangHoa { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoa { get; set; }
-        public string MaLoHang { get; set; }
         public string TenDonViTinh { get; set; }
         public string ThuocTinhGiaTri { get; set; }
+        public double? GiaBan { get; set; }// giaban of hanghoa
         public double? DonGia { get; set; }// giavoncu
         public double? ThanhTien { get; set; }// giavonmoi
         public double? GiaVon { get; set; }// giavonTB
-        public string GhiChu { get; set; }
+        public Guid? ID_HangHoa { get; set; }
+        public Guid? ID_DonViQuiDoi { get; set; }
+        public Guid? ID_LoHang { get; set; }
+        public bool? QuanLyTheoLoHang { get; set; }
+        public string MaLoHang { get; set; }
+        public DateTime? NgaySanXuat { get; set; }
+        public DateTime? NgayHetHan { get; set; }
+    }
+
+    public class Excel_PhieuDieuChinhChiTiet
+    {
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string TenNhomHangHoa { get; set; }
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public string TenDonViTinh { get; set; }
+        public double? GiaBan { get; set; }// giaban hh
+        public double? ThanhTien { get; set; }// gvtieuchuan moi
+        public double? GiaVon { get; set; }
     }
 }
