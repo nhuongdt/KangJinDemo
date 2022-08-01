@@ -2052,8 +2052,12 @@
 
         GetKhoanThuChi_byLoaiChungTu: function (lakhoanthu = false) {
             let self = this;
+            let loaiHD = self.inforHoaDon.LoaiHoaDon;
+            if (commonStatisJs.CheckNull(loaiHD)) {
+                loaiHD = 1;
+            }
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu === self.inforHoaDon.LoaiHoaDon.toString() && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu.indexOf(loaiHD) > -1 && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },
@@ -2178,7 +2182,7 @@
                             arrPhuongThuc.push(qct.HinhThucThanhToan);
                         }
                     }
-                    
+
                     if (tienpos > 0) {
                         let qct = {
                             HinhThucThanhToan: 2,

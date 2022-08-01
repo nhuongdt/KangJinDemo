@@ -9,6 +9,7 @@
     created: function () {
         let self = this;
         self.GuidEmpty = '00000000-0000-0000-0000-000000000000';
+        self.LaAdmin = VHeader.LaAdmin;
         self.inforLogin = {
             ID_NhanVien: VHeader.IdNhanVien,
             ID_User: VHeader.IdNguoiDung,
@@ -35,6 +36,7 @@
         isNew: true,
         isCheckTraLaiCoc: false,
         isKhoaSo: false,
+        LaAdmin: '',
 
         SoDuDatCoc: 0,
         formType: 0, //0.DS hoadon (nhap/tra), 1.DS NCC
