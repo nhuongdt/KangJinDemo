@@ -147,6 +147,7 @@
                 NgayGiaoDichGanNhat: null,
                 NgayTao: new Date(),
                 NguoiTao: self.inforLogin.UserLogin,
+                ID_DonVi: self.inforLogin.ID_DonVi,
                 GhiChu: '',
                 TaiKhoanNganHang: '',
 
@@ -226,6 +227,7 @@
             }
 
             item.LoaiDoiTuong = 1;
+            item.ID_DonVi = self.inforLogin.ID_DonVi;
             self.newCustomer = item;
             self.customerOld = $.extend({}, item);
             self.customerDoing = item;
@@ -590,6 +592,10 @@
             let cus = self.newCustomer;
             if (commonStatisJs.CheckNull(cus.TenDoiTuong)) {
                 ShowMessage_Danger('Vui lòng nhập tên khách hàng');
+                return false;
+            }
+            if (commonStatisJs.CheckNull(cus.DienThoai)) {
+                ShowMessage_Danger('Vui lòng nhập số điện thoại');
                 return false;
             }
             return true;
