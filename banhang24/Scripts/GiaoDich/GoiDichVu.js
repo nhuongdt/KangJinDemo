@@ -12,6 +12,9 @@
     var _id_NhanVien = $('.idnhanvien').text();
     var _IDNguoiDung = $('.idnguoidung').text();
 
+    var _now = new Date();
+    var _nowFormat = moment(_now).format('YYYY-MM-DD');
+
     self.TodayBC = ko.observable('Toàn thời gian');
     self.TenChiNhanh = ko.observableArray();
     self.HoaDons = ko.observableArray();
@@ -63,6 +66,7 @@
     self.Role_HoaHongDichVu_Edit = ko.observable(false);
     self.Role_HoaHongHoaDon_Edit = ko.observable(false);
     self.Role_EditChietKhauNVHoaDon = ko.observable(false);
+    self.Role_ChangeInvoice_ifOtherDate = ko.observable(false);
     self.filter = ko.observable();
     self.filterMaHDGoc = ko.observable();
     self.filterFind = ko.observable();
@@ -1244,8 +1248,7 @@
             }
         }
 
-        // NgayLapHoaDon
-        var _now = new Date();  //current date of week
+
         var currentWeekDay = _now.getDay();
         var lessDays = currentWeekDay == 0 ? 6 : currentWeekDay - 1;
         var dayStart = '';
@@ -1976,6 +1979,13 @@
     self.LoadChiTietHD = function (item, e) {
         self.Enable_NgayLapHD(!VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
         self.NgayLapHD_Update(undefined);
+
+        let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
+        let role = CheckQuyenExist('GiaoDich_ChoPhepSuaDoiChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
+        if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
+            role = true;
+        }
+        self.Role_ChangeInvoice_ifOtherDate(role);
 
         self.filterHangHoa_ChiTietHD(undefined);
 

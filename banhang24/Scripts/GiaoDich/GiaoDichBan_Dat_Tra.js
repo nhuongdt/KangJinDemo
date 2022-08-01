@@ -11,6 +11,9 @@
     var _id_NhanVien = $('.idnhanvien').text();
     var _IDNguoiDung = $('.idnguoidung').text();
     var DiaryUri = '/api/DanhMuc/SaveDiary/';
+    var _now = new Date();
+    var _nowFormat = moment(_now).format('YYYY-MM-DD');
+
     self.TodayBC = ko.observable('Toàn thời gian');
     self.ShopCookie = ko.observable($('#txtShopCookie').val());
     self.TenChiNhanh = ko.observableArray();
@@ -41,6 +44,7 @@
     self.RoleDelete_Invoice = ko.observable(false);
     self.RoleExport_Invoice = ko.observable(false);
     self.RoleUpdateImg_Invoice = ko.observable(false);
+    self.Role_ChangeInvoice_ifOtherDate = ko.observable(false);
     // hd dat
     self.RoleView_Order = ko.observable(false);
     self.RoleInsert_Order = ko.observable(false);
@@ -1070,7 +1074,6 @@
         }
 
         // NgayLapHoaDon
-        var _now = new Date();  //current date of week
         var dayStart = '';
         var dayEnd = '';
         if (self.filterNgayLapHD() === '0') {
@@ -1078,7 +1081,7 @@
                 case 0:
                     // all
                     self.TodayBC('Toàn thời gian');
-                    dayStart = '2016-01-01';
+                    dayStart = '2010-01-01';
                     dayEnd = moment(_now).add(1, 'days').format('YYYY-MM-DD');
                     break;
                 case 1:
@@ -2069,6 +2072,13 @@
         self.InVoiceChosing(item);
         self.Enable_NgayLapHD(item.ChoThanhToan === null || !VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
 
+        let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
+        let role = CheckQuyenExist('GiaoDich_ChoPhepSuaDoiChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
+        if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
+            role = true;
+        }
+        self.Role_ChangeInvoice_ifOtherDate(role);
+
         self.currentPage_CTHD(0);
         var congthucBH = item.CongThucBaoHiem;
 
@@ -2306,7 +2316,7 @@
         GetInforKhachHangFromDB_ByID(item.ID_BaoHiem, 3);
     }
 
-    function CheckQuyen_HoaDonMua(item) {
+    function CheckQuyen_HoaDonMua() {
         self.RoleUpdate_Invoice(CheckQuyenExist('HoaDon_CapNhat'));
         self.ThayDoi_NgayLapHD(CheckQuyenExist('HoaDon_ThayDoiThoiGian'));
         self.ThayDoi_NVienBan(CheckQuyenExist('HoaDon_ThayDoiNhanVien'));
