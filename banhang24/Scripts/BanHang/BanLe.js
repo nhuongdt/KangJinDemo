@@ -16866,8 +16866,8 @@ var NewModel_BanHangLe = function () {
             var _idDoiTuong = objAdd[0].ID_DoiTuong;
 
             // get nameDT for print HoaDon
-            if (loaiHD === 19 && (_idDoiTuong === null || _idDoiTuong === const_GuidEmpty)) {
-                ShowMessage_Danger('Vui lòng chọn khách hàng khi mua gói dịch vụ');
+            if (commonStatisJs.CheckNull(_idDoiTuong) || _idDoiTuong === const_GuidEmpty) {
+                ShowMessage_Danger('Vui lòng chọn khách hàng khi tạo hóa đơn');
                 SaveHD_RemoveDisable();
                 return false;
             }
@@ -20173,6 +20173,7 @@ var NewModel_BanHangLe = function () {
         vmHoaHongDV.role.ThayDoiChietKhau = CheckQuyenExist('HoaHong_ThayDoi');
         vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
         vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
+        vmThemMoiKhach.role.NhomKhachHang.ThemMoi = CheckQuyenExist('NhomKhachHang_ThemMoi');
         vmThanhToanGara.RoleChange_ChietKhauNV = vmHoaHongDV.role.ThayDoiChietKhau;
         vmUpAnhHoaDon.roleUpdateImg = self.roleUpdateImg();
         vmNKGoiBaoDuong.roleUpdateImg = self.roleUpdateImg();

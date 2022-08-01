@@ -159,6 +159,7 @@
     self.RoleUpdateImg_Invoice = ko.observable(false);
     self.RoleView_Cus = ko.observable(false);
     self.RoleInsert_Cus = ko.observable(false);
+    self.RoleInsert_CusGroup = ko.observable(false);
     self.RoleUpdate_Cus = ko.observable(false);
     self.RoleDelete_Cus = ko.observable(false);
     self.RoleExport_Cus = ko.observable(false);
@@ -3487,6 +3488,7 @@
                 self.RoleXemDSTheGiaTri(CheckQuyenExist('TheGiaTri_XemDS'));
                 self.RoleXemTongDoanhThu(CheckQuyenExist('KhachHang_XemTongDoanhThu'));
                 self.RoleUpdateImg_Invoice(CheckQuyenExist('HoaDon_CapNhatAnh'));
+                self.RoleInsert_CusGroup(CheckQuyenExist('NhomKhachHang_ThemMoi'));
 
                 if (loaiDoiTuong == 2) {
                     HideShowButton_Vendor();
