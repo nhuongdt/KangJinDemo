@@ -365,7 +365,6 @@ ko.components.register('jqauto-product', {
                     });
                 return;
             }
-            console.log('currpage ', self.currentPage());
             if (keyCode === 13 && self.searchList().length > 0) {
                 self.keyEnter();
             }
