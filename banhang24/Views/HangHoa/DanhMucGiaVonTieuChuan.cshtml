@@ -4,8 +4,8 @@
     Layout = null;
 }
 <style>
-    #vmGiaVonTieuChuan table thead tr th{
-        text-align:center;
+    #vmGiaVonTieuChuan table thead tr th {
+        text-align: center;
     }
 </style>
 
@@ -14,13 +14,13 @@
         <div class="op-baocao-type">
             <ul>
                 <li>
-                    <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                    <input type="radio" name="LoaiBaoCao" id="baocaochitiet" value="2" v-model="LoaiBaoCao" class="radio-option" />
                     <label for="baocaochitiet">
                         Chi tiết
                     </label>
                 </li>
                 <li>
-                    <input type="radio" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                    <input  type="radio" name="LoaiBaoCao" id="baocaotonghop" value="1" v-model="LoaiBaoCao" class="radio-option" />
                     <label for="baocaotonghop">
                         Tổng hợp
                     </label>
@@ -36,13 +36,13 @@
                     <aside class="op-filter-container">
                         <ul>
                             <li>
-                                <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                                <input type="radio" name="LoaiBaoCao" id="baocaochitiet" value="2"  v-model="LoaiBaoCao" class="radio-option" />
                                 <label for="baocaochitiet">
                                     Chi tiết
                                 </label>
                             </li>
                             <li>
-                                <input type="radio" name="LoaiBaoCao" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                                <input type="radio" name="LoaiBaoCao" id="baocaotonghop" value="1"  v-model="LoaiBaoCao" class="radio-option" />
                                 <label for="baocaotonghop">
                                     Tổng hợp
                                 </label>
@@ -78,13 +78,13 @@
                             <div class="menuCheckbox">
                                 <ul>
                                     <li>
-                                        <label><input type="checkbox" name="checkTamLuu" v-model="filter.TT_TamLuu"> Phiếu tạm</label>
+                                        <label><input type="checkbox" name="checkTamLuu" v-model="filter.TT_TamLuu" v-on:change="ChangeStatus"> Phiếu tạm</label>
                                     </li>
                                     <li>
-                                        <label><input type="checkbox" name="checkHoanThanh" v-model="filter.TT_HoanThanh"> Đã điều chỉnh</label>
+                                        <label><input type="checkbox" name="checkHoanThanh" v-model="filter.TT_HoanThanh" v-on:change="ChangeStatus"> Đã điều chỉnh</label>
                                     </li>
                                     <li>
-                                        <label><input type="checkbox" name="checkHuy" v-model="filter.TT_Huy"> Đã hủy</label>
+                                        <label><input type="checkbox" name="checkHuy" v-model="filter.TT_Huy" v-on:change="ChangeStatus"> Đã hủy</label>
                                     </li>
                                 </ul>
                             </div>
@@ -117,33 +117,35 @@
                                     <i class="fa fa-plus"></i>Điều chỉnh
                                 </button>
                             </div>
-                            <button class="btn btn-main pull-right" v-if="role.Export"
+                            <button class="btn btn-main pull-right" v-if="role.Export && LoaiBaoCao == 2"
                                     v-on:click="ExportExcel">
                                 <i class="fa fa-file-excel-o"></i> Xuất file
                             </button>
-                            <div class="btn-dropdown pull-right" >
+                            <div class="btn-dropdown open">
                                 <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false" onclick="showCollumnFilter(this)">
                                     <i class="fa fa-angle-double-down"></i>
                                 </button>
-                                <ul style="right:0; display:none">
-                                    <li v-for="item in GetListHeader()" >
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox" class="checkbox" v-model="item.colShow" />
-                                                <span></span>{{item.colText}}
-                                            </label>
-                                        </div>
-                                    </li>
-                                </ul>
+                                <div class="dropdown-list" style="display:none">
+                                    <ul>
+                                        <li v-for="item in GetListHeader()">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                    <span></span>{{item.colText}}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="flex">
                         <div class="op-search">
-                            <input type="text" class="form-control" placeholder="Theo mã phiếu" autocomplete="off"
-                                    v-model="filter.TextSearch" v-on:keyup="EnterKeyup">
-                            <button type="button" class=" op-search-button "  v-on:click="BeforeLoadData">
+                            <input type="text" class="form-control" v-bind:placeholder="sPlaceholder" autocomplete="off"
+                                   v-model="filter.TextSearch" v-on:keyup="EnterKeyup">
+                            <button type="button" class=" op-search-button " v-on:click="BeforeLoadData">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
@@ -154,7 +156,7 @@
                 </div>
             </div>
             <div class="content-table tab-content">
-                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao==2 }">
+                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao == 2 }">
                     <div class="table-frame">
                         <table class="table">
                             <thead>
@@ -173,14 +175,20 @@
                                             {{item.MaHangHoa}}
                                         </a>
                                     </td>
-                                    <td v-if="ChiTiet_CheckColShow('colTenHangHoa')" class="text-left">
-                                        <span>{{item.TenHangHoa}}</span>
-                                        <span class="blue" v-if="item.TenDonViTinh">({{item.TenDonViTinh}})</span>
+                                    <td v-if="ChiTiet_CheckColShow('colTenHangHoa')">
+                                        {{item.TenHangHoa}}
                                     </td>
-                                    <td v-if="ChiTiet_CheckColShow('colGiaVonCu')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.DonGia)}}</td>
-                                    <td v-if="ChiTiet_CheckColShow('colGiaVonMoi')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ThanhTien)}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colTenDonViTinh')" class="text-center">
+                                        {{item.TenDonViTinh}}
+                                    </td>
+                                    <td v-if="ChiTiet_CheckColShow('colGiaBan')" class="text-right">
+                                    {{commonStatisJs.FormatNumber3Digit(item.GiaBan)}}</td>
+                                    <td v-if="ChiTiet_CheckColShow('colGiaVonMoi')" class="text-right" style="width:10%">
+                                        <input type="text" class="form-control text-right"
+                                               onkeypress="return keypressNumber_limitNumber(event,this)"
+                                               v-model="item.GiaVonMoi" v-on:change="editGiaVon(item)" />
+                                    </td>
                                     <td v-if="ChiTiet_CheckColShow('colGiaVonTB')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.GiaVon)}}</td>
-                                    <td v-if="ChiTiet_CheckColShow('colGhiChu')" class="text-left">{{item.GhiChu}}</td>
                                     <td class="text-center red" v-on:click="DeleteRow(item)">
                                         <i class="fal fa-times" title="Xóa chi tiết"></i>
                                     </td>
@@ -203,6 +211,137 @@
                                v-on:pageselected="BaoCaoChiTietPageChange"></page-list>
                 </div>
 
+                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao == 1 }">
+                    <div class="table-frame">
+                        <table class="table" id="tblTongHop">
+                            <thead>
+                                <tr>
+                                    <th v-for="item in BaoCaoTongHopHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                </tr>
+                            </thead>
+                            <tbody v-for="(item, index) in BaoCaoTongHop.data">
+                                <tr class="prev-tr-hide" v-on:click="LoadChiTiet_PhieuDieuChinh(item)">
+                                    <td v-if="TongHop_CheckColShow('colMaHoaDon')" class="text-left">{{item.MaHoaDon}}</td>
+                                    <td v-if="TongHop_CheckColShow('colNgayLapHoaDon')" class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                    <td v-if="TongHop_CheckColShow('colNguoiTao')" class="text-left">{{item.NguoiTao}} </td>
+                                    <td v-if="TongHop_CheckColShow('colTenChiNhanh')" class="text-left">
+                                        {{item.TenDonVi}}
+                                    </td>
+                                    <td v-if="TongHop_CheckColShow('colTongMatHang')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.TongSLMatHang)}}</td>
+                                    <td v-if="TongHop_CheckColShow('colDienGiai')" class="text-left">{{item.DienGiai}}</td>
+                                    <td v-if="TongHop_CheckColShow('colTrangThai')" class="text-left">{{item.TrangThai}}</td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td colspan="8">
+                                        <div class="op-object-detail ">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a data-toggle="tab">Thông tin</a></li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane floatleft active">
+                                                    <div class="op-object-detail  floatleft">
+                                                        <div class="col-md-12 nopadding">
+                                                            <div class="op-object-detail-left">
+                                                                <div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Mã phiếu:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span >{{item.MaHoaDon}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Thời gian:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <my-date-time :date-chose="item.NgayLapHoaDon"
+                                                                                          :role-change-date="true"
+                                                                                          v-on:change-date="ChangeNgayLapHoaDon">
+                                                                            </my-date-time>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Người tạo:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>{{item.NguoiTao}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Trạng thái:</label>
+                                                                        <div class="css-form-label">
+                                                                            <div>{{item.TrangThai}}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <label class="css-form-label">Ghi chú:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <textarea rows="3" class=" floatleft text-deal" v-model="item.DienGiai"></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="op-object-detail-right">
+                                                                <div class="table-res scoll-300">
+                                                                    <table class="table-filter table-detal" style="width:inherit">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Mã hàng</th>
+                                                                                <th>Tên hàng hóa</th>
+                                                                                <th>Giá vốn tiêu chuẩn</th>
+                                                                                <th>Giá vốn trung bình</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr v-for="(item1, index2) in BH_HoaDon_ChiTiet.data">
+                                                                                <td class="text-center">{{item1.MaHangHoa}}</td>
+                                                                                <td>{{item1.TenHangHoa}}</td>
+                                                                                <td class="text-center">{{formatNumber3Digit(item1.ThanhTien)}}</td>
+                                                                                <td class="text-center">{{formatNumber3Digit(item1.GiaVon)}}</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12 footer-group-buttom">
+                                                            <div class="group-btn pull-right">
+                                                                <button class="btn btn-main"  v-on:click="Update_HoaDon(item)">
+                                                                    <i class="fa fa-save"></i>Lưu
+                                                                </button>
+                                                                <button class="btn btn-main" v-if="item.ChoThanhToan == null" v-on:click="SaoChepUpdate_HoaDon(item,1)">
+                                                                    <i class="fa fa-share"></i> Mở phiếu
+                                                                </button>
+                                                                <button class="btn btn-main" v-on:click="SaoChepUpdate_HoaDon(item,0)">
+                                                                    <i class="fa fa-clone"></i>Sao chép
+                                                                </button>
+                                                                <button class="btn btn-cancel" v-on:click="Huy_HoaDon(item)">
+                                                                    <i class="fa fa-close"></i>Hủy bỏ
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="Report_Empty" v-show="BaoCaoTongHop.data.length < 1">
+                                <tr>
+                                    <td class="bg12 text-center" colspan="14"><i>Không có dữ liệu</i></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <page-list v-bind:pagesize="BaoCaoTongHop.PageSize"
+                               v-bind:listpage="BaoCaoTongHop.ListPage"
+                               v-bind:currentpage="BaoCaoTongHop.currentPage"
+                               v-bind:pageview="BaoCaoTongHop.PageView"
+                               v-bind:numberofpage="BaoCaoTongHop.NumberOfPage"
+                               v-on:pageselected="BaoCaoTongHopPageChange"></page-list>
+                </div>
             </div>
         </div>
     </div>
@@ -256,6 +395,40 @@
                 "firstDay": 1
             }
         });
+    });
+
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    function SetHeightShow($this) {
+        setTop = $('#vmGiaVonTieuChuan #tblTongHop thead').height() + parseInt($this.height() * ($this.index() / 2));
+        $this.parents(".table-reponsive").toggleClass("table_re");
+        $(".prev-tr-hide td").not($this.find("td")).removeClass("bor");
+        $this.find("td").toggleClass("bor");
+        $("td").not($this.find("td")).removeClass("bg-gray");
+        $(".prev-tr-hide").not($this).removeClass("bor-right");
+        $this.toggleClass("bor-right");
+        $this.find("td").toggleClass("bg-gray");
+        var t = $this.next(".op-js-tr-hide").css("display");
+        if (t == "none") {
+            $(".op-js-tr-hide").removeClass("ac");
+            $(".op-js-tr-hide").removeClass("l");
+            $this.next(".op-js-tr-hide").addClass("ac");
+            heightold = $this.next().height();
+            heigth = parseInt($this.height()) + heightold;
+            $('.line-right').height(heigth).css("margin-top", setTop + "px");
+        }
+        else if (t == "block") {
+            $this.next(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+        else {
+            $(".op-js-tr-hide").removeClass("ac");
+            $('.line-right').height(0).css("margin-top", "0px");
+        }
+    }
+    $('#tblTongHop').on('click', '.prev-tr-hide', function () {
+        sleep(300).then(() => { SetHeightShow($(this)); });
     });
 </script>
 
