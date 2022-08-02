@@ -1346,6 +1346,7 @@
 
                 vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
                 vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
+                vmThemMoiKhach.role.NhomKhachHang.ThemMoi = CheckQuyenExist('NhomKhachHang_ThemMoi');
             }
             else {
                 ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai);
