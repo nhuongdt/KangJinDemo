@@ -10245,7 +10245,7 @@ namespace libQuy_HoaDon
 
                         if (dienthoai != "")
                         {
-                            bool isNumber = IsNumberInt(dienthoai);
+                            //bool isNumber = IsNumberInt(dienthoai);
                             //if (isNumber == false)
                             //{
                             //    lstErr.Add(new ErrorDMHangHoa
