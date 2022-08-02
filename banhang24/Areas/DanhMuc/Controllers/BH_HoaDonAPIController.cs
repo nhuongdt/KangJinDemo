@@ -3548,6 +3548,31 @@ namespace banhang24.Areas.DanhMuc.Controllers
         #endregion
 
         #region update
+        [HttpGet]
+        public IHttpActionResult UpdateHoaDon_Common(Guid id, DateTime? ngaylap, string diengiai, string nguoisua)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    var objOld = db.BH_HoaDon.Find(id);
+                    if (objOld != null)
+                    {
+                        objOld.NgayLapHoaDon = ngaylap ?? DateTime.Now;
+                        objOld.DienGiai = diengiai;
+                        objOld.NguoiSua = nguoisua;
+                        objOld.NgaySua = DateTime.Now;
+                        db.SaveChanges();
+                        return ActionTrueNotData(string.Empty);
+                    }
+                    return ActionFalseNotData(string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException+ ex.Message);
+                }
+            }
+        }
 
         [ResponseType(typeof(string))]
         [HttpGet, HttpPost]
