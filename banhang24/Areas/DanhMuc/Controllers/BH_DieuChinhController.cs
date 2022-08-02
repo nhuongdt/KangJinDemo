@@ -231,6 +231,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     ID_DonViQuiDoi = item.ID_DonViQuiDoi,
                                     SoThuTu = item.SoThuTu,
                                     DonGia = item.DonGia,
+                                    ThanhTien = item.ThanhTien,
                                     GiaVon = item.GiaVon,
                                     ID_HoaDon = newHD.ID,
                                     TienChietKhau = item.TienChietKhau,
@@ -359,7 +360,99 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return ResponseMessage(Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message));
             }
         }
+
+        [HttpGet]
+        public IHttpActionResult UpdateGiaVonTieuChuan_ofCTHD(Guid id, double? giavonMoi = 0)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var data = db.BH_HoaDon_ChiTiet.Find(id);
+                        if (data != null)
+                        {
+                            data.ThanhTien = giavonMoi ?? 0;
+                            db.SaveChanges();
+                            trans.Commit();
+                            return ActionTrueData(string.Empty);
+                        }
+                        return ActionFalseNotData("Data null");
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.InnerException + ex.Message);
+                    }
+                }
+            }
+        }
+        [HttpGet]
+        public IHttpActionResult DeleteCTHD_byID(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var data = db.BH_HoaDon_ChiTiet.Find(id);
+                        if (data != null)
+                        {
+                            Guid idHoaDon = data.ID_HoaDon;
+                            db.BH_HoaDon_ChiTiet.Remove(data);
+                            int countCT = db.BH_HoaDon_ChiTiet.Where(x => x.ID_HoaDon == idHoaDon).Count();
+                            if (countCT == 0)
+                            {
+                                // if delete all cthd --> delete hoadon
+                                BH_HoaDon obj = db.BH_HoaDon.Find(idHoaDon);
+                                db.BH_HoaDon.Remove(obj);
+                            }
+                            db.SaveChanges();
+                            trans.Commit();
+                            return ActionTrueData(string.Empty);
+                        }
+                        return ActionFalseNotData("Data null");
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.InnerException + ex.Message);
+                    }
+                }
+            }
+        }
+
+        [HttpGet]
+        public IHttpActionResult Huy_PhieuDieuChinh(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var data = db.BH_HoaDon.Find(id);
+                        if (data != null)
+                        {
+                            data.ChoThanhToan = null;
+                            db.SaveChanges();
+                            trans.Commit();
+                            return ActionTrueData(string.Empty);
+                        }
+                        return ActionFalseNotData("Data null");
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.InnerException + ex.Message);
+                    }
+                }
+            }
+        }
         #endregion
+
         #region Select
         [HttpGet, HttpPost]
         public IHttpActionResult GetListGiaVonTieuChuan_ChiTiet(CommonParamSearch param)
@@ -392,10 +485,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return ActionFalseNotData(ex.InnerException+ ex.Message);
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
                 }
             }
-        } 
+        }
         [HttpGet, HttpPost]
         public IHttpActionResult GetListGiaVonTieuChuan_TongHop(CommonParamSearch param)
         {
@@ -427,8 +520,55 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return ActionFalseNotData(ex.InnerException+ ex.Message);
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
                 }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public string Export_GiaVonTieuChuan_ChiTiet(CommonParamSearch param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                List<PhieuDieuChinhChiTietDTO> data = classHoaDonCT.GetListGiaVonTieuChuan_ChiTiet(param);
+                List<Excel_PhieuDieuChinhChiTiet> lst = data.Select(c => new Excel_PhieuDieuChinhChiTiet
+                {
+                    MaHoaDon = c.MaHoaDon,
+                    NgayLapHoaDon = c.NgayLapHoaDon,
+                    TenNhomHangHoa = c.TenNhomHangHoa,
+                    MaHangHoa = c.MaHangHoa,
+                    TenHangHoa = c.TenHangHoa,
+                    TenDonViTinh = c.TenDonViTinh,
+                    GiaBan = c.GiaBan,
+                    ThanhTien = c.ThanhTien,
+                    GiaVon = c.GiaVon,
+                }).ToList();
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                string fileSave = string.Empty;
+                try
+                {
+                    DataTable excel = _classOFDCM.ToDataTable<Excel_PhieuDieuChinhChiTiet>(lst);
+                    string columnHide = string.Empty;
+                    if (param.ColumnHide != null && param.ColumnHide.Count > 0)
+                    {
+                        columnHide = string.Join(",", param.ColumnHide);
+                    }
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucGiaVonTieuChuan.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhMucGiaVonTieuChuan.xlsx");
+                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 5, 29, 24, true, 0, columnHide, param.ReportTime, param.ReportBranch);
+
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("Export_GiaVonTieuChuan_ChiTiet " + ex.InnerException + ex.Message);
+                }
+                return fileSave;
             }
         }
 
