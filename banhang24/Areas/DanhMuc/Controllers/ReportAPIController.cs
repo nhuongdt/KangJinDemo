@@ -6972,6 +6972,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("NganHang");
                     excel.Columns.Remove("IDDonVi");
                     excel.Columns.Remove("ID_HoaDon");
+                    excel.Columns.Remove("ThuTienPOS");
+                    excel.Columns.Remove("ChiTienPOS");
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoSoQuyTienMat.xlsx");
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoSoQuyTienMat.xlsx");
                     fileSave = classOffice.createFolder_Download(fileSave);
