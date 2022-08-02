@@ -3579,6 +3579,7 @@ namespace libDM_HangHoa
         public double? TonKho { get; set; }
         public double? GiaVon { get; set; }
         public double? GiaNhap { get; set; }// used to NhapHangChiTiet: change LoaiHoaDon --> get again GiaNhap from DB
+        public double? GiaVonTieuChuan { get; set; }
     }
     public class Gara_ParamSearchHangHoa
     {
