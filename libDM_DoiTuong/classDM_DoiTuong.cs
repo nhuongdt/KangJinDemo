@@ -2206,6 +2206,34 @@ namespace libDM_DoiTuong
             }
             return autoCode;
         }
+
+        public string GetMaDoiTuongMax_byTemp(int loaiDoiTuong, Guid? idDonVi)
+        {
+            string autoCode = string.Empty;
+            int loaiHoaDon = 0;
+            switch (loaiDoiTuong)
+            {
+                case 1:
+                    loaiHoaDon = 33;
+                    break;
+                case 2:
+                    loaiHoaDon = 34;
+                    break;
+            }
+            try
+            {
+                List<SqlParameter> lstParam = new List<SqlParameter>();
+                lstParam.Add(new SqlParameter("LoaiHoaDon", loaiHoaDon));
+                lstParam.Add(new SqlParameter("ID_DonVi", idDonVi));
+                var objReturn = db.Database.SqlQuery<SP_MaxCodeTemp>("EXEC GetMaDoiTuongMax_byTemp @LoaiHoaDon, @ID_DonVi", lstParam.ToArray()).FirstOrDefault();
+                autoCode = objReturn.MaxCode;
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("GetMaDoiTuongMax_byTemp: " + ex.InnerException + ex.Message + ex.HResult);
+            }
+            return autoCode;
+        }
         // check time to date
         public bool check_TimetoDate(string time)
         {
