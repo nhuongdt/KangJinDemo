@@ -608,29 +608,29 @@ var ViewModel = function () {
             self.ThietLap().CoDonViTinh(false);
         }
         //tính năng đặt hàng
-        var cbDatHangClass = document.getElementById("cbDatHang").getAttribute("class");
-        if (cbDatHangClass.indexOf("cl") > 0) {
-            self.ThietLap().DatHang(true);
-        }
-        else {
+        //var cbDatHangClass = document.getElementById("cbDatHang").getAttribute("class");
+        //if (cbDatHangClass.indexOf("cl") > 0) {
+        //    self.ThietLap().DatHang(true);
+        //}
+        //else {
             self.ThietLap().DatHang(false);
-        }
-        //đặt hàng xuất âm
-        var cbDatHangXuatAmClass = document.getElementById("cbDatHangXuatAm").getAttribute("class");
-        if (cbDatHangXuatAmClass.indexOf("cl") > 0) {
-            self.ThietLap().DatHangXuatAm(true);
-        }
-        else {
+        //}
+        ////đặt hàng xuất âm
+        //var cbDatHangXuatAmClass = document.getElementById("cbDatHangXuatAm").getAttribute("class");
+        //if (cbDatHangXuatAmClass.indexOf("cl") > 0) {
+        //    self.ThietLap().DatHangXuatAm(true);
+        //}
+        //else {
             self.ThietLap().DatHangXuatAm(false);
-        }
+        //}
         //lô hàng
-        var cbLoHangClass = document.getElementById("cbLoHang").getAttribute("class");
-        if (cbLoHangClass.indexOf("cl") > 0) {
-            self.ThietLap().LoHang(true);
-        }
-        else {
+        //var cbLoHangClass = document.getElementById("cbLoHang").getAttribute("class");
+        //if (cbLoHangClass.indexOf("cl") > 0) {
+        //    self.ThietLap().LoHang(true);
+        //}
+        //else {
             self.ThietLap().LoHang(false);
-        }
+        //}
         //tích điểm
 
         var cbTichDiemClass = document.getElementById("cbTichDiem").getAttribute("class");
@@ -1899,9 +1899,6 @@ var ViewModel = function () {
                                         case 33:
                                             itemFor.MaLoaiChungTu = '';
                                             break;
-                                        case 34:
-                                            itemFor.MaLoaiChungTu = '';
-                                            break;
                                     }
 
                                     // concat string --> Mau
@@ -2071,7 +2068,7 @@ var ViewModel = function () {
                 //opiframe.src = 'data:text/html;charset=utf-8,' + encodeURI(data.dataSoure.html);
                 ///*opiframe.contentWindow.document = data.dataSoure.html;*/
                 //document.getElementById("opiframe").appendChild(opiframe);
-                console.log(vTemplate);
+                //console.log(vTemplate);
             },
         })
     }
