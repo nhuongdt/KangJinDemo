@@ -28,6 +28,7 @@
 
             self.ThietLapCuaHang = VHeader.ThietLapCuaHang;
             self.ThietLapChotSo = VHeader.ThietLapChotSo;
+            self.LaAdmin = VHeader.LaAdmin;
         }
         else {
             self.inforLogin.ID_DonVi = idDonVi;
@@ -72,6 +73,7 @@
         }
     },
     data: {
+        LaAdmin: '',
         saveOK: false,
         isLoading: false,
         typeUpdate: 0,//0.insert, 1.update
