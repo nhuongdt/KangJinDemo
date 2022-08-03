@@ -5455,7 +5455,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string sMaHoaDon = string.Empty;
                     if (objHoaDon.MaHoaDon == null || objHoaDon.MaHoaDon == "")
                     {
-                        sMaHoaDon = classHoaDon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, objHoaDon.NgayLapHoaDon);
+                        sMaHoaDon = classHoaDon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, newHD.NgayLapHoaDon);
                     }
                     else
                     {
@@ -5467,7 +5467,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         sMaHoaDon = objHoaDon.MaHoaDon;
                     }
                     newHD.MaHoaDon = sMaHoaDon;
-                    newHD.NgayTao = DateTime.Now;
+                    newHD.NgaySua = DateTime.Now;
                     newHD.TyGia = 1;
                     inforOld = "Thông tin hóa đơn cũ: <br /> " + db.Database.SqlQuery<string>(" SELECT dbo.Diary_GetInforOldInvoice('" + objHoaDon.ID + "')").First();
                     err = classHoaDon.Update_HoaDon(newHD);
