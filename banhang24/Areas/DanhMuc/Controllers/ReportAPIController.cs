@@ -4623,7 +4623,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon,x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
                 {
                     SoLuongDichVu = t.FirstOrDefault().SoLuongDichVu,
-                    GiaTriDichVu = t.FirstOrDefault().GiaTriDichVu
+                    GiaTriDichVu = t.Sum(xx=>xx.GiaTriDichVu),
                 }).ToList();
                 double SoLuongDichVu = lst_gr.Sum(x => x.SoLuongDichVu);
                 double GiaTriDichVu = lst_gr.Sum(x => x.GiaTriDichVu);
