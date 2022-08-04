@@ -219,21 +219,23 @@
                     break;
             }
             ajaxHelper(self.urlApi.BHDieuChinh + urlExport, 'POST', param).done(function (pathFile) {
-                let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
-                window.location.href = url;
-                commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+                if (pathFile!=='') {
+                    let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
+                    window.location.href = url;
+                    commonStatisJs.ShowMessageSuccess("Xuất file thành công");
 
-                let diary = {
-                    ID_DonVi: VHeader.IdDonVi,
-                    ID_NhanVien: VHeader.IdNhanVien,
-                    LoaiNhatKy: 6,
-                    ChucNang: 'Danh mục giá vốn tiêu chuẩn',
-                    NoiDung: 'Xuất file danh mục giá vốn tiêu chuẩn',
-                    NoiDungChiTiet: 'Xuất file danh mục giá vốn tiêu chuẩn '.
-                        concat(parseInt(self.LoaiBaoCao) == 1 ? ' - tổng hợp' : ' - chi tiết',
-                            '<br /> Người xuất: ', VHeader.UserLogin),
+                    let diary = {
+                        ID_DonVi: VHeader.IdDonVi,
+                        ID_NhanVien: VHeader.IdNhanVien,
+                        LoaiNhatKy: 6,
+                        ChucNang: 'Danh mục giá vốn tiêu chuẩn',
+                        NoiDung: 'Xuất file danh mục giá vốn tiêu chuẩn',
+                        NoiDungChiTiet: 'Xuất file danh mục giá vốn tiêu chuẩn '.
+                            concat(parseInt(self.LoaiBaoCao) == 1 ? ' - tổng hợp' : ' - chi tiết',
+                                '<br /> Người xuất: ', VHeader.UserLogin),
+                    }
+                    Insert_NhatKyThaoTac_1Param(diary);
                 }
-                Insert_NhatKyThaoTac_1Param(diary);
             })
         },
 
@@ -558,7 +560,6 @@
 
             for (let i = 0; i < self.BH_HoaDon_ChiTiet.data.length; i++) {
                 var ctNew = $.extend({}, self.BH_HoaDon_ChiTiet.data[i]);
-                ctNew.ID_HoaDon = idHoaDon;
                 ctNew.IDRandom = CreateIDRandom('CTHD_');
                 ctNew.ThuocTinh_GiaTri = ctNew.ThuocTinhGiaTri;
                 ctNew.SoThuTu = cthdLoHang.length + 1;
@@ -590,6 +591,7 @@
                         idNhanVien = VHeader.IdNhanVien;
                         idDonVi = VHeader.IdDonvi;
                         mahoadon = 'Copy' + item.MaHoaDon;
+                        idHoaDon = const_GuidEmpty;
                         break;
                     case 1://update hd tamluu
                         idNhanVien = item.ID_NhanVien;
@@ -598,6 +600,7 @@
                         ngaylapHD = item.NgayLapHoaDon;
                         break;
                 }
+                cthdLoHang[0].ID_HoaDon = idHoaDon;
                 cthdLoHang[0].ID_DonVi = idDonVi;
                 cthdLoHang[0].ID_NhanVien = idNhanVien;
                 cthdLoHang[0].MaHoaDon = mahoadon;

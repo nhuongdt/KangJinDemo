@@ -2,12 +2,12 @@
     var self = this;
     var BH_HoaDonUri = '/api/DanhMuc/BH_HoaDonAPI/';
     var DMDoiTuongUri = '/api/DanhMuc/DM_DoiTuongAPI/';
-    var DMNhomDoiTuongUri = '/api/DanhMuc/DM_NhomDoiTuongAPI/';
     var DMNguonKhachUri = '/api/DanhMuc/DM_NguonKhachAPI/';
     var DMHangHoaUri = '/api/DanhMuc/DM_HangHoaAPI/';
     var Quy_HoaDonUri = '/api/DanhMuc/Quy_HoaDonAPI/';
     var CSKHUri = '/api/DanhMuc/ChamSocKhachHangAPI/';
-    const loaiDoiTuong = 1;
+    var _now = new Date();
+    var _nowFormat = moment(_now).format('YYYY-MM-DD');
     self.TodayBC = ko.observable('Toàn thời gian');
 
     var columnHide = '';
@@ -44,7 +44,6 @@
     self.ListAccountChuyenKhoan = ko.observableArray();
     self.ListTypeMauIn = ko.observableArray();
 
-    var DiaryUri = '/api/DanhMuc/SaveDiary/';
     self.checkEmail = ko.observable(true);
     self.NhomDoiTuongs = ko.observableArray();
     self.TinhThanhs = ko.observableArray();
@@ -101,6 +100,8 @@
 
     self.Allow_ChangeTimeSoQuy = ko.observable(false);
     self.Show_BtnThanhToanCongNo = ko.observable(false);
+    self.Role_ChangeInvoice_ifOtherDate = ko.observable(false);
+    self.Role_DeleteInvoice_ifOtherDate = ko.observable(false);
 
     // chon nhieu nhom
     self.NhomDoiTuongDB = ko.observableArray();
@@ -163,6 +164,7 @@
         GetAllQuy_KhoanThuChi();
         GetInforCongTy();
         GetCauHinhHeThong();
+        console.log('ds TGT')
     }
     Page_Load();
 
@@ -686,8 +688,6 @@
             arrLoaiHD = [22, 32];
         }
 
-        // NgayLapHoaDon
-        var _now = new Date();  //current date of week
         var currentWeekDay = _now.getDay();
         var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
         var dayStart = '';
@@ -1245,13 +1245,23 @@
 
     self.wasKhoaSo = ko.observable(false);
 
-    self.LoadChiTiet = function (formElement) {
-        self.wasKhoaSo(VHeader.CheckKhoaSo(moment(formElement.NgayLapHoaDon).format('YYYY-MM-DD'), formElement.ID_DonVi));
+    self.LoadChiTiet = function (item) {
+        self.wasKhoaSo(VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
 
-        self.GDVChosing(formElement);
+        let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
+        let role = CheckQuyenExist('GiaoDich_ChoPhepSuaDoiChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
+        let role2 = CheckQuyenExist('GiaoDich_ChoPhepHuyChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
+        if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
+            role = true;
+            role2 = true;
+        }
+        self.Role_ChangeInvoice_ifOtherDate(role);
+        self.Role_DeleteInvoice_ifOtherDate(role2);
+
+        self.GDVChosing(item);
         self.NgayLapHD_Update(undefined);
-        var ngaylapHD = moment(formElement.NgayLapHoaDon).format('YYYY-MM-DD HH:mm:ss');
-        Get_SoDuTheGiaTri_ofKhachHang(formElement.ID_DoiTuong, ngaylapHD, false);
+        var ngaylapHD = moment(item.NgayLapHoaDon).format('YYYY-MM-DD HH:mm:ss');
+        Get_SoDuTheGiaTri_ofKhachHang(item.ID_DoiTuong, ngaylapHD, false);
         $('.txtNgayLapHD').datetimepicker({
             timepicker: true,
             mask: true,
@@ -1259,7 +1269,7 @@
             maxDate: new Date(),
             onChangeDateTime: function (dp, $input) {
                 self.NgayLapHD_Update($input.val());
-                CheckNgayLapHD_format(self.NgayLapHD_Update(), formElement.ID_DonVi);
+                CheckNgayLapHD_format(self.NgayLapHD_Update(), item.ID_DonVi);
             }
         });
 
@@ -1346,7 +1356,7 @@
 
                 vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
                 vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
-                vmThemMoiKhach.role.NhomKhachHang.ThemMoi = CheckQuyenExist('NhomKhachHang_ThemMoi');
+                vmThemMoiKhach.role.NhomKhach.ThemMoi = CheckQuyenExist('NhomKhachHang_ThemMoi');
             }
             else {
                 ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai);

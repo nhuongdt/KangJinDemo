@@ -45,21 +45,21 @@
     self.ChungTus = ko.observableArray();
     self.searchChungTu = ko.observableArray();
 
-    var _idChungTuSeach = '1,19';
+    var _idChungTuSeach = '1,2,6';
 
     switch (VHeader.IdNganhNgheKinhDoanh.toUpperCase()) {
         case 'AC9DF2ED-FF08-488F-9A64-08433E541020':
             self.LoaiNganhNghe(0);//spa + banle
-            getListDM_LoaiChungTuBanHang('1,19');
+            getListDM_LoaiChungTuBanHang('1,2,6');
             break;
         case 'C16EDDA0-F6D0-43E1-A469-844FAB143014':
             self.LoaiNganhNghe(1);//gara
             _idChungTuSeach = '1,19,25';
-            getListDM_LoaiChungTuBanHang('1,19,25');
+            getListDM_LoaiChungTuBanHang('1,25,6');
             break;
         case 'C1D14B5A-6E81-4893-9F73-E11C63C8E6BC':
             self.LoaiNganhNghe(2);//nhahang
-            getListDM_LoaiChungTuBanHang('1,19');
+            getListDM_LoaiChungTuBanHang('1,2,6');
             break;
     }
 

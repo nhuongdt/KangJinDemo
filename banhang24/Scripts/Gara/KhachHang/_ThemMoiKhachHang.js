@@ -43,7 +43,7 @@
         role: {
             // role nhom + nguon + trangthai = role customer
             KhachHang: {},
-            NhomKhach: {},
+            NhomKhach: { ThemMoi: false },
         },
         customerDoing: {},
         customerOld: {},

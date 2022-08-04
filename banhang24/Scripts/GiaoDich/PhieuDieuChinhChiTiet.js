@@ -8,7 +8,7 @@
     self.NguoiTao = ko.observable(VHeader.UserLogin);
     self.LoaiHoaDon = ko.observable($('#txtLoaiHoaDon').val());
     self.MaHoaDon = ko.observable();
-    self.NgayLapHoaDon = ko.observable(moment(new Date()).format('YYYY-MM-DD HH:mm'));
+    self.NgayLapHoaDon = ko.observable(null);
     self.TongTienHang = ko.observable(0);
     self.PhaiThanhToan = ko.observable(0);
     self.TongGiamGia = ko.observable(0);
@@ -1682,15 +1682,68 @@ var PhieuDieuChinhChiTiet = function () {
 
             if (cthd.length > 0) {
                 let arrCT = [];
-                for (let i = 0; i < cthd.length; i++) {
-                    let itOut = cthd[i];
-                    itOut.SoThuTu = arrCT.length + 1;
-                    arrCT.push(itOut);
+                // assign TienChietKhau, PTChietKhau
+                switch (self.LoaiHoaDonMenu) {
+                    case 16:
+                        for (let i = 0; i < cthd.length; i++) {
+                            let itOut = cthd[i];
+                            itOut.SoThuTu = arrCT.length + 1;
+                            let chenhlech = formatNumberToFloat(arrCT.ThanhTien) - formatNumberToFloat(arrCT.DonGia);
+                            if (chenhlech > 0) {
+                                itOut.PTChietKhau = chenhlech;
+                                itOut.TienChietKhau = 0;
+                            }
+                            else {
+                                itOut.PTChietKhau = 0;
+                                itOut.TienChietKhau = chenhlech;
+                            }
+                            arrCT.push(itOut);
 
-                    for (let j = 1; j < itOut.DM_LoHang.length; j++) {
-                        let itFor = itOut.DM_LoHang[j];
-                        arrCT.push(itFor);
-                    }
+                            for (let j = 1; j < itOut.DM_LoHang.length; j++) {
+                                let itFor = itOut.DM_LoHang[j];
+                                let chenhlech2 = formatNumberToFloat(itFor.ThanhTien) - formatNumberToFloat(itFor.DonGia);
+                                if (chenhlech2 > 0) {
+                                    itFor.PTChietKhau = chenhlech2;
+                                    itFor.TienChietKhau = 0;
+                                }
+                                else {
+                                    itFor.PTChietKhau = 0;
+                                    itFor.TienChietKhau = chenhlech2;
+                                }
+                                arrCT.push(itFor);
+                            }
+                        }
+                        break;
+                    case 18:
+                        for (let i = 0; i < cthd.length; i++) {
+                            let itOut = cthd[i];
+                            itOut.SoThuTu = arrCT.length + 1;
+                            let chenhlech = formatNumberToFloat(arrCT.GiaVon) - formatNumberToFloat(arrCT.DonGia);
+                            if (chenhlech > 0) {
+                                itOut.PTChietKhau = chenhlech;
+                                itOut.TienChietKhau = 0;
+                            }
+                            else {
+                                itOut.PTChietKhau = 0;
+                                itOut.TienChietKhau = chenhlech;
+                            }
+                            arrCT.push(itOut);
+
+                            for (let j = 1; j < itOut.DM_LoHang.length; j++) {
+                                let itFor = itOut.DM_LoHang[j];
+                                let chenhlech2 = formatNumberToFloat(itFor.GiaVon) - formatNumberToFloat(itFor.DonGia);
+                                if (chenhlech2 > 0) {
+                                    itFor.PTChietKhau = chenhlech2;
+                                    itFor.TienChietKhau = 0;
+                                }
+                                else {
+                                    itFor.PTChietKhau = 0;
+                                    itFor.TienChietKhau = chenhlech2;
+                                }
+                                arrCT.push(itFor);
+                            }
+                        }
+                        break;
                 }
 
                 for (let i = 0; i < arrCT.length; i++) {
@@ -1732,7 +1785,7 @@ var PhieuDieuChinhChiTiet = function () {
                 };
 
                 var idHoaDon = myData.objHoaDon.ID;
-                if (idHoaDon !== null && idHoaDon !== undefined && idHoaDon !== const_GuidEmpty) {
+                if (!commonStatisJs.CheckNull(idHoaDon) && idHoaDon !== const_GuidEmpty) {
                     Put_PhieuDieuChinh(myData);
                 }
                 else {
@@ -1853,7 +1906,7 @@ var PhieuDieuChinhChiTiet = function () {
 
     function Put_PhieuDieuChinh(myData) {
         console.log('Update_PhieuDieuChinh ', myData)
-        ajaxHelper(BH_DieuChinhUri + 'Update_PhieuDieuChinh', 'post', myData).done(function (x) {
+        ajaxHelper(BH_DieuChinhUri + 'Update_PhieuDieuChinh?idNhanVien=' + _idNhanVien, 'post', myData).done(function (x) {
             if (x.res === true) {
                 RemoveCache(myData.objHoaDon.IDRandom);
                 ShowMessage_Success('Cập nhật phiếu điều chỉnh thành công');

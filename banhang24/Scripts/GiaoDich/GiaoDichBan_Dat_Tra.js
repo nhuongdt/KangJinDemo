@@ -45,6 +45,7 @@
     self.RoleExport_Invoice = ko.observable(false);
     self.RoleUpdateImg_Invoice = ko.observable(false);
     self.Role_ChangeInvoice_ifOtherDate = ko.observable(false);
+    self.Role_DeleteInvoice_ifOtherDate = ko.observable(false);
     // hd dat
     self.RoleView_Order = ko.observable(false);
     self.RoleInsert_Order = ko.observable(false);
@@ -2074,10 +2075,13 @@
 
         let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
         let role = CheckQuyenExist('GiaoDich_ChoPhepSuaDoiChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
+        let role2 = CheckQuyenExist('GiaoDich_ChoPhepHuyChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
         if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
             role = true;
+            role2 = true;
         }
         self.Role_ChangeInvoice_ifOtherDate(role);
+        self.Role_DeleteInvoice_ifOtherDate(role2);
 
         self.currentPage_CTHD(0);
         var congthucBH = item.CongThucBaoHiem;

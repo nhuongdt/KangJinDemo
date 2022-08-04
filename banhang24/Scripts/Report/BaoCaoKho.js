@@ -2325,7 +2325,7 @@
                         for (let i = 0; i < lstColumn.length; i++) {
                             let itFor = parseInt(lstColumn[i]);
                             if (itFor > 2) {
-                                lstAfter.push(itFor + 1);// cot BienSo (index = 3)
+                                lstAfter.push(itFor + 2);// cot BienSo (index = 3)
                             }
                             else {
                                 lstAfter.push(itFor);
