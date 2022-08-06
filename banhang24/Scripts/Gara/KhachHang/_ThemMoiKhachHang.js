@@ -735,7 +735,7 @@
         AddCustomer: function (DM_DoiTuong, sNgayDinh) {
             var self = this;
             ajaxHelper(self.UrlDoiTuongAPI + 'PostDM_DoiTuong', 'POST', DM_DoiTuong).done(function (x) {
-                self.isLoading = false;
+                console.log('xx ', x);
                 if (x.res === true) {
                     self.saveOK = true;
                     var item = x.data;
@@ -786,12 +786,17 @@
                     self.saveOK = false;
                     ShowMessage_Danger(x.mes);
                 }
+            }).always(function () {
+                self.isLoading = false;
+            }).fail(function (x) {
+                if (x.responseText.indexOf('NgaySinh_NgayTLap') > -1) {
+                    ShowMessage_Danger('Sai ngày sinh hoặc chưa đúng định dạng');
+                }
             })
         },
         UpdateCustomer: function (myData, sNgayDinh) {
             var self = this;
             ajaxHelper(self.UrlDoiTuongAPI + 'PutDM_DoiTuong', 'PUT', myData).done(function (x) {
-                self.isLoading = false;
                 if (x.res === true) {
                     self.saveOK = true;
                     var item = x.data;
@@ -844,7 +849,18 @@
                 }
                 else {
                     self.saveOK = false;
-                    ShowMessage_Danger(x.mes);
+                    if (x.mes.indexOf('NgaySinh_NgayTLap') > -1) {
+                        ShowMessage_Danger('Sai ngày sinh hoặc chưa đúng định dạng');
+                    }
+                    else {
+                        ShowMessage_Danger(x.mes);
+                    }
+                }
+            }).always(function () {
+                self.isLoading = false;
+            }).fail(function (x) {
+                if (x.responseText.indexOf('NgaySinh_NgayTLap') > -1) {
+                    ShowMessage_Danger('Sai ngày sinh hoặc chưa đúng định dạng');
                 }
             })
         },
