@@ -64,4 +64,11 @@ namespace Model
         public string ReportTime { get; set; }
         public string ReportBranch { get; set; }// Tên chi nhánh
     }
+
+    public class ParamSearchNhomHang
+    {
+        public Guid? ID_DonVi { get; set; }
+        public List<string> IDNhomHangs { get; set; }
+        public string LoaiHangHoas { get; set; }
+    }
 }
