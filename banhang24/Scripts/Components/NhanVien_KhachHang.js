@@ -385,11 +385,17 @@ var cmpChoseProduct = {
         showImage: { default: false },
         idBangGia: { default: '00000000-0000-0000-0000-000000000000' },
         idChiNhanh: { default: null },//#d9d9d9
+        roleAdd: { default: false },
+        titleAdd: { default: '' },
     },
     template: `
-       <div style=" position:relative" class="jsSearchProduct op-search-list" v-bind:class="{ showImageList: showImage }">
-
+       <div class="gara-detail-input" style=" position:relative" class="jsSearchProduct op-search-list" v-bind:class="{ showImageList: showImage }">
             <i class="material-icons icon-searchs">search</i>
+            <div class="gara-absolute-button" v-on:click="showModal" v-bind:title="GetTitle()">
+                <a class="gara-button-icon">
+                 <i class="fal fa-plus"></i>
+                </a>
+            </div> 
             <input type="text" class="form-control gara-search-HH " style="padding-left:30px"
                     v-model="textSearch"
                     v-on:keyup="searchProduct"
@@ -473,6 +479,9 @@ var cmpChoseProduct = {
         }
     },
     methods: {
+        GetTitle: function () {
+            return this.title;
+        },
         formatNumber: function (number) {
             if (number === undefined || number === null) {
                 return 0;
@@ -583,6 +592,9 @@ var cmpChoseProduct = {
                     }
                 }
             }
+        },
+        showModal: function () {
+            this.$emit('show-modal');
         }
     }
 };
