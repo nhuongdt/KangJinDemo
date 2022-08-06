@@ -43,11 +43,6 @@ namespace banhang24.Controllers
             return PartialView();
         }
 
-        public ActionResult _themmoinhomhhtheolanhomhanghoa(string id)
-        {
-            return PartialView();
-        }
-
         public ActionResult _themmoicapnhatdichvu()
         {
             return PartialView();
