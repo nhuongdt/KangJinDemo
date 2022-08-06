@@ -2255,6 +2255,36 @@ var PhieuDieuChinhChiTiet = function () {
             self.currentPage_CTHD(self.PageCount_CTHD() - 1);
         }
     }
+
+    self.showPopNhomHang = function () {
+        vmApplyGroupProduct.showModal();
+    }
+
+    $('#vmApplyGroupProduct').on('hidden.bs.modal', function () {
+        if (vmApplyGroupProduct.saveOK) {
+            // get all product by nhom
+            let param = {
+                ID_Donvi: _idDonVi,
+                IDNhomHangs: vmApplyGroupProduct.arrIDNhomChosed,
+                LoaiHangHoas: '1',// chi get hanghoa
+            }
+            ajaxHelper(BH_DieuChinhUri + 'getListHangHoaBy_IDNhomHang', 'POST', param).done(function (x) {
+                if (x.res) {
+                    let data = x.dataSoure;
+                    switch (self.LoaiHoaDonMenu) {
+                        case 16:
+                            for (let i = 0; i < data.length; i++) {
+                                let itFor = data[i];
+                                itFor.ThanhTien = itFor.GiaVonMoi;
+                                AddCTHD(itFor);
+                            }
+                            break;
+                    }
+                    UpdateTonKhoGiaVon_byIDQuyDois();
+                }
+            })
+        }
+    })
 }
 var modelGiaoDich = new PhieuDieuChinhChiTiet();
 ko.applyBindings(modelGiaoDich, document.getElementById('divPage'));
