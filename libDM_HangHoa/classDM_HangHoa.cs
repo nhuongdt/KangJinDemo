@@ -28,6 +28,23 @@ namespace libDM_HangHoa
             return db.Database.SqlQuery<GetListHangHoaDatLichCheckinResult>("exec GetListHangHoaDatLichCheckin").ToList();
         }
 
+        public List<DieuChinhGiaVon_HangHoaDTO> GetListHangHoa_byNhomHang(ParamSearchNhomHang param)
+        {
+            string idNhoms = string.Empty;
+            string loaiHangs = "1,2,3";
+            if (param.IDNhomHangs != null && param.IDNhomHangs.Count > 0)
+            {
+                idNhoms = string.Join(",", param.IDNhomHangs);
+            }
+            List<SqlParameter> prm = new List<SqlParameter>();
+            prm.Add(new SqlParameter("ID_DonVi", param.ID_DonVi));
+            prm.Add(new SqlParameter("IDNhomHangs", idNhoms?? (object)DBNull.Value));
+            prm.Add(new SqlParameter("LoaiHangHoas", loaiHangs));
+            var xx = db.Database.SqlQuery<DieuChinhGiaVon_HangHoaDTO>("exec dbo.getListHangHoaBy_IDNhomHang @ID_DonVi, @IDNhomHangs," +
+                " @LoaiHangHoas", prm.ToArray()).ToList();
+            return xx;
+        }
+
         public List<DieuChinhGiaVon_HangHoaDTO> JqAutoHangHoa_withGiaVonTieuChuan(CommonParamSearch param)
         {
             string idChiNhanhs = string.Empty;
@@ -3515,7 +3532,7 @@ namespace libDM_HangHoa
     }
     public class List_DonViQuiDoi_ID_NhomHang
     {
-        public double SoThuTu { get; set; }
+        public double? SoThuTu { get; set; }
         public Guid ID_DonViQuiDoi { get; set; }
         public Guid? ID_LoHang { get; set; }
         public string MaHangHoa { get; set; }
@@ -3527,8 +3544,8 @@ namespace libDM_HangHoa
         public string TenLoHang { get; set; }
         public DateTime? NgaySanXuat { get; set; }
         public DateTime? NgayHetHan { get; set; }
-        public double GiaVonHienTai { get; set; }
-        public double GiaVonMoi { get; set; }
+        public double? GiaVonHienTai { get; set; }
+        public double? GiaVonMoi { get; set; }
         public double? GiaVonTang { get; set; }
         public double? GiaVonGiam { get; set; }
     }
