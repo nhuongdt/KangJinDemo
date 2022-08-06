@@ -376,7 +376,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 var malo = item.MaLoHang != null && item.MaLoHang != string.Empty ? string.Concat("(Lô: ", item.MaLoHang, ") : Giá vốn cũ: ") : " Giá vốn cũ:  ";
                                 chitiet = string.Concat(chitiet, "- <a onclick=\"FindMaHangHoa('", item.MaHangHoa, "')\">" + item.MaHangHoa, " </a> "
-                                    , malo, item.DonGia, ", Giá vốn mới: ", newHD.LoaiHoaDon==18? item.GiaVon: item.ThanhTien, "</br>");
+                                    , malo, item.DonGia, ", Giá vốn mới: ", newHD.LoaiHoaDon == 18 ? item.GiaVon : item.ThanhTien, "</br>");
 
                                 BH_HoaDon_ChiTiet ctHoaDon = new BH_HoaDon_ChiTiet
                                 {
@@ -543,8 +543,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     try
                     {
-                        var data = db.BH_HoaDon_ChiTiet.Where(x=>x.ID==id);
-                        if (data != null && data.Count()>0)
+                        var data = db.BH_HoaDon_ChiTiet.Where(x => x.ID == id);
+                        if (data != null && data.Count() > 0)
                         {
                             Guid idHoaDon = data.FirstOrDefault().ID_HoaDon;
                             int countCT = db.BH_HoaDon_ChiTiet.Where(x => x.ID_HoaDon == idHoaDon).Count();
@@ -737,21 +737,22 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return Json(jsonResult);
             }
         }
-        [HttpGet]
-        public IHttpActionResult getListHangHoaBy_IDNhomHang(string ID_NhomHang, Guid ID_DonVi, int STT)
+       
+        [HttpGet, HttpPost]
+        public IHttpActionResult getListHangHoaBy_IDNhomHang(ParamSearchNhomHang param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                List<SqlParameter> sqlPRM = new List<SqlParameter>();
-                sqlPRM.Add(new SqlParameter("ID_NhomHang", ID_NhomHang));
-                sqlPRM.Add(new SqlParameter("ID_DonVi", ID_DonVi));
-                sqlPRM.Add(new SqlParameter("STT", STT));
-                List<List_DonViQuiDoi_ID_NhomHang> lst = db.Database.SqlQuery<List_DonViQuiDoi_ID_NhomHang>("exec getListHangHoaBy_IDNhomHang @ID_NhomHang, @ID_DonVi, @STT", sqlPRM.ToArray()).ToList();
-                JsonResultExample<List_DonViQuiDoi_ID_NhomHang> jsonResult = new JsonResultExample<List_DonViQuiDoi_ID_NhomHang>
+                try
                 {
-                    LstData = lst
-                };
-                return Json(jsonResult);
+                    ClassDM_HangHoa classHangHoa = new ClassDM_HangHoa(db);
+                    List<DieuChinhGiaVon_HangHoaDTO> data = classHangHoa.GetListHangHoa_byNhomHang(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
             }
         }
         public List<ListLHPages> getAllPage<T>(List<T> lstLHs, float PageSize)
