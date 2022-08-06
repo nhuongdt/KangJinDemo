@@ -30,6 +30,7 @@ namespace banhang24.Hellper
         public const string LoHangHoa = "Shipment";
         public const string DanhMucGiaVonTieuChuan = "DanhMucGiaVonTieuChuan";
         public const string ThemPhieuDieuChinh = "ThemPhieuDieuChinh";
+        public const string DieuChinhGiaVon = "DieuChinhGiaVon";
         public const string TraHang = "Returns";
         public const string NhapHang = "PurchaseOrder";
         public const string DatHangNCC = "DatHangNCC";
