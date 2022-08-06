@@ -4,10 +4,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
-                <h4 class="modal-title">Cài đặt theo nhóm/ loại hàng</h4>
+                <h4 class="modal-title" v-if="typeProp!==0">Cài đặt theo nhóm/ loại hàng</h4>
+                <h4 class="modal-title" v-if="typeProp ==0">Thêm hàng hóa từ nhóm hàng</h4>
             </div>
             <div class="modal-body">
-                <div class="col-md-12 col-xs-12 col-sm-12">
+                <div class="col-md-12 col-xs-12 col-sm-12" v-if="typeProp!==0">
                     <div class="col-sm-12 col-xs-12 col-md-12">
                         <label>
                             <input type="checkbox" v-model="valUpdate" />
@@ -15,7 +16,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-md-12 col-xs-12 col-sm-12" style="padding-top:10px!important">
+                <div class="col-md-12 col-xs-12 col-sm-12" style="padding-top:10px!important" v-if="typeProp!==0">
                     <div class="col-sm-4 col-xs-12 col-md-2">
                         <label>Áp dụng</label>
                     </div>
@@ -97,11 +98,12 @@
         data: {
             saveOK: false,
             isLoading: false,
-            typeProp: 1,// Áp dụng theo nhóm (1.Hoa hồng trước CK)
+            typeProp: 0,// Áp dụng theo nhóm (1.Hoa hồng trước CK)
             valUpdate: 0,
             textSearch: '',
             checkAll: false,
             typeChose: '0',//'0'.nhom, '1'.loaihang
+            arrIDNhomChosed: [],
 
             listData: {
                 ProductGroup: [],
@@ -302,40 +304,49 @@
                     }
                     sApply = '<br /> Áp dụng theo loại hàng: ' + Remove_LastComma(sLoai);
                 }
-                self.isLoading = true;
 
-                let myData = {
-                    typeProp: self.typeProp,
-                    valUpdate: valUpdate,
-                    checkAll: applyAll,
-                    arrType: arrType,
-                    arrID: arrID,
-                }
+                if (self.typeProp !== 0) {
+                    self.isLoading = true;
 
-                ajaxHelper('/api/DanhMuc/DM_HangHoaAPI/ApplyByGroup', 'POST', myData).done(function (x) {
-                    if (x.res) {
-                        ShowMessage_Success('Cài đặt ' + self.sProp + ' thành công');
+                    let myData = {
+                        typeProp: self.typeProp,
+                        valUpdate: valUpdate,
+                        checkAll: applyAll,
+                        arrType: arrType,
+                        arrID: arrID,
+                    }
 
-                        let sYesNo = parseInt(valUpdate) === 0 ? 'không' : 'có';
-                        let diary = {
-                            ID_DonVi: VHeader.IdDonVi,
-                            ID_NhanVien: VHeader.IdNhanVien,
-                            LoaiNhatKy: 2,
-                            ChucNang: 'Danh mục hàng hóa',
-                            NoiDung: 'Danh mục hàng hóa - Cài đặt ' + self.sProp,
-                            NoiDungChiTiet: 'Danh mục hàng hóa - Cài đặt '.concat(self.sProp,
-                                '<br /> Thông tin chi tiết:',
-                                '<br /> ', self.sProp, ': ', sYesNo, sApply)
+                    ajaxHelper('/api/DanhMuc/DM_HangHoaAPI/ApplyByGroup', 'POST', myData).done(function (x) {
+                        if (x.res) {
+                            ShowMessage_Success('Cài đặt ' + self.sProp + ' thành công');
+                            self.saveOK = true;
+
+                            let sYesNo = parseInt(valUpdate) === 0 ? 'không' : 'có';
+                            let diary = {
+                                ID_DonVi: VHeader.IdDonVi,
+                                ID_NhanVien: VHeader.IdNhanVien,
+                                LoaiNhatKy: 2,
+                                ChucNang: 'Danh mục hàng hóa',
+                                NoiDung: 'Danh mục hàng hóa - Cài đặt ' + self.sProp,
+                                NoiDungChiTiet: 'Danh mục hàng hóa - Cài đặt '.concat(self.sProp,
+                                    '<br /> Thông tin chi tiết:',
+                                    '<br /> ', self.sProp, ': ', sYesNo, sApply)
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
                         }
-                        Insert_NhatKyThaoTac_1Param(diary);
-                    }
-                    else {
-                        ShowMessage_Danger(x.mess);
-                    }
-                }).always(function () {
-                    self.isLoading = false;
+                        else {
+                            ShowMessage_Danger(x.mess);
+                        }
+                    }).always(function () {
+                        self.isLoading = false;
+                        $('#vmApplyGroupProduct').modal('hide');
+                    })
+                }
+                else {
+                    self.saveOK = true;
+                    self.arrIDNhomChosed = arrID;
                     $('#vmApplyGroupProduct').modal('hide');
-                })
+                }
             },
         }
     })
