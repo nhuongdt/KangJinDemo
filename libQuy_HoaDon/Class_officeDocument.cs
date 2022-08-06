@@ -3455,7 +3455,7 @@ namespace libQuy_HoaDon
                         DM1.NgayHetHan = null;
                         DM1.GiaVonHienTai = 0;
                         DM1.GiaVonMoi = double.Parse(dt.Rows[i][4].ToString().Trim());
-                        double ChenhLech = DM1.GiaVonMoi - DM1.GiaVonHienTai;
+                        double? ChenhLech = DM1.GiaVonMoi - DM1.GiaVonHienTai;
                         if (ChenhLech >= 0)
                         {
                             DM1.GiaVonTang = ChenhLech;
