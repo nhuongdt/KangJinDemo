@@ -194,6 +194,8 @@ namespace Model
         public virtual DbSet<BH_HoaDon_Anh> BH_HoaDon_Anh { get; set; }
         public virtual DbSet<Gara_Xe_PhieuBanGiao> Gara_Xe_PhieuBanGiao { get; set; }
         public virtual DbSet<Gara_Xe_NhatKyHoatDong> Gara_Xe_NhatKyHoatDong { get; set; }
+        public virtual DbSet<NhomHang_ChiTietSanPhamHoTro> NhomHang_ChiTietSanPhamHoTro { get; set; }
+        public virtual DbSet<NhomHang_KhoangApDung> NhomHang_KhoangApDung { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -816,6 +818,11 @@ namespace Model
                 .WithOptional(e => e.DM_LoHang)
                 .HasForeignKey(e => e.ID_LoHang);
 
+            modelBuilder.Entity<DM_LoHang>()
+                .HasMany(e => e.NhomHang_ChiTietSanPhamHoTro)
+                .WithOptional(e => e.DM_LoHang)
+                .HasForeignKey(e => e.Id_LoHang);
+
             modelBuilder.Entity<DM_MayChamCong>()
                 .Property(e => e.IP)
                 .IsFixedLength();
@@ -916,6 +923,16 @@ namespace Model
                 .HasMany(e => e.DM_KhuyenMai_ChiTiet1)
                 .WithOptional(e => e.DM_NhomHangHoa1)
                 .HasForeignKey(e => e.ID_NhomHangHoaMua);
+
+            modelBuilder.Entity<DM_NhomHangHoa>()
+                .HasMany(e => e.NhomHang_ChiTietSanPhamHoTro)
+                .WithRequired(e => e.DM_NhomHangHoa)
+                .HasForeignKey(e => e.Id_NhomHang);
+
+            modelBuilder.Entity<DM_NhomHangHoa>()
+                .HasMany(e => e.NhomHang_KhoangApDung)
+                .WithRequired(e => e.DM_NhomHangHoa)
+                .HasForeignKey(e => e.Id_NhomHang);
 
             modelBuilder.Entity<DM_PhanLoaiHangHoaDichVu>()
                 .HasMany(e => e.DM_HangHoa)
@@ -1148,6 +1165,11 @@ namespace Model
                 .HasMany(e => e.DM_HangHoa_TonKho)
                 .WithRequired(e => e.DonViQuiDoi)
                 .HasForeignKey(e => e.ID_DonViQuyDoi);
+
+            modelBuilder.Entity<DonViQuiDoi>()
+                .HasMany(e => e.NhomHang_ChiTietSanPhamHoTro)
+                .WithRequired(e => e.DonViQuiDoi)
+                .HasForeignKey(e => e.Id_DonViQuiDoi);
 
             modelBuilder.Entity<HT_NguoiDung>()
                 .HasMany(e => e.HT_NguoiDung_Nhom)

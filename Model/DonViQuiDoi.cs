@@ -25,6 +25,7 @@ namespace Model
             DM_KhuyenMai_ChiTiet1 = new HashSet<DM_KhuyenMai_ChiTiet>();
             DM_GiaVon = new HashSet<DM_GiaVon>();
             DM_HangHoa_TonKho = new HashSet<DM_HangHoa_TonKho>();
+            NhomHang_ChiTietSanPhamHoTro = new HashSet<NhomHang_ChiTietSanPhamHoTro>();
         }
         [Key]
         [Column(TypeName = "uniqueidentifier")]
@@ -113,5 +114,8 @@ namespace Model
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DM_HangHoa_TonKho> DM_HangHoa_TonKho { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<NhomHang_ChiTietSanPhamHoTro> NhomHang_ChiTietSanPhamHoTro { get; set; }
     }
 }

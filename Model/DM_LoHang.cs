@@ -21,6 +21,7 @@ namespace Model
             DM_GiaVon = new HashSet<DM_GiaVon>();
             DM_HangHoa_TonKho = new HashSet<DM_HangHoa_TonKho>();
             DinhLuongDichVu = new HashSet<DinhLuongDichVu>();
+            NhomHang_ChiTietSanPhamHoTro = new HashSet<NhomHang_ChiTietSanPhamHoTro>();
         }
         [Key]
         [Column(TypeName = "uniqueidentifier")]
@@ -80,6 +81,9 @@ namespace Model
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DinhLuongDichVu> DinhLuongDichVu { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<NhomHang_ChiTietSanPhamHoTro> NhomHang_ChiTietSanPhamHoTro { get; set; }
     }
 
     // nhuongdt
