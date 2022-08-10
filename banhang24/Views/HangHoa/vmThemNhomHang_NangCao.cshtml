@@ -28,21 +28,32 @@
         <div class="modal-content ">
             <div class="modal-header">
                 <button class="close close-modal" type="button" data-dismiss="modal">×</button>
-                <h4 class="modal-title">Thêm nhóm hàng</h4>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới':'Cập nhật'}} nhóm {{sLoai}}
+                </h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <div class="col-sm-3 col-lg-2 col-sm-3 col-xs-12"></div>
-                    <div class="col-sm-9 col-lg-10 col-sm-9 col-xs-12">
+                    <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-12"></div>
+                    <div class="col-sm-9 col-lg-9 col-sm-9 col-xs-12">
                         <input type="checkbox" v-model="newNhomHang.LaNhomHangHoa" /> Là nhóm hàng hóa
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-3 col-lg-2 col-sm-3 col-xs-12">
-                        <label>Tên nhóm <span class="red">(*)</span></label>
+                    <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-12">
+                        <label>Tên nhóm {{sLoai}}<span class="red">(*)</span></label>
                     </div>
-                    <div class="col-sm-9 col-lg-10 col-sm-9 col-xs-12">
+                    <div class="col-sm-9 col-lg-9 col-sm-9 col-xs-12">
                         <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-12">
+                        <label>Ghi chú</label>
+                    </div>
+                    <div class="col-sm-9 col-lg-9 col-sm-9 col-xs-12">
+                        <textarea type="text" rows="2" v-model="newNhomHang.GhiChu" />
                     </div>
                 </div>
 
@@ -50,9 +61,10 @@
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12 nopadding-left">
                         <div class="gara-detail-sections" style="color: var(--color-main)"
                              v-on:click="OnOff_ThietLapNangCao">
-                            <label>
-                                Thiết lập nâng cao
+                            <label for="ckThietLapNangCao">
+                                Thiết lập nâng cao <input type="checkbox" id="ckThietLapNangCao" v-model="newNhomHang.ThietLapNangCao" />
                             </label>
+
                         </div>
                     </div>
                 </div>
@@ -65,6 +77,7 @@
                             <chinhanhs placeholder="Chọn chi nhánh"
                                        :colshow="1"
                                        :list-all="listData.ChiNhanhs"
+                                       :list-chosed="ChiNhanhChosed"
                                        :type-data="0"
                                        :have-condition="true"
                                        :show-item-all="true"
@@ -104,12 +117,12 @@
                                             </td>
                                             <td>
                                                 <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                       v-model="item.GiaTriTu"
+                                                       v-model="item.GiaTriSuDungTu"
                                                        v-on:keyup="TongTienFrom_Edit(index)" />
                                             </td>
                                             <td>
                                                 <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                       v-model="item.GiaTriDen"
+                                                       v-model="item.GiaTriSuDungDen"
                                                        v-on:keyup="TongTienTo_Edit(index)" />
                                             </td>
                                             <td>
@@ -118,20 +131,20 @@
                                                        v-model="item.GiaTriHoTro" />
                                             </td>
                                             <td class="td-stt">
-                                                <div class="plus vnd1" v-bind:class="[item.LaPhanTram?'gb':'']"
+                                                <div class="plus vnd1" v-bind:class="[item.KieuHoTro?'gb':'']"
                                                      v-on:click="GtriHotro_ClickPtramVND(index, true)">%</div>
                                             </td>
                                             <td class="td-stt">
                                                 <div class="plus senter1 "
-                                                     v-bind:class="[item.LaPhanTram?'':'gb']"
+                                                     v-bind:class="[item.KieuHoTro?'':'gb']"
                                                      v-on:click="GtriHotro_ClickPtramVND(index, false)">VND</div>
                                             </td>
                                             <td>
                                                 <div class="flex flex-around">
-                                                    <a style="font-size:20px" v-on:click="KhoangApDung_Remove">
+                                                    <a style="font-size:20px" v-on:click="KhoangApDung_Remove(index)">
                                                         <i class="fal fa-times"></i>
                                                     </a>
-                                                    <a style="font-size:20px" v-on:click="KhoangApDung_AddNew">
+                                                    <a style="font-size:20px" v-on:click="KhoangApDung_AddNew(index)">
                                                         <i class="fal fa-plus"></i>
                                                     </a>
                                                 </div>
@@ -153,7 +166,6 @@
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
                             <div class="css-form-detail">
                                 <products :con-ton-kho="0" title="Thêm sản phẩm từ nhóm hàng"
-                                          :loai-hang-hoa="1"
                                           :show-gia-von="true"
                                           :show-image="false"
                                           :show-ton-kho="false"
@@ -268,7 +280,9 @@
                                             </td>
                                             <td style="width:10%">
                                                 <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                       v-on:keyup.13="Enter_FocusNext" />
+                                                       v-model="item.SoLuong"
+                                                       v-on:keyup.13="Enter_FocusNext"
+                                                       v-on:keyup="DayProducts_EditSoLuong(index)" />
                                             </td>
                                             <td class="text-center td-stt">
                                                 <a style="font-size:20px" v-on:click="DayProducts_Remove(index)">
@@ -288,10 +302,10 @@
                     <button type="button" class="btn btn-cancel" data-dismiss="modal">
                         <i class="fal fa-ban"></i>Bỏ qua
                     </button>
-                    <button type="button" class="btn btn-main">
-                        <i class="fa fa-save"></i> Lưu
-                    </button> 
-                    <button type="button" class="btn btn-main">
+                    <button type="button" class="btn btn-main" v-if="!isLoading" v-on:click="saveNhomHang">
+                        <i class="fa fa-save"></i> {{typeUpdate==1?'Lưu':'Cập nhật'}}
+                    </button>
+                    <button type="button" class="btn btn-main" v-if="isLoading">
                         <i class="fa fa-save"></i> Đang lưu
                     </button>
                 </div>
@@ -318,32 +332,46 @@
                 x['Text2'] = ''
             });
             self.listData.ChiNhanhs = arr;
+
+            let thisCN = $.grep(arr, function (x) {
+                return x.ID === self.ID_DonVi;
+            });
+            if (thisCN.length > 0) {
+
+                let obj = {
+                    ID: thisCN[0].ID,
+                    Text1: thisCN[0].Text1,
+                    Text1: '',
+                }
+                self.ChiNhanhChosed = [obj];
+            }
             console.log('vmThemNhomHang_NangCao ')
+
+            self.urlAPI = '/api/DanhMuc/DM_NhomHangHoaAPI/';
+        },
+        computed: {
+            sLoai: function () {
+                return this.newNhomHang.LaNhomHangHoa ? 'hàng hóa' : 'dịch vụ';
+            }
         },
         data: {
             saveOK: false,
+            isLoading: false,
             typeUpdate: 1,// 1.insert, 2.update
             typeProduct: 1,
+            nhomOld: {},
+            khoangApDungOld: [],
+            spHoTroOld: [],
             listData: {
-                KieuApDung: [
-                    { ID: 0, Text1: 'Toàn thời gian', Text2: '' },
-                    { ID: 1, Text1: 'Theo ngày', Text2: '' },
-                    { ID: 2, Text1: 'Theo buổi', Text2: '' },
-                ],
                 ChiNhanhs: [],
             },
             newNhomHang: {
                 ID: null,
                 MaNhomHangHoa: '',
                 TenNhomHangHoa: null,
-                LaNhomHangHoa: true,
+                LaNhomHangHoa: false,
                 ThietLapNangCao: false,
-
-                KieuApDung: '1',
-                sKieuApDung: '',
-
-                TongTienTinhTheo: 0,
-                sTongTienTheo: '',
+                GhiChu: '',
             },
 
             KhoangApDung: [],
@@ -355,10 +383,10 @@
             newKhoangApDung: function () {
                 return {
                     IDRandom: CreateIDRandom('fix_'),
-                    GiaTriTu: '',
-                    GiaTriDen: '',
+                    GiaTriSuDungTu: '',
+                    GiaTriSuDungDen: '',
                     GiaTriHoTro: '',
-                    LaPhanTram: true,
+                    KieuHoTro: true,
                 }
             },
             KhoangApDung_AddNew: function (index) {
@@ -382,20 +410,17 @@
             },
             showModal: function () {
                 let self = this;
-                self.typeUpdate = 1;
                 self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 1;
+
                 self.newNhomHang = {
                     ID: null,
                     MaNhomHangHoa: '',
                     TenNhomHangHoa: null,
-                    LaNhomHangHoa: true,
+                    LaNhomHangHoa: false,
                     ThietLapNangCao: false,
-
-                    KieuApDung: '1',
-                    sKieuApDung: '',
-
-                    TongTienTinhTheo: 0,
-                    sTongTienTheo: '',
+                    GhiChu: '',
                 };
                 self.KhoangApDung = [];
                 self.KhoangApDung.push(self.newKhoangApDung());
@@ -404,10 +429,95 @@
                 self.ChiNhanhChosed = [];
                 $('#vmThemNhomHang_NangCao').modal('show');
             },
+            showModalUpdate: function (idNhom) {
+                let self = this;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 2;
+                self.PublicProducts = [];
+                self.DayProducts = [];
+                self.ChiNhanhChosed = [];
+                self.KhoangApDung = [];
+
+                self.newNhomHang = {
+                    ID: null,
+                    MaNhomHangHoa: '',
+                    TenNhomHangHoa: null,
+                    LaNhomHangHoa: true,
+                    ThietLapNangCao: false,
+                    GhiChu: '',
+                };
+
+                let lstCN = [], lstAD = [];
+                $.getJSON(self.urlAPI + 'GetDM_NhomHangHoa/' + idNhom).done(function (x) {
+                    self.newNhomHang.ID = x.ID;
+                    self.newNhomHang.MaNhomHangHoa = x.MaNhomHangHoa;
+                    self.newNhomHang.TenNhomHangHoa = x.TenNhomHangHoa;
+                    self.newNhomHang.LaNhomHangHoa = x.LaNhomHangHoa;
+                    self.newNhomHang.GhiChu = x.GhiChu;
+
+                    self.nhomOld = $.extend({}, true, self.newNhomHang);
+                })
+
+                $.getJSON(self.urlAPI + 'GetListDonVi_byIDNhomHang?idNhom=' + idNhom).done(function (x) {
+                    if (x.res) {
+                        for (let i = 0; i < x.dataSoure.length; i++) {
+                            let itFor = x.dataSoure[i];
+                            itFor.ID = itFor.ID_DonVi;
+                            itFor.Text1 = itFor.TenDonVi;
+                            lstCN.push(itFor);
+                        }
+                    }
+                    self.ChiNhanhChosed = lstCN;
+                })
+
+                $.getJSON(self.urlAPI + 'NhomHang_GetListKhoangApDung?idNhom=' + idNhom).done(function (x) {
+                    if (x.res) {
+                        for (let i = 0; i < x.dataSoure.length; i++) {
+                            let itFor = x.dataSoure[i];
+                            if (itFor.KieuHoTro === 1) {
+                                itFor.KieuHoTro = true;
+                            }
+                            else {
+                                itFor.KieuHoTro = false;
+                            }
+                            itFor.GiaTriSuDungTu = formatNumber3Digit(itFor.GiaTriSuDungTu);
+                            itFor.GiaTriSuDungDen = formatNumber3Digit(itFor.GiaTriSuDungDen);
+                            lstAD.push(itFor);
+                        }
+
+                        if (lstAD.length > 0) {
+                            self.newNhomHang.ThietLapNangCao = true;
+                            self.KhoangApDung = lstAD;
+                        }
+                        else {
+                            self.KhoangApDung.push(self.newKhoangApDung());
+                        }
+                    }
+                    self.khoangApDungOld = $.extend([], true, lstAD);
+                })
+
+                $.getJSON(self.urlAPI + 'NhomHang_GetListSanPhamHoTro?idNhom=' + idNhom).done(function (x) {
+                    let sp_public = [], sp_day = [];
+                    if (x.res) {
+                        sp_public = $.grep(x.dataSoure, function (x1) {
+                            return x1.LaSanPhamNgayThuoc === 0;
+                        });
+                        sp_day = $.grep(x.dataSoure, function (x1) {
+                            return x1.LaSanPhamNgayThuoc === 1;
+                        });
+                    }
+                    self.khoangApDungOld = $.extend([], true, x.dataSoure);
+                    self.PublicProducts = sp_public;
+                    self.DayProducts = sp_day;
+                })
+                $('#vmThemNhomHang_NangCao').modal('show');
+            },
             ChoseProduct_Public: function (item) {
                 let self = this;
                 let obj = {
-                    ID_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    Id_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    Id_LoHang: null,
                     MaHangHoa: item.MaHangHoa,
                     TenHangHoa: item.TenHangHoa,
                     TenDonViTinh: item.TenDonViTinh,
@@ -418,7 +528,8 @@
             ChoseProduct_Day: function (item) {
                 let self = this;
                 let obj = {
-                    ID_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    Id_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    Id_LoHang: null,
                     MaHangHoa: item.MaHangHoa,
                     TenHangHoa: item.TenHangHoa,
                     TenDonViTinh: item.TenDonViTinh,
@@ -465,7 +576,7 @@
                 let self = this;
 
                 let param = {
-                    ID_Donvi: self.ID_DonVi,
+                    ID_DonVi: self.ID_DonVi,
                     IDNhomHangs: vmApplyGroupProduct.arrIDNhomChosed,
                     LoaiHangHoas: '1,2',// hanghoa + dv
                 }
@@ -476,12 +587,14 @@
                             case 1:
                                 for (let i = 0; i < data.length; i++) {
                                     let itFor = data[i];
+                                    //itFor.Id_DonViQuiDoi = itFor.ID_DonViQuiDoi;
                                     self.PublicProducts.unshift(itFor);
                                 }
                                 break;
                             case 2:
                                 for (let i = 0; i < data.length; i++) {
                                     let itFor = data[i];
+                                    //itFor.Id_DonViQuiDoi = itFor.ID_DonViQuiDoi;
                                     self.DayProducts.unshift(itFor);
                                 }
                                 break;
@@ -497,7 +610,7 @@
                 let gtri = $this.val();
                 for (let i = 0; i < self.KhoangApDung.length; i++) {
                     if (i === index) {
-                        self.KhoangApDung[i].GiaTriTu = gtri;
+                        self.KhoangApDung[i].GiaTriSuDungTu = gtri;
                         break;
                     }
                 }
@@ -510,7 +623,7 @@
                 let gtri = $this.val();
                 for (let i = 0; i < self.KhoangApDung.length; i++) {
                     if (i === index) {
-                        self.KhoangApDung[i].GiaTriDen = gtri;
+                        self.KhoangApDung[i].GiaTriSuDungDen = gtri;
                         break;
                     }
                 }
@@ -523,7 +636,7 @@
                 let gtri = $this.val();
                 for (let i = 0; i < self.KhoangApDung.length; i++) {
                     if (i === index) {
-                        if (self.KhoangApDung[i].LaPhanTram) {
+                        if (self.KhoangApDung[i].KieuHoTro) {
                             if (formatNumberToFloat(gtri) > 100) {
                                 $this.val(100);
                                 gtri = 100;
@@ -541,14 +654,264 @@
 
                 for (let i = 0; i < self.KhoangApDung.length; i++) {
                     if (i === index) {
-                        self.KhoangApDung[i].LaPhanTram = isPtram;
+                        self.KhoangApDung[i].KieuHoTro = isPtram;
                         break;
                     }
                 }
             },
             PublicProducts_EditSoLuong: function (index) {
                 let self = this;
-                console.log('PublicProducts_EditSoLuong')
+                let $this = $(event.currentTarget);
+                for (let i = 0; i < self.PublicProducts.length; i++) {
+                    if (i === index) {
+                        self.PublicProducts[i].SoLuong = $this.val();
+                        break;
+                    }
+                }
+            },
+            DayProducts_EditSoLuong: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                for (let i = 0; i < self.DayProducts.length; i++) {
+                    if (i === index) {
+                        self.DayProducts[i].SoLuong = $this.val();
+                        break;
+                    }
+                }
+            },
+            CheckSave: function () {
+                let self = this;
+                if (self.ChiNhanhChosed.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn chi nhánh áp dụng');
+                    return false;
+                }
+                for (let i = 0; i < self.KhoangApDung.length; i++) {
+                    let itFor = self.KhoangApDung[i];
+                    let from = formatNumberToFloat(itFor.GiaTriSuDungTu);
+                    let to = formatNumberToFloat(itFor.GiaTriSuDungDen);
+                    let gtriHoTro = formatNumberToFloat(itFor.GiaTriHoTro);
+                    if (from === 0 || to === 0) {
+                        ShowMessage_Danger("Vui lòng nhập khoảng giá trị");
+                        return false;
+                    }
+                    if (gtriHoTro === 0) {
+                        ShowMessage_Danger("Vui lòng nhập giá trị hỗ trợ");
+                        return false;
+                    }
+                    if (from > to) {
+                        ShowMessage_Danger("Tổng tiền từ không được lớn hơn tổng tiền đến");
+                        return false;
+                    }
+
+                    let arr = $.grep(self.KhoangApDung, function (x, index) {
+                        return formatNumberToFloat(x.GiaTriSuDungDen) >= from
+                            && formatNumberToFloat(x.GiaTriSuDungTu) <= to && index !== i;
+                    });
+                    if (arr.length > 0) {
+                        ShowMessage_Danger("Khoảng áp dụng không được gối trùng lên nhau");
+                        return false;
+                    }
+                }
+
+                if (self.PublicProducts.length === 0 && self.DayProducts.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn sản phẩm hỗ trợ');
+                    return false;
+                }
+
+                let arrNumber0 = $.grep(self.PublicProducts, function (x) {
+                    return formatNumberToFloat(x.SoLuong) == 0;
+                })
+                if (arrNumber0.length > 0) {
+                    ShowMessage_Danger('Sản phẩm chung: Chưa nhập đủ thông tin cột Số lượng');
+                    return false;
+                }
+
+                arrNumber0 = $.grep(self.DayProducts, function (x) {
+                    return formatNumberToFloat(x.SoLuong) == 0;
+                })
+                if (arrNumber0.length > 0) {
+                    ShowMessage_Danger('Sản phẩm ngày thuốc: Chưa nhập đủ thông tin cột Số lượng');
+                    return false;
+                }
+                return true;
+            },
+            ChiTietApDung_AssignNhomHang: function (idNhom) {
+                let self = this;
+                let allCN = false;
+                let cnApply = [];
+                if (self.ChiNhanhChosed.length === 1) {
+                    if (self.ChiNhanhChosed[0].ID === null) {
+                        allCN = true;
+                    }
+                }
+
+                if (!allCN) {
+                    for (let i = 0; i < self.ChiNhanhChosed.length; i++) {
+                        let itFor = self.ChiNhanhChosed[i];
+                        itFor.ID_DonVi = itFor.ID;
+                        itFor.ID_NhomHangHoa = idNhom;
+                        cnApply.push(itFor);
+                    }
+                }
+                else {
+                    cnApply = [{ ID_NhomHangHoa: idNhom, ID_DonVi: self.ID_DonVi }]
+                }
+
+                let lstSP = [];
+                // sort khoangApDung --> assign SoThuTu
+                self.KhoangApDung = self.KhoangApDung.sort(function (a, b) {
+                    let x = formatNumberToFloat(a.GiaTriHoTro),
+                        y = formatNumberToFloat(b.GiaTriHoTro);
+                    return x > y ? 1 : x < y ? -1 : 0
+                });
+
+                for (let i = 0; i < self.KhoangApDung.length; i++) {
+                    let itFor = self.KhoangApDung[i];
+                    itFor.Id_NhomHang = idNhom;
+                    if (itFor.KieuHoTro) {
+                        itFor.KieuHoTro = 1;
+                    }
+                    else {
+                        itFor.KieuHoTro = 0;
+                    }
+                    itFor.STT = i + 1;
+                }
+
+                for (let i = 0; i < self.PublicProducts.length; i++) {
+                    let itFor = self.PublicProducts[i];
+                    itFor.Id_NhomHang = idNhom;
+                    itFor.LaSanPhamNgayThuoc = 0;
+                    lstSP.push(itFor);
+                }
+                for (let i = 0; i < self.DayProducts.length; i++) {
+                    let itFor = self.DayProducts[i];
+                    itFor.Id_NhomHang = idNhom;
+                    itFor.LaSanPhamNgayThuoc = 1;
+                    lstSP.push(itFor);
+                }
+                return {
+                    AllCN: allCN,
+                    CNApDung: cnApply,
+                    KhoangApDung: self.KhoangApDung,
+                    ListProduct: lstSP,
+                }
+            },
+            saveNhomHang: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.newNhomHang.TenNhomHangHoa)) {
+                    ShowMessage_Danger('Vui lòng nhập tên nhóm hàng hóa');
+                    return false;
+                }
+                if (self.newNhomHang.ThietLapNangCao) {
+                    let check = self.CheckSave();
+                    if (!check) {
+                        return;
+                    }
+                }
+
+                let obj = {
+                    TenNhomHangHoa: self.newNhomHang.TenNhomHangHoa,
+                    LaNhomHangHoa: self.newNhomHang.LaNhomHangHoa,
+                    ID_Parent: null,
+                    NguoiTao: VHeader.UserLogin,
+                    GhiChu: self.newNhomHang.GhiChu
+                };
+
+                if (self.typeUpdate === 1) {
+                    obj.NguoiTao = VHeader.UserLogin;
+
+                    ajaxHelper(self.urlAPI + 'PostDM_NhomHangHoa', 'POST', obj).done(function (x) {
+
+                        ShowMessage_Success("Thêm mới nhóm " + self.sLoai + " thành công");
+
+                        let objNhatKy = {
+                            LoaiNhatKy: 1,
+                            ID_DonVi: self.ID_DonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            ChucNang: 'Thêm nhóm ' + self.sLoai,
+                            NoiDung: 'Thêm nhóm '.concat(self.sLoai, ' <b> ', self.newNhomHang.TenNhomHangHoa, ' </b>'),
+                            NoiDungChiTiet: 'Thêm nhóm '.concat(self.sLoai, ': tên nhóm: ', self.newNhomHang.TenNhomHangHoa, '. Người tạo: ', VHeader.UserLogin),
+                        };
+                        Insert_NhatKyThaoTac_1Param(objNhatKy);
+
+                        let idNhom = x.ID;
+                        let param = self.ChiTietApDung_AssignNhomHang(idNhom);
+                        let myData = {
+                            lstKhoangApDung: param.KhoangApDung,
+                            lstSPHoTro: param.ListProduct,
+                        }
+
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_DonVi?checkAll=' + param.AllCN, 'POST', param.CNApDung).done(function (x) {
+                            console.log('PostNhomHang_DonVi ', x)
+                        })
+
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_ChiTietApDung', 'POST', myData).done(function (x) {
+                            console.log('PostNhomHang_ChiTietApDung ', x)
+                            if (x.res) {
+
+                            }
+                        })
+                    }).always(function () {
+                        self.isLoading = false;
+                        $('#vmThemNhomHang_NangCao').modal('hide');
+                    })
+                }
+                else {
+                    let idNhom = self.newNhomHang.ID;
+                    obj.ID = self.newNhomHang.ID;
+                    obj.NguoiSua = VHeader.UserLogin;
+
+                    let objU = {
+                        id: self.newNhomHang.ID,
+                        dM_NhomHangHoa: obj
+                    }
+
+                    // check thay doi nhomhang ---> nhom dichvu (va nguoc lai)
+
+                    if (self.typeUpdate === 2 && self.nhomOld.LaNhomHangHoa !== self.newNhomHang.LaNhomHangHoa) {
+                        let sLoaiOld = self.nhomOld.LaNhomHangHoa ? 'hàng hóa' : 'dịch vụ';
+                        dialogConfirm('Thông báo', 'Bạn vừa thay đổi từ nhóm <b>' + sLoaiOld + ' </b> sang  <b>' + self.sLoai + ' </b>' +
+                            ' <br /> Bạn có muốn cập nhật loại hàng cho các hàng hóa thuộc nhóm không ? ', function () {
+
+                            });
+                    }
+
+                    ajaxHelper(self.urlAPI + 'PutDM_NhomHangHoa', 'POST', objU).done(function (x) {
+                        ShowMessage_Success("Cập nhật nhóm " + self.sLoai + " thành công");
+
+                        let objNhatKy = {
+                            LoaiNhatKy: 2,
+                            ID_DonVi: self.ID_DonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            ChucNang: 'Cập nhật nhóm ' + self.sLoai,
+                            NoiDung: 'Cập nhật nhóm '.concat(self.sLoai, ' <b> ', self.newNhomHang.TenNhomHangHoa, ' </b>'),
+                            NoiDungChiTiet: 'Cập nhật nhóm '.concat(self.sLoai, ': tên nhóm: ', self.newNhomHang.TenNhomHangHoa, '. Người sửa: ', VHeader.UserLogin,
+                                '<br /> <b> Thông tin cũ: </b> <br /> Tên nhóm: ' + self.nhomOld.TenNhomHangHoa,
+                                '<br /> Là nhóm hàng hóa: ' + self.nhomOld.LaNhomHangHoa),
+                        };
+                        Insert_NhatKyThaoTac_1Param(objNhatKy);
+
+                        let param = self.ChiTietApDung_AssignNhomHang(idNhom);
+                        let myData = {
+                            lstKhoangApDung: param.KhoangApDung,
+                            lstSPHoTro: param.ListProduct,
+                        }
+
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_DonVi?checkAll=' + param.AllCN, 'POST', param.CNApDung).done(function (x) {
+                            console.log('PostNhomHang_DonVi ', x)
+                        })
+
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_ChiTietApDung', 'POST', myData).done(function (x) {
+                            console.log('PostNhomHang_ChiTietApDung ', x)
+                            if (x.res) {
+
+                            }
+                        })
+                    }).always(function () {
+                        self.isLoading = false;
+                        $('#vmThemNhomHang_NangCao').modal('hide');
+                    })
+                }
             }
         }
     })
