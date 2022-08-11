@@ -387,11 +387,12 @@ var cmpChoseProduct = {
         idChiNhanh: { default: null },//#d9d9d9
         roleAdd: { default: false },
         titleAdd: { default: '' },
+        listAll: { default: [] },
     },
     template: `
        <div class="gara-detail-input" style=" position:relative" class="jsSearchProduct op-search-list" v-bind:class="{ showImageList: showImage }">
             <i class="material-icons icon-searchs">search</i>
-            <div class="gara-absolute-button" v-on:click="showModal" v-bind:title="GetTitle()">
+            <div class="gara-absolute-button" v-if="roleAdd" v-on:click="showModal" v-bind:title="GetTitle()">
                 <a class="gara-button-icon">
                  <i class="fal fa-plus"></i>
                 </a>
@@ -492,17 +493,33 @@ var cmpChoseProduct = {
         },
         searchProduct: function () {
             let self = this;
-            clearTimeout(self.timmer);
             let keyCode = event.keyCode || event.which;
             if ($.inArray(keyCode, [13, 38, 40]) > -1) {
                 if (keyCode === 13 && self.searchList.length > 0 || keyCode === 38 || keyCode === 40) {
                     return;
                 }
             }
-            self.timmer = setTimeout(function () {
-                self.currentPage = 0;
-                self.searchDB();
-            }, 300);
+
+            if (self.listAll.length > 0) {
+                if (commonStatisJs.CheckNull(self.textSearch)) {
+                    self.searchList = self.listAll.slice(0, 30);
+                }
+                else {
+                    let txt = locdau(self.textSearch);
+                    self.searchList = self.listAll.filter(e =>
+                        locdau(e.MaHangHoa).indexOf(txt) >= 0
+                        || locdau(e.TenHangHoa).indexOf(txt) >= 0
+                    );
+                }
+            }
+            else {
+                clearTimeout(self.timmer);
+                self.timmer = setTimeout(function () {
+                    self.currentPage = 0;
+                    self.searchDB();
+                }, 300);
+
+            }
             $(event.currentTarget).next().show();
         },
         searchDB: function () {
@@ -1278,7 +1295,7 @@ var cmpDropdownMultipleItem = {
                                     v-on:click="showList"
                                     v-on:keyup="search">
                         <ul >
-                            <li class="" v-for="(item,index) in listChosed">
+                            <li v-for="(item,index) in listChosed">
                                 <span> {{item.Text1}}
                                 </span> <span v-if="colshow > 1">  - </span>
                                 <span> {{item.Text2}}
@@ -1354,7 +1371,6 @@ var cmpDropdownMultipleItem = {
             else {
                 // lấy từ DB nếu không có điều kiện lọc nào (ex: from- to)
                 if (!self.haveCondition) {
-                    var self = this;
                     clearTimeout(self.timmer);
                     self.timmer = setTimeout(function () {
                         self.searchDB();
