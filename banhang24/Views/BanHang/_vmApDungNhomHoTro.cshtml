@@ -1,0 +1,574 @@
+﻿<style>
+    #vmApDungNhomHoTro th {
+        text-align: center;
+        vertical-align: middle
+    }
+
+    #vmApDungNhomHoTro .span-group {
+        font-size: 14px;
+        color: var(--color-main);
+        text-decoration: underline
+    }
+
+    #vmApDungNhomHoTro .td-stt {
+        width: 5%;
+    }
+
+    #vmApDungNhomHoTro .td-action {
+        width: 10%;
+    }
+
+    #vmApDungNhomHoTro .span-i {
+        font-size: 15px;
+    }
+
+    #vmApDungNhomHoTro table input[type=text] {
+        border: none;
+        outline: none;
+        border-bottom: 1px solid #ccc !important
+    }
+    #vmApDungNhomHoTro table .td-input-bottom{
+        vertical-align:bottom;
+    }
+    #vmApDungNhomHoTro .number {
+        width: 15%;
+    }
+    #vmApDungNhomHoTro .ghichubr {
+        width: 100%;
+         padding: 0px !important; 
+         text-align: left; 
+        font-style: italic;
+        font-size: 12px !important;
+        color: blue;
+    }
+</style>
+<div id="vmApDungNhomHoTro" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button class="close close-modal" type="button" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Áp dụng hỗ trợ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <span class="span-group">Chọn nhóm áp dụng</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <div class="table-reponsive table_price table_error table-frame">
+                            <table class="table">
+                                <thead class="thead-boder">
+                                    <tr>
+                                        <th class="td-stt">#</th>
+                                        <th>Tên  nhóm hàng hóa (dịch vụ)</th>
+                                        <th style="width: 15%">Xuất ngày thuốc</th>
+                                        <th style="width: 20%">Số ngày</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in listData.AllNhomHangs">
+                                        <td class="text-center">
+                                            <input type="radio" name="rdoApply" value="true" v-model="item.IsApply" v-on:change="ChoseNhomApply(index)" />
+                                        </td>
+                                        <td>
+                                            {{item.TenNhomHangHoa}}
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="checkbox" value="true" v-model="item.IsXuatNgayThuoc" v-on:change="ChangeCheck_XuatNgayThuoc(index)" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
+                                                   v-bind:disabled="!item.IsXuatNgayThuoc"
+                                                   v-on:keyup="EditNgayThuoc(index)"
+                                                   v-model="item.SoNgay" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <span class="span-group">Sản phẩm hỗ trợ chung</span>
+                    </div>
+                </div>
+                <div class="form-group margin-top-10">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <div class="css-form-detail">
+                            <products :con-ton-kho="0"
+                                      :loai-hang-hoa="1"
+                                      :show-gia-von="true"
+                                      :show-image="false"
+                                      :show-ton-kho="false"
+                                      :id-chi-nhanh="ID_DonVi"
+                                      :role-add="false"
+                                      :list-all="listData.AllPublicProducts"
+                                      v-on:chose-product="ChoseProduct_Public">
+                            </products>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" v-if="PublicProducts.length > 0">
+                        <div class="table-reponsive table_price table_error table-frame"
+                             style=" overflow: auto; max-height: 400px">
+                            <table class="table">
+                                <thead class="thead-boder">
+                                    <tr>
+                                        <th>Tên dịch vụ</th>
+                                        <th class="number">Số lượng</th>
+                                        <th class="td-action">#</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in PublicProducts">
+                                        <td>
+                                            <span>
+                                                <span>
+                                                    {{item.TenHangHoa}}
+                                                </span>
+                                                <span class="blue" v-if="item.TenDonViTinh">
+                                                    ({{item.TenDonViTinh}})
+                                                </span>
+                                            </span><br />
+                                            <input type="text" placeholder="Ghi chú" class="ghichubr" 
+                                                    v-on:keyup.13="Enter_FocusNext(0)"/>
+                                        </td>
+                                        <td class="td-input-bottom">
+                                            <input type="text"
+                                                   class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
+                                                   v-on:keyup.13="Enter_FocusNext(1)"
+                                                   v-on:keyup="PublicProducts_EditSoLuong(index)" />
+                                        </td>
+                                        <td class="text-center td-action" style="vertical-align:middle">
+                                            <a>
+                                                <span class="span-i" v-on:click="PublicProducts_Remove(index)" title="Xóa dòng">
+                                                    <i class="fal fa-times"></i>
+                                                </span>  &nbsp;
+                                                <span class="span-i" title="Hoa hồng nhân viên">
+                                                    <i class="fa fa-user"></i>
+                                                </span>&nbsp;
+                                                <span class="span-i" title="Thành phần định lượng">
+                                                    <i class="fa fa-list-alt"></i>
+                                                </span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                            <span class="span-group">Sản phẩm hỗ trợ theo ngày thuốc</span>
+                        </div>
+                    </div>
+                    <div class="form-group margin-top-10">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                            <div class="css-form-detail">
+                                <products :con-ton-kho="0"
+                                          :loai-hang-hoa="1"
+                                          :show-gia-von="true"
+                                          :show-image="false"
+                                          :show-ton-kho="false"
+                                          :id-chi-nhanh="ID_DonVi"
+                                          :role-add="false"
+                                          :list-all="listData.AllDayProducts"
+                                          v-on:chose-product="ChoseProduct_Day">
+                                </products>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" v-if="DayProducts.length > 0">
+                            <div class="table-reponsive table_price table_error table-frame"
+                                 style=" overflow: auto; max-height: 400px">
+                                <table class="table">
+                                    <thead class="thead-boder">
+                                        <tr>
+                                            <th>Tên hàng hóa</th>
+                                            <th class="number">Số lượng/ngày</th>
+                                            <th class="number">Tổng xuất</th>
+                                            <th class="td-stt">#</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in DayProducts">
+                                            <td>
+                                                <span>
+                                                    <span>
+                                                        {{item.TenHangHoa}}
+                                                    </span>
+                                                    <span class="blue" v-if="item.TenDonViTinh">
+                                                        ({{item.TenDonViTinh}})
+                                                    </span>
+                                                </span><br />
+                                                <input type="text" placeholder="Ghi chú" class="ghichubr"
+                                                        v-on:keyup.13="Enter_FocusNext(0)"
+                                                      />
+
+                                            </td>
+                                            <td class="td-input-bottom">
+                                                <input type="text"
+                                                       class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
+                                                       v-on:keyup.13="Enter_FocusNext(1)"
+                                                       v-on:keyup="DayProducts_EditSoLuong(index)" />
+                                            </td> 
+                                            <td class="td-input-bottom">
+                                                <input type="text"
+                                                       class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
+                                                       v-on:keyup.13="Enter_FocusNext(2)"
+                                                       v-on:keyup="DayProducts_EditSoLuong(index)" />
+                                            </td>
+                                            <td class="text-center td-stt" style="vertical-align:middle">
+                                                <a>
+                                                    <span class="span-i" v-on:click="DayProducts_Remove(index)" title="Xóa dòng">
+                                                        <i class="fal fa-times"></i>
+                                                    </span>  &nbsp;
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg12 bold">
+                                            <td colspan="2" class="text-left">Tổng cộng</td>
+                                            <td class="text-right">30</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fal fa-ban"></i>Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-main" v-if="!isLoading" v-on:click="saveNhomHang">
+                        <i class="fa fa-save"></i> {{typeUpdate==1?'Áp dụng':'Cập nhật'}}
+                    </button>
+                    <button type="button" class="btn btn-main" v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    var vmApDungNhomHoTro = new Vue({
+        el: '#vmApDungNhomHoTro',
+        components: {
+            'products': cmpChoseProduct,
+        },
+        created: function () {
+            var self = this;
+            self.ID_DonVi = $('#txtDonVi').val();
+            if (commonStatisJs.CheckNull(self.ID_DonVi)) {
+                self.ID_DonVi = VHeader.IdDonVi;
+            }
+            console.log('apdung')
+            self.GetListNhomHang_SetupHotro();
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            typeUpdate: 1,// 1.insert, 2.update
+            typeProduct: 1,// 1.sp ngaythuoc, 0. sp chung
+            listData: {
+                AllNhomHangs: [],
+                AllPublicProducts: [],
+                AllDayProducts: [],
+            },
+
+            Id_NhomHangChosed: null,
+            PublicProducts: [],
+            DayProducts: [],
+        },
+        methods: {
+            GetListNhomHang_SetupHotro: function () {
+                let self = this;
+                self.listData.AllNhomHangs = [];
+                let param = {
+                    IDChiNhanhs: [self.ID_DonVi]
+                }
+                ajaxHelper('/api/DanhMuc/DM_NhomHangHoaAPI/GetListNhomHang_SetupHoTro', 'POST', param).done(function (x) {
+                    console.log('GetListNhomHang_SetupHoTro', x)
+                    if (x.res) {
+                        self.listData.AllNhomHangs = x.dataSoure;
+
+                        if (self.listData.AllNhomHangs.length > 0) {
+                            self.Id_NhomHangChosed = self.listData.AllNhomHangs[0].Id_NhomHang;
+                        }
+                    }
+
+                    self.NhomHang_GetListSanPhamHoTro();
+                })
+            },
+            NhomHang_GetListSanPhamHoTro: function () {
+                let self = this;
+                if (!commonStatisJs.CheckNull(self.Id_NhomHangChosed)) {
+                    $.getJSON('/api/DanhMuc/DM_NhomHangHoaAPI/NhomHang_GetListSanPhamHoTro?idNhom=' + self.Id_NhomHangChosed).done(function (x) {
+                        let sp_public = [], sp_day = [];
+                        if (x.res) {
+                            sp_public = $.grep(x.dataSoure, function (x1) {
+                                return x1.LaSanPhamNgayThuoc === 0;
+                            });
+                            sp_day = $.grep(x.dataSoure, function (x1) {
+                                return x1.LaSanPhamNgayThuoc === 1;
+                            });
+
+                        }
+                        self.listData.AllPublicProducts = sp_public;
+                        self.listData.AllDayProducts = sp_day;
+                    })
+                }
+            },
+            ChoseNhomApply: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                for (let i = 0; i < self.listData.AllNhomHangs.length; i++) {
+                    if (i === index) {
+                        self.listData.AllNhomHangs[i].IsApply = isCheck;
+                    }
+                    else {
+                        self.listData.AllNhomHangs[i].IsApply = false;
+                    }
+                }
+            },
+            ChangeCheck_XuatNgayThuoc: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                console.log('ChangeCheck_XuatNgayThuoc ')
+                for (let i = 0; i < self.listData.AllNhomHangs.length; i++) {
+                    if (i === index) {
+                        self.listData.AllNhomHangs[i].IsXuatNgayThuoc = isCheck;
+                        break;
+                    }
+                }
+            },
+            showModal: function () {
+                let self = this;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 1;
+
+                self.PublicProducts = [];
+                self.DayProducts = [];
+                //let hdHoTro = localStorage.getItem();
+                $('#vmApDungNhomHoTro').modal('show');
+            },
+            showModalUpdate: function (idNhom) {
+                let self = this;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 2;
+
+                self.PublicProducts = [];
+                self.DayProducts = [];
+                $('#vmApDungNhomHoTro').modal('show');
+            },
+            ChoseProduct_Public: function (item) {
+                let self = this;
+                let obj = {
+                    ID_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    MaHangHoa: item.MaHangHoa,
+                    TenHangHoa: item.TenHangHoa,
+                    TenDonViTinh: item.TenDonViTinh,
+                    SoLuong: 1
+                };
+                self.PublicProducts.unshift(obj);
+            },
+            ChoseProduct_Day: function (item) {
+                let self = this;
+                let obj = {
+                    ID_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    MaHangHoa: item.MaHangHoa,
+                    TenHangHoa: item.TenHangHoa,
+                    TenDonViTinh: item.TenDonViTinh,
+                    SoLuong: 1
+                };
+                self.DayProducts.unshift(obj);
+            },
+            showModalNhomHang: function (type) {
+                let self = this;
+                self.typeProduct = type;
+                //vmApplyGroupProduct.showModal();
+            },
+            PublicProducts_Remove: function (index) {
+                let self = this;
+                for (let i = 0; i < self.PublicProducts.length; i++) {
+                    if (i === index) {
+                        self.PublicProducts.splice(i, 1);
+                        break;
+                    }
+                }
+            },
+            DayProducts_Remove: function (index) {
+                let self = this;
+                for (let i = 0; i < self.DayProducts.length; i++) {
+                    if (i === index) {
+                        self.DayProducts.splice(i, 1);
+                        break;
+                    }
+                }
+            },
+            Enter_FocusNext: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let $tr = $this.closest('tr').next();
+                $tr.find('td').eq(index).find('input').focus().select();
+            },
+            ApplyGroup: function () {
+                let self = this;
+
+                let param = {
+                    ID_DonVi: self.ID_DonVi,
+                    IDNhomHangs: vmApplyGroupProduct.arrIDNhomChosed,
+                    LoaiHangHoas: '1,2',// hanghoa + dv
+                }
+                ajaxHelper('/api/DanhMuc/BH_DieuChinh/' + 'getListHangHoaBy_IDNhomHang', 'POST', param).done(function (x) {
+                    if (x.res) {
+                        let data = x.dataSoure;
+                        switch (self.typeProduct) {
+                            case 1:
+                                for (let i = 0; i < data.length; i++) {
+                                    let itFor = data[i];
+                                    self.PublicProducts.unshift(itFor);
+                                }
+                                break;
+                            case 2:
+                                for (let i = 0; i < data.length; i++) {
+                                    let itFor = data[i];
+                                    self.DayProducts.unshift(itFor);
+                                }
+                                break;
+                        }
+                    }
+                })
+            },
+            EditNgayThuoc: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                formatNumberObj($this);
+
+                let gtri = $this.val();
+                for (let i = 0; i < self.KhoangApDung.length; i++) {
+                    if (i === index) {
+                        if (self.KhoangApDung[i].LaPhanTram) {
+                            if (formatNumberToFloat(gtri) > 100) {
+                                $this.val(100);
+                                gtri = 100;
+                            }
+                        }
+                        self.KhoangApDung[i].GiaTriHoTro = gtri;
+                        break;
+                    }
+                }
+            },
+            PublicProducts_EditSoLuong: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                for (let i = 0; i < self.PublicProducts.length; i++) {
+                    if (i === index) {
+                        self.PublicProducts[i].SoLuong = $this.val();
+                        break;
+                    }
+                }
+            },
+            DayProducts_EditSoLuong: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                for (let i = 0; i < self.DayProducts.length; i++) {
+                    if (i === index) {
+                        self.DayProducts[i].SoLuong = $this.val();
+                        break;
+                    }
+                }
+            },
+            CheckSave: function () {
+                let self = this;
+                if (self.ChiNhanhChosed.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn chi nhánh áp dụng');
+                    return false;
+                }
+                for (let i = 0; i < self.KhoangApDung.length; i++) {
+                    let itFor = self.KhoangApDung[i];
+                    let from = formatNumberToFloat(itFor.GiaTriTu);
+                    let to = formatNumberToFloat(itFor.GiaTriDen);
+                    if (from === 0 || to === 0) {
+                        ShowMessage_Danger("Vui lòng nhập khoảng giá trị");
+                        return false;
+                    }
+                    if (from > to) {
+                        ShowMessage_Danger("Tổng tiền từ không được lớn hơn tổng tiền đến");
+                        return false;
+                    }
+
+                    let arr = $.grep(self.KhoangApDung, function (x, index) {
+                        return formatNumberToFloat(x.GiaTriDen) >= from
+                            && formatNumberToFloat(x.GiaTriTu) <= to && index !== i;
+                    });
+                    if (arr.length > 0) {
+                        ShowMessage_Danger("Khoảng áp dụng không được gối trùng lên nhau");
+                        return false;
+                    }
+                }
+
+                if (self.PublicProducts.length === 0 || self.DayProducts.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn sản phẩm hỗ trợ');
+                    return false;
+                }
+
+                let arrNumber0 = $.grep(self.PublicProducts, function (x) {
+                    return formatNumberToFloat(x.SoLuong) == 0;
+                })
+                if (arrNumber0.length > 0) {
+                    ShowMessage_Danger('Sản phẩm chung: Chưa nhập đủ thông tin cột Số lượng');
+                    return false;
+                }
+
+                arrNumber0 = $.grep(self.DayProducts, function (x) {
+                    return formatNumberToFloat(x.SoLuong) == 0;
+                })
+                if (arrNumber0.length > 0) {
+                    ShowMessage_Danger('Sản phẩm ngày thuốc: Chưa nhập đủ thông tin cột Số lượng');
+                    return false;
+                }
+                return true;
+            },
+            saveNhomHang: function () {
+                let self = this;
+
+
+
+            }
+        }
+    })
+
+    $('#vmApplyGroupProduct').on('hidden.bs.modal', function () {
+        if (vmApplyGroupProduct.saveOK) {
+            vmApDungNhomHoTro.ApplyGroup();
+        }
+    })
+
+    // insert object at index
+    Array.prototype.insert = function (index, item) {
+        this.splice(index, 0, item);
+    };
+</script>
