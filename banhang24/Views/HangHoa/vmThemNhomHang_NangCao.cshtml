@@ -421,6 +421,7 @@
                     LaNhomHangHoa: false,
                     ThietLapNangCao: false,
                     GhiChu: '',
+                    TrangThai: 0 // nhomhanghoa: đang lưu ngược trạng thái: 0.chuaxoa, 1. daxoa
                 };
                 self.KhoangApDung = [];
                 self.KhoangApDung.push(self.newKhoangApDung());
@@ -438,6 +439,8 @@
                 self.DayProducts = [];
                 self.ChiNhanhChosed = [];
                 self.KhoangApDung = [];
+                self.khoangApDungOld = [];
+                self.spHoTroOld = [];
 
                 self.newNhomHang = {
                     ID: null,
@@ -446,6 +449,7 @@
                     LaNhomHangHoa: true,
                     ThietLapNangCao: false,
                     GhiChu: '',
+                    TrangThai: 1
                 };
 
                 let lstCN = [], lstAD = [];
@@ -455,8 +459,8 @@
                     self.newNhomHang.TenNhomHangHoa = x.TenNhomHangHoa;
                     self.newNhomHang.LaNhomHangHoa = x.LaNhomHangHoa;
                     self.newNhomHang.GhiChu = x.GhiChu;
-
-                    self.nhomOld = $.extend({}, true, self.newNhomHang);
+                    self.newNhomHang.TrangThai = x.TrangThai;
+                    console.log('xOld ', x)
                 })
 
                 $.getJSON(self.urlAPI + 'GetListDonVi_byIDNhomHang?idNhom=' + idNhom).done(function (x) {
@@ -494,6 +498,7 @@
                             self.KhoangApDung.push(self.newKhoangApDung());
                         }
                     }
+                    self.nhomOld = $.extend({}, true, self.newNhomHang);// assign nhômld after check ThietLapNangCao
                     self.khoangApDungOld = $.extend([], true, lstAD);
                 })
 
@@ -506,6 +511,8 @@
                         sp_day = $.grep(x.dataSoure, function (x1) {
                             return x1.LaSanPhamNgayThuoc === 1;
                         });
+
+                        self.spHoTroOld = $.extend([], true, x.dataSoure);
                     }
                     self.khoangApDungOld = $.extend([], true, x.dataSoure);
                     self.PublicProducts = sp_public;
@@ -568,7 +575,7 @@
                 let self = this;
                 let $this = $(event.currentTarget);
                 let $tr = $this.closest('tr').next();
-                $tr.find('td').eq(3).find('input').focus();
+                $tr.find('td').eq(3).find('input').focus().select();
                 console.log('Enter_FocusNext')
 
             },
@@ -814,8 +821,34 @@
                     LaNhomHangHoa: self.newNhomHang.LaNhomHangHoa,
                     ID_Parent: null,
                     NguoiTao: VHeader.UserLogin,
-                    GhiChu: self.newNhomHang.GhiChu
+                    GhiChu: self.newNhomHang.GhiChu,
+                    TrangThai: 0
                 };
+
+                let sListSP = '';
+                if (self.newNhomHang.ThietLapNangCao) {
+                    if (self.PublicProducts.length > 0) {
+                        sListSP = '<br /> Sản phẩm hỗ trợ chung gồm:';
+
+                        let sChung = '';
+                        for (let i = 0; i < self.PublicProducts.length; i++) {
+                            let itFor = self.PublicProducts[i];
+                            sChung += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa, ') Số lượng ', itFor.SoLuong);
+                        }
+                        sListSP += sChung;
+                    }
+
+                    if (self.DayProducts.length > 0) {
+                        sListSP += '<br /> Sản phẩm hỗ trợ ngày thuốc gồm:';
+
+                        let sChung = '';
+                        for (let i = 0; i < self.DayProducts.length; i++) {
+                            let itFor = self.DayProducts[i];
+                            sChung += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa, ') Số lượng ', itFor.SoLuong);
+                        }
+                        sListSP += sChung;
+                    }
+                }
 
                 if (self.typeUpdate === 1) {
                     obj.NguoiTao = VHeader.UserLogin;
@@ -830,7 +863,12 @@
                             ID_NhanVien: VHeader.IdNhanVien,
                             ChucNang: 'Thêm nhóm ' + self.sLoai,
                             NoiDung: 'Thêm nhóm '.concat(self.sLoai, ' <b> ', self.newNhomHang.TenNhomHangHoa, ' </b>'),
-                            NoiDungChiTiet: 'Thêm nhóm '.concat(self.sLoai, ': tên nhóm: ', self.newNhomHang.TenNhomHangHoa, '. Người tạo: ', VHeader.UserLogin),
+                            NoiDungChiTiet: 'Thêm nhóm '.concat(self.sLoai,
+                                '<br /> <b> Thông tin chi tiết: </b> ',
+                                '<br /> Tên nhóm: ', self.newNhomHang.TenNhomHangHoa,
+                                '<br /> Là nhóm hàng hóa: ' + self.newNhomHang.LaNhomHangHoa,
+                                '<br /> Người tạo: ', VHeader.UserLogin,
+                                sListSP),
                         };
                         Insert_NhatKyThaoTac_1Param(objNhatKy);
 
@@ -868,12 +906,43 @@
 
                     // check thay doi nhomhang ---> nhom dichvu (va nguoc lai)
 
-                    if (self.typeUpdate === 2 && self.nhomOld.LaNhomHangHoa !== self.newNhomHang.LaNhomHangHoa) {
-                        let sLoaiOld = self.nhomOld.LaNhomHangHoa ? 'hàng hóa' : 'dịch vụ';
-                        dialogConfirm('Thông báo', 'Bạn vừa thay đổi từ nhóm <b>' + sLoaiOld + ' </b> sang  <b>' + self.sLoai + ' </b>' +
-                            ' <br /> Bạn có muốn cập nhật loại hàng cho các hàng hóa thuộc nhóm không ? ', function () {
+                    //if (self.typeUpdate === 2 && self.nhomOld.LaNhomHangHoa !== self.newNhomHang.LaNhomHangHoa) {
+                    //    let sLoaiOld = self.nhomOld.LaNhomHangHoa ? 'hàng hóa' : 'dịch vụ';
+                    //    dialogConfirm('Thông báo', 'Bạn vừa thay đổi từ nhóm <b>' + sLoaiOld + ' </b> sang  <b>' + self.sLoai + ' </b>' +
+                    //        ' <br /> Bạn có muốn cập nhật loại hàng cho các hàng hóa thuộc nhóm không ? ', function () {
 
+                    //        });
+                    //}
+
+                    let sListSPOld = '';
+                    if (self.nhomOld.ThietLapNangCao) {
+                        if (self.spHoTroOld.length > 0) {
+
+                            let sChung = '',sNgay = '';
+                            let arrChung = $.grep(self.spHoTroOld, function (x) {
+                                return x.LaSanPhamNgayThuoc === 0;
+                            })
+                            if (arrChung.length > 0) {
+                                sListSPOld = '<br /> Sản phẩm hỗ trợ chung gồm: ';
+                                for (let i = 0; i < arrChung.length; i++) {
+                                    let itFor = arrChung[i];
+                                    sChung += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa, ') Số lượng ', itFor.SoLuong);
+                                }
+                                sListSPOld += sChung;
+                            }
+
+                            let arrNgay = $.grep(self.spHoTroOld, function (x) {
+                                return x.LaSanPhamNgayThuoc === 1;
                             });
+                            if (arrNgay.length > 0) {
+                                sListSPOld += '<br /> Sản phẩm hỗ trợ ngày thuốc gồm: ';
+                                for (let i = 0; i < arrNgay.length; i++) {
+                                    let itFor = arrNgay[i];
+                                    sNgay += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa, ') Số lượng ', itFor.SoLuong);
+                                }
+                                sListSPOld += sNgay;
+                            }
+                        }
                     }
 
                     ajaxHelper(self.urlAPI + 'PutDM_NhomHangHoa', 'POST', objU).done(function (x) {
@@ -885,9 +954,15 @@
                             ID_NhanVien: VHeader.IdNhanVien,
                             ChucNang: 'Cập nhật nhóm ' + self.sLoai,
                             NoiDung: 'Cập nhật nhóm '.concat(self.sLoai, ' <b> ', self.newNhomHang.TenNhomHangHoa, ' </b>'),
-                            NoiDungChiTiet: 'Cập nhật nhóm '.concat(self.sLoai, ': tên nhóm: ', self.newNhomHang.TenNhomHangHoa, '. Người sửa: ', VHeader.UserLogin,
+                            NoiDungChiTiet: 'Cập nhật nhóm '.concat(self.sLoai,
+                                '<br /> <b> Thông tin chi tiết: </b> ',
+                                '<br /> Tên nhóm: ', self.newNhomHang.TenNhomHangHoa,
+                                '<br /> Là nhóm hàng hóa: ' + self.newNhomHang.LaNhomHangHoa,
+                                '<br /> Thiết lập nâng cao: ', self.newNhomHang.ThietLapNangCao,
+                                '<br /> Người sửa: ', VHeader.UserLogin, sListSP,
                                 '<br /> <b> Thông tin cũ: </b> <br /> Tên nhóm: ' + self.nhomOld.TenNhomHangHoa,
-                                '<br /> Là nhóm hàng hóa: ' + self.nhomOld.LaNhomHangHoa),
+                                '<br /> Là nhóm hàng hóa: ' + self.nhomOld.LaNhomHangHoa,
+                                '<br /> Thiết lập nâng cao: ' + self.nhomOld.ThietLapNangCao, sListSPOld),
                         };
                         Insert_NhatKyThaoTac_1Param(objNhatKy);
 
@@ -897,16 +972,26 @@
                             lstSPHoTro: param.ListProduct,
                         }
 
-                        ajaxHelper(self.urlAPI + 'PostNhomHang_DonVi?checkAll=' + param.AllCN, 'POST', param.CNApDung).done(function (x) {
+                        if (!self.newNhomHang.ThietLapNangCao) {
+                            // reset CNApDung, SPHoTro
+                            param.CNApDung = [];
+                            myData = {
+                                lstKhoangApDung: [],
+                                lstSPHoTro: [],
+                            }
+                        }
+
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_DonVi?checkAll=' + param.AllCN + '&idNhomHang=' + idNhom, 'POST', param.CNApDung).done(function (x) {
                             console.log('PostNhomHang_DonVi ', x)
                         })
 
-                        ajaxHelper(self.urlAPI + 'PostNhomHang_ChiTietApDung', 'POST', myData).done(function (x) {
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_ChiTietApDung?idNhomHang=' + idNhom, 'POST', myData).done(function (x) {
                             console.log('PostNhomHang_ChiTietApDung ', x)
                             if (x.res) {
 
                             }
                         })
+
                     }).always(function () {
                         self.isLoading = false;
                         $('#vmThemNhomHang_NangCao').modal('hide');
