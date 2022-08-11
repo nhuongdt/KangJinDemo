@@ -187,7 +187,7 @@ namespace libDM_NhomHangHoa
                         db.Entry(objUpd).State = EntityState.Modified;
                         #endregion
 
-                        //
+                      
                         #region NhomHangHoa_DonVi
                         if (objNew.NhomHangHoa_DonVi != null && objNew.NhomHangHoa_DonVi.Count > 0)
                         {
@@ -240,7 +240,6 @@ namespace libDM_NhomHangHoa
                                 db.NhomHangHoa_DonVi.RemoveRange(lstDonVis);
                         }
                         #endregion
-                        //
                         db.SaveChanges();
                     }
                     else

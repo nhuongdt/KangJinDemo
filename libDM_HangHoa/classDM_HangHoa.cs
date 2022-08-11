@@ -38,10 +38,28 @@ namespace libDM_HangHoa
             }
             List<SqlParameter> prm = new List<SqlParameter>();
             prm.Add(new SqlParameter("ID_DonVi", param.ID_DonVi));
-            prm.Add(new SqlParameter("IDNhomHangs", idNhoms?? (object)DBNull.Value));
+            prm.Add(new SqlParameter("IDNhomHangs", idNhoms ?? (object)DBNull.Value));
             prm.Add(new SqlParameter("LoaiHangHoas", loaiHangs));
             var xx = db.Database.SqlQuery<DieuChinhGiaVon_HangHoaDTO>("exec dbo.getListHangHoaBy_IDNhomHang @ID_DonVi, @IDNhomHangs," +
                 " @LoaiHangHoas", prm.ToArray()).ToList();
+            return xx;
+        }
+        public List<NhomHangHoa_SanPhamHoTroDTO> NhomHang_GetListSanPhamHoTro(Guid idNhom)
+        {
+            SqlParameter prm = new SqlParameter("ID_NhomHang", idNhom);
+            var xx = db.Database.SqlQuery<NhomHangHoa_SanPhamHoTroDTO>("exec dbo.NhomHang_GetListSanPhamHoTro @ID_NhomHang", prm).ToList();
+            return xx;
+        }
+
+        public List<NhomHangHoa_KhoangApDungDTO> GetListNhomHang_SetupHoTro(CommonParamSearch param)
+        {
+            string idDonVis = string.Empty;
+            if (param.IDChiNhanhs != null)
+            {
+                idDonVis = string.Join(",", string.Empty);
+            }
+            SqlParameter prm = new SqlParameter("@IDDonVis", idDonVis ?? (object)DBNull.Value);
+            var xx = db.Database.SqlQuery<NhomHangHoa_KhoangApDungDTO>("exec dbo.GetListNhomHang_SetupHoTro @IDDonVis", prm).ToList();
             return xx;
         }
 
