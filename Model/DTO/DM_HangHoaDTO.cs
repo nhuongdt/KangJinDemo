@@ -9,7 +9,30 @@ namespace Model
     public class DM_Ton
     {
         public double? TonKho { get; set; }
-    }  
+    }
+
+    public class NhomHangHoa_KhoangApDungDTO
+    {
+        public Guid? Id_NhomHang { get; set; }
+        public string TenNhomHangHoa { get; set; }
+        public double? GiaTriSuDungTu { get; set; }
+        public double? GiaTriSuDungDen { get; set; }
+        public double? GiaTriHoTro { get; set; }
+        public int? KieuHoTro { get; set; }
+    }
+
+    public class NhomHangHoa_SanPhamHoTroDTO
+    {
+        public Guid? Id_NhomHang { get; set; }
+        public Guid? Id_DonViQuiDoi { get; set; }
+        public Guid? Id_LoHang { get; set; }
+        public double? SoLuong { get; set; }
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public string TenDonViTinh { get; set; }
+        public int? LaSanPhamNgayThuoc { get; set; }
+
+    }
     public class DieuChinhGiaVon_HangHoaDTO
     {
         public Guid ID { get; set; }
@@ -282,7 +305,7 @@ namespace Model
         public double? GiaBan { get; set; }
         public double? GiamGia { get; set; }
         public double SoLuong { get; set; }
-        public int ThuTuHoaDon { get; set; } 
+        public int ThuTuHoaDon { get; set; }
         public Guid? ID_DonViQuiDoi { get; set; }
         public Guid? ID_LoHang { get; set; }
     }
@@ -415,7 +438,7 @@ namespace Model
         public int? DichVuTheoGio { get; set; }
         public int? DuocTichDiem { get; set; }
         public int? LoaiHangHoa { get; set; }
-        public int? HoaHongTruocChietKhau { get; set; } 
+        public int? HoaHongTruocChietKhau { get; set; }
         public double? ChietKhauMD_NV { get; set; }
         public bool? ChietKhauMD_NVTheoPT { get; set; }
     }
