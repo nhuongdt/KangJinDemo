@@ -4319,6 +4319,8 @@ var ViewModel = function () {
             ShowMessage_Danger('Không có quyền cập nhật nhóm hàng');
             return;
         }
+        vmThemNhomHang_NangCao.showModalUpdate(item.ID);
+        return;
         ajaxHelper(NhomHHUri + "GetDM_NhomHangHoa/" + item.ID, 'GET').done(function (data) {
             if (data.LaNhomHangHoa === true) {
                 $('#txtEditNhomHangHoa').html("Sửa nhóm hàng hóa");
@@ -4832,6 +4834,10 @@ var ViewModel = function () {
     self.backCurrentDV = function () {
         self.BackAdd();
     };
+
+    self.showModalNhomHang = function () {
+        vmThemNhomHang_NangCao.showModal();
+    }
 
     $(".op-js-themmoinhomhang").click(function () {
         self.CheckLocNhomHangCap3(true);
