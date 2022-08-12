@@ -1693,6 +1693,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult PhieuXuatKho_NguyenVatLieu(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassPhieuTiepNhan classPhieuTN = new ClassPhieuTiepNhan(db);
+                    Param_XuatKhoToanBo data = classPhieuTN.PhieuXuatKho_NguyenVatLieu(idHoaDon);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("PhieuXuatKho_NguyenVatLieu " + ex.InnerException + ex.Message);
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
         [HttpPost]
         public IHttpActionResult JqAuto_HoaDonSC(ParamSearch param)
         {
