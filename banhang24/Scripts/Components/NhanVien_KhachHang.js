@@ -388,6 +388,7 @@ var cmpChoseProduct = {
         roleAdd: { default: false },
         titleAdd: { default: '' },
         listAll: { default: [] },
+        haveCondition: { default: false }, // true: chi get data sẵn có
     },
     template: `
        <div class="gara-detail-input" style=" position:relative" class="jsSearchProduct op-search-list" v-bind:class="{ showImageList: showImage }">
@@ -513,12 +514,13 @@ var cmpChoseProduct = {
                 }
             }
             else {
-                clearTimeout(self.timmer);
-                self.timmer = setTimeout(function () {
-                    self.currentPage = 0;
-                    self.searchDB();
-                }, 300);
-
+                if (!self.haveCondition) {
+                    clearTimeout(self.timmer);
+                    self.timmer = setTimeout(function () {
+                        self.currentPage = 0;
+                        self.searchDB();
+                    }, 300);
+                }
             }
             $(event.currentTarget).next().show();
         },
