@@ -130,7 +130,7 @@ namespace Model
         public bool? An_Hien { get; set; }
 
         [Column(TypeName = "float")]
-        public double? TyGia { get; set; }
+        public double? TyGia { get; set; } = 1;
 
         [Column(TypeName = "uniqueidentifier")]
         public Guid? ID_KhuyenMai { get; set; }
