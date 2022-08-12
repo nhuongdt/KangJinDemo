@@ -72,6 +72,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     return ActionFalseNotData(ex.InnerException + ex.Message);
                 }
             }
+        } 
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetTongGiaTriSuDung_ofKhachHang(ParamNKyGDV param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    classDMNhomHangHoa classNhomHangHoa = new classDMNhomHangHoa(db);
+                    List<NhomHangHoa_TongSuDung> data = classNhomHangHoa.GetTongGiaTriSuDung_ofKhachHang(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
         }
 
         [HttpGet]
