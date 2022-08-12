@@ -33,6 +33,13 @@ namespace Model
         public int? LaSanPhamNgayThuoc { get; set; }
 
     }
+
+    public class NhomHangHoa_TongSuDung
+    {
+        public Guid? Id_NhomHang { get; set; }
+        public double? TongGiaTriSuDung { get; set; }
+
+    }
     public class DieuChinhGiaVon_HangHoaDTO
     {
         public Guid ID { get; set; }
