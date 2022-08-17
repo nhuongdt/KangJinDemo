@@ -365,7 +365,7 @@ namespace libGara
         public Param_XuatKhoToanBo PhieuXuatKho_NguyenVatLieu(Guid idHoaDon)
         {
             SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
-            return _db.Database.SqlQuery<Param_XuatKhoToanBo>("CreateXuatKho_NguyenVatLieu @ID_HoaDon", sql).FirstOrDefault();
+            return _db.Database.SqlQuery<Param_XuatKhoToanBo>("dbo.CreateXuatKho_NguyenVatLieu @ID_HoaDon", sql).FirstOrDefault();
         }
 
         public List<XuatKho_JqautoHDSC> JqAuto_HoaDonSC(ParamSearch param)
