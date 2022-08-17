@@ -676,8 +676,9 @@
             { ID: 8, TenChungTu: 'Xuất kho' },
             { ID: 9, TenChungTu: 'Phiếu kiểm kê' },
             { ID: 10, TenChungTu: 'Chuyển hàng' },
-            { ID: 2, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
-            { ID: 3, TenChungTu: 'Xuất bán dịch vụ định lượng' },
+            { ID: 35, TenChungTu: 'Xuất nguyên vật liệu' },
+            //{ ID: 2, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
+            //{ ID: 3, TenChungTu: 'Xuất bán dịch vụ định lượng' },
             { ID: 12, TenChungTu: 'Xuất bảo hành' },
             { ID: 11, TenChungTu: 'Xuất sửa chữa' },
             { ID: 4, TenChungTu: 'Phiếu nhập kho' },
@@ -704,9 +705,9 @@
     };
     self.getListDM_LoaiChungTuXuatKho = function (item) {
         self.MangChungTu([]);
-        _idChungTuSeach = '1,2,3,7,8,9,10,12';// 12.xuat baohanh
+        _idChungTuSeach = '1,2,3,7,8,9,10,12,35';// 12.xuat baohanh, 35.xuat NVL
         let arr = $.grep(self.AllLoaiChungTu(), function (x) {
-            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10, 12]) > -1;
+            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10, 12, 35]) > -1;
         })
         self.ChungTus(arr);
         if (self.isGara()) {
@@ -2464,48 +2465,54 @@
     self.gotoDanhSachXe = function (item) {
         window.open('/#/DanhSachXe?' + item.BienSo, '_blank');
     }
+    self.gotoPhieuChuyen = function () {
+        localStorage.setItem('FindHD', item.MaHoaDon);
+        window.open("/#/Transfers");
+    }
     self.LoadHoaDon_byMaHD = function (item) {
-        var url = '';
-        if (item.MaHoaDon !== '' && item.MaHoaDon !== null && item.MaHoaDon !== 'HD trả nhanh') {
-            var maHD = item.MaHoaDon;
-            if (maHD.indexOf('TT') > -1) {
-                localStorage.setItem('FindMaPhieuChi', maHD);
-                url = "/#/CashFlow"; // soquy
-            }
-            else {
-                localStorage.setItem('FindHD', maHD);
-                if (maHD.indexOf('HD') > -1) {
-                    url = "/#/Invoices";
-                }
-                else if (maHD.indexOf('GDV') > -1) {
-                    url = "/#/ServicePackage";
-                }
-                else if (maHD.indexOf('PNK') > -1) {
-                    url = "/#/PurchaseOrder";
-                }
-                else if (maHD.indexOf('THN') > -1) {
-                    url = "/#/PurchaseReturns";
-                }
-                else if (maHD.indexOf('CH') > -1) {
-                    url = "/#/Transfers";
-                }
-                else if (maHD.indexOf('PKK') > -1) {
-                    url = "/#/StockTakes";
-                }
-                else if (maHD.indexOf('XH') > -1) {
-                    url = "/#/DamageItems";
-                }
-                else {
-                    if (maHD.indexOf('TH') > -1) {
-                        url = "/#/Returns"; // trahang
-                    }
-                    else {
-                        url = "/#/Order"; // dathang
-                    }
-                }
-            }
-            window.open(url);
+        localStorage.setItem('FindHD', item.MaHoaDon);
+        let url = '';
+        switch (item.LoaiHoaDon) {
+            case 1:
+                url = "/#/Invoices";
+                break;
+            case 2:
+                url = "/#/HoaDonBaoHanh";
+                break;
+            case 3:
+                url = "/#/Order";
+                break;
+            case 4:
+                url = "/#/PurchaseOrder";
+                break;
+            case 6:
+                url = "/#/Returns";
+                break;
+            case 7:
+                url = "/#/PurchaseReturns";
+                break;
+            case 8:
+            case 35:
+                url = "/#/DamageItems";
+                break;
+            case 9:
+                url = "/#/StockTakes";
+                break;
+            case 10:
+                url = "/#/Transfers";
+                break;
+            case 19:
+                url = "/#/ServicePackage";
+                break;
+            case 13:
+                url = "/#/NhapNoiBo";
+                break;
+            case 14:
+                url = "/#/NhapHangThua";
+                break;
+
         }
+        window.open(url);
     };
 
     //Phân trang
