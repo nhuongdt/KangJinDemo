@@ -289,7 +289,7 @@ namespace libReport
                 sql.Add(new SqlParameter("TrangThai", obj.TrangThai));
                 sql.Add(new SqlParameter("ID_NhomHang", param.ID_NhomHang ?? (object)DBNull.Value));
                 sql.Add(new SqlParameter("ID_NguoiDung", param.ID_NguoiDung));
-                return _db.Database.SqlQuery<BaoCaoKho_XuatDichVuDinhLuongPRC>("exec BaoCaoKho_XuatDichVuDinhLuong @SearchString,@LoaiChungTu, @timeStart, @timeEnd, @ID_ChiNhanh, @LaHangHoa, @TheoDoi, @TrangThai, @ID_NhomHang,@ID_NguoiDung", sql.ToArray()).ToList();
+                return _db.Database.SqlQuery<BaoCaoKho_XuatDichVuDinhLuongPRC>("exec dbo.BaoCaoKho_XuatDichVuDinhLuong @SearchString,@LoaiChungTu, @timeStart, @timeEnd, @ID_ChiNhanh, @LaHangHoa, @TheoDoi, @TrangThai, @ID_NhomHang,@ID_NguoiDung", sql.ToArray()).ToList();
             }
             catch (Exception ex)
             {
