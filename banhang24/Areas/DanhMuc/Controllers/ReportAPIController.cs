@@ -4497,6 +4497,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excelCT.Columns.Remove("TenHangHoa");
                 excelCT.Columns.Remove("ThuocTinh_GiaTri");
                 excelCT.Columns.Remove("BienSo");
+                excelCT.Columns.Remove("LoaiHoaDon");
+
                 classOffice.listToOfficeExcel_Sheet(fileSave, fileSave, excelCT, 4, 28, 24, true, param.columnsHideCT, 1, param.TodayBC, param.TenChiNhanh);
                 HttpResponse Response = HttpContext.Current.Response;
                 fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoTongHopHangNhapKho.xlsx");
@@ -4573,6 +4575,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excelCT.Columns.Remove("TenHangHoa");
                 excelCT.Columns.Remove("ThuocTinh_GiaTri");
                 excelCT.Columns.Remove("GiaNhap");
+                excelCT.Columns.Remove("LoaiHoaDon");
                 classOffice.listToOfficeExcel_Sheet(fileSave, fileSave, excelCT, 4, 28, 24, true, param.columnsHideCT, 1, param.TodayBC, param.TenChiNhanh);
                 HttpResponse Response = HttpContext.Current.Response;
                 fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoTongHopHangXuatKho.xlsx");
@@ -4603,6 +4606,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("TenHangHoa");
                 excel.Columns.Remove("ID_DichVu");
                 excel.Columns.Remove("ThuocTinh_GiaTri");
+                excel.Columns.Remove("LoaiHoaDon");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/Teamplate_BaoCaoHangXuatKhoTheoDichVuDinhLuong.xlsx");
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoHangXuatKhoTheoDichVuDinhLuong.xlsx");
                 fileSave = classOffice.createFolder_Download(fileSave);
@@ -4623,7 +4627,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon,x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
                 {
                     SoLuongDichVu = t.FirstOrDefault().SoLuongDichVu,
-                    GiaTriDichVu = t.Sum(xx=>xx.GiaTriDichVu),
+                    GiaTriDichVu = t.FirstOrDefault().GiaTriDichVu,
                 }).ToList();
                 double SoLuongDichVu = lst_gr.Sum(x => x.SoLuongDichVu);
                 double GiaTriDichVu = lst_gr.Sum(x => x.GiaTriDichVu);
