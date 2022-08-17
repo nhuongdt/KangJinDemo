@@ -257,11 +257,12 @@ function ViewModel() {
     var _idChungTuSeach = '1,2,8,3';
     self.MangChungTu = ko.observableArray();
     self.ChungTus = ko.observableArray([
-        { ID: 1, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
+        //{ ID: 1, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
         { ID: 2, TenChungTu: 'Xuất bán lẻ' },
         { ID: 12,TenChungTu: 'Xuất bảo hành' },
         { ID: 8, TenChungTu: 'Xuất kho' },
         { ID: 3, TenChungTu: 'Xuất sữa chữa' },
+        { ID: 35, TenChungTu: 'Xuất nguyên vật liệu' },
     ]);
     if (!self.IsGara()) {
         var arr = $.grep(self.ChungTus(), function (x) {
