@@ -2097,6 +2097,9 @@ var PhieuDieuChinhChiTiet = function () {
                     $('#divPage').gridLoader({ show: false });
                 })
             }
+        }).always(function (x) {
+            $(".btnImportExcel").hide();
+            $(".filterFileSelect").hide();
         });
     }
 
