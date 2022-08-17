@@ -569,7 +569,8 @@ namespace libReport
     }
     public class BaoCaoKho_ChiTietHangNhapKhoPRC
     {
-        public string LoaiHoaDon { get; set; }
+        public int? LoaiHoaDon { get; set; }
+        public string TenLoaiChungTu { get; set; }
         public string MaHoaDon { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
         public string BienSo { get; set; }
@@ -595,7 +596,8 @@ namespace libReport
 
     public class BaoCaoKho_XuatDichVuDinhLuongPRC
     {
-        public string LoaiHoaDon { get; set; }
+        public int? LoaiHoaDon { get; set; }
+        public string TenLoaiChungTu { get; set; }
         public string MaHoaDon { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
         public string MaPhieuTiepNhan { get; set; }
