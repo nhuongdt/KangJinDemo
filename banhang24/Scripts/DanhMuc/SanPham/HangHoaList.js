@@ -3546,6 +3546,7 @@ var ViewModel = function () {
                 $('#modalpopup_PhieuTHN').modal('show');
                 break;
             case 8:
+            case 35:// xuat TPDL
                 $('#modalpopup_PhieuXH').modal('show');
                 break;
             case 9:
@@ -3568,6 +3569,8 @@ var ViewModel = function () {
             case 13:
             case 14:
                 $('#modalPopuplg_NhapHang').modal('show');
+                break;
+            case 36:
                 break;
         }
     }
