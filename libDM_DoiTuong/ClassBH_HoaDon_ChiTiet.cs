@@ -95,6 +95,32 @@ namespace libDM_DoiTuong
             SqlParameter param = new SqlParameter("ID_HoaDon", idHoaDon);
             db.Database.ExecuteSqlCommand("EXEC HDTraHang_InsertTPDinhLuong @ID_HoaDon", param);
         }
+        /// <summary>
+        /// tạo phiếu mới  + chạy tồn kho
+        /// </summary>
+        /// <param name="idCTHD"></param>
+        public void CreateAgainPhieuXuatKho_WhenUpdateTPDL(Guid idCTHD)
+        {
+            try
+            {
+                SqlParameter param = new SqlParameter("ID_CTHoaDon", idCTHD);
+                db.Database.ExecuteSqlCommand("EXEC dbo.CreateAgainPhieuXuatKho_WhenUpdateTPDL @ID_CTHoaDon", param);
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("CreateAgainPhieuXuatKho_WhenUpdateTPDL " + ex.Message + ex.InnerException);
+            }
+            
+        }
+        /// <summary>
+        /// hủy phiếu xuất kho cũ (loại = 35)  + chạy tồn kho
+        /// </summary>
+        /// <param name="idCTHD"></param>
+        public void HuyPhieuXuatKho_WhenUpdateTPDL(Guid idCTHD)
+        {
+            SqlParameter param = new SqlParameter("ID_CTHoaDon", idCTHD);
+            db.Database.ExecuteSqlCommand("EXEC dbo.HuyPhieuXuatKho_WhenUpdateTPDL @ID_CTHoaDon", param);
+        }
         public List<SP_ThanhPhanDinhLuong> HDSC_GetChiTietXuatKho(Guid idHoaDon, Guid idChiTietHD, int? loaiHang = 0)
         {
             List<SqlParameter> lstParam = new List<SqlParameter>();

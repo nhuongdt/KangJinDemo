@@ -139,11 +139,34 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     try
                     {
                         List<BH_HoaDon_ChiTiet> lstTPhan = new List<BH_HoaDon_ChiTiet>();
+                        ClassBH_HoaDon_ChiTiet classHDChiTiet = new ClassBH_HoaDon_ChiTiet(db);
 
                         // get all tpdluong of dichvu --> assisgn ChatLieu =5'
-                        db.BH_HoaDon_ChiTiet.Where(x => x.ID_ChiTietDinhLuong == idCTHD && x.ID_ChiTietDinhLuong != x.ID)
-                            .ToList()
-                            .ForEach(x => x.ChatLieu = "5");
+                        var tpDLOld = db.BH_HoaDon_ChiTiet.Where(x => x.ID_ChiTietDinhLuong == idCTHD && x.ID_ChiTietDinhLuong != x.ID)
+                                .ToList();
+                        tpDLOld.ForEach(x => x.ChatLieu = "5");
+                     
+
+                        #region check ctOld have/ or not TPDL
+                        if (tpDLOld != null && tpDLOld.Count() > 0)
+                        {
+                            // codinhluong --> khong dinhluong
+                            if (data == null || (data != null && data["lstTPhan"] == null))
+                            {
+                                // reset ID_ChiTietDinhLuong
+                                db.BH_HoaDon_ChiTiet.Where(x => x.ID == idCTHD)
+                                    .ToList()
+                                    .ForEach(x => x.ID_ChiTietDinhLuong = null);
+                            }
+                        }
+                        else
+                        {
+                            // khongdinhluong --> co dinhluong: assign ID_ChiTietDinhLuong
+                            db.BH_HoaDon_ChiTiet.Where(x => x.ID == idCTHD)
+                                .ToList()
+                                .ForEach(x => x.ID_ChiTietDinhLuong = x.ID);
+                        }
+                        #endregion
 
                         if (data != null && data["lstTPhan"] != null)
                         {
@@ -157,8 +180,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             }
 
                             db.BH_HoaDon_ChiTiet.AddRange(lstNew);
+
+                            // !! important: huy phieuxuat cu truoc khi luu
+                            classHDChiTiet.HuyPhieuXuatKho_WhenUpdateTPDL(idCTHD);
                             db.SaveChanges();
                             trans.Commit();
+
+                            // !! important: tao moi again sau khi luu 
+                            classHDChiTiet.CreateAgainPhieuXuatKho_WhenUpdateTPDL(idCTHD);
+                       
                             return ActionTrueData(string.Empty);
                         }
                         return ActionFalseNotData("Tham số null");
@@ -3165,7 +3195,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 if (db != null)
                 {
                     var data = from hd in db.BH_HoaDon
-                               where hd.ID_HoaDon == id && hd.ChoThanhToan != null
+                               where hd.ID_HoaDon == id && hd.ChoThanhToan != null && hd.LoaiHoaDon == 6
                                select hd;
 
                     if (data != null && data.Count() > 0)
@@ -3933,12 +3963,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             }
 
                             classhoadon.HuyHoaDonLienQuan(id);
-
-                            //if (item.LoaiHoaDon == 1)
-                            //{
-                            //    ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
-                            //    classHoaDonCT.UpdateTonKhoGiaVon_whenUpdateCTHD(id, item.ID_DonVi, item.NgayLapHoaDon);
-                            //}
 
                             // update TrangThai = false in Quy_HoaDon
                             var qct = _classQHDCT.Gets(idhd => idhd.ID_HoaDonLienQuan == id).GroupBy(x => x.ID_HoaDon).ToList();
@@ -11398,7 +11422,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         return Json(new
                         {
                             res = false,
-                            mes= ex.InnerException+ ex.Message
+                            mes = ex.InnerException + ex.Message
                         });
                     }
                 }
