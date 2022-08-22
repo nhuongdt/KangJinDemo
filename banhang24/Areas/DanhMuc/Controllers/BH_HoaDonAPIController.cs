@@ -68,6 +68,44 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult CreatePhieuXuatKho_NguyenVatLieu(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                    classHoaDonCT.CreatePhieuXuatKho_NguyenVatLieu(idHoaDon);
+                    return ActionTrueData(string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("PhieuXuatKho_NguyenVatLieu " + ex.InnerException + ex.Message);
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }       
+
+        [HttpGet]
+        public IHttpActionResult CreatePhieuXuat_FromHoaDon(Guid idHoaDon, int loaiHoaDon = 1, bool isXuatNgayThuoc = false)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                    classHoaDonCT.CreatePhieuXuat_FromHoaDon(idHoaDon, loaiHoaDon, isXuatNgayThuoc);
+                    return ActionTrueData(string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("CreatePhieuXuat_SanPhamNgayThuoc " + ex.InnerException + ex.Message);
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
         public IQueryable<BH_HoaDonDTO> GetAllHoaDon()
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -145,7 +183,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var tpDLOld = db.BH_HoaDon_ChiTiet.Where(x => x.ID_ChiTietDinhLuong == idCTHD && x.ID_ChiTietDinhLuong != x.ID)
                                 .ToList();
                         tpDLOld.ForEach(x => x.ChatLieu = "5");
-                     
+
 
                         #region check ctOld have/ or not TPDL
                         if (tpDLOld != null && tpDLOld.Count() > 0)
@@ -188,7 +226,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                             // !! important: tao moi again sau khi luu 
                             classHDChiTiet.CreateAgainPhieuXuatKho_WhenUpdateTPDL(idCTHD);
-                       
+
                             return ActionTrueData(string.Empty);
                         }
                         return ActionFalseNotData("Tham số null");
@@ -11199,7 +11237,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost, HttpGet]
-        public IHttpActionResult Post_HoaDonHoaTro([FromBody] JObject data)
+        public IHttpActionResult Post_HoaDonHoTro([FromBody] JObject data)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -11411,7 +11449,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 objHoaDon.ID,
                                 MaHoaDon = sMaHoaDon,
-                                NgayLapHoaDon = objHoaDon.NgayLapHoaDon,
+                                objHoaDon.NgayLapHoaDon,
                             }
                         });
 
