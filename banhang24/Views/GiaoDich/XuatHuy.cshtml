@@ -216,46 +216,31 @@
                     <table class="table-new  table-hover tblXH" id="tb">
                         <thead class="thead-boder">
                             <tr>
-                                @if ((string)ViewBag.ShopCookies == "C16EDDA0-F6D0-43E1-A469-844FAB143014")
+                                <th>#</th>
+                                @foreach (var item in commonEnum.ListColumnDamageItems)
                                 {
-                                    // gara
-                                    foreach (var item in commonEnum.ListColumnDamageItems)
-                                    {
-                                        <th class="@item.Key">
-                                            <a href="javascript:void(0)">@item.Value</a>
-                                        </th>
-                                    }
+                                    <th class="@item.Key">
+                                        <a href="javascript:void(0)">@item.Value</a>
+                                    </th>
                                 }
-                                else
-                                {
-                                    string[] keyGara = { "maphieutiepnhan", "mahoadonsuachua", "bienso" };
-                                    foreach (var item in commonEnum.ListColumnDamageItems.Where(x => x.Key.Any(y => keyGara.Contains(x.Key) == false)))
-                                    {
-                                        <th class="@item.Key">
-                                            <a href="javascript:void(0)">@item.Value</a>
-                                        </th>
-                                    }
-                                }
+                               
                             </tr>
                         </thead>
                         <tbody data-bind="foreach: HoaDons">
                             <tr class="prev-tr-hide" id="table" data-bind="click: $parent.LoadHangHoaChiTiet,css:{bggray : $index()%2 == 1}">
-                                <td class="@commonEnum.ColumnDamageItems.mahoadon" data-bind="text: MaHoaDon"></td>
-                                <!--ko if: $root.IsGara()-->
-                                <td class="@commonEnum.ColumnInvoices.maphieutiepnhan">
-                                    <a href="javascript:void(0)" data-bind="text: MaPhieuTiepNhan, click: function(){ $root.gotoPageOther ($data,2)}">
-                                    </a>
+                                <td class="js_tdAction">
+                                    <a href="javascript:void(0)"
+                                       data-bind="visible: TrangThai == 1, click: $root.XacNhanXuat">Xác nhận</a>
+                                    <span data-bind="visible: TrangThai == 2">Đã xuất</span>
+                                    <span data-bind="visible: TrangThai == 3">Đã hủy</span>
                                 </td>
+                                <td class="@commonEnum.ColumnDamageItems.mahoadon td-click" data-bind="text: MaHoaDon"></td>
+                                <td class="@commonEnum.ColumnDamageItems.loaiphieu" data-bind="text: LoaiPhieu"></td>
+                                <td class="@commonEnum.ColumnDamageItems.ngaylaphoadon text-center" data-bind="text:  moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></td>
                                 <td class="@commonEnum.ColumnDamageItems.mahoadonsuachua text-center">
                                     <a href="javascript:void(0)" data-bind="text: MaHoaDonGoc, click: function(){ $root.gotoPageOther ($data,1)}">
                                     </a>
                                 </td>
-                                <td class="@commonEnum.ColumnDamageItems.bienso text-center">
-                                    <a data-bind="text: BienSo, click: function(){ $root.gotoPageOther ($data,3)}"></a>
-                                </td>
-                                <!--/ko-->
-                                <td class="@commonEnum.ColumnDamageItems.loaiphieu" data-bind="text: LoaiPhieu"></td>
-                                <td class="@commonEnum.ColumnDamageItems.ngaylaphoadon text-center" data-bind="text:  moment(NgayLapHoaDon).format('DD/MM/YYYY')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm'):''"></td>
                                 <td class="@commonEnum.ColumnInvoices.tenkhachhang" data-bind="text: TenDoiTuong"></td>
                                 <td class="@commonEnum.ColumnDamageItems.tenchinhanh" data-bind="text: TenDonVi"></td>
                                 <td class="@commonEnum.ColumnDamageItems.tennhanvien" data-bind="text: TenNhanVien"></td>
@@ -426,15 +411,14 @@
                                                                 <i class="fa fa-save"></i> Lưu
                                                             </button>
                                                             <!--/ko-->
-                                                            <!--ko if: $root.Enable_NgayLapHD() && $root.XuatHuy_SuaDoi() && !$root.isXuatKhoGDV() && (LoaiHoaDon == 8 || (LoaiHoaDon !==8 && ID_PhieuTiepNhan !==null)) && ChoThanhToan == false -->
+                                                            <!--ko if: $root.Enable_NgayLapHD() && $root.XuatHuy_SuaDoi() && LoaiHoaDon == 8 && ChoThanhToan == false -->
                                                             <button class="btn btn-main"
                                                                     data-bind="click: $parent.UpdateAgain_PhieuXK">
                                                                 <i class="fa fa-share"></i> Cập nhật
                                                             </button>
                                                             <!--/ko-->
                                                             <!--ko if: $root.Enable_NgayLapHD() -->
-                                                            <button class="btn btn-main" data-bind="visible: !$root.isXuatKhoGDV()
-                                                                    && (LoaiHoaDon == 8 || (LoaiHoaDon !==8 && ID_PhieuTiepNhan !==null))
+                                                            <button class="btn btn-main" data-bind="visible: !$root.isXuatKhoGDV() && LoaiHoaDon == 8
                                                                  && $parent.XuatHuy_ThemMoi() && $parent.XuatHuy_MoPhieu() && ChoThanhToan
                                                                , click: $parent.ClickMoPhieuHuy">
                                                                 <i class="fa fa-share"></i> Mở phiếu
@@ -459,14 +443,13 @@
                                                                 <i class="fa fa-file-excel-o"></i> Xuất file
                                                             </button>
                                                             <button href="/GiaoDich/PhieuXuatHuy" class="btn btn-main clickSCXH"
-                                                                    data-bind="visible: !$root.isXuatKhoGDV() && $parent.XuatHuy_ThemMoi()
-                                                                    && (LoaiHoaDon == 8 || (LoaiHoaDon !==8 && ID_PhieuTiepNhan !==null))
+                                                                    data-bind="visible: !$root.isXuatKhoGDV() && $parent.XuatHuy_ThemMoi() && LoaiHoaDon ==8
                                                                && $parent.XuatHuy_SaoChep(),click: $parent.ClickSaoChep">
                                                                 <i class="fa fa-cut"></i> Sao chép
                                                             </button>
                                                             <!--ko if: $root.Enable_NgayLapHD() -->
                                                             <button class="btn btn-cancel"
-                                                                    data-bind="visible: (LoaiHoaDon == 8 || (LoaiHoaDon !==8 && ID_PhieuTiepNhan !==null))
+                                                                    data-bind="visible: LoaiHoaDon == 8 
                                                                     && $parent.XuatHuy_Xoa() && YeuCau != 'Hủy bỏ',
                                                                     click: $parent.xoaHD">
                                                                 <i class="fa fa-close"></i>Hủy bỏ
@@ -482,15 +465,12 @@
                             </tr>
                         </tbody>
                         <tfoot data-bind="visible: $root.RowsHangHoas() > 0">
-                            <tr class="bg12">
-                                <td class="@commonEnum.ColumnDamageItems.mahoadon text-left bold">Tổng cộng: </td>
-                                <!--ko if: $root.IsGara()-->
-                                <td class="@commonEnum.ColumnInvoices.maphieutiepnhan "></td>
-                                <td class="@commonEnum.ColumnDamageItems.mahoadonsuachua "></td>
-                                <td class="@commonEnum.ColumnDamageItems.bienso "></td>
-                                <!--/ko-->
+                            <tr class="bg12 bold">
+                                <td>Tổng cộng: </td>
+                                <td class="@commonEnum.ColumnDamageItems.mahoadon"></td>
                                 <td class="@commonEnum.ColumnDamageItems.loaiphieu "></td>
                                 <td class="@commonEnum.ColumnDamageItems.ngaylaphoadon "></td>
+                                <td class="@commonEnum.ColumnDamageItems.mahoadonsuachua "></td>
                                 <td class="@commonEnum.ColumnInvoices.tenkhachhang "></td>
                                 <td class="@commonEnum.ColumnDamageItems.tenchinhanh "></td>
                                 <td class="@commonEnum.ColumnDamageItems.tennhanvien"></td>
@@ -566,15 +546,12 @@
     var TeamplateXuatHuy = '@commonEnum.MauInTeamPlates.XuatHuy';
     var funcName = '@RoleKey.XuatHuy';
     $('.bgwhite').hide();
-     //lấy tên và ID của tài khoản đăng nhậ
     $(function () {
         $.datetimepicker.setLocale('vi');
-        var time = new Date();
         $('#datetimepicker_maskedit').datetimepicker({
             timepicker: true,
-            mask: true, // '9999/19/39 29:59' - digit is the maximum possible for a cell
+            mask: true, 
             format: 'd/m/Y H:i',
-            //value: moment(time).format('DD/MM/YYYY HH:mm')
         });
     });
     $(function () {

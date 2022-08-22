@@ -1763,11 +1763,9 @@ namespace libQuy_HoaDon
         public Guid? ID_HoaDon { get; set; }// idhoadon suachua
         public Guid? ID_PhieuTiepNhan { get; set; }
         public string MaHoaDon { get; set; }
-        public string MaPhieuTiepNhan { get; set; }
-        public string MaHoaDonSuaChua { get; set; }
-        public string BienSo { get; set; }
         public string LoaiPhieu { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
+        public string MaHoaDonSuaChua { get; set; }
         public string TenDoiTuong { get; set; }
         public string TenChiNhanh { get; set; }
         public string TenNhanVien { get; set; }

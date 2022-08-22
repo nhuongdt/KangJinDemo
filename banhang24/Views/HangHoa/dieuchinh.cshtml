@@ -19,7 +19,7 @@
                 <input type="text" class=" form-control" onclick="this.select()" id="txtAutoHangHoa" data-bind="JqAutoHangHoa_LoHang: { source: HangHoas_seach, value: selectedHH,
                                                          inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',  template: 'rowChiTiet', filter: filterSeach}"
                        placeholder="Tìm hàng hóa theo mã hoặc tên (F3)" onkeypress="keypressEnterSelected(event)" />
-                <button type="button" class="iptBtn" id="clickChonNhom" data-toggle="modal" data-target="#modalPopuplg_TMTK">
+                <button type="button" class="iptBtn" data-bind="click: $root.showPopNhomHang">
                     <i class="material-icons">add</i>
                 </button>
                 <script id="rowChiTiet" type="text/html">
@@ -249,7 +249,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="floatleft excel-file" id="importDieuChinh">
+                <div class="floatleft excel-file" id="importDieuChinh" data-bind="visible: HangHoaDieuChinh().length ===0">
                     <h4>Thêm sản phẩm từ file excel</h4>
                     <div class="title-inport ">Xử lý dữ liệu (Tải về File mẫu: <span class="blue" data-bind="click: DownloadFileTeamplateXLS"> Excel 2003</span>  hoặc<span class="blue" data-bind="click: DownloadFileTeamplateXLSX"> bản cao hơn</span>):</div>
                     <div class="choose-file">
@@ -473,6 +473,9 @@
         </script>
     </div>
 </div>
+
+@Html.Partial("~/Views/HangHoa/_vmApplyGroupProduct.cshtml")
+
 <script>
     function refresh() {
         $(".modal-backdrop fade in").css('display', 'none')
@@ -503,70 +506,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalPopuplg_TMTK">
-    <div class="modal-dialog draggable modal-md">
-        <div class="modal-content ">
-            <div class="modal-header">
-                <button type="button" class="close close-modal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                <h4 class="modal-title" id="myModalLabel">
-                    Thêm hàng hóa từ nhóm hàng
-                </h4>
-            </div>
-            <div class="modal-body floatleft ">
-                <div class="seach-hhchoose">
-                    <i class="fa fa-search" style=" display:inline-block; width:30px;"></i>
-                    <input type="text" data-bind="event:{keyup: NoteNhomHang}" id="SeachNhomHang" placeholder="Tìm kiếm nhóm hàng hóa" style="display:inline-block; width:calc(100% - 35px);">
-                </div>
-                <div class=" floatleft k-checkboxTR">
-                    <ul class=" floatleft SelectNhomHang group-parent" data-bind="foreach: NhomHangHoas">
-                        <li class="k-bop">
-                            <div class="group-p1">
-                                <label id="check_ParentNhomHang1">
-                                    <input type="checkbox" name="rdNhomHang" data-bind="attr:{id: ID}" onclick="SetCheckAllChilds(this)" />
-                                    <span style="padding-left: 9px;" class="treename" data-bind="text: TenNhomHangHoa"></span>
-                                </label>
-                            </div>
-                            <span class="close-ul-km" data-bind="visible: Childs.length >0 ">
-                                <i class="fa fa-minus" aria-hidden="true"></i>
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </span>
-                            <ul data-bind="foreach: Childs">
-                                <li class="k-top">
-                                    <div class="group-p2 checkall">
-                                        <label>
-                                            <input type="checkbox" name="rdNhomHang" data-bind="attr:{id: ID}" onclick="SetCheckAllChild2s(this)" />
-                                            <span style="padding-left: 9px;" data-bind="text: TenNhomHangHoa" class="li-top li-pp"></span>
-                                        </label>
-                                    </div>
-                                    <span class="close-ul-km" data-bind="visible: Child2s.length >0 ">
-                                        <i class="fa fa-plus" aria-hidden="true"></i>
-                                        <i class="fa fa-minus" aria-hidden="true"></i>
-                                    </span>
-                                    <ul data-bind="foreach: Child2s">
-                                        <li class="k-mid" data-bind="attr:{id: 'input_NhomHang_' + ID}">
-                                            <div class="group-p3 checkall1">
-                                                <label>
-                                                    <input type="checkbox" name="rdNhomHang" data-bind="attr:{id: ID}" onclick="SetCheckAllChild2s(this)" />
-                                                    <span style="padding-left: 9px;" data-bind="text: TenNhomHangHoa" class="li-top li-pp"></span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="container-fluid">
-                    <button type="button" class="btn btn-cancel close-modal " data-dismiss="modal"><i class="fa fa-ban"></i> Bỏ qua</button>
-                    <button type="button" class="btn btn-main" data-bind="click: SelectedNhomHH"><img src="/Content/images/icon/Iconthemmoi-14.png"> Xong</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
     $(function () {
         $.datetimepicker.setLocale('vi');

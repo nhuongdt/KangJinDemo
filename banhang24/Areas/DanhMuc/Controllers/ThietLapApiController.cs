@@ -1434,6 +1434,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             content1 = Replace_VatDungKemTheo(content1);
             content1 = Replace_ThongTinChung(content1);
 
+            content1 = content1.Replace("{GioVao}", "<span data-bind=\"text: InforHDprintf().GioVao\"></span>");
+            content1 = content1.Replace("{GioRa}", "<span data-bind=\"text: InforHDprintf().GioRa\"></span>");
             content1 = content1.Replace("{MaHoaDonTraHang}", "<span data-bind=\"text: InforHDprintf().MaHoaDonTraHang\"></span>");
             content1 = content1.Replace("{MaKhachHang}", "<span data-bind=\"text: InforHDprintf().MaDoiTuong\"></span>");
             content1 = content1.Replace("{TenKhachHang}", "<span data-bind=\"text: InforHDprintf().TenDoiTuong\"></span>");

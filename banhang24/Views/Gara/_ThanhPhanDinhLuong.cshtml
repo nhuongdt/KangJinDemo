@@ -251,7 +251,7 @@
         },
         created: function () {
             var self = this;
-            console.log('abc')
+            console.log('vmThanhPhanDinhLuong')
             self.ID_DonVi = $('#txtDonVi').val();
             if (commonStatisJs.CheckNull(self.ID_DonVi)) {
                 self.ID_DonVi = VHeader.IdDonVi;
@@ -273,6 +273,7 @@
             typeUpdate: 1, // 1.insert, 2.update
             isCombo: false,
             isDoiTra: false,
+            formType: 0,// 0.default, 1.hoadon hotro
             typeSearchProduct: '11',// 11.hanghoa, 12.dichvu, 23.combo
             DichVu_isDoing: {},
             Grid_TPDinhLuongChosed: [],
@@ -290,18 +291,20 @@
                     }
                 })
             },
-            showModal: function (isDoiTra = false, isCombo = false) {
+            showModal: function (isDoiTra = false, isCombo = false, formType = 0) {
                 var self = this;
                 self.typeUpdate = 1;
+                self.formType = formType;
                 self.isCombo = isCombo;
                 self.isDoiTra = isDoiTra;
                 self.saveOK = false;
                 $('.jsSearchProduct .gara-search-HH').val('');
                 $('#vmThanhPhanDinhLuong').modal('show');
             },
-            showModalUpdate: function (item, hd) {
+            showModalUpdate: function (item, hd, formType = 0) {
                 let self = this;
                 self.typeUpdate = 2;
+                self.formType = formType;
                 self.isCombo = false;
                 self.isDoiTra = false;
                 self.saveOK = false;
@@ -517,6 +520,11 @@
                 }
                 else {
                     self.saveOK = true;
+                    // assign again sl macdinh
+                    for (let i = 0; i < self.Grid_TPDinhLuongChosed.length; i++) {
+                        let itemIn = self.Grid_TPDinhLuongChosed[i];
+                        self.Grid_TPDinhLuongChosed[i].SoLuongMacDinh = formatNumberToFloat(itemIn.SoLuong) / formatNumberToFloat(self.DichVu_isDoing.SoLuong);
+                    }
                     $('#vmThanhPhanDinhLuong').modal('hide');
                 }
             },

@@ -3534,11 +3534,6 @@ var ViewModel = function () {
             self.LoadChiTietHD(item, e);
         });
         switch (item.LoaiHoaDon) {
-            case 1:
-            case 2:
-            case 19:
-                $('#modalpopup_PhieuBH').modal('show');
-                break;
             case 6:
                 $('#modalpopup_PhieuTH').modal('show');
                 break;
@@ -3547,6 +3542,10 @@ var ViewModel = function () {
                 break;
             case 8:
             case 35:// xuat TPDL
+            case 37:
+            case 38:
+            case 39:
+            case 40:
                 $('#modalpopup_PhieuXH').modal('show');
                 break;
             case 9:
@@ -3601,6 +3600,11 @@ var ViewModel = function () {
                 url = "/#/PurchaseReturns";
                 break;
             case 8:
+            case 35:
+            case 37:
+            case 38:
+            case 39:
+            case 40:
                 url = "/#/DamageItems";
                 break;
             case 9:

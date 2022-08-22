@@ -95,6 +95,59 @@ namespace libDM_DoiTuong
             SqlParameter param = new SqlParameter("ID_HoaDon", idHoaDon);
             db.Database.ExecuteSqlCommand("EXEC HDTraHang_InsertTPDinhLuong @ID_HoaDon", param);
         }
+
+        public void CreatePhieuXuatKho_NguyenVatLieu(Guid idHoaDon)
+        {
+            SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
+            db.Database.ExecuteSqlCommand("EXEC dbo.CreateXuatKho_NguyenVatLieu @ID_HoaDon", sql);
+        }
+        public void CreatePhieuXuat_SanPhamNgayThuoc(Guid idHoaDon)
+        {
+            SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
+            db.Database.ExecuteSqlCommand("EXEC dbo.CreatePhieuXuat_SanPhamNgayThuoc @ID_HoaDon", sql);
+        } 
+        //public void PhieuXuatKho_XacNhanXuat(Guid idHoaDon)
+        //{
+        //    SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
+        //    db.Database.ExecuteSqlCommand("EXEC dbo.PhieuXuatKho_XacNhanXuat @ID_HoaDon", sql);
+        //}
+        public void CreatePhieuXuat_FromHoaDon(Guid idHoaDon, int loaiHoaDon, bool isXuatNgayThuoc = false)
+        {
+            try
+            {
+                int loaiPhieuXuat = 0;
+                switch (loaiHoaDon)
+                {
+                    case 1:// xuatbanle
+                        loaiPhieuXuat = 38;
+                        break;
+                    case 2:// xuat baohanh
+                        loaiPhieuXuat = 39;
+                        break;
+                    case 36:// hoadon hotro
+                        if (isXuatNgayThuoc)
+                        {
+                            loaiPhieuXuat = 37;
+                        }
+                        else
+                        {
+                            loaiPhieuXuat = 40;
+                        }
+                        break;
+                }
+                List<SqlParameter> lstParam = new List<SqlParameter>();
+                lstParam.Add(new SqlParameter("ID_HoaDon", idHoaDon));
+                lstParam.Add(new SqlParameter("LoaiXuatKho", loaiPhieuXuat));
+                lstParam.Add(new SqlParameter("IsXuatNgayThuoc", isXuatNgayThuoc));
+                lstParam.Add(new SqlParameter("TrangThai", true));// default: chothanhtoan = true (~phieutam)
+                db.Database.ExecuteSqlCommand("EXEC dbo.CreatePhieuXuat_FromHoaDon @ID_HoaDon, @LoaiXuatKho, @IsXuatNgayThuoc, @TrangThai", lstParam.ToArray());
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("CreatePhieuXuat_FromHoaDon, LoaiHoaDon = " + loaiHoaDon + ex.InnerException + ex.Message);
+                throw;
+            }
+        }
         /// <summary>
         /// tạo phiếu mới  + chạy tồn kho
         /// </summary>
@@ -110,7 +163,7 @@ namespace libDM_DoiTuong
             {
                 CookieStore.WriteLog("CreateAgainPhieuXuatKho_WhenUpdateTPDL " + ex.Message + ex.InnerException);
             }
-            
+
         }
         /// <summary>
         /// hủy phiếu xuất kho cũ (loại = 35)  + chạy tồn kho
@@ -134,18 +187,18 @@ namespace libDM_DoiTuong
         public List<PhieuDieuChinhChiTietDTO> GetListGiaVonTieuChuan_ChiTiet(CommonParamSearch param)
         {
             string idChiNhanhs = string.Empty, status = string.Empty;
-            if (param.IDChiNhanhs!=null && param.IDChiNhanhs.Count> 0)
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
             {
                 idChiNhanhs = string.Join(",", param.IDChiNhanhs);
             }
-            if (param.TrangThais != null && param.TrangThais.Count> 0)
+            if (param.TrangThais != null && param.TrangThais.Count > 0)
             {
                 status = string.Join(",", param.TrangThais);
             }
             List<SqlParameter> lstParam = new List<SqlParameter>();
             lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs));
             lstParam.Add(new SqlParameter("TextSearch", param.TextSearch));
-            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom??DateTime.Now));
+            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom ?? DateTime.Now));
             lstParam.Add(new SqlParameter("DateTo", param.DateTo ?? DateTime.Now));
             lstParam.Add(new SqlParameter("TrangThais", status));
             lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
@@ -153,22 +206,22 @@ namespace libDM_DoiTuong
             var data = db.Database.SqlQuery<PhieuDieuChinhChiTietDTO>("EXEC dbo.GetListGiaVonTieuChuan_ChiTiet @IDChiNhanhs, @TextSearch, @DateFrom, @DateTo," +
                 "@TrangThais, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
             return data;
-        } 
+        }
         public List<PhieuDieuChinhDTO> GetListGiaVonTieuChuan_TongHop(CommonParamSearch param)
         {
             string idChiNhanhs = string.Empty, status = string.Empty;
-            if (param.IDChiNhanhs!=null && param.IDChiNhanhs.Count> 0)
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
             {
                 idChiNhanhs = string.Join(",", param.IDChiNhanhs);
             }
-            if (param.TrangThais != null && param.TrangThais.Count> 0)
+            if (param.TrangThais != null && param.TrangThais.Count > 0)
             {
                 status = string.Join(",", param.TrangThais);
             }
             List<SqlParameter> lstParam = new List<SqlParameter>();
             lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs));
             lstParam.Add(new SqlParameter("TextSearch", param.TextSearch));
-            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom??DateTime.Now));
+            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom ?? DateTime.Now));
             lstParam.Add(new SqlParameter("DateTo", param.DateTo ?? DateTime.Now));
             lstParam.Add(new SqlParameter("TrangThais", status));
             lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));

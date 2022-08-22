@@ -6142,7 +6142,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DonViQuiDoi dvqd = _classDVQD.Get(id => id.ID == objNewDVT.ID);
                     Guid iddvqdold = dvqdOld.Where(pc => pc.LaDonViChuan == true).FirstOrDefault().ID;
                     List<DM_GiaVon> dmgiavon = db.DM_GiaVon.Where(p => p.ID_DonVi == iddonvi && p.ID_DonViQuiDoi == iddvqdold).ToList();
-                    double GiaVonOld = dmgiavon.Count != 0 ? Math.Round(dmgiavon.FirstOrDefault().GiaVon, MidpointRounding.ToEven) : 0;
+                    double GiaVonOld = dmgiavon.Count != 0 ? Math.Round(dmgiavon.FirstOrDefault().GiaVon, 2) : 0;
                     if (objNewDVT.GiaVon != GiaVonOld && objNewHH.QuanLyTheoLoHang == false)
                     {
                         if (dmgiavon.Count > 0)

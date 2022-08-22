@@ -94,11 +94,6 @@ function ViewModel() {
 
     function LoadColumnCheck() {
         ajaxHelper('/api/DanhMuc/BaseAPI/' + "GetListColumnInvoices?loaiHD=8", 'GET').done(function (data) {
-            if (!self.IsGara()) {// gara
-                data = $.grep(data, function (x) {
-                    return $.inArray(x.Key, ['maphieutiepnhan', 'mahoadonsuachua', 'bienso']) === -1;
-                })
-            }
             self.ListCheckBox(data);
             LoadHtmlGrid();
         });
@@ -254,22 +249,16 @@ function ViewModel() {
         GoToThemMoiXuatKho();
     }
     //load Loai Chung Tu
-    var _idChungTuSeach = '1,2,8,3';
     self.MangChungTu = ko.observableArray();
     self.ChungTus = ko.observableArray([
-        //{ ID: 1, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
-        { ID: 2, TenChungTu: 'Xuất bán lẻ' },
-        { ID: 12,TenChungTu: 'Xuất bảo hành' },
         { ID: 8, TenChungTu: 'Xuất kho' },
-        { ID: 3, TenChungTu: 'Xuất sữa chữa' },
+        { ID: 38, TenChungTu: 'Xuất bán lẻ' },
+        { ID: 39, TenChungTu: 'Xuất bảo hành' },
         { ID: 35, TenChungTu: 'Xuất nguyên vật liệu' },
+        { ID: 40, TenChungTu: 'Xuất hỗ trợ chung' },
+        { ID: 37, TenChungTu: 'Xuất hỗ trợ ngày thuốc' },
     ]);
-    if (!self.IsGara()) {
-        var arr = $.grep(self.ChungTus(), function (x) {
-            return x.ID !== 3;
-        })
-        self.ChungTus(arr);
-    }
+
     self.CloseChungTu = function (item) {
         self.MangChungTu.remove(item);
 
@@ -442,6 +431,12 @@ function ViewModel() {
         let arrLoaiHD = self.MangChungTu().map(function (x) {
             return x.ID;
         })
+
+        if (arrLoaiHD.length === 0) {
+            arrLoaiHD = self.ChungTus().map(function (x) {
+                return x.ID;
+            })
+        }
 
         var param = {
             MaHoaDon: txtSeach,
@@ -765,21 +760,12 @@ function ViewModel() {
 
         var lc_HangHoaChiTiet = [];
         ajaxHelper(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + item.ID + "&ID_ChiNhanh=" + $('#hd_IDdDonVi').val()).done(function (data) {
-            let arr = [];
+            let arr = data.LstDataPrint;
             let xkSuDung = $.grep(data.LstDataPrint, function (x) {
                 return x.ChatLieu === '4';
             })
             self.isXuatKhoGDV(xkSuDung.length > 0)
 
-            // 1.sudung gdv, 2.xuat banle, 3.xuat suachua, 8.xuatkho thuong
-            if (item.LoaiHoaDon === 1) {
-                arr = xkSuDung;
-            }
-            else {
-                arr = $.grep(data.LstDataPrint, function (x) {
-                    return x.ChatLieu !== '4';
-                })
-            }
             self.XH_HangHoaChiTiet(arr);
             self.XH_HangHoaChiTiet_Search(data.LstDataPrint);
 
@@ -1012,23 +998,11 @@ function ViewModel() {
             for (let i = 0; i < self.ListCheckBox().length; i++) {
                 for (let j = 0; j < columns.length; j++) {
                     if (columns[j].Value === self.ListCheckBox()[i].Key) {
-                        if (!self.IsGara()) {
-                            if (i > 0) {
-                                // do them 3 cot trong file mau excel o vi tri 1,2 (gara)
-                                let vitri = i + 3;
-                                columnHide += vitri + '_';
-                            }
-                        }
-                        else {
-                            columnHide += i + '_';
-                        }
+                        columnHide += i + '_';
                         break;
                     }
                 }
             }
-        }
-        if (!self.IsGara()) {
-            columnHide = columnHide + "1_2_3";
         }
 
         var param = GetParamSearch();
@@ -1271,42 +1245,54 @@ function ViewModel() {
 
     }
 
+    self.XacNhanXuat = function (item) {
+        $.getJSON(BH_XuatHuyUri + 'PhieuXuatKho_XacNhanXuat?idHoaDon=' + item.ID).done(function (x) {
+            if (x.res) {
+                console.log('XacNhanXuat ', x.dataSoure)
+                let diary = {
+                    ID_DonVi: item.ID_DonVi,
+                    ID_NhanVien: _id_NhanVien,
+                    LoaiNhatKy: 1,
+                    ID_HoaDon: item.ID,
+                    LoaiHoaDon: item.LoaiHoaDon,
+                    ThoiGianUpdateGV: x.dataSoure, // get date at server
+                    ChucNang: 'Xác nhận xuất kho',
+                    NoiDung: 'Xác nhận xuất kho, Mã phiếu xuất '.concat(item.MaHoaDon),
+                    NoiDungChiTiet: 'Thông tin chi tiết '.concat('<br /> Mã phiếu xuất: ', item.MaHoaDon,
+                        '<br /> Ngày xác nhận: ', moment(x.dataSoure).format('DD/MM/YYYY HH:mm'),
+                        '<br /> User xác nhận: ', _userLogin,
+                        '<br /> Ghi chú: ', item.DienGiai
+                    ),
+                }
+                Post_NhatKySuDung_UpdateGiaVon(diary);
+
+                self.currentPage(0);// do cập nhật lại ngày xuất về hiện tại: nên phiếu xuất sẽ nhảy lên đầu tiên
+                getAllHoaDon();
+            }
+        })
+    }
+
     self.gotoPageOther = function (item, type) {
         switch (type) {
             case 1:
                 var url = '';
                 if (!commonStatisJs.CheckNull(item.MaHoaDonGoc)) {
                     localStorage.setItem('FindHD', item.MaHoaDonGoc);
+                    switch (item.LoaiHoaDon) {
+                        case 40:// xuat hotro chung
+                        case 38:// xuat banle
+                        case 37: //Xuất hỗ trợ ngày thuốc
+                        case 35:// xuat NVL
+                            url = '/#/Invoices';
+                            break;
+                        case 39:
+                            url = '/#/HoaDonBaoHanh';
+                            break;
 
-                    if (item.MaHoaDonGoc.indexOf('BG') > -1) {
-                        if (!commonStatisJs.CheckNull(item.MaPhieuTiepNhan)) {
-                            url = '/#/Quotation';
-                        }
-                        else {
-                            url = '/#/Order';
-                        }
                     }
-                    else {
-                        if (item.MaHoaDonGoc.indexOf('HDSC') > -1) {
-                            url = '/#/HoaDonSuaChua';
-                        }
-                        else {
-                            if (item.MaHoaDonGoc.indexOf('HD') > -1) {
-                                url = '/#/Invoices';
-                            }
-                            else {
-                                if (item.MaHoaDonGoc.indexOf('TH') > -1) {
-                                    url = '/#/Returns';
-                                }
-                                else {
-
-                                }
-                            }
-                        }
+                    if (url !== '') {
+                        window.open(url, '_blank');
                     }
-                }
-                if (url!=='') {
-                    window.open(url, '_blank');
                 }
                 break;
             case 2:

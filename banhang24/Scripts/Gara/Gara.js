@@ -8501,7 +8501,12 @@ var NewModel_BanHangLe = function () {
                 objHDAdd.ID = itemDB.ID;
                 objHDAdd.NgayLapHoaDon = itemDB.NgayLapHoaDon;
 
-                PostChiPhi(itemDB.BH_HoaDon_ChiTiet, objHDAdd, isInsert);
+                switch (objHDAdd.LoaiHoaDon) {
+                    case 1:
+                    case 25:
+                        PostChiPhi(itemDB.BH_HoaDon_ChiTiet, objHDAdd, isInsert);
+                        break;
+                }
 
                 AssignValueHoaDon_ToPhieuThu(objHDAdd);
                 vmThanhToanGara.SavePhieuThu(objHDAdd.BH_NhanVienThucHiens);

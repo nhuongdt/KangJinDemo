@@ -58,6 +58,9 @@
         {
             ID: 32, TenChungTu: 'Hoàn trả thẻ',
         },
+        {
+            ID: 36, TenChungTu: 'Hóa đơn hỗ trợ',
+        },
     ])
 
     if (VHeader.IdNganhNgheKinhDoanh.toUpperCase() !== 'C16EDDA0-F6D0-43E1-A469-844FAB143014') {

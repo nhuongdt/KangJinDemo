@@ -34,6 +34,7 @@
     self.TT_DaDuyet = ko.observable(true);
     self.La_HDBan = ko.observable(LoaiHoaDonMenu === '1');
     self.La_HDSuaChua = ko.observable(LoaiHoaDonMenu === '25');
+    self.La_HDHoTro = ko.observable(true);
     self.LoaiHoaDonMenu = ko.observable(parseInt($('#txtLoaiHoaDon').val()));
     self.Quyen_NguoiDung = ko.observableArray();
     // hoa don ban
@@ -1074,6 +1075,23 @@
             arrStatus.push('4');
         }
 
+        var arrLoaiHD = [];
+        if (self.LoaiHoaDonMenu() === 1) {
+            if (self.La_HDBan()) {
+                arrLoaiHD.push(1);
+            }
+            if (self.La_HDHoTro()) {
+                arrLoaiHD.push(36);
+            }
+
+            if (arrLoaiHD.length === 0) {
+                arrLoaiHD = [1, 36];
+            }
+        }
+        else {
+            arrLoaiHD = [self.LoaiHoaDonMenu()];
+        }
+
         // NgayLapHoaDon
         var dayStart = '';
         var dayEnd = '';
@@ -1176,7 +1194,7 @@
             CurrentPage: self.currentPage(),
             PageSize: self.pageSize(),
             LoaiHoaDon: loaiHoaDon,
-            LaHoaDonSuaChua: [self.LoaiHoaDonMenu()],
+            LaHoaDonSuaChua: arrLoaiHD,
             MaHoaDon: locdau(txtMaHDon).trim(),
             MaHoaDonGoc: locdau(txtMaHDgoc.trim()),
             ID_ChiNhanhs: self.MangIDDV(),
@@ -1342,6 +1360,12 @@
         SearchHoaDon();
     });
     self.La_HDBan.subscribe(function () {
+        $("#iconSort").remove();
+        ResetColumnSort();
+        self.currentPage(0);
+        SearchHoaDon();
+    });
+    self.La_HDHoTro.subscribe(function () {
         $("#iconSort").remove();
         ResetColumnSort();
         self.currentPage(0);

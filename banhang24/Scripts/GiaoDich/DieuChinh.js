@@ -97,11 +97,11 @@
     var NhanVienUri = '/api/DanhMuc/NS_NhanVienAPI/';
     var DiaryUri = '/api/DanhMuc/SaveDiary/';
     var _tenDonViSeach = $('#hd_IDdDonVi').val();
-    var _idDonVi = $('#hd_IDdDonVi').val();
+    var _idDonVi = VHeader.IdDonVi;
     var _TenNguoiTao = $('#txtTenTaiKhoan').text();
     var _id_NhanVien = $('.idnhanvien').text();
     var _tennhanvien_seach = null;
-    $('#importDieuChinh').hide();
+    //$('#importDieuChinh').hide();();
     $(".month-oll").hide();
     $('.name-lot').attr("disabled", true);
     self.numberPG = ko.observable(1);
@@ -247,7 +247,7 @@
                     }
                 }
                 else {
-                    $('#importDieuChinh').show();
+                    //$('#importDieuChinh').show();;
                 }
             }
         };
@@ -295,7 +295,7 @@
             lc_DieuChinh = reqHH.result;
             self.HangHoaDieuChinh(lc_DieuChinh);
             $('#modalpopuploadDaTaKK').modal('hide');
-            $('#importDieuChinh').hide();
+            //$('#importDieuChinh').hide();();
             if (self.HangHoaDieuChinh().length > 0) {
                 PX_PageSize = self.HangHoaDieuChinh().length;
                 self.SumRowsHangHoaDieuChinh(PX_PageSize);
@@ -416,17 +416,33 @@
 
     });
 
-    self.SelectedNhomHH = function () {
-        $('#modalPopuplg_TMTK').modal("hide");
-        var ID_NhomHang;
-        for (var i = 0; i < arrID_NhomHang.length; i++) {
-            if (i == 0)
-                ID_NhomHang = arrID_NhomHang[i];
-            else
-                ID_NhomHang = ID_NhomHang + "," + arrID_NhomHang[i];
+    self.showPopNhomHang = function () {
+        vmApplyGroupProduct.showModal();
+    }
+
+    $('#vmApplyGroupProduct').on('hidden.bs.modal', function () {
+        if (vmApplyGroupProduct.saveOK) {
+            // get all product by nhom
+            let param = {
+                ID_Donvi: _idDonVi,
+                IDNhomHangs: vmApplyGroupProduct.arrIDNhomChosed,
+                LoaiHangHoas: '1',// chi get hanghoa
+            }
+            ajaxHelper(DieuChinhUri + 'getListHangHoaBy_IDNhomHang', 'POST', param).done(function (x) {
+                if (x.res) {
+                    for (let i = 0; i < x.dataSoure.length; i++) {
+                        let itFor = x.dataSoure[i];
+                        itFor.TenLoHang = itFor.MaLoHang;
+                        self.addNhomHangHoa(itFor);
+                    }
+                   
+                    GetTonKho_byIDQuyDois(true);
+                    self.resetCache();
+                }
+            })
         }
-        getChiTietHangHoaBy_IDNhomHang(ID_NhomHang);
-    };
+    })
+
     var _note_ID_NhomHangHoa_Select;
     self.SelectID_NhomHangHoa = function (item) {
         _note_ID_NhomHangHoa_Select = item.ID;
@@ -500,7 +516,7 @@
         GetTonKho_byIDQuyDois();
     });
 
-    function GetTonKho_byIDQuyDois() {
+    function GetTonKho_byIDQuyDois(isImport = false) {
         var arrIDQuiDoi = [], arrIDLoHang = [];
 
         let trans1 = db.transaction(table, "readwrite"); // đọc và ghi dữ liệu từ indexedDB
@@ -549,11 +565,17 @@
                                 for (let j = 0; j < lc_DieuChinh.length; j++) {
                                     let forIn = lc_DieuChinh[j];
                                     if (forOut.ID_DonViQuiDoi === forIn.ID_DonViQuiDoi) {
+                                        if (isImport) {
+                                            lc_DieuChinh[j].GiaVonMoi = forOut.GiaVon;
+                                        }
                                         let chenhlech = parseFloat(forIn.GiaVonMoi) - parseFloat(forOut.GiaVon);
                                         if (forIn.QuanLyTheoLoHang) {
                                             for (let k = 0; k < forIn.DM_LoHang.length; k++) {
                                                 let itLo = forIn.DM_LoHang[k];
                                                 if (forOut.ID_LoHang === itLo.ID_LoHang) {
+                                                    if (isImport) {
+                                                        lc_DieuChinh[j].DM_LoHang[k].GiaVonMoi = forOut.GiaVon;
+                                                    }
                                                     lc_DieuChinh[j].DM_LoHang[k].GiaVonHienTai = forOut.GiaVon;
                                                     if (chenhlech > 0) {
                                                         lc_DieuChinh[j].DM_LoHang[k].GiaVonTang = chenhlech;
@@ -565,6 +587,9 @@
                                                     }
 
                                                     if (k === 0) {// update parent
+                                                        if (isImport) {
+                                                            lc_DieuChinh[j].GiaVonMoi = forOut.GiaVon;
+                                                        }
                                                         lc_DieuChinh[j].GiaVonHienTai = forOut.GiaVon;
                                                         lc_DieuChinh[j].GiaVonMoi = lc_DieuChinh[j].DM_LoHang[k].GiaVonMoi;
                                                         lc_DieuChinh[j].GiaVonTang = lc_DieuChinh[j].DM_LoHang[k].GiaVonTang;
@@ -790,7 +815,7 @@
         var store = trans.objectStore(table);
         store.clear();
         $('#modalpopuploadDaTaKK').modal('hide');
-        $('#importDieuChinh').show();
+        ////$('#importDieuChinh').show();;
         PX_PageSize = 0;
         _pageNumberHangHoa = 1;
         _pageSizeHangHoa = 10;
@@ -905,8 +930,8 @@
             AllPageHangHoa = parseInt(AllPageHangHoa) + 1;
         }
         self.resetCache();
-        if (self.HangHoaDieuChinh().length < 1)
-            $('#importDieuChinh').show();
+        //if (self.HangHoaDieuChinh().length < 1)
+            ////$('#importDieuChinh').show();;
         //self.selecPageHangHoa();
     }
     self.putDM_NhomHang = function (item) {
@@ -1090,8 +1115,8 @@
         }
         self.SelectedPageNumberDieuChinh();
         console.log(self.HangHoaDieuChinh().length);
-        if (self.HangHoaDieuChinh().length < 1)
-            $('#importDieuChinh').show();
+        //if (self.HangHoaDieuChinh().length < 1)
+            //$('#importDieuChinh').show();;
     }
     var thisGVM;
     self.editGiaVon = function (item) {
@@ -2141,7 +2166,7 @@
     function getChiTietHangHoaLoHang(item) {
         if (dk_check == 1) {
             STT = STT + 1;
-            $('#importDieuChinh').hide();
+            //$('#importDieuChinh').hide();();
             var trans = db.transaction(table, "readwrite"); // đọc và ghi dữ liệu từ indexedDB
             var store = trans.objectStore(table);
             var req = store.getAll();
@@ -2948,20 +2973,7 @@
         }
         self.ColumnsExcel.sort();
     }
-    function getChiTietHangHoaBy_IDNhomHang(ID_NhomHang) {
-        console.log(ID_NhomHang);
-        ajaxHelper(DieuChinhUri + "getListHangHoaBy_IDNhomHang?ID_NhomHang=" + ID_NhomHang + "&ID_DonVi=" + _id_DonVi + "&STT=" + PX_PageSize, 'GET').done(function (data) {
-            if (data.LstData.length > 0) {
-                $('#importDieuChinh').hide();
-                for (var i = 0; i < data.LstData.length; i++) {
-                    self.addNhomHangHoa(data.LstData[i]);
-                }
-
-                GetTonKho_byIDQuyDois();
-                self.resetCache();
-            }
-        });
-    }
+   
     self.addNhomHangHoa = function (item) {
         var trans = db.transaction(table, "readwrite"); // đọc và ghi dữ liệu từ indexedDB
         var store = trans.objectStore(table);
@@ -3160,7 +3172,7 @@
                         success: function (item) {
                             for (var i = 0; i < item.length; i++) {
                                 self.addNhomHangHoa(item[i]);
-                                $('#importDieuChinh').hide();
+                                //$('#importDieuChinh').hide();();
                             }
                             GetTonKho_byIDQuyDois();
                             self.resetCache();

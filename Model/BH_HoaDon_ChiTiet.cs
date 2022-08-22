@@ -45,7 +45,8 @@ namespace Model
 
         [Column(TypeName = "nvarchar")]
         [StringLength(250)]
-        public string ChatLieu { get; set; } = string.Empty;// 1. Tra HD, 2.Tra GDV, 3. Xuly DH,  4.Sudung GDV, else: empty/null, 5.ChiTiet bi xóa khi update HD
+        // ChatLieu: 1. Tra HD, 2.Tra GDV, 3. Xuly DH,  4.Sudung GDV, else: empty/null, 5.ChiTiet bi xóa khi update HD, 6.Sp ngaythuoc
+        public string ChatLieu { get; set; } = string.Empty;
 
         [Column(TypeName = "nvarchar")]
         [StringLength(250)]

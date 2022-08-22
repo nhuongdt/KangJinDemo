@@ -2845,11 +2845,9 @@ namespace banhang24.Hellper
         public static Dictionary<string, string> ListColumnDamageItems = new Dictionary<string, string>()
         {
               { ColumnDamageItems.mahoadon.ToString(),"Mã hóa đơn" },
-              { ColumnInvoices.maphieutiepnhan.ToString(),"Mã phiếu tiếp nhận" },
-              { ColumnDamageItems.mahoadonsuachua.ToString(),"Mã hóa đơn sửa chữa" },
-              { ColumnDamageItems.bienso.ToString(),"Biển số xe" },
               { ColumnDamageItems.loaiphieu.ToString(),"Loại phiếu" },
               { ColumnDamageItems.ngaylaphoadon.ToString(),"Thời gian" },
+              { ColumnDamageItems.mahoadonsuachua.ToString(),"HĐ liên quan" },
               { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
               { ColumnDamageItems.tenchinhanh.ToString(),"Chi nhánh" },
               { ColumnDamageItems.tennhanvien.ToString(),"Người yêu cầu" },

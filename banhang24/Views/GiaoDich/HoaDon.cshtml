@@ -78,7 +78,7 @@
                                             </span>
                                         </li>
                                     </ul>
-                                    <input type="text" class="dropdown form-control" placeholder="Chọn bảng giá" id="dllChiNhanh" autocomplete="off">
+                                    <input type="text" class="dropdown form-control" placeholder="Chọn chi nhánh" id="dllChiNhanh" autocomplete="off">
                                 </div>
                                 <div class="selec-person dropdown-menu" id="selec-all-DV">
                                     <ul data-bind="foreach: ChiNhanhs">
@@ -89,8 +89,8 @@
                             </div>
                         </aside>
                     </article>
-                    <!--ko if: $root.LoaiHoaDonMenu() === 25-->
-                    <article class="boxLeft" style="display:none">
+                    <!--ko if: $root.LoaiHoaDonMenu() === 1-->
+                    <article class="boxLeft" >
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <i class="fa fa-list"></i>
                             Loại hóa đơn
@@ -99,10 +99,10 @@
                             <div class="menuCheckbox">
                                 <ul>
                                     <li>
-                                        <label><input type="checkbox" data-bind="checked: La_HDSuaChua"> Sửa chữa</label>
+                                        <label><input type="checkbox" data-bind="checked: La_HDHoTro"> Hóa đơn lẻ</label>
                                     </li>
                                     <li>
-                                        <label><input type="checkbox" data-bind="checked: La_HDBan"> Bán lẻ</label>
+                                        <label><input type="checkbox" data-bind="checked: La_HDHoTro"> Hóa đơn hỗ trợ</label>
                                     </li>
                                 </ul>
                             </div>
@@ -171,69 +171,6 @@
                             </div>
                         </aside>
                     </article>
-
-                    <!--ko if: LoaiHoaDonMenu() === 1-->
-                    <article class="boxLeft">
-                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                            <img src="~/Content/images/icon/banggia.png" />  Bảng giá
-                        </h3>
-                        <aside class="op-filter-container">
-                            <div class="menuCheckbox">
-                                <div class="outselect">
-                                    <div class="choose-person" id="choose-GB" data-toggle="dropdown" aria-expanded="true">
-                                        <ul data-bind="foreach: GiaBanChosed">
-                                            <li class="li-input-span">
-                                                <span data-bind="text: TenGiaBan">
-                                                </span>&nbsp;
-                                                <span data-bind="click: $parent.CloseBangGia">
-                                                    <i class="fa fa-times"></i>
-                                                </span>
-                                            </li>
-                                        </ul>
-                                        <input type="text" class="dropdown form-control" placeholder="Chọn bảng giá" autocomplete="off"
-                                               data-bind="value: filterBangGia, valueUpdate: 'afterkeydown'">
-                                    </div>
-                                    <div class="selec-person dropdown-menu" id="selec-all-GB">
-                                        <ul data-bind="foreach: arrFilterBangGia">
-                                            <li data-bind="text: TenGiaBan,attr:{id: ID}, event:{click: $parent.SelectedGiaBan}">
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </aside>
-                    </article>
-                    <article class="boxLeft">
-                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                            <img src="~/Content/images/icon/phongbann-28.png" />      Phòng/Bàn
-                        </h3>
-                        <aside class="op-filter-container">
-                            <div class="menuCheckbox">
-                                <div class="outselect">
-                                    <div class="choose-person" id="choose-PB" data-toggle="dropdown" aria-expanded="true">
-                                        <ul data-bind="foreach: PhongBanChosed">
-                                            <li class="li-input-span">
-                                                <span data-bind="text: TenViTri">
-                                                </span>&nbsp;
-                                                <span data-bind="click: $parent.ClosePhongBan">
-                                                    <i class="fa fa-times"></i>
-                                                </span>
-                                            </li>
-                                        </ul>
-                                        <input type="text" class="dropdown form-control" placeholder="Chọn phòng/bàn"
-                                               data-bind="value: filterPhongBan, valueUpdate: 'afterkeydown'">
-                                    </div>
-                                    <div class="selec-person dropdown-menu" id="selec-all-PB">
-                                        <ul data-bind="foreach: arrFilterPhongBan">
-                                            <li data-bind="text: TenViTri, attr:{id: ID}, event:{click: $parent.SelectedPB}">
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </aside>
-                    </article>
-                    <!--/ko-->
 
                     <!--ko if: LoaiHoaDonMenu() !==2-->
                     <article class="boxLeft">
@@ -523,7 +460,7 @@
                             </tr>
                         </thead>
                         <!--ko if: $root.LoaiHoaDonMenu() !== 2 -->
-                        <tbody data-bind="foreach: HoaDons">
+                        <tbody data-bind="foreach:  { data: HoaDons, as: 'itemHD' } ">
                             <tr class="prev-tr-hide" data-bind="attr:{id: ID}, css:{bggray : $index()%2 == 1}">
                                 <td class="check-group">
                                     <input type="checkbox" data-bind="attr:{id: ID}" onclick="ChoseHoaDon(this)" />
@@ -749,6 +686,7 @@
                                                                         <th>Đvt</th>
                                                                         <th data-bind="visible: $root.ShowColumn_LoHang">Lô hàng</th>
                                                                         <th>Số lượng</th>
+                                                                        <!--ko if: itemHD.LoaiHoaDon != 36-->
                                                                         <th>Đơn giá</th>
                                                                         <!--ko if: $root.LoaiHoaDonMenu() === 25-->
                                                                         <th>Duyệt giá</th>
@@ -762,6 +700,12 @@
                                                                         <th class="text-right">Thành tiền</th>
                                                                         <!--ko if: $root.LoaiHoaDonMenu() === 25-->
                                                                         <th>Thanh toán</th>
+                                                                        <!--/ko-->
+                                                                        <!--/ko-->
+                                                                        <!--ko if: itemHD.LoaiHoaDon == 36-->
+                                                                        <th>
+                                                                            Loại hỗ trợ
+                                                                        </th>
                                                                         <!--/ko-->
                                                                     </tr>
                                                                 </thead>
@@ -801,6 +745,7 @@
                                                                             <a href="javascript:void(0)" style="color:palevioletred" data-bind="text:MaLoHang !== '' && MaLoHang !== null? MaLoHang:''"></a>
                                                                         </td>
                                                                         <td class="text-center" data-bind="text: formatNumber3Digit(SoLuong)"></td>
+                                                                        <!--ko if: itemHD.LoaiHoaDon != 36-->
                                                                         <td data-bind="text: formatNumber3Digit(DonGia)"></td>
                                                                         <!--ko if: $root.LoaiHoaDonMenu() === 25-->
                                                                         <td data-bind="text: formatNumber3Digit(DonGiaBaoHiem,2)"></td>
@@ -814,6 +759,11 @@
                                                                         <td class="text-right" data-bind="text: formatNumber3Digit(ThanhTien,2) "></td>
                                                                         <!--ko if: $root.LoaiHoaDonMenu() === 25 -->
                                                                         <td class="text-right" data-bind="text: formatNumber3Digit(ThanhToan) "></td>
+                                                                        <!--/ko-->
+                                                                        <!--/ko-->
+                                                                        <!--ko if: itemHD.LoaiHoaDon == 36-->
+                                                                        <td data-bind="text: PTChietKhau == 0?'Hỗ trợ chung':'Hỗ trợ ngày thuốc'">
+                                                                        </td>
                                                                         <!--/ko-->
                                                                     </tr>
                                                                 </tbody>
@@ -847,6 +797,7 @@
                                                                 </div>
                                                             </div>
                                                             <div class="col-xs-12  col-md-6 footer-total-detail" style="padding:15px">
+                                                                <!--ko if: itemHD.LoaiHoaDon !== 36-->
                                                                 <div class="floatleft sum-prduct">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
                                                                         Tổng tiền hàng :
@@ -856,6 +807,7 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <!--/ko-->
                                                                 <div class="floatleft sum-prduct" data-bind="visible: LoaiHoaDon === 25 && ID_BaoHiem !== null">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
                                                                         Tổng thuế khách hàng :
@@ -865,6 +817,20 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
+                                                                <!--ko if: itemHD.LoaiHoaDon == 36-->
+                                                                <div class="floatleft sum-prduct">
+                                                                    <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                        Số ngày thuốc :
+                                                                    </div>
+                                                                    <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                        <div class="row" data-bind="text: SoNgayThuoc">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <!--/ko-->
+
+                                                                <!--ko if: itemHD.LoaiHoaDon !== 36-->
                                                                 <div class="floatleft sum-prduct">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
                                                                         Giảm hóa đơn :
@@ -875,6 +841,7 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <!--/ko-->
                                                                 <div class="floatleft sum-prduct" data-bind="visible: TongChiPhi >0 ">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
                                                                         Tổng chi phí:
@@ -907,7 +874,7 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
+                                                                <!--ko if: itemHD.LoaiHoaDon !== 36-->
                                                                 <div class="floatleft sum-prduct">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
                                                                         Khách cần trả :
@@ -918,6 +885,7 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
                                                                 <div class="floatleft sum-prduct">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
                                                                         Khách đã trả :
@@ -927,6 +895,7 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <!--/ko-->
                                                                 <!--ko if: $root.LoaiHoaDonMenu() === 25 && LoaiHoaDon === 25 && ID_BaoHiem !== null -->
                                                                 <div class="floatleft sum-prduct">
                                                                     <div class="col-xs-5 col-sm-5  col-lg-7 text-right">

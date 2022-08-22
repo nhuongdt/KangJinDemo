@@ -6078,6 +6078,7 @@ namespace libDM_DoiTuong
         public double? SumTongTienThueBaoHiem { get; set; }
         public int? TotalRow { get; set; }
         public double? TotalPage { get; set; }
+        public double? SoNgayThuoc { get; set; }
     }
     public class BH_KiemKho_Excel
     {

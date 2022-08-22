@@ -2414,6 +2414,7 @@ var NewModel_BanHangLe = function () {
 
                 vmThanhToanGara.listData.NhanViens = lstNV_byDonVi;
                 vmHoaHongHoaDon.listData.NhanViens = lstNV_byDonVi;
+                vmHoaHongDV.listData.NhanViens = lstNV_byDonVi;
             }
         })
     }
@@ -8562,8 +8563,8 @@ var NewModel_BanHangLe = function () {
                     case 2:
                         UpdateDiemKH_toDB(objHDAdd.ID_DoiTuong);
                         UpdateNhomKH_DB(objHDAdd.ID_DoiTuong);
-                        CreatePhieuXuatKho(objHDAdd.ID);
-                        SaveHoaDonHoTro(objHDAdd)
+                        CreatePhieuXuatKho(objHDAdd.ID, objHDAdd.LoaiHoaDon);
+                        vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom);
                         break;
                     case 19:
                     case 6:
@@ -17141,6 +17142,7 @@ var NewModel_BanHangLe = function () {
             IDRandom: self.HoaDons().IDRandom(),
             LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
             ID: self.HoaDons().ID(),
+            ID_DonVi: self.HoaDons().ID_DonVi(),// used to save hoadon when update
             ID_DoiTuong: self.HoaDons().ID_DoiTuong(),
             MaDoiTuong: self.ChiTietDoiTuong()[0].MaDoiTuong,
             TenDoiTuong: self.ChiTietDoiTuong()[0].TenDoiTuong,
@@ -21334,12 +21336,19 @@ var NewModel_BanHangLe = function () {
         })
     }
 
-    function CreatePhieuXuatKho(idHoaDon) {
-        ajaxHelper('/api/DanhMuc/GaraAPI/' + 'PhieuXuatKho_NguyenVatLieu?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
+    function CreatePhieuXuatKho(idHoaDon, loaiHoaDon = 1) {
+        ajaxHelper(BHHoaDonUri + 'CreatePhieuXuatKho_NguyenVatLieu?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
             if (x.res) {
                 console.log(x);
             }
         })
+        // xuat baohanh + xuat ban le
+        $.getJSON(BHHoaDonUri + 'CreatePhieuXuat_FromHoaDon?idHoaDon=' + idHoaDon
+            + "&loaiHoaDon=" + loaiHoaDon).done(function (x) {
+                if (x.res) {
+                    console.log('xuatngaythuoc ', x);
+                }
+            })
     }
 
     function SaveHoaDonHoTro(objHD) {
@@ -21369,8 +21378,8 @@ var NewModel_BanHangLe = function () {
 
             let cthd = [];
 
-            let sListSP = '', sChung = '', sNgay='';
-            if (hdEx[0].SPChung.length> 0) {
+            let sListSP = '', sChung = '', sNgay = '';
+            if (hdEx[0].SPChung.length > 0) {
                 sListSP = '<br /> Sản phẩm hỗ trợ chung gồm:';
             }
 
@@ -21422,7 +21431,7 @@ var NewModel_BanHangLe = function () {
                 objCTHoaDon: cthd,
             }
 
-            ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'Post_HoaDonHoaTro', 'POST', myData).done(function (x) {
+            ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'Post_HoaDonHoTro', 'POST', myData).done(function (x) {
                 console.log('Post_HoaDonHoaTro ', x)
                 if (x.res) {
                     let data = x.data;
@@ -25158,7 +25167,7 @@ var NewModel_BanHangLe = function () {
 
     self.showPopupUserDiscount = function (item, isDoiTra) {
         Check_Status_NhanVien();
-        vmHoaHongDV.listData.NhanViens = self.NhanViens();
+
         var cthdDoing = FindCTHD_isDoing(item, isDoiTra);
         if (cthdDoing !== null) {
             let phiDV = 0;
@@ -25191,7 +25200,7 @@ var NewModel_BanHangLe = function () {
     }
 
     $('#vmEditHoaHongDV').on('hidden.bs.modal', function () {
-        if (vmHoaHongDV.saveOK) {
+        if (vmHoaHongDV.saveOK && vmHoaHongDV.inforHoaDon.LoaiHoaDon !== 36) {
             if (vmHoaHongDV.isNew) {
                 if (!vmHoaHongDV.isCombo) {
                     self.AgreeNhanVien_TVTH();
@@ -27505,7 +27514,7 @@ var NewModel_BanHangLe = function () {
     }
 
     $('#vmThanhPhanDinhLuong').on('hidden.bs.modal', function () {
-        if (vmThanhPhanDinhLuong.saveOK) {
+        if (vmThanhPhanDinhLuong.saveOK && vmThanhPhanDinhLuong.formType === 0) {
             if (!vmThanhPhanDinhLuong.isCombo) {// khong phai combo
                 self.Agree_TPDinhLuong();
             }
@@ -28948,7 +28957,6 @@ var NewModel_BanHangLe = function () {
     }
 
     self.Combo_showPopupUserDiscount = function (item, itemPr, isDoiTra) {
-        vmHoaHongDV.listData.NhanViens = self.NhanViens();
         var idRandom = item.IDRandom;
         var ctDoing = FindCTHD_isDoing(itemPr, isDoiTra);
         if (ctDoing !== null) {
