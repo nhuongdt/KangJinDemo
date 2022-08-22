@@ -885,9 +885,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         BC_XuatHuyPRC DM = new BC_XuatHuyPRC();
                         DM.MaHoaDon = item.MaHoaDon;
-                        DM.MaPhieuTiepNhan = item.MaPhieuTiepNhan;
                         DM.MaHoaDonSuaChua = item.MaHoaDonGoc;
-                        DM.BienSo = item.BienSo;
                         DM.NgayLapHoaDon = item.NgayLapHoaDon;
                         DM.LoaiPhieu = item.LoaiPhieu;
                         DM.TenChiNhanh = item.TenDonVi;
@@ -1878,6 +1876,30 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 LstDataPrint = lst_GR
             };
             return Json(jsonobj);
+        }
+
+        [HttpGet]
+        public IHttpActionResult PhieuXuatKho_XacNhanXuat(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    var hd = db.BH_HoaDon.Find(idHoaDon);
+                    DateTime dtNow = DateTime.Now;
+                    if (hd != null)
+                    {
+                        hd.ChoThanhToan = false;
+                        hd.NgayLapHoaDon = dtNow;
+                        db.SaveChanges();
+                    }
+                    return ActionTrueData(dtNow);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
         }
         [HttpPost]
         public IHttpActionResult getDmXuatHuy(Params_GetListHoaDon param)
