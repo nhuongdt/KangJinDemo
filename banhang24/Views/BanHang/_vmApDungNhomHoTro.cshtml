@@ -193,7 +193,7 @@
                                         </td>
                                         <td class="text-center td-action td-input-bottom">
                                             <a>
-                                                <span class="span-i" v-on:click="PublicProducts_Remove(index)" title="Xóa dòng">
+                                                <span class="span-i" v-on:click="PublicProducts_Remove(index, item)" title="Xóa dòng">
                                                     <i class="fal fa-times"></i>
                                                 </span>  &nbsp;
                                                 <span class="span-i" title="Hoa hồng nhân viên" v-on:click="showModal_HoaHongNV(item)">
@@ -284,7 +284,7 @@
                                             </td>
                                             <td class="text-center td-stt td-input-bottom">
                                                 <a>
-                                                    <span class="span-i" v-on:click="DayProducts_Remove(index)" title="Xóa dòng">
+                                                    <span class="span-i" v-on:click="DayProducts_Remove(index, item)" title="Xóa dòng">
                                                         <i class="fal fa-times"></i>
                                                     </span>  &nbsp;
                                                 </a>
@@ -657,6 +657,7 @@
                     return;
                 }
                 let obj = {
+                    IDRandom: CreateIDRandom('ctHoTro_'),
                     LoaiHangHoa: item.LoaiHangHoa,
                     Id_DonViQuiDoi: item.Id_DonViQuiDoi,
                     Id_LoHang: item.Id_LoHang,
@@ -682,6 +683,7 @@
                     return;
                 }
                 let obj = {
+                    IDRandom: CreateIDRandom('ctHoTro_'),
                     LoaiHangHoa: item.LoaiHangHoa,
                     Id_DonViQuiDoi: item.Id_DonViQuiDoi,
                     Id_LoHang: item.Id_LoHang,
@@ -697,7 +699,7 @@
                 self.DayProducts.unshift(obj);
                 self.Caculator_TongSLXuat(1);
             },
-            PublicProducts_Remove: function (index) {
+            PublicProducts_Remove: function (index, item) {
                 let self = this;
                 for (let i = 0; i < self.PublicProducts.length; i++) {
                     if (i === index) {
@@ -705,9 +707,31 @@
                         break;
                     }
                 }
+                // assign again to cache
+                let hdHoTro = localStorage.getItem('hdHoTro');
+                if (hdHoTro != null) {
+                    hdHoTro = JSON.parse(hdHoTro);
+                }
+                else {
+                    hdHoTro = [];
+                }
+
+                for (let i = 0; i < hdHoTro.length; i++) {
+                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
+                        for (let j = 0; j < hdHoTro[i].SPChung.length; j++) {
+                            let sp = hdHoTro[i].SPChung[j];
+                            if (sp.IDRandom === item.IDRandom) {
+                                hdHoTro[i].SPChung.remove(j, 1);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
                 self.Caculator_TongSLXuat(0);
             },
-            DayProducts_Remove: function (index) {
+            DayProducts_Remove: function (index, item) {
                 let self = this;
                 for (let i = 0; i < self.DayProducts.length; i++) {
                     if (i === index) {
@@ -715,6 +739,30 @@
                         break;
                     }
                 }
+
+                // assign again to cache
+                let hdHoTro = localStorage.getItem('hdHoTro');
+                if (hdHoTro != null) {
+                    hdHoTro = JSON.parse(hdHoTro);
+                }
+                else {
+                    hdHoTro = [];
+                }
+
+                for (let i = 0; i < hdHoTro.length; i++) {
+                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
+                        for (let j = 0; j < hdHoTro[i].SPNgayThuoc.length; j++) {
+                            let sp = hdHoTro[i].SPNgayThuoc[j];
+                            if (sp.IDRandom === item.IDRandom) {
+                                hdHoTro[i].SPNgayThuoc.remove(j, 1);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
+
                 self.Caculator_TongSLXuat(1);
             },
             Caculator_TongSLXuat: function (type = 1) {
@@ -761,6 +809,7 @@
                 for (let i = 0; i < self.PublicProducts.length; i++) {
                     if (i === index) {
                         self.PublicProducts[i].TienChietKhau = $this.val();
+                        self.PublicProducts[i].SoLuong = $this.val();
                         break;
                     }
                 }
@@ -798,44 +847,6 @@
                     }
                 }
             },
-            UpdateCTHD: function (item, loaiSP = 0, loaiUpdate = 0) {
-                let self = this;
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
-                }
-                else {
-                    hdHoTro = [];
-                }
-
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        switch (loaiSP) {
-                            case 0://chung
-                                for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                                    let ct = hdHoTro[i].SPChung[k];
-                                    if (ct.Id_DonViQuiDoi === item.Id_DonViQuiDoi && ct.Id_LoHang === item.Id_LoHang) {
-                                        switch (loaiUpdate) {
-                                            case 1:// soluong
-                                                hdHoTro[i].SPChung[k].SoLuong = item.SoLuong;
-                                                break;
-                                            case 2:// ghichu
-                                                hdHoTro[i].SPChung[k].GhiChu = item.GhiChu;
-                                                break;
-                                        }
-                                        break;
-                                    }
-                                }
-                                break;
-                            case 1:// sp ngaythuoc
-                                break;
-                        }
-
-                        break;
-                    }
-                }
-                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
-            },
             showModalTPDL: function (item) {
                 let self = this;
                 vmThanhPhanDinhLuong.DichVu_isDoing = item;
@@ -854,7 +865,7 @@
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                         for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
                             let ct = hdHoTro[i].SPChung[k];
-                            if (ct.Id_DonViQuiDoi === item.Id_DonViQuiDoi && ct.Id_LoHang === item.Id_LoHang) {
+                            if (ct.IDRandom === item.IDRandom) {
                                 arrTPDL = ct.ThanhPhan_DinhLuong;
                                 break;
                             }
@@ -905,7 +916,7 @@
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                         for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
                             let ct = hdHoTro[i].SPChung[k];
-                            if (ct.Id_DonViQuiDoi === ctDoing.Id_DonViQuiDoi && ct.Id_LoHang === ctDoing.Id_LoHang) {
+                            if (ct.IDRandom === ctDoing.IDRandom) {
                                 hdHoTro[i].SPChung[k].ThanhPhan_DinhLuong = vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed;
                                 break;
                             }
@@ -930,7 +941,7 @@
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                         for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
                             let ct = hdHoTro[i].SPChung[k];
-                            if (ct.Id_DonViQuiDoi === item.Id_DonViQuiDoi && ct.Id_LoHang === item.Id_LoHang) {
+                            if (ct.IDRandom === item.IDRandom) {
                                 for (let m = 0; m < ct.ThanhPhan_DinhLuong.length; m++) {
                                     let tp = ct.ThanhPhan_DinhLuong[m];
                                     let soluongAfter = formatNumberToFloat(tp.SoLuongMacDinh) * sluongNew;
@@ -950,6 +961,7 @@
                 let self = this;
                 let ctDoing = {
                     ID: null,
+                    IDRandom: item.IDRandom,
                     ID_DonViQuiDoi: item.Id_DonViQuiDoi,
                     ID_LoHang: item.Id_LoHang,
                     SoLuong: item.SoLuong,
@@ -980,7 +992,7 @@
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                         for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
                             let ct = hdHoTro[i].SPChung[k];
-                            if (ct.Id_DonViQuiDoi === item.Id_DonViQuiDoi && ct.Id_LoHang === item.Id_LoHang) {
+                            if (ct.IDRandom === item.IDRandom) {
                                 arrNV = ct.BH_NhanVienThucHien;
                                 break;
                             }
@@ -1062,7 +1074,7 @@
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                         for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
                             let ct = hdHoTro[i].SPChung[k];
-                            if (ct.Id_DonViQuiDoi === ctDoing.ID_DonViQuiDoi && ct.Id_LoHang === ctDoing.ID_LoHang) {
+                            if (ct.IDRandom === ctDoing.IDRandom) {
                                 hdHoTro[i].SPChung[k].GhiChu_NVThucHien = nvTH;
                                 hdHoTro[i].SPChung[k].GhiChu_NVThucHienPrint = nvTH_Print;
                                 hdHoTro[i].SPChung[k].GhiChu_NVTuVan = nvTV;
@@ -1091,7 +1103,7 @@
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                         for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
                             let ct = hdHoTro[i].SPChung[k];
-                            if (ct.Id_DonViQuiDoi === item.Id_DonViQuiDoi && ct.Id_LoHang === item.Id_LoHang) {
+                            if (ct.IDRandom === item.IDRandom) {
                                 for (let m = 0; m < ct.BH_NhanVienThucHien.length; m++) {
                                     let nv = ct.BH_NhanVienThucHien[m];
                                     ct.BH_NhanVienThucHien[m].TienChietKhau = nv.ChietKhauMacDinh * sluongNew * nv.HeSo;
@@ -1161,6 +1173,43 @@
                     }
                     else {
                         hdHoTro = [];
+                    }
+
+                    // update soluong, ghichu to list products
+                    for (let i = 0; i < hdHoTro.length; i++) {
+                        if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
+                            for (let j = 0; j < hdHoTro[i].SPChung.length; j++) {
+                                let sp = hdHoTro[i].SPChung[j];
+                                for (let k = 0; k < self.PublicProducts.length; k++) {
+                                    let spIn = self.PublicProducts[k];
+                                    if (sp.IDRandom === spIn.IDRandom) {
+                                        hdHoTro[i].SPChung[j].SoLuong = spIn.SoLuong;
+                                        hdHoTro[i].SPChung[j].TienChietKhau = spIn.TienChietKhau;
+                                        hdHoTro[i].SPChung[j].GhiChu = spIn.GhiChu;
+                                        break;
+                                    }
+                                }
+                            }
+                            for (let j = 0; j < hdHoTro[i].SPNgayThuoc.length; j++) {
+                                let sp = hdHoTro[i].SPNgayThuoc[j];
+                                for (let k = 0; k < self.DayProducts.length; k++) {
+                                    let spIn = self.DayProducts[k];
+                                    if (sp.IDRandom === spIn.IDRandom) {
+                                        hdHoTro[i].SPNgayThuoc[j].SoLuong = spIn.SoLuong;
+                                        hdHoTro[i].SPNgayThuoc[j].TienChietKhau = spIn.TienChietKhau;
+                                        hdHoTro[i].SPNgayThuoc[j].GhiChu = spIn.GhiChu;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (hdHoTro[i].SPChung.length === 0) {// because spchung was assign TPDinhLuong & NVThucHien
+                                hdHoTro[i].SPChung = self.PublicProducts;
+                            }
+                            if (hdHoTro[i].SPNgayThuoc.length === 0) {
+                                hdHoTro[i].SPNgayThuoc = self.DayProducts;
+                            }
+                            break;
+                        }
                     }
 
                     let ex = false;
