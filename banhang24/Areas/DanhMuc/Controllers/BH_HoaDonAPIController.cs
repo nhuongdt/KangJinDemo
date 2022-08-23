@@ -85,7 +85,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     return ActionFalseNotData(ex.ToString());
                 }
             }
-        }       
+        }
+
+        [HttpGet]
+        public IHttpActionResult GetInfor_HDHoTro(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon_ChiTiet classHoaDonCT = new ClassBH_HoaDon_ChiTiet(db);
+                    List<HD_CTHDHoTroDTO> data = classHoaDonCT.GetInfor_HDHoTro(idHoaDon);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
 
         [HttpGet]
         public IHttpActionResult CreatePhieuXuat_FromHoaDon(Guid idHoaDon, int loaiHoaDon = 1, bool isXuatNgayThuoc = false)
@@ -100,7 +118,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 catch (Exception ex)
                 {
-                    CookieStore.WriteLog("CreatePhieuXuat_SanPhamNgayThuoc " + ex.InnerException + ex.Message);
+                    CookieStore.WriteLog("CreatePhieuXuat_FromHoaDon " + ex.InnerException + ex.Message);
                     return ActionFalseNotData(ex.ToString());
                 }
             }
@@ -11449,6 +11467,215 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 objHoaDon.ID,
                                 MaHoaDon = sMaHoaDon,
+                                objHoaDon.NgayLapHoaDon,
+                            }
+                        });
+
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return Json(new
+                        {
+                            res = false,
+                            mes = ex.InnerException + ex.Message
+                        });
+                    }
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
+        public IHttpActionResult Update_HoaDonHoTro([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                        ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
+                        ClassDM_HangHoa _classDMHH = new ClassDM_HangHoa(db);
+                        ClassBH_NhanVienThucHien nhanvienThucHien = new ClassBH_NhanVienThucHien(db);
+                        List<string> lstID_NewOld = new List<string>();
+
+                        BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
+                        List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
+
+                        var hdUp = db.BH_HoaDon.Find(objHoaDon.ID);
+                        hdUp.NgaySua = DateTime.Now;
+                        hdUp.ID_CheckIn = objHoaDon.ID_CheckIn;// idnhomhang hotro
+                        hdUp.TongGiamGia = objHoaDon.TongGiamGia;// songaythuoc
+                        hdUp.NguoiSua = objHoaDon.NguoiSua;
+
+                        #region BH_ChiTietHoaDon
+                        classhoadonchitiet.Delete_HoaDon_ChiTiet_ByIDHoaDon(objHoaDon.ID);
+
+                        foreach (var item in objCTHoaDon)
+                        {
+                            List<BH_HoaDon_ChiTiet> lstCT = new List<BH_HoaDon_ChiTiet>();
+                            BH_HoaDon_ChiTiet ctHoaDon = new BH_HoaDon_ChiTiet
+                            {
+                                ID = Guid.NewGuid(),
+                                ID_DonViQuiDoi = item.ID_DonViQuiDoi,
+                                SoThuTu = item.SoThuTu,
+                                DonGia = item.DonGia,
+                                GiaVon = item.GiaVon,
+                                ID_HoaDon = objHoaDon.ID,
+                                SoLuong = item.SoLuong,
+                                ThanhTien = item.ThanhTien,
+                                ThanhToan = item.ThanhToan,
+                                PTChietKhau = item.PTChietKhau, // PT giam
+                                TienChietKhau = item.TienChietKhau, // tien giam 
+                                GhiChu = item.GhiChu,
+                                TangKem = item.TangKem,
+                                ID_TangKem = item.ID_TangKem,
+                                ID_KhuyenMai = item.ID_KhuyenMai,
+                                ID_LoHang = item.ID_LoHang,
+                                ID_ChiTietGoiDV = item.ID_ChiTietGoiDV,
+                                PTThue = item.PTThue,
+                                TienThue = item.TienThue,
+                                LoaiThoiGianBH = item.LoaiThoiGianBH,
+                                ThoiGianBaoHanh = item.ThoiGianBaoHanh,
+                                ThoiGianThucHien = item.ThoiGianThucHien,
+                                ID_ViTri = item.ID_ViTri,
+                                ThoiGian = item.ThoiGian,
+                                ThoiGianHoanThanh = item.ThoiGianHoanThanh,
+                                QuaThoiGian = item.QuaThoiGian,
+                                ChatLieu = item.ChatLieu,// 6.sp ngaythuoc
+                                DiemKhuyenMai = item.DiemKhuyenMai,
+                                DonGiaBaoHiem = item.DonGiaBaoHiem,
+                                TenHangHoaThayThe = item.TenHangHoaThayThe,
+                                ID_LichBaoDuong = item.ID_LichBaoDuong,
+                                ThanhPhanComBo = item.ThanhPhanComBo
+                            };
+
+                            #region DinhLuong_DichVu
+
+                            double? sumGiaVonDL = 0;
+
+                            // Mua/tra gói dịch vụ: không lưu TP định lượng, vì để a Trịnh get giá vốn của dịch vụ (= tổng giá vốn của Tp dịch vụ)
+                            // get TP_DinhLuong from .js
+                            if (item.ThanhPhan_DinhLuong != null && item.ThanhPhan_DinhLuong.Count > 0)
+                            {
+                                // nếu là dịch vụ: save ID_ChiTietDinhLuong = ct.ID (new Guid)
+                                ctHoaDon.ID_ChiTietDinhLuong = ctHoaDon.ID;
+
+                                foreach (var itemDL in item.ThanhPhan_DinhLuong)
+                                {
+                                    if (itemDL.SoLuong > 0)
+                                    {
+                                        // đã nhân số lượng ở .js (show in view)
+                                        var soluongTPDL = itemDL.SoLuong;
+
+                                        // sum giavon all TP dinh luong
+                                        sumGiaVonDL += itemDL.GiaVon * soluongTPDL;
+
+                                        BH_HoaDon_ChiTiet ctHoaDon_DL = new BH_HoaDon_ChiTiet
+                                        {
+                                            ID = Guid.NewGuid(),
+                                            ID_DonViQuiDoi = itemDL.ID_DonViQuiDoi,
+                                            ID_LoHang = itemDL.ID_LoHang,
+                                            SoLuong = soluongTPDL,
+                                            GiaVon = itemDL.GiaVon,
+                                            ID_ChiTietDinhLuong = ctHoaDon.ID,
+                                            ID_HoaDon = objHoaDon.ID,
+                                            ID_ChiTietGoiDV = ctHoaDon.ID_ChiTietGoiDV,// used to tính giá vốn dịch vụ khi sử dụng gdv
+                                            GhiChu = itemDL.GhiChu,
+                                            ChatLieu = ctHoaDon.ChatLieu,
+                                            SoLuongDinhLuong_BanDau = itemDL.SoLuongDinhLuong_BanDau * ctHoaDon.SoLuong,
+                                            TenHangHoaThayThe = itemDL.TenHangHoaThayThe,
+                                        };
+                                        lstCT.Add(ctHoaDon_DL);
+                                    }
+                                }
+
+                                ctHoaDon.GiaVon = item.SoLuong == 0 ? sumGiaVonDL : sumGiaVonDL / item.SoLuong;
+                            }
+                            else
+                            {
+                                if (item.ThanhPhanComBo != null && item.ThanhPhanComBo.Count > 0)
+                                {
+                                    ctHoaDon.ID_ParentCombo = ctHoaDon.ID;
+                                    var lstCombo = GetListCombo_andTPDLuong_ofThis(db, ctHoaDon, objHoaDon.ID_DonVi,
+                                        objHoaDon.LoaiHoaDon, false, ref lstID_NewOld);
+                                    lstCT.AddRange(lstCombo);
+                                }
+                                else
+                                {
+                                    if (objHoaDon.LoaiHoaDon != 6)
+                                    {
+                                        List<libDM_HangHoa.ClassDM_HangHoa.SP_ThanhPhan_DinhLuong> dinhluongDV = _classDMHH.SP_GetInfor_TPDinhLuong(objHoaDon.ID_DonVi, item.ID_DonViQuiDoi);
+
+                                        if (dinhluongDV != null && dinhluongDV.Count() > 0)
+                                        {
+                                            ctHoaDon.ID_ChiTietDinhLuong = ctHoaDon.ID;
+
+                                            foreach (var itemDL in dinhluongDV)
+                                            {
+                                                // dùng SoLuong bao nhiêu --> gấp TPDinhLuong lên số lần đó
+                                                var soluongTPDL = itemDL.SoLuong * ctHoaDon.SoLuong;
+
+                                                // sum giavon all TP dinh luong
+                                                sumGiaVonDL += itemDL.GiaVon * soluongTPDL;
+
+                                                BH_HoaDon_ChiTiet ctHoaDon_DL = new BH_HoaDon_ChiTiet
+                                                {
+                                                    ID = Guid.NewGuid(),
+                                                    ID_DonViQuiDoi = itemDL.ID_DonViQuiDoi,
+                                                    ID_LoHang = itemDL.ID_LoHang,
+                                                    SoLuong = soluongTPDL,
+                                                    GiaVon = itemDL.GiaVon,
+                                                    ID_ChiTietDinhLuong = ctHoaDon.ID,
+                                                    ID_HoaDon = objHoaDon.ID,
+                                                    ID_ChiTietGoiDV = ctHoaDon.ID_ChiTietGoiDV, // save Tp định lượng of dich vụ
+                                                    SoLuongDinhLuong_BanDau = soluongTPDL,
+                                                    ChatLieu = ctHoaDon.ChatLieu,
+                                                    TenHangHoaThayThe = ctHoaDon.TenHangHoaThayThe,
+                                                };
+                                                lstCT.Add(ctHoaDon_DL);
+                                            }
+                                            ctHoaDon.GiaVon = item.SoLuong == 0 ? sumGiaVonDL : sumGiaVonDL / item.SoLuong;
+                                        }
+                                    }
+                                }
+                            }
+                            lstCT.Add(ctHoaDon);
+                            classhoadonchitiet.Add_ChiTietHoaDon(lstCT);
+
+                            #endregion
+
+                            #region BH_NhanVienThucHien of HangHoa
+                            foreach (var itemNV in item.BH_NhanVienThucHien)
+                            {
+                                BH_NhanVienThucHien nvien = new BH_NhanVienThucHien
+                                {
+                                    ID = Guid.NewGuid(),
+                                    ID_ChiTietHoaDon = ctHoaDon.ID,
+                                    ID_NhanVien = itemNV.ID_NhanVien,
+                                    ThucHien_TuVan = itemNV.ThucHien_TuVan,
+                                    TienChietKhau = itemNV.TienChietKhau,
+                                    PT_ChietKhau = itemNV.PT_ChietKhau,
+                                    TheoYeuCau = itemNV.TheoYeuCau,
+                                    HeSo = itemNV.HeSo,
+                                    TinhChietKhauTheo = itemNV.TinhChietKhauTheo,
+                                    TinhHoaHongTruocCK = itemNV.TinhHoaHongTruocCK,
+                                };
+                                nhanvienThucHien.Insert(nvien);
+                            }
+                            #endregion
+                        }
+                        #endregion
+
+                        trans.Commit();
+                        return Json(new
+                        {
+                            res = true,
+                            data = new
+                            {
+                                objHoaDon.ID,
+                                hdUp.MaHoaDon,
                                 objHoaDon.NgayLapHoaDon,
                             }
                         });
