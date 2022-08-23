@@ -233,9 +233,13 @@
                             v-on:click="Agree_TPDinhLuong">
                         <i class="fa fa-save"></i> Đồng ý
                     </button>
-                    <button type="button" class="btn btn-save" v-if="$root.typeUpdate ==2"
+                    <button type="button" class="btn btn-save" v-if="$root.typeUpdate ==2 && !$root.isLoading"
                             v-on:click="Agree_TPDinhLuong">
                         <i class="fa fa-save"></i> Cập nhật
+                    </button>  
+                    <button type="button" class="btn btn-save" v-if="$root.isLoading"
+                            >
+                        <i class="fa fa-save"></i> Đang lưu
                     </button>
                 </div>
             </div>
@@ -270,6 +274,7 @@
         },
         data: {
             saveOK: false,
+            isLoading: false,
             typeUpdate: 1, // 1.insert, 2.update
             isCombo: false,
             isDoiTra: false,
@@ -298,6 +303,7 @@
                 self.isCombo = isCombo;
                 self.isDoiTra = isDoiTra;
                 self.saveOK = false;
+                self.isLoading = false;
                 $('.jsSearchProduct .gara-search-HH').val('');
                 $('#vmThanhPhanDinhLuong').modal('show');
             },
@@ -308,6 +314,7 @@
                 self.isCombo = false;
                 self.isDoiTra = false;
                 self.saveOK = false;
+                self.isLoading = false;
                 self.inforHoaDon = {
                     ID: hd.ID,
                     MaHoaDon: hd.MaHoaDon,
@@ -463,6 +470,7 @@
             Agree_TPDinhLuong: function () {
                 let self = this;
                 if (self.typeUpdate === 2) { // update in DB
+                    self.isLoading = true;
 
                     let sTPNew = '', sTPOld = '';
 
@@ -516,6 +524,8 @@
                             else {
                                 ShowMessage_Danger(x.mess);
                             }
+                        }).always(function () {
+                            self.isLoading = false;
                         })
                 }
                 else {
