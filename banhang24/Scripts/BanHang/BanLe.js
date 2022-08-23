@@ -20432,6 +20432,9 @@ var NewModel_BanHangLe = function () {
             case 19:
                 roleChangePriceProduct = self.roleChangePriceProduct_ServicePackage();
                 break;
+            case 2:
+                roleChangePriceProduct = false;
+                break;
         }
         self.roleChangePriceProduct(roleChangePriceProduct);
     }
