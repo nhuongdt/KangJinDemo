@@ -178,4 +178,34 @@ namespace Model
         public double? ThanhTien { get; set; }// gvtieuchuan moi
         public double? GiaVon { get; set; }
     }
+
+
+    public class HD_CTHDHoTroDTO
+    {
+        public Guid? ID { get; set; }
+        public Guid? ID_DonVi { get; set; }
+        public Guid? ID_DoiTuong { get; set; }
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public Guid? Id_NhomHang { get; set; }
+        public string TenNhomHangHoa { get; set; }
+        public double? SoNgayThuoc { get; set; }
+        public string NguoiTao { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+
+        public Guid? ID_ChiTietHD { get; set; }
+        public Guid? ID_ChiTietDinhLuong { get; set; }
+        public Guid? ID_ChiTietGoiDV { get; set; }
+        public Guid? Id_DonViQuiDoi { get; set; }
+        public Guid? Id_LoHang { get; set; }
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public int? LoaiHangHoa { get; set; }
+        public string MaLoHang { get; set; }
+        public string TenDonViTinh { get; set; }
+        public double? TienChietKhau { get; set; }
+        public double? SoLuong { get; set; }
+        public string ChatLieu { get; set; }
+    }
 }
