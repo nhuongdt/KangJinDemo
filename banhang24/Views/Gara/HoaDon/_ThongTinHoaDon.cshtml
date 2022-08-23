@@ -89,12 +89,14 @@
                                         <th v-else>Số lượng</th>
                                         <th v-if="HoaDon.LoaiHoaDon === 8">Giá vốn</th>
                                         <th v-if="HoaDon.LoaiHoaDon === 8">Giá trị xuất</th>
-                                        <th v-if="!$root.hideBottom">Đơn giá</th>
-                                        <th v-if="!$root.hideBottom">Chiết khấu</th>
-                                        <th v-if="!$root.hideBottom">Tiền thuế</th>
-                                        <th v-if="!$root.hideBottom">Thanh toán</th>
+                                        <th v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">Đơn giá</th>
+                                        <th v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">Chiết khấu</th>
+                                        <th v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">Tiền thuế</th>
+                                        <th v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">Thanh toán</th>
+                                        <th v-if="HoaDon.LoaiHoaDon === 36">Loại hỗ trợ</th>
                                         <th style="text-align:center"
-                                            v-if="formType!=2  && formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6,2]) > -1"> #
+                                            v-if="formType!=2  && formType!==3 && !$root.isKhoaSo && $root.role.CapNhatHoaHongDichVu && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6,2,36]) > -1">
+                                            #
                                         </th>
                                     </tr>
                                 </thead>
@@ -129,12 +131,15 @@
                                             </span>
                                         </td>
                                         <td class="text-right" v-if="HoaDon.LoaiHoaDon === 8">{{formatNumber3Digit(ct.GiaVon)}}</td>
-                                        <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.DonGia)}}</td>
-                                        <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.GiamGia)}}</td>
-                                        <td class="text-right" v-if="!$root.hideBottom">{{formatNumber3Digit(ct.TienThue,2)}}</td>
-                                        <td class="text-right">{{formatNumber3Digit(ct.ThanhToan,2)}}</td>
-                                        <td class="text-center" 
-                                            v-if="formType!=2 &&  formType!==3 && !$root.isKhoaSo && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6,2]) > -1">
+                                        <td class="text-right" v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">{{formatNumber3Digit(ct.DonGia)}}</td>
+                                        <td class="text-right" v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">{{formatNumber3Digit(ct.GiamGia)}}</td>
+                                        <td class="text-right" v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">{{formatNumber3Digit(ct.TienThue,2)}}</td>
+                                        <td class="text-right" v-if="HoaDon.LoaiHoaDon !== 36">{{formatNumber3Digit(ct.ThanhToan,2)}}</td>
+                                        <td v-if="HoaDon.LoaiHoaDon === 36">
+                                            {{ct.ChatLieu=='6'?'Hỗ trợ ngày thuốc':'Hỗ trợ chung'}}
+                                        </td>
+                                        <td class="text-center"
+                                            v-if="formType!=2 &&  formType!==3 && !$root.isKhoaSo && $.inArray(HoaDon.LoaiHoaDon,[1,19,25,6,2,36]) > -1">
                                             <a href="javascript:void(0)" v-if="$root.role.CapNhatHoaHongDichVu"
                                                v-on:click="showVmEditCKDichVu(ct)">
                                                 <i title="Thay đổi chiết khấu nhân viên" class="fa fa-user"></i>
@@ -162,8 +167,18 @@
                                         {{formatNumber3Digit(HoaDon.TongSLHang)}}
                                     </span>
                                 </div>
+                            </div>  
+                            <div class="form-group" v-if="HoaDon.LoaiHoaDon === 36">
+                                <label>
+                                    Số ngày thuốc :
+                                </label>
+                                <div class="text-right form-news lineHeight-24 " style='padding:3px'>
+                                    <span>
+                                        {{formatNumber3Digit(HoaDon.TongGiamGia)}}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" v-if="HoaDon.LoaiHoaDon !== 36">
                                 <label v-if="HoaDon.LoaiHoaDon!=8">
                                     Tổng tiền hàng :
                                 </label>
@@ -174,7 +189,7 @@
                                     {{formatNumber3Digit(HoaDon.TongTienHang,2)}}
                                 </div>
                             </div>
-                            <div class="form-group" v-if="!$root.hideBottom">
+                            <div class="form-group" v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">
                                 <label>
                                     Tiền thuế :
                                 </label>
@@ -184,7 +199,7 @@
 
                                 </div>
                             </div>
-                            <div class="form-group" v-if="!$root.hideBottom">
+                            <div class="form-group" v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">
                                 <label>
                                     Giảm giá hóa đơn :
                                 </label>
@@ -194,7 +209,7 @@
 
                                 </div>
                             </div>
-                            <div class="form-group" v-if="!$root.hideBottom">
+                            <div class="form-group" v-if="!$root.hideBottom  && HoaDon.LoaiHoaDon !== 36">
                                 <label v-if="!$root.isVendor">
                                     Khách cần trả :
                                 </label>
@@ -205,7 +220,7 @@
                                     {{formatNumber3Digit(HoaDon.PhaiThanhToan,2)}}
                                 </div>
                             </div>
-                            <div class="form-group" v-if="!$root.hideBottom">
+                            <div class="form-group" v-if="!$root.hideBottom && HoaDon.LoaiHoaDon !== 36">
                                 <label v-if="!$root.isVendor">
                                     Khách đã trả:
                                 </label>
@@ -283,7 +298,7 @@
             },
             hideBottom: function () {
                 let self = this;
-                return $.inArray(self.HoaDon.LoaiHoaDon, [8, 9, 18]) > -1;// xuatkho, kiemke, dieuchinhGV
+                return $.inArray(self.HoaDon.LoaiHoaDon, [8, 9, 18]) > -1;// xuatkho, kiemke, dieuchinhGV, hdHoTro
             },
             txtNguoiBan: function () {
                 let self = this;
@@ -297,6 +312,7 @@
                     case 3:
                     case 6:
                     case 7:
+                    case 36:
                         txt = 'Nhân viên lập';
                         break;
                     case 4:
@@ -346,7 +362,7 @@
                             txt = 'Gói bảo dưỡng';
                         }
                         break;
-                    case 19:
+                    case 22:
                         txt = 'Thẻ giá trị';
                         break;
                     case 25:
@@ -357,6 +373,9 @@
                         break;
                     case 14:
                         txt = 'Nhập hàng khách thừa';
+                        break;
+                    case 36:
+                        txt = 'Hóa đơn hỗ trợ';
                         break;
                 }
                 return txt;
@@ -565,6 +584,9 @@
                 var url = '';
                 switch (self.HoaDon.LoaiHoaDon) {
                     case 1:
+                        url = '/#/Invoices';
+                        break;
+                    case 36:
                         url = '/#/Invoices';
                         break;
                     case 2:
