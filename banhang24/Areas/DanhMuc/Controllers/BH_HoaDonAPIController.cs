@@ -2082,6 +2082,28 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult TGT_HuyPhieuDieuChinh(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    var data = db.BH_HoaDon.Find(id);
+                    if (data!=null)
+                    {
+                        data.ChoThanhToan = null;
+                        db.SaveChanges();
+                    }
+                    return ActionTrueData(string.Empty);
+                }
+                catch (Exception e)
+                {
+                    return ActionTrueNotData(e.InnerException + e.Message);
+                }
+            }
+        }
+
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult Comapre_DoanhThuByTheGiaTri(ModelHoaDonTheNap model)
         {

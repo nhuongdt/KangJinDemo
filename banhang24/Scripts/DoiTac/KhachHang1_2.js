@@ -4754,6 +4754,11 @@
     self.loaiNKSD = ko.observable(1);
     self.loaiLSNT = ko.observable(1);
     self.TenKhachHangNapThe = ko.observable();
+    self.GiaTriDieuChinh = ko.observable('');
+    self.MaDieuChinh = ko.observable('');
+    self.NgayDieuChinh = ko.observable('');
+    self.TGT_ID = ko.observable(null);
+
     self.clickTheGiaTri = function (item) {
         self.typeTab('thegiatri');
         ResetTime_TheGiaTri();
@@ -4771,6 +4776,8 @@
         SearchLichSuNapTien();
     };
     self.DieuChinhSoDu = function (item) {
+        self.TGT_ID(null);
+        self.GiaTriDieuChinh(0);
         self.TrangThaiTheGiaTriChoose(item.TrangThai_TheGiaTri);
         $('#modalPopup_thegiatri').modal('show');
         $('#txtSoDuPopup').val(formatNumber(self.SoDuTheGiaTri()));
@@ -4778,6 +4785,45 @@
             $('#txtSoDuPopup').val(formatNumber(self.SoDuTheGiaTri()));
         });
     };
+    self.DieuChinhThe_showUpdate = function (item) {
+        self.TGT_ID(item.ID);
+        self.MaDieuChinh(item.MaHoaDon);
+        if (item.PhatSinhTang > 0) {
+            self.GiaTriDieuChinh(item.PhatSinhTang);
+        }
+        else {
+            self.GiaTriDieuChinh(item.PhatSinhGiam);
+        }
+        self.NgayDieuChinh(moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'));
+        $('#modalPopup_thegiatri').modal('show');
+    }
+
+    self.TGT_HuyPhieuDieuChinh = function () {
+        // todo check sudung vuot TGT
+        $.getJSON('/api/DanhMuc/BH_HoaDonAPI/' + 'TGT_HuyPhieuDieuChinh?id=' + self.TGT_ID()).done(function (x) {
+            console.log(x)
+            if (x.res) {
+                ShowMessage_Success('Hủy phiếu điều chỉnh thành công');
+
+                $('#modalPopup_thegiatri').modal('hide');
+
+                let diary = {
+                    LoaiNhatKy: 3,
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    ChucNang: 'Hủy phiếu điều chỉnh thẻ giá trị',
+                    NoiDung: 'Hủy phiếu điều chỉnh thẻ giá trị '.concat(self.MaDieuChinh()),
+                    NoiDungChiTiet: 'Thông tin hủy:'.concat('<br /> Mã phiếu ', self.MaDieuChinh(),
+                        '<br /> Khách hàng: ', self.TenKhachHangNapThe(),
+                        '<br /> Giá trị điều chỉnh: ', self.GiaTriDieuChinh(),
+                        '<br /> Ngày điều chỉnh: ', self.NgayDieuChinh(),
+                        '<br /> User hủy phiếu: ', VHeader.UserLogin),
+                }
+                Insert_NhatKyThaoTac_1Param(diary);
+            }
+        })
+    }
+
     self.TrangThaiTheGT = ko.observableArray([
         { TrangThai: "Đang hoạt động", value: "1" },
         { TrangThai: "Ngừng hoạt động", value: "2" }
