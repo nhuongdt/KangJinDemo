@@ -8563,7 +8563,8 @@ var NewModel_BanHangLe = function () {
                     case 2:
                         UpdateDiemKH_toDB(objHDAdd.ID_DoiTuong);
                         UpdateNhomKH_DB(objHDAdd.ID_DoiTuong);
-                        CreatePhieuXuatKho(objHDAdd.ID, objHDAdd.LoaiHoaDon);
+                        vmApDungNhomHoTro.CreatePhieuXuat_NguyenVatLieu(objHDAdd.ID);
+                        vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(objHDAdd.ID, objHDAdd.LoaiHoaDon);
                         vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom);
                         break;
                     case 19:
@@ -20400,7 +20401,7 @@ var NewModel_BanHangLe = function () {
             $("#searchandadd").css("width", "calc(100% - 50px)")
         }
         var loaiHoaDon = GetLoaiHoaDon_ofHDopening();
-        var roleChangePriceProduct = false;
+        var roleChangePriceProduct = true;
         switch (loaiHoaDon) {
             case 1:
                 roleChangePriceProduct = self.roleChangePriceProduct_Invoice();
@@ -20415,6 +20416,7 @@ var NewModel_BanHangLe = function () {
                 roleChangePriceProduct = self.roleChangePriceProduct_ServicePackage();
                 break;
         }
+        console.log('roleChangePriceProduct ', roleChangePriceProduct)
         self.roleChangePriceProduct(roleChangePriceProduct);
     }
     function GetListHD_Opening() {
@@ -21334,123 +21336,6 @@ var NewModel_BanHangLe = function () {
                 vmThanhToanGara.listData.AccountBanks = data;
             }
         })
-    }
-
-    function CreatePhieuXuatKho(idHoaDon, loaiHoaDon = 1) {
-        ajaxHelper(BHHoaDonUri + 'CreatePhieuXuatKho_NguyenVatLieu?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
-            if (x.res) {
-                console.log(x);
-            }
-        })
-        // xuat baohanh + xuat ban le
-        $.getJSON(BHHoaDonUri + 'CreatePhieuXuat_FromHoaDon?idHoaDon=' + idHoaDon
-            + "&loaiHoaDon=" + loaiHoaDon).done(function (x) {
-                if (x.res) {
-                    console.log('xuatngaythuoc ', x);
-                }
-            })
-    }
-
-    function SaveHoaDonHoTro(objHD) {
-        let hdHoTro = localStorage.getItem('hdHoTro');
-        if (hdHoTro != null) {
-            hdHoTro = JSON.parse(hdHoTro);
-        }
-        else {
-            hdHoTro = [];
-        }
-
-        let hdEx = $.grep(hdHoTro, function (x) {
-            return x.IDRandomHD === objHD.IDRandom;
-        });
-        if (hdEx.length > 0) {
-            let hd = {
-                LoaiHoaDon: 36,
-                NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
-                ID_DonVi: objHD.ID_DonVi,
-                ID_DoiTuong: objHD.ID_DoiTuong,
-                ID_NhanVien: objHD.ID_NhanVien,
-                ID_CheckIn: hdEx[0].ID_NhomHang,
-                TongGiamGia: hdEx[0].SoNgayThuoc,
-                ChoThanhToan: false,
-                NguoiTao: objHD.NguoiTao,
-            }
-
-            let cthd = [];
-
-            let sListSP = '', sChung = '', sNgay = '';
-            if (hdEx[0].SPChung.length > 0) {
-                sListSP = '<br /> Sản phẩm hỗ trợ chung gồm:';
-            }
-
-            for (let i = 0; i < hdEx[0].SPChung.length; i++) {
-                let itFor = hdEx[0].SPChung[i];
-                let obj = {
-                    STT: i + 1,
-                    MaHangHoa: itFor.MaHangHoa,
-                    TenHangHoa: itFor.TenHangHoa,
-                    ID_DonViQuiDoi: itFor.Id_DonViQuiDoi,
-                    ID_LoHang: itFor.Id_LoHang,
-                    SoLuong: itFor.SoLuong,
-                    TienChietKhau: itFor.TienChietKhau,
-                    PTChietKhau: 0,//0.sp chung, 1.sp thuoc
-                    GhiChu: itFor.GhiChu,
-                    BH_NhanVienThucHien: itFor.BH_NhanVienThucHien,
-                    ThanhPhan_DinhLuong: itFor.ThanhPhan_DinhLuong,
-                }
-                cthd.push(obj);
-                sChung += ' <br /> '.concat(obj.STT, '. ', obj.TenHangHoa, ' (', obj.MaHangHoa, ') Số lượng ', obj.SoLuong);
-            }
-            sListSP += sChung;
-
-            if (hdEx[0].SPNgayThuoc.length > 0) {
-                sListSP += '<br /> Sản phẩm hỗ trợ ngày thuốc gồm:';
-            }
-            for (let i = 0; i < hdEx[0].SPNgayThuoc.length; i++) {
-                let itFor = hdEx[0].SPNgayThuoc[i];
-                let obj = {
-                    STT: i + 1,
-                    MaHangHoa: itFor.MaHangHoa,
-                    TenHangHoa: itFor.TenHangHoa,
-                    ID_DonViQuiDoi: itFor.Id_DonViQuiDoi,
-                    ID_LoHang: itFor.Id_LoHang,
-                    SoLuong: itFor.SoLuong,
-                    TienChietKhau: itFor.TienChietKhau,
-                    PTChietKhau: 1,//0.sp chung, 1.sp thuoc
-                    GhiChu: itFor.GhiChu,
-                    BH_NhanVienThucHien: itFor.BH_NhanVienThucHien,
-                    ThanhPhan_DinhLuong: itFor.ThanhPhan_DinhLuong,
-                }
-                cthd.push(obj);
-                sNgay += ' <br /> '.concat(obj.STT, '. ', obj.TenHangHoa, ' (', obj.MaHangHoa, ') Số lượng ', obj.SoLuong);
-            }
-            sListSP += sNgay;
-
-            let myData = {
-                objHoaDon: hd,
-                objCTHoaDon: cthd,
-            }
-
-            ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'Post_HoaDonHoTro', 'POST', myData).done(function (x) {
-                console.log('Post_HoaDonHoaTro ', x)
-                if (x.res) {
-                    let data = x.data;
-                    let diary = {
-                        ID_DonVi: id_DonVi,
-                        ID_NhanVien: _idNhanVien,
-                        LoaiNhatKy: 1,
-                        ChucNang: 'Áp dụng nhóm hỗ trợ <b>'.concat(hdEx[0].TenNhomHangHoa),
-                        NoiDung: 'Thêm mới hóa đơn hỗ trợ '.concat(data.MaHoaDon,
-                            ', Khách hàng ', hdEx[0].TenDoiTuong, '(', hdEx[0].MaDoiTuong, ')'),
-                        NoiDungChiTiet: 'Nội dung chi tiết '.concat(sListSP, ' <br /> Người tạo: ', objHD.NguoiTao),
-                        LoaiHoaDon: 36,
-                        ID_HoaDon: data.ID,
-                        ThoiGianUpdateGV: data.NgayLapHoaDon
-                    }
-                    Post_NhatKySuDung_UpdateGiaVon(diary);
-                }
-            })
-        }
     }
 
     function ShareTienThu_HDDoiTra(hd, objMuaHang) {
