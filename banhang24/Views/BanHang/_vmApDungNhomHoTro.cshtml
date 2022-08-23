@@ -399,13 +399,12 @@
                     IDChiNhanhs: [self.inforLogin.ID_DonVi]
                 }
                 ajaxHelper(self.UrlAPI.NhomHang + 'GetListNhomHang_SetupHoTro', 'POST', param).done(function (x) {
-                    console.log('GetListNhomHang_SetupHoTro', x)
                     if (x.res) {
                         self.listData.AllNhomHangs = x.dataSoure;
                     }
                 })
             },
-            GetTongGiaTriSuDung_ofKhachHang: function (idCus, toDate = null) {// call when change cus at banle
+            GetTongGiaTriSuDung_ofKhachHang: function (idCus, toDate = null, isCheck = false) {// call when change cus at banle
                 let self = this;
                 if (!commonStatisJs.CheckNull(idCus) && idCus.indexOf('00000') === -1) {
                     if (commonStatisJs.CheckNull(toDate)) {
@@ -420,6 +419,11 @@
                         console.log('GetTongGiaTriSuDung_ofKhachHang', x)
                         if (x.res) {
                             self.listData.NhomHang_TongSuDung = x.dataSoure;
+                        }
+
+                        if (isCheck) {
+                            self.showModal(self.InvoiceChosing, true);
+                            newModelBanLe.showNhomHoTro(self.NhomHangEnoughCondition.length > 0)
                         }
                     })
                 }
@@ -485,7 +489,7 @@
                     }
                 }
             },
-            showModal: function (hdChosing) {
+            showModal: function (hdChosing, isCheck = true) {// check nhom dudk at banle.js
                 let self = this;
                 self.saveOK = false;
                 self.isLoading = false;
@@ -519,17 +523,21 @@
                     cthd = [];
                 }
 
+                let ctThis = $.grep(cthd, function (x) {
+                    return x.IDRandomHD === hdChosing.IDRandom;
+                })
+
                 let arrIDNhom_Setup = $.map(self.listData.AllNhomHangs, function (x) {
                     return x.Id_NhomHang;
                 })
 
                 let arrNhom_Cache = [], arrIDNhom_Cache = [];
-                for (let i = 0; i < cthd.length; i++) {
-                    let itfor = cthd[i];
+                for (let i = 0; i < ctThis.length; i++) {
+                    let itfor = ctThis[i];
                     if (!arrIDNhom_Cache.includes(itfor.ID_NhomHangHoa)
                         && $.inArray(itfor.ID_NhomHangHoa, arrIDNhom_Setup) > -1) {// chi add neu exist in nhomhotro
                         arrIDNhom_Cache.push(itfor.ID_NhomHangHoa);
-                        let arrHH = cthd.filter(x => x.ID_NhomHangHoa === itfor.ID_NhomHangHoa);
+                        let arrHH = ctThis.filter(x => x.ID_NhomHangHoa === itfor.ID_NhomHangHoa);
 
                         let sum_truocVAT = 0;
                         for (let k = 0; k < arrHH.length; k++) {
@@ -544,43 +552,37 @@
                         })
                     }
                 }
-                console.log('arrNhom_Cache ', arrNhom_Cache)
 
                 let arrNhomUnion = [], arrIDNhom_Union = [], arrUnionAfter = [];
-                if (!commonStatisJs.CheckNull(self.InvoiceChosing.ID) && self.InvoiceChosing.ID !== const_GuidEmpty) {
-                    // update again hoadon (todo)
-                }
-                else {
-                    // sum gtri sudung in (cache + DB)
-                    arrNhomUnion = $.merge(arrNhom_Cache, self.listData.NhomHang_TongSuDung);
+                // sum gtri sudung in (cache + DB)
+                arrNhomUnion = $.merge(arrNhom_Cache, self.listData.NhomHang_TongSuDung);
 
-                    for (let i = 0; i < arrNhomUnion.length; i++) {
-                        let itfor = arrNhomUnion[i];
-                        if (!arrIDNhom_Union.includes(itfor.Id_NhomHang)) {// chi add neu exist in nhomhotro
-                            arrIDNhom_Union.push(itfor.Id_NhomHang);
-                            let arrHH = arrNhomUnion.filter(x => x.Id_NhomHang === itfor.Id_NhomHang);
+                for (let i = 0; i < arrNhomUnion.length; i++) {
+                    let itfor = arrNhomUnion[i];
+                    if (!arrIDNhom_Union.includes(itfor.Id_NhomHang)) {// chi add neu exist in nhomhotro
+                        arrIDNhom_Union.push(itfor.Id_NhomHang);
+                        let arrHH = arrNhomUnion.filter(x => x.Id_NhomHang === itfor.Id_NhomHang);
 
-                            let tongSD = 0;
-                            for (let k = 0; k < arrHH.length; k++) {
-                                let for2 = arrHH[k];
-                                tongSD += formatNumberToFloat(for2.TongGiaTriSuDung);
-                            }
-
-                            arrUnionAfter.push({
-                                Id_NhomHang: itfor.Id_NhomHang,
-                                TongGiaTriSuDung: tongSD,
-                            })
+                        let tongSD = 0;
+                        for (let k = 0; k < arrHH.length; k++) {
+                            let for2 = arrHH[k];
+                            tongSD += formatNumberToFloat(for2.TongGiaTriSuDung);
                         }
+
+                        arrUnionAfter.push({
+                            Id_NhomHang: itfor.Id_NhomHang,
+                            TongGiaTriSuDung: tongSD,
+                        })
                     }
                 }
-                console.log('arrUnionAfter', arrUnionAfter)
 
                 let arrIDNhom = [];
                 // get nhom thoa man dieu kien (gtritu - gtri den)
                 for (let i = 0; i < arrUnionAfter.length; i++) {
                     let itFor = arrUnionAfter[i];
                     let arr = $.grep(self.listData.AllNhomHangs, function (x) {
-                        return itFor.TongGiaTriSuDung >= x.GiaTriSuDungTu && itFor.TongGiaTriSuDung <= x.GiaTriSuDungDen;
+                        return itFor.Id_NhomHang == x.Id_NhomHang &&
+                            itFor.TongGiaTriSuDung >= x.GiaTriSuDungTu && itFor.TongGiaTriSuDung <= x.GiaTriSuDungDen;
                     });
                     if (arr.length > 0) {
                         for (let k = 0; k < arr.length; k++) {
@@ -646,7 +648,9 @@
                 self.NhomHang_GetListSanPhamHoTro();
                 self.Caculator_TongSLXuat(1);
 
-                $('#vmApDungNhomHoTro').modal('show');
+                if (!isCheck) {
+                    $('#vmApDungNhomHoTro').modal('show');
+                }
             },
             showModalUpdate: function (idHoaDon, cthd = []) {
                 let self = this;
