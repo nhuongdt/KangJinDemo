@@ -4813,9 +4813,9 @@
                     ID_NhanVien: VHeader.IdNhanVien,
                     ChucNang: 'Hủy phiếu điều chỉnh thẻ giá trị',
                     NoiDung: 'Hủy phiếu điều chỉnh thẻ giá trị '.concat(self.MaDieuChinh()),
-                    NoiDungChiTiet: 'Thông tin hủy:'.concat('<br /> Mã phiếu ', self.MaDieuChinh(),
+                    NoiDungChiTiet: 'Thông tin hủy:'.concat('<br /> Mã phiếu: ', self.MaDieuChinh(),
                         '<br /> Khách hàng: ', self.TenKhachHangNapThe(),
-                        '<br /> Giá trị điều chỉnh: ', self.GiaTriDieuChinh(),
+                        '<br /> Giá trị điều chỉnh: ', ormatNumber3Digit(self.GiaTriDieuChinh()),
                         '<br /> Ngày điều chỉnh: ', self.NgayDieuChinh(),
                         '<br /> User hủy phiếu: ', VHeader.UserLogin),
                 }
