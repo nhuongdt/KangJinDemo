@@ -672,14 +672,16 @@
     self.AllLoaiChungTu = ko.observableArray(
         [
             { ID: 1, TenChungTu: 'Hóa đơn bán lẻ' },
+            { ID: 2, TenChungTu: 'Hóa đơn bảo hành' },
+            { ID: 36, TenChungTu: 'Hóa đơn hỗ trợ' },
+            { ID: 39, TenChungTu: 'Xuất bảo hành' },
+            { ID: 37, TenChungTu: 'Xuất ngày thuốc' },
+            { ID: 40, TenChungTu: 'Xuất hỗ trợ chung' },
+            { ID: 35, TenChungTu: 'Xuất nguyên vật liệu' },
             { ID: 7, TenChungTu: 'Trả hàng nhà cung cấp' },
             { ID: 8, TenChungTu: 'Xuất kho' },
             { ID: 9, TenChungTu: 'Phiếu kiểm kê' },
             { ID: 10, TenChungTu: 'Chuyển hàng' },
-            { ID: 35, TenChungTu: 'Xuất nguyên vật liệu' },
-            //{ ID: 2, TenChungTu: 'Xuất sử dụng gói dịch vụ' },
-            //{ ID: 3, TenChungTu: 'Xuất bán dịch vụ định lượng' },
-            { ID: 12, TenChungTu: 'Xuất bảo hành' },
             { ID: 11, TenChungTu: 'Xuất sửa chữa' },
             { ID: 4, TenChungTu: 'Phiếu nhập kho' },
             { ID: 6, TenChungTu: 'Trả hàng' },
@@ -705,15 +707,11 @@
     };
     self.getListDM_LoaiChungTuXuatKho = function (item) {
         self.MangChungTu([]);
-        _idChungTuSeach = '1,2,3,7,8,9,10,12,35';// 12.xuat baohanh, 35.xuat NVL
+        _idChungTuSeach = '7,8,9,10,35,37,38,39,40';// 12.xuat baohanh, 35.xuat NVL
         let arr = $.grep(self.AllLoaiChungTu(), function (x) {
-            return $.inArray(x.ID, [1, 2, 3, 7, 8, 9, 10, 12, 35]) > -1;
+            return $.inArray(x.ID, [7, 8, 9, 10, 35, 37, 38, 39, 40]) > -1;
         })
         self.ChungTus(arr);
-        if (self.isGara()) {
-            _idChungTuSeach += ',11';
-            self.ChungTus.push({ ID: 11, TenChungTu: "Xuất sửa chữa" });// id= 11 --> tránh bị trùng với loại chứng từ khác
-        }
         self.searchChungTu(arr);
     };
     self.CloseChungTu = function (item) {
@@ -1450,22 +1448,43 @@
         $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên nhóm hàng, mã hóa đơn").blur();
         self.LoadReport();
     };
+
+    function XuatKho_AissgnLoaiChungTu(arrLoai) {
+        self.MangChungTu([]);
+        _idChungTuSeach = arrLoai.toString();
+        let arr = $.grep(self.AllLoaiChungTu(), function (x) {
+            return $.inArray(x.ID, arrLoai) > -1;
+        })
+        self.ChungTus(arr);
+        self.searchChungTu(arr);
+    }
+
     self.selectHangHoaXuatKho = function () {
         dk_tabxk = 1;
         self.LoaiBaoCao('hàng hóa');
         $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên nhóm hàng").blur();
+
+        XuatKho_AissgnLoaiChungTu([7, 8, 9, 10, 35, 37, 38, 39, 40]);
+
         self.LoadReport();
     };
     self.selectGiaoDichXuatKho = function () {
         dk_tabxk = 2;
         self.LoaiBaoCao('hàng hóa chi tiết');
         $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên nhóm hàng, mã hóa đơn").blur();
+
+        XuatKho_AissgnLoaiChungTu([7, 8, 9, 10, 35, 37, 38, 39, 40]);
+
         self.LoadReport();
     };
     self.selectXuatDichVuDinhLuong = function () {
         dk_tabxk = 3;
+
         self.LoaiBaoCao('Thành phần định lượng');
         $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên nhóm hàng, mã DV, mã HĐ, trạng thái").blur();
+
+        XuatKho_AissgnLoaiChungTu([1, 2, 36]);
+
         self.LoadReport();
     };
     $('.Select_TableCH input').on('click', function () {
@@ -2474,6 +2493,7 @@
         let url = '';
         switch (item.LoaiHoaDon) {
             case 1:
+            case 36:
                 url = "/#/Invoices";
                 break;
             case 2:
