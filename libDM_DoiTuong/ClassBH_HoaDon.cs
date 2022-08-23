@@ -656,9 +656,11 @@ namespace libDM_DoiTuong
             }
             else
             {
+                int[] arrLoaiHD = new int[] { 35, 37, 38, 39, 40 };
                 var data = (from hd in db.BH_HoaDon
                             join nv in db.NS_NhanVien on hd.ID_NhanVien equals nv.ID
                             where idChiNhanh.Contains(hd.ID_DonVi.ToString()) && hd.ID_DoiTuong == idDoiTuong
+                            && !arrLoaiHD.Contains(hd.LoaiHoaDon)
                             select new KhachHang_TabHoaDon
                             {
                                 ID = hd.ID,
@@ -808,7 +810,7 @@ namespace libDM_DoiTuong
                         case 1: // HD
                             dto.strLoaiHoaDon = "Bán hàng";
                             break;
-                        case 2: 
+                        case 2:
                             dto.strLoaiHoaDon = "Hóa đơn bảo hành";
                             break;
                         case 3: // HD
@@ -816,11 +818,11 @@ namespace libDM_DoiTuong
                             break;
                         case 4: // Nhap hang
                             dto.strLoaiHoaDon = "Nhập hàng";
-                            break;  
-                        case 13: 
+                            break;
+                        case 13:
                             dto.strLoaiHoaDon = "Nhập kho nội bộ";
-                            break;  
-                        case 14: 
+                            break;
+                        case 14:
                             dto.strLoaiHoaDon = "Nhập hàng khách thừa";
                             break;
                         case 11: // PhieuThu
@@ -854,6 +856,9 @@ namespace libDM_DoiTuong
                             break;
                         case 32: // HD datcoc
                             dto.strLoaiHoaDon = "Trả lại số dư cọc";
+                            break;  
+                        case 36: // HD datcoc
+                            dto.strLoaiHoaDon = "Hóa đơn hỗ trợ";
                             break;
                     }
                     lstReturn.Add(dto);
@@ -6138,7 +6143,7 @@ namespace libDM_DoiTuong
         public double? ConNo { get; set; }
         public string DienGiai { get; set; }
         public string TrangThai { get; set; }
-    } 
+    }
     public class GoiDichVuExcel
     {
         public string MaHoaDon { get; set; }
