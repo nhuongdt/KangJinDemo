@@ -98,15 +98,11 @@ namespace libDM_DoiTuong
 
         public void CreatePhieuXuatKho_NguyenVatLieu(Guid idHoaDon)
         {
-            SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
-            db.Database.ExecuteSqlCommand("EXEC dbo.CreateXuatKho_NguyenVatLieu @ID_HoaDon", sql);
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("ID_HoaDon", idHoaDon));
+            lstParam.Add(new SqlParameter("TrangThai", true));// default: chothanhtoan = true (~phieutam)
+            db.Database.ExecuteSqlCommand("EXEC dbo.CreateXuatKho_NguyenVatLieu @ID_HoaDon, @TrangThai", lstParam.ToArray());
         }
-        public void CreatePhieuXuat_SanPhamNgayThuoc(Guid idHoaDon)
-        {
-            SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
-            db.Database.ExecuteSqlCommand("EXEC dbo.CreatePhieuXuat_SanPhamNgayThuoc @ID_HoaDon", sql);
-        }
-
         public List<HD_CTHDHoTroDTO> GetInfor_HDHoTro(Guid idHoaDon)
         {
             SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
