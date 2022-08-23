@@ -45,12 +45,12 @@
     self.ChungTus = ko.observableArray();
     self.searchChungTu = ko.observableArray();
 
-    var _idChungTuSeach = '1,2,6';
+    var _idChungTuSeach = '1,2,6,36';
 
     switch (VHeader.IdNganhNgheKinhDoanh.toUpperCase()) {
         case 'AC9DF2ED-FF08-488F-9A64-08433E541020':
             self.LoaiNganhNghe(0);//spa + banle
-            getListDM_LoaiChungTuBanHang('1,2,6');
+            getListDM_LoaiChungTuBanHang('1,2,6,36');
             break;
         case 'C16EDDA0-F6D0-43E1-A469-844FAB143014':
             self.LoaiNganhNghe(1);//gara
@@ -1166,6 +1166,7 @@
                 if (self.BCBH_ChiTiet() == "BCBH_ChiTiet") {
                     $(".PhanQuyen").hide();
                     ajaxHelper(ReportUri + "BaoCaoBanHang_ChiTiet", "POST", array_Seach).done(function (data) {
+                        console.log(data.LstData)
                         self.BaoCaoBanHang_ChiTiet(data.LstData);
                         if (self.BaoCaoBanHang_ChiTiet().length != 0) {
                             $('.TC_ChiTiet').show();
@@ -2046,6 +2047,7 @@
             localStorage.setItem('FindHD', maHD);
             switch (loaiHD) {
                 case 1:
+                case 36:
                     url = "/#/Invoices";
                     break;
                 case 2:
