@@ -105,12 +105,13 @@ namespace libDM_DoiTuong
         {
             SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
             db.Database.ExecuteSqlCommand("EXEC dbo.CreatePhieuXuat_SanPhamNgayThuoc @ID_HoaDon", sql);
-        } 
-        //public void PhieuXuatKho_XacNhanXuat(Guid idHoaDon)
-        //{
-        //    SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
-        //    db.Database.ExecuteSqlCommand("EXEC dbo.PhieuXuatKho_XacNhanXuat @ID_HoaDon", sql);
-        //}
+        }
+
+        public List<HD_CTHDHoTroDTO> GetInfor_HDHoTro(Guid idHoaDon)
+        {
+            SqlParameter sql = new SqlParameter("ID_HoaDon", idHoaDon);
+            return db.Database.SqlQuery<HD_CTHDHoTroDTO>("EXEC dbo.GetInfor_HDHoTro @ID_HoaDon", sql).ToList();
+        }
         public void CreatePhieuXuat_FromHoaDon(Guid idHoaDon, int loaiHoaDon, bool isXuatNgayThuoc = false)
         {
             try
