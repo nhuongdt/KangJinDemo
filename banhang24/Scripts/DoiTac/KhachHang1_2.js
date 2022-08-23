@@ -4973,7 +4973,6 @@
             dayStart: self.NKyTheFrom(),
             dayEnd: self.NKyTheTo(),
         };
-        console.log('SearchNhatKySDThe', model);
         ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListNhatKySDThe', 'POST', model).done(function (obj) {
             if (obj.res) {
                 self.ListNhatKyThe(obj.lst);
@@ -4982,7 +4981,6 @@
                 self.TongTienTang(obj.TongTienTang);
                 self.TongTienGiam(obj.TongTienGiam);
             }
-            console.log(obj);
         });
     };
     self.PageResultsNKThe = ko.computed(function () {
@@ -5148,7 +5146,6 @@
             dayEnd: self.NKyTheTo(),
             arrChiNhanh: arrDV,
         };
-        console.log('SearchLichSuNapTien', model);
         ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetHisChargeValueCard', 'POST', model).done(function (x) {
             if (x.res == true) {
                 self.ListLSNapThe(x.lst);
