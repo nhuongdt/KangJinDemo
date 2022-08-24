@@ -188,7 +188,11 @@
                                             <th>Mã hàng hóa</th>
                                             <th>Tên hàng hóa</th>
                                             <th>Số lượng</th>
-                                            <th class="td-stt">#</th>
+                                            <th class="td-stt" v-on:click="PublicProducts_RemoveAll">
+                                                <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
+                                                    <i class="fal fa-times"></i>
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -259,7 +263,11 @@
                                             <th>Mã hàng hóa</th>
                                             <th>Tên hàng hóa</th>
                                             <th>Số lượng</th>
-                                            <th class="td-stt">#</th>
+                                            <th class="td-stt" v-on:click="DayProducts_RemoveAll">
+                                                <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
+                                                    <i class="fal fa-times"></i>
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -487,6 +495,7 @@
                             }
                             itFor.GiaTriSuDungTu = formatNumber3Digit(itFor.GiaTriSuDungTu);
                             itFor.GiaTriSuDungDen = formatNumber3Digit(itFor.GiaTriSuDungDen);
+                            itFor.GiaTriHoTro = formatNumber3Digit(itFor.GiaTriHoTro);
                             lstAD.push(itFor);
                         }
 
@@ -528,7 +537,7 @@
                     MaHangHoa: item.MaHangHoa,
                     TenHangHoa: item.TenHangHoa,
                     TenDonViTinh: item.TenDonViTinh,
-                    SoLuong: 1
+                    SoLuong: 0
                 };
                 self.PublicProducts.unshift(obj);
             },
@@ -540,7 +549,7 @@
                     MaHangHoa: item.MaHangHoa,
                     TenHangHoa: item.TenHangHoa,
                     TenDonViTinh: item.TenDonViTinh,
-                    SoLuong: 1
+                    SoLuong: 0
                 };
                 self.DayProducts.unshift(obj);
             },
@@ -551,7 +560,7 @@
             showModalNhomHang: function (type) {
                 let self = this;
                 self.typeProduct = type;
-                vmApplyGroupProduct.showModal();
+                vmApplyGroupProduct.showModal(0, 0, null);
             },
             PublicProducts_Remove: function (index) {
                 let self = this;
@@ -561,6 +570,14 @@
                         break;
                     }
                 }
+            },
+            PublicProducts_RemoveAll: function () {
+                let self = this;
+                self.PublicProducts = [];
+            },
+            DayProducts_RemoveAll: function () {
+                let self = this;
+                self.DayProducts = [];
             },
             DayProducts_Remove: function (index) {
                 let self = this;
@@ -576,8 +593,6 @@
                 let $this = $(event.currentTarget);
                 let $tr = $this.closest('tr').next();
                 $tr.find('td').eq(3).find('input').focus().select();
-                console.log('Enter_FocusNext')
-
             },
             ApplyGroup: function () {
                 let self = this;
@@ -594,14 +609,14 @@
                             case 1:
                                 for (let i = 0; i < data.length; i++) {
                                     let itFor = data[i];
-                                    //itFor.Id_DonViQuiDoi = itFor.ID_DonViQuiDoi;
+                                    itFor.SoLuong = 0;
                                     self.PublicProducts.unshift(itFor);
                                 }
                                 break;
                             case 2:
                                 for (let i = 0; i < data.length; i++) {
                                     let itFor = data[i];
-                                    //itFor.Id_DonViQuiDoi = itFor.ID_DonViQuiDoi;
+                                    itFor.SoLuong = 0;
                                     self.DayProducts.unshift(itFor);
                                 }
                                 break;
@@ -697,7 +712,7 @@
                     let from = formatNumberToFloat(itFor.GiaTriSuDungTu);
                     let to = formatNumberToFloat(itFor.GiaTriSuDungDen);
                     let gtriHoTro = formatNumberToFloat(itFor.GiaTriHoTro);
-                    if (from === 0 || to === 0) {
+                    if (to === 0) {
                         ShowMessage_Danger("Vui lòng nhập khoảng giá trị");
                         return false;
                     }
@@ -725,21 +740,21 @@
                     return false;
                 }
 
-                let arrNumber0 = $.grep(self.PublicProducts, function (x) {
-                    return formatNumberToFloat(x.SoLuong) == 0;
-                })
-                if (arrNumber0.length > 0) {
-                    ShowMessage_Danger('Sản phẩm chung: Chưa nhập đủ thông tin cột Số lượng');
-                    return false;
-                }
+                //let arrNumber0 = $.grep(self.PublicProducts, function (x) {
+                //    return formatNumberToFloat(x.SoLuong) == 0;
+                //})
+                //if (arrNumber0.length > 0) {
+                //    ShowMessage_Danger('Sản phẩm chung: Chưa nhập đủ thông tin cột Số lượng');
+                //    return false;
+                //}
 
-                arrNumber0 = $.grep(self.DayProducts, function (x) {
-                    return formatNumberToFloat(x.SoLuong) == 0;
-                })
-                if (arrNumber0.length > 0) {
-                    ShowMessage_Danger('Sản phẩm ngày thuốc: Chưa nhập đủ thông tin cột Số lượng');
-                    return false;
-                }
+                //arrNumber0 = $.grep(self.DayProducts, function (x) {
+                //    return formatNumberToFloat(x.SoLuong) == 0;
+                //})
+                //if (arrNumber0.length > 0) {
+                //    ShowMessage_Danger('Sản phẩm ngày thuốc: Chưa nhập đủ thông tin cột Số lượng');
+                //    return false;
+                //}
                 return true;
             },
             ChiTietApDung_AssignNhomHang: function (idNhom) {
@@ -774,6 +789,7 @@
 
                 for (let i = 0; i < self.KhoangApDung.length; i++) {
                     let itFor = self.KhoangApDung[i];
+                    itFor.GiaTriSuDungTu = formatNumberToFloat(itFor.GiaTriSuDungTu);
                     itFor.Id_NhomHang = idNhom;
                     if (itFor.KieuHoTro) {
                         itFor.KieuHoTro = 1;
@@ -918,7 +934,7 @@
                     if (self.nhomOld.ThietLapNangCao) {
                         if (self.spHoTroOld.length > 0) {
 
-                            let sChung = '',sNgay = '';
+                            let sChung = '', sNgay = '';
                             let arrChung = $.grep(self.spHoTroOld, function (x) {
                                 return x.LaSanPhamNgayThuoc === 0;
                             })
