@@ -6980,7 +6980,6 @@ var NewModel_BanHangLe = function () {
         else {
             ResetInfor_KhachHang();
         }
-        vmApDungNhomHoTro.GetTongGiaTriSuDung_ofKhachHang(id,null, true);
     }
 
     function GetAll_IDNhomChild_ofNhomHH(idNhom) {
@@ -11463,7 +11462,6 @@ var NewModel_BanHangLe = function () {
             $('input, select').removeAttr('disabled');
         }
         Enable_DisableNgayLapHD();
-        hideShowNhomHoTro();
     }
     shortcut.add("F1", function () {
         var tabSoDo = $('#tabSoDo')
@@ -17137,14 +17135,15 @@ var NewModel_BanHangLe = function () {
         return errNgungKinhDoanh;
     }
 
-    function hideShowNhomHoTro(isCheck = true) {
+    // Khuyen Mai HoaDon
+    self.GetListKM_HoaDon = function () {
         let ctDoiTuong = self.ChiTietDoiTuong();
-        let cusCode = '', cusName = '';
-        if (!commonStatisJs.CheckNull(ctDoiTuong) && ctDoiTuong.length > 0) {
-            cusCode = ctDoiTuong[0].MaDoiTuong;
-            cusName = ctDoiTuong[0].TenDoiTuong;
+        if (commonStatisJs.CheckNull(ctDoiTuong) || ctDoiTuong.length === 0) {
+            ShowMessage_Danger('Vui lòng chọn khách hàng');
+            return;
         }
-
+        let cusCode = ctDoiTuong[0].MaDoiTuong;
+        let cusName = ctDoiTuong[0].TenDoiTuong;
         let objHD = {
             IDRandom: self.HoaDons().IDRandom(),
             LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
@@ -17154,18 +17153,7 @@ var NewModel_BanHangLe = function () {
             MaDoiTuong: cusCode,
             TenDoiTuong: cusName,
         }
-        vmApDungNhomHoTro.showModal(objHD, isCheck);
-
-        self.showNhomHoTro(vmApDungNhomHoTro.NhomHangEnoughCondition.length > 0);
-    }
-
-    // Khuyen Mai HoaDon
-    self.GetListKM_HoaDon = function () {
-        if (self.ChiTietDoiTuong().length === 0) {
-            ShowMessage_Danger('Vui lòng chọn khách hàng');
-            return;
-        }
-        hideShowNhomHoTro(false);
+        vmApDungNhomHoTro.showModal(objHD);
         return;
         if (_maHoaDon === '') {
             _maHoaDon = $('.bill-bxslide  li.using font').text();
@@ -17199,7 +17187,6 @@ var NewModel_BanHangLe = function () {
         var thangsinh = 0;
         var tuansinh = 0;
         var arrNhomKH = [];
-        var ctDoiTuong = self.ChiTietDoiTuong();
         // if chose KH --> get idNhomKH + ngaysinh
         if (ctDoiTuong !== null && ctDoiTuong.length > 0) {
             idNhomKH = ctDoiTuong[0].ID_NhomDoiTuong.toLowerCase();
