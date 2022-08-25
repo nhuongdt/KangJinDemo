@@ -4124,7 +4124,7 @@ var NewModel_BanHangLe = function () {
         objPrint.TenPhongBan = objHD.TenViTriHD;
         objPrint.TongGiamGia = formatNumber3Digit(objHD.TongGiamGia);
         objPrint.TongGiamGiaHangTra = formatNumber3Digit(objHD.TongGiamGiaDB);
-        objPrint.TienBangChu = DocSo(tongcong);
+        objPrint.TienBangChu = DocSo(objHD.PhaiThanhToan);
 
         objPrint.TongKhach_BHThanhToan = formatNumber3Digit(khach_tt + bh_tt);
         objPrint.PhaiThanhToan = formatNumber3Digit(objHD.PhaiThanhToan);
@@ -4142,7 +4142,7 @@ var NewModel_BanHangLe = function () {
         objPrint.BH_ConThieu = formatNumber3Digit(bh_thieu);
         objPrint.HD_TienThua = formatNumber3Digit(hd_thieu);
         objPrint.HD_ConThieu = formatNumber3Digit(hd_thua);
-        objPrint.KH_TienBangChu = DocSo(daThanhToan);
+        objPrint.KH_TienBangChu = DocSo(objHD.PhaiThanhToan);
 
         objPrint.TongTienHangChuaCK = formatNumber3Digit(objHD.TongTienHangChuaCK);
         objPrint.TongGiamGiaHang = formatNumber3Digit(objHD.TongGiamGiaHang);
@@ -4152,7 +4152,7 @@ var NewModel_BanHangLe = function () {
         objPrint.GiamTruBoiThuong = formatNumber3Digit(objHD.GiamTruBoiThuong);
         objPrint.BHThanhToanTruocThue = formatNumber3Digit(objHD.BHThanhToanTruocThue);
         objPrint.TongTienThueBaoHiem = formatNumber3Digit(objHD.TongTienThueBaoHiem);
-        objPrint.BH_TienBangChu = DocSo(bh_tt);
+        objPrint.BH_TienBangChu = DocSo(objHD.PhaiThanhToanBaoHiem);
 
         // nhanvienthuchien
         let nvHoaDon = '';
