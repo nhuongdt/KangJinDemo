@@ -53,14 +53,19 @@
                 <h4 class="modal-title">{{typeUpdate == 0?'Hóa đơn hỗ trợ':'Áp dụng hỗ trợ'}}</h4>
             </div>
             <div class="modal-body">
-                <div v-if="typeUpdate == 0">
+                <div v-if="typeUpdate == 2">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                            <label class="span-group">Thông tin hóa đơn</label>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
                             <div class="col-sm-5 col-md-4 col-lg-4 col-xs-12">
                                 <label>Mã hóa đơn:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                XHT0001
+                                {{InvoiceChosing.MaHoaDon}}
                             </div>
                         </div>
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
@@ -68,17 +73,17 @@
                                 <label>Khách hàng:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                KH0001
+                                {{InvoiceChosing.TenDoiTuong}} ({{InvoiceChosing.MaDoiTuong}})
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="border-bottom:1px solid #ccc">
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
                             <div class="col-sm-5 col-md-4 col-lg-4 col-xs-12">
                                 <label>Ngày lập:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                XHT0001
+                                {{moment(InvoiceChosing.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
                             </div>
                         </div>
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
@@ -86,7 +91,7 @@
                                 <label>Người tạo:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                KH0001
+                                {{InvoiceChosing.NguoiTao}}
                             </div>
                         </div>
                     </div>
@@ -360,7 +365,7 @@
                     UserLogin: VHeader.UserLogin,
                 };
             }
-            console.log('apdung')
+            console.log('vmApDungNhomHoTro')
             self.GetListNhomHang_SetupHotro();
         },
         data: {
@@ -399,6 +404,19 @@
                 TenNhomHangHoa: '',
                 MaDoiTuong: '',
                 TenDoiTuong: '',
+            },
+
+            InvoiceChosing: {
+                ID: null,
+                IDRandom: null,
+                ID_DonVi: null,
+                ID_DoiTuong: null,
+                SoNgayThuoc: '',
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                MaHoaDon: '',
+                NgayLapHoaDon: '',
+                NguoiTao: '',
             }
         },
         methods: {
@@ -635,8 +653,12 @@
                             ID_DonVi: hd.ID_DonVi,
                             ID_DoiTuong: hd.ID_DoiTuong,
                             SoNgayThuoc: hd.SoNgayThuoc,
+
+                            MaHoaDon: hd.MaHoaDon,
                             MaDoiTuong: hd.MaDoiTuong,
                             TenDoiTuong: hd.TenDoiTuong,
+                            NgayLapHoaDon: hd.NgayLapHoaDon,
+                            NguoiTao: hd.NguoiTao,
                         }
 
                         self.NhomHangApply = {
@@ -670,7 +692,6 @@
                             }
                         }
 
-                        console.log(33, x.dataSoure)
                         let spChung = $.grep(x.dataSoure, function (x) {
                             return x.ChatLieu == '';
                         });
@@ -1380,10 +1401,10 @@
 
                 self.isLoading = true;
                 ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
-                    console.log(x)
                     if (x.res) {
-
-                        ShowMessage_Success(sType + ' hóa đơn hỗ trợ thành công');
+                        if (self.typeUpdate === 2 || hdHoTro.length > 0) {
+                            ShowMessage_Success(sType + ' hóa đơn hỗ trợ thành công');
+                        }
 
                         let data = x.data;
                         let diary = {
