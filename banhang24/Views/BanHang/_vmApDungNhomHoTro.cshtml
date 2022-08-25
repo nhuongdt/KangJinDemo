@@ -119,7 +119,9 @@
                                             {{item.TenNhomHangHoa}}
                                         </td>
                                         <td class="text-center">
-                                            <input type="checkbox" value="true" v-model="item.IsXuatNgayThuoc" v-on:change="ChangeCheck_XuatNgayThuoc(index)" />
+                                            <input type="checkbox" value="true" v-model="item.IsXuatNgayThuoc"
+                                                   v-bind:disabled="!item.IsApply"
+                                                   v-on:change="ChangeCheck_XuatNgayThuoc(index)" />
                                         </td>
                                         <td>
                                             <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
@@ -165,7 +167,11 @@
                                     <tr>
                                         <th>Tên dịch vụ</th>
                                         <th class="number">Số lượng</th>
-                                        <th class="td-action">#</th>
+                                        <th class="td-action">
+                                            <span class="span-i red" style="cursor:pointer" title="Xóa tất cả" v-on:click="PublicProducts_RemoveAll">
+                                                <i class="fal fa-times"></i>
+                                            </span>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -248,7 +254,11 @@
                                             <th>Tên hàng hóa</th>
                                             <th class="number">Số lượng/ngày</th>
                                             <th class="number">Tổng xuất</th>
-                                            <th class="td-stt">#</th>
+                                            <th class="td-stt">
+                                                <span class="span-i red" style="cursor:pointer" title="Xóa tất cả" v-on:click="DayProducts_RemoveAll">
+                                                    <i class="fal fa-times"></i>
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -381,7 +391,7 @@
             newHDHoaTro: {
                 IDRandomHD: '',
                 ID_NhomHang: null,
-                SoNgayThuoc: 0,
+                SoNgayThuoc: '',
                 IsXuatNgayThuoc: false,
                 SPChung: [],
                 SPNgayThuoc: [],
@@ -404,32 +414,9 @@
                     }
                 })
             },
-            GetTongGiaTriSuDung_ofKhachHang: function (idCus, toDate = null, isCheck = false) {// call when change cus at banle
+            GetTongGiaTriSuDung_ofKhachHang: function (idCus, toDate = null) {// call when change cus at banle
                 let self = this;
-                if (!commonStatisJs.CheckNull(idCus) && idCus.indexOf('00000') === -1) {
-                    if (commonStatisJs.CheckNull(toDate)) {
-                        toDate = moment(new Date()).add(2, 'seconds').format('YYYY-MM-DD HH:mm')
-                    }
-                    let param = {
-                        IDCustomers: [idCus],
-                        IDChiNhanhs: [self.inforLogin.ID_DonVi],
-                        DateTo: toDate,
-                    }
-                    ajaxHelper(self.UrlAPI.NhomHang + 'GetTongGiaTriSuDung_ofKhachHang', 'POST', param).done(function (x) {
-                        console.log('GetTongGiaTriSuDung_ofKhachHang', x)
-                        if (x.res) {
-                            self.listData.NhomHang_TongSuDung = x.dataSoure;
-                        }
-
-                        if (isCheck) {
-                            self.showModal(self.InvoiceChosing, true);
-                            newModelBanLe.showNhomHoTro(self.NhomHangEnoughCondition.length > 0)
-                        }
-                    })
-                }
-                else {
-                    self.listData.NhomHang_TongSuDung = [];
-                }
+                self.listData.NhomHang_TongSuDung = [];
             },
             NhomHang_GetListSanPhamHoTro: function () {
                 let self = this;
@@ -458,20 +445,51 @@
                 let $this = $(event.currentTarget);
                 let isCheck = $this.is(':checked');
 
-                if (isCheck) {
+                // change nhom
+                if (item.Id_NhomHang !== self.NhomHangApply.Id_NhomHang) {
+                    self.NhomHangApply.IsXuatNgayThuoc = false;
+                    self.NhomHangApply.SoNgayThuoc = '';
                     self.NhomHangApply.TenNhomHangHoa = item.TenNhomHangHoa;
                     self.NhomHangApply.Id_NhomHang = item.Id_NhomHang;
-                }
 
-                for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
-                    if (i === index) {
-                        self.NhomHangEnoughCondition[i].IsApply = isCheck;
+                    // reset product
+                    self.PublicProducts = [];
+                    self.DayProducts = [];
+
+                    // reset cache
+                    let hdHoTro = localStorage.getItem('hdHoTro');
+                    if (hdHoTro != null) {
+                        hdHoTro = JSON.parse(hdHoTro);
                     }
                     else {
-                        self.NhomHangEnoughCondition[i].IsApply = false;
+                        hdHoTro = [];
                     }
+
+                    for (let i = 0; i < hdHoTro.length; i++) {
+                        if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
+                            hdHoTro[i].SPChung = [];
+                            hdHoTro[i].SPNgayThuoc = [];
+                            hdHoTro[i].IsXuatNgayThuoc = false;
+                            hdHoTro[i].SoNgayThuoc = '';
+                            hdHoTro[i].ID_NhomHang = item.Id_NhomHang;
+                            hdHoTro[i].TenNhomHangHoa = item.TenNhomHangHoa;
+                            break;
+                        }
+                    }
+                    localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
+
+                    for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
+                        if (i === index) {
+                            self.NhomHangEnoughCondition[i].IsApply = isCheck;
+                        }
+                        else {
+                            self.NhomHangEnoughCondition[i].IsApply = false;
+                            self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = false;
+                            self.NhomHangEnoughCondition[i].SoNgayThuoc = '';
+                        }
+                    }
+                    self.NhomHang_GetListSanPhamHoTro();
                 }
-                self.NhomHang_GetListSanPhamHoTro();
             },
             ChangeCheck_XuatNgayThuoc: function (index) {
                 let self = this;
@@ -479,17 +497,50 @@
                 let isCheck = $this.is(':checked');
                 if (!isCheck) {
                     self.DayProducts = [];
+                    self.NhomHangApply.SoNgayThuoc = '';
                 }
                 self.NhomHangApply.IsXuatNgayThuoc = isCheck;
 
                 for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
                     if (i === index) {
                         self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = isCheck;
+                        self.NhomHangEnoughCondition[i].SoNgayThuoc = '';
                         break;
                     }
                 }
             },
-            showModal: function (hdChosing, isCheck = true) {// check nhom dudk at banle.js
+            NhomHangEnoughCondition_getAll: function () {
+                // get all nhom (khong can check dieu kien)
+                let self = this;
+                let arrIDNhom = [];
+                for (let i = 0; i < self.listData.AllNhomHangs.length; i++) {
+                    let forIn = self.listData.AllNhomHangs[i];
+                    if ($.inArray(forIn.Id_NhomHang, arrIDNhom) === -1) {
+                        arrIDNhom.push(forIn.Id_NhomHang);
+                        let obj = {
+                            Id_NhomHang: forIn.Id_NhomHang,
+                            TenNhomHangHoa: forIn.TenNhomHangHoa,
+                            SoNgayThuoc: '',
+                            IsXuatNgayThuoc: false,
+                            IsApply: false,
+                        }
+                        self.NhomHangEnoughCondition.push(obj);
+                    }
+                }
+
+                let nhomApply = self.NhomHangApply;
+                if (!commonStatisJs.CheckNull(nhomApply.Id_NhomHang)) {
+                    for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
+                        if (self.NhomHangEnoughCondition[i].Id_NhomHang === nhomApply.Id_NhomHang) {
+                            self.NhomHangEnoughCondition[i].IsApply = true;
+                            self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = nhomApply.IsXuatNgayThuoc;
+                            self.NhomHangEnoughCondition[i].SoNgayThuoc = nhomApply.SoNgayThuoc;
+                            break;
+                        }
+                    }
+                }
+            },
+            showModal: function (hdChosing) {// check nhom dudk at banle.js
                 let self = this;
                 self.saveOK = false;
                 self.isLoading = false;
@@ -505,6 +556,7 @@
                     NhomHoTro: {},
                     SanPham: [],
                 };
+                self.NhomHangEnoughCondition_getAll();
 
                 let hdHoTro = localStorage.getItem('hdHoTro');
                 if (hdHoTro != null) {
@@ -512,94 +564,6 @@
                 }
                 else {
                     hdHoTro = [];
-                }
-
-                // find cache cthd && group by nhomhang
-                let cthd = localStorage.getItem('lstCTHDLe');
-                if (cthd != null) {
-                    cthd = JSON.parse(cthd);
-                }
-                else {
-                    cthd = [];
-                }
-
-                let ctThis = $.grep(cthd, function (x) {
-                    return x.IDRandomHD === hdChosing.IDRandom;
-                })
-
-                let arrIDNhom_Setup = $.map(self.listData.AllNhomHangs, function (x) {
-                    return x.Id_NhomHang;
-                })
-
-                let arrNhom_Cache = [], arrIDNhom_Cache = [];
-                for (let i = 0; i < ctThis.length; i++) {
-                    let itfor = ctThis[i];
-                    if (!arrIDNhom_Cache.includes(itfor.ID_NhomHangHoa)
-                        && $.inArray(itfor.ID_NhomHangHoa, arrIDNhom_Setup) > -1) {// chi add neu exist in nhomhotro
-                        arrIDNhom_Cache.push(itfor.ID_NhomHangHoa);
-                        let arrHH = ctThis.filter(x => x.ID_NhomHangHoa === itfor.ID_NhomHangHoa);
-
-                        let sum_truocVAT = 0;
-                        for (let k = 0; k < arrHH.length; k++) {
-                            let for2 = arrHH[k];
-                            sum_truocVAT += formatNumberToFloat(for2.SoLuong) *
-                                (formatNumberToFloat(for2.DonGia) - formatNumberToFloat(for2.TienChietKhau));
-                        }
-
-                        arrNhom_Cache.push({
-                            Id_NhomHang: itfor.ID_NhomHangHoa,
-                            TongGiaTriSuDung: sum_truocVAT,
-                        })
-                    }
-                }
-
-                let arrNhomUnion = [], arrIDNhom_Union = [], arrUnionAfter = [];
-                // sum gtri sudung in (cache + DB)
-                arrNhomUnion = $.merge(arrNhom_Cache, self.listData.NhomHang_TongSuDung);
-
-                for (let i = 0; i < arrNhomUnion.length; i++) {
-                    let itfor = arrNhomUnion[i];
-                    if (!arrIDNhom_Union.includes(itfor.Id_NhomHang)) {// chi add neu exist in nhomhotro
-                        arrIDNhom_Union.push(itfor.Id_NhomHang);
-                        let arrHH = arrNhomUnion.filter(x => x.Id_NhomHang === itfor.Id_NhomHang);
-
-                        let tongSD = 0;
-                        for (let k = 0; k < arrHH.length; k++) {
-                            let for2 = arrHH[k];
-                            tongSD += formatNumberToFloat(for2.TongGiaTriSuDung);
-                        }
-
-                        arrUnionAfter.push({
-                            Id_NhomHang: itfor.Id_NhomHang,
-                            TongGiaTriSuDung: tongSD,
-                        })
-                    }
-                }
-
-                let arrIDNhom = [];
-                // get nhom thoa man dieu kien (gtritu - gtri den)
-                for (let i = 0; i < arrUnionAfter.length; i++) {
-                    let itFor = arrUnionAfter[i];
-                    let arr = $.grep(self.listData.AllNhomHangs, function (x) {
-                        return itFor.Id_NhomHang == x.Id_NhomHang &&
-                            itFor.TongGiaTriSuDung >= x.GiaTriSuDungTu && itFor.TongGiaTriSuDung <= x.GiaTriSuDungDen;
-                    });
-                    if (arr.length > 0) {
-                        for (let k = 0; k < arr.length; k++) {
-                            let forIn = arr[k];
-                            if ($.inArray(forIn.Id_NhomHang, arrIDNhom) === -1) {
-                                arrIDNhom.push(forIn.Id_NhomHang);
-                                let obj = {
-                                    Id_NhomHang: forIn.Id_NhomHang,
-                                    TenNhomHangHoa: forIn.TenNhomHangHoa,
-                                    SoNgayThuoc: '',
-                                    IsXuatNgayThuoc: false,
-                                    IsApply: false,
-                                }
-                                self.NhomHangEnoughCondition.push(obj);
-                            }
-                        }
-                    }
                 }
 
                 let exist = false;
@@ -624,10 +588,10 @@
 
                 if (self.NhomHangEnoughCondition.length > 0) {
                     if (!exist) {
-                        self.NhomHangEnoughCondition[0].IsApply = true;
+                        self.NhomHangEnoughCondition[0].IsApply = false;
                         self.NhomHangEnoughCondition[0].IsXuatNgayThuoc = false;
-                        self.NhomHangApply.Id_NhomHang = self.NhomHangEnoughCondition[0].Id_NhomHang;
-                        self.NhomHangApply.TenNhomHangHoa = self.NhomHangEnoughCondition[0].TenNhomHangHoa;
+                        self.NhomHangApply.Id_NhomHang = null;
+                        self.NhomHangApply.TenNhomHangHoa = '';
                     }
                     else {
                         self.NhomHangApply.Id_NhomHang = self.newHDHoaTro.ID_NhomHang;
@@ -648,9 +612,7 @@
                 self.NhomHang_GetListSanPhamHoTro();
                 self.Caculator_TongSLXuat(1);
 
-                if (!isCheck) {
-                    $('#vmApDungNhomHoTro').modal('show');
-                }
+                $('#vmApDungNhomHoTro').modal('show');
             },
             showModalUpdate: function (idHoaDon, cthd = []) {
                 let self = this;
@@ -693,12 +655,22 @@
                                     forIn.BH_NhanVienThucHien = forOut.BH_NhanVienThucHien;
                                     forIn.ThanhPhan_DinhLuong = [];
                                     if (!commonStatisJs.CheckNull(forOut.ThanhPhan_DinhLuong)) {
+                                        // assign soluongmacdinh+ soluong quycach
+                                        for (let k = 0; k < forOut.ThanhPhan_DinhLuong.length; k++) {
+                                            let tp = forOut.ThanhPhan_DinhLuong[k];
+                                            forOut.ThanhPhan_DinhLuong[k].isDefault = false;
+                                            forOut.ThanhPhan_DinhLuong[k].SoLuongMacDinh = 1 / forIn.SoLuong;
+                                            forOut.ThanhPhan_DinhLuong[k].SoLuongQuyCach = tp.QuyCach * tp.SoLuong;
+                                            forOut.ThanhPhan_DinhLuong[k].GiaVonAfter = tp.GiaVon * forIn.SoLuong;
+                                        }
                                         forIn.ThanhPhan_DinhLuong = forOut.ThanhPhan_DinhLuong;
                                     }
                                     break;
                                 }
                             }
                         }
+
+                        console.log(33, x.dataSoure)
                         let spChung = $.grep(x.dataSoure, function (x) {
                             return x.ChatLieu == '';
                         });
@@ -719,35 +691,7 @@
                             SanPham: $.extend([], true, x.dataSoure),
                         };
 
-                        self.showUpdate_AssignDataToCache();
-
-                        self.NhomHangEnoughCondition = $.extend([], true, [self.NhomHangApply]);
-                        self.NhomHangEnoughCondition[0].IsApply = true;
-
-                        // get nhom du DK
-                        let arrIDNhom = [self.NhomHangApply.Id_NhomHang];
-                        for (let i = 0; i < self.listData.NhomHang_TongSuDung.length; i++) {
-                            let nhomSD = self.listData.NhomHang_TongSuDung[i];
-                            let arr = $.grep(self.listData.AllNhomHangs, function (x) {
-                                return nhomSD.TongGiaTriSuDung >= x.GiaTriSuDungTu && nhomSD.TongGiaTriSuDung <= x.GiaTriSuDungDen;
-                            });
-                            if (arr.length > 0) {
-                                for (let k = 0; k < arr.length; k++) {
-                                    let forIn = arr[k];
-                                    if ($.inArray(forIn.Id_NhomHang, arrIDNhom) === -1) {
-                                        arrIDNhom.push(forIn.Id_NhomHang);
-                                        let obj = {
-                                            Id_NhomHang: forIn.Id_NhomHang,
-                                            TenNhomHangHoa: forIn.TenNhomHangHoa,
-                                            SoNgayThuoc: '',
-                                            IsXuatNgayThuoc: false,
-                                            IsApply: false,
-                                        }
-                                        self.NhomHangEnoughCondition.push(obj);
-                                    }
-                                }
-                            }
-                        }
+                        self.NhomHangEnoughCondition_getAll();
                     }
                     self.NhomHang_GetListSanPhamHoTro();
                     self.Caculator_TongSLXuat(1);
@@ -764,29 +708,26 @@
                     hdHoTro = [];
                 }
 
-                let ex = false;
                 for (let i = 0; i < hdHoTro.length; i++) {
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        ex = true;
+                        hdHoTro.splice(i, 1);
                         break;
                     }
                 }
 
-                if (!ex) {
-                    hdHoTro.push({
-                        IDRandomHD: self.InvoiceChosing.IDRandom,
-                        ID_NhomHang: self.NhomHangApply.Id_NhomHang,
-                        ID_DonVi: self.InvoiceChosing.ID_DonVi,
-                        ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
-                        SoNgayThuoc: self.NhomHangApply.SoNgayThuoc,
-                        IsXuatNgayThuoc: self.NhomHangApply.IsXuatNgayThuoc,
-                        SPChung: self.PublicProducts,
-                        SPNgayThuoc: self.DayProducts,
-                        TenNhomHangHoa: self.NhomHangApply.TenNhomHangHoa,
-                        MaDoiTuong: self.InvoiceChosing.MaDoiTuong,
-                        TenDoiTuong: self.InvoiceChosing.TenDoiTuong,
-                    })
-                }
+                hdHoTro.push({
+                    IDRandomHD: self.InvoiceChosing.IDRandom,
+                    ID_NhomHang: self.NhomHangApply.Id_NhomHang,
+                    ID_DonVi: self.InvoiceChosing.ID_DonVi,
+                    ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
+                    SoNgayThuoc: self.NhomHangApply.SoNgayThuoc,
+                    IsXuatNgayThuoc: self.NhomHangApply.IsXuatNgayThuoc,
+                    SPChung: self.PublicProducts,
+                    SPNgayThuoc: self.DayProducts,
+                    TenNhomHangHoa: self.NhomHangApply.TenNhomHangHoa,
+                    MaDoiTuong: self.InvoiceChosing.MaDoiTuong,
+                    TenDoiTuong: self.InvoiceChosing.TenDoiTuong,
+                })
                 localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
             },
             ChoseProduct_Public: function (item) {
@@ -873,6 +814,27 @@
                 localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
                 self.Caculator_TongSLXuat(0);
             },
+            PublicProducts_RemoveAll: function () {
+                let self = this;
+                self.PublicProducts = [];
+
+                let hdHoTro = localStorage.getItem('hdHoTro');
+                if (hdHoTro != null) {
+                    hdHoTro = JSON.parse(hdHoTro);
+                }
+                else {
+                    hdHoTro = [];
+                }
+
+                for (let i = 0; i < hdHoTro.length; i++) {
+                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
+                        hdHoTro[i].SPChung = [];
+                        break;
+                    }
+                }
+                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
+                self.Caculator_TongSLXuat(0);
+            },
             DayProducts_Remove: function (index, item) {
                 let self = this;
                 for (let i = 0; i < self.DayProducts.length; i++) {
@@ -905,6 +867,36 @@
                 }
                 localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
 
+                self.Caculator_TongSLXuat(1);
+            },
+            DayProducts_RemoveAll: function () {
+                let self = this;
+
+                self.DayProducts = [];
+                self.NhomHangApply.IsXuatNgayThuoc = false;
+                self.NhomHangApply.SoNgayThuoc = '';
+                for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
+                    self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = false;
+                    self.NhomHangEnoughCondition[i].SoNgayThuoc = '';
+                }
+
+                let hdHoTro = localStorage.getItem('hdHoTro');
+                if (hdHoTro != null) {
+                    hdHoTro = JSON.parse(hdHoTro);
+                }
+                else {
+                    hdHoTro = [];
+                }
+
+                for (let i = 0; i < hdHoTro.length; i++) {
+                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
+                        hdHoTro[i].SPNgayThuoc = [];
+                        hdHoTro[i].IsXuatNgayThuoc = false;
+                        hdHoTro[i].SoNgayThuoc = 0;
+                        break;
+                    }
+                }
+                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
                 self.Caculator_TongSLXuat(1);
             },
             Caculator_TongSLXuat: function (type = 1) {
@@ -967,6 +959,7 @@
                         break;
                     }
                 }
+                self.Caculator_TongSLXuat(1);
             },
             PublicProducts_EditGhiChu: function (index) {
                 let self = this;
@@ -990,117 +983,43 @@
             },
             showModalTPDL: function (item) {
                 let self = this;
+
+                if (formatNumberToFloat(item.SoLuong) === 0) {
+                    ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập nguyên vậy liệu');
+                    return;
+                }
+
                 vmThanhPhanDinhLuong.DichVu_isDoing = item;
-
-                // check exist cache
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
-                }
-                else {
-                    hdHoTro = [];
-                }
-
-                let arrTPDL = [];
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                            let ct = hdHoTro[i].SPChung[k];
-                            if (ct.IDRandom === item.IDRandom) {
-                                arrTPDL = ct.ThanhPhan_DinhLuong;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed = arrTPDL;
+                vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed = item.ThanhPhan_DinhLuong;
                 vmThanhPhanDinhLuong.showModal(false, false, 1);
             },
             Agree_TPDL: function () {
                 let self = this;
                 let ctDoing = vmThanhPhanDinhLuong.DichVu_isDoing;
 
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
-                }
-                else {
-                    hdHoTro = [];
-                }
-
-                let ex = false;
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        ex = true;
+                for (let i = 0; i < self.PublicProducts.length; i++) {
+                    if (self.PublicProducts[i].IDRandom === ctDoing.IDRandom) {
+                        self.PublicProducts[i].ThanhPhan_DinhLuong = vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed;
                         break;
                     }
                 }
-
-                if (!ex) {
-                    hdHoTro.push({
-                        IDRandomHD: self.InvoiceChosing.IDRandom,
-                        ID_NhomHang: self.NhomHangApply.Id_NhomHang,
-                        ID_DonVi: self.InvoiceChosing.ID_DonVi,
-                        ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
-                        SoNgayThuoc: self.NhomHangApply.SoNgayThuoc,
-                        IsXuatNgayThuoc: self.NhomHangApply.IsXuatNgayThuoc,
-                        SPChung: self.PublicProducts,
-                        SPNgayThuoc: self.DayProducts,
-                        TenNhomHangHoa: self.NhomHangApply.TenNhomHangHoa,
-                        MaDoiTuong: self.InvoiceChosing.MaDoiTuong,
-                        TenDoiTuong: self.InvoiceChosing.TenDoiTuong,
-                    })
-                }
-
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                            let ct = hdHoTro[i].SPChung[k];
-                            if (ct.IDRandom === ctDoing.IDRandom) {
-                                hdHoTro[i].SPChung[k].ThanhPhan_DinhLuong = vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
             },
             editSoLuong_UpdateTPDLuong: function (item, sluongNew) {
-                let self = this;
-
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
+                for (let m = 0; m < item.ThanhPhan_DinhLuong.length; m++) {
+                    let tp = item.ThanhPhan_DinhLuong[m];
+                    let soluongAfter = formatNumberToFloat(tp.SoLuongMacDinh) * sluongNew;
+                    item.ThanhPhan_DinhLuong[m].SoLuong = soluongAfter;
+                    item.ThanhPhan_DinhLuong[m].SoLuongQuyCach = soluongAfter * tp.QuyCach;
+                    item.ThanhPhan_DinhLuong[m].GiaVonAfter = soluongAfter * tp.GiaVon;
                 }
-                else {
-                    hdHoTro = [];
-                }
-
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                            let ct = hdHoTro[i].SPChung[k];
-                            if (ct.IDRandom === item.IDRandom) {
-                                for (let m = 0; m < ct.ThanhPhan_DinhLuong.length; m++) {
-                                    let tp = ct.ThanhPhan_DinhLuong[m];
-                                    let soluongAfter = formatNumberToFloat(tp.SoLuongMacDinh) * sluongNew;
-                                    ct.ThanhPhan_DinhLuong[m].SoLuong = soluongAfter;
-                                    ct.ThanhPhan_DinhLuong[m].SoLuongQuyCach = soluongAfter * tp.QuyCach;
-                                    ct.ThanhPhan_DinhLuong[m].GiaVonAfter = soluongAfter * tp.GiaVon;
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
             },
             showModal_HoaHongNV: function (item) {
                 let self = this;
 
+                if (formatNumberToFloat(item.SoLuong) === 0) {
+                    ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập hoa hồng');
+                    return;
+                }
                 vmHoaHongDV.inforHoaDon = $.extend({}, true, self.InvoiceChosing);
                 vmHoaHongDV.inforHoaDon.LoaiHoaDon = 36;
 
@@ -1123,8 +1042,8 @@
                         LoaiHangHoa: item.LoaiHangHoa,
                         ChietKhauMD_NV: 0,
                         ChietKhauMD_NVTheoPT: false,
-                        BH_NhanVienThucHien: [],
-                        ThanhPhan_DinhLuong: [],
+                        BH_NhanVienThucHien: item.BH_NhanVienThucHien,
+                        ThanhPhan_DinhLuong: item.ThanhPhan_DinhLuong,
                     }
                 }
                 else {
@@ -1150,30 +1069,7 @@
                     }
                 }
 
-                // chec exists cache NVTH (too)
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
-                }
-                else {
-                    hdHoTro = [];
-                }
-
-                let arrNV = [];
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                            let ct = hdHoTro[i].SPChung[k];
-                            if (ct.IDRandom === item.IDRandom) {
-                                arrNV = ct.BH_NhanVienThucHien;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-
-                vmHoaHongDV.GridNV_TVTH = arrNV;
+                vmHoaHongDV.GridNV_TVTH = ctDoing.BH_NhanVienThucHien;
                 vmHoaHongDV.showModal(ctDoing, false, false);
             },
             Agree_HoaHongNV: function () {
@@ -1209,90 +1105,30 @@
                 nvTV = nvTV !== '' ? 'Tư vấn:' + Remove_LastComma(nvTV) : '';
                 nvTV_Print = nvTV_Print !== '' ? Remove_LastComma(nvTV_Print) : '';
 
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
-                }
-                else {
-                    hdHoTro = [];
-                }
-
-                let ex = false;
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        ex = true;
+                for (let i = 0; i < self.PublicProducts.length; i++) {
+                    if (self.PublicProducts[i].IDRandom === ctDoing.IDRandom) {
+                        self.PublicProducts[i].GhiChu_NVThucHien = nvTH;
+                        self.PublicProducts[i].GhiChu_NVThucHienPrint = nvTH_Print;
+                        self.PublicProducts[i].GhiChu_NVTuVan = nvTV;
+                        self.PublicProducts[i].GhiChu_NVTuVanPrint = nvTV_Print;
+                        self.PublicProducts[i].HoaHongTruocChietKhau = vmHoaHongDV.TinhHoaHongTruocCK ? 1 : 0;
+                        self.PublicProducts[i].BH_NhanVienThucHien = vmHoaHongDV.GridNV_TVTH;
                         break;
                     }
                 }
-
-                if (!ex) {
-                    hdHoTro.push({
-                        IDRandomHD: self.InvoiceChosing.IDRandom,
-                        ID_NhomHang: self.NhomHangApply.Id_NhomHang,
-                        ID_DonVi: self.InvoiceChosing.ID_DonVi,
-                        ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
-                        SoNgayThuoc: self.NhomHangApply.SoNgayThuoc,
-                        IsXuatNgayThuoc: self.NhomHangApply.IsXuatNgayThuoc,
-                        SPChung: self.PublicProducts,
-                        SPNgayThuoc: self.DayProducts,
-                        TenNhomHangHoa: self.NhomHangApply.TenNhomHangHoa,
-                        MaDoiTuong: self.InvoiceChosing.MaDoiTuong,
-                        TenDoiTuong: self.InvoiceChosing.TenDoiTuong,
-                    })
-                }
-
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                            let ct = hdHoTro[i].SPChung[k];
-                            if (ct.IDRandom === ctDoing.IDRandom) {
-                                hdHoTro[i].SPChung[k].GhiChu_NVThucHien = nvTH;
-                                hdHoTro[i].SPChung[k].GhiChu_NVThucHienPrint = nvTH_Print;
-                                hdHoTro[i].SPChung[k].GhiChu_NVTuVan = nvTV;
-                                hdHoTro[i].SPChung[k].GhiChu_NVTuVanPrint = nvTV_Print;
-                                hdHoTro[i].SPChung[k].HoaHongTruocChietKhau = vmHoaHongDV.TinhHoaHongTruocCK ? 1 : 0;
-                                hdHoTro[i].SPChung[k].BH_NhanVienThucHien = vmHoaHongDV.GridNV_TVTH;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
             },
             editSoLuong_UpdateHoaHongNV: function (item, sluongNew) {
-                let self = this;
-                let hdHoTro = localStorage.getItem('hdHoTro');
-                if (hdHoTro != null) {
-                    hdHoTro = JSON.parse(hdHoTro);
+                for (let i = 0; i < item.BH_NhanVienThucHien.length; i++) {
+                    let nv = item.BH_NhanVienThucHien[i];
+                    item.BH_NhanVienThucHien[i].TienChietKhau = nv.ChietKhauMacDinh * sluongNew * nv.HeSo;
                 }
-                else {
-                    hdHoTro = [];
-                }
-
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let k = 0; k < hdHoTro[i].SPChung.length; k++) {
-                            let ct = hdHoTro[i].SPChung[k];
-                            if (ct.IDRandom === item.IDRandom) {
-                                for (let m = 0; m < ct.BH_NhanVienThucHien.length; m++) {
-                                    let nv = ct.BH_NhanVienThucHien[m];
-                                    ct.BH_NhanVienThucHien[m].TienChietKhau = nv.ChietKhauMacDinh * sluongNew * nv.HeSo;
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
             },
             CheckSave: function () {
                 let self = this;
 
                 let nhomApply = self.NhomHangApply;
                 if (commonStatisJs.CheckNull(nhomApply.Id_NhomHang)) {
-                    ShowMessage_Danger('Chưa đủ điều kiện áp dụng hỗ trợ');
+                    ShowMessage_Danger('Vui lòng chọn nhóm áp dụng');
                     return;
                 }
 
@@ -1346,43 +1182,6 @@
                     hdHoTro = [];
                 }
 
-                // update soluong, ghichu to list products
-                for (let i = 0; i < hdHoTro.length; i++) {
-                    if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
-                        for (let j = 0; j < hdHoTro[i].SPChung.length; j++) {
-                            let sp = hdHoTro[i].SPChung[j];
-                            for (let k = 0; k < self.PublicProducts.length; k++) {
-                                let spIn = self.PublicProducts[k];
-                                if (sp.IDRandom === spIn.IDRandom) {
-                                    hdHoTro[i].SPChung[j].SoLuong = spIn.SoLuong;
-                                    hdHoTro[i].SPChung[j].TienChietKhau = spIn.TienChietKhau;
-                                    hdHoTro[i].SPChung[j].GhiChu = spIn.GhiChu;
-                                    break;
-                                }
-                            }
-                        }
-                        for (let j = 0; j < hdHoTro[i].SPNgayThuoc.length; j++) {
-                            let sp = hdHoTro[i].SPNgayThuoc[j];
-                            for (let k = 0; k < self.DayProducts.length; k++) {
-                                let spIn = self.DayProducts[k];
-                                if (sp.IDRandom === spIn.IDRandom) {
-                                    hdHoTro[i].SPNgayThuoc[j].SoLuong = spIn.SoLuong;
-                                    hdHoTro[i].SPNgayThuoc[j].TienChietKhau = spIn.TienChietKhau;
-                                    hdHoTro[i].SPNgayThuoc[j].GhiChu = spIn.GhiChu;
-                                    break;
-                                }
-                            }
-                        }
-                        if (hdHoTro[i].SPChung.length === 0) {// because spchung was assign TPDinhLuong & NVThucHien
-                            hdHoTro[i].SPChung = self.PublicProducts;
-                        }
-                        if (hdHoTro[i].SPNgayThuoc.length === 0) {
-                            hdHoTro[i].SPNgayThuoc = self.DayProducts;
-                        }
-                        break;
-                    }
-                }
-
                 let ex = false;
                 for (let i = 0; i < hdHoTro.length; i++) {
                     if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
@@ -1390,12 +1189,8 @@
                         hdHoTro[i].ID_NhomHang = self.NhomHangApply.Id_NhomHang;
                         hdHoTro[i].SoNgayThuoc = self.NhomHangApply.SoNgayThuoc;
                         hdHoTro[i].IsXuatNgayThuoc = self.NhomHangApply.IsXuatNgayThuoc;
-                        if (hdHoTro[i].SPChung.length === 0) {// because spchung was assign TPDinhLuong & NVThucHien
-                            hdHoTro[i].SPChung = self.PublicProducts;
-                        }
-                        if (hdHoTro[i].SPNgayThuoc.length === 0) {
-                            hdHoTro[i].SPNgayThuoc = self.DayProducts;
-                        }
+                        hdHoTro[i].SPChung = self.PublicProducts;
+                        hdHoTro[i].SPNgayThuoc = self.DayProducts;
                         hdHoTro[i].TenNhomHangHoa = self.NhomHangApply.TenNhomHangHoa;
                         hdHoTro[i].ID_DoiTuong = self.InvoiceChosing.ID_DoiTuong;
                         hdHoTro[i].MaDoiTuong = self.InvoiceChosing.MaDoiTuong;
@@ -1429,6 +1224,15 @@
             },
             saveHoaDonHoTro: function (idRandomHD) {
                 let self = this;
+
+                let hd = {};
+                let cthd = [], spChung = [], spNgay = [];
+                let sListSP = '', sChung = '', sNgay = '';
+
+                let sType = 'Thêm mới', user = ' <br /> Người tạo: ' + hd.NguoiTao;
+                let sOld = '';
+
+                let url = 'Post_HoaDonHoTro';
                 let hdHoTro = localStorage.getItem('hdHoTro');
                 if (hdHoTro != null) {
                     hdHoTro = JSON.parse(hdHoTro);
@@ -1437,160 +1241,184 @@
                     hdHoTro = [];
                 }
 
-                let hdEx = $.grep(hdHoTro, function (x) {
-                    return x.IDRandomHD === idRandomHD;
-                });
+                if (self.typeUpdate === 1) {
+                    let hdEx = $.grep(hdHoTro, function (x) {
+                        return x.IDRandomHD === idRandomHD;
+                    });
 
-                if (hdEx.length > 0) {
-                    let hd = {
+                    if (hdEx.length > 0) {
+                        hd = {
+                            ID: self.InvoiceChosing.ID,
+                            LoaiHoaDon: 36,
+                            ID_DonVi: hdEx[0].ID_DonVi,
+                            ID_DoiTuong: hdEx[0].ID_DoiTuong,
+                            ID_CheckIn: hdEx[0].ID_NhomHang,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            NguoiTao: self.inforLogin.UserLogin,
+                            TongGiamGia: formatNumberToFloat(hdEx[0].SoNgayThuoc),
+                            NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+                            ChoThanhToan: false,
+
+                            TenDoiTuong: hdEx[0].TenDoiTuong,
+                            MaDoiTuong: hdEx[0].MaDoiTuong,
+                            TenNhomHangHoa: hdEx[0].TenNhomHangHoa,
+                        };
+
+                        spChung = hdEx[0].SPChung;
+                        spNgay = hdEx[0].SPNgayThuoc;
+                    }
+                }
+                else {
+                    url = 'Update_HoaDonHoTro';
+                    spChung = self.PublicProducts;
+                    spNgay = self.DayProducts;
+
+                    hd = {
                         ID: self.InvoiceChosing.ID,
                         LoaiHoaDon: 36,
-                        ID_DonVi: hdEx[0].ID_DonVi,
-                        ID_DoiTuong: hdEx[0].ID_DoiTuong,
-                        ID_CheckIn: hdEx[0].ID_NhomHang,
+                        ID_DonVi: self.InvoiceChosing.ID_DonVi,
+                        ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
+                        ID_CheckIn: self.NhomHangApply.Id_NhomHang,
                         ID_NhanVien: self.inforLogin.ID_NhanVien,
                         NguoiTao: self.inforLogin.UserLogin,
-                        TongGiamGia: formatNumberToFloat(hdEx[0].SoNgayThuoc),
+                        TongGiamGia: formatNumberToFloat(self.NhomHangApply.SoNgayThuoc),
                         NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
                         ChoThanhToan: false,
+
+                        TenDoiTuong: self.InvoiceChosing.TenDoiTuong,
+                        MaDoiTuong: self.InvoiceChosing.MaDoiTuong,
+                        TenNhomHangHoa: self.NhomHangApply.TenNhomHangHoa,
                     };
 
-                    let cthd = [];
-                    let sListSP = '', sChung = '', sNgay = '';
-                    if (hdEx[0].SPChung.length > 0) {
-                        sListSP = '<br /> <b> Sản phẩm chung gồm: </b>';
-                    }
+                    sType = 'Cập nhật';
+                    user = ' <br /> Người sửa: ' + VHeader.UserLogin;
 
-                    for (let i = 0; i < hdEx[0].SPChung.length; i++) {
-                        let itFor = hdEx[0].SPChung[i];
-                        let obj = {
-                            SoThuTu: cthd.length + 1,
-                            MaHangHoa: itFor.MaHangHoa,
-                            TenHangHoa: itFor.TenHangHoa,
-                            ID_DonViQuiDoi: itFor.Id_DonViQuiDoi,
-                            ID_LoHang: itFor.Id_LoHang,
-                            SoLuong: itFor.SoLuong,
-                            TienChietKhau: itFor.TienChietKhau,
-                            GhiChu: itFor.GhiChu,
-                            BH_NhanVienThucHien: itFor.BH_NhanVienThucHien,
-                            ThanhPhan_DinhLuong: itFor.ThanhPhan_DinhLuong,
-                            ChatLieu: ''
-                        }
-                        cthd.push(obj);
-                        sChung += ' <br /> '.concat(obj.SoThuTu, '. ', obj.TenHangHoa, ' (', obj.MaHangHoa,
-                            ') Số lượng ', obj.TienChietKhau);
-                    }
-                    sListSP += sChung;
+                    sOld = '<br /> <b> Thông tin cũ: </b>';
+                    sOld = sOld.concat('<br> Nhóm hàng:', self.inforOld.NhomHang.TenNhomHangHoa);
+                    sOld = sOld.concat('<br /> Xuất ngày thuốc: ', self.inforOld.NhomHang.IsXuatNgayThuoc ? hd.SoNgayThuoc : 'không');
 
-                    if (hdEx[0].SPNgayThuoc.length > 0) {
-                        sListSP += '<br /> <b> Sản phẩm ngày thuốc gồm: </b>';
-                    }
-                    for (let i = 0; i < hdEx[0].SPNgayThuoc.length; i++) {
-                        let itFor = hdEx[0].SPNgayThuoc[i];
-                        let obj = {
-                            SoThuTu: cthd.length + 1,
-                            MaHangHoa: itFor.MaHangHoa,
-                            TenHangHoa: itFor.TenHangHoa,
-                            ID_DonViQuiDoi: itFor.Id_DonViQuiDoi,
-                            ID_LoHang: itFor.Id_LoHang,
-                            SoLuong: itFor.SoLuong,
-                            TienChietKhau: itFor.TienChietKhau,
-                            GhiChu: itFor.GhiChu,
-                            BH_NhanVienThucHien: itFor.BH_NhanVienThucHien,
-                            ThanhPhan_DinhLuong: itFor.ThanhPhan_DinhLuong,
-                            ChatLieu: '6' // !important: used to create phieuxuat SPNgaythuoc
-                        }
-                        cthd.push(obj);
-                        sNgay += ' <br /> '.concat(obj.SoThuTu, '. ', obj.TenHangHoa, ' (', obj.MaHangHoa,
-                            ') Số lượng ', obj.TienChietKhau, '/ngày, Tổng xuất ', obj.SoLuong);
-                    }
-                    sListSP += sNgay;
-
-                    let myData = {
-                        objHoaDon: hd,
-                        objCTHoaDon: cthd,
-                    }
-
-                    let sType = 'Thêm mới', user = ' <br /> Người tạo: ' + hd.NguoiTao;
-                    let sOld = '';
-                    let url = 'Post_HoaDonHoTro';
-                    if (self.typeUpdate === 2) {
-                        url = 'Update_HoaDonHoTro';
-                        sType = 'Cập nhật';
-                        user = ' <br /> Người sửa: ' + VHeader.UserLogin;
-
-                        sOld = '<br /> <b> Thông tin cũ: </b>';
-                        sOld = sOld.concat('<br> Nhóm hàng:', self.inforOld.NhomHang.TenNhomHangHoa);
-                        sOld = sOld.concat('<br /> Xuất ngày thuốc: ', self.inforOld.IsXuatNgayThuoc ? hd.SoNgayThuoc : 'không');
-
-                        let arrChung = $.grep(self.inforOld.SanPham, function (x) {
-                            return x.ChatLieu !== '6';
-                        })
-                        if (arrChung.length > 0) {
-                            sOld = sOld.concat('<br /> <b> Sản phẩm chung gồm: </b>');
-
-                            for (let i = 0; i < arrChung.length; i++) {
-                                let itFor = arrChung[i];
-                                sOld += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa,
-                                    ') Số lượng ', itFor.TienChietKhau);
-                            }
-                        }
-
-                        let arrNgay = $.grep(self.inforOld.SanPham, function (x) {
-                            return x.ChatLieu === '6';
-                        })
-                        if (arrNgay.length > 0) {
-                            sOld = sOld.concat('<br /> <b> Sản phẩm ngày thuốc gồm: </b>');
-
-                            for (let i = 0; i < arrNgay.length; i++) {
-                                let itFor = arrNgay[i];
-                                sOld += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa,
-                                    ') Số lượng ', itFor.TienChietKhau, '/ngày, Tổng xuất ', itFor.SoLuong);
-                            }
-                        }
-                    }
-
-                    self.isLoading = true;
-                    ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
-                        console.log(x)
-                        if (x.res) {
-
-                            let data = x.data;
-                            let diary = {
-                                ID_DonVi: self.inforLogin.ID_DonVi,
-                                ID_NhanVien: self.inforLogin.ID_NhanVien,
-                                LoaiNhatKy: self.typeUpdate,
-                                ChucNang: 'Áp dụng hỗ trợ ',
-                                NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
-                                    ', Khách hàng ', hdEx[0].TenDoiTuong, '(', hdEx[0].MaDoiTuong, ')'),
-                                NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hdEx[0].TenNhomHangHoa,
-                                    ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
-                                    sListSP, user, sOld),
-                                LoaiHoaDon: 36,
-                                ID_HoaDon: data.ID,
-                                ThoiGianUpdateGV: data.NgayLapHoaDon
-                            }
-                            Post_NhatKySuDung_UpdateGiaVon(diary);
-
-                            hdHoTro = $.grep(hdHoTro, function (x) {
-                                return x.IDRandomHD !== idRandomHD;
-                            });
-                            localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
-
-                            self.CreatePhieuXuat_NguyenVatLieu(data.ID);
-
-                            if (hdEx[0].SPChung.length > 0) {
-                                self.CreatePhieuXuat_FromHoaDon(data.ID, 36, false);
-                            }
-
-                            if (hdEx[0].SPNgayThuoc.length > 0) {
-                                self.CreatePhieuXuat_FromHoaDon(data.ID, 36, true);
-                            }
-                        }
-                    }).always(function () {
-                        self.isLoading = false;
+                    let arrChung = $.grep(self.inforOld.SanPham, function (x) {
+                        return x.ChatLieu !== '6';
                     })
+                    if (arrChung.length > 0) {
+                        sOld = sOld.concat('<br /> <b> Sản phẩm chung gồm: </b>');
+
+                        for (let i = 0; i < arrChung.length; i++) {
+                            let itFor = arrChung[i];
+                            sOld += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa,
+                                ') Số lượng ', itFor.TienChietKhau);
+                        }
+                    }
+
+                    let arrNgay = $.grep(self.inforOld.SanPham, function (x) {
+                        return x.ChatLieu === '6';
+                    })
+                    if (arrNgay.length > 0) {
+                        sOld = sOld.concat('<br /> <b> Sản phẩm ngày thuốc gồm: </b>');
+
+                        for (let i = 0; i < arrNgay.length; i++) {
+                            let itFor = arrNgay[i];
+                            sOld += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa,
+                                ') Số lượng ', itFor.TienChietKhau, '/ngày, Tổng xuất ', itFor.SoLuong);
+                        }
+                    }
                 }
+
+                if (spChung.length > 0) {
+                    sListSP = '<br /> <b> Sản phẩm chung gồm: </b>';
+                }
+
+                for (let i = 0; i < spChung.length; i++) {
+                    let itFor = spChung[i];
+                    let obj = {
+                        SoThuTu: cthd.length + 1,
+                        MaHangHoa: itFor.MaHangHoa,
+                        TenHangHoa: itFor.TenHangHoa,
+                        ID_DonViQuiDoi: itFor.Id_DonViQuiDoi,
+                        ID_LoHang: itFor.Id_LoHang,
+                        SoLuong: itFor.SoLuong,
+                        TienChietKhau: itFor.TienChietKhau,
+                        GhiChu: itFor.GhiChu,
+                        BH_NhanVienThucHien: itFor.BH_NhanVienThucHien,
+                        ThanhPhan_DinhLuong: itFor.ThanhPhan_DinhLuong,
+                        ChatLieu: ''
+                    }
+                    cthd.push(obj);
+                    sChung += ' <br /> '.concat(obj.SoThuTu, '. ', obj.TenHangHoa, ' (', obj.MaHangHoa,
+                        ') Số lượng ', obj.TienChietKhau);
+                }
+                sListSP += sChung;
+
+                if (spNgay.length > 0) {
+                    sListSP += '<br /> <b> Sản phẩm ngày thuốc gồm: </b>';
+                }
+                for (let i = 0; i < spNgay.length; i++) {
+                    let itFor = spNgay[i];
+                    let obj = {
+                        SoThuTu: cthd.length + 1,
+                        MaHangHoa: itFor.MaHangHoa,
+                        TenHangHoa: itFor.TenHangHoa,
+                        ID_DonViQuiDoi: itFor.Id_DonViQuiDoi,
+                        ID_LoHang: itFor.Id_LoHang,
+                        SoLuong: itFor.SoLuong,
+                        TienChietKhau: itFor.TienChietKhau,
+                        GhiChu: itFor.GhiChu,
+                        BH_NhanVienThucHien: itFor.BH_NhanVienThucHien,
+                        ThanhPhan_DinhLuong: itFor.ThanhPhan_DinhLuong,
+                        ChatLieu: '6' // !important: used to create phieuxuat SPNgaythuoc
+                    }
+                    cthd.push(obj);
+                    sNgay += ' <br /> '.concat(obj.SoThuTu, '. ', obj.TenHangHoa, ' (', obj.MaHangHoa,
+                        ') Số lượng ', obj.TienChietKhau, '/ngày, Tổng xuất ', obj.SoLuong);
+                }
+                sListSP += sNgay;
+
+                let myData = {
+                    objHoaDon: hd,
+                    objCTHoaDon: cthd,
+                }
+
+                self.isLoading = true;
+                ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
+                    console.log(x)
+                    if (x.res) {
+
+                        ShowMessage_Success(sType + ' hóa đơn hỗ trợ thành công');
+
+                        let data = x.data;
+                        let diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: self.typeUpdate,
+                            ChucNang: 'Áp dụng hỗ trợ ',
+                            NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
+                                ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
+                            NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
+                                ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
+                                sListSP, user, sOld),
+                            LoaiHoaDon: 36,
+                            ID_HoaDon: data.ID,
+                            ThoiGianUpdateGV: data.NgayLapHoaDon
+                        }
+                        Post_NhatKySuDung_UpdateGiaVon(diary);
+
+                        hdHoTro = $.grep(hdHoTro, function (x) {
+                            return x.IDRandomHD !== idRandomHD;
+                        });
+                        localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
+
+                        self.CreatePhieuXuat_NguyenVatLieu(data.ID);
+
+                        // always save: xuatNgayThuoc --> khong xuat (or nguoclai)
+                        self.CreatePhieuXuat_FromHoaDon(data.ID, 36, false);
+                        self.CreatePhieuXuat_FromHoaDon(data.ID, 36, true);
+                    }
+                    else {
+                        ShowMessage_Danger(sType + ' hóa đơn hỗ trợ thất bại');
+                    }
+                }).always(function () {
+                    self.isLoading = false;
+                })
             },
 
             CreatePhieuXuat_NguyenVatLieu: function (idHoaDon) {
@@ -1601,10 +1429,10 @@
                     }
                 })
             },
-            CreatePhieuXuat_FromHoaDon: function (idHoaDon, loaiHoaDon = 36, isXuatNgayThuoc = false) {
+            CreatePhieuXuat_FromHoaDon: function (idHoaDon, loaiHoaDon = 36, xuatNgayThuoc = false) {
                 let self = this;
                 $.getJSON(self.UrlAPI.HoaDon + 'CreatePhieuXuat_FromHoaDon?idHoaDon=' + idHoaDon
-                    + "&loaiHoaDon=" + loaiHoaDon + '&isXuatNgayThuoc=' + isXuatNgayThuoc).done(function (x) {
+                    + "&loaiHoaDon=" + loaiHoaDon + '&isXuatNgayThuoc=' + xuatNgayThuoc).done(function (x) {
                         if (x.res) {
                             console.log('xuatngaythuoc ', x);
                         }
