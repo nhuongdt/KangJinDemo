@@ -2282,6 +2282,10 @@ var TraHangNhapChiTiet = function () {
                     hd[0].MaHoaDon = self.newHoaDon().MaHoaDon();
                     hd[0].DienGiai = self.newHoaDon().DienGiai();
                     hd[0].ID_HoaDon = self.newHoaDon().ID_HoaDon();// used to trahang from nhaphang
+
+                    if (commonStatisJs.CheckNull(hd[0].ID_NhanVien)) {
+                        hd[0].ID_NhanVien = _idNhanVien;
+                    }
                 }
                 else {
                     Enable_btnSave();
