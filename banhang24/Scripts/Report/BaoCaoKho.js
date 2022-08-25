@@ -673,6 +673,7 @@
         [
             { ID: 1, TenChungTu: 'Hóa đơn bán lẻ' },
             { ID: 2, TenChungTu: 'Hóa đơn bảo hành' },
+            { ID: 5, TenChungTu: 'Hóa đơn sử dụng' },
             { ID: 36, TenChungTu: 'Hóa đơn hỗ trợ' },
             { ID: 39, TenChungTu: 'Xuất bảo hành' },
             { ID: 37, TenChungTu: 'Xuất ngày thuốc' },
@@ -1483,7 +1484,7 @@
         self.LoaiBaoCao('Thành phần định lượng');
         $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên nhóm hàng, mã DV, mã HĐ, trạng thái").blur();
 
-        XuatKho_AissgnLoaiChungTu([1, 2, 36]);
+        XuatKho_AissgnLoaiChungTu([1, 2, 5, 36]); // 5. hoadon sudung gdv
 
         self.LoadReport();
     };
@@ -2493,6 +2494,7 @@
         let url = '';
         switch (item.LoaiHoaDon) {
             case 1:
+            case 5:
             case 36:
                 url = "/#/Invoices";
                 break;
