@@ -61,6 +61,11 @@
     self.RoleDelete_Return = ko.observable(false);
     self.RoleExport_Return = ko.observable(false);
 
+    // hd hotro
+    self.RoleView_HDHoTro = ko.observable(false);
+    self.RoleUpdate_HDHoTro = ko.observable(false);
+    self.RoleDelete_HDHoTro = ko.observable(false);
+
     self.Show_BtnUpdate = ko.observable(false);
     self.Show_BtnCopy = ko.observable(false);
     self.Show_BtnEdit = ko.observable(false);
@@ -4401,6 +4406,10 @@
                 self.Show_BtnEdit(CheckQuyenExist('HoaDon_SuaDoi'));
                 self.Show_BtnOpenHD(CheckQuyenExist('HoaDon_CapNhatHDTamLuu'));
                 self.RoleInsert_HoaDonBaoHanh(CheckQuyenExist('HoaDonBaoHanh_ThemMoi'));
+
+                // hdHoTro
+                self.RoleUpdate_HDHoTro(CheckQuyenExist('HoaDonHoTro_SuaDoi'));
+                self.RoleDelete_HDHoTro(CheckQuyenExist('HoaDonHoTro_Xoa'));
 
                 self.Show_BtnExcelDetail(self.RoleExport_Invoice());
                 self.Show_BtnCopy(CheckQuyenExist('HoaDon_SaoChep'));

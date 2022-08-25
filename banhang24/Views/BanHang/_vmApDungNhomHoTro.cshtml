@@ -208,11 +208,14 @@
                                                 <span class="span-i" v-on:click="PublicProducts_Remove(index, item)" title="Xóa dòng">
                                                     <i class="fal fa-times"></i>
                                                 </span>  &nbsp;
-                                                <span class="span-i" title="Hoa hồng nhân viên" v-on:click="showModal_HoaHongNV(item)">
+                                                <span class="span-i" title="Hoa hồng nhân viên"
+                                                      v-if="roleCapNhatHoaHongDichVu"
+                                                      v-on:click="showModal_HoaHongNV(item)">
                                                     <i class="fa fa-user"></i>
                                                 </span>&nbsp;
-                                                <span class="span-i" title="Thành phần định lượng" v-on:click="showModalTPDL(item)"
-                                                      v-if="item.LoaiHangHoa == 2">
+                                                <span class="span-i" title="Thành phần định lượng"
+                                                      v-on:click="showModalTPDL(item)"
+                                                      v-if="item.LoaiHangHoa == 2 && $root.roleChangeDinhLuong">
                                                     <i class="fa fa-list-alt"></i>
                                                 </span>
                                             </a>
@@ -364,6 +367,13 @@
                     ID_NhanVien: VHeader.IdNhanVien,
                     UserLogin: VHeader.UserLogin,
                 };
+
+                // Chỉ check quyền này khi cạp nhật hóa đơn hỗ trợ
+                let hhDV = $.grep(VHeader.Quyen, function (x) {
+                    return x === 'BanHang_HoaDongDichVu_CapNhat';
+                })
+                self.roleCapNhatHoaHongDichVu = hhDV.length > 0;
+                self.roleChangeDinhLuong = VHeader.Quyen.indexOf('HoaDon_ThayDoiThanhPhanDinhLuong') > -1;
             }
             console.log('vmApDungNhomHoTro')
             self.GetListNhomHang_SetupHotro();
@@ -373,6 +383,10 @@
             isLoading: false,
             typeUpdate: 1,// 1.insert, 2.update, 0.view
             typeProduct: 1,// 1.sp ngaythuoc, 0. sp chung
+
+            roleChangeDinhLuong: true,
+            roleCapNhatHoaHongDichVu: true,
+
             listData: {
                 AllNhomHangs: [],
                 AllPublicProducts: [],
@@ -680,6 +694,7 @@
                                         // assign soluongmacdinh+ soluong quycach
                                         for (let k = 0; k < forOut.ThanhPhan_DinhLuong.length; k++) {
                                             let tp = forOut.ThanhPhan_DinhLuong[k];
+                                            forOut.ThanhPhan_DinhLuong[k].STT = k + 1;
                                             forOut.ThanhPhan_DinhLuong[k].isDefault = false;
                                             forOut.ThanhPhan_DinhLuong[k].SoLuongMacDinh = 1 / forIn.SoLuong;
                                             forOut.ThanhPhan_DinhLuong[k].SoLuongQuyCach = tp.QuyCach * tp.SoLuong;
