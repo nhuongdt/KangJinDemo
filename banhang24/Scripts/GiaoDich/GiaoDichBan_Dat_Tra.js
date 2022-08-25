@@ -6312,22 +6312,6 @@
         vmApDungNhomHoTro.showModalUpdate(item.ID, self.BH_HoaDonChiTiets(),);
     }
 
-    $('#vmApDungNhomHoTro').on('hidden.bs.modal', function () {
-        if (!vmHoaHongDV.saveOK && vmHoaHongDV.inforHoaDon.LoaiHoaDon === 36) {
-            // nếu chỉ click lên để xem (không cập nhật): xóa cache sau khi đóng modal
-            let hdHoTro = localStorage.getItem('hdHoTro');
-            if (hdHoTro != null) {
-                hdHoTro = JSON.parse(hdHoTro);
-            }
-            else {
-                hdHoTro = [];
-            }
-            hdHoTro = $.grep(hdHoTro, function (x) {
-                return x.IDRandomHD !== vmHoaHongDV.InVoiceChosing.IDRandom;
-            });
-            localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
-        }
-    })
 };
 var modelGiaoDich = new ViewModelHD();
 ko.applyBindings(modelGiaoDich, document.getElementById('divPage'));
