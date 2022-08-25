@@ -566,11 +566,10 @@
 
     self.modalDelete = function (item) {
         dialogConfirm('Thông báo xóa ', 'Có muốn hủy phiếu trả hàng hàng <b>' + item.MaHoaDon + '</b> không?', function () {
-            ajaxHelper(BH_HoaDonUri + "UpdateHD_ChoThanToan?id=" + item.ID + '&iddonvi=' + _IDchinhanh + '&loaiHoaDon='
-                + loaiHoaDon + '&idnhanvien=' + _id_NhanVien
-                , 'GET').done(function (x) {
-                    SearchHoaDon();
+            $.getJSON(BH_HoaDonUri + "Huy_HoaDon?id=" + item.ID + '&nguoiSua=' + _userLogin + '&iddonvi=' + _IDchinhanh).done(function (x) {
+                if (x === '') {
                     ShowMessage_Success('Hủy hóa đơn thành công');
+                    SearchHoaDon();
 
                     let diary = {
                         ID_NhanVien: _id_NhanVien,
@@ -586,9 +585,13 @@
                         ThoiGianUpdateGV: item.ChoThanhToan === false ? item.NgayLapHoaDon : null,
                     }
                     Post_NhatKySuDung_UpdateGiaVon(diary);
-                }).fail(function () {
+                }
+                else {
                     ShowMessage_Success('Hủy hóa đơn thất bại');
-                });
+                }
+            }).fail(function () {
+                ShowMessage_Success('Hủy hóa đơn thất bại');
+            });
         });
     };
 

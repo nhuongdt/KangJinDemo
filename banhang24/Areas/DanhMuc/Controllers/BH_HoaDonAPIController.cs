@@ -3273,7 +3273,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 if (db != null)
                 {
                     var data = from hd in db.BH_HoaDon
-                               where hd.ID_HoaDon == id && hd.ChoThanhToan != null && hd.LoaiHoaDon == 6
+                               where hd.ID_HoaDon == id && hd.ChoThanhToan != null 
                                select hd;
 
                     if (data != null && data.Count() > 0)
@@ -3931,49 +3931,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [System.Web.Http.AcceptVerbs("GET", "POST")]
-        [System.Web.Http.HttpPost]
-        public string UpdateHD_ChoThanToan(Guid id, Guid iddonvi, int loaiHoaDon, Guid idnhanvien)
-        {
-            using (SsoftvnContext db = SystemDBContext.GetDBContext())
-            {
-                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
-                classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
-                ClassQuy_HoaDon_ChiTiet _classQHDCT = new ClassQuy_HoaDon_ChiTiet(db);
-                if (db == null)
-                {
-                    return "Chưa kết nối DB";
-                }
-                else
-                {
-                    BH_HoaDon item = db.BH_HoaDon.Find(id);
-                    bool? chothanhtoanxoa = item.ChoThanhToan;
-                    if (item != null)
-                    {
-                        item.ChoThanhToan = null;
-                        classhoadon.Update_HoaDon(item);
-                        // update DaThanhToan at QuyHD_ChiTiet
-                        Quy_HoaDon_ChiTiet qct = _classQHDCT.Get(idhd => idhd.ID_HoaDonLienQuan == id);
-                        if (qct != null)
-                        {
-                            // update status Quy_HoaDon
-                            Quy_HoaDon qhd = _classQHD.Get(x => x.ID == qct.ID_HoaDon);
-                            Quy_HoaDon qhdUpdate = db.Quy_HoaDon.Find(qhd.ID);
-                            qhdUpdate.TrangThai = false; // Huy: false
-                            _classQHD.Update_QuyHoaDon(qhdUpdate);
-                        }
-                        string str = CookieStore.GetCookieAes("SubDomain");
-
-                        return "";
-                    }
-                    else
-                    {
-                        return "Update lỗi";
-                    }
-                }
-            }
-        }
-
-        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public string UpdateGiaVonDM_GiaVon(Guid id, Guid iddonvi, DateTime? ngaynew, int loai)
         {
             // loai = 1 : Thêm mới, loai = 2 : editHD , loai= 3 : Xóa HD
@@ -4009,8 +3966,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        [System.Web.Http.AcceptVerbs("GET", "POST")]
-        [System.Web.Http.HttpPost]
+        [HttpGet, HttpPost]
         public string Huy_HoaDon(Guid id, string nguoiSua, Guid iddonvi)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
