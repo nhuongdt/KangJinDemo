@@ -1413,48 +1413,47 @@
                     objHoaDon: hd,
                     objCTHoaDon: cthd,
                 }
-
-                self.isLoading = true;
-                ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
-                    if (x.res) {
-                        if (self.typeUpdate === 2 || hdHoTro.length > 0) {
+                if (!$.isEmptyObject(hd)) {
+                    self.isLoading = true;
+                    ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
+                        if (x.res) {
                             ShowMessage_Success(sType + ' hóa đơn hỗ trợ thành công');
+
+                            let data = x.data;
+                            let diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: self.typeUpdate,
+                                ChucNang: 'Áp dụng hỗ trợ ',
+                                NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
+                                    ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
+                                NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
+                                    ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
+                                    sListSP, user, sOld),
+                                LoaiHoaDon: 36,
+                                ID_HoaDon: data.ID,
+                                ThoiGianUpdateGV: data.NgayLapHoaDon
+                            }
+                            Post_NhatKySuDung_UpdateGiaVon(diary);
+
+                            hdHoTro = $.grep(hdHoTro, function (x) {
+                                return x.IDRandomHD !== idRandomHD;
+                            });
+                            localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
+
+                            self.CreatePhieuXuat_NguyenVatLieu(data.ID);
+
+                            // always save: xuatNgayThuoc --> khong xuat (or nguoclai)
+                            self.CreatePhieuXuat_FromHoaDon(data.ID, 36, false);
+                            self.CreatePhieuXuat_FromHoaDon(data.ID, 36, true);
                         }
-
-                        let data = x.data;
-                        let diary = {
-                            ID_DonVi: self.inforLogin.ID_DonVi,
-                            ID_NhanVien: self.inforLogin.ID_NhanVien,
-                            LoaiNhatKy: self.typeUpdate,
-                            ChucNang: 'Áp dụng hỗ trợ ',
-                            NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
-                                ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
-                            NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
-                                ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
-                                sListSP, user, sOld),
-                            LoaiHoaDon: 36,
-                            ID_HoaDon: data.ID,
-                            ThoiGianUpdateGV: data.NgayLapHoaDon
+                        else {
+                            ShowMessage_Danger(sType + ' hóa đơn hỗ trợ thất bại');
                         }
-                        Post_NhatKySuDung_UpdateGiaVon(diary);
-
-                        hdHoTro = $.grep(hdHoTro, function (x) {
-                            return x.IDRandomHD !== idRandomHD;
-                        });
-                        localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
-
-                        self.CreatePhieuXuat_NguyenVatLieu(data.ID);
-
-                        // always save: xuatNgayThuoc --> khong xuat (or nguoclai)
-                        self.CreatePhieuXuat_FromHoaDon(data.ID, 36, false);
-                        self.CreatePhieuXuat_FromHoaDon(data.ID, 36, true);
-                    }
-                    else {
-                        ShowMessage_Danger(sType + ' hóa đơn hỗ trợ thất bại');
-                    }
-                }).always(function () {
-                    self.isLoading = false;
-                })
+                    }).always(function () {
+                        self.isLoading = false;
+                    })
+                }
             },
 
             CreatePhieuXuat_NguyenVatLieu: function (idHoaDon) {
