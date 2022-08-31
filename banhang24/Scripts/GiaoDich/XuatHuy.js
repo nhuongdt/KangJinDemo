@@ -742,10 +742,11 @@ function ViewModel() {
     }
 
     self.isXuatKhoGDV = ko.observable(false);
-    self.LoadHangHoaChiTiet = function (item, e) {
-        let chotso = VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi);
-        self.Enable_NgayLapHD(!chotso);
 
+    self.LoadHangHoaChiTiet = function (item) {
+        var chotso = VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi);
+        self.Enable_NgayLapHD(!chotso);
+        
         var $this = $(event.currentTarget);
         $this.next().find('.datetimepicker_maskedit').datetimepicker({
             timepicker: true,
@@ -759,7 +760,8 @@ function ViewModel() {
         });
 
         var lc_HangHoaChiTiet = [];
-        ajaxHelper(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + item.ID + "&ID_ChiNhanh=" + $('#hd_IDdDonVi').val()).done(function (data) {
+
+        $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + item.ID + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) {
             let arr = data.LstDataPrint;
             let xkSuDung = $.grep(data.LstDataPrint, function (x) {
                 return x.ChatLieu === '4';
@@ -779,9 +781,18 @@ function ViewModel() {
             self.sum_GiaTriXuat(RoundDecimal(sumGT, 3));
             lc_HangHoaChiTiet = arr;
             localStorage.setItem('lc_HangHoaChiTiet', JSON.stringify(lc_HangHoaChiTiet));
-            SetHeightShowDetail($(e.currentTarget));
-        });
+            SetHeightShowDetail($this);
+        })
     }
+
+    async function LoadChiTietHD(idHoaDon) {
+        let xx = await $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + idHoaDon + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) { })
+            .then(function (data) {
+                return data.LstDataPrint
+            })
+        return xx;
+    }
+
     function SetDataToCache_gotoDetail(hd, loai) {
         if (self.XH_HangHoaChiTiet_Search().length > 0) {
 
@@ -1245,10 +1256,9 @@ function ViewModel() {
 
     }
 
-    self.XacNhanXuat = function (item) {
+    self.XacNhanXuat = async function (item) {
         $.getJSON(BH_XuatHuyUri + 'PhieuXuatKho_XacNhanXuat?idHoaDon=' + item.ID).done(function (x) {
             if (x.res) {
-                console.log('XacNhanXuat ', x.dataSoure)
                 let diary = {
                     ID_DonVi: item.ID_DonVi,
                     ID_NhanVien: _id_NhanVien,
@@ -1266,10 +1276,14 @@ function ViewModel() {
                 }
                 Post_NhatKySuDung_UpdateGiaVon(diary);
 
-                self.currentPage(0);// do cập nhật lại ngày xuất về hiện tại: nên phiếu xuất sẽ nhảy lên đầu tiên
+                self.currentPage(0);
                 getAllHoaDon();
             }
         })
+
+        var dataX = await LoadChiTietHD(item.ID);
+        self.XH_HangHoaChiTiet_Search(dataX)
+        self.InHoaDon(item);
     }
 
     self.gotoPageOther = function (item, type) {
@@ -1300,7 +1314,7 @@ function ViewModel() {
                     window.open('/#/DanhSachPhieuTiepNhan?' + item.MaPhieuTiepNhan, '_blank');
                 }
                 else {
-                    self.LoadChiTietHD(item);
+                    self.LoadHangHoaChiTiet(item);
                 }
                 break;
             case 3:
@@ -1308,7 +1322,7 @@ function ViewModel() {
                     window.open('/#/DanhSachXe?' + item.BienSo, '_blank');
                 }
                 else {
-                    self.LoadChiTietHD(item);
+                    self.LoadHangHoaChiTiet(item);
                 }
                 break;
         }
