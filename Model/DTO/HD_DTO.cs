@@ -193,6 +193,8 @@ namespace Model
         public string NguoiTao { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
+        public bool? IsChuyenPhatNhanh { get; set; }// = column An_Hien
+        public string DienGiai { get; set; }
 
         public Guid? ID_ChiTietHD { get; set; }
         public Guid? ID_ChiTietDinhLuong { get; set; }
