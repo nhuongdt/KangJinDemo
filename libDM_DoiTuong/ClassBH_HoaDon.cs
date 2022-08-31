@@ -1529,11 +1529,11 @@ namespace libDM_DoiTuong
                     var tbl = from hd in db.BH_HoaDon
                               join kh in db.DM_DoiTuong on hd.ID_DoiTuong equals kh.ID into HD_DT
                               from hd_dt in HD_DT.DefaultIfEmpty()
-                              where hd.LoaiHoaDon == loaiHoaDon || hd.LoaiHoaDon == 2 // && hd.ChoThanhToan == false
+                              where hd.LoaiHoaDon == loaiHoaDon 
 
                               join dv in db.DM_DonVi on hd.ID_DonVi equals dv.ID into HD_DV
                               from hd_dv in HD_DV.DefaultIfEmpty()
-                              where hd.LoaiHoaDon == loaiHoaDon || hd.LoaiHoaDon == 2 // && hd.ChoThanhToan == false
+                              where hd.LoaiHoaDon == loaiHoaDon 
 
                               join nv in db.NS_NhanVien on hd.ID_NhanVien equals nv.ID into HD_NV
                               from hd_nv in HD_NV.DefaultIfEmpty()
@@ -4386,7 +4386,7 @@ namespace libDM_DoiTuong
             lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage));
             lstParam.Add(new SqlParameter("PageSize", param.PageSize));
 
-            return db.Database.SqlQuery<BH_HoaDonDTO>(" EXEC getList_XuatHuy @IDChiNhanhs, @DateFrom, @DateTo," +
+            return db.Database.SqlQuery<BH_HoaDonDTO>(" EXEC dbo.getList_XuatHuy @IDChiNhanhs, @DateFrom, @DateTo," +
                      " @LoaiHoaDons, @TrangThais, @TextSearch, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
@@ -6084,6 +6084,7 @@ namespace libDM_DoiTuong
         public int? TotalRow { get; set; }
         public double? TotalPage { get; set; }
         public double? SoNgayThuoc { get; set; }
+        public bool? IsChuyenPhatNhanh { get; set; } // = column An_Hien
     }
     public class BH_KiemKho_Excel
     {
