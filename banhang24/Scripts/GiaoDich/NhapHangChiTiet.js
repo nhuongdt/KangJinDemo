@@ -4447,6 +4447,7 @@ var NhapHangChiTiet = function () {
         myData.objHoaDon.TongThanhToan = phaiTT;
 
         if (idHoaDon !== null && idHoaDon !== undefined && idHoaDon !== const_GuidEmpty) {
+            myData.objHoaDon.NguoiSua = VHeader.UserLogin;
             Put_NhapHang(myData);
         }
         else {
