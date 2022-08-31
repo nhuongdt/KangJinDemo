@@ -641,7 +641,7 @@ shortcut.add('F9', function () {
 
 $(function () {
     $('#ThongTinThanhToanKHNCC').on('hidden.bs.modal', function () {
-        if (vmThanhToanGara.saveOK) {
+        if (vmThanhToanGara.saveOK && vmThanhToanGara.formType === 3) {
             vmThemMoiTheNap.GetInforPhieuThu_whenHideModal();
         }
     });
