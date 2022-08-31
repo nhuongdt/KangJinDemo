@@ -33,7 +33,7 @@ function ViewModel() {
     self.columsort = ko.observable(null);
     self.sort = ko.observable(null);
     self.checkTamLuu = ko.observable(true);
-    self.checkHoanThanh = ko.observable(true);
+    self.checkHoanThanh = ko.observable(false);
     self.checkHuy = ko.observable(false);
     self.RowsHangHoas = ko.observable();
     self.pageHangHoas = ko.observableArray();
