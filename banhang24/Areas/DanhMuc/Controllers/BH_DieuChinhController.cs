@@ -702,7 +702,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string columnHide = string.Empty;
                     if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                     {
-                        columnHide = string.Join(",", param.ColumnHide);
+                        columnHide = string.Join("_", param.ColumnHide);
                     }
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucGiaVonTieuChuan.xlsx");
