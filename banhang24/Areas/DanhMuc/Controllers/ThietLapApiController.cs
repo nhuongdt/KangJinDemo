@@ -522,6 +522,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             content = content.Replace("{NgayApDungGoiDV}", "<span data-bind=\"text: InforHDprintf().NgayApDungGoiDV\"></span>");
             content = content.Replace("{HanSuDungGoiDV}", "<span data-bind=\"text: InforHDprintf().HanSuDungGoiDV\"></span>");
             content = content.Replace("{MaHoaDon}", "<span data-bind=\"text: InforHDprintf().MaHoaDon\"></span>");
+            content = content.Replace("{IsChuyenPhatNhanh}", "<span data-bind=\"visible: InforHDprintf().IsChuyenPhatNhanh\">Chuyển phát nhanh</span>");
             return content;
         }
         public string Replace_TheoNhom(string content)

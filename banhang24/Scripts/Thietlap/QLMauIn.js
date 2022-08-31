@@ -1,24 +1,4 @@
-﻿
-//===============================
-// Ckeditor
-//===============================
-//CKEDITOR.config.allowedContent = true;
-//CKEDITOR.replace('txtCkeditor', {
-//    height: '42em',
-//    toolbar: [[
-//        'Bold', 'Italic', 'Underline', 'Subscript',
-//        'Superscript', 'Image', 'Table', 'NumberedList',
-//        'BulletedList', 'Outdent', 'Indent', 'JustifyLeft',
-//        'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'TextColor', 'Maximize', 'Source',
-//        'FontSize', 'Format', 'Font'
-//    ]]
-//},
-//    {
-//        entermode: CKEDITOR.ENTER_BR,
-//    });
-
-
-String.prototype.allReplace = function (obj) {
+﻿String.prototype.allReplace = function (obj) {
     var retStr = this;
     for (var x in obj) {
         retStr = retStr.replace(new RegExp(x, 'g'), obj[x]);
@@ -1169,6 +1149,7 @@ function SetConvertDataTest(strInput) {
                 '{ChietKhauHoaDon}': '<span data-bind=\"text: $root.TongGiamGia\"></span>',
                 '{DiaChiCuaHang}': '<span data-bind=\"text: DiaChiCuaHang\"></span>',
                 '{PhiTraHang}': '<span data-bind=\"text: TongChiPhi\"></span>',
+                '{IsChuyenPhatNhanh}': '<span data-bind=\"visible: IsChuyenPhatNhanh\">Chuyển phát nhanh</span>',
 
                 '{TongTienTraHang}': '<span data-bind=\"text: TongTienTraHang\"></span>',
                 '{TongTienTra}': '<span data-bind=\"text: $root.TongTienTra\"></span>',

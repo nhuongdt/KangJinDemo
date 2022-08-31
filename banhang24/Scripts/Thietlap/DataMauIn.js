@@ -344,6 +344,7 @@ var dataMauIn = function () {
     self.PTThue = ko.observable('10');
     self.ChiPhi = ko.observable('410,000');
     self.ChiPhi_GhiChu = ko.observable('Chi phí vận chuyển');
+    self.IsChuyenPhatNhanh = ko.observable(false);
 
     self.TongTienNhan = ko.observable('40,000');
     self.MaPhieu = ko.observable('TH000326');
