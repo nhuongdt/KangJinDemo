@@ -1770,27 +1770,27 @@
                     lenData = self.ReportProduct_Detail().length;
                     let cloumAdd = '';
                     // neu an cot hoahongthuchien --> an luon 2 cot % + VND
-                    if (_columnHide.indexOf('15') > -1) {
-                        cloumAdd += '15_16_';
-                    }
                     if (_columnHide.indexOf('16') > -1) {
-                        cloumAdd += '17_18_';
+                        cloumAdd += '16_17_';
                     }
                     if (_columnHide.indexOf('17') > -1) {
-                        cloumAdd += '19_20_';
+                        cloumAdd += '18_19_';
                     }
                     if (_columnHide.indexOf('18') > -1) {
-                        cloumAdd += '21_22_';
+                        cloumAdd += '20_21_';
+                    }
+                    if (_columnHide.indexOf('19') > -1) {
+                        cloumAdd += '22_23_';
                     }
 
-                    if (_columnHide.indexOf('16') > -1 && cloumAdd.indexOf('15') == -1) {
-                        _columnHide = _columnHide.replace('16', '');
-                    }
-                    if (_columnHide.indexOf('17') > -1 && cloumAdd.indexOf('18') == -1) {
+                    if (_columnHide.indexOf('17') > -1 && cloumAdd.indexOf('16') == -1) {
                         _columnHide = _columnHide.replace('17', '');
                     }
-                    if (_columnHide.indexOf('18') > -1 && cloumAdd.indexOf('17') == -1) {
+                    if (_columnHide.indexOf('18') > -1 && cloumAdd.indexOf('19') == -1) {
                         _columnHide = _columnHide.replace('18', '');
+                    }
+                    if (_columnHide.indexOf('19') > -1 && cloumAdd.indexOf('18') == -1) {
+                        _columnHide = _columnHide.replace('19', '');
                     }
 
                     _columnHide = _columnHide + cloumAdd;

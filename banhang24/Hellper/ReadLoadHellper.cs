@@ -1709,6 +1709,7 @@ namespace banhang24.Hellper
              { TypeRChietKhau.soluong.ToString(),"Số lượng" },
              { TypeRChietKhau.giatritinhck.ToString(),"Giá trị tính CK" },
              { ColumnReportNhanVien.heso.ToString(),"Hệ số" },
+             { TypeRChietKhau.gtriSauHeSo.ToString(),"Giá trị tính" },
              { TypeRChietKhau.hoahongthuchien.ToString(),"Hoa hồng thực hiện" },
              { TypeRChietKhau.hoahongthuchien_theoyc.ToString(),"Hoa hồng NV hỗ trợ" },
              { TypeRChietKhau.hoahongtuvan.ToString(),"Hoa hồng tư vấn" },
@@ -2846,8 +2847,9 @@ namespace banhang24.Hellper
         {
               { ColumnDamageItems.mahoadon.ToString(),"Mã hóa đơn" },
               { ColumnDamageItems.loaiphieu.ToString(),"Loại phiếu" },
-              { ColumnDamageItems.ngaylaphoadon.ToString(),"Thời gian" },
+              { ColumnKhachHang.ngaytao.ToString(),"Ngày xác nhận" },
               { ColumnDamageItems.mahoadonsuachua.ToString(),"HĐ liên quan" },
+              { ColumnDamageItems.ngaylaphoadon.ToString(),"Ngày lập HĐ" },
               { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
               { ColumnDamageItems.tenchinhanh.ToString(),"Chi nhánh" },
               { ColumnDamageItems.tennhanvien.ToString(),"Người yêu cầu" },
