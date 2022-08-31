@@ -480,6 +480,9 @@
                 urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
                 msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
                 break;
+            case 36:
+                msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
+                break;
         }
         // huy hoadon : neu dang co tra hang --> khong duoc huy 
         // huy dat hang: neu dang co HD tao tu HD dat hang --> khong duoc huy
@@ -535,8 +538,11 @@
                                 objDiary.ThoiGianUpdateGV = item.NgayLapHoaDon;
                                 Post_NhatKySuDung_UpdateGiaVon(objDiary);
                                 vmThanhToan.NangNhomKhachHang(item.ID_DoiTuong);
-                                if (item.LoaiHoaDon === 25) {
-                                    HuyHoaDon_UpdateLichBaoDuong(idHoaDon);
+
+                                switch (item.LoaiHoaDon) {                                 
+                                    case 25:
+                                        HuyHoaDon_UpdateLichBaoDuong(idHoaDon);
+                                        break;
                                 }
                             }
                             else {
@@ -558,6 +564,10 @@
 
     function HuyHoaDon_UpdateLichBaoDuong(idHoaDon) {
         ajaxHelper('/api/DanhMuc/GaraAPI/' + 'HuyHoaDon_UpdateLichBaoDuong?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
+        });
+    }
+    function ChangeNgayLapHD_UpdatePhieuXuatKho(idHoaDon) {
+        ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'ChangeNgayLapHD_UpdatePhieuXuatKho?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
         });
     }
     function UpdateLichBD_whenChangeNgayLapHD(idHoaDon, ngaylapOld, ngaylapNew) {
@@ -645,10 +655,8 @@
             NgayLapHoaDon: ngaylapHD,
         };
         // compare to update GiaVon (alway Ngay min)
-        ngaylapHDOld = moment(ngaylapHDOld).format('YYYY-MM-DD HH:mm:ss'); // alway NgayLapHoaDon old (Tinh said 2019.06.20)
-        //if (ngaylapHD < ngaylapHDOld) {
-        //ngaylapHDOld = ngaylapHD;
-        //}
+        ngaylapHDOld = moment(ngaylapHDOld).format('YYYY-MM-DD HH:mm:ss'); // alway NgayLapHoaDon old 
+       
         var myData = {};
         myData.id = id;
         myData.objNewHoaDon = HoaDon;
@@ -677,8 +685,14 @@
                         objDiary.ThoiGianUpdateGV = ngaylapHDOld;
                         Post_NhatKySuDung_UpdateGiaVon(objDiary);
 
-                        if (loaiHoaDon === 25) {
-                            UpdateLichBD_whenChangeNgayLapHD(id, ngaylapHDOld, ngaylapHD);
+                        switch (formElement.LoaiHoaDon) {
+                            case 1:
+                            case 36:
+                                ChangeNgayLapHD_UpdatePhieuXuatKho(id);
+                                break;
+                            case 25:
+                                UpdateLichBD_whenChangeNgayLapHD(id, ngaylapHDOld, ngaylapHD);
+                                break;
                         }
                     }
                     else {
