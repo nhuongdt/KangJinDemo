@@ -383,254 +383,254 @@
 				ID_HoaDon = p.Guid(),
 				TrangThai = p.Boolean(false)
 			}, body: @"SET NOCOUNT ON;
-
-		--- get ctxuatkho old
-		declare @ctXuatOld table (ID uniqueidentifier, ID_ChiTietDinhLuong uniqueidentifier, ID_DonViQuiDoi uniqueidentifier, ID_LoHang  uniqueidentifier, SoLuong float)
-		insert into @ctXuatOld
-		select ctx.ID, ctx.ID_ChiTietDinhLuong, ctx.ID_DonViQuiDoi, ctx.ID_LoHang, ctx.SoLuong
-		from BH_HoaDon_ChiTiet ctx 	
-		join BH_HoaDon hdx on ctx.ID_HoaDon= hdx.ID
-		where  hdx.ID_HoaDon= @ID_HoaDon and hdx.LoaiHoaDon= 35 and hdx.ChoThanhToan is not null
-
-		--- get cthd new
-		declare @ctHDNew table (ID uniqueidentifier, ID_ChiTietDinhLuong uniqueidentifier, ID_ChiTietGoiDV  uniqueidentifier, 
-			ID_DonViQuiDoi uniqueidentifier, ID_LoHang uniqueidentifier,
-			SoLuong float, GiaVon float, TonLuyKe float, GhiChu nvarchar(max),
-			LaHangHoa bit,TenHangHoa nvarchar(max), MaHangHoa nvarchar(max)				
-		)
-		insert into @ctHDNew
-		select ct.ID, ct.ID_ChiTietDinhLuong, ct.ID_ChiTietGoiDV, ct.ID_DonViQuiDoi, ct.ID_LoHang,
-					ct.SoLuong, ct.GiaVon, ct.TonLuyKe, ct.GhiChu,
-					hh.LaHangHoa,
-					hh.TenHangHoa,
-					qd.MaHangHoa
-		from BH_HoaDon_ChiTiet ct 
-		join DonViQuiDoi qd on ct.ID_DonViQuiDoi = qd.ID
-		join DM_HangHoa hh on qd.ID_HangHoa= hh.ID
-		where ct.ID_HoaDon= @ID_HoaDon
-		and ct.ID_ChiTietDinhLuong is not null --- chi lay dichvu dinhluong		
-
-
-		---- compare ctdinhluong old & new --> find cthd same
-		----- 1. ctxuatkho left join ctNew --> check if not exist ctXuatKho
-		declare @tblSame table (ID uniqueidentifier, ID_DichVu uniqueidentifier, ID_CTMuaNew uniqueidentifier, isSame int)
-		insert into @tblSame
-		select 
-			ctold.ID,
-			ctNew.ID_DichVu,
-			ctNew.ID_CTMua,
-			iif(ctNew.ID_DonViQuiDoi is null, 0, iif(ctOld.Soluong = ctnew.SoLuong,1,0)) as Same
-		from @ctXuatOld ctold	
-		left join 
-		(
-			--- cthd new
-			select dv.ID_DonViQuiDoi as ID_DichVu,
-				ct.ID as ID_CTMua,
-				ct.ID_DonViQuiDoi, 
-				ct.ID_LoHang,
-				ct.SoLuong			
-			from @ctHDNew ct 	
-			join @ctHDNew dv on ct.ID_ChiTietDinhLuong = dv.ID
-			where ct.ID != ct.ID_ChiTietDinhLuong
-		) ctNew 
-		on ctold.ID_ChiTietDinhLuong = ctNew.ID_DichVu
-		and ctold.ID_DonViQuiDoi = ctNew.ID_DonViQuiDoi
-			and (ctold.ID_LoHang= ctNew.ID_LoHang or (ctold.ID_LoHang is null and ctNew.ID_LoHang is null))
-
-			------ 2. left join ctNew & ctXuatkho (~ exist in ctNew but not exist ctXuatkho)
-			declare @count_TPNew int = 
-			(
-				select count (*)
-				from
-				(
-				select 
-					ctold.ID,
-					ctNew.ID_DichVu,
-					ctNew.ID_CTMua,			
-					iif(ctold.ID_DonViQuiDoi is null, 0, iif(ctOld.Soluong = ctnew.SoLuong,1,0)) as isSame
-				from
-				(
-					--- cthd new
-				select dv.ID_DonViQuiDoi as ID_DichVu,
-					ct.ID as ID_CTMua,
-					ct.ID_DonViQuiDoi, 
-					ct.ID_LoHang,
-					ct.SoLuong			
-				from @ctHDNew ct 	
-				join @ctHDNew dv on ct.ID_ChiTietDinhLuong = dv.ID
-				where ct.ID != ct.ID_ChiTietDinhLuong
-				)ctNew
-				left join @ctXuatOld ctold	on ctold.ID_ChiTietDinhLuong = ctNew.ID_DichVu
-			and ctold.ID_DonViQuiDoi = ctNew.ID_DonViQuiDoi
-				and (ctold.ID_LoHang= ctNew.ID_LoHang or (ctold.ID_LoHang is null and ctNew.ID_LoHang is null))
-		)tbl where isSame = 0) 
-
-		if not exists (select isSame from @tblSame) 
-		or (select count (*) from @tblSame where isSame = 0) > 0 --- if find elm not same: huy + insert again
-		or @count_TPNew > 0
-		begin			
-		
-					--- ===== HUY PHIEU XUATKHO OLD + CHAY LAI TONKHO ======
-					update BH_HoaDon set ChoThanhToan= null where ID_HoaDon= @ID_HoaDon and LoaiHoaDon= 35
-					declare @ID_HDHuy uniqueidentifier, @ID_DonViHuy uniqueidentifier, @NgayLapHoaDonHuy datetime
-					declare _curHuy cursor
-					for
-					select ID, ID_DonVi, NgayLapHoaDon from BH_HoaDon where ID_HoaDon= @ID_HoaDon and LoaiHoaDon= 35
-					open _curHuy
-					FETCH NEXT FROM _curHuy
-					INTO @ID_HDHuy, @ID_DonViHuy,@NgayLapHoaDonHuy
-					WHILE @@FETCH_STATUS = 0
-					begin
-						BEGIN TRY  
-						exec dbo.UpdateTonLuyKeCTHD_whenUpdate @ID_HDHuy, @ID_DonViHuy, @NgayLapHoaDonHuy
-						exec dbo.UpdateGiaVon_WhenEditCTHD @ID_HDHuy, @ID_DonViHuy, @NgayLapHoaDonHuy
-						END TRY  
-						BEGIN CATCH 
-							select ERROR_MESSAGE() as Err
-						END CATCH  
-						FETCH NEXT FROM _curHuy
-						INTO  @ID_HDHuy, @ID_DonViHuy, @NgayLapHoaDonHuy		
-					end
-					CLOSE _curHuy;
-					DEALLOCATE _curHuy;
-					
-
-					---- ==========  INSERT AGAIN CTXUAT NEW ===========							
-				if exists (select ID from @ctHDNew)
-				begin
-				declare @MaHoaDon varchar(max), @ID_DonVi uniqueidentifier, @ID_NhanVien uniqueidentifier, @ID_DoiTuong uniqueidentifier,
-				@NgayLapHoaDon datetime, @NguoiTao nvarchar(max),@LoaiHoaDon int = 35 ---- xuatkho nguyenvatlieu (LoaiHoaDon = 35)
-				---- get infor hoadon
-				select @MaHoaDon= MaHoaDon, @ID_DonVi = ID_DonVi ,@ID_NhanVien = ID_NhanVien,@ID_DoiTuong = ID_DoiTuong, 
-				@NgayLapHoaDon= NgayLapHoaDon, @NguoiTao= NguoiTao
-				from BH_HoaDon where id= @ID_HoaDon
-
-				declare @count int = (select count (ID) from  @ctHDNew where LaHangHoa = 1)							
-
-				IF @count > 0
-				BEGIN
-						---- find all PhieuXuatKho by ID_hoadongoc: used tang mahoadon theo solanxuat
-					declare @countPhieuXK int = (select count(id) from BH_HoaDon where LoaiHoaDon= 35 and ID_HoaDon = @ID_HoaDon)
-					declare @maXuatKhoGoc nvarchar(max) = (select top 1 MaHoaDon from BH_HoaDon where LoaiHoaDon= 35 and ID_HoaDon = @ID_HoaDon order by NgayTao)	
-
-					declare @maxNgayLap datetime = (select max(DATEADD(MILLISECOND,2,NgayLapHoaDon)) from BH_HoaDon where ID_HoaDon = @ID_HoaDon)
-					if @maxNgayLap is null set @maxNgayLap = DATEADD(MILLISECOND,2,@NgayLapHoaDon)
-
-					declare @ID_ChiTietDinhLuong uniqueidentifier, @TongGiaTriXuat float
-
-					declare _cur cursor
-					for
-					select ct.ID_ChiTietDinhLuong, sum(ct.GiaVon * SoLuong)
-					from @ctHDNew ct
-					where ct.ID != ct.ID_ChiTietDinhLuong
-					group by ct.ID_ChiTietDinhLuong ---- group by dichvu (1 dichvu - 1phieuxuat NVL)
-
-					open _cur
-					FETCH NEXT FROM _cur
-					INTO @ID_ChiTietDinhLuong, @TongGiaTriXuat
-					WHILE @@FETCH_STATUS = 0
-					begin
-				
-						---- INSERT HD XUATKHO ----
-						 declare @ID_XuatKho uniqueidentifier = newID()	, @ngayXuatKho datetime= getdate(),@maXuatKho nvarchar(max)		
-						 declare @YeuCau nvarchar(max)
-						 if @TrangThai ='1' set @YeuCau =N'Tạm lưu'
-							else set @YeuCau = N'Hoàn thành'
-												
-						set @ngayXuatKho = @maxNgayLap 
-						
-						 ---- get mahoadon xuatkho
-						declare @tblMa table (MaHoaDon nvarchar(max)) 	
-						if @countPhieuXK = 0
+    
+    		--- get ctxuatkho old
+    		declare @ctXuatOld table (ID uniqueidentifier, ID_ChiTietDinhLuong uniqueidentifier, ID_DonViQuiDoi uniqueidentifier, ID_LoHang  uniqueidentifier, SoLuong float)
+    		insert into @ctXuatOld
+    		select ctx.ID, ctx.ID_ChiTietDinhLuong, ctx.ID_DonViQuiDoi, ctx.ID_LoHang, ctx.SoLuong
+    		from BH_HoaDon_ChiTiet ctx 	
+    		join BH_HoaDon hdx on ctx.ID_HoaDon= hdx.ID
+    		where  hdx.ID_HoaDon= @ID_HoaDon and hdx.LoaiHoaDon= 35 and hdx.ChoThanhToan is not null
+    
+    		--- get cthd new
+    		declare @ctHDNew table (ID uniqueidentifier, ID_ChiTietDinhLuong uniqueidentifier, ID_ChiTietGoiDV  uniqueidentifier, 
+    			ID_DonViQuiDoi uniqueidentifier, ID_LoHang uniqueidentifier,
+    			SoLuong float, GiaVon float, TonLuyKe float, GhiChu nvarchar(max), ThanhTien float,
+    			LaHangHoa bit,TenHangHoa nvarchar(max), MaHangHoa nvarchar(max)				
+    		)
+    		insert into @ctHDNew
+    		select ct.ID, ct.ID_ChiTietDinhLuong, ct.ID_ChiTietGoiDV, ct.ID_DonViQuiDoi, ct.ID_LoHang,
+    					ct.SoLuong, ct.GiaVon, ct.TonLuyKe, ct.GhiChu, ct.ThanhTien,
+    					hh.LaHangHoa,
+    					hh.TenHangHoa,
+    					qd.MaHangHoa
+    		from BH_HoaDon_ChiTiet ct 
+    		join DonViQuiDoi qd on ct.ID_DonViQuiDoi = qd.ID
+    		join DM_HangHoa hh on qd.ID_HangHoa= hh.ID
+    		where ct.ID_HoaDon= @ID_HoaDon
+    		and ct.ID_ChiTietDinhLuong is not null --- chi lay dichvu dinhluong		
+    
+    
+    		---- compare ctdinhluong old & new --> find cthd same
+    		----- 1. ctxuatkho left join ctNew --> check if not exist ctXuatKho
+    		declare @tblSame table (ID uniqueidentifier, ID_DichVu uniqueidentifier, ID_CTMuaNew uniqueidentifier, isSame int)
+    		insert into @tblSame
+    		select 
+    			ctold.ID,
+    			ctNew.ID_DichVu,
+    			ctNew.ID_CTMua,
+    			iif(ctNew.ID_DonViQuiDoi is null, 0, iif(ctOld.Soluong = ctnew.SoLuong,1,0)) as Same
+    		from @ctXuatOld ctold	
+    		left join 
+    		(
+    			--- cthd new
+    			select dv.ID_DonViQuiDoi as ID_DichVu,
+    				ct.ID as ID_CTMua,
+    				ct.ID_DonViQuiDoi, 
+    				ct.ID_LoHang,
+    				ct.SoLuong			
+    			from @ctHDNew ct 	
+    			join @ctHDNew dv on ct.ID_ChiTietDinhLuong = dv.ID
+    			where ct.ID != ct.ID_ChiTietDinhLuong
+    		) ctNew 
+    		on ctold.ID_ChiTietDinhLuong = ctNew.ID_DichVu
+    		and ctold.ID_DonViQuiDoi = ctNew.ID_DonViQuiDoi
+    			and (ctold.ID_LoHang= ctNew.ID_LoHang or (ctold.ID_LoHang is null and ctNew.ID_LoHang is null))
+    
+    			------ 2. left join ctNew & ctXuatkho (~ exist in ctNew but not exist ctXuatkho)
+    			declare @count_TPNew int = 
+    			(
+    				select count (*)
+    				from
+    				(
+    				select 
+    					ctold.ID,
+    					ctNew.ID_DichVu,
+    					ctNew.ID_CTMua,			
+    					iif(ctold.ID_DonViQuiDoi is null, 0, iif(ctOld.Soluong = ctnew.SoLuong,1,0)) as isSame
+    				from
+    				(
+    					--- cthd new
+    				select dv.ID_DonViQuiDoi as ID_DichVu,
+    					ct.ID as ID_CTMua,
+    					ct.ID_DonViQuiDoi, 
+    					ct.ID_LoHang,
+    					ct.SoLuong			
+    				from @ctHDNew ct 	
+    				join @ctHDNew dv on ct.ID_ChiTietDinhLuong = dv.ID
+    				where ct.ID != ct.ID_ChiTietDinhLuong
+    				)ctNew
+    				left join @ctXuatOld ctold	on ctold.ID_ChiTietDinhLuong = ctNew.ID_DichVu
+    			and ctold.ID_DonViQuiDoi = ctNew.ID_DonViQuiDoi
+    				and (ctold.ID_LoHang= ctNew.ID_LoHang or (ctold.ID_LoHang is null and ctNew.ID_LoHang is null))
+    		)tbl where isSame = 0) 
+    
+    		if not exists (select isSame from @tblSame) 
+    		or (select count (*) from @tblSame where isSame = 0) > 0 --- if find elm not same: huy + insert again
+    		or @count_TPNew > 0
+    		begin			
+    		
+    					--- ===== HUY PHIEU XUATKHO OLD + CHAY LAI TONKHO ======
+    					update BH_HoaDon set ChoThanhToan= null where ID_HoaDon= @ID_HoaDon and LoaiHoaDon= 35
+    					declare @ID_HDHuy uniqueidentifier, @ID_DonViHuy uniqueidentifier, @NgayLapHoaDonHuy datetime
+    					declare _curHuy cursor
+    					for
+    					select ID, ID_DonVi, NgayLapHoaDon from BH_HoaDon where ID_HoaDon= @ID_HoaDon and LoaiHoaDon= 35
+    					open _curHuy
+    					FETCH NEXT FROM _curHuy
+    					INTO @ID_HDHuy, @ID_DonViHuy,@NgayLapHoaDonHuy
+    					WHILE @@FETCH_STATUS = 0
+    					begin
+    						BEGIN TRY  
+    						exec dbo.UpdateTonLuyKeCTHD_whenUpdate @ID_HDHuy, @ID_DonViHuy, @NgayLapHoaDonHuy
+    						exec dbo.UpdateGiaVon_WhenEditCTHD @ID_HDHuy, @ID_DonViHuy, @NgayLapHoaDonHuy
+    						END TRY  
+    						BEGIN CATCH 
+    							select ERROR_MESSAGE() as Err
+    						END CATCH  
+    						FETCH NEXT FROM _curHuy
+    						INTO  @ID_HDHuy, @ID_DonViHuy, @NgayLapHoaDonHuy		
+    					end
+    					CLOSE _curHuy;
+    					DEALLOCATE _curHuy;
+    					
+    
+    					---- ==========  INSERT AGAIN CTXUAT NEW ===========							
+    				if exists (select ID from @ctHDNew)
+    				begin
+    				declare @MaHoaDon varchar(max), @ID_DonVi uniqueidentifier, @ID_NhanVien uniqueidentifier, @ID_DoiTuong uniqueidentifier,
+    				@NgayLapHoaDon datetime, @NguoiTao nvarchar(max),@LoaiHoaDon int = 35 ---- xuatkho nguyenvatlieu (LoaiHoaDon = 35)
+    				---- get infor hoadon
+    				select @MaHoaDon= MaHoaDon, @ID_DonVi = ID_DonVi ,@ID_NhanVien = ID_NhanVien,@ID_DoiTuong = ID_DoiTuong, 
+    				@NgayLapHoaDon= NgayLapHoaDon, @NguoiTao= NguoiTao
+    				from BH_HoaDon where id= @ID_HoaDon
+    
+    				declare @count int = (select count (ID) from  @ctHDNew where LaHangHoa = 1)							
+    
+    				IF @count > 0
+    				BEGIN
+    						---- find all PhieuXuatKho by ID_hoadongoc: used tang mahoadon theo solanxuat
+    					declare @countPhieuXK int = (select count(id) from BH_HoaDon where LoaiHoaDon= 35 and ID_HoaDon = @ID_HoaDon)
+    					declare @maXuatKhoGoc nvarchar(max) = (select top 1 MaHoaDon from BH_HoaDon where LoaiHoaDon= 35 and ID_HoaDon = @ID_HoaDon order by NgayTao)	
+    
+    					declare @maxNgayLap datetime = (select max(DATEADD(MILLISECOND,2,NgayLapHoaDon)) from BH_HoaDon where ID_HoaDon = @ID_HoaDon)
+    					if @maxNgayLap is null set @maxNgayLap = DATEADD(MILLISECOND,2,@NgayLapHoaDon)
+    
+    					declare @ID_ChiTietDinhLuong uniqueidentifier, @TongGiaTriXuat float
+    
+    					declare _cur cursor
+    					for
+    					select ct.ID_ChiTietDinhLuong, sum(ct.GiaVon * SoLuong)
+    					from @ctHDNew ct
+    					where ct.ID != ct.ID_ChiTietDinhLuong
+    					group by ct.ID_ChiTietDinhLuong ---- group by dichvu (1 dichvu - 1phieuxuat NVL)
+    
+    					open _cur
+    					FETCH NEXT FROM _cur
+    					INTO @ID_ChiTietDinhLuong, @TongGiaTriXuat
+    					WHILE @@FETCH_STATUS = 0
+    					begin
+    				
+    						---- INSERT HD XUATKHO ----
+    						 declare @ID_XuatKho uniqueidentifier = newID()	, @ngayXuatKho datetime= getdate(),@maXuatKho nvarchar(max)		
+    						 declare @YeuCau nvarchar(max)
+    						 if @TrangThai ='1' set @YeuCau =N'Tạm lưu'
+    							else set @YeuCau = N'Hoàn thành'
+    												
+    						set @ngayXuatKho = @maxNgayLap 
+    						
+    						 ---- get mahoadon xuatkho
+    						declare @tblMa table (MaHoaDon nvarchar(max)) 	
+    						if @countPhieuXK = 0
     						begin
     							insert into @tblMa
     							exec GetMaHoaDonMax_byTemp @LoaiHoaDon, @ID_DonVi, @ngayxuatkho
     							select @maXuatKho = MaHoaDon from @tblMa
-								
-								set @countPhieuXK = 1
-								set @maXuatKhoGoc = @maXuatKho
-							end
-						else
-							begin
-								set @maXuatKho = CONCAT(@maXuatKhoGoc, '_', @countPhieuXK)    	
-								set @countPhieuXK += 1
-							end
-
-						declare @xuatchoDV nvarchar(max)
-						= (select top 1 CONCAT(N', Dịch vụ: ', TenHangHoa, '(', MaHangHoa, ')') from @ctHDNew where ID= @ID_ChiTietDinhLuong)
-
-						insert into BH_HoaDon (ID, LoaiHoaDon, MaHoaDon, ID_HoaDon, NgayLapHoaDon, ID_DonVi, ID_NhanVien, ID_DoiTuong,
-						TongTienHang, TongThanhToan, TongChietKhau, TongChiPhi, TongGiamGia, TongTienThue, 
-    					PhaiThanhToan, PhaiThanhToanBaoHiem, ChoThanhToan, YeuCau, NgayTao, NguoiTao, DienGiai)
-
-    					values (@ID_XuatKho, @LoaiHoaDon, @maXuatKho,@ID_HoaDon, @ngayXuatKho, @ID_DonVi,@ID_NhanVien, @ID_DoiTuong,
-						@TongGiaTriXuat,0,0,0,0,0, @TongGiaTriXuat,0, @TrangThai, @YeuCau, GETDATE(), @NguoiTao, 
-						concat(N'Xuất nguyên vật liệu cho hóa đơn ', @MaHoaDon, @xuatchoDV) )
+    								
+    								set @countPhieuXK = 1
+    								set @maXuatKhoGoc = @maXuatKho
+    							end
+    						else
+    							begin
+    								set @maXuatKho = CONCAT(@maXuatKhoGoc, '_', @countPhieuXK)    	
+    								set @countPhieuXK += 1
+    							end
     
-							---- INSERT CT XUATKHO ----
-						insert into BH_HoaDon_ChiTiet (ID, ID_HoaDon, SoThuTu, ID_ChiTietGoiDV, ID_ChiTietDinhLuong, --- !! important save ID_ChiTietDinhLuong --> used to caculator GiaVon for DichVu
-								ID_DonViQuiDoi, ID_LoHang, SoLuong, DonGia, GiaVon, ThanhTien, ThanhToan, 
+    						declare @xuatchoDV nvarchar(max)
+    						= (select top 1 CONCAT(N', Dịch vụ: ', TenHangHoa, '(', MaHangHoa, N'), Thành tiền: ', FORMAT(ThanhTien, 'N0') ) from @ctHDNew where ID= @ID_ChiTietDinhLuong)
+    
+    						insert into BH_HoaDon (ID, LoaiHoaDon, MaHoaDon, ID_HoaDon, NgayLapHoaDon, ID_DonVi, ID_NhanVien, ID_DoiTuong,
+    						TongTienHang, TongThanhToan, TongChietKhau, TongChiPhi, TongGiamGia, TongTienThue, 
+    					PhaiThanhToan, PhaiThanhToanBaoHiem, ChoThanhToan, YeuCau, NgayTao, NguoiTao, DienGiai)
+    
+    					values (@ID_XuatKho, @LoaiHoaDon, @maXuatKho,@ID_HoaDon, @ngayXuatKho, @ID_DonVi,@ID_NhanVien, @ID_DoiTuong,
+    						@TongGiaTriXuat,0,0,0,0,0, @TongGiaTriXuat,0, @TrangThai, @YeuCau, GETDATE(), @NguoiTao, 
+    						concat(N'Xuất nguyên vật liệu cho hóa đơn ', @MaHoaDon, @xuatchoDV) )
+    
+    							---- INSERT CT XUATKHO ----
+    						insert into BH_HoaDon_ChiTiet (ID, ID_HoaDon, SoThuTu, ID_ChiTietGoiDV, ID_ChiTietDinhLuong, --- !! important save ID_ChiTietDinhLuong --> used to caculator GiaVon for DichVu
+    								ID_DonViQuiDoi, ID_LoHang, SoLuong, DonGia, GiaVon, ThanhTien, ThanhToan, 
     							PTChietKhau, TienChietKhau, PTChiPhi, TienChiPhi, TienThue, An_Hien, TonLuyKe, GhiChu,  ChatLieu)		
-						select 
-						NEWid(),
-						@ID_XuatKho,
-						row_number() over( order by (select 1)) as SoThuTu,
-						ctsc.ID_ChiTietGoiDV,
-						ctsc.ID_DichVu,
-						ctsc.ID_DonViQuiDoi,
-						ctsc.ID_LoHang,
-						ctsc.SoLuong, ctsc.GiaVon, ctsc.GiaVon, ctsc.GiaTri, 
-						0,0,0,0,0,0,'1', ctsc.TonLuyKe, ctsc.GhiChu,''
-					from 
-					(
-					--- ct hoadon banle or hd sudung GDV
-						select 
-							cttp.ID as ID_ChiTietGoiDV,
-							dv.ID_DonViQuiDoi as ID_DichVu,
-							cttp.ID_DonViQuiDoi, 
-							cttp.ID_LoHang,
-							cttp.SoLuong,
-							cttp.GiaVon,
-							cttp.GiaVon* cttp.SoLuong as GiaTri,			
-							cttp.TonLuyKe,
-							isnull(cttp.GhiChu,'') as GhiChu
-						from @ctHDNew cttp		
-						join @ctHDNew dv on cttp.ID_ChiTietDinhLuong = dv.ID
-						where cttp.ID_ChiTietDinhLuong= @ID_ChiTietDinhLuong
-						and cttp.SoLuong > 0		
-						and cttp.LaHangHoa='1'
-						) ctsc
-
-					delete from @tblMa
-					--BEGIN TRY  
-					--	exec dbo.UpdateTonLuyKeCTHD_whenUpdate @ID_XuatKho, @ID_DonVi, @ngayXuatKho
-					--	exec dbo.    @ID_XuatKho, @ID_DonVi, @ngayXuatKho
-					--end try
-					--begin catch
-					--end catch
-					FETCH NEXT FROM _cur
-					INTO @ID_ChiTietDinhLuong, @TongGiaTriXuat						
-					end
-					CLOSE _cur;
-					DEALLOCATE _cur;		
-				END
-			
-		end
-		end
-		else
-		begin
-			--- dichvu cungloai (same dinhluong, same soluong (todo)
-			select ct.ID,
-				ROW_NUMBER() over (partition by ct.ID order by ct.ID) as RN
-			from @tblSame ct
-			
-			---- update id_ctgoidv, id_ctdinhluong for ctxuatkho old
-			update ctXuat set 
-				ctXuat.ID_ChiTietDinhLuong = ctSame.ID_DichVu,
-				ctXuat.ID_ChiTietGoiDV = ctSame.ID_CTMuaNew
-			from BH_HoaDon_ChiTiet ctXuat
-			join @tblSame ctSame on ctXuat.ID = ctSame.ID
-		end");
+    						select 
+    						NEWid(),
+    						@ID_XuatKho,
+    						row_number() over( order by (select 1)) as SoThuTu,
+    						ctsc.ID_ChiTietGoiDV,
+    						ctsc.ID_DichVu,
+    						ctsc.ID_DonViQuiDoi,
+    						ctsc.ID_LoHang,
+    						ctsc.SoLuong, ctsc.GiaVon, ctsc.GiaVon, ctsc.GiaTri, 
+    						0,0,0,0,0,0,'1', ctsc.TonLuyKe, ctsc.GhiChu,''
+    					from 
+    					(
+    					--- ct hoadon banle or hd sudung GDV
+    						select 
+    							cttp.ID as ID_ChiTietGoiDV,
+    							dv.ID_DonViQuiDoi as ID_DichVu,
+    							cttp.ID_DonViQuiDoi, 
+    							cttp.ID_LoHang,
+    							cttp.SoLuong,
+    							cttp.GiaVon,
+    							cttp.GiaVon* cttp.SoLuong as GiaTri,			
+    							cttp.TonLuyKe,
+    							isnull(cttp.GhiChu,'') as GhiChu
+    						from @ctHDNew cttp		
+    						join @ctHDNew dv on cttp.ID_ChiTietDinhLuong = dv.ID
+    						where cttp.ID_ChiTietDinhLuong= @ID_ChiTietDinhLuong
+    						and cttp.SoLuong > 0		
+    						and cttp.LaHangHoa='1'
+    						) ctsc
+    
+    					delete from @tblMa
+    					--BEGIN TRY  
+    					--	exec dbo.UpdateTonLuyKeCTHD_whenUpdate @ID_XuatKho, @ID_DonVi, @ngayXuatKho
+    					--	exec dbo.    @ID_XuatKho, @ID_DonVi, @ngayXuatKho
+    					--end try
+    					--begin catch
+    					--end catch
+    					FETCH NEXT FROM _cur
+    					INTO @ID_ChiTietDinhLuong, @TongGiaTriXuat						
+    					end
+    					CLOSE _cur;
+    					DEALLOCATE _cur;		
+    				END
+    			
+    		end
+    		end
+    		else
+    		begin
+    			--- dichvu cungloai (same dinhluong, same soluong (todo)
+    			select ct.ID,
+    				ROW_NUMBER() over (partition by ct.ID order by ct.ID) as RN
+    			from @tblSame ct
+    			
+    			---- update id_ctgoidv, id_ctdinhluong for ctxuatkho old
+    			update ctXuat set 
+    				ctXuat.ID_ChiTietDinhLuong = ctSame.ID_DichVu,
+    				ctXuat.ID_ChiTietGoiDV = ctSame.ID_CTMuaNew
+    			from BH_HoaDon_ChiTiet ctXuat
+    			join @tblSame ctSame on ctXuat.ID = ctSame.ID
+    		end");
 
 			CreateStoredProcedure(name: "[dbo].[GetInfor_HDHoTro]", parametersAction: p => new
 			{
@@ -8084,8 +8084,43 @@ BEGIN
     	 from @tmp order by RN DESC
 END");
 
-            Sql(@"declare @ID_HoaDon uniqueidentifier, @LoaiXuatKho int, @IsXuatNgayThuoc bit ='0'
+			Sql(@"declare @ID_HoaDon uniqueidentifier
 		declare _curOut cursor
+		for
+
+		select tbl.ID
+		from
+		(
+			select distinct hd.ID , hd.NgayLapHoaDon, hd.MaHoaDon
+			from BH_HoaDon_ChiTiet ct
+			join BH_HoaDon hd on ct.ID_HoaDon= hd.ID
+			and hd.ChoThanhToan='0'
+			and hd.LoaiHoaDon in (1,2)
+			and ct.ID_ChiTietDinhLuong is not null
+			and not exists (
+						select hdx.ID from BH_HoaDon hdx
+						where hdx.LoaiHoaDon= 35 and hdx.ChoThanhToan='0' and hdx.ID_HoaDon= hd.ID
+						)
+			and hd.NgayLapHoaDon < '2022-09-01'
+		) tbl
+		order by tbl.NgayLapHoaDon
+
+		open _curOut
+		fetch next from _curOut
+		into @ID_HoaDon
+		while @@FETCH_STATUS = 0
+		begin
+				
+			exec dbo.CreateXuatKho_NguyenVatLieu @ID_HoaDon,'0'
+
+			fetch next from _curOut
+			into @ID_HoaDon
+		end
+		close _curOut
+		deallocate _curOut");
+
+			Sql(@"declare @ID_HoaDon uniqueidentifier, @LoaiXuatKho int, @IsXuatNgayThuoc bit ='0'
+		declare _curOut1 cursor
 		for
 
 		select tbl.ID,
@@ -8103,57 +8138,22 @@ END");
 			and hd.LoaiHoaDon in (1,2)
 			and ct.ID_ChiTietDinhLuong is null
 			and hh.LaHangHoa='1'
-			and hd.NgayLapHoaDon < '2022-08-01'
+			and hd.NgayLapHoaDon < '2022-09-01'
 		) tbl
 		order by tbl.NgayLapHoaDon
 
-		open _curOut
-		fetch next from _curOut
+		open _curOut1
+		fetch next from _curOut1
 		into @ID_HoaDon, @LoaiXuatKho
 		while @@FETCH_STATUS = 0
 		begin				
 			exec dbo.CreatePhieuXuat_FromHoaDon @ID_HoaDon,@LoaiXuatKho,@IsXuatNgayThuoc,'0' --- ChothanhToan ='0': xuatkho cho HD cu
 
-			fetch next from _curOut
+			fetch next from _curOut1
 			into @ID_HoaDon, @LoaiXuatKho
 		end
-		close _curOut
-		deallocate _curOut");
-
-            Sql(@"declare @ID_HoaDon uniqueidentifier
-		declare _curOut cursor
-		for
-
-		select tbl.ID
-		from
-		(
-			select distinct hd.ID , hd.NgayLapHoaDon, hd.MaHoaDon
-			from BH_HoaDon_ChiTiet ct
-			join BH_HoaDon hd on ct.ID_HoaDon= hd.ID
-			and hd.ChoThanhToan='0'
-			and hd.LoaiHoaDon in (1,2)
-			and ct.ID_ChiTietDinhLuong is not null
-			and not exists (
-						select hdx.ID from BH_HoaDon hdx
-						where hdx.LoaiHoaDon= 35 and hdx.ChoThanhToan='0' and hdx.ID_HoaDon= hd.ID
-						)
-			and hd.NgayLapHoaDon < '2022-08-01'
-		) tbl
-		order by tbl.NgayLapHoaDon
-
-		open _curOut
-		fetch next from _curOut
-		into @ID_HoaDon
-		while @@FETCH_STATUS = 0
-		begin
-				
-			exec dbo.CreateXuatKho_NguyenVatLieu @ID_HoaDon,'0'
-
-			fetch next from _curOut
-			into @ID_HoaDon
-		end
-		close _curOut
-		deallocate _curOut");
+		close _curOut1
+		deallocate _curOut1");
         }
         
         public override void Down()
