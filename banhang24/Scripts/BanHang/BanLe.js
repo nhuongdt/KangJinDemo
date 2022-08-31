@@ -8566,7 +8566,7 @@ var NewModel_BanHangLe = function () {
                         UpdateNhomKH_DB(objHDAdd.ID_DoiTuong);
                         vmApDungNhomHoTro.CreatePhieuXuat_NguyenVatLieu(objHDAdd.ID);
                         vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(objHDAdd.ID, objHDAdd.LoaiHoaDon);
-                        vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom);
+                        vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom, itemDB.NgayLapHoaDon);
                         break;
                     case 19:
                     case 6:
