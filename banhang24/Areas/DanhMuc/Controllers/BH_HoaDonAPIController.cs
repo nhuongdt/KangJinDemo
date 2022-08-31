@@ -2090,7 +2090,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 try
                 {
                     var data = db.BH_HoaDon.Find(id);
-                    if (data!=null)
+                    if (data != null)
                     {
                         data.ChoThanhToan = null;
                         db.SaveChanges();
@@ -3273,7 +3273,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 if (db != null)
                 {
                     var data = from hd in db.BH_HoaDon
-                               where hd.ID_HoaDon == id && hd.ChoThanhToan != null 
+                               where hd.ID_HoaDon == id && hd.ChoThanhToan == false
                                select hd;
 
                     if (data != null && data.Count() > 0)
@@ -3811,6 +3811,28 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpPost, HttpGet]
+        public IHttpActionResult ChangeNgayLapHD_UpdatePhieuXuatKho(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    var hd = db.BH_HoaDon.Find(idHoaDon);
+                    if (hd != null)
+                    {
+                        var ngaylap = hd.NgayLapHoaDon.AddMilliseconds(4);
+                        db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon).ToList().ForEach(x => x.NgayLapHoaDon = ngaylap);
+                        db.SaveChanges();
+                    }
+                    return ActionTrueNotData(string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.Message + ex.InnerException);
+                }
+            }
+        }
         [HttpPost]
         public IHttpActionResult Update_ThongTinBaoHiem([FromBody] JObject data)
         {
@@ -5654,8 +5676,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     txtFirst = "Cập nhật phiếu nhập hàng khách thừa: ";
                                     break;
                             }
-                            noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", objHoaDon.PhaiThanhToan.ToString("#,#", CultureInfo.InvariantCulture), ", Thời gian: ", ngaylapHD.ToString("dd/MM/yyy HH:mm:ss"));
-                            chitiet = string.Concat(noidung, " bao gồm: <br />", chitiet);
+                            noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", objHoaDon.PhaiThanhToan.ToString("#,#", CultureInfo.InvariantCulture), 
+                                ", Thời gian: ", ngaylapHD.ToString("dd/MM/yyy HH:mm:ss"), ", Người sửa: ", objHoaDon.NguoiSua);
+                            chitiet = string.Concat(noidung, " <br /> <b> Thông tin chi tiết bao gồm: </b><br />", chitiet);
 
                             HT_NhatKySuDung nky = new HT_NhatKySuDung
                             {
@@ -11485,7 +11508,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         hdUp.NgaySua = DateTime.Now;
                         hdUp.ID_CheckIn = objHoaDon.ID_CheckIn;// idnhomhang hotro
                         hdUp.TongGiamGia = objHoaDon.TongGiamGia;// songaythuoc
+                        hdUp.DienGiai = objHoaDon.DienGiai;
                         hdUp.NguoiSua = objHoaDon.NguoiSua;
+                        hdUp.An_Hien = objHoaDon.An_Hien;// chuyenphatnhanh: 0.không, 1.có
 
                         #region BH_ChiTietHoaDon
                         classhoadonchitiet.Delete_HoaDon_ChiTiet_ByIDHoaDon(objHoaDon.ID);
