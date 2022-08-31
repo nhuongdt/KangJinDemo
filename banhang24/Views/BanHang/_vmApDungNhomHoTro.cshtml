@@ -111,7 +111,8 @@
                                         <th class="td-stt">#</th>
                                         <th>Tên  nhóm hàng hóa (dịch vụ)</th>
                                         <th style="width: 15%">Xuất ngày thuốc</th>
-                                        <th style="width: 20%">Số ngày</th>
+                                        <th style="width: 10%">Số ngày</th>
+                                        <th style="width: 30%">Ghi chú</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -133,6 +134,12 @@
                                                    v-bind:disabled="!item.IsXuatNgayThuoc"
                                                    v-on:keyup="EditNgayThuoc(index)"
                                                    v-model="item.SoNgayThuoc" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control"
+                                                   v-bind:disabled="!item.IsXuatNgayThuoc"
+                                                   v-model="item.GhiChu"
+                                                   v-on:keyup="EditGhiChu(index)" />
                                         </td>
                                     </tr>
                                 </tbody>
@@ -234,7 +241,7 @@
                         </div>
                     </div>
                     <div class="form-group margin-top-10" v-if="typeUpdate !== 0">
-                        <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <div class="col-sm-7 col-md-7 col-lg-7 col-xs-7">
                             <div class="css-form-detail">
                                 <products :con-ton-kho="0"
                                           :loai-hang-hoa="1"
@@ -248,7 +255,11 @@
                                           v-on:chose-product="ChoseProduct_Day">
                                 </products>
                             </div>
-
+                        </div>
+                        <div class="col-sm-5 col-md-5 col-lg-5 col-xs-5">
+                            <label>
+                                <input type="checkbox" v-model="$root.NhomHangApply.IsChuyenPhatNhanh" /> Chuyển phát nhanh
+                            </label>
                         </div>
                     </div>
 
@@ -399,7 +410,11 @@
                 SanPham: [],
             },
 
-            NhomHangApply: { TenNhomHangHoa: '', Id_NhomHang: null, IsXuatNgayThuoc: false, SoNgayThuoc: 0 },
+            NhomHangApply: {
+                TenNhomHangHoa: '', Id_NhomHang: null, IsXuatNgayThuoc: false, SoNgayThuoc: 0,
+                IsChuyenPhatNhanh: false,
+                GhiChu: '',
+            },
             PublicProducts: [],
             DayProducts: [],
             NhomHangEnoughCondition: [],
@@ -479,10 +494,11 @@
 
                 // change nhom
                 if (item.Id_NhomHang !== self.NhomHangApply.Id_NhomHang) {
-                    self.NhomHangApply.IsXuatNgayThuoc = false;
+                    self.NhomHangApply.IsXuatNgayThuoc = true;
                     self.NhomHangApply.SoNgayThuoc = '';
                     self.NhomHangApply.TenNhomHangHoa = item.TenNhomHangHoa;
                     self.NhomHangApply.Id_NhomHang = item.Id_NhomHang;
+                    self.NhomHangApply.IsChuyenPhatNhanh = false;
 
                     // reset product
                     self.PublicProducts = [];
@@ -501,10 +517,11 @@
                         if (hdHoTro[i].IDRandomHD === self.InvoiceChosing.IDRandom) {
                             hdHoTro[i].SPChung = [];
                             hdHoTro[i].SPNgayThuoc = [];
-                            hdHoTro[i].IsXuatNgayThuoc = false;
+                            hdHoTro[i].IsXuatNgayThuoc = true;
                             hdHoTro[i].SoNgayThuoc = '';
                             hdHoTro[i].ID_NhomHang = item.Id_NhomHang;
                             hdHoTro[i].TenNhomHangHoa = item.TenNhomHangHoa;
+                            hdHoTro[i].IsChuyenPhatNhanh = false;
                             break;
                         }
                     }
@@ -513,6 +530,7 @@
                     for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
                         if (i === index) {
                             self.NhomHangEnoughCondition[i].IsApply = isCheck;
+                            self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = true;// default xuatngaythuoc
                         }
                         else {
                             self.NhomHangEnoughCondition[i].IsApply = false;
@@ -530,6 +548,8 @@
                 if (!isCheck) {
                     self.DayProducts = [];
                     self.NhomHangApply.SoNgayThuoc = '';
+                    self.NhomHangApply.IsChuyenPhatNhanh = false;
+                    self.NhomHangApply.GhiChu = '';
                 }
                 self.NhomHangApply.IsXuatNgayThuoc = isCheck;
 
@@ -537,6 +557,7 @@
                     if (i === index) {
                         self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = isCheck;
                         self.NhomHangEnoughCondition[i].SoNgayThuoc = '';
+                        self.NhomHangEnoughCondition[i].GhiChu = '';
                         break;
                     }
                 }
@@ -555,6 +576,7 @@
                             SoNgayThuoc: '',
                             IsXuatNgayThuoc: false,
                             IsApply: false,
+                            GhiChu: '',
                         }
                         self.NhomHangEnoughCondition.push(obj);
                     }
@@ -567,6 +589,7 @@
                             self.NhomHangEnoughCondition[i].IsApply = true;
                             self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = nhomApply.IsXuatNgayThuoc;
                             self.NhomHangEnoughCondition[i].SoNgayThuoc = nhomApply.SoNgayThuoc;
+                            self.NhomHangEnoughCondition[i].GhiChu = nhomApply.GhiChu;
                             break;
                         }
                     }
@@ -579,7 +602,10 @@
                 self.typeUpdate = 1;
                 self.TongXuatNgayThuoc = 0;
                 self.TongXuatChung = 0;
-                self.NhomHangApply = { TenNhomHangHoa: '', Id_NhomHang: null, IsXuatNgayThuoc: false, SoNgayThuoc: 0 };
+                self.NhomHangApply = {
+                    TenNhomHangHoa: '', Id_NhomHang: null, IsXuatNgayThuoc: false, SoNgayThuoc: 0,
+                    IsChuyenPhatNhanh: false, GhiChu: '',
+                };
                 self.PublicProducts = [];
                 self.DayProducts = [];
                 self.NhomHangEnoughCondition = [];
@@ -612,6 +638,9 @@
                         self.newHDHoaTro.MaDoiTuong = itFor.MaDoiTuong;
                         self.newHDHoaTro.TenDoiTuong = itFor.TenDoiTuong;
 
+                        self.NhomHangApply.IsChuyenPhatNhanh = itFor.IsChuyenPhatNhanh;
+                        self.NhomHangApply.GhiChu = itFor.GhiChu;
+
                         self.PublicProducts = itFor.SPChung;
                         self.DayProducts = itFor.SPNgayThuoc;
                         break;
@@ -624,6 +653,8 @@
                         self.NhomHangEnoughCondition[0].IsXuatNgayThuoc = false;
                         self.NhomHangApply.Id_NhomHang = null;
                         self.NhomHangApply.TenNhomHangHoa = '';
+                        self.NhomHangApply.IsChuyenPhatNhanh = false;
+                        self.NhomHangApply.GhiChu = '';
                     }
                     else {
                         self.NhomHangApply.Id_NhomHang = self.newHDHoaTro.ID_NhomHang;
@@ -636,6 +667,7 @@
                                 self.NhomHangEnoughCondition[i].IsApply = true;
                                 self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = self.newHDHoaTro.IsXuatNgayThuoc;
                                 self.NhomHangEnoughCondition[i].SoNgayThuoc = self.newHDHoaTro.SoNgayThuoc;
+                                self.NhomHangEnoughCondition[i].GhiChu = self.NhomHangApply.GhiChu;
                                 break;
                             }
                         }
@@ -679,7 +711,9 @@
                             TenNhomHangHoa: hd.TenNhomHangHoa,
                             Id_NhomHang: hd.Id_NhomHang,
                             IsXuatNgayThuoc: hd.SoNgayThuoc > 0,
+                            IsChuyenPhatNhanh: hd.IsChuyenPhatNhanh,
                             SoNgayThuoc: hd.SoNgayThuoc,
+                            GhiChu: hd.DienGiai,
                         };
 
                         // assign nvthuchien + tpdinhluong (get from giaodichban_dat_tra.js: avoi get again data multiple time
@@ -911,6 +945,7 @@
                 self.DayProducts = [];
                 self.NhomHangApply.IsXuatNgayThuoc = false;
                 self.NhomHangApply.SoNgayThuoc = '';
+                self.NhomHangApply.IsChuyenPhatNhanh = false;
                 for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
                     self.NhomHangEnoughCondition[i].IsXuatNgayThuoc = false;
                     self.NhomHangEnoughCondition[i].SoNgayThuoc = '';
@@ -929,6 +964,7 @@
                         hdHoTro[i].SPNgayThuoc = [];
                         hdHoTro[i].IsXuatNgayThuoc = false;
                         hdHoTro[i].SoNgayThuoc = 0;
+                        hdHoTro[i].IsChuyenPhatNhanh = false;
                         break;
                     }
                 }
@@ -958,7 +994,7 @@
                 let $this = $(event.currentTarget);
                 formatNumberObj($this);
                 let gtri = $this.val();
-                self.NhomHangApply.SoNgayThuoc = formatNumberToFloat($this.val());;
+                self.NhomHangApply.SoNgayThuoc = formatNumberToFloat($this.val());
 
                 for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
                     if (i === index) {
@@ -971,6 +1007,18 @@
                     self.DayProducts[i].SoLuong = formatNumberToFloat(self.DayProducts[i].TienChietKhau) * self.NhomHangApply.SoNgayThuoc;
                 }
                 self.Caculator_TongSLXuat(1);
+            },
+            EditGhiChu: function (index) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                self.NhomHangApply.GhiChu = $this.val();
+
+                for (let i = 0; i < self.NhomHangEnoughCondition.length; i++) {
+                    if (i === index) {
+                        self.NhomHangEnoughCondition[i].GhiChu = $this.val();
+                        break;
+                    }
+                }
             },
             PublicProducts_EditTienChietKhau: function (index, item) {
                 let self = this;
@@ -1018,8 +1066,6 @@
                 }
             },
             showModalTPDL: function (item) {
-                let self = this;
-
                 if (formatNumberToFloat(item.SoLuong) === 0) {
                     ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập nguyên vậy liệu');
                     return;
@@ -1225,6 +1271,8 @@
                         hdHoTro[i].ID_NhomHang = self.NhomHangApply.Id_NhomHang;
                         hdHoTro[i].SoNgayThuoc = self.NhomHangApply.SoNgayThuoc;
                         hdHoTro[i].IsXuatNgayThuoc = self.NhomHangApply.IsXuatNgayThuoc;
+                        hdHoTro[i].IsChuyenPhatNhanh = self.NhomHangApply.IsChuyenPhatNhanh;
+                        hdHoTro[i].DienGiai = self.NhomHangApply.GhiChu;
                         hdHoTro[i].SPChung = self.PublicProducts;
                         hdHoTro[i].SPNgayThuoc = self.DayProducts;
                         hdHoTro[i].TenNhomHangHoa = self.NhomHangApply.TenNhomHangHoa;
@@ -1243,6 +1291,8 @@
                         ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
                         SoNgayThuoc: self.NhomHangApply.SoNgayThuoc,
                         IsXuatNgayThuoc: self.NhomHangApply.IsXuatNgayThuoc,
+                        IsChuyenPhatNhanh: self.NhomHangApply.IsChuyenPhatNhanh,
+                        DienGiai: self.NhomHangApply.GhiChu,
                         SPChung: self.PublicProducts,
                         SPNgayThuoc: self.DayProducts,
                         TenNhomHangHoa: self.NhomHangApply.TenNhomHangHoa,
@@ -1258,7 +1308,7 @@
 
                 $('#vmApDungNhomHoTro').modal('hide');
             },
-            saveHoaDonHoTro: function (idRandomHD) {
+            saveHoaDonHoTro: function (idRandomHD, ngaylapHD) {// used to lui ngaylapHD
                 let self = this;
 
                 let hd = {};
@@ -1292,8 +1342,10 @@
                             ID_NhanVien: self.inforLogin.ID_NhanVien,
                             NguoiTao: self.inforLogin.UserLogin,
                             TongGiamGia: formatNumberToFloat(hdEx[0].SoNgayThuoc),
-                            NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+                            NgayLapHoaDon: moment(ngaylapHD).add(4, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
                             ChoThanhToan: false,
+                            DienGiai: hdEx[0].DienGiai,
+                            An_Hien: hdEx[0].IsChuyenPhatNhanh,
 
                             TenDoiTuong: hdEx[0].TenDoiTuong,
                             MaDoiTuong: hdEx[0].MaDoiTuong,
@@ -1318,8 +1370,9 @@
                         ID_NhanVien: self.inforLogin.ID_NhanVien,
                         NguoiTao: self.inforLogin.UserLogin,
                         TongGiamGia: formatNumberToFloat(self.NhomHangApply.SoNgayThuoc),
-                        NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
                         ChoThanhToan: false,
+                        DienGiai: self.NhomHangApply.GhiChu,
+                        An_Hien: self.NhomHangApply.IsChuyenPhatNhanh,
 
                         TenDoiTuong: self.InvoiceChosing.TenDoiTuong,
                         MaDoiTuong: self.InvoiceChosing.MaDoiTuong,
@@ -1332,6 +1385,7 @@
                     sOld = '<br /> <b> Thông tin cũ: </b>';
                     sOld = sOld.concat('<br> Nhóm hàng:', self.inforOld.NhomHang.TenNhomHangHoa);
                     sOld = sOld.concat('<br /> Xuất ngày thuốc: ', self.inforOld.NhomHang.IsXuatNgayThuoc ? hd.SoNgayThuoc : 'không');
+                    sOld = sOld.concat('<br /> Chuyển phát nhanh: ', self.inforOld.NhomHang.IsChuyenPhatNhanh ? 'có' : 'không');
 
                     let arrChung = $.grep(self.inforOld.SanPham, function (x) {
                         return x.ChatLieu !== '6';
@@ -1429,6 +1483,7 @@
                                     ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
                                 NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
                                     ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
+                                    ' <br /> Chuyển phát nhanh: ', hd.An_Hien ? 'có' : 'không',
                                     sListSP, user, sOld),
                                 LoaiHoaDon: 36,
                                 ID_HoaDon: data.ID,
@@ -1459,8 +1514,9 @@
             CreatePhieuXuat_NguyenVatLieu: function (idHoaDon) {
                 let self = this;
                 ajaxHelper(self.UrlAPI.HoaDon + 'CreatePhieuXuatKho_NguyenVatLieu?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
+                    console.log('CreatePhieuXuatKho_NguyenVatLieu ', x);
                     if (x.res) {
-                        console.log('CreatePhieuXuatKho_NguyenVatLieu ', x);
+                        
                     }
                 })
             },
@@ -1468,8 +1524,8 @@
                 let self = this;
                 $.getJSON(self.UrlAPI.HoaDon + 'CreatePhieuXuat_FromHoaDon?idHoaDon=' + idHoaDon
                     + "&loaiHoaDon=" + loaiHoaDon + '&isXuatNgayThuoc=' + xuatNgayThuoc).done(function (x) {
+                        console.log('xuatngaythuoc ', x);
                         if (x.res) {
-                            console.log('xuatngaythuoc ', x);
                         }
                     })
             },
