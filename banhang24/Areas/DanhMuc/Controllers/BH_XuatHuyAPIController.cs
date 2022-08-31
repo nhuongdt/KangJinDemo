@@ -885,6 +885,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         BC_XuatHuyPRC DM = new BC_XuatHuyPRC();
                         DM.MaHoaDon = item.MaHoaDon;
+                        DM.NgaySua = item.NgaySua;
                         DM.MaHoaDonSuaChua = item.MaHoaDonGoc;
                         DM.NgayLapHoaDon = item.NgayLapHoaDon;
                         DM.LoaiPhieu = item.LoaiPhieu;
@@ -1886,14 +1887,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 try
                 {
                     var hd = db.BH_HoaDon.Find(idHoaDon);
-                    DateTime dtNow = DateTime.Now;
+                    DateTime dt = DateTime.Now;
                     if (hd != null)
                     {
+                        dt = hd.NgayLapHoaDon;// keep ngaylapold & return
                         hd.ChoThanhToan = false;
-                        hd.NgayLapHoaDon = dtNow;
+                        hd.NgaySua = DateTime.Now;
                         db.SaveChanges();
                     }
-                    return ActionTrueData(dtNow);
+                    return ActionTrueData(dt);
                 }
                 catch (Exception ex)
                 {
