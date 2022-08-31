@@ -66,6 +66,8 @@
             TongPhiThanhToan: 0,
             PhiThanhToan_PTGiaTri: 0,
             PhiThanhToan_LaPhanTram: true,
+            ListTKPos: [],
+            ListTKChuyenKhoan: [],
         },
         PhieuThuBaoHiem: {},
         listData: {
@@ -347,7 +349,7 @@
             }
             $('#ThongTinThanhToanKHNCC').modal('show');
         },
-        showModalThanhToan: function (hd, formType = 1) { // 1.gara, 2.lapphieuthu banle, 3.thegiatri
+        showModalThanhToan: function (hd, formType = 1) { // 1.gara, 2.lapphieuthu banle, 3.thegiatri, 4. hoantrathe
             var self = this;
             self.isCheckTraLaiCoc = false;
             self.saveOK = false;
@@ -499,11 +501,7 @@
             self.PhieuThuKhach.DaThanhToan = tongPos + tongCK + tienmat + tiencoc + tienTGT + tienDiem;
 
             let thucthu = 0;
-            if (self.PhieuThuKhach.HoanTraTamUng > 0) {
-                thucthu = formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
-                self.PhieuThuKhach.TienThua = self.PhieuThuKhach.DaThanhToan - self.PhieuThuKhach.PhaiThanhToan;
-            }
-            else {
+            if (self.formType === 4) {
                 thucthu = tongPos + tongCK + tienmat + tiencoc;
                 self.PhieuThuKhach.TienThua = self.PhieuThuKhach.DaThanhToan + self.inforHoaDon.KhachDaTra - self.inforHoaDon.PhaiThanhToan;
                 if (self.PhieuThuKhach.TienThua > 0) {
@@ -513,6 +511,23 @@
                         - formatNumberToFloat(self.PhieuThuKhach.TTBangDiem);
                 }
             }
+            else {
+                if (self.PhieuThuKhach.HoanTraTamUng > 0) {
+                    thucthu = formatNumberToFloat(self.PhieuThuKhach.TienDatCoc);
+                    self.PhieuThuKhach.TienThua = self.PhieuThuKhach.DaThanhToan - self.PhieuThuKhach.PhaiThanhToan;
+                }
+                else {
+                    thucthu = tongPos + tongCK + tienmat + tiencoc;
+                    self.PhieuThuKhach.TienThua = self.PhieuThuKhach.DaThanhToan + self.inforHoaDon.KhachDaTra - self.inforHoaDon.PhaiThanhToan;
+                    if (self.PhieuThuKhach.TienThua > 0) {
+                        thucthu = self.inforHoaDon.PhaiThanhToan
+                            - self.inforHoaDon.KhachDaTra
+                            - formatNumberToFloat(self.PhieuThuKhach.TienTheGiaTri)
+                            - formatNumberToFloat(self.PhieuThuKhach.TTBangDiem);
+                    }
+                }
+            }
+
             self.PhieuThuKhach.ThucThu = thucthu;
             self.Caculator_ThucThu();
             self.GetChiPhi_Visa();
@@ -1169,7 +1184,6 @@
             else {
                 self.inforHoaDon.ConNo = self.inforHoaDon.TongThanhToan - thucthuHD - self.inforHoaDon.KhachDaTra;
             }
-            self.UpdateChietKhauNV_ifChangeThucThu();
         },
 
         HoaHongHD_UpdateHeSo_AndBind: function () {
@@ -1460,6 +1474,36 @@
                 }
             }
         },
+        ChangeMucNapTGT_CaculatorAgainTienChietKhau: function (qct = []) {
+            let self = this;
+            let thucthu = 0, chiphi = 0;
+            for (let i = 0; i < qct.length; i++) {
+                let tienthu = formatNumberToFloat(qct[i].TienThu);
+                switch (formatNumberToFloat(qct[i].HinhThucThanhToan)) {
+                    case 1:
+                    case 3:
+                        thucthu += tienthu;
+                        break;
+                    case 2:
+                        thucthu += tienthu;
+                        if (qct[i].LaPTChiPhiNganHang) {
+                            chiphi = tienthu * qct[i].ChiPhiNganHang / 100;
+                        }
+                        else {
+                            chiphi = qct[i].ChiPhiNganHang;
+                        }
+                        break;
+                }
+            }
+            thucthu = thucthu - chiphi;
+
+            for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                let itemFor = self.GridNVienBanGoi_Chosed[i];
+                if (parseInt(itemFor.TinhChietKhauTheo) === 1) {
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = thucthu * formatNumberToFloat(itemFor.PT_ChietKhau) / 100 * itemFor.HeSo;
+                }
+            }
+        },
         UpdateIDQuyHoaDon_toBHThucHien: function (idHoaDon, idQuyHD) {
             var self = this;
             if (self.GridNVienBanGoi_Chosed.length > 0 && idHoaDon !== null) {
@@ -1511,6 +1555,7 @@
                     self.saveOK = true;
                     break;
                 case 3://thegiatri
+                case 4:// hoan tgt
                     self.saveOK = true;
                     break;
             }
@@ -2404,6 +2449,13 @@
                             if (x.res === true) {
 
                                 quyhd.MaHoaDon = x.data.MaHoaDon;
+
+                                switch (self.formType) {
+                                    case 3:
+                                    case 4:
+                                        self.ChangeMucNapTGT_CaculatorAgainTienChietKhau(lstQuyCT);
+                                        break;
+                                }
                                 self.UpdateIDQuyHoaDon_toBHThucHien(idHoaDon, x.data.ID);
 
                                 let diary = {
