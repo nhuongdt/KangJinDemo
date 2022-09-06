@@ -1,0 +1,412 @@
+﻿<div class="modal fade in " id="vmDieuChinhTGT">
+    <div class="modal-dialog draggable modal-md">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="material-icons">close</i>
+                </button>
+                <h4 class="modal-title">
+                    Điều chỉnh số dư thẻ giá trị
+                </h4>
+            </div>
+            <div class="modal-body floatleft">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="form-group floatleft">
+                            <label>
+                                Khách hàng
+                            </label>
+                            <div class="form-news">
+                                <customers :text-search="TenDoiTuong"
+                                           :loai-doi-tuong="1"
+                                           :disable-search="false"
+                                           :id-chi-nhanh="inforLogin.ID_DonVi"
+                                           v-on:reset-customer-parent="$root.ResetCustomer"
+                                           v-on:change-customer-parent="ChangeCustomer">
+                                </customers>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label class="css-form-label ">
+
+                            </label>
+                            <div class="form-news">
+
+                                <span class="bold">
+                                    {{MaDoiTuong}}
+                                </span>
+                                <span class="bold" v-if="DienThoai">
+                                    ({{DienThoai}})
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>
+                                Số dư hiện tại
+                            </label>
+                            <div class="form-news">
+                                <span class="bold">{{formatNumber3Digit(SoDuHienTai_toDate)}}</span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Mã phiếu </label>
+                            <div class="form-news">
+                                <input type="text" autofocus class="form-control" placeholder="Mã tự động"
+                                       v-model="$root.MaHoaDon">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Ngày điều chỉnh</label>
+                            <div class="form-news">
+                                <date-time :date-chose="NgayDieuChinh"
+                                           :role-change-date="!$root.isKhoaSo"
+                                           v-on:change-date="ChangeNgayDieuChinh">
+                                </date-time>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Giá trị sau điều chỉnh </label>
+                            <div class="form-news">
+                                <input type="text" autofocus class="form-control"
+                                       onkeyup="return formatNumberObj(this)"
+                                       onkeypress="return keypressNumberSign(event)"
+                                       v-model="GiaTriDieuChinh">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Mô tả</label>
+                            <div class="form-news">
+                                <textarea placeholder="Mô tả"
+                                          v-model="DienGiai"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i> Bỏ qua
+                </button>
+                <button type="button" class="btn btn-cancel"
+                        v-if="typeUpdate == 2 && !$root.isKhoaSo"
+                        v-on:click="$root.HuyPhieu">
+                    <i class="fa fa-trash"></i> Xóa
+                </button>
+                <button type="button" class="btn btn-main"
+                        v-if="!isLoading && typeUpdate == 1"
+                        v-on:click="Save">
+                    <i class="fa fa-check-square"></i> Lưu
+                </button>
+                <button type="button" class="btn btn-main"
+                        v-if="!isLoading && typeUpdate == 2 && !$root.isKhoaSo"
+                        v-on:click="Save">
+                    <i class="fa fa-check-square"></i> Cập nhật
+                </button>
+                <button type="button" class="btn btn-save"
+                        v-if="isLoading">
+                    <i class="fa fa-save"></i>
+                    Đang lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmDieuChinhTGT = new Vue({
+        el: '#vmDieuChinhTGT',
+        components: {
+            'date-time': cpmDatetime,
+            'customers': cmpChoseCustomer,
+        },
+        created: function () {
+            let self = this;
+            self.inforLogin = {
+                ID_DonVi: VHeader.IdDonVi,
+                ID_NhanVien: VHeader.IdNhanVien,
+                UserLogin: VHeader.UserLogin,
+            }
+            self.role.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
+            self.role.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+            self.isKhoaSo = false;
+        },
+        data: {
+            typeUpdate: 1, //1.insert,2.update
+            saveOK: false,
+            isLoading: false,
+            isKhoaSo: false,
+            role: { Delete: false, ChangeNgayLap: true },
+            inforOld: {},
+
+            txtSearchCus: '',
+            ID: const_GuidEmpty,
+            MaDoiTuong: '',
+            TenDoiTuong: '',
+            DienThoai: '',
+            ID_DoiTuong: null,
+            MaHoaDon: 0,
+            GiaTriDieuChinh: 0,
+            SoDuHienTai_toDate: 0,
+            DienGiai: '',
+            NgayDieuChinh: new Date()
+        },
+        methods: {
+            GetSoDuTGT_byTime: async function () {
+                let self = this;
+                let idDoiTuong = self.ID_DoiTuong;
+                let dtchange = self.NgayDieuChinh;
+                let obj = {
+                    SoDuTheGiaTri: 0,
+                    CongNoThe: 0,
+                    TongNapThe: 0,
+                    SuDungThe: 0,
+                }
+                if (!commonStatisJs.CheckNull(idDoiTuong) && idDoiTuong !== const_GuidEmpty) {
+                    let objXX = await ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'Get_SoDuTheGiaTri_ofKhachHang?idDoiTuong=' + idDoiTuong
+                        + '&datetime=' + dtchange, 'GET').done(function () {
+                        }).then(function (data) {
+                            if (data != null && data.length > 0) {
+                                let soduX = data[0].SoDuTheGiaTri;
+                                soduX = soduX > 0 ? soduX : 0;
+                                obj = {
+                                    SoDuTheGiaTri: soduX,
+                                    CongNoThe: data[0].CongNoThe,
+                                    TongNapThe: data[0].TongThuTheGiaTri,
+                                    SuDungThe: data[0].SuDungThe,
+                                }
+                            }
+                            return obj;
+                        });
+                    return objXX;
+                }
+                return obj;
+            },
+            showModal: async function (cus = {}) {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 1;
+                self.isLoading = false;
+                self.isKhoaSo = false;
+
+                if (!$.isEmptyObject(cus)) {
+                    self.ID_DoiTuong = cus.ID;
+                    self.MaDoiTuong = cus.MaDoiTuong;
+                    self.TenDoiTuong = cus.TenDoiTuong;
+                    self.DienThoai = cus.DienThoai;
+                }
+                else {
+                    self.ID_DoiTuong = null;
+                    self.MaDoiTuong = '';
+                    self.TenDoiTuong = '';
+                    self.DienThoai = '';
+                }
+
+                self.ID = const_GuidEmpty;
+                self.MaHoaDon = '';
+                self.DienGiai = '';
+                self.GiaTriDieuChinh = 0;
+                self.SoDuHienTai_toDate = 0;
+                self.NgayDieuChinh = moment(new Date()).format('YYYY-MM-DD HH:mm');
+
+                let obj = await self.GetSoDuTGT_byTime();
+                self.SoDuHienTai_toDate = obj.SoDuTheGiaTri;
+                self.GiaTriDieuChinh = 0;
+
+                $('#vmDieuChinhTGT').modal('show');
+            },
+            showModalUpdate: async function (item) {
+                let self = this;
+                self.saveOK = false;
+                self.typeUpdate = 2;
+                self.isLoading = false;
+                self.isKhoaSo = false;
+                self.inforOld = $.extend({}, true, item);
+
+                self.ID = item.ID;
+                self.ID_DoiTuong = item.ID_DoiTuong;
+                self.MaDoiTuong = item.MaDoiTuong;
+                self.TenDoiTuong = item.TenDoiTuong;
+                self.MaHoaDon = item.MaHoaDon;
+                self.DienGiai = item.DienGiai;
+                self.NgayDieuChinh = moment(item.NgayLapHoaDon).format('YYYY-MM-DD HH:mm');
+
+                let obj = await self.GetSoDuTGT_byTime();
+                self.SoDuHienTai_toDate = obj.SoDuTheGiaTri;
+
+                if (item.PhatSinhTang > 0) {
+                    self.GiaTriDieuChinh = item.PhatSinhTang + obj.SoDuTheGiaTri;
+                }
+                else {
+
+                }
+                self.GiaTriDieuChinh = item.PhatSinhTang + obj.SoDuTheGiaTri;
+
+                $('#vmDieuChinhTGT').modal('show');
+            },
+            ResetCustomer: function () {
+                self.ID_DoiTuong = null;
+                self.MaDoiTuong = '';
+                self.TenDoiTuong = '';
+                self.DienThoai = '';
+            },
+            ChangeCustomer: async function (item) {
+                let self = this;
+                self.ID_DoiTuong = item.ID;
+                self.MaDoiTuong = item.MaDoiTuong;
+                self.TenDoiTuong = item.TenDoiTuong;
+                self.DienThoai = item.DienThoai;
+
+                let obj = await self.GetSoDuTGT_byTime();
+                self.SoDuHienTai_toDate = obj.SoDuTheGiaTri;
+                self.GiaTriDieuChinh = 0;
+            },
+
+            ChangeNgayDieuChinh: async function (e) {
+                let self = this;
+                var dtchange = moment(e).format('YYYY-MM-DD HH:mm');
+                if (commonStatisJs.CheckNull(e)) {
+                    if (self.typeUpdate === 2) {
+                        dtchange = moment(self.inforOld.NgayLapHoaDon).add(-2, 'miliseconds').format('YYYY-MM-DD HH:mm:ss');
+                    }
+                }
+                else {
+                    let khoaSo = VHeader.CheckKhoaSo(moment(e).format('YYYY-MM-DD'));
+                    if (khoaSo) {
+                        ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                        return;
+                    }
+                    self.NgayDieuChinh = dtchange;
+                }
+                let obj = await self.GetSoDuTGT_byTime(dtchange);
+                if (self.typeUpdate === 2) {
+
+                }
+                else {
+                    self.SoDuHienTai_toDate = obj.SoDuTheGiaTri;
+                    self.GiaTriDieuChinh = 0;
+                }
+            },
+            HuyPhieu: function () {
+                let self = this;
+                let khoaSo = VHeader.CheckKhoaSo(moment(self.inforOld.NgayLapHoaDon).format('YYYY-MM-DD'));
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Delete);
+                    return;
+                }
+                dialogConfirm('Xác nhận xóa', 'Bạn có chắc chắn muốn hủy phiếu điều chỉnh <b> ' + self.inforOld.MaHoaDon + ' </b> không?', function () {
+                    $.getJSON('/api/DanhMuc/BH_HoaDonAPI/' + 'TGT_HuyPhieuDieuChinh?id=' + self.inforOld.ID).done(function (x) {
+                        console.log(x)
+                        if (x.res) {
+                            ShowMessage_Success('Hủy phiếu điều chỉnh thành công');
+
+                            $('#modalPopup_thegiatri').modal('hide');
+
+                            let diary = {
+                                LoaiNhatKy: 3,
+                                ID_DonVi: VHeader.IdDonVi,
+                                ID_NhanVien: VHeader.IdNhanVien,
+                                ChucNang: 'Hủy phiếu điều chỉnh thẻ giá trị',
+                                NoiDung: 'Hủy phiếu điều chỉnh thẻ giá trị '.concat(self.inforOld.MaHoaDon),
+                                NoiDungChiTiet: 'Thông tin hủy:'.concat('<br /> Mã phiếu: ', self.inforOld.MaHoaDon,
+                                    '<br /> Khách hàng: ', self.inforOld.TenDoiTuong, ' (', self.inforOld.MaDoiTuong, ')',
+                                    '<br /> Giá trị điều chỉnh: ', formatNumber3Digit(self.inforOld.PhatSinhTang),
+                                    '<br /> Ngày điều chỉnh: ', self.inforOld.NgayLapHoaDon,
+                                    '<br /> User hủy phiếu: ', VHeader.UserLogin),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+                        // because set at danh sach TGT --> reset
+                        self.inforOld = {};
+                    })
+                });
+            },
+            Save: function () {
+                let self = this;
+
+                let khoaSo = VHeader.CheckKhoaSo(moment(self.NgayDieuChinh).format('YYYY-MM-DD'));
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                    return;
+                }
+                if (commonStatisJs.CheckNull(self.ID_DoiTuong)) {
+                    ShowMessage_Danger('Vui lòng chọn khách hàng');
+                    return false;
+                }
+                if (commonStatisJs.CheckNull(self.GiaTriDieuChinh)) {
+                    ShowMessage_Danger('Vui lòng nhập giá trị điều chỉnh ');
+                    return false;
+                }
+
+                let sTangGiam = '';
+                let gtri = formatNumberToFloat(self.GiaTriDieuChinh);
+                let chenhlech = gtri - self.SoDuHienTai_toDate;
+                let ngayLap = self.NgayDieuChinh;
+                if (chenhlech > 0) {
+                    sTangGiam = ' (tăng '.concat(formatNumber3Digit(chenhlech), ')');
+                }
+                else {
+                    sTangGiam = ' (giảm '.concat(formatNumber3Digit(chenhlech), ')');
+                }
+
+                let newHD = {
+                    ID: self.ID,
+                    MaHoaDon: self.MaHoaDon,
+                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                    ID_DonVi: self.inforLogin.ID_DonVi,
+                    ID_DoiTuong: self.ID_DoiTuong,
+                    NgayLapHoaDon: ngayLap,
+                    TongChiPhi: chenhlech,
+                    TongTienHang: chenhlech,
+                    TongTienThue: self.SoDuHienTai_toDate,
+                    DienGiai: self.DienGiai,
+                    NguoiTao: self.inforLogin.UserLogin,
+                    LoaiHoaDon: 23,
+                    ChoThanhToan: false,
+                }
+                self.isLoading = true;
+                let url = 'Post_HoaDonDieuChinhTGT';
+                let sInforOld = '';
+                if (self.typeUpdate === 2) {
+                    url = 'Update_HoaDonDieuChinhTGT';
+                    newHD.NguoiSua = self.inforLogin.UserLogin;
+
+                    let gtriOld = self.inforOld.PhatSinhTang;
+                    if (gtriOld === 0) {
+                        gtriOld = self.inforOld.PhatSinhGiam;
+                    }
+                    sInforOld = '<br/> <b> Thông tin cũ </b> '.concat('<br /> - Mã phiếu: ', self.inforOld.MaHoaDon,
+                        '<br /> Giá trị điều chỉnh: ', formatNumber3Digit(gtriOld),
+                        '<br /> Ngày điều chỉnh: ', moment(self.inforOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                    )
+                }
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + url, 'POST', newHD).done(function (x) {
+                    console.log(x)
+                    if (x.res) {
+                        self.saveOK = true;
+                        ShowMessage_Success("Điều chỉnh số dư thẻ thành công");
+                        let diary = {
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ChucNang: "Điều chỉnh số dư thẻ",
+                            NoiDung: "Điều chỉnh số dư thẻ, ".concat('khách hàng', ': ', self.TenDoiTuong,
+                                ' (', self.MaDoiTuong, ')'),
+                            NoiDungChiTiet: 'Tạo phiếu điều chỉnh '.concat(x.data.MaHoaDon,
+                                ' <br /> Mã khách hàng', ': ', self.MaDoiTuong,
+                                ' <br /> Số dư cũ: ', formatNumber3Digit(self.SoDuHienTai_toDate),
+                                ' <br /> Giá trị điều chỉnh: ', formatNumber3Digit(gtri), sTangGiam,
+                                ' <br /> Ngày điều chỉnh: ', moment(ngayLap, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY HH:mm'),
+                                ' <br/ > Người điều chỉnh: ', self.inforLogin.UserLogin, sInforOld),
+                            LoaiNhatKy: self.typeUpdate,
+                        };
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }
+                    else {
+                        ShowMessage_Danger(x.mess);
+                    }
+                    self.isLoading = false;
+                    $('#vmDieuChinhTGT').modal('hide');
+                })
+            },
+        }
+    })
+</script>
