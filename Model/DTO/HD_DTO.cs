@@ -40,6 +40,18 @@ namespace Model
         public double? TongTang { get; set; }
         public double? TongGiam { get; set; }
     }
+
+    public class TGT_NhatKyDieuChinhDTO: TGT_LichSuNapTraDTO
+    {
+        public Guid? ID_DoiTuong { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string NguoiTao { get; set; }
+        public string TenDonVi { get; set; }
+        public string STrangThai { get; set; }
+        public bool? ChoThanhToan { get; set; }
+    }
+
     public class BaoCaoHoatDongXe_TongHop
     {
         public Guid? ID_Xe { get; set; }
