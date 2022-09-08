@@ -71,4 +71,22 @@ namespace Model
         public List<string> IDNhomHangs { get; set; }
         public string LoaiHangHoas { get; set; }
     }
+
+    public class ParamPreportThuChi : CommonParamSearch
+    {
+        public List<string> LoaiDoiTuongs { get; set; }
+        public List<string> KhoanMucThuChis { get; set; }
+    }
+    public class ReportThuChi_LoaiTien 
+    {
+        public string NgayLapYYYYMMDD { get; set; }
+        public double? ThuTienMat { get; set; }
+        public double? ThuTienPOS { get; set; }
+        public double? ThuChuyenKhoan { get; set; }
+        public double? TongThu { get; set; }
+        public double? TongThuTienMat { get; set; }
+        public double? TongThuTienPOS { get; set; }
+        public double? TongThuChuyenKhoan { get; set; }
+        public double? TongThuAll { get; set; }
+    }
 }
