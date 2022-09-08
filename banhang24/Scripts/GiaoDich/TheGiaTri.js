@@ -18,7 +18,8 @@
     self.filter = ko.observable();
 
     self.LaHD_NapThe = ko.observable(true);
-    self.LaHD_HoanTraThe = ko.observable();
+    self.LaHD_HoanTraThe = ko.observable(false);
+    self.LaHD_DieuChinhThe = ko.observable(false);
 
     self.MucNapTu = ko.observable();
     self.MucNapDen = ko.observable();
@@ -51,6 +52,7 @@
     self.NguonKhachs = ko.observableArray();
     self.NhanViens = ko.observableArray();
     self.CongTy = ko.observableArray();
+    self.DSTheDieuChinh = ko.observableArray();
 
     // the giatri
     self.TongTaiKhoanThe = ko.observable(0);
@@ -507,7 +509,7 @@
     self.GridNVienBanGoi_Chosed = ko.observableArray();
 
 
-    function Get_SoDuTheGiaTri_ofKhachHang(idDoiTuong, datetime, isChoseKH) {
+    function Get_SoDuTheGiaTri_ofKhachHang(idDoiTuong, datetime) {
         ajaxHelper(DMDoiTuongUri + 'Get_SoDuTheGiaTri_ofKhachHang?idDoiTuong=' + idDoiTuong + '&datetime=' + datetime, 'GET').done(function (data) {
             if (data != null && data.length > 0) {
                 // used to get when print
@@ -515,21 +517,6 @@
                 self.SoDuTheGiaTri(data[0].SoDuTheGiaTri);
                 self.SuDungThe(data[0].SuDungThe);
                 self.HoanTraTheGiaTri(data[0].HoanTraTheGiaTri);// tien su dung the đến thời điểm hiện tại
-
-                if (isChoseKH) {
-                    $('#txtSoDuHienTai').html(formatNumber(data[0].SoDuTheGiaTri));
-                    $('#btnModalLichSu').show();
-                    tiennap();
-                    SearchLSNapTien();
-                }
-            }
-            else {
-                if (isChoseKH) {
-                    $('#txtSoDuHienTai').html(0);
-                    $('#btnModalLichSu').show();
-                    tiennap();
-                    SearchLSNapTien();
-                }
             }
         });
     }
@@ -657,6 +644,9 @@
         var MucNapTu = $('.currencytu').val();
         var MucNapDen = $('.currencyden').val();
         var txtMaHDon = self.filter();
+        if (commonStatisJs.CheckNull(txtMaHDon)) {
+            txtMaHDon = '';
+        }
 
         var statusInvoice = 1;
         if (self.TT_DaHuy()) {
@@ -812,65 +802,90 @@
         };
 
         console.log('model ', model)
-        var url = 'GetListTheNap';
-        if (isExport) {
-            model.pageSize = 1000;
-            url = 'XuatFileThenNap';
-        }
         $('.content-table').gridLoader();
-        ajaxHelper(BH_HoaDonUri + url, 'POST', model).done(function (obj) {
-            $('.content-table').gridLoader({ show: false });
-            if (isExport) {
-                self.DownloadFileExportXLSX(obj);
 
-                var objDiary = {
-                    ID_NhanVien: idNhanVien,
-                    ID_DonVi: idDonVi,
-                    ChucNang: "Thẻ nạp",
-                    NoiDung: "Xuất danh sách hóa đơn thẻ nạp",
-                    NoiDungChiTiet: "Xuất danh sách hóa đơn thẻ nạp",
-                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-                };
-                Insert_NhatKyThaoTac_1Param(objDiary);
-            }
-            else {
-                localStorage.removeItem('FindHD');
-                if (obj.res === true && obj.lst.length > 0) {
-                    self.HoaDons(obj.lst);
-
-                    let itFirst = obj.lst[0];
+        var url = 'GetListTheNap';
+        if (self.LaHD_DieuChinhThe()) {
+            ajaxHelper(BH_HoaDonUri + 'TGT_GetNhatKyDieuChinh', 'POST', model).done(function (x) {
+                if (x.res && x.lst.length > 0) {
+                    let itFirst = x.lst[0];
+                    self.DSTheDieuChinh(x.lst);
                     self.TotalRecord(itFirst.TotalRow);
                     self.PageCount(itFirst.TotalPage);
-                    self.TongMucNapAll(itFirst.TongMucNapAll);
-                    self.TongKhuyenMaiAll(itFirst.TongKhuyenMaiAll);
-                    self.TongTienNapAll(itFirst.TongTienNapAll);
-                    self.TongChietKhauAll(itFirst.TongChietKhauAll);
-                    self.SoDuSauNapAll(itFirst.SoDuSauNapAll);
-                    self.PhaiThanhToanAll(itFirst.PhaiThanhToanAll);
-                    self.TienMatAll(itFirst.TienMatAll);
-                    self.TienATMAll(itFirst.TienATMAll);
-                    self.TienGuiAll(itFirst.TienGuiAll);
-                    self.KhachDaTraAll(itFirst.KhachDaTraAll);
-
-                    LoadHtmlGrid();
+                    self.TongMucNapAll(itFirst.TongTang);
+                    self.TongKhuyenMaiAll(itFirst.TongGiam);
                 }
                 else {
-                    self.HoaDons([]);
+                    self.DSTheDieuChinh([]);
                     self.TotalRecord(0);
                     self.PageCount(0);
                     self.TongMucNapAll(0);
                     self.TongKhuyenMaiAll(0);
-                    self.TongTienNapAll(0);
-                    self.TongChietKhauAll(0);
-                    self.SoDuSauNapAll(0);
-                    self.PhaiThanhToanAll(0);
-                    self.TienMatAll(0);
-                    self.TienATMAll(0);
-                    self.TienGuiAll(0);
-                    self.KhachDaTraAll(0);
                 }
+            }).always(function () {
+                $('.content-table').gridLoader({ show: false });
+            })
+        }
+        else {
+            if (isExport) {
+                model.pageSize = 1000;
+                url = 'XuatFileThenNap';
             }
-        });
+
+            ajaxHelper(BH_HoaDonUri + url, 'POST', model).done(function (obj) {
+                $('.content-table').gridLoader({ show: false });
+                if (isExport) {
+                    self.DownloadFileExportXLSX(obj);
+
+                    var objDiary = {
+                        ID_NhanVien: idNhanVien,
+                        ID_DonVi: idDonVi,
+                        ChucNang: "Thẻ nạp",
+                        NoiDung: "Xuất danh sách hóa đơn thẻ nạp",
+                        NoiDungChiTiet: "Xuất danh sách hóa đơn thẻ nạp",
+                        LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                    };
+                    Insert_NhatKyThaoTac_1Param(objDiary);
+                }
+                else {
+                    localStorage.removeItem('FindHD');
+                    if (obj.res === true && obj.lst.length > 0) {
+                        self.HoaDons(obj.lst);
+
+                        let itFirst = obj.lst[0];
+                        self.TotalRecord(itFirst.TotalRow);
+                        self.PageCount(itFirst.TotalPage);
+                        self.TongMucNapAll(itFirst.TongMucNapAll);
+                        self.TongKhuyenMaiAll(itFirst.TongKhuyenMaiAll);
+                        self.TongTienNapAll(itFirst.TongTienNapAll);
+                        self.TongChietKhauAll(itFirst.TongChietKhauAll);
+                        self.SoDuSauNapAll(itFirst.SoDuSauNapAll);
+                        self.PhaiThanhToanAll(itFirst.PhaiThanhToanAll);
+                        self.TienMatAll(itFirst.TienMatAll);
+                        self.TienATMAll(itFirst.TienATMAll);
+                        self.TienGuiAll(itFirst.TienGuiAll);
+                        self.KhachDaTraAll(itFirst.KhachDaTraAll);
+
+                        LoadHtmlGrid();
+                    }
+                    else {
+                        self.HoaDons([]);
+                        self.TotalRecord(0);
+                        self.PageCount(0);
+                        self.TongMucNapAll(0);
+                        self.TongKhuyenMaiAll(0);
+                        self.TongTienNapAll(0);
+                        self.TongChietKhauAll(0);
+                        self.SoDuSauNapAll(0);
+                        self.PhaiThanhToanAll(0);
+                        self.TienMatAll(0);
+                        self.TienATMAll(0);
+                        self.TienGuiAll(0);
+                        self.KhachDaTraAll(0);
+                    }
+                }
+            });
+        }
     }
     SearchTheNap();
 
@@ -957,10 +972,27 @@
     });
     self.LaHD_NapThe.subscribe(function (newVal) {
         self.currentPage(0);
-        SearchTheNap();
+        if (newVal) {
+            self.LaHD_DieuChinhThe(false);
+        }
+        if (!self.LaHD_DieuChinhThe()) {
+            SearchTheNap();
+        }
     });
     self.LaHD_HoanTraThe.subscribe(function (newVal) {
         self.currentPage(0);
+        if (newVal) {
+            self.LaHD_DieuChinhThe(false);
+        }
+        if (!self.LaHD_DieuChinhThe()) {
+            SearchTheNap();
+        }
+    });
+
+    self.LaHD_DieuChinhThe.subscribe(function (newVal) {
+        self.currentPage(0);
+        self.LaHD_NapThe(false);
+        self.LaHD_HoanTraThe(false);
         SearchTheNap();
     });
 
@@ -1549,6 +1581,29 @@
 
     self.ShowPopup_InforHD_PhieuThu = function (item, itHD) {
         vmThanhToan.showModalUpdate(item.ID, itHD.ConNo);
+    }
+
+    self.showPopDieuChinh = async function () {
+        vmDieuChinhTGT.showModal();
+    }
+    self.HuyPhieuDieuChinh = function (item) {
+        vmDieuChinhTGT.inforOld = item;
+        vmDieuChinhTGT.HuyPhieu();
+    }
+    self.UpdatePhieuDieuChinh = async function (item) {
+        vmDieuChinhTGT.inforOld = $.extend({}, true, item);
+        vmDieuChinhTGT.typeUpdate = 2;
+        vmDieuChinhTGT.ID = item.ID;
+        vmDieuChinhTGT.NgayDieuChinh = item.NgayLapHoaDon;
+        vmDieuChinhTGT.MaHoaDon = item.MaHoaDon;
+        vmDieuChinhTGT.ID_DoiTuong = item.ID_DoiTuong;
+        vmDieuChinhTGT.MaDoiTuong = item.MaDoiTuong;
+        vmDieuChinhTGT.TenDoiTuong = item.TenDoiTuong;
+        vmDieuChinhTGT.DienGiai = $('#diengiai_' + item.ID).val();
+        vmDieuChinhTGT.GiaTriDieuChinh = item.PhatSinhTang > 0 ? item.PhatSinhTang : item.PhatSinhGiam;
+        let obj = await vmDieuChinhTGT.GetSoDuTGT_byTime();
+        vmDieuChinhTGT.SoDuHienTai_toDate = obj.SoDuTheGiaTri + vmDieuChinhTGT.GiaTriDieuChinh;
+        vmDieuChinhTGT.Save();
     }
 };
 
