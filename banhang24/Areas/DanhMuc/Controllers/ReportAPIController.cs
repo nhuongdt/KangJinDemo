@@ -4624,7 +4624,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassReportKho reportKho = new ClassReportKho(db);
                 List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst = reportKho.GetBaoCaoKho_XuatDichVuDinhLuong(param);
                 int Rown = lst.Count();
-                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon,x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
+                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon, x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
                 {
                     SoLuongDichVu = t.FirstOrDefault().SoLuongDichVu,
                     GiaTriDichVu = t.FirstOrDefault().GiaTriDichVu,
@@ -6864,6 +6864,53 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet, HttpPost]
+        public IHttpActionResult BaoCaoThuChi_TheoLoaiTien(ParamPreportThuChi param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassReportTaiChinh reportTaiChinh = new ClassReportTaiChinh(db);
+                    List<ReportThuChi_LoaiTien> data = reportTaiChinh.BCThuChi_TheoLoaiTien(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.Message + ex.InnerException);
+                }
+            }
+        }
+        [HttpGet, HttpPost]
+        public IHttpActionResult Export_BCThucThuTheoLoaiTien(ParamPreportThuChi param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    Class_officeDocument classOffice = new Class_officeDocument(db);
+                    ClassReportTaiChinh reportTaiChinh = new ClassReportTaiChinh(db);
+                    List<ReportThuChi_LoaiTien> lst = reportTaiChinh.BCThuChi_TheoLoaiTien(param);
+                    DataTable excel = classOffice.ToDataTable<ReportThuChi_LoaiTien>(lst);
+                    excel.Columns.Remove("TongThuTienMat");
+                    excel.Columns.Remove("TongThuTienPOS");
+                    excel.Columns.Remove("TongThuChuyenKhoan");
+                    excel.Columns.Remove("TongThuAll");
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoThucThuTheoLoaiTien.xlsx");
+                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoThucThuTheoLoaiTien.xlsx");
+                    fileSave = classOffice.createFolder_Download(fileSave);
+                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, false, null, param.ReportTime, param.ReportBranch);
+
+                    fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoThucThuTheoLoaiTien.xlsx");
+                    return ActionTrueNotData(fileSave);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.Message + ex.InnerException);
+                }
+            }
+        }
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult Export_BCTC_SoQuyTienMat_v2([FromBody] JObject objIn)
         {
@@ -7377,24 +7424,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 List<int> lstColHideFix = new List<int>();
                 if (objIn["ColHide"] != null)
                     lstColHide = objIn["ColHide"].ToObject<List<int>>();
-                foreach(var item in lstColHide)
+                foreach (var item in lstColHide)
                 {
-                    if(item == 4)
+                    if (item == 4)
                     {
                         lstColHideFix.Add(item);
                         lstColHideFix.Add(5);
                         lstColHideFix.Add(6);
-                    }    
-                    else if(item == 7)
+                    }
+                    else if (item == 7)
                     {
                         lstColHideFix.Add(item);
                         lstColHideFix.Add(8);
                         lstColHideFix.Add(9);
-                    }    
+                    }
                     else
                     {
                         lstColHideFix.Add(item);
-                    }    
+                    }
                 }
                 string strColHide = "";
                 if (lstColHideFix.Count > 0)
