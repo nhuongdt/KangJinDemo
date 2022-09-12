@@ -8566,7 +8566,7 @@ var NewModel_BanHangLe = function () {
                         UpdateNhomKH_DB(objHDAdd.ID_DoiTuong);
                         vmApDungNhomHoTro.CreatePhieuXuat_NguyenVatLieu(objHDAdd.ID);
                         vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(objHDAdd.ID, objHDAdd.LoaiHoaDon);
-                        vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom, itemDB.NgayLapHoaDon);
+                        //vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom, itemDB.NgayLapHoaDon);
                         break;
                     case 19:
                     case 6:
@@ -17138,23 +17138,39 @@ var NewModel_BanHangLe = function () {
     // Khuyen Mai HoaDon
     self.GetListKM_HoaDon = function () {
         let ctDoiTuong = self.ChiTietDoiTuong();
+        let objHD = {};
         if (commonStatisJs.CheckNull(ctDoiTuong) || ctDoiTuong.length === 0) {
-            ShowMessage_Danger('Vui lòng chọn khách hàng');
-            return;
+            //ShowMessage_Danger('Vui lòng chọn khách hàng');
+            //return;
+             objHD = {
+                IDRandom: self.HoaDons().IDRandom(),
+                LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
+                ID: self.HoaDons().ID(),
+                ID_DonVi: self.HoaDons().ID_DonVi(),// used to save hoadon when update
+                ID_DoiTuong: null,
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                NguoiTao: userLogin,
+            }
         }
-        let cusCode = ctDoiTuong[0].MaDoiTuong;
-        let cusName = ctDoiTuong[0].TenDoiTuong;
-        let objHD = {
-            IDRandom: self.HoaDons().IDRandom(),
-            LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
-            ID: self.HoaDons().ID(),
-            ID_DonVi: self.HoaDons().ID_DonVi(),// used to save hoadon when update
-            ID_DoiTuong: self.HoaDons().ID_DoiTuong(),
-            MaDoiTuong: cusCode,
-            TenDoiTuong: cusName,
+        else {
+            let cusCode = ctDoiTuong[0].MaDoiTuong;
+            let cusName = ctDoiTuong[0].TenDoiTuong;
+             objHD = {
+                IDRandom: self.HoaDons().IDRandom(),
+                LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
+                ID: self.HoaDons().ID(),
+                ID_DonVi: self.HoaDons().ID_DonVi(),// used to save hoadon when update
+                ID_DoiTuong: self.HoaDons().ID_DoiTuong(),
+                MaDoiTuong: cusCode,
+                TenDoiTuong: cusName,
+                NguoiTao: userLogin,
+            }
         }
+       
         vmApDungNhomHoTro.showModal(objHD);
         return;
+
         if (_maHoaDon === '') {
             _maHoaDon = $('.bill-bxslide  li.using font').text();
         }
@@ -20218,6 +20234,7 @@ var NewModel_BanHangLe = function () {
         vmThanhToanGara.RoleChange_ChietKhauNV = vmHoaHongDV.role.ThayDoiChietKhau;
         vmUpAnhHoaDon.roleUpdateImg = self.roleUpdateImg();
         vmNKGoiBaoDuong.roleUpdateImg = self.roleUpdateImg();
+        vmApDungNhomHoTro.roleChangeNgayLapHD = CheckQuyenExist('HoaDon_ThayDoiThoiGian');
 
         self.roleCustomer_Insert(CheckQuyenExist('KhachHang_ThemMoi'));
         self.roleCustomer_ThanhToanNo(CheckQuyenExist('KhachHang_ThanhToanNo'));

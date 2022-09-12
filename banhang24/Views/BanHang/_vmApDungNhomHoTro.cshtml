@@ -53,7 +53,7 @@
                 <h4 class="modal-title">{{typeUpdate == 0?'Hóa đơn hỗ trợ':'Áp dụng hỗ trợ'}}</h4>
             </div>
             <div class="modal-body">
-                <div v-if="typeUpdate == 2">
+                <div>
                     <div class="form-group">
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
                             <label class="span-group">Thông tin hóa đơn</label>
@@ -65,7 +65,7 @@
                                 <label>Mã hóa đơn:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                {{InvoiceChosing.MaHoaDon}}
+                                <input type="text" class="form-control" v-model="InvoiceChosing.MaHoaDon" readonly placeholder="Mã tự động" />
                             </div>
                         </div>
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
@@ -73,17 +73,26 @@
                                 <label>Khách hàng:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                {{InvoiceChosing.TenDoiTuong}} ({{InvoiceChosing.MaDoiTuong}})
+                                <customers :text-search="InvoiceChosing.TenDoiTuong"
+                                           :loai-doi-tuong="1"
+                                           :disable-search="typeUpdate == 2"
+                                           :id-chi-nhanh="inforLogin.ID_DonVi"
+                                           v-on:reset-customer-parent="$root.ResetCustomer"
+                                           v-on:change-customer-parent="$root.ChangeCustomer">
+                                </customers>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" style="border-bottom:1px solid #ccc">
+                    <div class="form-group">
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
                             <div class="col-sm-5 col-md-4 col-lg-4 col-xs-12">
                                 <label>Ngày lập:</label>
                             </div>
                             <div class="col-sm-7 col-md-8 col-lg-8 col-xs-12">
-                                {{moment(InvoiceChosing.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                <my-date-time :date-chose="InvoiceChosing.NgayLapHoaDon"
+                                              :role-change-date="$root.roleChangeNgayLapHD"
+                                              v-on:change-date="ChangeNgayLapHoaDon">
+                                </my-date-time>
                             </div>
                         </div>
                         <div class="col-sm-6 col-md-6 col-lg-6 col-xs-12 nopadding-left">
@@ -137,7 +146,6 @@
                                         </td>
                                         <td>
                                             <input class="form-control"
-                                                   v-bind:disabled="!item.IsXuatNgayThuoc"
                                                    v-model="item.GhiChu"
                                                    v-on:keyup="EditGhiChu(index)" />
                                         </td>
@@ -342,7 +350,7 @@
                     </button>
                     <button type="button" class="btn btn-main" v-if="!isLoading && typeUpdate!== 0"
                             v-on:click="Agree">
-                        <i class="fa fa-save"></i> {{typeUpdate==1?'Áp dụng':'Cập nhật'}}
+                        <i class="fa fa-save"></i> {{typeUpdate==1?'Lưu':'Cập nhật'}}
                     </button>
                     <button type="button" class="btn btn-main" v-if="isLoading">
                         <i class="fa fa-save"></i> Đang lưu
@@ -358,6 +366,8 @@
         el: '#vmApDungNhomHoTro',
         components: {
             'products': cmpChoseProduct,
+            'my-date-time': cpmDatetime,
+            'customers': cmpChoseCustomer,
         },
         created: function () {
             var self = this;
@@ -385,6 +395,7 @@
                 })
                 self.roleCapNhatHoaHongDichVu = hhDV.length > 0;
                 self.roleChangeDinhLuong = VHeader.Quyen.indexOf('HoaDon_ThayDoiThanhPhanDinhLuong') > -1;
+                self.roleChangeNgayLapHD = VHeader.Quyen.indexOf('HoaDon_ThayDoiThoiGian') > -1;
             }
             console.log('vmApDungNhomHoTro')
             self.GetListNhomHang_SetupHotro();
@@ -397,6 +408,8 @@
 
             roleChangeDinhLuong: true,
             roleCapNhatHoaHongDichVu: true,
+            roleChangeNgayLapHD: false,
+            roleUpdate_ifOtherDate: false,
 
             listData: {
                 AllNhomHangs: [],
@@ -406,6 +419,7 @@
             },
 
             inforOld: {
+                HoaDon: {},
                 NhomHang: {},
                 SanPham: [],
             },
@@ -595,10 +609,27 @@
                     }
                 }
             },
+            CheckOtherDate: function () {
+                let self = this;
+                let role = false;
+                if (self.typeUpdate === 1) {
+                    role = true;
+                }
+                else {
+                    role = VHeader.Quyen.indexOf('GiaoDich_ChoPhepSuaDoiChungTu_NeuKhacNgayHienTai') > -1;
+                }
+                let now = moment(new Date()).format('YYYY-MM-DD');
+                let ngaylap = moment(self.InvoiceChosing.NgayLapHoaDon, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD');
+                if (now === ngaylap) {// neu trung ngay: luon co quyen sua
+                    role = true;
+                }
+                self.roleUpdate_ifOtherDate = role;
+            },
             showModal: function (hdChosing) {// check nhom dudk at banle.js
                 let self = this;
                 self.saveOK = false;
                 self.isLoading = false;
+                self.roleUpdate_ifOtherDate = true;
                 self.typeUpdate = 1;
                 self.TongXuatNgayThuoc = 0;
                 self.TongXuatChung = 0;
@@ -610,8 +641,11 @@
                 self.DayProducts = [];
                 self.NhomHangEnoughCondition = [];
                 self.InvoiceChosing = hdChosing;
+                self.InvoiceChosing.NgayLapHoaDon = moment(new Date()).format('YYYY-MM-DD HH:mm');
+
                 self.inforOld = {
-                    NhomHoTro: {},
+                    HoaDon: {},
+                    NhomHang: {},
                     SanPham: [],
                 };
                 self.NhomHangEnoughCondition_getAll();
@@ -757,6 +791,7 @@
                         self.DayProducts = spNgay;
 
                         self.inforOld = {
+                            HoaDon: $.extend({}, true, self.InvoiceChosing),
                             NhomHang: $.extend({}, true, self.NhomHangApply),
                             SanPham: $.extend([], true, x.dataSoure),
                         };
@@ -1208,6 +1243,11 @@
             CheckSave: function () {
                 let self = this;
 
+                if (commonStatisJs.CheckNull(self.InvoiceChosing.ID_DoiTuong)) {
+                    ShowMessage_Danger('Vui lòng chọn khách hàng');
+                    return;
+                }
+
                 let nhomApply = self.NhomHangApply;
                 if (commonStatisJs.CheckNull(nhomApply.Id_NhomHang)) {
                     ShowMessage_Danger('Vui lòng chọn nhóm áp dụng');
@@ -1302,11 +1342,30 @@
                 }
                 localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
 
-                if (self.typeUpdate === 2) {
-                    self.saveHoaDonHoTro(self.InvoiceChosing.IDRandom);
-                }
+                //if (self.typeUpdate === 2) {
+                self.saveHoaDonHoTro(self.InvoiceChosing.IDRandom);
+                //}
+            },
+            ChangeNgayLapHoaDon: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                self.InvoiceChosing.NgayLapHoaDon = dt;
+            },
+            ChangeCustomer: function (item) {
+                let self = this;
+                self.InvoiceChosing.ID_DoiTuong = item.ID;
+                self.InvoiceChosing.TenDoiTuong = item.TenDoiTuong;
+                self.InvoiceChosing.MaDoiTuong = item.MaDoiTuong;
 
-                $('#vmApDungNhomHoTro').modal('hide');
+                let $this = $(event.currentTarget);
+                $($this).closest('div').hide();
+                $($this).closest('div').prev('focus');
+            },
+            ResetCustomer: function () {
+                let self = this;
+                self.InvoiceChosing.ID_DoiTuong = null;
+                self.InvoiceChosing.TenDoiTuong = '';
+                self.InvoiceChosing.MaDoiTuong = '';
             },
             saveHoaDonHoTro: function (idRandomHD, ngaylapHD) {// used to lui ngaylapHD
                 let self = this;
@@ -1315,7 +1374,7 @@
                 let cthd = [], spChung = [], spNgay = [];
                 let sListSP = '', sChung = '', sNgay = '';
 
-                let sType = 'Thêm mới', user = ' <br /> Người tạo: ' + hd.NguoiTao;
+                let sType = 'Thêm mới', user = ' <br /> Người tạo: ' + self.inforLogin.UserLogin;
                 let sOld = '';
 
                 let url = 'Post_HoaDonHoTro';
@@ -1342,7 +1401,7 @@
                             ID_NhanVien: self.inforLogin.ID_NhanVien,
                             NguoiTao: self.inforLogin.UserLogin,
                             TongGiamGia: formatNumberToFloat(hdEx[0].SoNgayThuoc),
-                            NgayLapHoaDon: moment(ngaylapHD).add(4, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
+                            NgayLapHoaDon: self.InvoiceChosing.NgayLapHoaDon,
                             ChoThanhToan: false,
                             DienGiai: hdEx[0].DienGiai,
                             An_Hien: hdEx[0].IsChuyenPhatNhanh,
@@ -1370,6 +1429,7 @@
                         ID_NhanVien: self.inforLogin.ID_NhanVien,
                         NguoiTao: self.inforLogin.UserLogin,
                         TongGiamGia: formatNumberToFloat(self.NhomHangApply.SoNgayThuoc),
+                        NgayLapHoaDon: self.InvoiceChosing.NgayLapHoaDon,
                         ChoThanhToan: false,
                         DienGiai: self.NhomHangApply.GhiChu,
                         An_Hien: self.NhomHangApply.IsChuyenPhatNhanh,
@@ -1383,6 +1443,7 @@
                     user = ' <br /> Người sửa: ' + VHeader.UserLogin;
 
                     sOld = '<br /> <b> Thông tin cũ: </b>';
+                    sOld = sOld.concat('<br> Ngày lập:', moment(self.inforOld.HoaDon.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'));
                     sOld = sOld.concat('<br> Nhóm hàng:', self.inforOld.NhomHang.TenNhomHangHoa);
                     sOld = sOld.concat('<br /> Xuất ngày thuốc: ', self.inforOld.NhomHang.IsXuatNgayThuoc ? hd.SoNgayThuoc : 'không');
                     sOld = sOld.concat('<br /> Chuyển phát nhanh: ', self.inforOld.NhomHang.IsChuyenPhatNhanh ? 'có' : 'không');
@@ -1484,6 +1545,7 @@
                                 NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
                                     ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
                                     ' <br /> Chuyển phát nhanh: ', hd.An_Hien ? 'có' : 'không',
+                                    ' <br /> Ngày lập phiếu: ', moment(data.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
                                     sListSP, user, sOld),
                                 LoaiHoaDon: 36,
                                 ID_HoaDon: data.ID,
@@ -1501,12 +1563,21 @@
                             // always save: xuatNgayThuoc --> khong xuat (or nguoclai)
                             self.CreatePhieuXuat_FromHoaDon(data.ID, 36, false);
                             self.CreatePhieuXuat_FromHoaDon(data.ID, 36, true);
+
+                            if (self.typeUpdate === 2) {
+                                console.log('ngaylap ', self.inforOld.HoaDon.NgayLapHoaDon, self.InvoiceChosing.NgayLapHoaDon)
+                                if (moment(self.inforOld.HoaDon.NgayLapHoaDon).format('YYYY-MM-DD') !==
+                                    moment(self.InvoiceChosing.NgayLapHoaDon, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD')) {
+                                    self.ChangeNgayLapHD_UpdatePhieuXuatKho(self.InvoiceChosing.ID);
+                                }
+                            }
                         }
                         else {
                             ShowMessage_Danger(sType + ' hóa đơn hỗ trợ thất bại');
                         }
                     }).always(function () {
                         self.isLoading = false;
+                        $('#vmApDungNhomHoTro').modal('hide');
                     })
                 }
             },
@@ -1516,7 +1587,7 @@
                 ajaxHelper(self.UrlAPI.HoaDon + 'CreatePhieuXuatKho_NguyenVatLieu?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
                     console.log('CreatePhieuXuatKho_NguyenVatLieu ', x);
                     if (x.res) {
-                        
+
                     }
                 })
             },
@@ -1528,6 +1599,11 @@
                         if (x.res) {
                         }
                     })
+            },
+            ChangeNgayLapHD_UpdatePhieuXuatKho: function (idHoaDon) {
+                let self = this;
+                ajaxHelper(self.UrlAPI.HoaDon + 'ChangeNgayLapHD_UpdatePhieuXuatKho?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
+                });
             },
         }
     })
