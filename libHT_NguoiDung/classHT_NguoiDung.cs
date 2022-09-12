@@ -456,11 +456,11 @@ namespace libHT_NguoiDung
                     pwAdmin = pwAdmin + Day[1] + Day[0];
                     if (strPw == pwAdmin && (ipAddress == "123.24.206.173" || ipAddress == "::1" || ipAddress == "127.0.0.1"))
                     {
-                        objUser = db.HT_NguoiDung.Where(p => p.TaiKhoan.Trim().ToUpper() == strUser.Trim().ToUpper()).FirstOrDefault();
+                        objUser = db.HT_NguoiDung.Where(p => p.TaiKhoan.Trim().ToUpper() == strUser.Trim().ToUpper() && p.DangHoatDong == true).FirstOrDefault();
                     }
                     else
                     {
-                        objUser = db.HT_NguoiDung.Where(p => p.TaiKhoan.Trim().ToUpper() == strUser.Trim().ToUpper() && p.MatKhau == strPassWordConnect).FirstOrDefault();
+                        objUser = db.HT_NguoiDung.Where(p => p.TaiKhoan.Trim().ToUpper() == strUser.Trim().ToUpper() && p.MatKhau == strPassWordConnect && p.DangHoatDong == true).FirstOrDefault();
                     }
                     if (objUser != null)
                     {
