@@ -675,6 +675,7 @@
             { ID: 2, TenChungTu: 'Hóa đơn bảo hành' },
             { ID: 5, TenChungTu: 'Hóa đơn sử dụng' },
             { ID: 36, TenChungTu: 'Hóa đơn hỗ trợ' },
+            { ID: 38, TenChungTu: 'Xuất bán lẻ' },
             { ID: 39, TenChungTu: 'Xuất bảo hành' },
             { ID: 37, TenChungTu: 'Xuất ngày thuốc' },
             { ID: 40, TenChungTu: 'Xuất hỗ trợ chung' },
