@@ -102,7 +102,7 @@
             else {
                 self.IsChosingNV_ThucHien = 1;
             }
-            self.CheckUncheck_rdoShareDiscountDV();
+            self.IsShareDiscount_DichVu = '1';
 
             if (isTPComBo) {
                 item.TongPhiDichVu = item.PhiDichVu * item.SoLuong;
