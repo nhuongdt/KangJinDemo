@@ -26,6 +26,7 @@
                 defaultDate: new Date(),
                 mask: true,
                 scrollMonth: false,
+                maxDate: new Date(),
             })
     },
     methods: {
