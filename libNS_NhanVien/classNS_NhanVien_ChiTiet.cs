@@ -342,7 +342,7 @@ namespace libNS_NhanVien
                 {
                     bool dk = false;
                     List<Guid> listiddvqd = db.DonViQuiDois.Where(p => p.MaHangHoa == maHH).Select(p => p.ID).ToList();
-                    List<Guid> listiddvqd_ck = db.ChietKhauMacDinh_NhanVien.Where(p => p.ID_NhanVien == idnhanvien).Select(p => p.ID_DonViQuiDoi).ToList();
+                    List<Guid> listiddvqd_ck = db.ChietKhauMacDinh_NhanVien.Where(p => p.ID_NhanVien == idnhanvien && p.ID_DonVi== iddonvi).Select(p => p.ID_DonViQuiDoi).ToList();
                     List<DonViQuiDoi> listqd = db.DonViQuiDois.Where(p => listiddvqd.Contains(p.ID)).Where(p => !listiddvqd_ck.Contains(p.ID)).ToList();
                     foreach (var item in listqd)
                     {
