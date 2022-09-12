@@ -141,6 +141,31 @@ namespace libDM_DoiTuong
                  " @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
+        public List<TGT_NhatKyDieuChinhDTO> TGT_GetNhatKyDieuChinh(ModelHoaDonTheNap param)
+        {
+            var isDonVis = string.Join(",", param.arrChiNhanh);
+            var sTrangThai = "%%";
+            switch (param.trangThai)
+            {
+                case 1: //HoanThanh
+                    sTrangThai = "%2%";
+                    break;
+                case 2: // Huy
+                    sTrangThai = "%0%";
+                    break;
+            }
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("IDChiNhanhs", isDonVis));
+            lstParam.Add(new SqlParameter("FromDate", param.dayStart));
+            lstParam.Add(new SqlParameter("ToDate", param.dayEnd));
+            lstParam.Add(new SqlParameter("TextSearch", param.maHoaDon ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TrangThais", sTrangThai));
+            lstParam.Add(new SqlParameter("CurrentPage", param.currentPage));
+            lstParam.Add(new SqlParameter("PageSize", param.pageSize));
+            return db.Database.SqlQuery<TGT_NhatKyDieuChinhDTO>("EXEC dbo.TGT_GetNhatKyDieuChinh @IDChiNhanhs, @FromDate, @ToDate, @TextSearch, @TrangThais, " +
+                 " @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
+        }
+
         public List<DM_GiaBanSelect1> GetDM_GiaBanByIDDonVi(Guid iddonvi)
         {
             try
@@ -856,7 +881,7 @@ namespace libDM_DoiTuong
                             break;
                         case 32: // HD datcoc
                             dto.strLoaiHoaDon = "Trả lại số dư cọc";
-                            break;  
+                            break;
                         case 36: // HD datcoc
                             dto.strLoaiHoaDon = "Hóa đơn hỗ trợ";
                             break;
@@ -1529,11 +1554,11 @@ namespace libDM_DoiTuong
                     var tbl = from hd in db.BH_HoaDon
                               join kh in db.DM_DoiTuong on hd.ID_DoiTuong equals kh.ID into HD_DT
                               from hd_dt in HD_DT.DefaultIfEmpty()
-                              where hd.LoaiHoaDon == loaiHoaDon 
+                              where hd.LoaiHoaDon == loaiHoaDon
 
                               join dv in db.DM_DonVi on hd.ID_DonVi equals dv.ID into HD_DV
                               from hd_dv in HD_DV.DefaultIfEmpty()
-                              where hd.LoaiHoaDon == loaiHoaDon 
+                              where hd.LoaiHoaDon == loaiHoaDon
 
                               join nv in db.NS_NhanVien on hd.ID_NhanVien equals nv.ID into HD_NV
                               from hd_nv in HD_NV.DefaultIfEmpty()

@@ -2063,6 +2063,31 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
             }
         }
+        [AcceptVerbs("GET", "POST")]
+        public IHttpActionResult TGT_GetNhatKyDieuChinh(ModelHoaDonTheNap model)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
+                    List<TGT_NhatKyDieuChinhDTO> dataxx = classHoaDon.TGT_GetNhatKyDieuChinh(model);
+                    return Json(new
+                    {
+                        res = true,
+                        lst = dataxx,
+                    });
+                }
+                catch (Exception e)
+                {
+                    return Json(new
+                    {
+                        res = false,
+                        mes = e,
+                    });
+                }
+            }
+        }
 
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult GetInforTheGiaTri_byID(Guid id)
@@ -3272,9 +3297,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 if (db != null)
                 {
+                    int[] arr = { 35, 37, 38, 39, 40 };
                     var data = from hd in db.BH_HoaDon
-                               where hd.ID_HoaDon == id && hd.ChoThanhToan == false
-                               select hd;
+                               where hd.ID_HoaDon == id && hd.ChoThanhToan == false && !arr.Contains(hd.LoaiHoaDon)
+                               select new { hd.ID, hd.LoaiHoaDon };
 
                     if (data != null && data.Count() > 0)
                     {
@@ -3822,7 +3848,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     if (hd != null)
                     {
                         var ngaylap = hd.NgayLapHoaDon.AddMilliseconds(4);
-                        db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon).ToList().ForEach(x => x.NgayLapHoaDon = ngaylap);
+                        var lstXK = db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon).Select(x => new { x.ID, x.NgayLapHoaDon })
+                            .OrderBy(x=>x.NgayLapHoaDon).ToList();
+                        foreach (var item in lstXK)
+                        {
+                            var pk = db.BH_HoaDon.Find(item.ID);
+                            if (pk != null)
+                            {
+                                pk.NgayLapHoaDon = ngaylap;
+                                ngaylap = ngaylap.AddMilliseconds(4);
+                            }
+                        }
                         db.SaveChanges();
                     }
                     return ActionTrueNotData(string.Empty);
@@ -5676,7 +5712,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     txtFirst = "Cập nhật phiếu nhập hàng khách thừa: ";
                                     break;
                             }
-                            noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", objHoaDon.PhaiThanhToan.ToString("#,#", CultureInfo.InvariantCulture), 
+                            noidung = string.Concat(txtFirst, sMaHoaDon, " Giá trị: ", objHoaDon.PhaiThanhToan.ToString("#,#", CultureInfo.InvariantCulture),
                                 ", Thời gian: ", ngaylapHD.ToString("dd/MM/yyy HH:mm:ss"), ", Người sửa: ", objHoaDon.NguoiSua);
                             chitiet = string.Concat(noidung, " <br /> <b> Thông tin chi tiết bao gồm: </b><br />", chitiet);
 
@@ -11505,6 +11541,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
 
                         var hdUp = db.BH_HoaDon.Find(objHoaDon.ID);
+                        hdUp.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
                         hdUp.NgaySua = DateTime.Now;
                         hdUp.ID_CheckIn = objHoaDon.ID_CheckIn;// idnhomhang hotro
                         hdUp.TongGiamGia = objHoaDon.TongGiamGia;// songaythuoc
@@ -11680,6 +11717,114 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 objHoaDon.ID,
                                 hdUp.MaHoaDon,
                                 objHoaDon.NgayLapHoaDon,
+                            }
+                        });
+
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return Json(new
+                        {
+                            res = false,
+                            mes = ex.InnerException + ex.Message
+                        });
+                    }
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
+        public IHttpActionResult Post_HoaDonDieuChinhTGT(BH_HoaDon obj)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var classhoadon = new ClassBH_HoaDon(db);
+                        BH_HoaDon objAdd = new BH_HoaDon
+                        {
+                            ID = Guid.NewGuid(),
+                            LoaiHoaDon = obj.LoaiHoaDon,
+                            MaHoaDon = classhoadon.GetAutoCode(obj.LoaiHoaDon),
+                            ID_DonVi = obj.ID_DonVi,
+                            ID_DoiTuong = obj.ID_DoiTuong,
+                            ID_NhanVien = obj.ID_NhanVien,
+                            NgayLapHoaDon = obj.NgayLapHoaDon,
+                            TongTienHang = obj.TongTienHang,// gtri điều chỉnh = tongchiphi
+                            TongChiPhi = obj.TongChiPhi,
+                            TongTienThue = obj.TongTienThue,// số dư sau điều chỉnh
+                            DienGiai = obj.DienGiai,
+                            NguoiTao = obj.NguoiTao,
+                            NgayTao = DateTime.Now,
+                            ChoThanhToan = false,
+                        };
+                        db.BH_HoaDon.Add(objAdd);
+                        db.SaveChanges();
+
+                        trans.Commit();
+                        return Json(new
+                        {
+                            res = true,
+                            data = new
+                            {
+                                objAdd.ID,
+                                objAdd.MaHoaDon,
+                                objAdd.NgayLapHoaDon,
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return Json(new
+                        {
+                            res = false,
+                            mes = ex.InnerException + ex.Message
+                        });
+                    }
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
+        public IHttpActionResult Update_HoaDonDieuChinhTGT(BH_HoaDon obj)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        BH_HoaDon objUp = db.BH_HoaDon.Find(obj.ID);
+                        if (objUp != null)
+                        {
+                            if (!string.IsNullOrEmpty(obj.MaHoaDon))
+                            {
+                                objUp.MaHoaDon = obj.MaHoaDon;
+                            }
+                            objUp.NgayLapHoaDon = obj.NgayLapHoaDon;
+                            objUp.ID_DoiTuong = obj.ID_DoiTuong;
+                            objUp.TongTienHang = obj.TongTienHang;
+                            objUp.TongChiPhi = obj.TongChiPhi;
+                            objUp.TongTienThue = obj.TongTienThue;
+                            objUp.DienGiai = obj.DienGiai;
+                            objUp.NguoiSua = obj.NguoiSua;
+                            objUp.NgaySua = DateTime.Now;
+                        }
+                        db.SaveChanges();
+
+                        trans.Commit();
+                        return Json(new
+                        {
+                            res = true,
+                            data = new
+                            {
+                                objUp.ID,
+                                objUp.MaHoaDon,
+                                objUp.NgayLapHoaDon,
                             }
                         });
 
