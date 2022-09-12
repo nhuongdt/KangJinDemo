@@ -116,7 +116,7 @@ namespace libReport
             }
         }
 
-        public List<BaoCaoTaiChinh_ThuChiPRC> GetBaoCaoTaiChinh_ThuChi_v2(string TextSearch,  DateTime timeStart, DateTime timeEnd, string ID_ChiNhanh, string loaiKH,
+        public List<BaoCaoTaiChinh_ThuChiPRC> GetBaoCaoTaiChinh_ThuChi_v2(string TextSearch, DateTime timeStart, DateTime timeEnd, string ID_ChiNhanh, string loaiKH,
             string ID_NhomDoiTuong, string lstThuChi, bool? HachToanKD)
         {
             try
@@ -178,7 +178,7 @@ namespace libReport
                 sql.Add(new SqlParameter("loaiKH", LoaiDoiTuong));
                 sql.Add(new SqlParameter("ID_NhomDoiTuong", ID_NhomDoiTuong));
                 sql.Add(new SqlParameter("lstThuChi", loaiThuChi));
-                sql.Add(new SqlParameter("HachToanKD", HachToanKD == null ? (object)DBNull.Value: HachToanKD.Value));
+                sql.Add(new SqlParameter("HachToanKD", HachToanKD == null ? (object)DBNull.Value : HachToanKD.Value));
                 sql.Add(new SqlParameter("LoaiTien", LoaiTien));
                 return _db.Database.SqlQuery<BaoCaoTaiChinh_SoQuyPRC>("exec BaoCaoTaiChinh_SoQuy_v2 @TextSearch, @timeStart, @timeEnd, @ID_ChiNhanh, @loaiKH, @ID_NhomDoiTuong, @lstThuChi, @HachToanKD, @LoaiTien", sql.ToArray()).ToList();
             }
@@ -1638,83 +1638,83 @@ namespace libReport
                     if (item.ThangLapHoaDon == 1)
                     {
                         tc_GiaVonHangBan.Thang1 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang1 = (tc_DoanhThuThuan.Thang1 - tc_GiaVonHangBan.Thang1 
+                        tc_LoiNhuanGopVeBanHang.Thang1 = (tc_DoanhThuThuan.Thang1 - tc_GiaVonHangBan.Thang1
                             - tc_XuatHangSuDungGoiDichVu.Thang1 - tc_ChiPhiSuaChua.Thang1);
                     }
                     else if (item.ThangLapHoaDon == 2)
                     {
                         tc_GiaVonHangBan.Thang2 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang2 = (tc_DoanhThuThuan.Thang2 - tc_GiaVonHangBan.Thang2 
+                        tc_LoiNhuanGopVeBanHang.Thang2 = (tc_DoanhThuThuan.Thang2 - tc_GiaVonHangBan.Thang2
                             - tc_XuatHangSuDungGoiDichVu.Thang2 - tc_ChiPhiSuaChua.Thang2);
                     }
 
                     else if (item.ThangLapHoaDon == 3)
                     {
                         tc_GiaVonHangBan.Thang3 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang3 = (tc_DoanhThuThuan.Thang3 - tc_GiaVonHangBan.Thang3 
+                        tc_LoiNhuanGopVeBanHang.Thang3 = (tc_DoanhThuThuan.Thang3 - tc_GiaVonHangBan.Thang3
                             - tc_XuatHangSuDungGoiDichVu.Thang3 - tc_ChiPhiSuaChua.Thang3);
                     }
 
                     else if (item.ThangLapHoaDon == 4)
                     {
                         tc_GiaVonHangBan.Thang4 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang4 = (tc_DoanhThuThuan.Thang4 - tc_GiaVonHangBan.Thang4 
+                        tc_LoiNhuanGopVeBanHang.Thang4 = (tc_DoanhThuThuan.Thang4 - tc_GiaVonHangBan.Thang4
                             - tc_XuatHangSuDungGoiDichVu.Thang4 - tc_ChiPhiSuaChua.Thang4);
                     }
 
                     else if (item.ThangLapHoaDon == 5)
                     {
                         tc_GiaVonHangBan.Thang5 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang5 = (tc_DoanhThuThuan.Thang5 - tc_GiaVonHangBan.Thang5 
+                        tc_LoiNhuanGopVeBanHang.Thang5 = (tc_DoanhThuThuan.Thang5 - tc_GiaVonHangBan.Thang5
                             - tc_XuatHangSuDungGoiDichVu.Thang5 - tc_ChiPhiSuaChua.Thang5);
                     }
 
                     else if (item.ThangLapHoaDon == 6)
                     {
                         tc_GiaVonHangBan.Thang6 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang6 = (tc_DoanhThuThuan.Thang6 - tc_GiaVonHangBan.Thang6 
+                        tc_LoiNhuanGopVeBanHang.Thang6 = (tc_DoanhThuThuan.Thang6 - tc_GiaVonHangBan.Thang6
                             - tc_XuatHangSuDungGoiDichVu.Thang6 - tc_ChiPhiSuaChua.Thang6);
                     }
 
                     else if (item.ThangLapHoaDon == 7)
                     {
                         tc_GiaVonHangBan.Thang7 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang7 = (tc_DoanhThuThuan.Thang7 - tc_GiaVonHangBan.Thang7 
+                        tc_LoiNhuanGopVeBanHang.Thang7 = (tc_DoanhThuThuan.Thang7 - tc_GiaVonHangBan.Thang7
                             - tc_XuatHangSuDungGoiDichVu.Thang7 - tc_ChiPhiSuaChua.Thang7);
                     }
 
                     else if (item.ThangLapHoaDon == 8)
                     {
                         tc_GiaVonHangBan.Thang8 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang8 = (tc_DoanhThuThuan.Thang8 - tc_GiaVonHangBan.Thang8 
+                        tc_LoiNhuanGopVeBanHang.Thang8 = (tc_DoanhThuThuan.Thang8 - tc_GiaVonHangBan.Thang8
                             - tc_XuatHangSuDungGoiDichVu.Thang8 - tc_ChiPhiSuaChua.Thang8);
                     }
 
                     else if (item.ThangLapHoaDon == 9)
                     {
                         tc_GiaVonHangBan.Thang9 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang9 = (tc_DoanhThuThuan.Thang9 - tc_GiaVonHangBan.Thang9 
+                        tc_LoiNhuanGopVeBanHang.Thang9 = (tc_DoanhThuThuan.Thang9 - tc_GiaVonHangBan.Thang9
                             - tc_XuatHangSuDungGoiDichVu.Thang9 - tc_ChiPhiSuaChua.Thang9);
                     }
 
                     else if (item.ThangLapHoaDon == 10)
                     {
                         tc_GiaVonHangBan.Thang10 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang10 = (tc_DoanhThuThuan.Thang10 - tc_GiaVonHangBan.Thang10 
+                        tc_LoiNhuanGopVeBanHang.Thang10 = (tc_DoanhThuThuan.Thang10 - tc_GiaVonHangBan.Thang10
                             - tc_XuatHangSuDungGoiDichVu.Thang10 - tc_ChiPhiSuaChua.Thang10);
                     }
 
                     else if (item.ThangLapHoaDon == 11)
                     {
                         tc_GiaVonHangBan.Thang11 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang11 = (tc_DoanhThuThuan.Thang11 - tc_GiaVonHangBan.Thang11 
+                        tc_LoiNhuanGopVeBanHang.Thang11 = (tc_DoanhThuThuan.Thang11 - tc_GiaVonHangBan.Thang11
                             - tc_XuatHangSuDungGoiDichVu.Thang11 - tc_ChiPhiSuaChua.Thang11);
                     }
 
                     else if (item.ThangLapHoaDon == 12)
                     {
                         tc_GiaVonHangBan.Thang12 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang12 = (tc_DoanhThuThuan.Thang12 - tc_GiaVonHangBan.Thang12 
+                        tc_LoiNhuanGopVeBanHang.Thang12 = (tc_DoanhThuThuan.Thang12 - tc_GiaVonHangBan.Thang12
                             - tc_XuatHangSuDungGoiDichVu.Thang12 - tc_ChiPhiSuaChua.Thang12);
                     }
                 }
@@ -2880,9 +2880,9 @@ namespace libReport
                 Report_TaiChinh_TheoThang tc_ChiPhiSuaChua = new Report_TaiChinh_TheoThang();
                 tc_ChiPhiSuaChua.TaiChinh = "Chi phí sửa chữa (6)";
                 ResertDM(tc_ChiPhiSuaChua);
-                foreach(var item in tbl_ChiPhiSuaChua)
+                foreach (var item in tbl_ChiPhiSuaChua)
                 {
-                    if(item.Thang == 1)
+                    if (item.Thang == 1)
                     {
                         tc_ChiPhiSuaChua.Thang1 = item.ChiPhi;
                     }
@@ -2952,83 +2952,83 @@ namespace libReport
                     if (item.ThangLapHoaDon == 1)
                     {
                         tc_GiaVonBanHang.Thang1 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang1 = (tc_DoanhThuThuan.Thang1 - tc_GiaVonBanHang.Thang1 
+                        tc_LoiNhuanGopVeBanHang.Thang1 = (tc_DoanhThuThuan.Thang1 - tc_GiaVonBanHang.Thang1
                             - tc_XuatHangSuDungGoiDichVu.Thang1 - tc_ChiPhiSuaChua.Thang1);
                     }
                     else if (item.ThangLapHoaDon == 2)
                     {
                         tc_GiaVonBanHang.Thang2 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang2 = (tc_DoanhThuThuan.Thang2 - tc_GiaVonBanHang.Thang2 
+                        tc_LoiNhuanGopVeBanHang.Thang2 = (tc_DoanhThuThuan.Thang2 - tc_GiaVonBanHang.Thang2
                             - tc_XuatHangSuDungGoiDichVu.Thang2 - tc_ChiPhiSuaChua.Thang2);
                     }
 
                     else if (item.ThangLapHoaDon == 3)
                     {
                         tc_GiaVonBanHang.Thang3 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang3 = (tc_DoanhThuThuan.Thang3 - tc_GiaVonBanHang.Thang3 
+                        tc_LoiNhuanGopVeBanHang.Thang3 = (tc_DoanhThuThuan.Thang3 - tc_GiaVonBanHang.Thang3
                             - tc_XuatHangSuDungGoiDichVu.Thang3 - tc_ChiPhiSuaChua.Thang3);
                     }
 
                     else if (item.ThangLapHoaDon == 4)
                     {
                         tc_GiaVonBanHang.Thang4 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang4 = (tc_DoanhThuThuan.Thang4 - tc_GiaVonBanHang.Thang4 
+                        tc_LoiNhuanGopVeBanHang.Thang4 = (tc_DoanhThuThuan.Thang4 - tc_GiaVonBanHang.Thang4
                             - tc_XuatHangSuDungGoiDichVu.Thang4 - tc_ChiPhiSuaChua.Thang4);
                     }
 
                     else if (item.ThangLapHoaDon == 5)
                     {
                         tc_GiaVonBanHang.Thang5 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang5 = (tc_DoanhThuThuan.Thang5 - tc_GiaVonBanHang.Thang5 
+                        tc_LoiNhuanGopVeBanHang.Thang5 = (tc_DoanhThuThuan.Thang5 - tc_GiaVonBanHang.Thang5
                             - tc_XuatHangSuDungGoiDichVu.Thang5 - tc_ChiPhiSuaChua.Thang5);
                     }
 
                     else if (item.ThangLapHoaDon == 6)
                     {
                         tc_GiaVonBanHang.Thang6 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang6 = (tc_DoanhThuThuan.Thang6 - tc_GiaVonBanHang.Thang6 
+                        tc_LoiNhuanGopVeBanHang.Thang6 = (tc_DoanhThuThuan.Thang6 - tc_GiaVonBanHang.Thang6
                             - tc_XuatHangSuDungGoiDichVu.Thang6 - tc_ChiPhiSuaChua.Thang6);
                     }
 
                     else if (item.ThangLapHoaDon == 7)
                     {
                         tc_GiaVonBanHang.Thang7 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang7 = (tc_DoanhThuThuan.Thang7 - tc_GiaVonBanHang.Thang7 
+                        tc_LoiNhuanGopVeBanHang.Thang7 = (tc_DoanhThuThuan.Thang7 - tc_GiaVonBanHang.Thang7
                             - tc_XuatHangSuDungGoiDichVu.Thang7 - tc_ChiPhiSuaChua.Thang7);
                     }
 
                     else if (item.ThangLapHoaDon == 8)
                     {
                         tc_GiaVonBanHang.Thang8 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang8 = (tc_DoanhThuThuan.Thang8 - tc_GiaVonBanHang.Thang8 
+                        tc_LoiNhuanGopVeBanHang.Thang8 = (tc_DoanhThuThuan.Thang8 - tc_GiaVonBanHang.Thang8
                             - tc_XuatHangSuDungGoiDichVu.Thang8 - tc_ChiPhiSuaChua.Thang8);
                     }
 
                     else if (item.ThangLapHoaDon == 9)
                     {
                         tc_GiaVonBanHang.Thang9 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang9 = (tc_DoanhThuThuan.Thang9 - tc_GiaVonBanHang.Thang9 
+                        tc_LoiNhuanGopVeBanHang.Thang9 = (tc_DoanhThuThuan.Thang9 - tc_GiaVonBanHang.Thang9
                             - tc_XuatHangSuDungGoiDichVu.Thang9 - tc_ChiPhiSuaChua.Thang9);
                     }
 
                     else if (item.ThangLapHoaDon == 10)
                     {
                         tc_GiaVonBanHang.Thang10 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang10 = (tc_DoanhThuThuan.Thang10 - tc_GiaVonBanHang.Thang10 
+                        tc_LoiNhuanGopVeBanHang.Thang10 = (tc_DoanhThuThuan.Thang10 - tc_GiaVonBanHang.Thang10
                             - tc_XuatHangSuDungGoiDichVu.Thang10 - tc_ChiPhiSuaChua.Thang10);
                     }
 
                     else if (item.ThangLapHoaDon == 11)
                     {
                         tc_GiaVonBanHang.Thang11 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang11 = (tc_DoanhThuThuan.Thang11 - tc_GiaVonBanHang.Thang11 
+                        tc_LoiNhuanGopVeBanHang.Thang11 = (tc_DoanhThuThuan.Thang11 - tc_GiaVonBanHang.Thang11
                             - tc_XuatHangSuDungGoiDichVu.Thang11 - tc_ChiPhiSuaChua.Thang11);
                     }
 
                     else if (item.ThangLapHoaDon == 12)
                     {
                         tc_GiaVonBanHang.Thang12 = (item.TongGiaVonBan - item.TongGiaVonTra);
-                        tc_LoiNhuanGopVeBanHang.Thang12 = (tc_DoanhThuThuan.Thang12 - tc_GiaVonBanHang.Thang12 
+                        tc_LoiNhuanGopVeBanHang.Thang12 = (tc_DoanhThuThuan.Thang12 - tc_GiaVonBanHang.Thang12
                             - tc_XuatHangSuDungGoiDichVu.Thang12 - tc_ChiPhiSuaChua.Thang12);
                     }
                 }
@@ -3737,7 +3737,7 @@ namespace libReport
                 tc_GiaVonHangBan.Tong = (tc_GiaVonHangBan.Nam);
                 tc_LoiNhuanGopVeBanHang.Tong = (tc_LoiNhuanGopVeBanHang.Nam);
 
-                
+
                 lst.Add(tc_GiaVonHangBan);
                 lst.Add(tc_XuatHangSuDungGoiDichVu);
                 lst.Add(tc_ChiPhiSuaChua);
@@ -3914,7 +3914,7 @@ namespace libReport
                 sql.Add(new SqlParameter("loaiKH", LaDT_search));
                 sql.Add(new SqlParameter("ID_NhomDoiTuong", ID_NhomDoiTuong_search));
                 sql.Add(new SqlParameter("lstThuChi", loaiThuChi_search));
-                sql.Add(new SqlParameter("HachToanKD", HachToanKD_Search == null? (object)DBNull.Value : HachToanKD_Search.Value));
+                sql.Add(new SqlParameter("HachToanKD", HachToanKD_Search == null ? (object)DBNull.Value : HachToanKD_Search.Value));
                 sql.Add(new SqlParameter("LoaiTien", LoaiTien_Search));
                 return _db.Database.SqlQuery<BaoCaoTaiChinh_PTTCTheoQuyPRC>("exec BaoCaoTaiChinh_PhanTichThuChiTheoQuy_v2 @year, @ID_ChiNhanh, @loaiKH, @ID_NhomDoiTuong, @lstThuChi, @HachToanKD, @LoaiTien", sql.ToArray()).ToList();
             }
@@ -3961,7 +3961,7 @@ namespace libReport
                 sql.Add(new SqlParameter("loaiKH", LaDT_search));
                 sql.Add(new SqlParameter("ID_NhomDoiTuong", ID_NhomDoiTuong_search));
                 sql.Add(new SqlParameter("lstThuChi", loaiThuChi_search));
-                sql.Add(new SqlParameter("HachToanKD", HachToanKD_Search == null? (object)DBNull.Value: HachToanKD_Search.Value));
+                sql.Add(new SqlParameter("HachToanKD", HachToanKD_Search == null ? (object)DBNull.Value : HachToanKD_Search.Value));
                 sql.Add(new SqlParameter("LoaiTien", LoaiTien_Search));
                 return _db.Database.SqlQuery<BaoCaoTaiChinh_PTTCTheoNamPRC>("exec BaoCaoTaiChinh_PhanTichThuChiTheoNam_v2 @year, @ID_ChiNhanh, @loaiKH, @ID_NhomDoiTuong, @lstThuChi, @HachToanKD, @LoaiTien", sql.ToArray()).ToList();
             }
@@ -3969,6 +3969,68 @@ namespace libReport
             {
                 CookieStore.WriteLog("libReport - ClassReportTaiChinh - GetBaoCaoTaiChinh_PhanTichThuChiTheoNam_v2: " + ex.Message);
                 return new List<BaoCaoTaiChinh_PTTCTheoNamPRC>();
+            }
+        }
+
+        public List<ReportThuChi_LoaiTien> BCThuChi_TheoLoaiTien(ParamPreportThuChi param)
+        {
+            try
+            {
+                string idDonVis = string.Empty, loaiDTs = string.Empty, khoanthuchis = string.Empty;
+                if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count() > 0)
+                {
+                    idDonVis = string.Join(",", param.IDChiNhanhs);
+                }
+                if (param.LoaiDoiTuongs != null && param.LoaiDoiTuongs.Count() > 0)
+                {
+                    loaiDTs = string.Join(",", param.LoaiDoiTuongs);
+                }
+                if (param.KhoanMucThuChis != null && param.KhoanMucThuChis.Count() > 0)
+                {
+                    khoanthuchis = string.Join(",", param.KhoanMucThuChis);
+                }
+                List<SqlParameter> sql = new List<SqlParameter>();
+                sql.Add(new SqlParameter("IDChiNhanhs", idDonVis));
+                sql.Add(new SqlParameter("DateFrom", param.DateFrom));
+                sql.Add(new SqlParameter("DateTo", param.DateTo));
+                sql.Add(new SqlParameter("LoaiDoiTuongs", loaiDTs));
+                sql.Add(new SqlParameter("KhoanMucThuChis", khoanthuchis));
+                return _db.Database.SqlQuery<ReportThuChi_LoaiTien>("exec dbo.BCThuChi_TheoLoaiTien @IDChiNhanhs, @DateFrom, @DateTo, @LoaiDoiTuongs, @KhoanMucThuChis", sql.ToArray()).ToList();
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("libReport - ClassReportTaiChinh - BCThuChi_TheoLoaiTien: " + ex.Message);
+                return new List<ReportThuChi_LoaiTien>();
+            }
+        } 
+        public List<BaoCao_CongNoChiTietDTO> LoadBaoCaoCongNoChitiet(CommonParamSearch param)
+        {
+            try
+            {
+                string idDonVis = string.Empty, trangthaiCongNo=string.Empty;
+                if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count() > 0)
+                {
+                    idDonVis = string.Join(",", param.IDChiNhanhs);
+                }
+                if (param.TrangThais != null && param.TrangThais.Count() > 0)
+                {
+                    trangthaiCongNo = string.Join(",", param.TrangThais);
+                }
+                List<SqlParameter> sql = new List<SqlParameter>();
+                sql.Add(new SqlParameter("IDChiNhanhs", idDonVis));
+                sql.Add(new SqlParameter("DateFrom", param.DateFrom?? (object) DBNull.Value));
+                sql.Add(new SqlParameter("DateTo", param.DateTo ?? (object)DBNull.Value));
+                sql.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
+                sql.Add(new SqlParameter("TrangThais", trangthaiCongNo ?? (object)DBNull.Value));
+                sql.Add(new SqlParameter("CurrentPage", param.CurrentPage));
+                sql.Add(new SqlParameter("PageSize", param.PageSize));
+                return _db.Database.SqlQuery<BaoCao_CongNoChiTietDTO>("exec dbo.GetBaoCaoCongNoChiTiet @IDChiNhanhs, @DateFrom, @DateTo, " +
+                    "@TextSearch, @TrangThais, @CurrentPage, @PageSize", sql.ToArray()).ToList();
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("libReport - ClassReportTaiChinh - LoadBaoCaoCongNoChitiet: " + ex.Message);
+                return new List<BaoCao_CongNoChiTietDTO>();
             }
         }
 

@@ -6882,6 +6882,35 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
         [HttpGet, HttpPost]
+        public IHttpActionResult LoadBaoCaoCongNoChitiet(CommonParamSearch param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassReportTaiChinh reportTaiChinh = new ClassReportTaiChinh(db);
+                    List<BaoCao_CongNoChiTietDTO> data = reportTaiChinh.LoadBaoCaoCongNoChitiet(param);
+
+                    var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
+                    int page = 0;
+                    var listpage = GetListPage(count, param.PageSize??10, param.CurrentPage??1, ref page);
+                    return ActionTrueData(new
+                    {
+                        data ,
+                        ListPage = listpage,
+                        PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
+                        (param.CurrentPage * param.PageSize + data.Count()), " trên tổng số ", count, " bản ghi"),
+                        NumOfPage = page,
+                        TotalRow = count
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.Message + ex.InnerException);
+                }
+            }
+        }
+        [HttpGet, HttpPost]
         public IHttpActionResult Export_BCThucThuTheoLoaiTien(ParamPreportThuChi param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -6903,6 +6932,46 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, false, null, param.ReportTime, param.ReportBranch);
 
                     fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoThucThuTheoLoaiTien.xlsx");
+                    return ActionTrueNotData(fileSave);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.Message + ex.InnerException);
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult Export_BaoCaoCongNoChitiet(CommonParamSearch param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    Class_officeDocument classOffice = new Class_officeDocument(db);
+                    ClassReportTaiChinh reportTaiChinh = new ClassReportTaiChinh(db);
+                    List<BaoCao_CongNoChiTietDTO> lst = reportTaiChinh.LoadBaoCaoCongNoChitiet(param);
+                    DataTable excel = classOffice.ToDataTable<BaoCao_CongNoChiTietDTO>(lst);
+                    excel.Columns.Remove("TongThanhToanAll");
+                    excel.Columns.Remove("KhachDaTraAll");
+                    excel.Columns.Remove("ConNoAll");
+                    excel.Columns.Remove("TotalRow");
+                    excel.Columns.Remove("TotalPage");
+                    excel.Columns.Remove("ID");
+                    excel.Columns.Remove("LoaiHoaDon");
+
+                    string colHide = string.Empty;
+                    if (param.ColumnHide!=null && param.ColumnHide.Count > 0)
+                    {
+                        colHide = string.Join("_", param.ColumnHide);
+                    }
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoCongNoChiTiet.xlsx");
+                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoCongNoChiTiet.xlsx");
+                    fileSave = classOffice.createFolder_Download(fileSave);
+                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, false, colHide, param.ReportTime, param.ReportBranch);
+
+                    fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoCongNoChiTiet.xlsx");
                     return ActionTrueNotData(fileSave);
                 }
                 catch (Exception ex)

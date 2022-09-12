@@ -117,6 +117,12 @@
                     </label>
                 </li>
                 <li>
+                    <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_TongHopCongNo').length > 0">
+                        <input type="radio" name="LoaiBaoCao" value="8" v-model="LoaiBaoCao" class="radio-option" />
+                        Chi tiết công nợ
+                    </label>
+                </li>
+                <li>
                     <label v-if="VHeader.Quyen.filter(p => p === 'BCTC_NhatKyThuTien').length > 0">
                         <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
                         Nhật ký thu tiền
@@ -171,6 +177,12 @@
                                         </label>
                                     </li>
                                     <li>
+                                        <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_TongHopCongNo').length > 0">
+                                            <input type="radio" name="LoaiBaoCao" value="8" v-model="LoaiBaoCao" class="radio-option" />
+                                            Chi tiết công nợ
+                                        </label>
+                                    </li>
+                                    <li>
                                         <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_NhatKyThuTien').length > 0">
                                             <input type="radio" name="LoaiBaoCao" value="2" v-model="LoaiBaoCao" class="radio-option" />
                                             Nhật ký thu tiền
@@ -203,7 +215,7 @@
                                     <li>
                                         <label class="floatleft" v-if="VHeader.Quyen.filter(p => p === 'BCTC_PhanTichThuChi').length > 0">
                                             <input type="radio" name="LoaiBaoCao" value="7" v-model="LoaiBaoCao" class="radio-option" />
-                                            Thực thu theo ngày
+                                            Thực thu theo loại tiền
                                         </label>
                                     </li>
                                 </ul>
@@ -218,7 +230,7 @@
                             <filter-chinhanh v-bind:listchinhanh="listChiNhanh" v-on:callfunctionloaddata="ChiNhanhChange"></filter-chinhanh>
                         </aside>
                     </article>
-                    <article class="boxLeft showLoaiDoiTac" v-show="LoaiBaoCao !== '5' && LoaiBaoCao !== '7'">
+                    <article class="boxLeft showLoaiDoiTac" v-show="!['5', '6', '7','8'].includes(LoaiBaoCao)">
                         <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
                             <img src="/Content/images/icon/loaihang.png">  Loại đối tác
                         </h3>
@@ -253,7 +265,7 @@
                             </div>
                         </aside>
                     </article>
-                    <article class="boxLeft" v-show="!['5', '6', '4'].includes(LoaiBaoCao) || LoaiBaoCao === '7' || (LoaiBaoCao === '4' && SoQuyLoai !== 4)">
+                    <article class="boxLeft" v-show="!['5', '6', '4'].includes(LoaiBaoCao) || ['7', '8'].includes(LoaiBaoCao) || (LoaiBaoCao === '4' && SoQuyLoai !== 4)">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <img src="~/Content/images/icon/ngaytao.png" />
                             Thời gian
@@ -277,7 +289,8 @@
                             </div>
                         </aside>
                     </article>
-                    <article class="boxLeft showNhomKH" v-show="LoaiBaoCao !== '5' && LoaiBaoCao !== '7'">
+                    <article class="boxLeft showNhomKH"
+                             v-show="!['5','7', '8'].includes(LoaiBaoCao)">
                         <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
                             <img src="~/Content/images/icon/nguoiban.png" />     Nhóm khách hàng
                         </h3>
@@ -286,7 +299,7 @@
                             <filter-chinhanh v-bind:listchinhanh="listNhomKhachHang" v-on:callfunctionloaddata="NhomKhachHangNhaCungCapChange"></filter-chinhanh>
                         </aside>
                     </article>
-                    <article class="boxLeft showNhomNCC" v-show="LoaiBaoCao !== '5' && LoaiBaoCao !== '7'">
+                    <article class="boxLeft showNhomNCC" v-show="!['5','7', '8'].includes(LoaiBaoCao)">
                         <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
                             <img src="~/Content/images/icon/nguoiban.png" />     Nhóm nhà cung cấp
                         </h3>
@@ -364,6 +377,23 @@
                             </div>
                         </aside>
                     </article>
+                    <article class="boxLeft showLoaiTien" v-show="LoaiBaoCao === '8'">
+                        <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
+                            <i class="fas fa-dollar-sign"></i>   Trạng thái nợ
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio ">
+                                <ul>
+                                    <li>
+                                        <label><input type="checkbox"  v-model="$root.Debit_Yes" v-on:change="$root.BCCongNo_ChangeTrangThai"> Còn nợ</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox"  v-model="$root.Debit_No" v-on:change="$root.BCCongNo_ChangeTrangThai"> Hết nợ</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
                 </section>
                 <div class="op-filter-footer">
                     <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
@@ -394,10 +424,11 @@
                 </div>
                 <div class="flex flex-between">
                     <div class="header-button">
-                        <button class="btn btn-main btnExport" id="btnExport" name="btnExport" style="margin-right: 4px;" v-on:click="ExportExcel" v-if="VHeader.Quyen.filter(p => p === 'BCTC_XuatFile').length > 0">
+                        <button class="btn btn-main btnExport" id="btnExport" name="btnExport" style="margin-right: 4px;" v-on:click="ExportExcel"
+                                v-if="VHeader.Quyen.filter(p => p === 'BCTC_XuatFile').length > 0">
                             <i class="fa fa-file-excel-o"></i> Xuất Excel
                         </button>
-                        <div style="position:relative" class="btn-dropdown" id="select-column" v-show="['1', '2','3'].includes(LoaiBaoCao) || (LoaiBaoCao === '4' && SoQuyLoai !== 4)">
+                        <div style="position:relative" class="btn-dropdown" id="select-column" v-show="['1', '2','3','8'].includes(LoaiBaoCao) || (LoaiBaoCao === '4' && SoQuyLoai !== 4)">
                             <button type="button" class="btn btn-main dropdown-toggle" onclick="showCollumnFilter(this)" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-angle-double-down"></i>
                             </button>
@@ -786,6 +817,46 @@
                                 <tfoot v-if="BaoCaoThuChi_TheoLoaiTien.data.length === 0">
                                     <tr>
                                         <td colspan="5" class="text-center">
+                                            <i>Báo cáo không có dữ liệu</i>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <table class="table table-striped table-hover" v-if="LoaiBaoCao === '8'">
+                                <thead>
+                                    <tr>
+                                        <th v-for="item in ListHeader.filter(p=>p.colShow === true)"
+                                            class="middle">{{item.colText}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, i) in BaoCaoCongNoChiTiet.data">
+                                        <td v-if="CheckColShow('colMaPhieu')">
+                                        <a href="javascript:void(0)" v-on:click="gotoPageOther(1,item)">{{item.MaHoaDon}}</a></td>
+                                        <td v-if="CheckColShow('colThoiGian')" style="width:10%" class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                        <td v-if="CheckColShow('colMaDoiTuong')" v-on:click="gotoPageOther(0,item)"><a>{{item.MaDoiTuong}}</a></td>
+                                        <td v-if="CheckColShow('colTenDoiTuong')">{{item.TenDoiTuong}}</td>
+                                        <td v-if="CheckColShow('colTongThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.TongThanhToan)}}</td>
+                                        <td v-if="CheckColShow('colKhachDaTra')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.KhachDaTra)}}</td>
+                                        <td v-if="CheckColShow('colConNo')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ConNo)}}</td>
+                                        <td v-if="CheckColShow('colNVThucHien')">{{item.TenNhanViens}}</td>
+                                        <td v-if="CheckColShow('colDienGiai')">{{item.DienGiai}}</td>
+                                        <td v-if="CheckColShow('colChiNhanh')">{{item.TenDonVi}}</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot v-if="BaoCaoCongNoChiTiet.data.length > 0">
+                                    <tr class="bold bg12">
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index < 4 && p.colShow).length">Tổng cộng</td>
+                                        <td v-if="CheckColShow('colTongThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoCongNoChiTiet.TongThanhToanAll)}}</td>
+                                        <td v-if="CheckColShow('colKhachDaTra')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoCongNoChiTiet.KhachDaTraAll)}}</td>
+                                        <td v-if="CheckColShow('colConNo')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoCongNoChiTiet.ConNoAll)}}</td>
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index > 6 && p.colShow).length"></td>
+                                    </tr>
+                                </tfoot>
+                                <tfoot v-if="BaoCaoCongNoChiTiet.data.length === 0">
+                                    <tr>
+                                        <td colspan="11" class="text-center">
                                             <i>Báo cáo không có dữ liệu</i>
                                         </td>
                                     </tr>
@@ -1181,6 +1252,20 @@
                 TongThuAll: 0
             },
 
+            Debit_Yes: true,
+            Debit_No: true,
+            BaoCaoCongNoChiTiet: {
+                data: [],
+                dataView: [],
+                TongThanhToanAll: 0,
+                KhachDaTraAll: 0,
+                ConNoAll: 0,
+                currentPage: 0,
+                PageSize: 10,
+                TotalRow:0,
+                Reload: true
+            },
+
             isPageSelect: false,
             isLoading: true,
             ListLoaiPhieuThuChi: [],
@@ -1258,6 +1343,9 @@
                         case '7':
                             self.LoadBaoCaoThuChi_TheoLoaiTien();
                             break;
+                        case '8':
+                            self.LoadBaoCaoCongNoChitiet();
+                            break;
                         default:
                             break;
                     }
@@ -1304,6 +1392,10 @@
                             default:
                                 break;
                         }
+                        break;
+                    case '8':
+                        self.PageList.currentPage = self.BaoCaoCongNoChiTiet.currentPage;
+                        self.PageList.PageSize = self.BaoCaoCongNoChiTiet.PageSize;
                         break;
                     default:
                         break;
@@ -1902,7 +1994,10 @@
                         self.BaoCaoTieuDe = "Báo cáo phân tích thu chi";
                         break;
                     case '7':
-                        self.BaoCaoTieuDe = "Báo cáo thực thu";
+                        self.BaoCaoTieuDe = "Báo cáo thực thu theo loại tiền";
+                        break;
+                    case '8':
+                        self.BaoCaoTieuDe = "Báo cáo chi tiết công nợ khách hàng";
                         break;
                     default:
                         break;
@@ -2006,17 +2101,52 @@
                 self.BaoCaoPhanTichThuChiTheoNam.Reload = true;
                 self.LoadData();
             },
-            LoadBaoCaoThuChi_TheoLoaiTien: function () {
+            CheckColShow: function (colName) {
                 let self = this;
+                let data = self.ListHeader.find(x => x.colName === colName);
+                if (data != undefined) {
+                    return data.colShow;
+                }
+                return true;
+            },
+            GetCommonParamSearch: function () {
+                let self = this;
+                let txt = self.TextSearch;
+                if (!commonStatisJs.CheckNull(txt)) {
+                    txt = txt.trim();
+                }
+                let arrStatus = [];
+                switch (parseInt(self.LoaiBaoCao)) {
+                    case 8:
+                        if (self.Debit_No) {
+                            arrStatus.push(0);
+                        }
+                        if (self.Debit_Yes) {
+                            arrStatus.push(1);
+                        }
+                        break;
+                }
+                
+                let arrCN = self.listChiNhanh.filter(p => p.CNChecked === true);
                 let param = {
-                    IDChiNhanhs: self.listChiNhanh.filter(p => p.CNChecked).length === 0 ?
-                        self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID),
+                    IDChiNhanhs: arrCN.length === 0 ?
+                        self.listChiNhanh.map(p => p.ID) : arrCN.map(p => p.ID),
                     DateFrom: self.ThoiGian.From,
                     DateTo: self.ThoiGian.To,
-                    LoaiDoiTuongs: [1],
-                    KhoanMucThuChis: [],
+                    TextSearch: txt,
+                    TrangThais: arrStatus,
+                    CurrentPage: self.PageList.currentPage,
+                    PageSize: self.PageList.PageSize,
+                    ColumnHide : self.ListHeader.filter(p => p.colShow === false).map(p => p.index),
+                    ReportTime: self.BaoCaoThoiGianText,
+                    ReportBranch: ''.concat(arrCN.length === 0 ? 'Toàn bộ chi nhánh' : arrCN.map(p => p.TenDonVi).toString())
                 }
-              
+                return param;
+            },
+            LoadBaoCaoThuChi_TheoLoaiTien: function () {
+                let self = this;
+                let param = self.GetCommonParamSearch();
+
                 self.isLoading = true;
                 ajaxHelper(self.urlApi.ReportApi + 'BaoCaoThuChi_TheoLoaiTien', 'POST', param).done(function (x) {
                     if (x.res && x.dataSoure.length > 0) {
@@ -2037,6 +2167,45 @@
                 }).always(function () {
                     self.isLoading = false;
                 });
+            },
+            LoadBaoCaoCongNoChitiet: function () {
+                let self = this;
+                let param = self.GetCommonParamSearch();
+                param.CurrentPage = param.CurrentPage - 1;
+             
+                self.isLoading = true;
+                ajaxHelper(self.urlApi.ReportApi + 'LoadBaoCaoCongNoChitiet', 'POST', param).done(function (x) {
+                    if (x.res && x.dataSoure.data.length > 0) {
+                        self.BaoCaoCongNoChiTiet.data = x.dataSoure.data;
+                        let itFirst = x.dataSoure.data[0];
+                        self.BaoCaoCongNoChiTiet.TongThanhToanAll = itFirst.TongThanhToanAll;
+                        self.BaoCaoCongNoChiTiet.KhachDaTraAll = itFirst.KhachDaTraAll;
+                        self.BaoCaoCongNoChiTiet.ConNoAll = itFirst.ConNoAll;
+
+                        self.BaoCaoCongNoChiTiet.TotalRow = x.dataSoure.TotalRow;
+                        self.PageList.PageView = x.dataSoure.PageView;
+                        self.PageList.NumberOfPage = x.dataSoure.NumOfPage;
+                        self.PageList.ListPage = x.dataSoure.ListPage;
+                    }
+                    else {
+                        self.BaoCaoCongNoChiTiet.data = [];
+                        self.BaoCaoCongNoChiTiet.dataView = [];
+                        self.BaoCaoCongNoChiTiet.TongThanhToanAll = 0;
+                        self.BaoCaoCongNoChiTiet.KhachDaTraAll = 0;
+                        self.BaoCaoCongNoChiTiet.ConNoAll = 0;
+                        self.BaoCaoCongNoChiTiet.TotalRow = 0;
+                    }
+
+                }).always(function () {
+                    self.isLoading = false;
+                    self.BaoCaoCongNoChiTiet.Reload = false;
+                    console.log('cc ', self.PageList.currentPage)
+                });
+            },
+            BCCongNo_ChangeTrangThai: function () {
+                let self = this;
+                self.PageList.currentPage = 1;
+                self.LoadBaoCaoCongNoChitiet();
             },
             LoaiPhieuChange: function () {
                 let self = this;
@@ -2174,6 +2343,9 @@
                     case '7':
                         self.ListHeader = self.InitHeaderThucThuTheoNgay();
                         break;
+                    case '8':
+                        self.ListHeader = self.InitHeaderBaoCaoCongNoChiTiet();
+                        break;
                     case '4':
                         switch (self.SoQuyLoai) {
                             case 1:
@@ -2282,6 +2454,18 @@
                 { colName: 'colVisa', colText: 'Visa', colShow: true, index: 2 },
                 { colName: 'colChuyenKhoan', colText: 'Chuyển khoản', colShow: true, index: 3 },
                 { colName: 'colTong', colText: 'Tổng', colShow: true, index: 4 }]
+            },
+            InitHeaderBaoCaoCongNoChiTiet: function () {
+                return [{ colName: 'colMaPhieu', colText: 'Mã hóa đơn', colShow: true, index: 0 },
+                { colName: 'colThoiGian', colText: 'Thời gian', colShow: true, index: 1 },
+                { colName: 'colMaDoiTuong', colText: 'Mã khách hàng', colShow: true, index: 2 },
+                { colName: 'colTenDoiTuong', colText: 'Tên khách hàng', colShow: true, index: 3 },
+                { colName: 'colTongThanhToan', colText: 'Tổng phải trả', colShow: true, index: 4 },
+                { colName: 'colKhachDaTra', colText: 'Khách đã trả', colShow: true, index: 5 },
+                { colName: 'colConNo', colText: 'Còn nợ', colShow: true, index: 65 },
+                { colName: 'colNVThucHien', colText: 'NV hoa hồng', colShow: true, index: 7 },
+                { colName: 'colDienGiai', colText: 'Ghi chú', colShow: true, index: 8 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 9 }];
             },
             GetListYear: function () {
                 let self = this;
@@ -2462,18 +2646,12 @@
                         }
                         break;
                     case '7':
-                        let param = {
-                            IDChiNhanhs: self.listChiNhanh.filter(p => p.CNChecked).length === 0 ?
-                                self.listChiNhanh.map(p => p.ID) : self.listChiNhanh.filter(p => p.CNChecked).map(p => p.ID),
-                            DateFrom: self.ThoiGian.From,
-                            DateTo: self.ThoiGian.To,
-                            LoaiDoiTuongs: [1],
-                            KhoanMucThuChis: [],
-                            ReportTime: self.BaoCaoThoiGianText,
-                            ReportBranch: ''.concat(self.listChiNhanh.filter(p => p.CNChecked === true).length === 0 ?
-                                'Toàn bộ chi nhánh' : self.listChiNhanh.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString())
-                        }
+                        var param = self.GetCommonParamSearch();
                         self.Export_BCThucThuTheoLoaiTien(param);
+                        break;
+                    case '8':
+                        var param = self.GetCommonParamSearch();
+                        self.Export_BaoCaoCongNoChitiet(param);
                         break;
                     default:
                         break;
@@ -2677,10 +2855,58 @@
                     self.isLoading = false;
                 });
             },
+            Export_BaoCaoCongNoChitiet: function (param) {
+                let self = this;
+                self.isLoading = true;
+                param.CurrentPage = param.CurrentPage - 1;
+                param.PageSize = self.BaoCaoCongNoChiTiet.TotalRow;
+
+                $.ajax({
+                    url: self.urlApi.ReportApi + "Export_BaoCaoCongNoChitiet",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: param,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                }).done(function (data) {
+                    if (data.res)
+                        self.DownloadFileTeamplateXLSX(data.mess);
+                }).always(function () {
+                    self.isLoading = false;
+                });
+            },
             DownloadFileTeamplateXLSX: function (item) {
                 let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + item;
                 window.location.href = url;
-            }
+            },
+            gotoPageOther: function (type, item) {
+                let self = this;
+                let url = '';
+                switch (type) {
+                    case 0:
+                        localStorage.setItem('FindKhachHang', item.MaDoiTuong);
+                        url ='/#/Customers'
+                        break;
+                    case 1:
+                        localStorage.setItem('FindHD', item.MaHoaDon);
+                        switch (item.LoaiHoaDon) {
+                            case 1:
+                            case 36:
+                                url = "/#/Invoices";
+                                break;
+                            case 2:
+                                url = "/#/HoaDonBaoHanh";
+                                break;
+                            case 19:
+                                url = "/#/ServicePackage";
+                                break;
+                            case 22:
+                                url = "/#/RechargeValueCard";
+                                break;
+                        }
+                        break;
+                }
+                window.open(url, '_blank');
+            },
         },
         created: function () {
             let self = this;
@@ -2768,7 +2994,7 @@
                     self.BaoCaoTongHopCongNo.Reload = true;
                     self.LoadData();
                 }
-            }
+            },
         }
     });
 </script>
