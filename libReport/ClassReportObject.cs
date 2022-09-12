@@ -892,6 +892,7 @@ namespace libReport
     {
         public string TextSearch { get; set; }
         public string HangHoaSearch { get; set; }
+        public string TxtCustomer{ get; set; }
         public string ID_ChiNhanhs { get; set; }
         public string ID_NhomHang { get; set; }
         public string DateFrom { get; set; }

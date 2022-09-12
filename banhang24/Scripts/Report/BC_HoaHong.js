@@ -27,6 +27,7 @@
     self.IDNhomHangChosed = ko.observableArray();
     self.ArrDonVi = ko.observableArray();
     self.LstIDDonVi = ko.observableArray([_idDonVi]);
+    self.txtSearchCus = ko.observable('');
 
     self.LaHangHoa = ko.observable(true);
     self.LaDichVu = ko.observable(true);
@@ -541,6 +542,13 @@
         }
     })
 
+    self.TxtCus_Enter = function () {
+        let keyPress = event.keyCode || event.which;
+        if (keyPress === 13) {
+            SearchReport();
+        }
+    }
+
     self.ClickBtnSearch = function () {
         SearchReport();
     }
@@ -816,6 +824,12 @@
     }
 
     function GetParamSearch() {
+
+        let txtCus = self.txtSearchCus();
+        if (!commonStatisJs.CheckNull(txtCus)) {
+            txtCus = txtCus.trim();
+        }
+
         var idChiNhanhs = '';
         for (var i = 0; i < self.ChiNhanhChosed().length; i++) {
             idChiNhanhs += self.ChiNhanhChosed()[i].ID + ',';
@@ -831,6 +845,7 @@
         var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
         var dayStart = '';
         var dayEnd = '';
+
 
         if (self.RdoTypeTime() === '1') {
             var dateFrom = '';
@@ -954,6 +969,7 @@
             self.TodayBC('Từ ' + moment(arrDate[0], 'DD/MM/YYYY').format('DD/MM/YYYY') + ' đến ' + moment(arrDate[1], 'DD/MM/YYYY').format('DD/MM/YYYY'));
         }
         return {
+            TxtCustomer: txtCus,
             ID_ChiNhanhs: idChiNhanhs,
             FromDate: dayStart,
             ToDate: dayEnd,
@@ -1228,6 +1244,7 @@
         var array_Seach = {
             TextSearch: txtSearch,
             HangHoaSearch: txtSearchHH,
+            TxtCustomer: commonParam.TxtCustomer,
             DateFrom: commonParam.FromDate,
             DateTo: commonParam.ToDate,
             ID_ChiNhanhs: commonParam.ID_ChiNhanhs,
