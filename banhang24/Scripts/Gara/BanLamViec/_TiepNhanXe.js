@@ -453,7 +453,6 @@
         },
         ChangeCustomer: function (item) {
             var self = this;
-            console.log(item);
             self.newPhieuTiepNhan.ID_KhachHang = item.ID;
             self.customerChosing = item;
             self.FocusInput_AfterSelect(event.currentTarget);
