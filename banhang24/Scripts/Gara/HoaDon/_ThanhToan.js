@@ -467,7 +467,10 @@
             var self = this;
             self.ResetHinhThucTT();
             self.formType = formType;
-            self.LoaiHoaDon = item.LoaiHoaDon;
+            self.LoaiHoaDon = 1;
+            if (item !== null) {// lapphieuthu at banhang
+                self.LoaiHoaDon = item.LoaiHoaDon;
+            }
             self.typeUpdate = 0;
             self.isThuTienThua = false;
             self.isKhoaSo = false;
