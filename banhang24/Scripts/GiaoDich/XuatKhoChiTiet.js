@@ -1907,6 +1907,10 @@ var XuatKhoChiTiet = function () {
                 hd[0].MaHoaDon = self.newHoaDon().MaHoaDon();
                 hd[0].DienGiai = self.newHoaDon().DienGiai();
 
+                if (commonStatisJs.CheckNull(hd[0].ID_NhanVien)) {
+                    hd[0].ID_NhanVien = _idNhanVien;
+                }
+
                 let myData = {};
                 myData.objHoaDon = hd[0];
                 myData.objCTHoaDon = arrCT;
