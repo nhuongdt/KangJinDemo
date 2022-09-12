@@ -566,10 +566,7 @@
         ajaxHelper('/api/DanhMuc/GaraAPI/' + 'HuyHoaDon_UpdateLichBaoDuong?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
         });
     }
-    function ChangeNgayLapHD_UpdatePhieuXuatKho(idHoaDon) {
-        ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'ChangeNgayLapHD_UpdatePhieuXuatKho?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
-        });
-    }
+   
     function UpdateLichBD_whenChangeNgayLapHD(idHoaDon, ngaylapOld, ngaylapNew) {
         ajaxHelper('/api/DanhMuc/GaraAPI/UpdateLichBD_whenChangeNgayLapHD?idHoaDon=' + idHoaDon +
             '&ngaylapOld=' + ngaylapOld + '&ngaylapNew=' + ngaylapNew, 'GET')
@@ -675,8 +672,11 @@
                         ID_NhanVien: _id_NhanVien,
                         ID_DonVi: id_donvi,
                         ChucNang: 'Danh mục ' + sLoai,
-                        NoiDung: "Cập nhật  " + sLoai + ": " + maHoaDon,
-                        NoiDungChiTiet: "Cập nhật  " + sLoai + ": " + maHoaDon,
+                        NoiDung: "Cập nhật  ".concat(sLoai, ": ", maHoaDon),
+                        NoiDungChiTiet: "Cập nhật  ".concat(sLoai, ": ", maHoaDon, 
+                            '<br /> Ngày lập hóa đơn cũ: ', ngaylapHDOld,
+                            '<br /> Ngày lập hóa đơn mới: ', ngaylapHD,
+                        ),
                         LoaiNhatKy: 2
                     };
                     if (loaiHoaDon !== 3) {
@@ -688,7 +688,7 @@
                         switch (formElement.LoaiHoaDon) {
                             case 1:
                             case 36:
-                                ChangeNgayLapHD_UpdatePhieuXuatKho(id);
+                                vmApDungNhomHoTro.ChangeNgayLapHD_UpdatePhieuXuatKho(id);
                                 break;
                             case 25:
                                 UpdateLichBD_whenChangeNgayLapHD(id, ngaylapHDOld, ngaylapHD);
