@@ -494,7 +494,15 @@ var ViewModelQuyHD = function () {
         vmThemPhieuThuChi.showModalUpdate(item, self.ChiTietQuys(), true);
     }
 
-    self.editSQ = function (item) {
+    self.editSQ = async function (item) {
+        let qct = await $.getJSON(Quy_HoaDonUri + "GetQuyChiTiet_byIDQuy/" + item.ID).done(function () {
+        }).then(function (x) {
+            if (x.res) {
+                return x.dataSoure;
+            }
+            return [];
+        })
+
         if (item.PhieuDieuChinhCongNo === 2) {
             // nap tien coc
             if (item.LoaiHoaDon === 12) {
@@ -503,18 +511,18 @@ var ViewModelQuyHD = function () {
             else {
                 vmNapTienDatCoc.loaiMenu = 0;
             }
-            vmNapTienDatCoc.showModalUpdate(item, self.ChiTietQuys());
+            vmNapTienDatCoc.showModalUpdate(item, qct);
         }
         else {
-            if (self.ChiTietQuys().length > 0 && commonStatisJs.CheckNull(self.ChiTietQuys()[0].ID_HoaDonLienQuan)) {
-                if (self.ChiTietQuys()[0].LaTienCoc === 1) {
+            if (qct.length > 0 && commonStatisJs.CheckNull(qct[0].ID_HoaDonLienQuan)) {
+                if (qct[0].LaTienCoc === 1) {
                     // chi tra coc
-                    vmNapTienDatCoc.showModalUpdate(item, self.ChiTietQuys());
+                    vmNapTienDatCoc.showModalUpdate(item, qct);
                 }
                 else {
-                    if (commonStatisJs.CheckNull(self.ChiTietQuys()[0].ID_HoaDonLienQuan)) {
+                    if (commonStatisJs.CheckNull(qct[0].ID_HoaDonLienQuan)) {
                         // thuchi khong lienquan hoadon
-                        vmThemPhieuThuChi.showModalUpdate(item, self.ChiTietQuys());
+                        vmThemPhieuThuChi.showModalUpdate(item, qct);
                     }
                 }
             }
