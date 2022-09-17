@@ -355,7 +355,7 @@ var cmpChoseCustomer = {
     computed: {
         placeholderTxt: function () {
             var text = '';
-            switch (this.loaiDoiTuong) {
+            switch (parseInt(this.loaiDoiTuong)) {
                 case 1:
                     text = 'Khách hàng';
                     break;
@@ -374,6 +374,112 @@ var cmpChoseCustomer = {
     }
 };
 
+var componentListStaff = {
+    props: {
+        ID: { default: null },
+        MaNhanVien: { default: '' },
+        TenNhanVien: { default: '' },
+        isChose: { default: '' },
+    },
+    template: `
+        <li v-on:click="choseStaff">
+             <a href="javascript:void(0)" class="gara-component-item-nv">
+                 <div class="flex flex-between">
+                    <span>{{MaNhanVien}}</span>
+                     <span v-if="isChose" class="span-check"> <i class="fa fa-check">  </i> </span>
+                </div> 
+                <span class="seach-hh" style="color:black">{{TenNhanVien}}</span>
+            </a>
+        </li>
+`,
+    methods: {
+        choseStaff: function () {
+            this.$emit('chose-staff', this);
+        }
+    }
+}
+var cmpNguoiLienHe = {
+    props: {
+        textSearch: { default: '' },
+        listAll: { default: [] },
+        listSearch: { default: [] },
+        idChosing: { default: null },
+        showBtnAdd: { default: false },
+        showBtnUpdate: { default: false },
+        showbuttonReset: { default: false },
+    },
+    template: `
+    <div class="gara-bill-infor-button shortlabel">
+            <div class="gara-absolute-button" style="text-align: center"  v-if="showbuttonReset">
+                <a class="gara-button-icon">
+                 <i class="fa fa-times" style="color:red"></i>
+                </a>
+            </div> 
+            <div class="gara-absolute-button" v-if="showBtnAdd">
+                <a class="gara-button-icon" v-on:click="showModal">
+                 <i class="material-icons">add</i>
+                </a>
+            </div>
+            <div class="gara-absolute-button" v-if="showBtnUpdate">
+                <a class="gara-button-icon" v-on:click="showModal">
+                 <i class="material-icons">add</i>
+                </a>
+            </div>
+         <input class="gara-search-HH " placeholder="Chọn liên hệ" style="padding-right: 27px!important"
+                onclick= "this.select()"
+                v-model="textSearch" v-on:keyup="search" v-on:click="showList" />
+            <div class="gara-search-dropbox drop-search ">
+               <ul>
+                    <li v-on:click="choseItem(item)"
+                        v-for="(item, index) in listSearch">
+                         <a href="javascript:void(0)" class="gara-component-item-nv">
+                             <div class="flex flex-between">
+                                <span>{{item.MaLienHe}}</span>
+                                 <span v-if="idChosing == item.ID" class="span-check"> <i class="fa fa-check">  </i> </span>
+                            </div> 
+                            <span class="seach-hh" style="color:black">{{item.TenLienHe}}</span>
+                        </a>
+                     </li>
+                 </ul>
+            </div>
+    </div>
+`,
+    methods: {
+        showList: function () {
+            $(event.currentTarget).next().show();
+        },
+        search: function () {
+            var self = this;
+            if (commonStatisJs.CheckNull(self.textSearch)) {
+                self.listSearch = self.listAll.slice(0, 20);
+                self.idChosing = null;
+                self.$emit('reset-item-chose');
+            }
+            else {
+                let txt = commonStatisJs.convertVieToEng(self.textSearch);
+                self.listSearch = self.listAll.filter(e =>
+                    commonStatisJs.convertVieToEng(e.MaLienHe).indexOf(txt) >= 0
+                    || commonStatisJs.convertVieToEng(e.TenLienHe).indexOf(txt) >= 0
+                    || e.TenLienHe.indexOf(txt) >= 0
+                );
+            }
+        },
+        showModal: function () {
+            this.$emit('show-modal');
+        },
+        choseItem: function (item) {
+            this.idChosing = item.ID;
+            this.$emit('chose-item', item);
+            $(event.currentTarget).closest('div').hide();
+        },
+        resetItemChose: function () {
+            let self = this;
+            self.customers = [];
+            self.idChosing = null;
+            self.$emit('reset-item-chose');
+        }
+    }
+};
 // products
 var cmpChoseProduct = {
     props: {
