@@ -28,18 +28,26 @@
 
                         <div class="col-lg-4 col-lg-offset-2 col-xs-10 col-xs-offset-3 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 flex flex-between">
                             <label>
-                                <input type="radio" class="form-check-input" value="1" v-model="newHoaDon.TongChietKhau" />Khách hàng
+                                <input type="radio" class="form-check-input" name="rdoLoaiDoiTuong"
+                                       value="1" v-model="newHoaDon.TongChietKhau"
+                                       v-on:change="ChangeLoaiDoiTuong" />Khách hàng
                             </label>
                             <label>
-                                <input type="radio" class="form-check-input" value="2" v-model="newHoaDon.TongChietKhau" />Nhà cung cấp
+                                <input type="radio" class="form-check-input" name="rdoLoaiDoiTuong"
+                                       value="2" v-model="newHoaDon.TongChietKhau"
+                                       v-on:change="ChangeLoaiDoiTuong" />Nhà cung cấp
                             </label>
                         </div>
                         <div class="col-lg-4 col-lg-offset-2 col-xs-10 col-xs-offset-3 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 flex flex-between">
                             <label>
-                                <input type="radio" class="form-check-input" value="3" v-model="newHoaDon.TongChietKhau" />Nhân viên
+                                <input type="radio" class="form-check-input" name="rdoLoaiDoiTuong"
+                                       v-on:change="ChangeLoaiDoiTuong"
+                                       value="4" v-model="newHoaDon.TongChietKhau" />Nhân viên
                             </label>
                             <label>
-                                <input type="radio" class="form-check-input" value="0" v-model="newHoaDon.TongChietKhau" />Khác
+                                <input type="radio" class="form-check-input" name="rdoLoaiDoiTuong"
+                                       v-on:change="ChangeLoaiDoiTuong"
+                                       value="0" v-model="newHoaDon.TongChietKhau" />Khác
                             </label>
                         </div>
                     </div>
@@ -51,16 +59,16 @@
                                 Mã phiếu
                             </label>
                             <div class="form-news">
-                                <input type="text" class="form-control"
+                                <input type="text" class="form-control" readonly
                                        placeholder="Mã tự động" v-model="newHoaDon.MaHoaDon" />
                             </div>
                         </div>
                         <div class="form-group gara-addcar-brand nopadding">
                             <label>Người giới thiệu</label>
                             <div class="form-news">
-                                <div v-show="[1,2,3].includes(newHoaDon.TongChietKhau)">
+                                <div v-show="['1','2','3'].includes(newHoaDon.TongChietKhau)">
                                     <customers :text-search="txtNguoiGioiThieu"
-                                               :loai-doi-tuong="1"
+                                               :loai-doi-tuong="newHoaDon.TongChietKhau"
                                                :showbutton="false"
                                                :disable-search="false"
                                                :id-chi-nhanh="inforLogin.ID_DonVi"
@@ -69,7 +77,7 @@
                                     </customers>
                                 </div>
 
-                                <div v-if="newHoaDon.TongChietKhau == 4">
+                                <div v-if="newHoaDon.TongChietKhau == '4'">
                                     <nhanviens :text-search="txtNguoiGioiThieu"
                                                :staffs="listData.NhanViens"
                                                :search-list="listData.NhanViens"
@@ -77,13 +85,27 @@
                                                v-on:change-staff-parent="ChangeNguoiGioiThieu">
                                     </nhanviens>
                                 </div>
+                                <div v-if="newHoaDon.TongChietKhau == '0'">
+                                    <contacts :text-search="txtLienHe"
+                                              :list-all="listData.LienHes"
+                                              :list-search="listData.LienHes"
+                                              :show-btn-add="true"
+                                              v-on:show-modal="showModalContact"
+                                              v-on:reset-item-chose="ResetNguoiGioiThieu"
+                                              v-on:chose-item="ChangeNguoiGioiThieu">
+                                    </contacts>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group nopadding">
                             <label></label>
                             <div class="form-news">
                                 <input type="text" class="form-control" style="text-align:left"
-                                       v-bind:value="newHoaDon.TenSDTNguoiGioiThieu" />
+                                       v-if="newHoaDon.SDTNguoiGioiThieu"
+                                       v-bind:value="newHoaDon.TenNguoiGioiThieu.concat(' (', newHoaDon.SDTNguoiGioiThieu, ')')" />
+                                <input type="text" class="form-control" style="text-align:left"
+                                       v-else
+                                       v-bind:value="newHoaDon.TenNguoiGioiThieu" />
                             </div>
                         </div>
                     </div>
@@ -107,21 +129,28 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-wrap gara-detail-sections" style="padding-bottom:15px; border-bottom:1px solid">
+                <div class="flex flex-wrap gara-detail-sections" style="border-bottom:1px solid">
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
-                        <div class="col-lg-6 col-xs-12 nopadding-left">
+                        <div class="col-lg-6 col-xs-12  col-sm-6 col-md-6 nopadding-left">
                             <label>Nội dung chi tiết</label>
                         </div>
-                        <div class="col-lg-6 col-xs-12 floatright ">
-                            <label>
-                                <span>Tổng cộng:</span>
-                                <span>{{formatNumber3Digit(newHoaDon.TongTienHang)}}</span>
-                            </label>
+                        <div class="col-lg-6 col-xs-12 col-sm-6 col-md-6 nopadding-right">
+                            <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-left">
+                                <label>
+                                    Tổng thanh toán
+                                </label>
+                                <p style="font-size:10px"><i>({{newHoaDon.LoaiTien}})</i></p>
+                            </div>
+                            <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-right floatRight ">
+                                <label style="float:right!important">
+                                    {{formatNumber3Digit(newHoaDon.DaThanhToan)}}
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="container-fluid row" style="margin-bottom:5px"
+                <div class="container-fluid row" style="margin-bottom:5px; margin-top:10px"
                      v-if="ThongTinChiTiet.length == 0">
                     <div class="flex flex-wrap">
                         <div class="col-lg-6 col-xs-12 ">
@@ -138,7 +167,7 @@
                                 </div>
                             </div>
                             <div class="form-group nopadding">
-                                <label>Tên</label>
+                                <label></label>
                                 <div class="form-news">
                                     <input type="text" class="form-control" style="text-align:left" readonly />
                                 </div>
@@ -154,7 +183,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="container-fluid row" style="margin-bottom:5px"
+                <div class="container-fluid row" style="margin-bottom:5px; margin-top:10px"
                      v-if="ThongTinChiTiet.length > 0"
                      v-for="(item, index) in ThongTinChiTiet">
                     <div class="flex flex-wrap">
@@ -175,7 +204,11 @@
                                 <label></label>
                                 <div class="form-news">
                                     <input type="text" class="form-control" style="text-align:left" readonly
-                                           v-model="item.TenKhachHang" />
+                                           v-if="item.DienThoai"
+                                           v-bind:value="item.TenDoiTuong.concat(' (', item.DienThoai, ')')" />
+                                    <input type="text" class="form-control" style="text-align:left" readonly
+                                           v-else="item.DienThoai"
+                                           v-bind:value="item.TenDoiTuong" />
                                 </div>
                             </div>
                         </div>
@@ -200,10 +233,8 @@
                                     <th style="text-align:center; width: 10%">
                                         Tiền chiết khấu
                                     </th>
-                                    <th>
-                                        <a title="Xóa tất cả dòng" class="red" v-on:click="RemoveAllRow(item)">
-                                            <i class="fal fa-times"></i>
-                                        </a>
+                                    <th title="Xóa tất cả dòng" class="red" v-on:click="RemoveAllRow(item)">
+                                        <i class="fal fa-times"></i>
                                     </th>
                                 </tr>
                             </thead>
@@ -211,15 +242,23 @@
                                 <tr v-for="(ct, index2) in item.HoaDons">
                                     <td>{{ct.MaHoaDon}}</td>
                                     <td>{{moment(ct.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
-                                    <td>{{formatNumber3Digit(ct.TongThanhToan)}}</td>
-                                    <td>{{formatNumber3Digit(ct.KhachDaTra)}}</td>
+                                    <td class="text-right">{{formatNumber3Digit(ct.TongThanhToan)}}</td>
+                                    <td class="text-right">{{formatNumber3Digit(ct.KhachDaTra)}}</td>
                                     <td style="width: 5%">
-                                        <input type="text" />
+                                        <input type="text" style="width:100px" class="text-right"
+                                               onkeypress="keypressNumber_limitNumber(event, this)"
+                                               v-on:keyup.13="Enter_FocusNext(4)"
+                                               v-model="ct.PTChietKhau"
+                                               v-on:keyup="editPTChietKhau(item,ct)" />
                                     </td>
-                                    <td style="width: 15%">
-                                        <input type="text" />
+                                    <td>
+                                        <input type="text" style="width:120px" class="text-right"
+                                               onkeypress="keypressNumber_limitNumber(event, this)"
+                                               v-on:keyup.13="Enter_FocusNext(5)"
+                                               v-model="ct.TienChietKhau"
+                                               v-on:keyup="editTienChietKhau(item,ct)" />
                                     </td>
-                                    <td style="width: 5%" class="text-center">
+                                    <td class="text-center">
                                         <a title="Xóa dòng" class="red" v-on:click="RemoveOneRow(item,ct)">
                                             <i class="fal fa-times"></i>
                                         </a>
@@ -230,7 +269,7 @@
                     </div>
 
                 </div>
-                <div class="flex flex-row">
+                <div class="flex flex-row" v-if="ThongTinChiTiet.length > 0">
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12 ">
                         <div class="form-group">
                             <button class="btn btn-main" v-on:click="AddNewData_Cus">
@@ -277,6 +316,8 @@
             'my-date-time': cpmDatetime,
             'customers': cmpChoseCustomer,
             'dropdown': cmpDropdown1Item,
+            'nhanviens': ComponentChoseStaff,
+            'contacts': cmpNguoiLienHe,
         },
         created: function () {
             var self = this;
@@ -292,8 +333,32 @@
 
             self.roleChangeNgayLapHD = VHeader.Quyen.indexOf('HoaDon_ThayDoiThoiGian') > -1;
 
-            self.GetListNhanVien();
+            self.PageLoad();
             console.log('vmHoaHongKhachGioiThieu')
+        },
+        computed: {
+            sLoaiDoiTuong: function () {
+                let self = this;
+                let txt = '';
+                switch (parseInt(self.newHoaDon.TongChietKhau)) {
+                    case 1:
+                        txt = 'Khách hàng';
+                        break;
+                    case 2:
+                        txt = 'Nhà cung cấp';
+                        break;
+                    case 3:
+                        txt = 'Bảo hiểm';
+                        break;
+                    case 4:
+                        txt = 'Nhân viên';
+                        break;
+                    case 0:
+                        txt = 'Khác';
+                        break;
+                }
+                return txt;
+            },
         },
         data: {
             saveOK: false,
@@ -306,6 +371,7 @@
 
             txtKhachHang: '',
             txtNguoiGioiThieu: '',
+            txtLienHe: '',
 
             newHoaDon: {
                 ID: null,
@@ -314,29 +380,43 @@
                 NgayLapHoaDon: '',
                 ID_DonVi: null,
                 ID_CheckIn: null,// id NguoiGioiThieu
-                TongChietKhau: 1, // Loại đối tượng giới thiệu (0.Khác, 1.Khách hàng, 2.Nhà cung cấp, 3.Bảo hiểm, 4.Nhân viên)
+                TongChietKhau: '1', // Loại đối tượng giới thiệu (0.Khác, 1.Khách hàng, 2.Nhà cung cấp, 3.Bảo hiểm, 4.Nhân viên)
                 TongTienHang: 0, // tổng tiền hoa hồng được nhận
+                DaThanhToan: 0,// tongtien da thanhtoan cho khach = TongTienThu in SoQuy
                 DienGiai: '',
                 NguoiTao: '',
                 An_Hien: false,// Là hóa đơn trích bổ sung
                 TrangThai: 0,
 
+                LoaiTien: 'Tiền mặt',
                 MaNguoiGioiThieu: '',
                 TenNguoiGioiThieu: '',
                 SDTNguoiGioiThieu: '',
-                TenSDTNguoiGioiThieu: '',
             },
             listData: {
                 NhanViens: [],
+                LienHes: [],
             },
-
             ThongTinChiTiet: [],
         },
         methods: {
+            PageLoad: function () {
+                let self = this;
+                self.GetListNhanVien();
+                self.GetAllLienHe();
+            },
             GetListNhanVien: function () {
                 let self = this;
                 ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + self.inforLogin.ID_DonVi, 'GET').done(function (data) {
                     self.listData.NhanViens = data;
+                    console.log('nv ', data)
+                })
+            },
+            GetAllLienHe: function () {
+                let self = this;
+                ajaxHelper("/api/DanhMuc/DM_LienHeAPI/" + "GetAllLienHe", 'GET').done(function (data) {
+                    self.listData.LienHes = data;
+                    console.log('lh ', data)
                 })
             },
             GetListHoaDon_byIDCus: async function (idCus) {
@@ -370,17 +450,18 @@
                     NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
                     ID_DonVi: VHeader.IdDonVi,
                     ID_CheckIn: null,// id NguoiGioiThieu
-                    TongChietKhau: 1, // Loại đối tượng giới thiệu (0.Khác, 1.Khách hàng, 2.Nhà cung cấp, 3.Bảo hiểm, 4.Nhân viên)
+                    TongChietKhau: '1', // Loại đối tượng giới thiệu (0.Khác, 1.Khách hàng, 2.Nhà cung cấp, 3.Bảo hiểm, 4.Nhân viên)
                     TongTienHang: 0, // tổng tiền hoa hồng được nhận
+                    DaThanhToan: 0,
                     DienGiai: '',
                     NguoiTao: VHeader.UserLogin,
                     An_Hien: false,// Là hóa đơn trích bổ sung
                     TrangThai: 0,
 
+                    LoaiTien: 'Tiền mặt',
                     MaNguoiGioiThieu: '',
                     TenNguoiGioiThieu: '',
                     SDTNguoiGioiThieu: '',
-                    TenSDTNguoiGioiThieu: '',
                 };
 
                 $('#vmHoaHongKhachGioiThieu').modal('show');
@@ -399,8 +480,8 @@
             CheckSave: function () {
                 let self = this;
 
-                if (commonStatisJs.CheckNull(self.newHoaDon.ID_DoiTuong)) {
-                    ShowMessage_Danger('Vui lòng chọn khách hàng');
+                if (commonStatisJs.CheckNull(self.newHoaDon.ID_CheckIn)) {
+                    ShowMessage_Danger('Vui lòng chọn người giới thiệu');
                     return;
                 }
 
@@ -425,48 +506,30 @@
             },
             ResetNguoiGioiThieu: function () {
                 let self = this;
-                switch (self.newHoaDon.TongChietKhau) {
-                    case 1:
-                    case 2:
-                    case 3:
-                        self.newHoaDon.MaNguoiGioiThieu = item.MaDoiTuong;
-                        self.newHoaDon.TenNguoiGioiThieu = item.TenDoiTuong;
-                        self.newHoaDon.SDTNguoiGioiThieu = item.DienThoai;
-
-                        if (!commonStatisJs.CheckNull(item.DienThoai)) {
-                            self.newHoaDon.TenSDTNguoiGioiThieu = item.TenDoiTuong.concat(' (', item.DienThoai, ')');
-                        }
-                        else {
-                            self.newHoaDon.TenSDTNguoiGioiThieu = item.TenDoiTuong;
-                        }
-                        break;
-                    case 4:
-                        self.newHoaDon.MaNguoiGioiThieu = item.MaNhanVien;
-                        self.newHoaDon.TenNguoiGioiThieu = item.TenNhanVien;
-                        break;
-                }
-                self.newHoaDon.ID_CheckIn = item.ID;
+                self.newHoaDon.MaNguoiGioiThieu = '';
+                self.newHoaDon.TenNguoiGioiThieu = '';
+                self.newHoaDon.SDTNguoiGioiThieu = '';
+                self.newHoaDon.ID_CheckIn = null;
             },
             ChangeNguoiGioiThieu: function (item) {
                 let self = this;
-                switch (self.newHoaDon.TongChietKhau) {
+                switch (parseInt(self.newHoaDon.TongChietKhau)) {
                     case 1:
                     case 2:
                     case 3:
                         self.newHoaDon.MaNguoiGioiThieu = item.MaDoiTuong;
                         self.newHoaDon.TenNguoiGioiThieu = item.TenDoiTuong;
                         self.newHoaDon.SDTNguoiGioiThieu = item.DienThoai;
-
-                        if (!commonStatisJs.CheckNull(item.DienThoai)) {
-                            self.newHoaDon.TenSDTNguoiGioiThieu = item.TenDoiTuong.concat(' (', item.DienThoai, ')');
-                        }
-                        else {
-                            self.newHoaDon.TenSDTNguoiGioiThieu = item.TenDoiTuong;
-                        }
                         break;
                     case 4:
                         self.newHoaDon.MaNguoiGioiThieu = item.MaNhanVien;
                         self.newHoaDon.TenNguoiGioiThieu = item.TenNhanVien;
+                        self.newHoaDon.SDTNguoiGioiThieu = item.DienThoai;
+                        break;
+                    case 0:
+                        self.newHoaDon.MaNguoiGioiThieu = item.MaLienHe;
+                        self.newHoaDon.TenNguoiGioiThieu = item.TenLienHe;
+                        self.newHoaDon.SDTNguoiGioiThieu = item.SoDienThoai;
                         break;
                 }
                 self.newHoaDon.ID_CheckIn = item.ID;
@@ -486,7 +549,7 @@
                 };
                 self.ThongTinChiTiet.push(obj);
             },
-            ChangeCustomer: async function (item) {
+            ChangeCustomer: async function (item, xx) {
                 let self = this;
 
                 let ex = $.grep(self.ThongTinChiTiet, function (x) {
@@ -499,8 +562,8 @@
                 // get list hoadon by customer
                 let hd = await self.GetListHoaDon_byIDCus(item.ID);
                 hd.map(function (x) {
-                    x['PTChietKhau'] = 0
-                    x['TienChietKhau'] = 0
+                    x['PTChietKhau'] = ''
+                    x['TienChietKhau'] = ''
                 })
                 let obj = {
                     ID_DoiTuong: item.ID,
@@ -510,10 +573,21 @@
                     HoaDons: hd,
                 };
                 self.ThongTinChiTiet.push(obj);
-                self.ThongTinChiTiet = self.ThongTinChiTiet.filter(x => x.ID_DoiTuong !== null);
+                self.ThongTinChiTiet = self.ThongTinChiTiet.filter(x => x.ID_DoiTuong !== null && x.HoaDons.length !== 0);
                 console.log(1, self.ThongTinChiTiet)
             },
-
+            ResetCustomer: function () {
+                let self = this;
+                self.newHoaDon.ID_CheckIn = null;
+                self.newHoaDon.TenDoiTuong = '';
+                self.newHoaDon.MaDoiTuong = '';
+            },
+            ChangeLoaiDoiTuong: function () {
+                let self = this;
+                self.newHoaDon.ID_CheckIn = null;
+                self.newHoaDon.TenDoiTuong = '';
+                self.newHoaDon.MaDoiTuong = '';
+            },
             RemoveAllRow: function (item) {
                 let self = this;
                 for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
@@ -523,6 +597,7 @@
                         break;
                     }
                 }
+                self.CaCulatorTongTienHang();
             },
             RemoveOneRow: function (item, ct) {
                 let self = this;
@@ -530,7 +605,7 @@
                     let itFor = self.ThongTinChiTiet[i];
                     if (itFor.ID_DoiTuong === item.ID_DoiTuong) {
                         for (let j = 0; j < itFor.HoaDons.length; j++) {
-                            let forIn = itFor.HoaDons[j]
+                            let forIn = itFor.HoaDons[j];
                             if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
                                 itFor.HoaDons.splice(j, 1);
                                 break;
@@ -539,12 +614,68 @@
                         break;
                     }
                 }
+                self.CaCulatorTongTienHang();
             },
-            ResetCustomer: function () {
+            editPTChietKhau: function (item, ct) {
                 let self = this;
-                self.newHoaDon.ID_DoiTuong = null;
-                self.newHoaDon.TenDoiTuong = '';
-                self.newHoaDon.MaDoiTuong = '';
+                let $this = $(event.currentTarget);
+                let gtri = formatNumberToFloat($this.val());
+
+                for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                    let itFor = self.ThongTinChiTiet[i];
+                    if (itFor.ID_DoiTuong === item.ID_DoiTuong) {
+                        for (let j = 0; j < itFor.HoaDons.length; j++) {
+                            let forIn = itFor.HoaDons[j];
+                            if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
+                                itFor.HoaDons[j].TienChietKhau = formatNumber3Digit(forIn.KhachDaTra * gtri / 100);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.CaCulatorTongTienHang();
+            },
+            editTienChietKhau: function (item, ct) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let gtri = formatNumberToFloat($this.val());
+                let gtriFormat = gtri;
+
+                let lastone = $this.val().toString().split('').pop();
+                if (lastone !== '.') {
+                    gtriFormat = formatNumber3Digit(gtri);
+                }
+
+                for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                    let itFor = self.ThongTinChiTiet[i];
+                    if (itFor.ID_DoiTuong === item.ID_DoiTuong) {
+                        for (let j = 0; j < itFor.HoaDons.length; j++) {
+                            let forIn = itFor.HoaDons[j];
+                            if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
+                                itFor.HoaDons[j].PTChietKhau = gtri / forIn.KhachDaTra * 100;
+                                itFor.HoaDons[j].TienChietKhau = gtriFormat;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                self.CaCulatorTongTienHang();
+            },
+            CaCulatorTongTienHang: function () {
+                let self = this;
+                let sum = 0;
+                for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                    let itFor = self.ThongTinChiTiet[i];
+                    for (let j = 0; j < itFor.HoaDons.length; j++) {
+                        let forIn = itFor.HoaDons[j];
+                        let gtri = formatNumberToFloat(forIn.TienChietKhau);
+                        sum += gtri;
+                    }
+                }
+                self.newHoaDon.TongTienHang = sum;
+                self.newHoaDon.DaThanhToan = sum;
             },
             saveHoaDon: function () {// used to lui ngaylapHD
                 let self = this;
@@ -553,7 +684,9 @@
                     return;
                 }
 
-                let cthd = [], url='';
+                let cthd = [];
+                let url = '', sType = '', user = '', sOld = '', sListHD = '';
+
                 let hd = {
                     MaHoaDon: self.newHoaDon.MaHoaDon,
                     LoaiHoaDon: 41,
@@ -564,10 +697,13 @@
                     TongChietKhau: self.newHoaDon.TongChietKhau,
                     TongTienHang: self.newHoaDon.TongTienHang,
                     NguoiTao: self.inforLogin.UserLogin,
+                    DienGiai: self.newHoaDon.DienGiai,
                 }
 
+                let sHD = '';
                 for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
                     let forOut = self.ThongTinChiTiet[i];
+                    let sDetail = '';
                     for (let j = 0; j < forOut.HoaDons.length; j++) {
                         let forIn = forOut.HoaDons[j];
                         let obj = {
@@ -575,23 +711,34 @@
                             ID_ThueSuat: forIn.ID_QuyHoaDon,
                             PTChietKhau: forIn.PTChietKhau,
                             TienChietKhau: forIn.TienChietKhau,
-                            TinhChietKhauTheo: 1,// 1.thucthu, 2.doanhthu
-                            ID_DonViQuiDoi: 'B5C9C52A-B98B-474C-9616-004C4DBE604E',
-                            SoThuTu: 1,
+                            SoThuTu: 1,// 1.thucthu, 2.doanhthu
                             MaHangHoa: '',
-                            TenHangHoa:''
+                            TenHangHoa: ''
                         };
                         cthd.push(obj);
+                        sDetail = sDetail.concat('<br /> - <a> ', forIn.MaHoaDon, ' </a>, Thực thu: ', formatNumber3Digit(forIn.KhachDaTra),
+                            ', PT chiết khấu: ', forIn.PTChietKhau, ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
                     }
+                    sHD = sHD.concat('<br /> ', i + 1, '. ', forOut.TenDoiTuong, ' (', forOut.MaDoiTuong, ')', sDetail);
                 }
+                sListHD += sHD;
 
                 if (self.typeUpdate === 1) {
                     url = 'Post_HoaDonTrichHoaHong';
+                    sType = 'Thêm mới';
+                    user = '<br /> Người tạo: '.concat(VHeader.UserLogin);
                 }
                 else {
-
+                    sType = 'Cập nhật';
+                    user = '<br /> Người sửa: '.concat(VHeader.UserLogin);
+                    sOld = '<br /> <b> Thông tin cũ: </b>'.concat(
+                        ' <br /> Mã phiếu: ', self.contactOld.TenLienHe,
+                        ' <br /> Ngày lập phiếu: ', moment(data.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                        ' <br /> Người giới thiệu là: ', self.sLoaiDoiTuong,
+                        ' <br /> Mã người giới thiệu: ', self.newHoaDon.MaNguoiGioiThieu,
+                        ' <br /> Tên người giới thiệu: ', self.newHoaDon.TenNguoiGioiThieu,
+                        ' <br /> Tổng thanh toán: ', formatNumber3Digit(self.newHoaDon.DaThanhToan));
                 }
-
 
                 let myData = {
                     objHoaDon: hd,
@@ -601,30 +748,27 @@
                     self.isLoading = true;
                     ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
                         if (x.res) {
-                            ShowMessage_Success(' hóa đơn hỗ trợ thành công');
+                            ShowMessage_Success(sType + ' phiếu trích hoa hồng thành công');
 
                             let data = x.data;
                             let diary = {
                                 ID_DonVi: self.inforLogin.ID_DonVi,
                                 ID_NhanVien: self.inforLogin.ID_NhanVien,
                                 LoaiNhatKy: self.typeUpdate,
-                                ChucNang: 'Áp dụng hỗ trợ ',
-                                NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
-                                    ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
-                                NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
-                                    ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
-                                    ' <br /> Chuyển phát nhanh: ', hd.An_Hien ? 'có' : 'không',
+                                ChucNang: 'Phiếu trích hoa hồng',
+                                NoiDung: sType.concat(' phiếu trích hoa hồng ', data.MaHoaDon),
+                                NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Mã phiếu: ', data.MaHoaDon,
                                     ' <br /> Ngày lập phiếu: ', moment(data.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
-                                    sListSP, user, sOld),
-                                LoaiHoaDon: 36,
-                                ID_HoaDon: data.ID,
-                                ThoiGianUpdateGV: data.NgayLapHoaDon
+                                    ' <br /> Người giới thiệu là: ', self.sLoaiDoiTuong,
+                                    ' <br /> Mã người giới thiệu: ', self.newHoaDon.MaNguoiGioiThieu,
+                                    ' <br /> Tên người giới thiệu: ', self.newHoaDon.TenNguoiGioiThieu,
+                                    ' <br /> Tổng thanh toán: ', formatNumber3Digit(self.newHoaDon.DaThanhToan),
+                                    sListHD, user, sOld),
                             }
-                            Post_NhatKySuDung_UpdateGiaVon(diary);
-
+                            Insert_NhatKyThaoTac_1Param(diary);
                         }
                         else {
-                            ShowMessage_Danger(sType + ' hóa đơn hỗ trợ thất bại');
+                            ShowMessage_Danger(sType + ' phiếu trích hoa hồng thất bại');
                         }
                     }).always(function () {
                         self.isLoading = false;
@@ -632,12 +776,20 @@
                     })
                 }
             },
+            showModalContact: function () {
+                vmThemMoiLienHe.showModal();
+            },
         }
     })
 
-    $('#vmThanhPhanDinhLuong333').on('hidden.bs.modal', function () {
-        if (vmThanhPhanDinhLuong.saveOK && vmThanhPhanDinhLuong.formType === 1) {
-            vmHoaHongKhachGioiThieu.Agree_TPDL();
+    $('#vmThemMoiLienHe').on('hidden.bs.modal', function () {
+        if (vmThemMoiLienHe.saveOK) {
+            let newObj = vmThemMoiLienHe.newContact;
+            vmHoaHongKhachGioiThieu.newHoaDon.ID_CheckIn = newObj.ID;
+            vmHoaHongKhachGioiThieu.newHoaDon.MaNguoiGioiThieu = newObj.MaLienHe;
+            vmHoaHongKhachGioiThieu.newHoaDon.TenNguoiGioiThieu = newObj.TenLienHe;
+            vmHoaHongKhachGioiThieu.newHoaDon.SDTNguoiGioiThieu = newObj.SoDienThoai;
+            vmHoaHongKhachGioiThieu.listData.LienHes.push(newObj);
         }
     })
 
