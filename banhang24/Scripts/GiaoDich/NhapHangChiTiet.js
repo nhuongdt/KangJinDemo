@@ -1930,6 +1930,7 @@ var NhapHangChiTiet = function () {
             ctDoing.ThanhTien = soluong * (ctDoing.DonGia - ctDoing.TienChietKhau);
             ctDoing.ThanhToan = soluong * (ctDoing.DonGia - ctDoing.TienChietKhau + ctDoing.TienThue);
             $('#thanhtien_' + ctDoing.IDRandom).val(formatNumber3Digit(ctDoing.ThanhToan, 2));
+            $('#lblthanhtien_' + ctDoing.IDRandom).text(formatNumber3Digit(ctDoing.ThanhToan, 2));
             var lstCT = localStorage.getItem(lcCTNhapHang);
             if (lstCT !== null) {
                 lstCT = JSON.parse(lstCT);
