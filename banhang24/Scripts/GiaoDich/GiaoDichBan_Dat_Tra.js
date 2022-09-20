@@ -1052,10 +1052,6 @@
             arrIDBangGia.push(self.GiaBanChosed()[i].ID);
         }
         var ptThanhToan = $.map(self.PThucChosed(), function (x) { return x.ID });
-        if (ptThanhToan.length === 0) {
-            ptThanhToan = $.map(self.PTThanhToan(), function (x) { return x.ID });
-            ptThanhToan.push("5");// if tienmat=pos=ck=the=0
-        }
 
         if (txtMaHDon === undefined) {
             txtMaHDon = "";
