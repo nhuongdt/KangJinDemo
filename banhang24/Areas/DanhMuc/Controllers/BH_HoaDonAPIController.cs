@@ -124,6 +124,53 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetList_PhieuTrichHoaHong(ParamNKyGDV param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<HoaHongGioiThieuDTO> data = classhoadon.GetList_PhieuTrichHoaHong(param);
+
+                    var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
+                    int page = 0;
+                    var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
+                    return ActionTrueData(new
+                    {
+                        data,
+                        ListPage = listpage,
+                        PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
+                        (param.CurrentPage * param.PageSize + data.Count()), " trên tổng số ", count, " bản ghi"),
+                        NumOfPage = page,
+                        TotalRow = count
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetListHoaDon_byIDCus(ParamNKyGDV param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<HoaHongGioiThieu_ChiTiet_DTO> data = classhoadon.GetListHoaDon_byIDCus(param);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
         public IQueryable<BH_HoaDonDTO> GetAllHoaDon()
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -11706,6 +11753,171 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             }
                             #endregion
                         }
+                        #endregion
+
+                        trans.Commit();
+                        return Json(new
+                        {
+                            res = true,
+                            data = new
+                            {
+                                objHoaDon.ID,
+                                hdUp.MaHoaDon,
+                                objHoaDon.NgayLapHoaDon,
+                            }
+                        });
+
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return Json(new
+                        {
+                            res = false,
+                            mes = ex.InnerException + ex.Message
+                        });
+                    }
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
+        public IHttpActionResult Post_HoaDonTrichHoaHong([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                        ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
+
+                        BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
+                        List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
+
+                        Guid idQuiDoi = db.DonViQuiDois.FirstOrDefault().ID;
+
+                        string sMaHoaDon = string.Empty;
+                        Guid idHoaDon = Guid.NewGuid();
+                        objHoaDon.ID = idHoaDon;
+                        objHoaDon.NgayTao = DateTime.Now;
+
+                        if (string.IsNullOrEmpty(objHoaDon.MaHoaDon))
+                        {
+                            sMaHoaDon = classhoadon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, objHoaDon.NgayLapHoaDon);
+                        }
+                        else
+                        {
+                            bool exist = classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
+                            if (exist)
+                            {
+                                return Json(new
+                                {
+                                    res = false,
+                                    mes = "Mã hóa đơn đã tồn tại",
+                                });
+                            }
+                            sMaHoaDon = classhoadon.GetMaHoaDon_Copy(objHoaDon.MaHoaDon);
+                        }
+                        objHoaDon.MaHoaDon = sMaHoaDon;
+
+                        db.BH_HoaDon.Add(objHoaDon);
+
+                        #region BH_ChiTietHoaDon
+                        List<BH_HoaDon_ChiTiet> lstCT = new List<BH_HoaDon_ChiTiet>();
+                        foreach (var item in objCTHoaDon)
+                        {
+                            BH_HoaDon_ChiTiet ctHoaDon = new BH_HoaDon_ChiTiet
+                            {
+                                ID = Guid.NewGuid(),
+                                ID_DonViQuiDoi = idQuiDoi, // lấy đại 1 trường
+                                ID_HoaDon = objHoaDon.ID,
+                                ID_ParentCombo = item.ID_ParentCombo,// ID_HoaDon_DuocCK
+                                ID_ThueSuat = item.ID_ThueSuat,// ID_QuyHoaDon
+                                PTChietKhau = item.PTChietKhau, 
+                                TienChietKhau = item.TienChietKhau, 
+                                SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
+                                GhiChu = item.GhiChu,
+                            };
+                            lstCT.Add(ctHoaDon);
+                        }
+                        classhoadonchitiet.Add_ChiTietHoaDon(lstCT);
+                        #endregion
+
+                        trans.Commit();
+                        return Json(new
+                        {
+                            res = true,
+                            data = new
+                            {
+                                objHoaDon.ID,
+                                MaHoaDon = sMaHoaDon,
+                                objHoaDon.NgayLapHoaDon,
+                            }
+                        });
+
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return Json(new
+                        {
+                            res = false,
+                            mes = ex.InnerException + ex.Message
+                        });
+                    }
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
+        public IHttpActionResult Update_HoaDonTrichHoaHong([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                        ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
+
+                        BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
+                        List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
+
+                        Guid idQuiDoi = db.DonViQuiDois.FirstOrDefault().ID;
+
+                        var hdUp = db.BH_HoaDon.Find(objHoaDon.ID);
+                        hdUp.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
+                        hdUp.ID_CheckIn = objHoaDon.ID_CheckIn;// nguoigt
+                        hdUp.TongTienHang = objHoaDon.TongGiamGia;// tong CK
+                        hdUp.TongChietKhau = objHoaDon.TongChietKhau;// tinh CK theo
+                        hdUp.DienGiai = objHoaDon.DienGiai;
+                        hdUp.NguoiSua = objHoaDon.NguoiSua;
+                        hdUp.NgaySua = DateTime.Now;
+
+                        #region BH_ChiTietHoaDon
+                        classhoadonchitiet.Delete_HoaDon_ChiTiet_ByIDHoaDon(objHoaDon.ID);
+
+                        List<BH_HoaDon_ChiTiet> lstCT = new List<BH_HoaDon_ChiTiet>();
+                        foreach (var item in objCTHoaDon)
+                        {
+                            BH_HoaDon_ChiTiet ctHoaDon = new BH_HoaDon_ChiTiet
+                            {
+                                ID = Guid.NewGuid(),
+                                ID_DonViQuiDoi = idQuiDoi, // lấy đại 1 trường
+                                ID_HoaDon = objHoaDon.ID,
+                                ID_ParentCombo = item.ID_ParentCombo,// ID_HoaDon_DuocCK
+                                ID_ThueSuat = item.ID_ThueSuat,// ID_QuyHoaDon
+                                PTChietKhau = item.PTChietKhau,
+                                TienChietKhau = item.TienChietKhau,
+                                SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
+                                GhiChu = item.GhiChu,
+                            };
+                            lstCT.Add(ctHoaDon);
+                        }
+                        classhoadonchitiet.Add_ChiTietHoaDon(lstCT);
                         #endregion
 
                         trans.Commit();
