@@ -612,7 +612,7 @@ namespace libDM_DoiTuong
             paramlist.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
             paramlist.Add(new SqlParameter("DateFrom", param.DateFrom ?? (object)DBNull.Value));
             paramlist.Add(new SqlParameter("DateTo", param.DateTo ?? (object)DBNull.Value));
-            return db.Database.SqlQuery<GoiDichVu_KhachHang>("exec GetDSGoiDichVu_ofKhachHang @IDChiNhanhs, @IDCustomers," +
+            return db.Database.SqlQuery<GoiDichVu_KhachHang>("exec dbo.GetDSGoiDichVu_ofKhachHang @IDChiNhanhs, @IDCustomers," +
                 " @IDCars, @TextSearch,@DateFrom, @DateTo", paramlist.ToArray()).ToList();
         }
 
