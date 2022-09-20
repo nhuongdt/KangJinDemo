@@ -1,9 +1,7 @@
 ﻿var vmDanhSachHoaHongGioiThieu = new Vue({
     el: '#vmDanhSachHoaHongGioiThieu',
     components: {
-        'my-date-time': cpmDatetime,
-        'customers': cmpChoseCustomer,
-        'dropdown': cmpDropdown1Item,
+        'date-time': cpmDatetime,
     },
     created: function () {
         var self = this;
@@ -43,12 +41,14 @@
         //},
     },
     data: {
-
         saveOK: false,
         isLoading: false,
         typeUpdate: 1,
         isKhoaSo: false,
+        inforOld: {},
         ListHeader: [],
+        ngayLapHoaDon_update: null,
+
         HoaDon: {
             data: [],
             SumTongTienHang:0,
@@ -58,14 +58,8 @@
             PageView: '',
             NumberOfPage: 10,
         },
-        HoaDonChiTiet: {
-            data:[],
-            CurrentPage: 1,
-            PageSize: 10,
-            ListPage: [],
-            PageView: '',
-            NumberOfPage: 10,
-        },
+        HoaDonChiTiet: [],
+
         filter: {
             TextSearch:'',
             TypeTime: 0,
@@ -81,7 +75,7 @@
                 { Text: 'Khách hàng', Value: 1, Checked: true },
                 { Text: 'Nhân viên', Value: 4, Checked: true },
                 { Text: 'Nhà cung cấp', Value: 2, Checked: false },
-                { Text: 'Khác', Value: 0, Checked: false }]
+                { Text: 'Khác', Value: 0, Checked: true }]
         },
     },
     methods: {
@@ -158,11 +152,59 @@
             let self = this;
             vmHoaHongKhachGioiThieu.showModal();
         },
-        showModalUpdate: function (idHoaDon, cthd = []) {
+        showModalUpdate: async function (item) {
             let self = this;
             self.saveOK = false;
             self.isLoading = false;
             self.typeUpdate = 2;
+
+            let ct = await self.LoadChiTiet(item.ID);
+        },
+        RowSelected: async function (item) {
+            let self = this;
+            var $this = $(event.currentTarget).closest('tr');
+            if (!$this.hasClass('active')) {
+                $('tr').removeClass('active');
+                $this.addClass('active');
+            }
+            else {
+                $this.removeClass('active');
+            }
+            var $trdetail = $this.next();
+            $('.op-js-tr-hide').css('display', 'none');
+            $('.op-js-tr-hide').not($trdetail).removeClass('active');
+
+            if (!$trdetail.hasClass('active')) {
+                $trdetail.css('display', 'table-row');
+                $trdetail.addClass('active');
+            }
+            else {
+                $trdetail.css('display', 'none');
+                $trdetail.removeClass('active');
+            }
+
+            if (self.inforOld.ID !== item.ID) {
+                let ct = await self.LoadChiTiet(item.ID);
+                self.HoaDonChiTiet = ct;
+            }
+            self.inforOld = $.extend({}, true, item);
+        },
+        LoadChiTiet: async function (id) {
+            let self = this;
+            $('#tblCT').gridLoader({ show: true });
+            let xx = await $.getJSON(self.UrlAPI.HoaDon + 'GetChiTietHoaHongGioiThieu_byID/' + id).done().then(function (x) {
+                console.log(x)
+                if (x.res) {
+                    return x.dataSoure;
+                }
+                return [];
+            });
+            $('#tblCT').gridLoader({ show: false });
+            return xx;
+        },
+        Update_ChangeDate: function (e) {
+            let self = this;
+            self.ngayLapHoaDon_update = moment(e).format('YYYY-MM-DD HH:mm');
         },
         ResetCurrentPage_andLoadData: function () {
             let self = this;
@@ -188,5 +230,11 @@
             let self = this;
             self.GetList_PhieuTrichHoaHong();
         },
+    }
+})
+
+$('#vmHoaHongKhachGioiThieu').on('hidden.bs.modal', function () {
+    if (vmHoaHongKhachGioiThieu.saveOK) {
+        vmDanhSachHoaHongGioiThieu.ResetCurrentPage_andLoadData();
     }
 })

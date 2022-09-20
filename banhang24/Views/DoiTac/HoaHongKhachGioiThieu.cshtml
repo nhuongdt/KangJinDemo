@@ -32,7 +32,7 @@
                     </article>
                     <article class="boxLeft">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                            <i class="fal fa-group"></i>
+                            <i class="far fa-users-class"></i>
                             Loại đối tượng
                         </h3>
                         <filter-checkbox v-bind:listitem="listData.LoaiDoiTuong" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
@@ -112,9 +112,9 @@
                 </div>
 
             </div>
-            <div class="content-table  content-table" style="top: 48px;position: sticky;">
-                <div class="table-reponsive bangchung table-frame">
-                    <table class=" table table-new table-hover" id="tb">
+            <div class="content-table" style="top: 48px;position: sticky;">
+                <div class="table-frame">
+                    <table class="table" id="tb">
                         <thead class="thead-boder">
                             <tr>
                                 <th v-for="item in ListHeader.filter(p=>p.colShow === true)">
@@ -125,36 +125,38 @@
                         <tbody>
                             <template v-for="(item, index) in HoaDon.data">
                                 <tr class="prev-tr-hide">
-                                    <td v-if="CheckColShow('colMaHoaDon')">
+                                    <td v-if="CheckColShow('colMaHoaDon')"
+                                        v-on:click="RowSelected(item)">
                                         <a href="javascript:void(0)">{{item.MaHoaDon}}</a>
                                     </td>
-                                    <td v-if="CheckColShow('colNgayLapHoaDon')" class="text-center">
+                                    <td class="text-center" v-if="CheckColShow('colNgayLapHoaDon')"
+                                        v-on:click="RowSelected(item)">
                                         {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
                                     </td>
-                                    <td v-if="CheckColShow('colLoaiDoiTuong')">
+                                    <td v-if="CheckColShow('colLoaiDoiTuong')" v-on:click="RowSelected(item)">
                                         {{item.SLoaiDoiTuong}}
                                     </td>
-                                    <td v-if="CheckColShow('colMaDoiTuong')">
+                                    <td v-if="CheckColShow('colMaDoiTuong')" v-on:click="RowSelected(item)">
                                         <a href="javascript:void(0)">
                                             {{item.MaNguoiGioiThieu}}
                                         </a>
                                     </td>
-                                    <td v-if="CheckColShow('colTenDoiTuong')">
+                                    <td v-if="CheckColShow('colTenDoiTuong')" v-on:click="RowSelected(item)">
                                         {{item.TenNguoiGioiThieu}}
                                     </td>
-                                    <td v-if="CheckColShow('colTongGiaTri')" class="text-right">
+                                    <td class="text-right" v-if="CheckColShow('colTongGiaTri')" v-on:click="RowSelected(item)">
                                         {{formatNumber3Digit(item.TongTienHang)}}
                                     </td>
-                                    <td v-if="CheckColShow('colDienGiai')">
+                                    <td v-if="CheckColShow('colDienGiai')" v-on:click="RowSelected(item)">
                                         {{item.DienGiai}}
                                     </td>
-                                    <td v-if="CheckColShow('colTrangThai')">
+                                    <td v-if="CheckColShow('colTrangThai')" v-on:click="RowSelected(item)">
                                         {{item.STrangThai}}
                                     </td>
-                                    <td v-if="CheckColShow('colNguoiTao')">
+                                    <td v-if="CheckColShow('colNguoiTao')" v-on:click="RowSelected(item)">
                                         {{item.NguoiTao}}
                                     </td>
-                                    <td v-if="CheckColShow('colTenChiNhanh')">
+                                    <td v-if="CheckColShow('colTenChiNhanh')" v-on:click="RowSelected(item)">
                                         {{item.TenDonVi}}
                                     </td>
                                 </tr>
@@ -162,8 +164,8 @@
                                     <td colspan="18">
                                         <div class="op-object-detail ">
                                             <ul class="nav nav-tabs">
-                                                <li class="active" onclick="LoadGetHeight()"><a data-toggle="tab">Thông tin</a></li>
-                                                <li onclick="LoadGetHeight()"><a data-toggle="tab">Nhật ký thanh toán</a></li>
+                                                <li class="active" onclick="LoadGetHeight()"><a data-toggle="tab" v-bind:href="'infor_'+ item.ID">Thông tin</a></li>
+                                                <li onclick="LoadGetHeight()"><a data-toggle="tab" v-bind:href="'nky_'+ item.ID">Nhật ký thanh toán</a></li>
                                             </ul>
                                             <div class="tab-content">
                                                 <div class="tab-pane active">
@@ -192,16 +194,15 @@
                                                                 <div class="form-group floatleft">
                                                                     <label class="css-form-label">Người giới thiệu:</label>
                                                                     <div class="css-form-detail">
-                                                                        <span>
-                                                                            {{item.TenNguoiGioiThieu}}
-                                                                        </span>
+                                                                        <span>  {{item.TenNguoiGioiThieu}}</span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group floatleft ">
                                                                     <label class="css-form-label">Ngày lập phiếu:</label>
                                                                     <div class="css-form-detail">
-                                                                        <input type='text' class="form-control" placeholder="23/12/2017"
-                                                                               />
+                                                                        <date-time :date-chose="moment(item.NgayLapHoaDon).format('YYYY-MM-DD HH:mm')"
+                                                                                   v-on:change-date="Update_ChangeDate">
+                                                                        </date-time>
                                                                     </div>
                                                                 </div>
 
@@ -221,14 +222,17 @@
                                                             </div>
                                                             <div class="op-object-detail-right">
                                                                 <div class="table-res loadcthd">
-                                                                    <table class=" table table-filter table-detal">
+                                                                    <table class=" table table-filter table-detal" id="tblCT">
                                                                         <thead>
                                                                             <tr>
                                                                                 <th>
                                                                                     Mã hóa đơn
                                                                                 </th>
-                                                                                <th>
+                                                                                <th class="text-center">
                                                                                     Ngày lập
+                                                                                </th>
+                                                                                <th>
+                                                                                    Mã khách hàng
                                                                                 </th>
                                                                                 <th>
                                                                                     Tên khách hàng
@@ -248,83 +252,65 @@
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
-                                                                            <tr>
+                                                                            <tr v-for="(ct, index2) in HoaDonChiTiet">
                                                                                 <td>
+                                                                                    <a>{{ct.MaHoaDon}}</a>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    {{moment(ct.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{ct.MaDoiTuong}}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{ct.TenDoiTuong}}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{formatNumber3Digit(ct.TongThanhToan)}}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{formatNumber3Digit(ct.DaTrich)}}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{formatNumber3Digit(ct.PTChietKhau)}}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{formatNumber3Digit(ct.TienChietKhau)}}
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
                                                                 </div>
-                                                                <page-list v-bind:pagesize="HoaDonChiTiet.PageSize"
-                                                                           v-bind:listpage="HoaDonChiTiet.ListPage"
-                                                                           v-bind:currentpage="HoaDonChiTiet.CurrentPage"
-                                                                           v-bind:pageview="HoaDonChiTiet.PageView"
-                                                                           v-bind:numberofpage="HoaDonChiTiet.NumberOfPage"
-                                                                           v-on:pageselected="PageChange"></page-list>
-
                                                                 <div class="op-table-summary">
-                                                                    <div class="col-md-6 col-xs-12 footer-total-detail">
+                                                                    <div class="col-md-6 col-sm-6 col-xs-6 footer-total-detail pull-right">
                                                                         <div class="floatleft sum-prduct">
                                                                             <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
-                                                                                Tổng tiền hàng :
+                                                                                Tổng giá trị :
                                                                             </div>
                                                                             <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
                                                                                 <div class="row">
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-
-
-                                                                        <div class="floatleft sum-prduct">
-                                                                            <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
-                                                                                Khách cần trả :
-                                                                            </div>
-                                                                            <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
-                                                                                <div class="row">
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="floatleft sum-prduct">
-                                                                            <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
-                                                                                Khách đã trả :
-                                                                            </div>
-                                                                            <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
-                                                                                <div class="row">
+                                                                                    {{formatNumber3Digit(item.TongTienHang)}}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div style="display:flex; flex-direction:row; flex-wrap:wrap; justify-content:flex-end">
-
-
                                                                     <button href="javascript:void(0)" class="btn btn-main">
                                                                         <i class="fa fa-share"></i> Sửa đổi
                                                                     </button>
-
-
-
                                                                     <button href="javascript:void(0)" class="btn btn-main">
                                                                         <i class="fa fa-save"></i> Lưu
                                                                     </button>
-
-
-
                                                                     <button href="javascript:void(0)" class="btn btn-main">
                                                                         <i class="fa fa-file-excel-o"></i> Xuất file
                                                                     </button>
-
-
                                                                     <button href="javascript:void(0)" class="btn btn-main">
                                                                         <i class="fa fa-cut"></i> Sao chép
                                                                     </button>
-
-
                                                                     <button href="javascript:void(0)" class="btn btn-cancel">
                                                                         <i class="fa fa-close"></i> Hủy bỏ
                                                                     </button>
-
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -345,11 +331,6 @@
                                                             <tbody>
                                                             </tbody>
                                                         </table>
-                                                        <div class=" floatleft text-right padingtop">
-                                                            <a href="javascript:void(0)" class="btn btn-main">
-                                                                <i class="fa fa-calculator"></i>&nbsp; Thanh toán
-                                                            </a>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -395,133 +376,6 @@
         @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
     </div>
 </div>
-
-<script>
-    var $table = '#tb';
-    $(document).on('click', '.open-li', function () {
-        $(".op-filter-container ul li").css("display", "block");
-        $(this).toggle();
-        $(this).next(".close-li").toggle();
-    });
-    $(document).on('click', '.close-li', function () {
-        $(".op-filter-container ul li").css("display", "none");
-        $(this).toggle();
-        $(this).prev(".open-li").toggle();
-        $(".op-filter-container ul li").eq(0).css("display", "block");
-        $(".op-filter-container ul li").eq(1).css("display", "block");
-    });
-    var heigth = 0;
-    var heightold = 0;
-    var setTop = 0;
-    function LoadGetHeight() {
-        sleep(100).then(() => { setHeight(); });
-    };
-    function setHeight() {
-        heigth = heigth - heightold;
-        $('#tb tr').each(function () {
-            if ($(this).hasClass('ac')) {
-                heightold = $(this).height();
-            }
-        });
-        heigth += heightold;
-        $('.line-right').css("margin-top", setTop + "px").height(heigth);
-    }
-    function SetHeightShowDetail($this) {
-        if (!isNew) {
-            var t = $this.next(".op-js-tr-hide").css("display");
-            if (t !== "none") {
-                heightold = $this.next().height();
-                heigth = parseInt($this.height()) + heightold;
-                $('.line-right').height(heigth).css("margin-top", setTop + "px");
-            }
-        }
-        else {
-            isNew = false;
-        }
-    }
-    var isNew = false;
-    $($table).on('click', '.prev-tr-hide td', function () {
-        console.log(444)
-        if ($(this).hasClass('check-group')) {
-        }
-        else {
-            var parentTR = $(this).parent();
-            isNew = true;
-            setTop = 35 + parseInt($(parentTR).height() * ($(parentTR).index() / 2));
-            $(parentTR).parents(".table-reponsive").toggleClass("table_re");
-            var t = $(parentTR).next(".op-js-tr-hide").css("display");
-            $(".prev-tr-hide td").not($(parentTR).find("td")).removeClass("bor");
-            $("td").not($(parentTR).find("td")).removeClass("bg-gray");
-            $(".prev-tr-hide").not($(parentTR)).removeClass("bor-right");
-            $(parentTR).toggleClass("bor-right");
-            $(parentTR).find("td").toggleClass("bg-gray");
-            $(parentTR).find("td").toggleClass("bor");
-            if (t == "none") {
-                if (parseInt($('#SelecttedPage').val()) >= 20) {
-                    $(".table-reponsive").addClass('height470');
-                }
-                $(".op-js-tr-hide").removeClass("ac");
-                $('.line-right').height(0).css("margin-top", "0px");
-            }
-            else {
-                if (parseInt($('#SelecttedPage').val()) >= 20) {
-                    $(".table-reponsive").removeClass('height470');
-                }
-                $(".op-js-tr-hide").removeClass("ac");
-                $(parentTR).next(".op-js-tr-hide").addClass("ac");
-                heightold = $(parentTR).next().height();
-                heigth = parseInt($(parentTR).height()) + heightold;
-                $('.line-right').height(heigth).css("margin-top", setTop + "px");
-            }
-        }
-    });
-    $(function () {
-        $('.datetimepicker4').datetimepicker({
-            format: 'DD/MM/YYYY'
-        });
-    });
-    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
-        var date = $(this).find("a").html();
-        $(".choose-date-show").val(date);
-    });
-    $(window.document).on('shown.bs.modal', '.modal', function () {
-        window.setTimeout(function () {
-            $('[autofocus]', this).focus();
-            $('[autofocus]').select();
-        }.bind(this), 100);
-    });
-    jQuery.datetimepicker.setLocale('vi');
-    var loaiHoaDon = 19;
-    $('#tb').on('click', '.icon-filter', function () {
-        $(this).hide();
-        $(this).closest('th').find('.icon-filter2').show();
-        $(this).closest('th').next().toggle();
-        if ($(window).width() <= 1024) {
-            $(this).closest('th').find('.right-inner-addon input').attr("placeholder", "Tìm kiếm hàng hóa");
-        }
-        else { $(this).closest('th').find('.right-inner-addon input').attr('placeholder', 'Tìm kiếm chi tiết hàng hóa'); }
-        if ($(this).closest('th').find('.right-inner-addon').css('display') === 'none') {
-            $(this).closest('th').attr('colspan', 2).addClass('actioveFilter');
-        }
-        else {
-            $(this).closest('th').attr('colspan', 1).removeClass('actioveFilter');
-        }
-        $(this).closest('th').find('.right-inner-addon').toggle();
-    });
-    $('#tb').on('click', ' .icon-filter2', function () {
-        $(this).hide();
-        $(this).closest('th').find('.icon-filter').show();
-        $(this).closest('th').next().toggle();
-        if ($(this).closest('th').find('.right-inner-addon').css('display') === 'none') {
-            $(this).closest('th').attr('colspan', 2).addClass('actioveFilter');
-        }
-        else {
-            $(this).closest('th').attr('colspan', 1).removeClass('actioveFilter');
-        }
-        $(this).closest('th').find('.right-inner-addon').toggle();
-    });
-    var t = $(".table-reponsive").width();
-</script>
 
 <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/HoaHongGioiThieu"))" type="text/javascript"></script>
 @Html.Partial("~/Views/Gara/KhachHang/_vmThemMoiLienHe.cshtml")
