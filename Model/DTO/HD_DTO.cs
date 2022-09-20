@@ -221,5 +221,36 @@ namespace Model
         public double? TienChietKhau { get; set; }
         public double? SoLuong { get; set; }
         public string ChatLieu { get; set; }
+    } 
+    public class HoaHongGioiThieu_ChiTiet_DTO
+    {
+        public Guid? ID_DoiTuong { get; set; }
+        public Guid? ID_HoaDon_DuocCK { get; set; }
+        public Guid? ID_QuyHoaDon { get; set; }
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public double? TongThanhToan { get; set; }
+        public double? KhachDaTra { get; set; }
+        public double? PTChietKhau { get; set; }
+        public double? TienChietKhau { get; set; }
+    }
+
+    public class HoaHongGioiThieuDTO
+    {
+        public Guid? ID { get; set; }
+        public Guid? ID_CheckIn { get; set; }// idnguoigt
+        public string MaHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public double? TongChietKhau { get; set; }// loaiDoiTuong (int)
+        public string SLoaiDoiTuong { get; set; }
+        public string MaNguoiGioiThieu { get; set; }
+        public string TenNguoiGioiThieu { get; set; }
+        public double? TongTienHang { get; set; }
+        public string DienGiai { get; set; }
+        public string STrangThai { get; set; }
+        public string NguoiTao { get; set; }
+        public string TenDonVi { get; set; }
+        public int? TotalRow { get; set; }
+        public double? SumTongTienHang { get; set; }
     }
 }
