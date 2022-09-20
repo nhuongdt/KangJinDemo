@@ -1899,6 +1899,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 catch (Exception ex)
                 {
+                    CookieStore.WriteLog(string.Concat("PhieuXuatKho_XacNhanXuat ", idHoaDon, ex.InnerException, ex.Message));
                     return ActionFalseNotData(ex.InnerException + ex.Message);
                 }
             }
