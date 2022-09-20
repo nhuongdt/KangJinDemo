@@ -1,0 +1,530 @@
+﻿@using banhang24.Hellper;
+@using System.Web.Optimization
+@using banhang24.AppCache
+@{
+    Layout = null;
+    ViewBag.Title = "Open24.vn - Gói dịch vụ";
+}
+
+<div class="op-container" id="vmDanhSachHoaHongGioiThieu">
+    <div class="container-fluid nopadding">
+        <div class="col-left">
+            <div class=" op-filter">
+                <section class="op-filter-body">
+                    <article class="boxLeft ">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="far fa-code-branch"></i>  Chi nhánh
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-chinhanh v-bind:listchinhanh="listData.ChiNhanh" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-chinhanh>
+                        </aside>
+                    </article>
+
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-calendar-alt"></i>       Thời gian
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-datetime radioname="rdThoiGian" v-bind:typetime="filter.TypeTime"
+                                             v-on:callfunction="onCallThoiGian"
+                                             v-bind:selectvalue="5"></filter-datetime>
+                        </aside>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-group"></i>
+                            Loại đối tượng
+                        </h3>
+                        <filter-checkbox v-bind:listitem="listData.LoaiDoiTuong" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
+                    </article>
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-toggle-on"></i>
+                            Trạng thái
+                        </h3>
+                        <filter-checkbox v-bind:listitem="listData.TrangThai" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
+                    </article>
+                </section>
+                <div class="op-filter-footer">
+                    <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
+                    <button type="button" class="btn btn-link" onclick="collapseSubFilter(this)">
+                        <span>Thu gọn</span>
+                    </button>
+                    <button type="button" class="btn btn-link" style="display:none" onclick="expandSubFilter(this)">
+                        <span>Mở rộng</span>
+                    </button>
+                    <button type="button" class="btn btn-main kv2Btn" onclick="closeFilter()">Hoàn tất</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-right">
+            <div class="op-header">
+                <div class="op-header-title">
+                    <h2 class="pull-left title">Hoa hồng khách giới thiệu</h2>
+                </div>
+                <div class="flex flex-between">
+                    <div class=" header-button">
+                        <div class="btn-group" title="Thêm mới">
+                            <div type="button" class="btn btn-main  dropdown-toggle add-new btn-main"
+                                 v-on:click="showModalThemMoi">
+                                <i class="fa fa-plus"></i><font>Thêm mới</font>
+                            </div>
+                        </div>
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-main dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-file-excel-o"></i> Xuất file
+                            </button>
+                        </div>
+                        <div class="dropdown open ">
+                            <button type="button" class="btn btn-main" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showCollumnFilter(this)">
+                                <i class="fa fa-angle-double-down"></i>
+                            </button>
+                            <div class=" dropdown-list" style="display:none; right:0" id="myList">
+                                <ul>
+                                    <li v-for="item in ListHeader">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" class="checkbox" v-model="item.colShow" />
+                                                <span></span>
+                                                {{item.colText}}
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="op-search">
+                            <input type="text" class="form-control" placeholder="Mã hóa đơn, người giới thiệu"
+                                   autocomplete="off"
+                                   v-model="filter.TextSearch"
+                                   v-on:keyup.13="GetList_PhieuTrichHoaHong" />
+                            <button type="button" class=" op-search-button"
+                                    v-on:click="GetList_PhieuTrichHoaHong">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-main op-filter-toggle" onclick="showFilter()" title="Hiển thị bộ lọc">
+                            <i class="material-icons">sort</i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="content-table  content-table" style="top: 48px;position: sticky;">
+                <div class="table-reponsive bangchung table-frame">
+                    <table class=" table table-new table-hover" id="tb">
+                        <thead class="thead-boder">
+                            <tr>
+                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)">
+                                    {{item.colText}}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(item, index) in HoaDon.data">
+                                <tr class="prev-tr-hide">
+                                    <td v-if="CheckColShow('colMaHoaDon')">
+                                        <a href="javascript:void(0)">{{item.MaHoaDon}}</a>
+                                    </td>
+                                    <td v-if="CheckColShow('colNgayLapHoaDon')" class="text-center">
+                                        {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                    </td>
+                                    <td v-if="CheckColShow('colLoaiDoiTuong')">
+                                        {{item.SLoaiDoiTuong}}
+                                    </td>
+                                    <td v-if="CheckColShow('colMaDoiTuong')">
+                                        <a href="javascript:void(0)">
+                                            {{item.MaNguoiGioiThieu}}
+                                        </a>
+                                    </td>
+                                    <td v-if="CheckColShow('colTenDoiTuong')">
+                                        {{item.TenNguoiGioiThieu}}
+                                    </td>
+                                    <td v-if="CheckColShow('colTongGiaTri')" class="text-right">
+                                        {{formatNumber3Digit(item.TongTienHang)}}
+                                    </td>
+                                    <td v-if="CheckColShow('colDienGiai')">
+                                        {{item.DienGiai}}
+                                    </td>
+                                    <td v-if="CheckColShow('colTrangThai')">
+                                        {{item.STrangThai}}
+                                    </td>
+                                    <td v-if="CheckColShow('colNguoiTao')">
+                                        {{item.NguoiTao}}
+                                    </td>
+                                    <td v-if="CheckColShow('colTenChiNhanh')">
+                                        {{item.TenDonVi}}
+                                    </td>
+                                </tr>
+                                <tr class="op-js-tr-hide">
+                                    <td colspan="18">
+                                        <div class="op-object-detail ">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active" onclick="LoadGetHeight()"><a data-toggle="tab">Thông tin</a></li>
+                                                <li onclick="LoadGetHeight()"><a data-toggle="tab">Nhật ký thanh toán</a></li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane active">
+                                                    <div class="op-object-detail ">
+                                                        <div class="col-md-12 nopadding">
+                                                            <div class="op-object-detail-left min-45 ">
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label"> Chi nhánh:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>  {{item.TenDonVi}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft ">
+                                                                    <label class="css-form-label">Người tạo:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>  {{item.NguoiTao}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Mã hóa đơn:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>  {{item.MaHoaDon}}</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Người giới thiệu:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span>
+                                                                            {{item.TenNguoiGioiThieu}}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft ">
+                                                                    <label class="css-form-label">Ngày lập phiếu:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <input type='text' class="form-control" placeholder="23/12/2017"
+                                                                               />
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="form-group floatleft">
+                                                                    <label class="css-form-label">Trạng thái:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <span> {{item.STrangThai}}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group floatleft border-end">
+                                                                    <label class="css-form-label">Ghi chú:</label>
+                                                                    <div class="css-form-detail">
+                                                                        <textarea rows="2"
+                                                                                  v-model="item.DienGiai"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="op-object-detail-right">
+                                                                <div class="table-res loadcthd">
+                                                                    <table class=" table table-filter table-detal">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>
+                                                                                    Mã hóa đơn
+                                                                                </th>
+                                                                                <th>
+                                                                                    Ngày lập
+                                                                                </th>
+                                                                                <th>
+                                                                                    Tên khách hàng
+                                                                                </th>
+                                                                                <th>
+                                                                                    Giá trị HĐ
+                                                                                </th>
+                                                                                <th>
+                                                                                    Giá trị tính
+                                                                                </th>
+                                                                                <th>
+                                                                                    % trích
+                                                                                </th>
+                                                                                <th>
+                                                                                    Tiền hoa hồng
+                                                                                </th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                                <page-list v-bind:pagesize="HoaDonChiTiet.PageSize"
+                                                                           v-bind:listpage="HoaDonChiTiet.ListPage"
+                                                                           v-bind:currentpage="HoaDonChiTiet.CurrentPage"
+                                                                           v-bind:pageview="HoaDonChiTiet.PageView"
+                                                                           v-bind:numberofpage="HoaDonChiTiet.NumberOfPage"
+                                                                           v-on:pageselected="PageChange"></page-list>
+
+                                                                <div class="op-table-summary">
+                                                                    <div class="col-md-6 col-xs-12 footer-total-detail">
+                                                                        <div class="floatleft sum-prduct">
+                                                                            <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                                Tổng tiền hàng :
+                                                                            </div>
+                                                                            <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                                <div class="row">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+
+
+                                                                        <div class="floatleft sum-prduct">
+                                                                            <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                                Khách cần trả :
+                                                                            </div>
+                                                                            <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                                <div class="row">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="floatleft sum-prduct">
+                                                                            <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                                Khách đã trả :
+                                                                            </div>
+                                                                            <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                                <div class="row">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div style="display:flex; flex-direction:row; flex-wrap:wrap; justify-content:flex-end">
+
+
+                                                                    <button href="javascript:void(0)" class="btn btn-main">
+                                                                        <i class="fa fa-share"></i> Sửa đổi
+                                                                    </button>
+
+
+
+                                                                    <button href="javascript:void(0)" class="btn btn-main">
+                                                                        <i class="fa fa-save"></i> Lưu
+                                                                    </button>
+
+
+
+                                                                    <button href="javascript:void(0)" class="btn btn-main">
+                                                                        <i class="fa fa-file-excel-o"></i> Xuất file
+                                                                    </button>
+
+
+                                                                    <button href="javascript:void(0)" class="btn btn-main">
+                                                                        <i class="fa fa-cut"></i> Sao chép
+                                                                    </button>
+
+
+                                                                    <button href="javascript:void(0)" class="btn btn-cancel">
+                                                                        <i class="fa fa-close"></i> Hủy bỏ
+                                                                    </button>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="tab-pane">
+                                                    <div class="table-res">
+                                                        <table class='table'>
+                                                            <tr>
+                                                                <th>Mã phiếu</th>
+                                                                <th>Thời gian</th>
+                                                                <th>Người tạo</th>
+                                                                <th>Phương thức</th>
+                                                                <th>Trạng thái</th>
+                                                                <th>Tiền thu</th>
+                                                            </tr>
+                                                            <tbody>
+                                                            </tbody>
+                                                        </table>
+                                                        <div class=" floatleft text-right padingtop">
+                                                            <a href="javascript:void(0)" class="btn btn-main">
+                                                                <i class="fa fa-calculator"></i>&nbsp; Thanh toán
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                        <tfoot v-if="HoaDon.data.length > 0">
+                            <tr class="border-bottom bold">
+                                <td v-bind:colspan="ListHeader.filter(p=>p.index < 5 && p.colShow).length">
+                                    Tổng cộng
+                                </td>
+                                <td class="text-right">
+                                    {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
+                                </td>
+                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 5 && p.colShow).length">
+                                </td>
+                            </tr>
+                        </tfoot>
+                        <tfoot class="Report_Empty"
+                               v-if="HoaDon.data.length == 0">
+                            <tr class="text-center">
+                                <td colspan="25">
+                                    <i>Không có dữ liệu</i>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <page-list v-bind:pagesize="HoaDon.PageSize"
+                           v-bind:listpage="HoaDon.ListPage" v-bind:currentpage="HoaDon.CurrentPage" v-bind:pageview="HoaDon.PageView"
+                           v-bind:numberofpage="HoaDon.NumberOfPage"
+                           v-on:pageselected="PageChange"></page-list>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal " id="modalPopuplgDelete">
+    <div class="modal-dialog draggable">
+        @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
+    </div>
+</div>
+
+<script>
+    var $table = '#tb';
+    $(document).on('click', '.open-li', function () {
+        $(".op-filter-container ul li").css("display", "block");
+        $(this).toggle();
+        $(this).next(".close-li").toggle();
+    });
+    $(document).on('click', '.close-li', function () {
+        $(".op-filter-container ul li").css("display", "none");
+        $(this).toggle();
+        $(this).prev(".open-li").toggle();
+        $(".op-filter-container ul li").eq(0).css("display", "block");
+        $(".op-filter-container ul li").eq(1).css("display", "block");
+    });
+    var heigth = 0;
+    var heightold = 0;
+    var setTop = 0;
+    function LoadGetHeight() {
+        sleep(100).then(() => { setHeight(); });
+    };
+    function setHeight() {
+        heigth = heigth - heightold;
+        $('#tb tr').each(function () {
+            if ($(this).hasClass('ac')) {
+                heightold = $(this).height();
+            }
+        });
+        heigth += heightold;
+        $('.line-right').css("margin-top", setTop + "px").height(heigth);
+    }
+    function SetHeightShowDetail($this) {
+        if (!isNew) {
+            var t = $this.next(".op-js-tr-hide").css("display");
+            if (t !== "none") {
+                heightold = $this.next().height();
+                heigth = parseInt($this.height()) + heightold;
+                $('.line-right').height(heigth).css("margin-top", setTop + "px");
+            }
+        }
+        else {
+            isNew = false;
+        }
+    }
+    var isNew = false;
+    $($table).on('click', '.prev-tr-hide td', function () {
+        console.log(444)
+        if ($(this).hasClass('check-group')) {
+        }
+        else {
+            var parentTR = $(this).parent();
+            isNew = true;
+            setTop = 35 + parseInt($(parentTR).height() * ($(parentTR).index() / 2));
+            $(parentTR).parents(".table-reponsive").toggleClass("table_re");
+            var t = $(parentTR).next(".op-js-tr-hide").css("display");
+            $(".prev-tr-hide td").not($(parentTR).find("td")).removeClass("bor");
+            $("td").not($(parentTR).find("td")).removeClass("bg-gray");
+            $(".prev-tr-hide").not($(parentTR)).removeClass("bor-right");
+            $(parentTR).toggleClass("bor-right");
+            $(parentTR).find("td").toggleClass("bg-gray");
+            $(parentTR).find("td").toggleClass("bor");
+            if (t == "none") {
+                if (parseInt($('#SelecttedPage').val()) >= 20) {
+                    $(".table-reponsive").addClass('height470');
+                }
+                $(".op-js-tr-hide").removeClass("ac");
+                $('.line-right').height(0).css("margin-top", "0px");
+            }
+            else {
+                if (parseInt($('#SelecttedPage').val()) >= 20) {
+                    $(".table-reponsive").removeClass('height470');
+                }
+                $(".op-js-tr-hide").removeClass("ac");
+                $(parentTR).next(".op-js-tr-hide").addClass("ac");
+                heightold = $(parentTR).next().height();
+                heigth = parseInt($(parentTR).height()) + heightold;
+                $('.line-right').height(heigth).css("margin-top", setTop + "px");
+            }
+        }
+    });
+    $(function () {
+        $('.datetimepicker4').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+    });
+    $(document).on('click', '.choose-date .dropdown-menu ul li', function () {
+        var date = $(this).find("a").html();
+        $(".choose-date-show").val(date);
+    });
+    $(window.document).on('shown.bs.modal', '.modal', function () {
+        window.setTimeout(function () {
+            $('[autofocus]', this).focus();
+            $('[autofocus]').select();
+        }.bind(this), 100);
+    });
+    jQuery.datetimepicker.setLocale('vi');
+    var loaiHoaDon = 19;
+    $('#tb').on('click', '.icon-filter', function () {
+        $(this).hide();
+        $(this).closest('th').find('.icon-filter2').show();
+        $(this).closest('th').next().toggle();
+        if ($(window).width() <= 1024) {
+            $(this).closest('th').find('.right-inner-addon input').attr("placeholder", "Tìm kiếm hàng hóa");
+        }
+        else { $(this).closest('th').find('.right-inner-addon input').attr('placeholder', 'Tìm kiếm chi tiết hàng hóa'); }
+        if ($(this).closest('th').find('.right-inner-addon').css('display') === 'none') {
+            $(this).closest('th').attr('colspan', 2).addClass('actioveFilter');
+        }
+        else {
+            $(this).closest('th').attr('colspan', 1).removeClass('actioveFilter');
+        }
+        $(this).closest('th').find('.right-inner-addon').toggle();
+    });
+    $('#tb').on('click', ' .icon-filter2', function () {
+        $(this).hide();
+        $(this).closest('th').find('.icon-filter').show();
+        $(this).closest('th').next().toggle();
+        if ($(this).closest('th').find('.right-inner-addon').css('display') === 'none') {
+            $(this).closest('th').attr('colspan', 2).addClass('actioveFilter');
+        }
+        else {
+            $(this).closest('th').attr('colspan', 1).removeClass('actioveFilter');
+        }
+        $(this).closest('th').find('.right-inner-addon').toggle();
+    });
+    var t = $(".table-reponsive").width();
+</script>
+
+<script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/HoaHongGioiThieu"))" type="text/javascript"></script>
+@Html.Partial("~/Views/Gara/KhachHang/_vmThemMoiLienHe.cshtml")
+@Html.Partial("~/Views/Gara/HoaDon/_vmHoaHongKhachGioiThieu.cshtml");
+
+

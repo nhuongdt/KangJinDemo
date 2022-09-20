@@ -27,12 +27,12 @@
                 item['CNChecked'] = false;
             }
         });
-        self.listData.ChiNhanhs = arr;
-        console.log(VHeader.ListChiNhanh)
-
+        self.listData.ChiNhanh = arr;
         self.roleChangeNgayLapHD = VHeader.Quyen.indexOf('HoaDon_ThayDoiThoiGian') > -1;
+        console.log('vmDSHoaHongGT')
 
         self.InitHeader();
+        self.GetList_PhieuTrichHoaHong();
     },
     watch: {
         //ListHeader: {
@@ -49,35 +49,40 @@
         typeUpdate: 1,
         isKhoaSo: false,
         ListHeader: [],
-        PageList: {
-            currentPage: 1,
+        HoaDon: {
+            data: [],
+            SumTongTienHang:0,
+            CurrentPage: 1,
             PageSize: 10,
             ListPage: [],
             PageView: '',
             NumberOfPage: 10,
         },
-        CTPageList: {
-            currentPage: 1,
+        HoaDonChiTiet: {
+            data:[],
+            CurrentPage: 1,
             PageSize: 10,
             ListPage: [],
             PageView: '',
             NumberOfPage: 10,
         },
         filter: {
+            TextSearch:'',
             TypeTime: 0,
+            DateFrom: null,
+            DateTo: null,
         },
         listData: {
-            ChiNhanhs: [],
+            ChiNhanh: [],
             TrangThai: [
-                { Text: 'Hoàn thành', Value: 1, Checked: true },
+                { Text: 'Hoàn thành', Value: 0, Checked: true },
                 { Text: 'Đã hủy', Value: 2, Checked: false }],
             LoaiDoiTuong: [
                 { Text: 'Khách hàng', Value: 1, Checked: true },
-                { Text: 'Nhân viên', Value: 2, Checked: true },
-                { Text: 'Nhà cung cấp', Value: 3, Checked: false },
-                { Text: 'Khác', Value: 4, Checked: false }]
+                { Text: 'Nhân viên', Value: 4, Checked: true },
+                { Text: 'Nhà cung cấp', Value: 2, Checked: false },
+                { Text: 'Khác', Value: 0, Checked: false }]
         },
-
     },
     methods: {
         InitHeader: function () {
@@ -102,7 +107,53 @@
             }
             return true;
         },
-
+        GetParam: function () {
+            let self = this;
+            let loaiDT = '';
+            if (self.listData.LoaiDoiTuong.filter(p => p.Checked === true).length > 0) {
+                loaiDT = self.listData.LoaiDoiTuong.filter(p => p.Checked === true).map(p => p.Value).toString();
+            }
+            return {
+                IDChiNhanhs: self.listData.ChiNhanh.filter(p => p.CNChecked).map(p => p.ID),
+                TrangThais: self.listData.TrangThai.filter(p => p.Checked === true).map(p => p.Value),
+                LoaiHoaDons: loaiDT,// muon tam truong (LoaiDoiTuong.1.kh, 2.ncc)
+                DateFrom: self.filter.DateFrom,
+                DateTo: self.filter.DateTo,
+                TextSearch: self.filter.TextSearch,
+                IDCustomers:[],// muontamtruong (list IDNguoiGioiThieu)
+                CurrentPage: self.HoaDon.CurrentPage - 1,
+                PageSize: self.HoaDon.PageSize,
+            }
+        },
+        GetList_PhieuTrichHoaHong: function () {
+            let self = this;
+            let param = self.GetParam();
+            $('#tb').gridLoader({ show: true });
+            console.log('param', param)
+            ajaxHelper(self.UrlAPI.HoaDon + 'GetList_PhieuTrichHoaHong', 'POST', param).done(function (x) {
+                console.log(x)
+                if (x.res && x.dataSoure.data.length > 0) {
+                    self.HoaDon.data = x.dataSoure.data;
+                   
+                    let itFirst = x.dataSoure.data[0];
+                    self.HoaDon.SumTongTienHang = itFirst.SumTongTienHang;
+                    self.HoaDon.TotalRow = x.dataSoure.TotalRow;
+                    self.HoaDon.PageView = x.dataSoure.PageView;
+                    self.HoaDon.NumberOfPage = x.dataSoure.NumOfPage;
+                    self.HoaDon.ListPage = x.dataSoure.ListPage;
+                }
+                else {
+                    self.HoaDon.data = [];
+                    self.HoaDon.SumTongTienHang = 0;
+                    self.HoaDon.TotalRow = 0;
+                    self.HoaDon.PageView = 0;
+                    self.HoaDon.NumberOfPage = 0;
+                    self.HoaDon.ListPage =0;
+                }
+            }).always(function () {
+                $('#tb').gridLoader({ show: false })
+            })
+        },
         showModalThemMoi: function () {
             let self = this;
             vmHoaHongKhachGioiThieu.showModal();
@@ -113,116 +164,29 @@
             self.isLoading = false;
             self.typeUpdate = 2;
         },
-
-        BeforeLoadData: function () {
-
+        ResetCurrentPage_andLoadData: function () {
+            let self = this;
+            self.HoaDon.CurrentPage = 1;
+            self.GetList_PhieuTrichHoaHong();
         },
-        onCallThoiGian: function () {
-
-        },
-        changeTrangThai: function () {
-
+        onCallThoiGian: function (value) {
+            let self = this;
+            if (self.filter.DateFrom !== value.fromdate || self.filter.DateTo !== value.todate) {
+                if (value.fromdate !== '2001-01-01') {
+                    self.filter.DateFrom = value.fromdate;
+                    self.filter.DateTo = value.todate;
+                }
+                else {
+                    self.filter.DateFrom = '';
+                    self.filter.DateTo = '';
+                }
+                self.ResetCurrentPage_andLoadData();
+            }
+            self.filter.TypeTime = value.radioselect;
         },
         PageChange: function () {
-
-        },
-        Enter_FocusNext: function (index) {
-            let $this = $(event.currentTarget);
-            let $tr = $this.closest('tr').next();
-            $tr.find('td').eq(index).find('input').focus().select();
-        },
-
-        CheckSave: function () {
             let self = this;
-
-            if (commonStatisJs.CheckNull(self.newHoaDon.ID_DoiTuong)) {
-                ShowMessage_Danger('Vui lòng chọn khách hàng');
-                return;
-            }
-
-            return true;
-        },
-        Agree: function () {
-            let self = this;
-            let check = self.CheckSave();
-            if (!check) {
-                return;
-            }
-
-            self.saveOK = true;
-
-
-        },
-        ChangeNgayLapHoaDon: function (e) {
-            let self = this;
-            let dt = moment(e).format('YYYY-MM-DD HH:mm');
-            self.newHoaDon.NgayLapHoaDon = dt;
-        },
-        ChangeCustomer: function (item) {
-            let self = this;
-            self.newHoaDon.ID_DoiTuong = item.ID;
-            self.newHoaDon.TenDoiTuong = item.TenDoiTuong;
-            self.newHoaDon.MaDoiTuong = item.MaDoiTuong;
-
-            let $this = $(event.currentTarget);
-            $($this).closest('div').hide();
-            $($this).closest('div').prev('focus');
-        },
-        ResetCustomer: function () {
-            let self = this;
-            self.newHoaDon.ID_DoiTuong = null;
-            self.newHoaDon.TenDoiTuong = '';
-            self.newHoaDon.MaDoiTuong = '';
-        },
-        saveHoaDon: function (idRandomHD, ngaylapHD) {// used to lui ngaylapHD
-            let self = this;
-
-            if (self.typeUpdate === 1) {
-
-            }
-            else {
-
-            }
-
-
-            let myData = {
-                objHoaDon: hd,
-                objCTHoaDon: cthd,
-            }
-            if (!$.isEmptyObject(hd)) {
-                self.isLoading = true;
-                ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
-                    if (x.res) {
-                        ShowMessage_Success(' hóa đơn hỗ trợ thành công');
-
-                        let data = x.data;
-                        let diary = {
-                            ID_DonVi: self.inforLogin.ID_DonVi,
-                            ID_NhanVien: self.inforLogin.ID_NhanVien,
-                            LoaiNhatKy: self.typeUpdate,
-                            ChucNang: 'Áp dụng hỗ trợ ',
-                            NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
-                                ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
-                            NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
-                                ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
-                                ' <br /> Chuyển phát nhanh: ', hd.An_Hien ? 'có' : 'không',
-                                ' <br /> Ngày lập phiếu: ', moment(data.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
-                                sListSP, user, sOld),
-                            LoaiHoaDon: 36,
-                            ID_HoaDon: data.ID,
-                            ThoiGianUpdateGV: data.NgayLapHoaDon
-                        }
-                        Post_NhatKySuDung_UpdateGiaVon(diary);
-
-                    }
-                    else {
-                        ShowMessage_Danger(sType + ' hóa đơn hỗ trợ thất bại');
-                    }
-                }).always(function () {
-                    self.isLoading = false;
-                    $('#vmDanhSachHoaHongGioiThieu').modal('hide');
-                })
-            }
+            self.GetList_PhieuTrichHoaHong();
         },
     }
 })
