@@ -5004,8 +5004,19 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
-                    classDonViQuiDoi classQuiDoi = new classDonViQuiDoi(db);
                     List<SP_DM_HangHoaDTO> data = new ClassDM_HangHoa(db).Gara_JqAutoHangHoa(param);
+
+                    var arrIDHangHoa = data.Select(x => x.ID).ToList();
+                    List<DonViTinh> lstDVT = db.DonViQuiDois.Where(x => arrIDHangHoa.Contains(x.ID_HangHoa) && x.Xoa != true)
+                        .Select(x => new DonViTinh
+                        {
+                            ID_HangHoa = x.ID_HangHoa,
+                            TenDonViTinh = x.TenDonViTinh,
+                            ID_DonViQuiDoi = x.ID,
+                            Xoa = false,
+                            TyLeChuyenDoi = x.TyLeChuyenDoi
+                        }).ToList();
+
                     var lst = data.Select(p => new
                     {
                         p.ID_DonViQuiDoi,
@@ -5041,15 +5052,16 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         p.TonToiThieu,// used to check thong bao tonkho
                         p.LoaiHangHoa,
                         p.HoaHongTruocChietKhau,
-                        DonViTinh = classQuiDoi.Gets(ct => ct.ID_HangHoa == p.ID && ct.Xoa != true).Select(x => new DonViTinh
-                        {
-                            ID_HangHoa = p.ID,
-                            TenDonViTinh = x.TenDonViTinh,
-                            ID_DonViQuiDoi = x.ID,
-                            QuanLyTheoLoHang = p.QuanLyTheoLoHang,
-                            Xoa = x.Xoa,
-                            TyLeChuyenDoi = x.TyLeChuyenDoi
-                        }).ToList(),
+                        DonViTinh = lstDVT.Where(ct => ct.ID_HangHoa == p.ID)
+                            .Select(x => new DonViTinh
+                            {
+                                ID_HangHoa = p.ID,
+                                TenDonViTinh = x.TenDonViTinh,
+                                ID_DonViQuiDoi = x.ID,
+                                QuanLyTheoLoHang = p.QuanLyTheoLoHang,
+                                Xoa = false,
+                                TyLeChuyenDoi = x.TyLeChuyenDoi
+                            }).ToList(),
                     }).ToList();
                     return ActionTrueData(lst);
                 }
