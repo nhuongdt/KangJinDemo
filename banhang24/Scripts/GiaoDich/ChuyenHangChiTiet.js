@@ -1370,6 +1370,9 @@ var ChuyenHangChiTiet = function () {
                 var hd = localStorage.getItem(lcHDChuyenHang);
                 if (hd !== null) {
                     hd = JSON.parse(hd);
+                    if ($input.val() !== hd[0].NgayLapHoaDon) {
+                        GetTonKho_byIDQuyDois();
+                    }
                     hd[0].NgayLapHoaDon = $input.val();
                     localStorage.setItem(lcHDChuyenHang, JSON.stringify(hd));
                 }
