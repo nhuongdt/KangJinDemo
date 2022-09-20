@@ -162,7 +162,7 @@
                                                :showbutton="false"
                                                :disable-search="false"
                                                :id-chi-nhanh="inforLogin.ID_DonVi"
-                                               v-on:change-customer-parent="ChangeCustomer">
+                                               v-on:change-customer-parent="ChoseCustomer">
                                     </customers>
                                 </div>
                             </div>
@@ -177,7 +177,11 @@
                             <div class="form-group gara-addcar-brand nopadding">
                                 <label>Hóa đơn bổ sung</label>
                                 <div class="form-news">
-                                    <input type="text" class="form-control" />
+                                    <div class="gara-bill-infor-button shortlabel">
+                                        <input class="gara-search-HH " placeholder="Tìm kiếm" style="padding-right: 27px!important"
+                                               onclick="this.select()" />
+                                        
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -190,13 +194,14 @@
                         <div class="col-lg-6 col-xs-12 ">
                             <div class="form-group gara-addcar-brand nopadding">
                                 <label>Khách hàng</label>
-                                <div class="form-news">
+                                <div class="form-news"
+                                     v-on:change="ChangeCustomer(item,index)">
                                     <customers :text-search="txtKhachHang"
                                                :loai-doi-tuong="1"
                                                :showbutton="false"
                                                :disable-search="false"
                                                :id-chi-nhanh="inforLogin.ID_DonVi"
-                                               v-on:change-customer-parent="ChangeCustomer">
+                                               v-on:change-customer-parent="ChoseCustomer">
                                     </customers>
                                 </div>
                             </div>
@@ -216,7 +221,28 @@
                             <div class="form-group gara-addcar-brand nopadding">
                                 <label>Hóa đơn bổ sung</label>
                                 <div class="form-news">
-                                    <input type="text" class="form-control" />
+                                    <div class="gara-bill-infor-button shortlabel">
+                                        <input class="gara-search-HH " placeholder="Tìm kiếm" style="padding-right: 27px!important"
+                                               v-on:click="showlistHDBoSung" />
+                                        <div class="gara-search-dropbox drop-search ">
+                                            <ul>
+                                                <li v-for="(item, index) in HoaDon_ofCus.ListBoSung"
+                                                    v-on:click="Add_HoaDonBoSung(item)">
+                                                    <a href="javascript:void(0)" class="gara-component-item-nv">
+                                                        <div class="flex flex-between">
+                                                            <span>{{item.MaHoaDon}}</span>
+                                                            <span v-if="hdBoSung_Chosing.ID == item.ID_HoaDon_DuocCK" class="span-check">
+                                                                <i class="fa fa-check">  </i>
+                                                            </span>
+                                                        </div>
+                                                        <span class="seach-hh" style="color:black">
+                                                            {{formatNumber3Digit(item.TongThanhToan)}}
+                                                        </span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -228,7 +254,8 @@
                                     <th> Mã hóa đơn </th>
                                     <th class="text-center"> Ngày lập</th>
                                     <th class="text-right"> Giá trị</th>
-                                    <th class="text-right"> Đã thanh toán</th>
+                                    <th class="text-right"> Đã trích</th>
+                                    <th class="text-right"> Còn lại</th>
                                     <th class="text-right"> % chiết khấu</th>
                                     <th style="text-align:center; width: 10%">
                                         Tiền chiết khấu
@@ -239,22 +266,27 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(ct, index2) in item.HoaDons">
+                                <tr v-for="(ct, index2) in item.HoaDons"
+                                    v-bind:style="{background : ct.TrangThai == 1 ? 'yellow' : 'none'}"
+                                   >
                                     <td>{{ct.MaHoaDon}}</td>
                                     <td>{{moment(ct.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
                                     <td class="text-right">{{formatNumber3Digit(ct.TongThanhToan)}}</td>
-                                    <td class="text-right">{{formatNumber3Digit(ct.KhachDaTra)}}</td>
+                                    <td class="text-right">
+                                        {{formatNumber3Digit(ct.DaTrich)}}
+                                    </td>
+                                    <td class="text-right">{{formatNumber3Digit(ct.ConLai)}}</td>
                                     <td style="width: 5%">
                                         <input type="text" style="width:100px" class="text-right"
                                                onkeypress="keypressNumber_limitNumber(event, this)"
-                                               v-on:keyup.13="Enter_FocusNext(4)"
+                                               v-on:keyup.13="Enter_FocusNext(5)"
                                                v-model="ct.PTChietKhau"
                                                v-on:keyup="editPTChietKhau(item,ct)" />
                                     </td>
                                     <td>
                                         <input type="text" style="width:120px" class="text-right"
                                                onkeypress="keypressNumber_limitNumber(event, this)"
-                                               v-on:keyup.13="Enter_FocusNext(5)"
+                                               v-on:keyup.13="Enter_FocusNext(6)"
                                                v-model="ct.TienChietKhau"
                                                v-on:keyup="editTienChietKhau(item,ct)" />
                                     </td>
@@ -368,10 +400,13 @@
             inforOld: {
 
             },
-
+            hdBoSung_Chosing: {
+                ID: null,
+            },
             txtKhachHang: '',
             txtNguoiGioiThieu: '',
             txtLienHe: '',
+            itemChosing: {},
 
             newHoaDon: {
                 ID: null,
@@ -397,6 +432,10 @@
                 NhanViens: [],
                 LienHes: [],
             },
+            HoaDon_ofCus: {
+                ListAll: [],
+                ListBoSung: [],
+            },
             ThongTinChiTiet: [],
         },
         methods: {
@@ -409,23 +448,19 @@
                 let self = this;
                 ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + "GetNS_NhanVien_InforBasic?idDonVi=" + self.inforLogin.ID_DonVi, 'GET').done(function (data) {
                     self.listData.NhanViens = data;
-                    console.log('nv ', data)
                 })
             },
             GetAllLienHe: function () {
                 let self = this;
                 ajaxHelper("/api/DanhMuc/DM_LienHeAPI/" + "GetAllLienHe", 'GET').done(function (data) {
                     self.listData.LienHes = data;
-                    console.log('lh ', data)
                 })
             },
             GetListHoaDon_byIDCus: async function (idCus) {
                 let self = this;
-                if (!commonStatisJs.CheckNull(idCus)) {
-
-                }
                 let param = {
-                    IDCustomers: [idCus]
+                    IDCustomers: [idCus],
+                    IDCars: [self.newHoaDon.ID_CheckIn],// muontamtruong idcar ~ idnguoi gioithieu
                 }
                 let xx = await ajaxHelper(self.UrlAPI.HoaDon + "GetListHoaDon_byIDCus", 'POST', param).done(function () {
                 }).then(function (x) {
@@ -442,6 +477,10 @@
                 self.isLoading = false;
                 self.typeUpdate = 1;
                 self.ThongTinChiTiet = [];
+                self.itemChosing = {
+                    Index: -1,
+                    ID_DoiTuong: null,
+                }
 
                 self.newHoaDon = {
                     ID: null,
@@ -549,32 +588,54 @@
                 };
                 self.ThongTinChiTiet.push(obj);
             },
-            ChangeCustomer: async function (item, xx) {
+            ChoseCustomer: async function (item) {
                 let self = this;
 
-                let ex = $.grep(self.ThongTinChiTiet, function (x) {
-                    return x.ID_DoiTuong === item.ID;
-                });
-                if (ex.length > 0) {
-                    ShowMessage_Danger('Khách hàng đã được chọn');
+                if (commonStatisJs.CheckNull(self.newHoaDon.ID_CheckIn)) {
+                    ShowMessage_Danger('Vui lòng chọn người giới thiệu');
                     return;
                 }
-                // get list hoadon by customer
                 let hd = await self.GetListHoaDon_byIDCus(item.ID);
                 hd.map(function (x) {
                     x['PTChietKhau'] = ''
                     x['TienChietKhau'] = ''
                 })
+                self.HoaDon_ofCus.ListAll = hd;
+                self.HoaDon_ofCus.ListBoSung = hd.filter(x => x.TrangThai === 1);
+                console.log('hd')
+
+                if (hd.length === 0) {
+                    ShowMessage_Danger('Không tồn tại hóa đơn');
+                    return;
+                }
                 let obj = {
                     ID_DoiTuong: item.ID,
                     MaDoiTuong: item.MaDoiTuong,
                     TenDoiTuong: item.TenDoiTuong,
                     DienThoai: item.DienThoai,
-                    HoaDons: hd,
+                    HoaDons: hd.filter(x => x.TrangThai === 0),
                 };
-                self.ThongTinChiTiet.push(obj);
-                self.ThongTinChiTiet = self.ThongTinChiTiet.filter(x => x.ID_DoiTuong !== null && x.HoaDons.length !== 0);
-                console.log(1, self.ThongTinChiTiet)
+                if (self.itemChosing.Index === -1) {
+                    self.ThongTinChiTiet.push(obj);
+                    self.ThongTinChiTiet = self.ThongTinChiTiet.filter(x => x.ID_DoiTuong !== null && x.HoaDons.length !== 0);
+                }
+                else {
+                    for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                        let itFor = self.ThongTinChiTiet[i];
+                        if (itFor.ID_DoiTuong === self.itemChosing.ID_DoiTuong) {
+                            self.ThongTinChiTiet[i] = obj;
+                            break;
+                        }
+                    }
+                    self.ThongTinChiTiet = $.extend([], true, self.ThongTinChiTiet)
+                }
+            },
+            ChangeCustomer: function (item, index) {
+                let self = this;
+                self.itemChosing = {
+                    Index: index,
+                    ID_DoiTuong: item.ID_DoiTuong,
+                }
             },
             ResetCustomer: function () {
                 let self = this;
@@ -587,6 +648,27 @@
                 self.newHoaDon.ID_CheckIn = null;
                 self.newHoaDon.TenDoiTuong = '';
                 self.newHoaDon.MaDoiTuong = '';
+            },
+            showlistHDBoSung: function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+                $this.next().show();
+            },
+            Add_HoaDonBoSung: function (item) {
+                let self = this;
+                self.hdBoSung_Chosing.ID = item.ID_HoaDon_DuocCK;
+                console.log('tt ',item.TrangThai)
+                for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                    let itFor = self.ThongTinChiTiet[i];
+                    if (itFor.ID_DoiTuong === item.ID_DoiTuong) {
+                        if (item.TrangThai === 1) {// neu da trich full & bosung them: get sum (KhachDaTra)
+                            item.ConLai = item.KhachDaTra;
+                        }
+                        self.ThongTinChiTiet[i].HoaDons.push(item);
+                        break;
+                    }
+                }
+                self.HoaDon_ofCus.ListBoSung = self.HoaDon_ofCus.ListBoSung.filter(x => x.ID_HoaDon_DuocCK !== item.ID_HoaDon_DuocCK);
             },
             RemoveAllRow: function (item) {
                 let self = this;
@@ -614,6 +696,24 @@
                         break;
                     }
                 }
+                console.log('RemoveOneRow ', self.ThongTinChiTiet)
+                // add back item to list HDBoSung
+                self.HoaDon_ofCus.ListBoSung.push({
+                    ID_DoiTuong: item.ID_DoiTuong,
+                    MaDoiTuong: item.MaDoiTuong,
+                    TenDoiTuong: item.TenDoiTuong,
+                    ID_HoaDon_DuocCK: ct.ID_HoaDon_DuocCK,
+                    MaHoaDon: ct.MaHoaDon,
+                    NgayLapHoaDon: ct.NgayLapHoaDon,
+                    TongThanhToan: ct.TongThanhToan,
+                    KhachDaTra: ct.KhachDaTra,
+                    DaTrich: ct.DaTrich,
+                    ConLai: ct.ConLai,
+                    TrangThai: ct.TrangThai,
+                    PTChietKhau: '',
+                    TienChietKhau: '',
+                });
+               
                 self.CaCulatorTongTienHang();
             },
             editPTChietKhau: function (item, ct) {
@@ -627,7 +727,7 @@
                         for (let j = 0; j < itFor.HoaDons.length; j++) {
                             let forIn = itFor.HoaDons[j];
                             if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
-                                itFor.HoaDons[j].TienChietKhau = formatNumber3Digit(forIn.KhachDaTra * gtri / 100);
+                                itFor.HoaDons[j].TienChietKhau = formatNumber3Digit(forIn.ConLai * gtri / 100);
                                 break;
                             }
                         }
@@ -653,7 +753,7 @@
                         for (let j = 0; j < itFor.HoaDons.length; j++) {
                             let forIn = itFor.HoaDons[j];
                             if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
-                                itFor.HoaDons[j].PTChietKhau = gtri / forIn.KhachDaTra * 100;
+                                itFor.HoaDons[j].PTChietKhau = gtri / forIn.ConLai * 100;
                                 itFor.HoaDons[j].TienChietKhau = gtriFormat;
                                 break;
                             }
@@ -698,9 +798,9 @@
                     TongTienHang: self.newHoaDon.TongTienHang,
                     NguoiTao: self.inforLogin.UserLogin,
                     DienGiai: self.newHoaDon.DienGiai,
+                    ChoThanhToan: false,
                 }
 
-                let sHD = '';
                 for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
                     let forOut = self.ThongTinChiTiet[i];
                     let sDetail = '';
@@ -708,20 +808,20 @@
                         let forIn = forOut.HoaDons[j];
                         let obj = {
                             ID_ParentCombo: forIn.ID_HoaDon_DuocCK,
-                            ID_ThueSuat: forIn.ID_QuyHoaDon,
+                            //ID_ThueSuat: forIn.ID_QuyHoaDon,
                             PTChietKhau: forIn.PTChietKhau,
                             TienChietKhau: forIn.TienChietKhau,
                             SoThuTu: 1,// 1.thucthu, 2.doanhthu
                             MaHangHoa: '',
-                            TenHangHoa: ''
+                            TenHangHoa: '',
+                            PTThue: forIn.TrangThai, //1.trich bosung
                         };
                         cthd.push(obj);
-                        sDetail = sDetail.concat('<br /> - <a> ', forIn.MaHoaDon, ' </a>, Thực thu: ', formatNumber3Digit(forIn.KhachDaTra),
+                        sDetail = sDetail.concat('<br /> - <a> ', forIn.MaHoaDon, ' </a>, Thực thu: ', formatNumber3Digit(forIn.ConLai),
                             ', PT chiết khấu: ', forIn.PTChietKhau, ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
                     }
-                    sHD = sHD.concat('<br /> ', i + 1, '. ', forOut.TenDoiTuong, ' (', forOut.MaDoiTuong, ')', sDetail);
+                    sListHD = sListHD.concat('<br /> ', i + 1, '. ', forOut.TenDoiTuong, ' (', forOut.MaDoiTuong, ')', sDetail);
                 }
-                sListHD += sHD;
 
                 if (self.typeUpdate === 1) {
                     url = 'Post_HoaDonTrichHoaHong';
