@@ -60,6 +60,7 @@ namespace banhang24.Hellper
         public const string LichHen1 = "Schedule1";
         public const string NguoiLienHe = "UserContact";
         public const string Congviec = "Work";
+        public const string HoaHongKhachGioiThieu = "HoaHongKhachGioiThieu";
         //public const string Congviec1 = "Work1";
         public const string PhanHoi = "Feedback";
         public const string SoQuy = "CashFlow";
@@ -253,6 +254,8 @@ namespace banhang24.Hellper
         public const string TheGiaTri_XemDS_HeThong = "TheGiaTri_XemDS_HeThong";
         public const string TheGiaTri_XuatFile = "TheGiaTri_XuatFile";
         public const string TheGiaTri_In = "TheGiaTri_In";
+
+        public const string HoaHongKhachGioiThieu_XemDS = "HoaHongKhachGioiThieu_XemDS";
     }
 
     public class RoleMauIn
