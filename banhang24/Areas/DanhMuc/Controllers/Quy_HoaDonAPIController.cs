@@ -1757,7 +1757,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost, HttpGet]
-        public IHttpActionResult PostQuy_HoaDon_LstQuyChiTiet([FromBody] JObject data)
+        public IHttpActionResult PostQuy_HoaDon_LstQuyChiTiet([FromBody] JObject data)// used to nhahang.js
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -1817,6 +1817,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 HinhThucThanhToan = item.HinhThucThanhToan,
                                 LoaiThanhToan = item.LoaiThanhToan,
                                 DiemThanhToan = item.DiemThanhToan,
+                                ID_NhanVien = item.ID_NhanVien,
                                 ID_DoiTuong = item.ID_DoiTuong == null ? Guid.Empty : item.ID_DoiTuong,
                                 ID_KhoanThuChi = item.ID_KhoanThuChi,
                                 ChiPhiNganHang = item.ChiPhiNganHang,
@@ -2029,6 +2030,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ThuTuThe = item.ThuTuThe, // thu từ thẻ giá trị
                                 DiemThanhToan = item.DiemThanhToan,
                                 ID_DoiTuong = item.ID_DoiTuong ?? new Guid(idDoiTuong),
+                                ID_NhanVien = item.ID_NhanVien,
                                 ID_KhoanThuChi = item.ID_KhoanThuChi,
                                 ID_TaiKhoanNganHang = item.ID_TaiKhoanNganHang,
                                 ID_NganHang = item.ID_TaiKhoanNganHang != null ? db.DM_TaiKhoanNganHang.Find(item.ID_TaiKhoanNganHang).ID_NganHang : (Guid?)null,
