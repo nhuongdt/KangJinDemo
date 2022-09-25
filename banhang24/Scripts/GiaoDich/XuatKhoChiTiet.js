@@ -2009,8 +2009,9 @@ var XuatKhoChiTiet = function () {
                     ShowMessage_Success('Tạo phiếu xuất kho thành công');
 
                     var cthdView = getcthd_atView();
-                    self.InHoaDon(cthdView, myData.objHoaDon);
                     SaveDiary(myData.objHoaDon, cthdView);
+
+                    self.InHoaDon(cthdView, myData.objHoaDon);
 
                     RemoveCache();
                     ResetInforHD();
@@ -2047,10 +2048,11 @@ var XuatKhoChiTiet = function () {
                 myData.objHoaDon.ChiTietOld = ctOls;
 
                 var cthdView = getcthd_atView();
-                self.InHoaDon(cthdView, myData.objHoaDon);
-                Insert_ThongBaoHetTonKho(cthdView);
                 SaveDiary(myData.objHoaDon, cthdView);
 
+                self.InHoaDon(cthdView, myData.objHoaDon);
+                Insert_ThongBaoHetTonKho(cthdView);
+              
                 Enable_btnSave();
                 GotoPageListXuatKho();
                 RemoveCache();
