@@ -155,6 +155,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpGet, HttpPost]
+        public IHttpActionResult GetChiTietHoaHongGioiThieu_byID(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<HoaHongGioiThieu_ChiTiet_DTO> data = classhoadon.GetChiTietHoaHongGioiThieu_byID(id);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
         public IHttpActionResult GetListHoaDon_byIDCus(ParamNKyGDV param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -3896,7 +3914,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         var ngaylap = hd.NgayLapHoaDon.AddMilliseconds(4);
                         var lstXK = db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon).Select(x => new { x.ID, x.NgayLapHoaDon })
-                            .OrderBy(x=>x.NgayLapHoaDon).ToList();
+                            .OrderBy(x => x.NgayLapHoaDon).ToList();
                         foreach (var item in lstXK)
                         {
                             var pk = db.BH_HoaDon.Find(item.ID);
@@ -6503,6 +6521,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                          ID = g.Key.ID,
                                          TongTienThu = g.Where(x => x.qct.HinhThucThanhToan != 4 && x.qct.HinhThucThanhToan != 5)
                                          .Sum(x => x.qct.TienThu)
+                                         - g.Where(x => x.qct.HinhThucThanhToan == 2).Sum(x => x.qct.LaPTChiPhiNganHang == true ? x.qct.TienThu * x.qct.ChiPhiNganHang / 100 : x.qct.ChiPhiNganHang)
                                      }).ToList();
 
                         Guid? idSQFirst = Guid.Empty;
@@ -11795,8 +11814,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                         BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
-
-                        Guid idQuiDoi = db.DonViQuiDois.FirstOrDefault().ID;
+                        
+                        Guid idQuiDoi = db.DonViQuiDois.FirstOrDefault().ID;// lưu idQuiDoi bất kỳ
 
                         string sMaHoaDon = string.Empty;
                         Guid idHoaDon = Guid.NewGuid();
@@ -11835,8 +11854,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ID_HoaDon = objHoaDon.ID,
                                 ID_ParentCombo = item.ID_ParentCombo,// ID_HoaDon_DuocCK
                                 ID_ThueSuat = item.ID_ThueSuat,// ID_QuyHoaDon
-                                PTChietKhau = item.PTChietKhau, 
-                                TienChietKhau = item.TienChietKhau, 
+                                PTChietKhau = item.PTChietKhau,
+                                TienChietKhau = item.TienChietKhau,
                                 SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
                                 GhiChu = item.GhiChu,
                             };
