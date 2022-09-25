@@ -61,13 +61,13 @@ namespace Model
 
         [Column(TypeName = "uniqueidentifier")]
         public Guid? ID_HoaDon { get; set; } // Mua(1 chứa ID of 2) ---> Trả (2 chứa ID 3) ---> Gốc (3)
-                                            // sudung gdv: ID_HoaDon = null
-                                            // trahoadon/tragoi, xulydh: ID_HoaDon !=null
+                                             // sudung gdv: ID_HoaDon = null
+                                             // trahoadon/tragoi, xulydh: ID_HoaDon !=null
         [Column(TypeName = "int")]
         public int LoaiHoaDon { get; set; }
 
         [Column(TypeName = "bit")]
-        public bool? ChoThanhToan { get; set; }
+        public bool? ChoThanhToan { get; set; } = false;
 
         [Column(TypeName = "float")]
         public double TongTienHang { get; set; } // KiemKho: tong SL lech giam, TheGiaTri: TongTienNap + KhuyenMai
@@ -82,7 +82,7 @@ namespace Model
         public double TongGiamGia { get; set; } = 0;// KiemKho: tong SL chenh lech (tang/giam)
 
         [Column(TypeName = "float")]
-        public double TongChiPhi { get; set; } = 0; 
+        public double TongChiPhi { get; set; } = 0;
         // TraHang: chi phi hang tra lai (Khách chịu)
         // TheGiaTri: MucNap hoac gtri chenh lech khi dieu chinh the (+: tanglen, - giam di),
         // KiemKho: tong SL lech tang
@@ -194,7 +194,7 @@ namespace Model
         public double? PTThueHoaDon { get; set; } = 0;
 
         [Column(TypeName = "float")]
-        public double? BHThanhToanTruocThue { get; set; } = 0; 
+        public double? BHThanhToanTruocThue { get; set; } = 0;
 
         [Column(TypeName = "float")]
         public double? TongTienBHDuyet { get; set; } = 0; // SUM(DonGiaBaoHiem * SoLuong)
