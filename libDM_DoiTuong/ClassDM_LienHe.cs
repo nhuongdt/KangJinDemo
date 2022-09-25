@@ -81,6 +81,12 @@ namespace libDM_DoiTuong
             }
         }
 
+        public List<SP_DM_LienHe> GetInforContact_byID(Guid id)
+        {
+            SqlParameter param = new SqlParameter("ID", id);
+            return db.Database.SqlQuery<SP_DM_LienHe>("exec dbo.GetInforContact_byID @ID", param).ToList();
+        }
+
         #endregion
 
         #region insert
