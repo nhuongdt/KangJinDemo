@@ -1,0 +1,405 @@
+﻿@using banhang24.Hellper
+<div class="modal fade" id="vmThemMoiLienHe">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content  ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    {{typeUpdate==1?'Thêm mới ':'Cập nhật '}} liên hệ
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-9 col-xs-12  ">
+                    <div class="form-group floatleft"
+                         v-if="newContact.ID_DoiTuong != null && newContact.ID_DoiTuong !='00000000-0000-0000-0000-000000000000'">
+                        <label>Khách hàng</label>
+                        <div class="form-news">
+
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Mã liên hệ</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" placeholder="Mã tự động"
+                                   v-model="newContact.MaLienHe">
+                        </div>
+                    </div>
+
+                    <div class="form-group floatleft">
+                        <label>Tên người liên hệ</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" autofocus
+                                   v-model="newContact.TenLienHe">
+                        </div>
+                    </div>
+
+                    <div class="form-group floatleft">
+                        <label>Điện thoại</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control"
+                                   v-model="newContact.SoDienThoai">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ngày sinh</label>
+                        <div class="form-news">
+                            <my-date-time :date-chose="newContact.NgaySinh"
+                                          :role-change-date="true"
+                                          v-on:change-date="ChangeNgaySinh">
+                            </my-date-time>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Email</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control"
+                                   v-model="newContact.Email">
+                        </div>
+                    </div>
+
+                    <div class="form-group floatleft">
+
+                        <label>Tỉnh thành</label>
+
+                        <div class="form-news">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn tỉnh thành"
+                                             v-bind:listdata="listData.ListTinhThanhSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="ChoseTinhThanh"
+                                             v-bind:valueselected="newContact.ID_TinhThanh"
+                                             v-on:onsearch="SearchTinhThanh"></dropdown-search>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group floatleft">
+                        <label>Quận huyện</label>
+                        <div class="form-news">
+                            <dropdown-search v-bind:showbutton="false" placeholder="Chọn quận huyện"
+                                             v-bind:listdata="listData.ListQuanHuyenSearch"
+                                             v-bind:colshow="2"
+                                             v-on:onselectvalue="ChoseQuanHuyen"
+                                             v-bind:valueselected="newContact.ID_QuanHuyen"
+                                             v-on:onsearch="SearchQuanHuyen"></dropdown-search>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Địa chỉ</label>
+                        <div class="form-news">
+                            <input type="text" class="form-control"
+                                   v-model="newContact.DiaChi">
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Ghi chú</label>
+                        <div class="form-news">
+                            <textarea rows="2" type="text"
+                                      v-model="newContact.GhiChu" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-xs-12 " style="display:none">
+                    <div class="img-user-contact" style="float:right; width:100%">
+
+                    </div>
+                    <div class="choose-img" style=" width: 100%;">
+                        <span class="btn  btn-file form-control insert-pics" style="background:var(--color-primary); margin:5px 0; color:white">
+                            Chọn ảnh <input type='file' multiple id="imageUpHHForm" name="files[]" accept=".png,.jpg,.jpeg,.gif" />
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer ">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fa fa-ban"></i>Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-save"
+                            v-if="!isLoading && typeUpdate === 1"
+                              v-on:click="saveDB">
+                        <i class="fa fa-save"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-save "
+                            v-if="!isLoading && typeUpdate === 2"
+                             v-on:click="saveDB">
+                        <i class="fa fa-save"></i>
+                        Cập nhật
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="isLoading" >
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/Components/dropdown-search.js")"></script>
+<script>
+    var vmThemMoiLienHe = new Vue({
+        el: '#vmThemMoiLienHe',
+        components: {
+            'my-date-time': cpmDatetime,
+        },
+        created: function () {
+            var self = this;
+            self.UrlAPI = {
+                DMLienHe: '/api/DanhMuc/DM_LienHeAPI/',
+            }
+
+            self.inforLogin = {
+                ID_DonVi: VHeader.IdDonVi,
+                ID_NhanVien: VHeader.IdNhanVien,
+                UserLogin: VHeader.UserLogin,
+            }
+
+            self.PageLoad();
+            console.log('vmThemMoiLienHe')
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            typeUpdate: 1,
+            contactOld: {},
+
+            newContact: {
+                ID: null,
+                MaLienHe: '',
+                TenLienHe: '',
+                SoDienThoai: '',
+                NgaySinh: '',
+                ID_TinhThanh: null,
+                ID_QuanHuyen: null,
+                ID_ChucVu: null,
+                DiaChi: '',
+                Email: '',
+                GhiChu: '',
+                NguoiTao: VHeader.UserLogin,
+                TrangThai: 1,
+
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                TenTinhThanh: '',
+                TenQuanHuyen: '',
+            },
+            listData: {
+                TinhThanhs: [],
+                QuanHuyens: [],
+                ListQuanHuyenSearch: [],
+                ListTinhThanhSearch: [],
+            }
+        },
+        methods: {
+            PageLoad: function () {
+                let self = this;
+                self.GetListTinhThanh();
+            },
+            GetListTinhThanh: function () {
+                let self = this;
+                $.getJSON('/api/DanhMuc/DM_DoiTuongAPI/' + 'GetListTinhThanh').done(function (x) {
+                    if (x.res === true) {
+                        let data = x.data;
+                        let province = data.map(function (p) {
+                            return {
+                                ID: p.ID,
+                                val2: p.TenTinhThanh
+                            }
+                        });
+                        self.listData.TinhThanhs = province;
+                        self.listData.ListTinhThanhSearch = province;
+                    }
+                })
+            },
+            showModal: function () {
+                let self = this;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 1;
+                self.newContact = {
+                    ID: const_GuidEmpty,
+                    MaLienHe: '',
+                    TenLienHe: '',
+                    SoDienThoai: '',
+                    NgaySinh: '',
+                    ID_TinhThanh: null,
+                    ID_QuanHuyen: null,
+                    ID_ChucVu: null,
+                    DiaChi: '',
+                    Email: '',
+                    GhiChu: '',
+                    NguoiTao: VHeader.UserLogin,
+                    TrangThai: 1,
+
+                    TenTinhThanh: '',
+                    TenQuanHuyen: '',
+                };
+                $('#vmThemMoiLienHe').modal('show');
+            },
+            showModalUpdate: function (id) {
+                let self = this;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 2;
+
+                $.getJSON(self.UrlAPI.DMLienHe + 'GetInforContact_byID/' + id).done(function (x) {
+                    if (x.res) {
+                        self.contactOld = $.extend({}, true, x.data);
+                        self.newContact = x.data;
+
+                        if (!commonStatisJs.CheckNull(self.newContact.ID_TinhThanh)) {
+                            //let qh = await self.LoadQuanHuyen(self.newContact.ID_TinhThanh);
+                            //self.listData.QuanHuyens = qh;
+                            //self.listData.ListQuanHuyenSearch = qh;
+                        }
+                    }
+                    $('#vmThemMoiLienHe').modal('show');
+                })
+            },
+            ChangeNgaySinh: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                self.newContact.NgaySinh = dt;
+            },
+            ChangeCustomer: async function (item) {
+                let self = this;
+                self.newContact.ID_DoiTuong = item.ID;
+                self.newContact.MaDoiTuong = item.MaDoiTuong;
+                self.newContact.TenDoiTuong = item.TenDoiTuong;
+            },
+            ResetCustomer: function () {
+                let self = this;
+                self.newContact.ID_DoiTuong = '00000000-0000-0000-0000-000000000000';
+                self.newContact.TenDoiTuong = '';
+                self.newContact.MaDoiTuong = '';
+            },
+            SearchTinhThanh: function (value) {
+                let self = this;
+                var txt = commonStatisJs.convertVieToEng(value.searchkey);
+                if (txt === '') {
+                    self.newContact.ID_TinhThanh = '';
+                    self.newContact.ID_QuanHuyen = '';
+                    self.listData.ListQuanHuyenSearch = [];
+                }
+
+                self.listData.ListTinhThanhSearch = self.listData.TinhThanhs
+                    .filter(p => commonStatisJs.convertVieToEng(p.val1).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val2).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val3).match(txt));
+
+            },
+            SearchQuanHuyen: function (value) {
+                let self = this;
+                var txt = commonStatisJs.convertVieToEng(value.searchkey);
+                if (txt === '') {
+                    self.newContact.ID_QuanHuyen = '';
+                }
+                self.listData.ListQuanHuyenSearch = self.listData.QuanHuyens
+                    .filter(p => commonStatisJs.convertVieToEng(p.val1).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val2).match(txt)
+                        || commonStatisJs.convertVieToEng(p.val3).match(txt));
+
+            },
+            ChoseTinhThanh: async function (item) {
+                var self = this;
+                var $this = $(event.currentTarget);
+                var tenTinhThanh = $this.find('.seach-hh').text();
+                self.newContact.ID_TinhThanh = item.id;
+                self.newContact.TenTinhThanh = tenTinhThanh;
+
+                let qh = await self.LoadQuanHuyen(item.id);
+                self.listData.QuanHuyens = qh;
+                self.listData.ListQuanHuyenSearch = qh;
+            },
+            ChoseQuanHuyen: function (item) {
+                var self = this;
+                var $this = $(event.currentTarget);
+                var tenquanhuyen = $this.find('.seach-hh').text();
+                self.newContact.ID_QuanHuyen = item.id;
+                self.newContact.TenQuanHuyen = tenquanhuyen;
+            },
+            LoadQuanHuyen: async function (idtinhthanh) {
+                let xx = await $.getJSON('/api/DanhMuc/BaseApi/' + "GetQuanHuyen?tinhthanhID=" + idtinhthanh).done(function (x) {
+                }).then(function (x) {
+                    let data = x.map(p => ({
+                        ID: p.Key,
+                        val2: p.Value
+                    }));
+                    return data;
+                });
+                return xx;
+            },
+            CheckSave: function () {
+                let self = this;
+                if (commonStatisJs.CheckNull(self.newContact.TenLienHe)) {
+                    ShowMessage_Danger('Vui lòng nhập tên liên hệ');
+                    return;
+                }
+                return true;
+            },
+
+            saveDB: function () {
+                let self = this;
+                let check = self.CheckSave();
+                if (!check) {
+                    return;
+                }
+
+                let url = '', sType = '', user = '', sOld = '';
+                if (self.typeUpdate === 1) {
+                    sType = 'Thêm mới';
+                    user = '<br /> Người tạo: '.concat(VHeader.UserLogin);
+                    url = 'AddDM_LienHe';
+                }
+                else {
+                    url = 'UpdateDM_LienHe';
+                    sType = 'Cập nhật';
+                    user = '<br /> Người sửa: '.concat(VHeader.UserLogin);
+                    sOld = '<br /> <b> Thông tin cũ: </b>'.concat(
+                        ' <br /> Tên liên hệ: ', self.contactOld.TenLienHe,
+                        ' <br /> SĐT: ', self.contactOld.SoDienThoai,
+                        ' <br /> Ngày sinh: ', self.contactOld.NgaySinh,
+                        ' <br /> Email: ', self.contactOld.Email,
+                        ' <br /> Tỉnh thành: ', self.contactOld.TenTinhThanh,
+                        ' <br /> Quận huyện: ', self.contactOld.TenQuanHuyen,
+                        ' <br /> Địa chỉ chi tiết: ', self.contactOld.DiaChi,
+                        ' <br /> Ghi chú: ', self.contactOld.GhiChu)
+                }
+
+                self.isLoading = true;
+                ajaxHelper(self.UrlAPI.DMLienHe + url, 'POST', self.newContact).done(function (x) {
+                    if (x.res) {
+                        self.saveOK = true;
+                        ShowMessage_Success(sType + ' liên hệ thành công');
+
+                        let data = x.data;
+                        let diary = {
+                            ID_DonVi: self.inforLogin.ID_DonVi,
+                            ID_NhanVien: self.inforLogin.ID_NhanVien,
+                            LoaiNhatKy: self.typeUpdate,
+                            ChucNang: 'Danh mục liên hệ',
+                            NoiDung: sType.concat(' người liên hệ ', self.newContact.TenLienHe, '(', data.MaLienHe, ')'),
+                            NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Mã liên hệ: ', data.MaLienHe,
+                                ' <br /> Tên liên hệ: ', self.newContact.TenLienHe,
+                                ' <br /> SĐT: ', self.newContact.SoDienThoai,
+                                ' <br /> Ngày sinh: ', self.newContact.NgaySinh,
+                                ' <br /> Email: ', self.newContact.Email,
+                                ' <br /> Tỉnh thành: ', self.newContact.TenTinhThanh,
+                                ' <br /> Quận huyện: ', self.newContact.TenQuanHuyen,
+                                ' <br /> Địa chỉ chi tiết: ', self.newContact.DiaChi,
+                                ' <br /> Ghi chú: ', self.newContact.GhiChu,
+                                user, sOld),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }
+                    else {
+                        ShowMessage_Danger(sType + ' liên hệ thành công');
+                    }
+                }).always(function () {
+                    self.isLoading = false;
+                    $('#vmThemMoiLienHe').modal('hide');
+                })
+            },
+        }
+    })
+</script>

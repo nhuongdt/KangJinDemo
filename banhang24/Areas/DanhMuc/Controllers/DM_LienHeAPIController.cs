@@ -21,6 +21,23 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
         #region Get
         [HttpGet]
+        public IHttpActionResult GetInforContact_byID(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassDM_LienHe classLienHe = new ClassDM_LienHe(db);
+                    var data = classLienHe.GetInforContact_byID(id);
+                    return Json(new { res = true, data });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { res = false, mes = ex.InnerException+ ex.Message });
+                }
+            }
+        }
+        [HttpGet]
         public IEnumerable<Object> GetImages_byIDLienHe(Guid id)
         {
             IEnumerable<Object> result = null;
@@ -48,7 +65,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             return result;
         }
         [System.Web.Http.AcceptVerbs("GET", "POST")]
-        public List<SP_DM_LienHe> GetAllLienHe(int loaiDoiTuong)
+        public List<SP_DM_LienHe> GetAllLienHe_byLoaiDoiTuong(int loaiDoiTuong)
         {
             SsoftvnContext db = SystemDBContext.GetDBContext();
             if (db != null)
@@ -62,6 +79,29 @@ namespace banhang24.Areas.DanhMuc.Controllers
                               ID_DoiTuong = lienhe.ID_DoiTuong,
                               MaLienHe = lienhe.MaLienHe,
                               TenLienHe = lienhe.TenLienHe,
+                              SoDienThoai = lienhe.SoDienThoai,
+                          };
+                return tbl.ToList();
+            }
+            else
+            {
+                return new List<SP_DM_LienHe>();
+            }
+        }
+
+        public List<SP_DM_LienHe> GetAllLienHe()
+        {
+            SsoftvnContext db = SystemDBContext.GetDBContext();
+            if (db != null)
+            {
+                var tbl = from lienhe in db.DM_LienHe
+                          select new SP_DM_LienHe()
+                          {
+                              ID = lienhe.ID,
+                              ID_DoiTuong = lienhe.ID_DoiTuong,
+                              MaLienHe = lienhe.MaLienHe,
+                              TenLienHe = lienhe.TenLienHe,
+                              SoDienThoai = lienhe.SoDienThoai,
                           };
                 return tbl.ToList();
             }
@@ -272,80 +312,61 @@ namespace banhang24.Areas.DanhMuc.Controllers
         #endregion
 
         [System.Web.Http.HttpPost]
-        public IHttpActionResult AddDM_LienHe([FromBody]JObject data)
+        public IHttpActionResult AddDM_LienHe(DM_LienHe obj)
         {
             try
             {
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
                     ClassDM_LienHe classLienHe = new ClassDM_LienHe(db);
-                    DM_LienHe objNew = data.ToObject<DM_LienHe>();
 
                     string sCode = string.Empty;
-                    if (objNew.MaLienHe != null && objNew.MaLienHe != string.Empty)
-                    {
-                        sCode = objNew.MaLienHe.Trim().ToUpper();
-                    }
-                    else
+                    if (string.IsNullOrEmpty(obj.MaLienHe))
                     {
                         sCode = classLienHe.SP_GetautoCode();
                     }
-
-                    #region DM_LienHe
-                    DM_LienHe DM_LienHe = new DM_LienHe { };
-                    DM_LienHe.ID = Guid.NewGuid();
-                    DM_LienHe.MaLienHe = sCode;
-                    DM_LienHe.TenLienHe = objNew.TenLienHe;
-                    DM_LienHe.NgaySinh = objNew.NgaySinh;
-                    DM_LienHe.NgayTao = DateTime.Now;
-                    DM_LienHe.NguoiTao = objNew.NguoiTao;
-                    DM_LienHe.DiaChi = objNew.DiaChi;
-                    DM_LienHe.Email = objNew.Email;
-                    DM_LienHe.GhiChu = objNew.GhiChu;
-                    DM_LienHe.SoDienThoai = objNew.SoDienThoai;
-                    DM_LienHe.DienThoaiCoDinh = objNew.DienThoaiCoDinh;
-                    DM_LienHe.XungHo = objNew.XungHo;
-                    DM_LienHe.ID_DoiTuong = objNew.ID_DoiTuong;
-                    DM_LienHe.ID_QuanHuyen = objNew.ID_QuanHuyen;
-                    DM_LienHe.ID_TinhThanh = objNew.ID_TinhThanh;
-                    DM_LienHe.ChucVu = objNew.ChucVu;
-                    DM_LienHe.TrangThai = 1;
-
-                    #endregion
-
-                    string strIns = classLienHe.Add(DM_LienHe);
-                    if (strIns == String.Empty)
-                    {
-                        DM_LienHe objReturn = new DM_LienHe();
-                        var objFind = db.DM_LienHe.Find(DM_LienHe.ID);
-
-                        objReturn.ID = objFind.ID;
-                        objReturn.MaLienHe = objFind.MaLienHe;
-                        objReturn.TenLienHe = objFind.TenLienHe;
-                        objReturn.TenDoiTuong = objFind.DM_DoiTuong != null ? objFind.DM_DoiTuong.TenDoiTuong : "";
-                        objReturn.TenQuanHuyen = objFind.DM_QuanHuyen != null ? objFind.DM_QuanHuyen.TenQuanHuyen : "";
-                        objReturn.TenTinhThanh = objFind.DM_TinhThanh != null ? objFind.DM_TinhThanh.TenTinhThanh : "";
-                        objReturn.NgaySinh = objFind.NgaySinh;
-                        objReturn.NgayTao = objFind.NgayTao;
-                        objReturn.DiaChi = objFind.DiaChi;
-                        objReturn.Email = objFind.Email;
-                        objReturn.GhiChu = objFind.GhiChu;
-                        objReturn.SoDienThoai = objFind.SoDienThoai;
-                        objReturn.ID_DoiTuong = objFind.ID_DoiTuong;
-                        objReturn.ID_QuanHuyen = objFind.ID_QuanHuyen;
-                        objReturn.ID_TinhThanh = objFind.ID_TinhThanh;
-                        return CreatedAtRoute("DefaultApi", new { id = objReturn.ID }, objReturn);
-                    }
                     else
                     {
-                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, strIns));
+                        sCode = obj.MaLienHe.Trim().ToUpper();
                     }
+
+                    DM_LienHe objNew = obj;
+                    objNew.ID = Guid.NewGuid();
+                    objNew.MaLienHe = sCode;
+                    objNew.NgayTao = DateTime.Now;
+                    db.DM_LienHe.Add(objNew);
+                    db.SaveChanges();
+
+                    return Json(new { res = true, data = new { objNew.ID, objNew.MaLienHe } });
                 }
             }
             catch (Exception ex)
             {
-                CookieStore.WriteLog("DM_LienHeAPI_AddDM_LienHe: " + ex.InnerException + ex.Message);
-                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message));
+                return Json(new { res = false, mes = ex.Message + ex.InnerException });
+            }
+        }
+
+        [System.Web.Http.AcceptVerbs("PUT", "POST")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult UpdateDM_LienHe(DM_LienHe data)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    ClassDM_LienHe classLienHe = new ClassDM_LienHe(db);
+
+                    if (string.IsNullOrEmpty(data.MaLienHe))
+                    {
+                        data.MaLienHe = classLienHe.SP_GetautoCode();
+                    }
+                    classLienHe.Update(data);
+                    return Json(new { res = true, data = new { data.ID, data.MaLienHe } });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { res = false, mes = ex.Message + ex.InnerException });
             }
         }
 
@@ -442,63 +463,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     return "Lỗi";
                 }
-            }
-        }
-
-        [System.Web.Http.AcceptVerbs("PUT", "POST")]
-        [System.Web.Http.HttpPost]
-        public IHttpActionResult UpdateDM_LienHe([FromBody]JObject data)
-        {
-            try
-            {
-                using (SsoftvnContext db = SystemDBContext.GetDBContext())
-                {
-                    ClassDM_LienHe classLienHe = new ClassDM_LienHe(db);
-                    DM_LienHe objNew = data.ToObject<DM_LienHe>();
-
-                    if (!ModelState.IsValid)
-                    {
-                        return BadRequest(ModelState);
-                    }
-                    string sCode = objNew.MaLienHe;
-                    if (sCode == null || sCode == string.Empty)
-                    {
-                        objNew.MaLienHe = classLienHe.SP_GetautoCode();
-                    }
-
-                    var strUpd = classLienHe.Update(objNew);
-                    if (strUpd != null && strUpd != string.Empty)
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.InternalServerError, strUpd));
-                    else
-                    {
-                        DM_LienHe objReturn = new DM_LienHe();
-                        var objFind = db.DM_LienHe.Find(objNew.ID);
-
-                        objReturn.ID = objFind.ID;
-                        objReturn.MaLienHe = objFind.MaLienHe;
-                        objReturn.TenLienHe = objFind.TenLienHe;
-                        objReturn.TenDoiTuong = objFind.DM_DoiTuong != null ? objFind.DM_DoiTuong.TenDoiTuong : "";
-                        objReturn.TenQuanHuyen = objFind.DM_QuanHuyen != null ? objFind.DM_QuanHuyen.TenQuanHuyen : "";
-                        objReturn.TenTinhThanh = objFind.DM_TinhThanh != null ? objFind.DM_TinhThanh.TenTinhThanh : "";
-                        objReturn.NgaySinh = objFind.NgaySinh;
-                        objReturn.NgayTao = objFind.NgayTao;
-                        objReturn.DiaChi = objFind.DiaChi;
-                        objReturn.Email = objFind.Email;
-                        objReturn.GhiChu = objFind.GhiChu;
-                        objReturn.SoDienThoai = objFind.SoDienThoai;
-                        objReturn.DienThoaiCoDinh = objFind.DienThoaiCoDinh;
-                        objReturn.XungHo = objFind.XungHo;
-                        objReturn.ID_DoiTuong = objFind.ID_DoiTuong;
-                        objReturn.ID_QuanHuyen = objFind.ID_QuanHuyen;
-                        objReturn.ID_TinhThanh = objFind.ID_TinhThanh;
-                        return CreatedAtRoute("DefaultApi", new { id = objReturn.ID }, objReturn);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                CookieStore.WriteLog("DM_LienHeAPI_UpdateDM_LienHe: " + ex.InnerException + ex.Message);
-                return ResponseMessage(Request.CreateResponse(HttpStatusCode.InternalServerError, string.Empty));
             }
         }
 
