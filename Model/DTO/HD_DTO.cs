@@ -229,10 +229,15 @@ namespace Model
         public Guid? ID_QuyHoaDon { get; set; }
         public string MaHoaDon { get; set; }
         public DateTime? NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
         public double? TongThanhToan { get; set; }
         public double? KhachDaTra { get; set; }
         public double? PTChietKhau { get; set; }
         public double? TienChietKhau { get; set; }
+        public double? DaTrich { get; set; }
+        public double? ConLai { get; set; }
+        public int? TrangThai { get; set; }
     }
 
     public class HoaHongGioiThieuDTO
