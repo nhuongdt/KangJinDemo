@@ -57,7 +57,7 @@ namespace Model
             catch (Exception ex)
             {
                 erStr = ex.Message + ex.InnerException;
-                CookieStore.WriteLog("ErrorWhenaddNKSD: " + ex.Message + ex.InnerException);
+                CookieStore.WriteLog(string.Concat("ErrorWhenaddNKSD: " , objNhatKySuDung.ID_HoaDon , objNhatKySuDung.LoaiHoaDon,  ex.Message , ex.InnerException));
             }
 
             return erStr;
