@@ -73,6 +73,15 @@ namespace banhang24
                     "~/Scripts/DoiTac/ThemMoiKhachHang_modal.js",
                     "~/Scripts/DoiTac/KhachHang1_2.js"
                     ));
+            bundles.Add(new ScriptBundle("~/bundles/HoaHongGioiThieu").Include(
+                  "~/Scripts/Components/Input.js",
+                  "~/Scripts/Components/page-list.js",
+                  "~/Scripts/Components/filter-checkbox.js",
+                  "~/Scripts/Components/filter-chinhanh.js",
+                  "~/Scripts/Components/filter-datetime.js",
+                  "~/Scripts/Components/NhanVien_KhachHang.js",
+                  "~/Scripts/DoiTac/HoaHongGioiThieu.js"
+                  ));
             bundles.Add(new ScriptBundle("~/bundles/GiaoDich").Include(
                     "~/Content/Framework/Knockout/knockout-{version}.js",
                     "~/Scripts/GiaoDich/GiaoDich.js"
