@@ -746,7 +746,7 @@ function ViewModel() {
     self.LoadHangHoaChiTiet = function (item) {
         var chotso = VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi);
         self.Enable_NgayLapHD(!chotso);
-        
+
         var $this = $(event.currentTarget);
         $this.next().find('.datetimepicker_maskedit').datetimepicker({
             timepicker: true,
@@ -1257,6 +1257,26 @@ function ViewModel() {
     }
 
     self.XacNhanXuat = async function (item) {
+        var dataX = await LoadChiTietHD(item.ID);
+        if (dataX.length === 0) {
+            ShowMessage_Danger('Chi tiết hóa đơn rỗng');
+            return;
+        }
+
+        let mes = '';
+        switch (parseInt(dataX[0].TrangThaiMoPhieu)) {
+            case 1:
+                mes = 'Phiếu xuất đã bị hủy do cập nhật lại nguyên vật liệu';
+                break;
+            case 2:
+                mes = 'Hóa đơn gốc đã được hủy. Không thể xuất kho';
+                break;
+        };
+        if (mes != '') {
+            ShowMessage_Danger(mes);
+            return;
+        }
+
         $.getJSON(BH_XuatHuyUri + 'PhieuXuatKho_XacNhanXuat?idHoaDon=' + item.ID).done(function (x) {
             if (x.res) {
                 let diary = {
@@ -1281,7 +1301,6 @@ function ViewModel() {
             }
         })
 
-        var dataX = await LoadChiTietHD(item.ID);
         self.XH_HangHoaChiTiet_Search(dataX)
         self.InHoaDon(item);
     }
