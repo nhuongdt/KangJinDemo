@@ -2514,7 +2514,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     if (objUp.MaDoiTuong == string.Empty)
                     {
-                        objUp.MaDoiTuong = classdoituong.GetMaDoiTuongMax_byTemp(objUp.LoaiDoiTuong, objUp.ID_DonVi);
+                        switch (objUp.LoaiDoiTuong)
+                        {
+                            case 2:
+                            case 3:
+                            case 4:
+                                objUp.MaDoiTuong = classdoituong.SP_GetautoCode(objUp.LoaiDoiTuong);
+                                break;
+                            default:
+                                objUp.MaDoiTuong = classdoituong.GetMaDoiTuongMax_byTemp(objUp.LoaiDoiTuong, objUp.ID_DonVi);
+                                break;
+                        }
                     }
                     codeEx = classdoituong.SP_CheckSoDienThoai_Exist(objUp.DienThoai, objUp.ID);
                     if (codeEx)
@@ -2868,7 +2878,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 else
                 {
                     //mã khach hang tự động
-                    sMaDoiTuong = classdoituong.GetMaDoiTuongMax_byTemp(objNew.LoaiDoiTuong, objNew.ID_DonVi);
+                    switch (objNew.LoaiDoiTuong)
+                    {
+                        case 2:
+                        case 3:
+                        case 4:
+                            sMaDoiTuong = classdoituong.SP_GetautoCode(objNew.LoaiDoiTuong);
+                            break;
+                        default:
+                            sMaDoiTuong = classdoituong.GetMaDoiTuongMax_byTemp(objNew.LoaiDoiTuong, objNew.ID_DonVi);
+                            break;
+                    }
                 }
 
                 // check SDT
