@@ -1948,72 +1948,69 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
-                ClassQuy_HoaDon_ChiTiet _classQHDCT = new ClassQuy_HoaDon_ChiTiet(db);
-                libHT.classHT_CauHinhPhanMem classCauHinh = new libHT.classHT_CauHinhPhanMem(db);
-
-                Quy_HoaDon objQuyHD = data["objQuyHoaDon"].ToObject<Quy_HoaDon>();
-                List<Quy_HoaDon_ChiTiet> lstCTQuyHoaDon = data["lstCTQuyHoaDon"].ToObject<List<Quy_HoaDon_ChiTiet>>();
-
-                var idDoiTuong = objQuyHD.ID_DoiTuong == null ? "00000000-0000-0000-0000-000000000000" : objQuyHD.ID_DoiTuong.ToString();
-                var nguoiNopTien = string.Empty;
-                switch (idDoiTuong)
+                try
                 {
-                    case "00000000-0000-0000-0000-000000000000":
-                        nguoiNopTien = "Khách Lẻ";
-                        break;
-                    case "00000000-0000-0000-0000-000000000002":
-                        nguoiNopTien = "Nhà Cung Cấp Lẻ";
-                        break;
-                    default:
-                        nguoiNopTien = objQuyHD.NguoiNopTien;
-                        break;
-                }
+                    classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
+                    ClassQuy_HoaDon_ChiTiet _classQHDCT = new ClassQuy_HoaDon_ChiTiet(db);
+                    libHT.classHT_CauHinhPhanMem classCauHinh = new libHT.classHT_CauHinhPhanMem(db);
 
-                #region Quy_HoaDon
-                DateTime ngaylapHD = objQuyHD.NgayLapHoaDon.AddMilliseconds(1);
-                Quy_HoaDon itemQuy_HoaDon = new Quy_HoaDon();
-                itemQuy_HoaDon.ID = Guid.NewGuid();
-                itemQuy_HoaDon.ID_NhanVien = objQuyHD.ID_NhanVien;
-                itemQuy_HoaDon.NguoiTao = objQuyHD.NguoiTao;
-                itemQuy_HoaDon.NgayLapHoaDon = ngaylapHD;
-                itemQuy_HoaDon.NgayTao = DateTime.Now;
-                itemQuy_HoaDon.ID_DonVi = objQuyHD.ID_DonVi;
-                itemQuy_HoaDon.NguoiNopTien = nguoiNopTien;
-                itemQuy_HoaDon.TongTienThu = objQuyHD.TongTienThu;
-                itemQuy_HoaDon.NoiDungThu = objQuyHD.NoiDungThu;
-                itemQuy_HoaDon.TienMat = 0;
-                itemQuy_HoaDon.TienGui = 0;
-                itemQuy_HoaDon.LoaiHoaDon = objQuyHD.LoaiHoaDon;
-                itemQuy_HoaDon.TrangThai = true;
-                itemQuy_HoaDon.PhieuDieuChinhCongNo = objQuyHD.PhieuDieuChinhCongNo;
-                itemQuy_HoaDon.HachToanKinhDoanh = objQuyHD.HachToanKinhDoanh;
+                    Quy_HoaDon objQuyHD = data["objQuyHoaDon"].ToObject<Quy_HoaDon>();
+                    List<Quy_HoaDon_ChiTiet> lstCTQuyHoaDon = data["lstCTQuyHoaDon"].ToObject<List<Quy_HoaDon_ChiTiet>>();
 
-                string sMaHoaDon;
-                if (!string.IsNullOrEmpty(objQuyHD.MaHoaDon))
-                {
-                    var exists = _classQHD.Check_MaSoQuyExist(objQuyHD.MaHoaDon);
-                    if (exists)
+                    var idDoiTuong = objQuyHD.ID_DoiTuong == null ? "00000000-0000-0000-0000-000000000000" : objQuyHD.ID_DoiTuong.ToString();
+                    var nguoiNopTien = string.Empty;
+                    switch (idDoiTuong)
                     {
-                        sMaHoaDon = _classQHD.GetMaPhieuThuChi_whenUpdateHD(objQuyHD.MaHoaDon);
+                        case "00000000-0000-0000-0000-000000000000":
+                            nguoiNopTien = "Khách Lẻ";
+                            break;
+                        case "00000000-0000-0000-0000-000000000002":
+                            nguoiNopTien = "Nhà Cung Cấp Lẻ";
+                            break;
+                        default:
+                            nguoiNopTien = objQuyHD.NguoiNopTien;
+                            break;
+                    }
+
+                    #region Quy_HoaDon
+                    DateTime ngaylapHD = objQuyHD.NgayLapHoaDon.AddMilliseconds(1);
+                    Quy_HoaDon itemQuy_HoaDon = new Quy_HoaDon();
+                    itemQuy_HoaDon.ID = Guid.NewGuid();
+                    itemQuy_HoaDon.ID_NhanVien = objQuyHD.ID_NhanVien;
+                    itemQuy_HoaDon.NguoiTao = objQuyHD.NguoiTao;
+                    itemQuy_HoaDon.NgayLapHoaDon = ngaylapHD;
+                    itemQuy_HoaDon.NgayTao = DateTime.Now;
+                    itemQuy_HoaDon.ID_DonVi = objQuyHD.ID_DonVi;
+                    itemQuy_HoaDon.NguoiNopTien = nguoiNopTien;
+                    itemQuy_HoaDon.TongTienThu = objQuyHD.TongTienThu;
+                    itemQuy_HoaDon.NoiDungThu = objQuyHD.NoiDungThu;
+                    itemQuy_HoaDon.TienMat = 0;
+                    itemQuy_HoaDon.TienGui = 0;
+                    itemQuy_HoaDon.LoaiHoaDon = objQuyHD.LoaiHoaDon;
+                    itemQuy_HoaDon.TrangThai = true;
+                    itemQuy_HoaDon.PhieuDieuChinhCongNo = objQuyHD.PhieuDieuChinhCongNo;
+                    itemQuy_HoaDon.HachToanKinhDoanh = objQuyHD.HachToanKinhDoanh;
+
+                    string sMaHoaDon;
+                    if (!string.IsNullOrEmpty(objQuyHD.MaHoaDon))
+                    {
+                        var exists = _classQHD.Check_MaSoQuyExist(objQuyHD.MaHoaDon);
+                        if (exists)
+                        {
+                            sMaHoaDon = _classQHD.GetMaPhieuThuChi_whenUpdateHD(objQuyHD.MaHoaDon);
+                        }
+                        else
+                        {
+                            sMaHoaDon = objQuyHD.MaHoaDon;
+                        }
                     }
                     else
                     {
-                        sMaHoaDon = objQuyHD.MaHoaDon;
+                        sMaHoaDon = _classQHD.SP_GetMaPhieuThuChiMax_byTemp(objQuyHD.LoaiHoaDon, objQuyHD.ID_DonVi, objQuyHD.NgayLapHoaDon);
                     }
-                }
-                else
-                {
-                    sMaHoaDon = _classQHD.SP_GetMaPhieuThuChiMax_byTemp(objQuyHD.LoaiHoaDon, objQuyHD.ID_DonVi, objQuyHD.NgayLapHoaDon);
-                }
-                itemQuy_HoaDon.MaHoaDon = sMaHoaDon;
-                #endregion
-
-                string strIns = _classQHD.Add_SoQuy(itemQuy_HoaDon);
-                if (strIns != null && strIns != string.Empty)
-                    return Json(new { res = false, mes = strIns });
-                else
-                {
+                    itemQuy_HoaDon.MaHoaDon = sMaHoaDon;
+                    _classQHD.Add_SoQuy(itemQuy_HoaDon);
+                    #endregion
                     #region Quy_HoaDonChiTiet
                     foreach (var item in lstCTQuyHoaDon)
                     {
@@ -2040,14 +2037,16 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ChiPhiNganHang = item.ChiPhiNganHang,
                                 LaPTChiPhiNganHang = item.LaPTChiPhiNganHang,
                             };
-                            strIns = _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
+                            _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
                         }
                     }
                     #endregion
-
                     _classQHD.UpdateSoDuThe_WhenChangeSoQuy(itemQuy_HoaDon.ID, itemQuy_HoaDon.NgayLapHoaDon);
-
                     return Json(new { res = true, data = new { itemQuy_HoaDon.ID, itemQuy_HoaDon.MaHoaDon, itemQuy_HoaDon.TongTienThu, itemQuy_HoaDon.NgayLapHoaDon } });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { res = false, mes = ex.InnerException + ex.Message });
                 }
             }
         }
