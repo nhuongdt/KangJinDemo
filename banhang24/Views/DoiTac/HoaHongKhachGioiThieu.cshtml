@@ -71,7 +71,8 @@
                             </div>
                         </div>
                         <div class="btn-group ">
-                            <button type="button" class="btn btn-main dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" class="btn btn-main dropdown-toggle" data-toggle="dropdown"
+                                    v-on:click="ExportExcel">
                                 <i class="fa fa-file-excel-o"></i> Xuất file
                             </button>
                         </div>
@@ -147,6 +148,13 @@
                                     <td class="text-right" v-if="CheckColShow('colTongGiaTri')" v-on:click="RowSelected(item)">
                                         {{formatNumber3Digit(item.TongTienHang)}}
                                     </td>
+                                    <td class="text-right" v-if="CheckColShow('colKhachDaTra')" v-on:click="RowSelected(item)">
+                                        {{formatNumber3Digit(item.KhachDaTra)}}
+                                    </td>
+                                    <td class="text-right" v-if="CheckColShow('colConNo')" v-on:click="RowSelected(item)"
+                                        v-bind:style="{color: item.ConNo > 0?'red':'black'}">
+                                        {{formatNumber3Digit(item.ConNo)}}
+                                    </td>
                                     <td v-if="CheckColShow('colDienGiai')" v-on:click="RowSelected(item)">
                                         {{item.DienGiai}}
                                     </td>
@@ -164,11 +172,11 @@
                                     <td colspan="18">
                                         <div class="op-object-detail ">
                                             <ul class="nav nav-tabs">
-                                                <li class="active" onclick="LoadGetHeight()"><a data-toggle="tab" v-bind:href="'infor_'+ item.ID">Thông tin</a></li>
-                                                <li onclick="LoadGetHeight()"><a data-toggle="tab" v-bind:href="'nky_'+ item.ID">Nhật ký thanh toán</a></li>
+                                                <li class="active"><a data-toggle="tab" v-bind:href="'infor_'+ item.ID" v-on:click="ChangeTab(0,item)">Thông tin</a></li>
+                                                <li><a data-toggle="tab" v-bind:href="'nky_'+ item.ID" v-on:click="ChangeTab(1, item)">Nhật ký thanh toán</a></li>
                                             </ul>
                                             <div class="tab-content">
-                                                <div class="tab-pane active">
+                                                <div class="tab-pane active" v-bind:id="'infor_'+ item.ID">
                                                     <div class="op-object-detail ">
                                                         <div class="col-md-12 nopadding">
                                                             <div class="op-object-detail-left min-45 ">
@@ -296,19 +304,15 @@
                                                                     </div>
                                                                 </div>
                                                                 <div style="display:flex; flex-direction:row; flex-wrap:wrap; justify-content:flex-end">
-                                                                    <button href="javascript:void(0)" class="btn btn-main">
+                                                                    @*<button href="javascript:void(0)" class="btn btn-main"
+                                                                            v-on:click="showModalUpdate(item)">
                                                                         <i class="fa fa-share"></i> Sửa đổi
-                                                                    </button>
-                                                                    <button href="javascript:void(0)" class="btn btn-main">
-                                                                        <i class="fa fa-save"></i> Lưu
-                                                                    </button>
+                                                                    </button>*@
                                                                     <button href="javascript:void(0)" class="btn btn-main">
                                                                         <i class="fa fa-file-excel-o"></i> Xuất file
                                                                     </button>
-                                                                    <button href="javascript:void(0)" class="btn btn-main">
-                                                                        <i class="fa fa-cut"></i> Sao chép
-                                                                    </button>
-                                                                    <button href="javascript:void(0)" class="btn btn-cancel">
+                                                                    <button href="javascript:void(0)" class="btn btn-cancel"
+                                                                            v-on:click="HuyPhieuTrich(item)">
                                                                         <i class="fa fa-close"></i> Hủy bỏ
                                                                     </button>
                                                                 </div>
@@ -317,20 +321,53 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="tab-pane">
+                                                <div class="tab-pane" v-bind:id="'nky_'+ item.ID">
                                                     <div class="table-res">
                                                         <table class='table'>
                                                             <tr>
                                                                 <th>Mã phiếu</th>
                                                                 <th>Thời gian</th>
                                                                 <th>Người tạo</th>
+                                                                <th>Loại phiếu</th>
                                                                 <th>Phương thức</th>
                                                                 <th>Trạng thái</th>
                                                                 <th>Tiền thu</th>
                                                             </tr>
                                                             <tbody>
+                                                                <tr v-for="(item, index) in LichSuThanhToan">
+                                                                    <td>
+                                                                        <a v-on:click="updatePhieuChi(item)">
+                                                                            {{item.MaHoaDon}}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td>
+                                                                        {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{item.NguoiTao}}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{item.LoaiHoaDon==11?'Phiếu thu':'Phiếu chi'}}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{item.PhuongThucTT}}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{item.TrangThai==false?'Đã hủy':'Đã thanh toán'}}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{formatNumber3Digit(item.TongTienThu,2)}}
+                                                                    </td>
+                                                                </tr>
                                                             </tbody>
                                                         </table>
+                                                        <div class="op-object-detail-function">
+                                                            <button class="btn btn-main"
+                                                                    v-if="item.ConNo > 0"
+                                                                    v-on:click="showModalThanhToan(item)">
+                                                                <i class="fa fa-calculator"></i>&nbsp; Thanh toán
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -346,8 +383,14 @@
                                 </td>
                                 <td class="text-right">
                                     {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
+                                </td>  
+                                <td class="text-right"  v-if="CheckColShow('colKhachDaTra')">
+                                    {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
+                                </td>  
+                                <td class="text-right"  v-if="CheckColShow('colConNo')">
+                                    {{formatNumber3Digit(HoaDon.SumConNo)}}
                                 </td>
-                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 5 && p.colShow).length">
+                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 7 && p.colShow).length">
                                 </td>
                             </tr>
                         </tfoot>
@@ -376,9 +419,55 @@
         @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
     </div>
 </div>
-
 <script src="@Html.WriteRenderFile(Scripts.Url("~/bundles/HoaHongGioiThieu"))" type="text/javascript"></script>
-@Html.Partial("~/Views/Gara/KhachHang/_vmThemMoiLienHe.cshtml")
+<script>
+    $(function () {
+        $('.daterange').daterangepicker({
+            locale: {
+                "format": 'DD/MM/YYYY',
+                "separator": " - ",
+                "applyLabel": "Tìm kiếm",
+                "cancelLabel": "Hủy",
+                "fromLabel": "Từ",
+                "toLabel": "Đến",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "CN",
+                    "T2",
+                    "T3",
+                    "T4",
+                    "T5",
+                    "T6",
+                    "T7"
+                ],
+                "monthNames": [
+                    "Tháng 1",
+                    "Tháng 2",
+                    "Tháng 3",
+                    "Tháng 4",
+                    "Tháng 5",
+                    "Tháng 6",
+                    "Tháng 7",
+                    "Tháng 8",
+                    "Tháng 9",
+                    "Tháng 10",
+                    "Tháng 11",
+                    "Tháng 12"
+                ],
+                "firstDay": 1
+            }
+        });
+    });
+</script>
+
+@Html.Partial("~/Views/Gara/KhachHang/_ThemNhomKhachHang.cshtml")
+@Html.Partial("~/Views/Gara/KhachHang/_ThemMoiKhachHang.cshtml")
 @Html.Partial("~/Views/Gara/HoaDon/_vmHoaHongKhachGioiThieu.cshtml");
+@Html.Partial("~/Views/Gara/_ThongTinThanhToanNCC.cshtml")
+@Html.Partial("~/Views/Gara/HoaDon/_ThuTienNhapHang.cshtml")
+
+
+
+
 
 
