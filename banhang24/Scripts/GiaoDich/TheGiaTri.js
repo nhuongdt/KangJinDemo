@@ -1574,7 +1574,7 @@
             ThucThu: daTT,
             DaThuTruoc: daTT,
             ConNo: phaiTT - daTT,
-            TongPhiNganHang: 0,
+            TongPhiNganHang: item.KhuyenMaiVND,// todo muontamtruong trong SP sql
         }
         vmHoaHongHoaDon.GetChietKhauHoaDon_byID(obj);
     }
