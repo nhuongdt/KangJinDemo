@@ -159,7 +159,7 @@
                                 <label>
                                     Tổng thanh toán
                                 </label>
-                                <p style="font-size:10px"><i>({{newHoaDon.LoaiTien}})</i></p>
+                                <p style="font-size:10px"><i>({{inforThanhToan.LoaiTien}})</i></p>
                             </div>
                             <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-right floatRight ">
                                 <label style="float:right!important">
@@ -333,7 +333,7 @@
                     <i class="fa fa-ban"></i>Đóng
                 </button>
                 <button type="button" class="btn btn-cancel "
-                        v-if="typeUpdate == 2 && newHoaDon.TrangThai && !$root.isKhoaSo">
+                        v-if="typeUpdate == 2  && !$root.isKhoaSo">
                     <i class="fa fa-trash"></i> Xóa
                 </button>
                 <button type="button" class="btn btn-save "
@@ -432,7 +432,7 @@
             inforOld: {
 
             },
-           
+
             txtKhachHang: '',
             txtNguoiGioiThieu: '',
             txtLienHe: '',
@@ -451,9 +451,7 @@
                 KhachDaTra: 0,// sotien dathanhtoan cho khach (used to when update)
                 DienGiai: '',
                 NguoiTao: '',
-                An_Hien: false,// Là hóa đơn trích bổ sung
-                TrangThai: 0,
-
+                ChoThanhToan: false,
 
                 MaNguoiGioiThieu: '',
                 TenNguoiGioiThieu: '',
@@ -478,8 +476,8 @@
                 TienThua: 0,
                 HoanTraTamUng: 0,
                 ID_KhoanThuChi: null,
-                ListTKPos: [],
-                ListTKChuyenKhoan: [],
+                ID_TaiKhoanPos: null,
+                ID_TaiKhoanNganHang: null,
             }
         },
         methods: {
@@ -616,8 +614,8 @@
                     TienThua: 0,
                     HoanTraTamUng: 0,
                     ID_KhoanThuChi: null,
-                    ListTKPos: [],
-                    ListTKChuyenKhoan: [],
+                    ID_TaiKhoanPos: null,
+                    ID_TaiKhoanNganHang: null,
                 };
 
                 self.ChoseTypeTime(self.ListTime.filter(x => x.ID === 5)[0], true);
@@ -634,8 +632,7 @@
                     KhachDaTra: 0,
                     DienGiai: '',
                     NguoiTao: VHeader.UserLogin,
-                    An_Hien: false,// Là hóa đơn trích bổ sung
-                    TrangThai: 0,
+                    ChoThanhToan: false,
 
                     LoaiTien: 'Tiền mặt',
                     MaNguoiGioiThieu: '',
@@ -645,12 +642,106 @@
 
                 $('#vmHoaHongKhachGioiThieu').modal('show');
             },
-            showModalUpdate: function (idHoaDon, cthd = []) {
+            showModalUpdate: async function (id) {
                 let self = this;
                 self.saveOK = false;
                 self.isLoading = false;
                 self.typeUpdate = 2;
+                self.ThongTinChiTiet = [];
                 self.ChoseTypeTime(self.ListTime.filter(x => x.ID === 5)[0], true);
+
+                let hd = await self.GetPhieuTrichHoaHong_byID(id);
+                if (hd.length === 0) {
+                    return;
+                }
+
+                let item = hd[0];
+                self.inforThanhToan = {
+                    LoaiTien: 'Tiền mặt',
+                    TienMat: item.KhachDaTra,
+                    TienCK: 0,
+                    PhaiThanhToan: item.TongTienHang,
+                    DaThanhToan: item.TongTienHang,
+                    TienThua: 0,
+                    HoanTraTamUng: 0,
+                    ID_KhoanThuChi: null,
+                    ID_TaiKhoanPos: null,
+                    ID_TaiKhoanNganHang: null,
+                };
+
+                self.newHoaDon = {
+                    ID: item.ID,
+                    LoaiHoaDon: 41,
+                    MaHoaDon: item.MaHoaDon,
+                    NgayLapHoaDon: moment(item.NgayLapHoaDon).format('YYYY-MM-DD HH:mm'),
+                    ID_DonVi: item.ID_DonVi,
+                    ID_CheckIn: item.ID_CheckIn,// id NguoiGioiThieu
+                    TongChietKhau: item.TongChietKhau.toString(), // Loại đối tượng giới thiệu (0.Khác, 1.Khách hàng, 2.Nhà cung cấp, 3.Bảo hiểm, 4.Nhân viên)
+                    TongTienHang: item.TongTienHang, // tổng tiền hoa hồng được nhận
+                    KhachDaTra: item.KhachDaTra,
+                    DienGiai: item.DienGiai,
+                    NguoiTao: item.NguoiTao,
+                    ChoThanhToan: false,
+
+                    MaNguoiGioiThieu: item.MaNguoiGioiThieu,
+                    TenNguoiGioiThieu: item.TenNguoiGioiThieu,
+                    SDTNguoiGioiThieu: item.SDTNguoiGioiThieu,
+                };
+
+                let arrIDCus = [];
+                let lstCT = await self.LoadChiTiet(id);
+                lstCT.map(function (x) {
+                    x['ConLai'] = x.DaTrich
+                    x['KhachDaTra'] = x.DaTrich
+                    x['TienChietKhau'] = formatNumber3Digit(x.TienChietKhau)
+                    x['DaTrich'] = 0
+                })
+
+                for (let i = 0; i < lstCT.length; i++) {
+                    let ct = lstCT[i];
+                    if ($.inArray(ct.ID_DoiTuong, arrIDCus) === -1) {
+                        arrIDCus.push(ct.ID_DoiTuong);
+
+                        let lstHD = await self.GetListHoaDon_byIDCus(ct.ID_DoiTuong);
+
+                        let obj = {
+                            ID_DoiTuong: ct.ID_DoiTuong,
+                            MaDoiTuong: ct.MaDoiTuong,
+                            TenDoiTuong: ct.TenDoiTuong,
+                            DienThoai: ct.DienThoai,
+                            HoaDons: lstCT.filter(x => x.ID_DoiTuong === ct.ID_DoiTuong),
+                            HoaDonBoSung: lstHD.filter(x => x.TrangThai === 1),
+                        };
+                        self.ThongTinChiTiet.push(obj);
+                    }
+                }
+
+                self.inforOld = $.extend({}, true, self.newHoaDon);
+                self.inforOld.ThongTinChiTiet = $.extend({}, true, self.ThongTinChiTiet);
+                console.log('self.inforOld ', self.inforOld)
+
+                $('#vmHoaHongKhachGioiThieu').modal('show');
+            },
+            GetPhieuTrichHoaHong_byID: async function (id) {
+                let self = this;
+                let xx = await $.getJSON(self.UrlAPI.HoaDon + 'GetPhieuTrichHoaHong_byID/' + id).done().then(function (x) {
+                    console.log('GetPhieuTrichHoaHong_byID ', x)
+                    if (x.res) {
+                        return x.dataSoure;
+                    }
+                    return [];
+                });
+                return xx;
+            },
+            LoadChiTiet: async function (id) {
+                let self = this;
+                let xx = await $.getJSON(self.UrlAPI.HoaDon + 'GetChiTietHoaHongGioiThieu_byID/' + id).done().then(function (x) {
+                    if (x.res) {
+                        return x.dataSoure;
+                    }
+                    return [];
+                });
+                return xx;
             },
             Enter_FocusNext: function (index) {
                 let $this = $(event.currentTarget);
@@ -727,7 +818,7 @@
                     TenDoiTuong: '',
                     DienThoai: '',
                     HoaDons: [],
-                    HoaDonBoSung:[],
+                    HoaDonBoSung: [],
                 };
                 self.ThongTinChiTiet.push(obj);
             },
@@ -742,11 +833,11 @@
                 let exCus = $.grep(self.ThongTinChiTiet, function (x) {
                     return x.ID_DoiTuong === item.ID;
                 });
-                if (exCus.length> 0) {
+                if (exCus.length > 0) {
                     ShowMessage_Danger('Khách hàng đã được chọn');
                     return;
                 }
-               
+
                 let hd = await self.GetListHoaDon_byIDCus(item.ID);
                 hd.map(function (x) {
                     x['PTChietKhau'] = ''
@@ -981,13 +1072,32 @@
                 else {
                     sType = 'Cập nhật';
                     user = '<br /> Người sửa: '.concat(VHeader.UserLogin);
+
+                    let sLoaiOld = '';
+                    switch (parseInt(self.inforOld.TongChietKhau)) {
+                        case 1:
+                            sLoaiOld = 'Khách hàng';
+                            break;
+                        case 2:
+                            sLoaiOld = 'Nhà cung cấp';
+                            break;
+                        case 3:
+                            sLoaiOld = 'Bảo hiểm';
+                            break;
+                        case 4:
+                            sLoaiOld = 'Khác';
+                            break;
+                        case 5:
+                            sLoaiOld = 'Nhân viên';
+                            break;
+                    }
                     sOld = '<br /> <b> Thông tin cũ: </b>'.concat(
-                        ' <br /> Mã phiếu: ', self.contactOld.TenLienHe,
-                        ' <br /> Ngày lập phiếu: ', moment(data.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
-                        ' <br /> Người giới thiệu là: ', self.sLoaiDoiTuong,
-                        ' <br /> Mã người giới thiệu: ', self.newHoaDon.MaNguoiGioiThieu,
-                        ' <br /> Tên người giới thiệu: ', self.newHoaDon.TenNguoiGioiThieu,
-                        ' <br /> Tổng thanh toán: ', formatNumber3Digit(self.inforThanhToan.DaThanhToan));
+                        ' <br /> Mã phiếu: ', self.inforOld.MaHoaDon,
+                        ' <br /> Ngày lập phiếu: ', moment(self.inforOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                        ' <br /> Người giới thiệu là: ', sLoaiOld,
+                        ' <br /> Mã người giới thiệu: ', self.inforOld.MaNguoiGioiThieu,
+                        ' <br /> Tên người giới thiệu: ', self.inforOld.TenNguoiGioiThieu,
+                        ' <br /> Tổng giá trị: ', formatNumber3Digit(self.inforOld.TongTienHang));
                 }
 
                 let myData = {
@@ -1030,8 +1140,8 @@
                                     idNhanVien = null;
                                     break;
                             }
-                           
-                            vmThanhToanGara.inforHoaDon = {
+
+                            vmThanhToan.inforHoaDon = {
                                 ID: data.ID,
                                 MaHoaDon: data.MaHoaDon,
                                 NgayLapHoaDon: data.NgayLapHoaDon,
@@ -1047,21 +1157,24 @@
                                 NguoiTao: self.inforLogin.UserLogin,
                                 SoDuDatCoc: 0,
                                 PhaiThanhToan: self.newHoaDon.TongTienHang,
-                                HoanTraTamUng: self.newHoaDon.HoanTraTamUng,// used to savePhieuChi
+                                KhachDaTra: self.newHoaDon.KhachDaTra,
+                                HoanTraTamUng: 0,
+                                KhachDaTra: 0,
                             };
-                            vmThanhToanGara.PhieuThuKhach = {
+                            vmThanhToan.PhieuThuKhach = {
                                 TTBangDiem: 0,
                                 TienPOS: 0,
                                 TienTheGiaTri: 0,
                                 TienDatCoc: 0,
+                                LoaiDoiTuong: loaiDT,
                                 HoanTraTamUng: 0,// !important
                                 TienMat: self.inforThanhToan.TienMat,
                                 TienCK: self.inforThanhToan.TienCK,
-                                DaThanhToan: self.inforThanhToan.DaThanhToan,// !important
-                                ListTKPos: [],
-                                ListTKChuyenKhoan: self.inforThanhToan.ListTKChuyenKhoan,
+                                DaThanhToan: self.inforThanhToan.DaThanhToan - self.newHoaDon.KhachDaTra,// !important
+                                ID_TaiKhoanPos: null,
+                                ID_TaiKhoanNganHang: null,
                             }
-                            vmThanhToanGara.SavePhieuThu();
+                            vmThanhToan.SavePhieuThu();
                         }
                         else {
                             ShowMessage_Danger(sType + ' phiếu trích hoa hồng thất bại');
