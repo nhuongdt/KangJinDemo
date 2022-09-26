@@ -721,11 +721,11 @@
                     gtriPTram = itFor.ChiPhiThanhToan;
                     if (itFor.TheoPhanTram) {
                         tongChiPhi += formatNumberToFloat(itFor.TienPOS) * itFor.ChiPhiThanhToan / 100;
-                        tongPOS += formatNumberToFloat(itFor.TienPOS);
                     }
                     else {
                         tongChiPhi += itFor.ChiPhiThanhToan;
                     }
+                    tongPOS += formatNumberToFloat(itFor.TienPOS);
                 }
             }
             self.newPhieuThu.TongPhiThanhToan = tongChiPhi;
