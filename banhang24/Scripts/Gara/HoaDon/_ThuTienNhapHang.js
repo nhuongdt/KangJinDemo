@@ -25,11 +25,35 @@
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
         self.role.SoQuy.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
+        console.log('self.role.SoQuy.Insert', self.role.SoQuy.Insert)
     },
     computed: {
         sLoaiThuChi: function () {
             return this.newPhieuThu.LoaiHoaDon == 11 ? 'thu' : 'chi';
         },
+        sLoaiDoiTuong: function () {
+            let self = this;
+            let txt = 'Nhà cung cấp';
+            console.log('loaidt ', self.newPhieuThu.LoaiDoiTuong)
+            switch (self.newPhieuThu.LoaiDoiTuong) {
+                case 1:
+                    txt = 'Khách hàng';
+                    break;
+                case 2:
+                    txt = 'Nhà cung cấp';
+                    break;
+                case 3:
+                    txt = 'Bảo hiểm';
+                    break;
+                case 4:
+                    txt = 'Người giới thiệu';
+                    break;
+                case 5:
+                    txt = 'Nhân viên';
+                    break;
+            }
+            return txt;
+        }
     },
     data: {
         saveOK: false,
@@ -53,7 +77,7 @@
             TenNganHangCK: '',
         },
         role: {
-            SoQuy: { ChangeNVLap: true },
+            SoQuy: { ChangeNVLap: true, Insert: true },
         },
         inforLogin: {
             ID_NhanVien: null,
@@ -372,6 +396,10 @@
             if (commonStatisJs.CheckNull(item.KhachDaTra)) {
                 item.KhachDaTra = 0;
             }
+            let loaiDT = 2;
+            if (!commonStatisJs.CheckNull(item.LoaiDoiTuong)) {
+                loaiDT = item.LoaiDoiTuong;
+            }
             self.HoaDonChosing = item;
             self.LoaiHoaDon = item.LoaiHoaDon;
             self.formType = formType;
@@ -411,7 +439,7 @@
                 ThucThu: 0,
                 NoiDungThu: '',
                 LoaiHoaDon: self.LoaiHoaDon === 7 ? 11 : 12,// trahangnhap: phieuthu
-                LoaiDoiTuong: 2,
+                LoaiDoiTuong: loaiDT,
             };
 
             let ktc = self.GetKhoanThuChi_byLoaiChungTu(self.LoaiHoaDon === 7);
@@ -985,6 +1013,11 @@
             }
             let ghichu = ptKhach.NoiDungThu + sNguoiNop;
             let idDoiTuong = ptKhach.ID_DoiTuong;
+            let idNhanVien = null;
+            if (ptKhach.LoaiDoiTuong === 5) {
+                idDoiTuong = null;
+                idNhanVien = ptKhach.ID_DoiTuong;
+            }
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
             let tenDoiTuong = self.ddl_textVal.cusName;
             let sMaHoaDon = '', sTaiKhoan = '';
@@ -1055,6 +1088,7 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
+                        ID_NhanVien: idNhanVien,
                         GhiChu: ghichu,
                         TienThu: itemFor.TienMat,
                         TienMat: itemFor.TienMat,
@@ -1071,6 +1105,7 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
+                        ID_NhanVien: idNhanVien,
                         GhiChu: ''.concat(self.ddl_textVal.accountPOSName, ' - ', self.ddl_textVal.TenNganHangPos),
                         TienThu: itemFor.TienPOS,
                         TienPOS: itemFor.TienPOS,
@@ -1089,6 +1124,7 @@
                         ID_HoaDonLienQuan: idHoaDon,
                         ID_KhoanThuChi: idKhoanThuChi,
                         ID_DoiTuong: idDoiTuong,
+                        ID_NhanVien: idNhanVien,
                         GhiChu: ''.concat(self.ddl_textVal.accountCKName, ' - ', self.ddl_textVal.TenNganHangCK),
                         TienThu: itemFor.TienChuyenKhoan,
                         TienChuyenKhoan: itemFor.TienChuyenKhoan,
@@ -1156,7 +1192,7 @@
                 NoiDungThu: ghichu,
                 ID_NhanVien: ptKhach.ID_NhanVien,
                 ID_DonVi: ptKhach.ID_DonVi,
-                ID_DoiTuong: ptKhach.ID_DoiTuong,// used to get when saveDB
+                ID_DoiTuong: idDoiTuong,// used to get when saveDB
                 HoaDonLienQuan: sMaHoaDon,
             }
             phuongthucTT = Remove_LastComma(phuongthucTT);
@@ -1190,12 +1226,12 @@
                                 ID_NhanVien: self.inforLogin.ID_NhanVien,
                                 ChucNang: 'Phiếu '.concat(self.sLoaiThuChi),
                                 NoiDung: 'Tạo phiếu '.concat(self.sLoaiThuChi, ' ', quyhd.MaHoaDon, ' cho hóa đơn ', sMaHoaDon,
-                                    ', Nhà cung cấp: ', quyhd.NguoiNopTien, ', với giá trị ', formatNumber(quyhd.TongTienThu),
+                                    ', ', self.sLoaiDoiTuong, ': ', quyhd.NguoiNopTien, ', với giá trị ', formatNumber(quyhd.TongTienThu),
                                     ', Phương thức thanh toán:', phuongthucTT,
                                     ', Thời gian: ', moment(quyhd.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')),
                                 NoiDungChiTiet: 'Tạo phiếu '.concat(self.sLoaiThuChi, ' <a style="cursor: pointer" onclick = "LoadHoaDon_byMaHD(', quyhd.MaHoaDon, ')" >', quyhd.MaHoaDon, '</a> ',
                                     ' cho hóa đơn: <a style="cursor: pointer" onclick = "LoadHoaDon_byMaHD(', sMaHoaDon, ')" >', sMaHoaDon, '</a> ',
-                                    '<br /> Nhà cung cấp: <a style="cursor: pointer" onclick = "LoadKhachHang_byMaKH(', quyhd.NguoiNopTien, ')" >', quyhd.NguoiNopTien, '</a> ',
+                                    '<br /> ', self.sLoaiDoiTuong, ': <a style="cursor: pointer" onclick = "LoadKhachHang_byMaKH(', quyhd.NguoiNopTien, ')" >', quyhd.NguoiNopTien, '</a> ',
                                     '<br /> Giá trị: ', formatNumber(quyhd.TongTienThu),
                                     '<br/ > Phương thức thanh toán: ', phuongthucTT,
                                     '<br/ > Thời gian: ', moment(quyhd.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
@@ -1231,22 +1267,12 @@
 
                             let sLoaiDT = '';
                             if (quyhd.LoaiHoaDon === 11) {
-                                sLoaiDT = 'Thu của '
+                                sLoaiDT = 'Thu của ';
                             }
                             else {
-                                sLoaiDT = 'Chi cho '
+                                sLoaiDT = 'Chi cho ';
                             }
-                            switch (quyhd.LoaiDoiTuong) {
-                                case 1:
-                                    sLoaiDT += 'khách hàng: ';
-                                    break;
-                                case 2:
-                                    sLoaiDT += 'nhà cung cấp: ';
-                                    break;
-                                case 3:
-                                    sLoaiDT += 'Cty bảo hiểm: ';
-                                    break;
-                            }
+                            sLoaiDT = sLoaiDT.concat(self.LoaiDoiTuong)
 
                             let diary = {
                                 LoaiNhatKy: 2,
@@ -1275,7 +1301,7 @@
                                     '<br/> - Mã hóa đơn: ', self.phieuThuOld.MaHoaDon,
                                     '<br/> - Ngày lập hóa đơn: ', moment(self.phieuThuOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
                                     '<br/> - Tổng tiền ', self.sLoaiThuChi, ': ', formatNumber3Digit(self.phieuThuOld.TongTienThu),
-                                    '<br/> - ', sLoaiDT, self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')',
+                                    '<br/> - ', sLoaiDT,self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')',
                                     '<br/> - Khoản ', self.sLoaiThuChi, ': ', self.phieuThuOld.TenKhoanThuChi,
                                     '<br/> - Phương thức thanh toán: ', self.phieuThuOld.PhuongThucTT,
                                     '<br/> - Tiền mặt: ', formatNumber3Digit(self.phieuThuOld.TienMat),
@@ -1324,7 +1350,7 @@
                                 '<br /><b> Thông tin cũ: </b>',
                                 '<br /> - Giá trị: ', formatNumber3Digit(self.phieuThuOld.TongTienThu),
                                 '<br /> - Phương thức thanh toán: ', self.phieuThuOld.PhuongThucTT,
-                                '<br /> - Nhà cung cấp: ', self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')'
+                                '<br /> - ', self.sLoaiDoiTuong, ' : ', self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')'
                             ),
                             LoaiNhatKy: 3
                         }
