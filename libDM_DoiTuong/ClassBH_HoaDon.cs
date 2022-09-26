@@ -4705,6 +4705,11 @@ namespace libDM_DoiTuong
             return db.Database.SqlQuery<HoaHongGioiThieuDTO>(" EXEC dbo.GetList_PhieuTrichHoaHong @IDChiNhanhs, @TextSearch," +
             " @DateFrom, @DateTo, @LoaiDoiTuongs, @TrangThais, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
+        public List<HoaHongGioiThieuDTO> GetPhieuTrichHoaHong_byID(Guid id)
+        {
+            SqlParameter param = new SqlParameter("ID", id);
+            return db.Database.SqlQuery<HoaHongGioiThieuDTO>(" EXEC dbo.GetPhieuTrichHoaHong_byID @ID", param).ToList();
+        }
 
         public List<HoaHongGioiThieu_ChiTiet_DTO> GetChiTietHoaHongGioiThieu_byID(Guid id)
         {
