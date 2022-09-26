@@ -502,6 +502,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lstSubMenuDoiTac.Add(new HeaderMenu(1, "Khách hàng", "Khách hàng", UrlPage.KhachHang, "c/khachhang", false, "fa fa-users", new List<HeaderMenu>()));
                     lstSubMenuDoiTacCheck = true;
                 }
+                if (lstQuyen.Where(p => p == "HoaHongKhachGioiThieu_XemDS").FirstOrDefault() != null)
+                {
+                    lstSubMenuDoiTac.Add(new HeaderMenu(1, "Hoa hồng khách giới thiệu", "Hoa hồng khách giới thiệu", 
+                        UrlPage.HoaHongKhachGioiThieu, "c/HoaHongKhachGioiThieu", false, "fal fa-sack-dollar", new List<HeaderMenu>()));
+                    lstSubMenuDoiTacCheck = true;
+                }
                 if (lstQuyen.Where(p => p == "NhaCungCap_XemDS").FirstOrDefault() != null)
                 {
                     lstSubMenuDoiTac.Add(new HeaderMenu(2, "Nhà cung cấp", "Nhà cung cấp", UrlPage.NhaCungCap, "c/nhacungcap", false, "fa fa-user-plus", new List<HeaderMenu>()));
