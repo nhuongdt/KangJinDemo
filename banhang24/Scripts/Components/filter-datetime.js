@@ -180,13 +180,11 @@
     mounted: function () {
         var self = this;
         var input = $('input[name="' + this.radioname + '"]');
-        //input.daterangepicker();
         input.on('apply.daterangepicker', function (ev, picker) {
             var fromdate = picker.startDate.format('YYYY-MM-DD');
             var todate = picker.endDate.format('YYYY-MM-DD');
             todate = moment(todate).add('days', 1).format('YYYY-MM-DD');
             var radioselect = self.SelectTypetime; 
-            //console.log(self.typetime);
             self.$emit('callfunction', { fromdate, todate, radioselect });
         });
     },
