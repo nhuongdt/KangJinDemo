@@ -87,5 +87,11 @@ namespace banhang24.Controllers
         {
             return View();
         }
+
+        [RBACAuthorize(RoleKey = RoleKey.HoaHongKhachGioiThieu_XemDS)]
+        public ActionResult HoaHongKhachGioiThieu()
+        {
+            return View();
+        }
     }
 }
