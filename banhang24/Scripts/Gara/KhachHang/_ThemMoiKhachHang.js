@@ -11,13 +11,14 @@
     created: function () {
         var self = this;
         self.SubDomain = $('#subDomain').val();
+        self.inforLogin.ID_DonVi = $('#txtDonVi').val();
         self.ImgHost = Open24FileManager.hostUrl;
         self.UrlDoiTuongAPI = '/api/DanhMuc/DM_DoiTuongAPI/';
         self.ToDay = new Date();
         if (commonStatisJs.CheckNull(self.SubDomain)) {
             self.SubDomain = VHeader.SubDomain;
         }
-
+        console.log('vmThemMoiKH ')
         $.getJSON(self.UrlDoiTuongAPI + 'GetListTinhThanh').done(function (x) {
             if (x.res === true) {
                 let data = x.data;
@@ -33,6 +34,40 @@
                 vmThemMoiNhomKhach.listData.ListTinhThanhSearch = province;
             }
         })
+
+        if (commonStatisJs.CheckNull(self.inforLogin.ID_DonVi)) {
+            self.inforLogin = {
+                ID_NhanVien: VHeader.IdNhanVien,
+                ID_User: VHeader.IdNguoiDung,
+                UserLogin: VHeader.UserLogin,
+                ID_DonVi: VHeader.IdDonVi,
+            };
+        }
+    },
+    computed: {
+        sLoaiDoiTuong: function () {
+            let self = this;
+            let txt = '';
+            switch (self.newCustomer.LoaiDoiTuong) {
+                case 1:
+                    txt = 'khách hàng';
+                    break;
+                case 4:
+                    txt = 'người giới thiệu';
+                    break;
+            }
+            return txt;
+        },
+        showDiv: function () {
+            let self = this;
+            let show = true;
+            switch (self.newCustomer.LoaiDoiTuong) {
+                case 4:
+                    show = false;
+                    break;
+            }
+            return show;
+        },
     },
     data: {
         saveOK: false,
@@ -104,7 +139,7 @@
         ImgHost: ""
     },
     methods: {
-        showModalAdd: function () {
+        showModalAdd: function (loaiDT = 1) {
             var self = this;
             self.isNew = true;
             self.saveOK = false;
@@ -116,7 +151,7 @@
             console.log('41')
             self.newCustomer = {
                 ID: null,
-                LoaiDoiTuong: 1,
+                LoaiDoiTuong: loaiDT,
                 MaDoiTuong: '',
                 TenDoiTuong: '',
                 LaCaNhan: true,
@@ -226,7 +261,6 @@
                 }
             }
 
-            item.LoaiDoiTuong = 1;
             item.ID_DonVi = self.inforLogin.ID_DonVi;
             self.newCustomer = item;
             self.customerOld = $.extend({}, item);
@@ -591,7 +625,7 @@
             let self = this;
             let cus = self.newCustomer;
             if (commonStatisJs.CheckNull(cus.TenDoiTuong)) {
-                ShowMessage_Danger('Vui lòng nhập tên khách hàng');
+                ShowMessage_Danger('Vui lòng nhập tên ' + self.sLoaiDoiTuong);
                 return false;
             }
             if (commonStatisJs.CheckNull(cus.DienThoai)) {
@@ -739,7 +773,7 @@
                 if (x.res === true) {
                     self.saveOK = true;
                     var item = x.data;
-                    ShowMessage_Success("Thêm mới khách hàng thành công");
+                    ShowMessage_Success("Thêm mới " + self.sLoaiDoiTuong + " thành công");
 
                     DM_DoiTuong.MaDoiTuong = item.MaDoiTuong;
                     DM_DoiTuong.ID = item.ID;
@@ -772,9 +806,9 @@
                         ID_DonVi: self.inforLogin.ID_DonVi,
                         ID_NhanVien: self.inforLogin.ID_NhanVien,
                         LoaiNhatKy: 1,
-                        ChucNang: 'Khách hàng',
-                        NoiDung: 'Thêm mới khách hàng '.concat(DM_DoiTuong.TenDoiTuong, ' (', DM_DoiTuong.MaDoiTuong, ')'),
-                        NoiDungChiTiet: 'Thêm mới khách hàng '.concat(DM_DoiTuong.TenDoiTuong, ' (', DM_DoiTuong.MaDoiTuong, ') <br /> Điện thoại: ',
+                        ChucNang: commonStatisJs.FirstChar_UpperCase(self.sLoaiDoiTuong),
+                        NoiDung: 'Thêm mới '.concat(self.sLoaiDoiTuong, ' ', DM_DoiTuong.TenDoiTuong, ' (', DM_DoiTuong.MaDoiTuong, ')'),
+                        NoiDungChiTiet: 'Thêm mới '.concat(self.sLoaiDoiTuong, ' ', DM_DoiTuong.TenDoiTuong, ' (', DM_DoiTuong.MaDoiTuong, ') <br /> Điện thoại: ',
                             DM_DoiTuong.DienThoai ? DM_DoiTuong.DienThoai : '', sNgayDinh,
                             ' <br /> Địa chỉ: ', DM_DoiTuong.DiaChi,
                             ' <br /> Nhóm khách: ', DM_DoiTuong.TenNhomKhachs)
@@ -800,7 +834,7 @@
                 if (x.res === true) {
                     self.saveOK = true;
                     var item = x.data;
-                    ShowMessage_Success("Cập nhật khách hàng thành công");
+                    ShowMessage_Success("Cập nhật " + self.sLoaiDoiTuong + " thành công");
 
                     var obj = myData.objDoiTuong;
                     obj.MaDoiTuong = item.MaDoiTuong;
@@ -832,9 +866,9 @@
                         ID_DonVi: self.inforLogin.ID_DonVi,
                         ID_NhanVien: self.inforLogin.ID_NhanVien,
                         LoaiNhatKy: 2,
-                        ChucNang: 'Khách hàng',
-                        NoiDung: 'Cập nhật khách hàng '.concat(obj.TenDoiTuong, ' (', obj.MaDoiTuong, ')'),
-                        NoiDungChiTiet: 'Cập nhật khách hàng '.concat(obj.TenDoiTuong, ' (', obj.MaDoiTuong, ') <br /> Điện thoại: ',
+                        ChucNang: commonStatisJs.FirstChar_UpperCase(self.sLoaiDoiTuong),
+                        NoiDung: 'Cập nhật '.concat(self.sLoaiDoiTuong, ' ', obj.TenDoiTuong, ' (', obj.MaDoiTuong, ')'),
+                        NoiDungChiTiet: 'Cập nhật '.concat(self.sLoaiDoiTuong, ' ', obj.TenDoiTuong, ' (', obj.MaDoiTuong, ') <br /> Điện thoại: ',
                             obj.DienThoai, sNgayDinh,
                             ' <br /> Địa chỉ: ', obj.DiaChi,
                             ' <br /> Nhóm khách: ', obj.TenNhomKhachs,
@@ -867,41 +901,43 @@
         UpdateNhomKhachHang: function (lstNhom, isChuyenNhom = false) {
             var self = this;
             var lst = [];
-            for (let i = 0; i < lstNhom.length; i++) {
-                let itFor = lstNhom[i];
-                if (!commonStatisJs.CheckNull(itFor.ID) && itFor.ID.trim() !== '00000000-0000-0000-0000-000000000000') {
-                    let obj = {
-                        ID_DoiTuong: itFor.ID_DoiTuong,
-                        ID_NhomDoiTuong: itFor.ID,
-                    }
-                    lst.push(obj);
-                }
-            }
-            if (lst.length > 0) {
-                var myData = {
-                    lstDM_DoiTuong_Nhom: lst
-                };
-
-                ajaxHelper(self.UrlDoiTuongAPI + 'PutDM_DoiTuong_Nhom', 'POST', myData).done(function (x) {
-                    if (isChuyenNhom) {
-                        var diary = {
-                            ID_DonVi: self.inforLogin.ID_DonVi,
-                            ID_NhanVien: self.inforLogin.ID_NhanVien,
-                            LoaiNhatKy: 2,
-                            ChucNang: 'Khách hàng',
-                            NoiDung: 'Chuyển '.concat(lst.length, ' khách hàng đến nhóm mới'),
-                            NoiDungChiTiet: 'Chuyển '.concat(lst.length, ' khách hàng đến nhóm mới'),
+            if (self.newCustomer.LoaiDoiTuong === 1) {
+                for (let i = 0; i < lstNhom.length; i++) {
+                    let itFor = lstNhom[i];
+                    if (!commonStatisJs.CheckNull(itFor.ID) && itFor.ID.trim() !== '00000000-0000-0000-0000-000000000000') {
+                        let obj = {
+                            ID_DoiTuong: itFor.ID_DoiTuong,
+                            ID_NhomDoiTuong: itFor.ID,
                         }
-                        Insert_NhatKyThaoTac_1Param(diary);
+                        lst.push(obj);
                     }
+                }
+                if (lst.length > 0) {
+                    var myData = {
+                        lstDM_DoiTuong_Nhom: lst
+                    };
 
-                }).fail(function (x) {
-                })
+                    ajaxHelper(self.UrlDoiTuongAPI + 'PutDM_DoiTuong_Nhom', 'POST', myData).done(function (x) {
+                        if (isChuyenNhom) {
+                            var diary = {
+                                ID_DonVi: self.inforLogin.ID_DonVi,
+                                ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                LoaiNhatKy: 2,
+                                ChucNang: 'Khách hàng',
+                                NoiDung: 'Chuyển '.concat(lst.length, ' khách hàng đến nhóm mới'),
+                                NoiDungChiTiet: 'Chuyển '.concat(lst.length, ' khách hàng đến nhóm mới'),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
+                        }
+
+                    }).fail(function (x) {
+                    })
+                }
             }
         },
         NangNhomKhachHang: function (id) {
             var self = this;
-            if (id !== null && id !== const_GuidEmpty) {
+            if (id !== null && id !== const_GuidEmpty && self.newCustomer.LoaiDoiTuong === 1) {
                 ajaxHelper(self.UrlDoiTuongAPI + 'NangNhomKhachhang_byIDDoituong?idDoituong=' + id
                     + '&idChiNhanh=' + self.inforLogin.ID_DonVi, 'GET').done(function (x) {
                         if (x.res) {
