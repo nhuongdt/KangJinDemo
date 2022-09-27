@@ -10,6 +10,34 @@
     <div class="container-fluid nopadding">
         <div class="col-left">
             <div class=" op-filter">
+                <article class="boxLeft op-baocao-classic">
+                    <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                        <i class="fa fa-chalkboard-teacher"></i> Dạng hiển thị
+                    </h3>
+                    <aside class="op-filter-container">
+                        <ul>
+                            <li>
+                                <input type="radio" name="LoaiBaoCao" id="baocaochitiet" value="1" v-model="LoaiBaoCao" class="radio-option" />
+                                <label for="baocaochitiet">
+                                    Danh sách phiếu trích
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" name="LoaiBaoCao" id="baocaotonghop" value="2" v-model="LoaiBaoCao" class="radio-option" />
+                                <label for="baocaotonghop">
+                                    Chi tiết
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" name="LoaiBaoCao" id="baocaotonghop" value="3" v-model="LoaiBaoCao" class="radio-option" />
+                                <label for="baocaotonghop">
+                                    Tổng hợp
+                                </label>
+                            </li>
+                        </ul>
+
+                    </aside>
+                </article>
                 <section class="op-filter-body">
                     <article class="boxLeft ">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
@@ -17,6 +45,14 @@
                         </h3>
                         <aside class="op-filter-container">
                             <filter-chinhanh v-bind:listchinhanh="listData.ChiNhanh" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-chinhanh>
+                        </aside>
+                    </article>
+                    <article class="boxLeft" v-if="LoaiBaoCao == 2">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-search"></i>   Người giới thiệu
+                        </h3>
+                        <aside class="op-filter-container">
+                            <input placeholder="Mã phiếu trích, người giới thiệu" class="form-control" />
                         </aside>
                     </article>
 
@@ -28,6 +64,17 @@
                             <filter-datetime radioname="rdThoiGian" v-bind:typetime="filter.TypeTime"
                                              v-on:callfunction="onCallThoiGian"
                                              v-bind:selectvalue="5"></filter-datetime>
+                        </aside>
+                    </article>
+
+                    <article class="boxLeft" v-if="LoaiBaoCao == 2">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-check-circle"></i>  Là hóa đơn bổ sung
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-checkbox v-bind:listitem="listData.LoaiHoaDon"
+                                             v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
+
                         </aside>
                     </article>
                     <article class="boxLeft">
@@ -97,12 +144,13 @@
                     </div>
                     <div class="flex">
                         <div class="op-search">
-                            <input type="text" class="form-control" placeholder="Mã hóa đơn, người giới thiệu"
+                            <input type="text" class="form-control" 
+                                 v-bind:placeholder="txtLeftPlaceholder"
                                    autocomplete="off"
                                    v-model="filter.TextSearch"
-                                   v-on:keyup.13="GetList_PhieuTrichHoaHong" />
+                                   v-on:keyup.13="ResetCurrentPage_andLoadData" />
                             <button type="button" class=" op-search-button"
-                                    v-on:click="GetList_PhieuTrichHoaHong">
+                                    v-on:click="ResetCurrentPage_andLoadData">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
@@ -113,300 +161,365 @@
                 </div>
 
             </div>
-            <div class="content-table" style="top: 48px;position: sticky;">
-                <div class="table-frame">
-                    <table class="table" id="tb">
-                        <thead class="thead-boder">
-                            <tr>
-                                <th v-for="item in ListHeader.filter(p=>p.colShow === true)">
-                                    {{item.colText}}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="(item, index) in HoaDon.data">
-                                <tr class="prev-tr-hide">
-                                    <td v-if="CheckColShow('colMaHoaDon')"
-                                        v-on:click="RowSelected(item)">
-                                        <a href="javascript:void(0)">{{item.MaHoaDon}}</a>
-                                    </td>
-                                    <td class="text-center" v-if="CheckColShow('colNgayLapHoaDon')"
-                                        v-on:click="RowSelected(item)">
-                                        {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
-                                    </td>
-                                    <td v-if="CheckColShow('colLoaiDoiTuong')" v-on:click="RowSelected(item)">
-                                        {{item.SLoaiDoiTuong}}
-                                    </td>
-                                    <td v-if="CheckColShow('colMaDoiTuong')" v-on:click="RowSelected(item)">
-                                        <a href="javascript:void(0)">
-                                            {{item.MaNguoiGioiThieu}}
-                                        </a>
-                                    </td>
-                                    <td v-if="CheckColShow('colTenDoiTuong')" v-on:click="RowSelected(item)">
-                                        {{item.TenNguoiGioiThieu}}
-                                    </td>
-                                    <td class="text-right" v-if="CheckColShow('colTongGiaTri')" v-on:click="RowSelected(item)">
-                                        {{formatNumber3Digit(item.TongTienHang)}}
-                                    </td>
-                                    <td class="text-right" v-if="CheckColShow('colKhachDaTra')" v-on:click="RowSelected(item)">
-                                        {{formatNumber3Digit(item.KhachDaTra)}}
-                                    </td>
-                                    <td class="text-right" v-if="CheckColShow('colConNo')" v-on:click="RowSelected(item)"
-                                        v-bind:style="{color: item.ConNo > 0?'red':'black'}">
-                                        {{formatNumber3Digit(item.ConNo)}}
-                                    </td>
-                                    <td v-if="CheckColShow('colDienGiai')" v-on:click="RowSelected(item)">
-                                        {{item.DienGiai}}
-                                    </td>
-                                    <td v-if="CheckColShow('colTrangThai')" v-on:click="RowSelected(item)">
-                                        {{item.STrangThai}}
-                                    </td>
-                                    <td v-if="CheckColShow('colNguoiTao')" v-on:click="RowSelected(item)">
-                                        {{item.NguoiTao}}
-                                    </td>
-                                    <td v-if="CheckColShow('colTenChiNhanh')" v-on:click="RowSelected(item)">
-                                        {{item.TenDonVi}}
-                                    </td>
+            <div class="content-table tab-content" style="top: 48px;position: sticky;">
+                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao == 1 }">
+                    <div class="table-frame">
+                        <table class="table" id="tb">
+                            <thead class="thead-boder">
+                                <tr>
+                                    <th v-for="item in ListHeader.filter(p=>p.colShow === true)">
+                                        {{item.colText}}
+                                    </th>
                                 </tr>
-                                <tr class="op-js-tr-hide">
-                                    <td colspan="18">
-                                        <div class="op-object-detail ">
-                                            <ul class="nav nav-tabs">
-                                                <li class="active"><a data-toggle="tab" v-bind:href="'infor_'+ item.ID" v-on:click="ChangeTab(0,item)">Thông tin</a></li>
-                                                <li><a data-toggle="tab" v-bind:href="'nky_'+ item.ID" v-on:click="ChangeTab(1, item)">Nhật ký thanh toán</a></li>
-                                            </ul>
-                                            <div class="tab-content">
-                                                <div class="tab-pane active" v-bind:id="'infor_'+ item.ID">
-                                                    <div class="op-object-detail ">
-                                                        <div class="col-md-12 nopadding">
-                                                            <div class="op-object-detail-left min-45 ">
-                                                                <div class="form-group floatleft">
-                                                                    <label class="css-form-label"> Chi nhánh:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <span>  {{item.TenDonVi}}</span>
+                            </thead>
+                            <tbody>
+                                <template v-for="(item, index) in HoaDon.data">
+                                    <tr class="prev-tr-hide">
+                                        <td v-if="CheckColShow('colMaHoaDon')"
+                                            v-on:click="RowSelected(item)">
+                                            <a href="javascript:void(0)">{{item.MaHoaDon}}</a>
+                                        </td>
+                                        <td class="text-center" v-if="CheckColShow('colNgayLapHoaDon')"
+                                            v-on:click="RowSelected(item)">
+                                            {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="CheckColShow('colLoaiDoiTuong')" v-on:click="RowSelected(item)">
+                                            {{item.SLoaiDoiTuong}}
+                                        </td>
+                                        <td v-if="CheckColShow('colMaDoiTuong')" v-on:click="RowSelected(item)">
+                                            <a href="javascript:void(0)">
+                                                {{item.MaNguoiGioiThieu}}
+                                            </a>
+                                        </td>
+                                        <td v-if="CheckColShow('colTenDoiTuong')" v-on:click="RowSelected(item)">
+                                            {{item.TenNguoiGioiThieu}}
+                                        </td>
+                                        <td class="text-right" v-if="CheckColShow('colTongGiaTri')" v-on:click="RowSelected(item)">
+                                            {{formatNumber3Digit(item.TongTienHang)}}
+                                        </td>
+                                        <td class="text-right" v-if="CheckColShow('colKhachDaTra')" v-on:click="RowSelected(item)">
+                                            {{formatNumber3Digit(item.KhachDaTra)}}
+                                        </td>
+                                        <td class="text-right" v-if="CheckColShow('colConNo')" v-on:click="RowSelected(item)"
+                                            v-bind:style="{color: item.ConNo > 0?'red':'black'}">
+                                            {{formatNumber3Digit(item.ConNo)}}
+                                        </td>
+                                        <td v-if="CheckColShow('colDienGiai')" v-on:click="RowSelected(item)">
+                                            {{item.DienGiai}}
+                                        </td>
+                                        <td v-if="CheckColShow('colTrangThai')" v-on:click="RowSelected(item)">
+                                            {{item.STrangThai}}
+                                        </td>
+                                        <td v-if="CheckColShow('colNguoiTao')" v-on:click="RowSelected(item)">
+                                            {{item.NguoiTao}}
+                                        </td>
+                                        <td v-if="CheckColShow('colTenChiNhanh')" v-on:click="RowSelected(item)">
+                                            {{item.TenDonVi}}
+                                        </td>
+                                    </tr>
+                                    <tr class="op-js-tr-hide">
+                                        <td colspan="18">
+                                            <div class="op-object-detail ">
+                                                <ul class="nav nav-tabs">
+                                                    <li class="active"><a data-toggle="tab" v-bind:href="'infor_'+ item.ID" v-on:click="ChangeTab(0,item)">Thông tin</a></li>
+                                                    <li><a data-toggle="tab" v-bind:href="'nky_'+ item.ID" v-on:click="ChangeTab(1, item)">Nhật ký thanh toán</a></li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane active" v-bind:id="'infor_'+ item.ID">
+                                                        <div class="op-object-detail ">
+                                                            <div class="col-md-12 nopadding">
+                                                                <div class="op-object-detail-left min-45 ">
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label"> Chi nhánh:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.TenDonVi}}</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="form-group floatleft ">
-                                                                    <label class="css-form-label">Người tạo:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <span>  {{item.NguoiTao}}</span>
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label">Người tạo:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.NguoiTao}}</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="form-group floatleft">
-                                                                    <label class="css-form-label">Mã hóa đơn:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <span>  {{item.MaHoaDon}}</span>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Mã hóa đơn:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.MaHoaDon}}</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
 
-                                                                <div class="form-group floatleft">
-                                                                    <label class="css-form-label">Người giới thiệu:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <span>  {{item.TenNguoiGioiThieu}}</span>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Người giới thiệu:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.TenNguoiGioiThieu}}</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="form-group floatleft ">
-                                                                    <label class="css-form-label">Ngày lập phiếu:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <date-time :date-chose="moment(item.NgayLapHoaDon).format('YYYY-MM-DD HH:mm')"
-                                                                                   v-on:change-date="Update_ChangeDate">
-                                                                        </date-time>
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label">Ngày lập phiếu:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <date-time :date-chose="moment(item.NgayLapHoaDon).format('YYYY-MM-DD HH:mm')"
+                                                                                       v-on:change-date="Update_ChangeDate">
+                                                                            </date-time>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
 
-                                                                <div class="form-group floatleft">
-                                                                    <label class="css-form-label">Trạng thái:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <span> {{item.STrangThai}}</span>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Trạng thái:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span> {{item.STrangThai}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <label class="css-form-label">Ghi chú:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <textarea rows="2"
+                                                                                      v-model="item.DienGiai"></textarea>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="form-group floatleft border-end">
-                                                                    <label class="css-form-label">Ghi chú:</label>
-                                                                    <div class="css-form-detail">
-                                                                        <textarea rows="2"
-                                                                                  v-model="item.DienGiai"></textarea>
+                                                                <div class="op-object-detail-right">
+                                                                    <div class="table-res loadcthd">
+                                                                        <table class=" table table-filter table-detal" id="tblCT">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>
+                                                                                        Mã hóa đơn
+                                                                                    </th>
+                                                                                    <th class="text-center">
+                                                                                        Ngày lập
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Mã khách hàng
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Tên khách hàng
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Giá trị HĐ
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Giá trị tính
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        % trích
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Tiền hoa hồng
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr v-for="(ct, index2) in HoaDonChiTiet">
+                                                                                    <td>
+                                                                                        <a>{{ct.MaHoaDon}}</a>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        {{moment(ct.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {{ct.MaDoiTuong}}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {{ct.TenDoiTuong}}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {{formatNumber3Digit(ct.TongThanhToan)}}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {{formatNumber3Digit(ct.DaTrich)}}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {{formatNumber3Digit(ct.PTChietKhau)}}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {{formatNumber3Digit(ct.TienChietKhau)}}
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
                                                                     </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="op-object-detail-right">
-                                                                <div class="table-res loadcthd">
-                                                                    <table class=" table table-filter table-detal" id="tblCT">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>
-                                                                                    Mã hóa đơn
-                                                                                </th>
-                                                                                <th class="text-center">
-                                                                                    Ngày lập
-                                                                                </th>
-                                                                                <th>
-                                                                                    Mã khách hàng
-                                                                                </th>
-                                                                                <th>
-                                                                                    Tên khách hàng
-                                                                                </th>
-                                                                                <th>
-                                                                                    Giá trị HĐ
-                                                                                </th>
-                                                                                <th>
-                                                                                    Giá trị tính
-                                                                                </th>
-                                                                                <th>
-                                                                                    % trích
-                                                                                </th>
-                                                                                <th>
-                                                                                    Tiền hoa hồng
-                                                                                </th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            <tr v-for="(ct, index2) in HoaDonChiTiet">
-                                                                                <td>
-                                                                                    <a>{{ct.MaHoaDon}}</a>
-                                                                                </td>
-                                                                                <td class="text-center">
-                                                                                    {{moment(ct.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{ct.MaDoiTuong}}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{ct.TenDoiTuong}}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{formatNumber3Digit(ct.TongThanhToan)}}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{formatNumber3Digit(ct.DaTrich)}}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{formatNumber3Digit(ct.PTChietKhau)}}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {{formatNumber3Digit(ct.TienChietKhau)}}
-                                                                                </td>
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div class="op-table-summary">
-                                                                    <div class="col-md-6 col-sm-6 col-xs-6 footer-total-detail pull-right">
-                                                                        <div class="floatleft sum-prduct">
-                                                                            <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
-                                                                                Tổng giá trị :
-                                                                            </div>
-                                                                            <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
-                                                                                <div class="row">
-                                                                                    {{formatNumber3Digit(item.TongTienHang)}}
+                                                                    <div class="op-table-summary">
+                                                                        <div class="col-md-6 col-sm-6 col-xs-6 footer-total-detail pull-right">
+                                                                            <div class="floatleft sum-prduct">
+                                                                                <div class="col-xs-5 col-sm-5  col-lg-7 text-right">
+                                                                                    Tổng giá trị :
+                                                                                </div>
+                                                                                <div class="col-xs-7 col-sm-7 col-lg-5 text-right">
+                                                                                    <div class="row">
+                                                                                        {{formatNumber3Digit(item.TongTienHang)}}
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                <div style="display:flex; flex-direction:row; flex-wrap:wrap; justify-content:flex-end">
-                                                                    <button href="javascript:void(0)" class="btn btn-main"
-                                                                            v-on:click="showModalUpdate(item)">
-                                                                        <i class="fa fa-share"></i> Sửa đổi
-                                                                    </button>
-                                                                    <button href="javascript:void(0)" class="btn btn-main">
-                                                                        <i class="fa fa-file-excel-o"></i> Xuất file
-                                                                    </button>
-                                                                    <button href="javascript:void(0)" class="btn btn-cancel"
-                                                                            v-on:click="HuyPhieuTrich(item)">
-                                                                        <i class="fa fa-close"></i> Hủy bỏ
-                                                                    </button>
+                                                                    <div style="display:flex; flex-direction:row; flex-wrap:wrap; justify-content:flex-end">
+                                                                        <button href="javascript:void(0)" class="btn btn-main"
+                                                                                v-on:click="showModalUpdate(item)">
+                                                                            <i class="fa fa-share"></i> Sửa đổi
+                                                                        </button>
+                                                                        <button href="javascript:void(0)" class="btn btn-main">
+                                                                            <i class="fa fa-file-excel-o"></i> Xuất file
+                                                                        </button>
+                                                                        <button href="javascript:void(0)" class="btn btn-cancel"
+                                                                                v-on:click="HuyPhieuTrich(item)">
+                                                                            <i class="fa fa-close"></i> Hủy bỏ
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="tab-pane" v-bind:id="'nky_'+ item.ID">
-                                                    <div class="table-res">
-                                                        <table class='table'>
-                                                            <tr>
-                                                                <th>Mã phiếu</th>
-                                                                <th>Thời gian</th>
-                                                                <th>Người tạo</th>
-                                                                <th>Loại phiếu</th>
-                                                                <th>Phương thức</th>
-                                                                <th>Trạng thái</th>
-                                                                <th>Tiền thu</th>
-                                                            </tr>
-                                                            <tbody>
-                                                                <tr v-for="(item, index) in LichSuThanhToan">
-                                                                    <td>
-                                                                        <a v-on:click="updatePhieuChi(item)">
-                                                                            {{item.MaHoaDon}}
-                                                                        </a>
-                                                                    </td>
-                                                                    <td>
-                                                                        {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{item.NguoiTao}}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{item.LoaiHoaDon==11?'Phiếu thu':'Phiếu chi'}}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{item.PhuongThucTT}}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{item.TrangThai==false?'Đã hủy':'Đã thanh toán'}}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{formatNumber3Digit(item.TongTienThu,2)}}
-                                                                    </td>
+                                                    <div class="tab-pane" v-bind:id="'nky_'+ item.ID">
+                                                        <div class="table-res">
+                                                            <table class='table'>
+                                                                <tr>
+                                                                    <th>Mã phiếu</th>
+                                                                    <th>Thời gian</th>
+                                                                    <th>Người tạo</th>
+                                                                    <th>Loại phiếu</th>
+                                                                    <th>Phương thức</th>
+                                                                    <th>Trạng thái</th>
+                                                                    <th>Tiền thu</th>
                                                                 </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <div class="op-object-detail-function">
-                                                            <button class="btn btn-main"
-                                                                    v-if="item.ConNo > 0"
-                                                                    v-on:click="showModalThanhToan(item)">
-                                                                <i class="fa fa-calculator"></i>&nbsp; Thanh toán
-                                                            </button>
+                                                                <tbody>
+                                                                    <tr v-for="(item, index) in LichSuThanhToan">
+                                                                        <td>
+                                                                            <a v-on:click="updatePhieuChi(item)">
+                                                                                {{item.MaHoaDon}}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td>
+                                                                            {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                                        </td>
+                                                                        <td>
+                                                                            {{item.NguoiTao}}
+                                                                        </td>
+                                                                        <td>
+                                                                            {{item.LoaiHoaDon==11?'Phiếu thu':'Phiếu chi'}}
+                                                                        </td>
+                                                                        <td>
+                                                                            {{item.PhuongThucTT}}
+                                                                        </td>
+                                                                        <td>
+                                                                            {{item.TrangThai==false?'Đã hủy':'Đã thanh toán'}}
+                                                                        </td>
+                                                                        <td>
+                                                                            {{formatNumber3Digit(item.TongTienThu,2)}}
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <div class="op-object-detail-function">
+                                                                <button class="btn btn-main"
+                                                                        v-if="item.ConNo > 0"
+                                                                        v-on:click="showModalThanhToan(item)">
+                                                                    <i class="fa fa-calculator"></i>&nbsp; Thanh toán
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot v-if="HoaDon.data.length > 0">
+                                <tr class="border-bottom bold">
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.index < 5 && p.colShow).length">
+                                        Tổng cộng
+                                    </td>
+                                    <td class="text-right">
+                                        {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
+                                    </td>
+                                    <td class="text-right" v-if="CheckColShow('colKhachDaTra')">
+                                        {{formatNumber3Digit(HoaDon.SumKhachDaTra)}}
+                                    </td>
+                                    <td class="text-right" v-if="CheckColShow('colConNo')">
+                                        {{formatNumber3Digit(HoaDon.SumConNo)}}
+                                    </td>
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.index > 7 && p.colShow).length">
                                     </td>
                                 </tr>
-                            </template>
-                        </tbody>
-                        <tfoot v-if="HoaDon.data.length > 0">
-                            <tr class="border-bottom bold">
-                                <td v-bind:colspan="ListHeader.filter(p=>p.index < 5 && p.colShow).length">
-                                    Tổng cộng
-                                </td>
-                                <td class="text-right">
-                                    {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
-                                </td>  
-                                <td class="text-right"  v-if="CheckColShow('colKhachDaTra')">
-                                    {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
-                                </td>  
-                                <td class="text-right"  v-if="CheckColShow('colConNo')">
-                                    {{formatNumber3Digit(HoaDon.SumConNo)}}
-                                </td>
-                                <td v-bind:colspan="ListHeader.filter(p=>p.index > 7 && p.colShow).length">
-                                </td>
-                            </tr>
-                        </tfoot>
-                        <tfoot class="Report_Empty"
-                               v-if="HoaDon.data.length == 0">
-                            <tr class="text-center">
-                                <td colspan="25">
-                                    <i>Không có dữ liệu</i>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </tfoot>
+                            <tfoot class="Report_Empty"
+                                   v-if="HoaDon.data.length == 0">
+                                <tr class="text-center">
+                                    <td colspan="25">
+                                        <i>Không có dữ liệu</i>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
-                <page-list v-bind:pagesize="HoaDon.PageSize"
-                           v-bind:listpage="HoaDon.ListPage" v-bind:currentpage="HoaDon.CurrentPage" v-bind:pageview="HoaDon.PageView"
-                           v-bind:numberofpage="HoaDon.NumberOfPage"
+                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao == 2 }">
+                    <div class="table-frame">
+                        <table class="table" id="tblDetail">
+                            <thead class="thead-boder">
+                                <tr>
+                                    <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                </tr>
+                            </thead>
+                            <tbody v-for="(item, index) in BaoCaoChiTiet.data">
+                                <tr class="prev-tr-hide" 
+                                    v-bind:style="{background : item.TrangThai == 1 ? 'yellow' : 'none'}">
+                                    <td v-if="CheckColShow('colMaHoaDon')">
+                                        <a>{{item.MaPhieuTrich}}</a>
+                                    </td>
+                                    <td v-if="CheckColShow('colNgayLapPhieu')" class="text-center">{{moment(item.NgayLapPhieuTrich).format('DD/MM/YYYY HH:mm')}}</td>
+                                    <td v-if="CheckColShow('colLoaiDoiTuong')">{{item.SLoaiDoiTuong}}</td>
+                                    <td v-if="CheckColShow('colMaNguoiGT')">
+                                        <a>
+                                            {{item.MaNguoiGioiThieu}}
+                                        </a>
+                                    </td>
+                                    <td v-if="CheckColShow('colTenNguoiGT')">{{item.TenNguoiGioiThieu}}</td>
+                                    <td v-if="CheckColShow('colMaHoaDonTrich')">
+                                        <a>
+                                            {{item.MaHoaDon}}
+                                        </a>
+                                    </td>
+                                    <td v-if="CheckColShow('colNgayLapHoaDon')" class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
+                                    <td v-if="CheckColShow('colMaKhachHang')"><a>{{item.MaDoiTuong}}</a></td>
+                                    <td v-if="CheckColShow('colTenKhachHang')">{{item.TenDoiTuong}}</td>
+                                    <td v-if="CheckColShow('colTongThanhToan')" class="text-right">{{formatNumber3Digit(item.TongThanhToan)}}</td>
+                                    <td v-if="CheckColShow('colGiaTriTinh')" class="text-right">{{formatNumber3Digit(item.DaTrich)}}</td>
+                                    <td v-if="CheckColShow('colPTChietKhau')" class="text-right">{{item.PTChietKhau}}</td>
+                                    <td v-if="CheckColShow('colTienChietKhau')" class="text-right">{{formatNumber3Digit(item.TienChietKhau)}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="Report_Empty" v-show="BaoCaoChiTiet.length < 1">
+                                <tr>
+                                    <td class="bg12 text-center" colspan="20"><i>Không có dữ liệu</i></td>
+                                </tr>
+                            </tfoot>
+                            <tfoot v-if="BaoCaoChiTiet.data.length > 0">
+                                <tr class="border-bottom bold">
+                                    <td v-bind:colspan="ListHeader.filter(p=>p.index < 9 && p.colShow).length">
+                                        Tổng cộng
+                                    </td>
+                                    <td class="text-right" v-if="CheckColShow('colTongThanhToan')">
+                                        {{formatNumber3Digit(BaoCaoChiTiet.SumTongTienHang)}}
+                                    </td>
+                                    <td class="text-right" v-if="CheckColShow('colGiaTriTinh')">
+                                        {{formatNumber3Digit(BaoCaoChiTiet.SumDaTrich)}}
+                                    </td>
+                                    <td v-if="CheckColShow('colPTChietKhau')">
+                                    </td>
+                                    <td v-if="CheckColShow('colTienChietKhau')" class="text-right">
+                                        {{formatNumber3Digit(BaoCaoChiTiet.SumTienChietKhau)}}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <page-list v-bind:pagesize="Paging.PageSize"
+                           v-bind:listpage="Paging.ListPage" v-bind:currentpage="Paging.CurrentPage" v-bind:pageview="Paging.PageView"
+                           v-bind:numberofpage="Paging.NumberOfPage"
                            v-on:pageselected="PageChange"></page-list>
             </div>
         </div>
