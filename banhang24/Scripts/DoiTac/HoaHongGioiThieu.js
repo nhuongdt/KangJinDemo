@@ -32,17 +32,17 @@
 
         self.PageLoad();
     },
-    watch: {
-        LoaiBaoCao: {
-            handler: function () {
-                let self = this;
-                self.Paging.CurrentPage = 1;
-                self.LoadData();
-                self.InitHeader();
-            },
-            deep: true
-        },
-    },
+    //watch: {
+    //    LoaiBaoCao: {
+    //        handler: function () {
+    //            let self = this;
+    //            self.Paging.CurrentPage = 1;
+    //            self.LoadData();
+    //            self.InitHeader();
+    //        },
+    //        deep: true
+    //    },
+    //},
     computed: {
         txtLeftPlaceholder: function () {
             let self = this;
@@ -215,24 +215,43 @@
         },
         GetParam: function () {
             let self = this;
-            let loaiDT = '', laHDBoSung = 2;
+            let loaiDT = [], laHDBoSung = 2;
+
+            let arrCN = self.listData.ChiNhanh.filter(p => p.CNChecked);
             if (self.listData.LoaiDoiTuong.filter(p => p.Checked === true).length > 0) {
-                loaiDT = self.listData.LoaiDoiTuong.filter(p => p.Checked === true).map(p => p.Value).toString();
+                loaiDT = self.listData.LoaiDoiTuong.filter(p => p.Checked === true).map(p => p.Value);
             }
-            if (self.listData.LoaiHoaDon.filter(p => p.Checked === true).length > 0) {
-                laHDBoSung = self.listData.LoaiHoaDon.filter(p => p.Checked === true).map(p => p.Value).toString();
+
+            let arrLoaiHD = self.listData.LoaiHoaDon.filter(p => p.Checked === true);
+            if (arrLoaiHD.length == 1) {
+                laHDBoSung = arrLoaiHD[0].Value;
             }
+
+            let txt = self.filter.TextSearch;
+            if (!commonStatisJs.CheckNull(txt)) {
+                txt = txt.trim();
+            }
+            let txt2 = self.filter.TextSearch2;
+            if (!commonStatisJs.CheckNull(txt2)) {
+                txt2 = txt2.trim();
+            }
+
             return {
-                IDChiNhanhs: self.listData.ChiNhanh.filter(p => p.CNChecked).map(p => p.ID),
+                IDChiNhanhs: arrCN.map(p => p.ID),
                 TrangThais: self.listData.TrangThai.filter(p => p.Checked === true).map(p => p.Value),
-                LoaiHoaDons: loaiDT,// muon tam truong (LoaiDoiTuong.1.kh, 2.ncc)
+                LoaiDoiTuongs: loaiDT,// 1.kh, 2.ncc,4, nguoi gt #, 5.nhanvien
                 DateFrom: self.filter.DateFrom,
                 DateTo: self.filter.DateTo,
-                TextSearch: self.filter.TextSearch,
-                IDCustomers: [],// muontamtruong (list IDNguoiGioiThieu)
+                TextSearch: txt,
+                TextSearch2: txt2,
                 CurrentPage: self.Paging.CurrentPage - 1,
                 PageSize: self.Paging.PageSize,
-                IDCars: [laHDBoSung]
+                LaHoaDonBoSung: laHDBoSung,
+
+                ColumnHide: self.ListHeader.filter(p => p.colShow === false).map(p => p.index),
+                ReportBranch: arrCN.map(p => p.TenDonVi).toString(),
+                ReportTime: moment(self.filter.DateFrom, 'YYYY-MM-DD').format('DD/MM/YYYY').concat(' - ',
+                    moment(self.filter.DateTo, 'YYYY-MM-DD').add('days', -1).format('DD/MM/YYYY'))
             }
         },
         LoadData: function () {
@@ -271,7 +290,7 @@
                     self.HoaDon.SumConNo = 0;
 
                     self.Paging.TotalRow = 0;
-                    self.Paging.PageView = 0;
+                    self.Paging.PageView = '';
                     self.Paging.NumberOfPage = 0;
                     self.Paging.ListPage = 0;
                 }
@@ -285,13 +304,13 @@
 
             $('#tblDetail').gridLoader({ show: true });
             ajaxHelper(self.UrlAPI.HoaDon + 'GetAll_ChiTietPhieuTrich', 'POST', param).done(function (x) {
-                console.log('GetAll_ChiTietPhieuTrich', param, x)
                 if (x.res && x.dataSoure.data.length > 0) {
                     self.BaoCaoChiTiet.data = x.dataSoure.data;
 
                     let itFirst = x.dataSoure.data[0];
                     self.BaoCaoChiTiet.SumTongTienHang = itFirst.SumTongTienHang;
                     self.BaoCaoChiTiet.SumDaTrich = itFirst.SumDaTrich;
+                    self.BaoCaoChiTiet.SumTienChietKhau = itFirst.SumTienChietKhau;
 
                     self.Paging.TotalRow = x.dataSoure.TotalRow;
                     self.Paging.PageView = x.dataSoure.PageView;
@@ -302,18 +321,18 @@
                     self.BaoCaoChiTiet.data = [];
                     self.BaoCaoChiTiet.SumTongTienHang = 0;
                     self.BaoCaoChiTiet.SumDaTrich = 0;
+                    self.BaoCaoChiTiet.SumTienChietKhau = 0;
 
-                    self.Paging.TotalRow = x.dataSoure.TotalRow;
-                    self.Paging.PageView = x.dataSoure.PageView;
-                    self.Paging.NumberOfPage = x.dataSoure.NumOfPage;
-                    self.Paging.ListPage = x.dataSoure.ListPage;
+                    self.Paging.TotalRow = 0;
+                    self.Paging.PageView = '';
+                    self.Paging.NumberOfPage = 0;
+                    self.Paging.ListPage = [];
                 }
             }).always(function () {
                 $('#tblDetail').gridLoader({ show: false })
             })
         },
         showModalThemMoi: function () {
-            let self = this;
             vmHoaHongKhachGioiThieu.showModal();
         },
         showModalUpdate: async function (item) {
@@ -365,6 +384,17 @@
                     break;
             }
         },
+        LoadAgain_LichSuThanhToan: async function () {
+            let self = this;
+            let his = await self.GetLichSuThanhToan(self.inforOld.ID);
+            self.LichSuThanhToan = his;
+        },
+        ChangeLoaiBaoCao: function () {
+            let self = this;
+            self.Paging.CurrentPage = 1;
+            self.LoadData();
+            self.InitHeader();
+        },
         GetLichSuThanhToan: async function (idHoaDon) {
             let xx = await ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + 'GetQuyHoaDon_byIDHoaDon?idHoaDon=' + idHoaDon, 'GET').done(function () {
             }).then(function (data) {
@@ -383,6 +413,7 @@
         },
         onCallThoiGian: function (value) {
             let self = this;
+            self.filter.TypeTime = value.radioselect;
             if (self.filter.DateFrom !== value.fromdate || self.filter.DateTo !== value.todate) {
                 if (value.fromdate !== '2001-01-01') {
                     self.filter.DateFrom = value.fromdate;
@@ -394,13 +425,13 @@
                 }
                 self.ResetCurrentPage_andLoadData();
             }
-            self.filter.TypeTime = value.radioselect;
         },
         PageChange: function (value) {
             let self = this;
             if (self.Paging.CurrentPage !== value.currentPage) {
                 self.Paging.CurrentPage = value.currentPage;
             } else if (self.Paging.PageSize !== value.pageSize) {
+                self.Paging.CurrentPage = 1;
                 self.Paging.PageSize = value.pageSize;
             }
             self.LoadData();
@@ -449,11 +480,20 @@
             let self = this;
             let param = self.GetParam();
             param.PageSize = self.Paging.TotalRow;
-            param.ReportBranch = self.listData.ChiNhanh.filter(p => p.CNChecked).map(p => p.TenDonVi).toString();
-            param.ReportTime = moment(param.DateFrom, 'YYYY-MM-DD').format('DD/MM/YYYY').concat(' - ',
-                moment(param.DateTo, 'YYYY-MM-DD').add('days', -1).format('DD/MM/YYYY'));
 
-            ajaxHelper(self.UrlAPI.HoaDon + 'Export_PhieuTrichHoaHong', 'POST', param).done(function (pathFile) {
+            let url = '', txt = '';
+            switch (parseInt(self.LoaiBaoCao)) {
+                case 1:
+                    url = 'Export_PhieuTrichHoaHong';
+                    txt = 'danh sách';
+                    break;
+                case 2:
+                    url = '';
+                    txt = 'chi tiết';
+                    break;
+            }
+
+            ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', param).done(function (pathFile) {
                 if (pathFile !== '') {
                     let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
                     window.location.href = url;
@@ -464,8 +504,8 @@
                         ID_NhanVien: VHeader.IdNhanVien,
                         LoaiNhatKy: 6,
                         ChucNang: 'Phiếu trích hoa hồng',
-                        NoiDung: 'Xuất file phiếu trích hoa hồng',
-                        NoiDungChiTiet: 'Xuất file phiếu trích hoa hồng'.
+                        NoiDung: 'Xuất file ' + txt + ' trích hoa hồng',
+                        NoiDungChiTiet: 'Xuất file ' + txt + ' phiếu trích hoa hồng'.
                             concat('<br /> Người xuất: ', VHeader.UserLogin),
                     }
                     Insert_NhatKyThaoTac_1Param(diary);
@@ -475,9 +515,17 @@
     }
 })
 
-$('#vmHoaHongKhachGioiThieu').on('hidden.bs.modal', function () {
-    debugger
-    if (vmHoaHongKhachGioiThieu.saveOK) {
-        vmDanhSachHoaHongGioiThieu.ResetCurrentPage_andLoadData();
-    }
+$(function () {
+    $('#vmHoaHongKhachGioiThieu').on('hidden.bs.modal', function () {
+        if (vmHoaHongKhachGioiThieu.saveOK) {
+            vmDanhSachHoaHongGioiThieu.ResetCurrentPage_andLoadData();
+        }
+    })
+
+    $('#vmThanhToanNCC').on('hidden.bs.modal', function () {
+        if (vmThanhToanNCC.saveOK) {
+            vmDanhSachHoaHongGioiThieu.LoadAgain_LichSuThanhToan();
+        }
+    })
 })
+
