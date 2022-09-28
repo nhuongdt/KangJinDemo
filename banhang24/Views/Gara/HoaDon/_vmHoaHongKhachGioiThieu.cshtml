@@ -86,16 +86,6 @@
                                                v-on:change-staff-parent="ChangeNguoiGioiThieu">
                                     </nhanviens>
                                 </div>
-                                @*<div v-if="newHoaDon.TongChietKhau == '0'">
-                                        <contacts :text-search="txtLienHe"
-                                                  :list-all="listData.LienHes"
-                                                  :list-search="listData.LienHes"
-                                                  :show-btn-add="true"
-                                                  v-on:show-modal="showModalContact"
-                                                  v-on:reset-item-chose="ResetNguoiGioiThieu"
-                                                  v-on:chose-item="ChangeNguoiGioiThieu">
-                                        </contacts>
-                                    </div>*@
                             </div>
                         </div>
                         <div class="form-group nopadding">
@@ -158,12 +148,89 @@
                         </div>
                         <div class="col-lg-6 col-xs-12 col-sm-6 col-md-6 nopadding-right">
                             <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-left">
-                                <label>
+                                <label v-if="typeUpdate === 1">
                                     Tổng thanh toán
                                 </label>
-                                <p style="font-size:10px"><i>({{inforThanhToan.LoaiTien}})</i></p>
+                                <label v-if="typeUpdate === 2">
+                                    Tổng giá trị
+                                </label>
+                                <span class="commodity-note">
+                                    <i class="fal fa-info-circle"></i>
+                                    <span class="materiall">
+                                        <template>
+                                            <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12 nopadding-left">
+                                                <div class="col-lg-8 col-xs-12 col-sm-8 col-md-8 nopadding-left">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            Tổng giá trị
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>
+                                                            Đã thanh toán
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-xs-12 col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            {{formatNumber3Digit(newHoaDon.TongTienHang)}}
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>
+                                                            {{formatNumber3Digit(newHoaDon.KhachDaTra)}}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12 nopadding-left" style="border-top:1px solid #ccc"
+                                                 v-if="inforThanhToan.HoanTraTamUng == 0">
+                                                <div class="col-lg-8 col-xs-12 col-sm-8 col-md-8 nopadding-left">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            Cần thanh toán
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-xs-12 col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            {{formatNumber3Digit(inforThanhToan.PhaiThanhToan)}}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" style="border-top:1px solid #ccc"
+                                                 v-if="inforThanhToan.HoanTraTamUng > 0">
+                                                <div class="col-lg-8 col-xs-12 col-sm-8 col-md-8 nopadding-left">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            Thu lại khách
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-xs-12 col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            {{formatNumber3Digit(inforThanhToan.HoanTraTamUng)}}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </span>
+                                </span>
+                                <p style="font-size:10px" v-if="typeUpdate === 1">
+                                    <i>({{inforThanhToan.LoaiTien}})</i>
+                                </p>
                             </div>
-                            <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-right floatRight ">
+                            <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-right floatRight " v-if="typeUpdate === 2">
+                                <label style="float:right!important">
+                                    {{formatNumber3Digit(newHoaDon.TongTienHang)}}
+                                </label>
+                            </div>
+                            <div class="col-lg-4 col-xs-6 col-sm-6 col-md-6 nopadding-right floatRight " v-if="typeUpdate === 1">
                                 <label style="float:right!important">
                                     {{formatNumber3Digit(inforThanhToan.DaThanhToan)}}
                                 </label>
@@ -334,20 +401,11 @@
                 <button type="button" class="btn btn-cancel " data-dismiss="modal">
                     <i class="fa fa-ban"></i>Đóng
                 </button>
-                <button type="button" class="btn btn-cancel "
-                        v-if="typeUpdate == 2  && !$root.isKhoaSo">
-                    <i class="fa fa-trash"></i> Xóa
-                </button>
                 <button type="button" class="btn btn-save "
-                        v-if="!isLoading && typeUpdate === 2 && !$root.isKhoaSo">
+                        v-if="!isLoading"
+                        v-on:click="saveHoaDon(1)">
                     <i class="fa fa-save"></i>
-                    Cập nhật
-                </button>
-                <button type="button" class="btn btn-save "
-                        v-if="!isLoading && typeUpdate === 1"
-                        v-on:click="saveHoaDon">
-                    <i class="fa fa-save"></i>
-                    Lưu
+                    Lưu và thanh toán
                 </button>
                 <button type="button" class="btn btn-save " v-if="isLoading">
                     <i class="fa fa-save"></i>
@@ -464,10 +522,6 @@
                 NhanViens: [],
                 LienHes: [],
             },
-            //HoaDon_ofCus: {
-            //    ListAll: [],
-            //    ListBoSung: [],
-            //},
             ThongTinChiTiet: [],
 
             inforThanhToan: {
@@ -672,10 +726,10 @@
                 let item = hd[0];
                 self.inforThanhToan = {
                     LoaiTien: 'Tiền mặt',
-                    TienMat: item.KhachDaTra,
+                    TienMat: item.TongTienHang - item.KhachDaTra,
                     TienCK: 0,
-                    PhaiThanhToan: item.TongTienHang,
-                    DaThanhToan: item.TongTienHang,
+                    PhaiThanhToan: item.TongTienHang - item.KhachDaTra,
+                    DaThanhToan: item.TongTienHang - item.KhachDaTra,
                     TienThua: 0,
                     HoanTraTamUng: 0,
                     ID_KhoanThuChi: null,
@@ -711,6 +765,10 @@
                     x['DaTrich'] = 0
                 })
 
+                let arrIDHoaDonCK = lstCT.map(function (x) {
+                    return x.ID_HoaDon_DuocCK;
+                })
+
                 for (let i = 0; i < lstCT.length; i++) {
                     let ct = lstCT[i];
                     if ($.inArray(ct.ID_DoiTuong, arrIDCus) === -1) {
@@ -724,15 +782,15 @@
                             TenDoiTuong: ct.TenDoiTuong,
                             DienThoai: ct.DienThoai,
                             HoaDons: lstCT.filter(x => x.ID_DoiTuong === ct.ID_DoiTuong),
-                            HoaDonBoSung: lstHD.filter(x => x.TrangThai === 1),
+                            HoaDonBoSung: lstHD.filter(x => x.TrangThai === 1 && $.inArray(x.ID_HoaDon_DuocCK, arrIDHoaDonCK) === -1),
                         };
                         self.ThongTinChiTiet.push(obj);
                     }
                 }
 
                 self.inforOld = $.extend({}, true, self.newHoaDon);
-                self.inforOld.ThongTinChiTiet = $.extend({}, true, self.ThongTinChiTiet);
-                console.log('self.inforOld ', self.inforOld)
+                self.inforOld.ThongTinChiTiet = $.extend([], true, self.ThongTinChiTiet);
+                console.log('self.inforOld ', self.inforOld.ThongTinChiTiet)
 
                 $('#vmHoaHongKhachGioiThieu').modal('show');
             },
@@ -820,6 +878,41 @@
                 }
                 self.newHoaDon.ID_CheckIn = item.ID;
 
+                if (self.typeUpdate === 2) {
+                    if (self.inforOld.ID_CheckIn !== item.ID) {
+                        self.newHoaDon.KhachDaTra = 0;
+
+                        self.inforThanhToan = {
+                            LoaiTien: 'Tiền mặt',
+                            TienMat: self.newHoaDon.TongTienHang,
+                            TienCK: 0,
+                            PhaiThanhToan: self.newHoaDon.TongTienHang,
+                            DaThanhToan: self.newHoaDon.TongTienHang,
+                            TienThua: 0,
+                            HoanTraTamUng: 0,
+                            ID_KhoanThuChi: null,
+                            ID_TaiKhoanPos: null,
+                            ID_TaiKhoanNganHang: null,
+                        };
+                    }
+                    else {
+                        self.newHoaDon.KhachDaTra = self.inforOld.KhachDaTra;
+
+                        self.inforThanhToan = {
+                            LoaiTien: 'Tiền mặt',
+                            TienMat: self.newHoaDon.TongTienHang - self.inforOld.KhachDaTra,
+                            TienCK: 0,
+                            PhaiThanhToan: self.newHoaDon.TongTienHang - self.inforOld.KhachDaTra,
+                            DaThanhToan: self.newHoaDon.TongTienHang - self.inforOld.KhachDaTra,
+                            TienThua: 0,
+                            HoanTraTamUng: 0,
+                            ID_KhoanThuChi: null,
+                            ID_TaiKhoanPos: null,
+                            ID_TaiKhoanNganHang: null,
+                        };
+                    }
+                }
+
                 let $this = $(event.currentTarget);
                 $($this).closest('div').hide();
                 $($this).closest('div').prev('focus');
@@ -900,8 +993,9 @@
             ChangeLoaiDoiTuong: function () {
                 let self = this;
                 self.newHoaDon.ID_CheckIn = null;
-                self.newHoaDon.TenDoiTuong = '';
-                self.newHoaDon.MaDoiTuong = '';
+                self.newHoaDon.MaNguoiGioiThieu = '';
+                self.newHoaDon.TenNguoiGioiThieu = '';
+                self.newHoaDon.SDTNguoiGioiThieu = '';
             },
             showlistHDBoSung: function () {
                 let self = this;
@@ -1025,13 +1119,20 @@
                     }
                 }
                 self.newHoaDon.TongTienHang = sum;
-                self.newHoaDon.HoanTraTamUng = sum;// used to savePhieuChi
 
-                self.inforThanhToan.TienMat = sum;
-                self.inforThanhToan.DaThanhToan = sum;
-                self.inforThanhToan.PhaiThanhToan = sum;
+                let phaitt = sum - self.newHoaDon.KhachDaTra;
+                if (phaitt > 0) {
+                    self.inforThanhToan.PhaiThanhToan = phaitt;
+                    self.inforThanhToan.HoanTraTamUng = 0;
+                }
+                else {
+                    self.inforThanhToan.PhaiThanhToan = 0;
+                    self.inforThanhToan.HoanTraTamUng = Math.abs(phaitt);
+                }
+                self.inforThanhToan.TienMat = Math.abs(sum);
+                self.inforThanhToan.DaThanhToan = Math.abs(sum);
             },
-            saveHoaDon: function () {// used to lui ngaylapHD
+            saveHoaDon: function (isSavePhieuChi = 1) {// used to lui ngaylapHD
                 let self = this;
                 let check = self.CheckSave();
                 if (!check) {
@@ -1084,8 +1185,12 @@
                     user = '<br /> Người tạo: '.concat(VHeader.UserLogin);
                 }
                 else {
+                    url = 'Update_HoaDonTrichHoaHong';
                     sType = 'Cập nhật';
                     user = '<br /> Người sửa: '.concat(VHeader.UserLogin);
+
+                    hd.ID = self.newHoaDon.ID;
+                    hd.NguoiSua = VHeader.UserLogin;
 
                     let sLoaiOld = '';
                     switch (parseInt(self.inforOld.TongChietKhau)) {
@@ -1112,6 +1217,29 @@
                         ' <br /> Mã người giới thiệu: ', self.inforOld.MaNguoiGioiThieu,
                         ' <br /> Tên người giới thiệu: ', self.inforOld.TenNguoiGioiThieu,
                         ' <br /> Tổng giá trị: ', formatNumber3Digit(self.inforOld.TongTienHang));
+
+                    let sListHDOld = '';
+                    for (let i = 0; i < self.inforOld.ThongTinChiTiet.length; i++) {
+                        let forOut = self.inforOld.ThongTinChiTiet[i];
+                        let sDetail = '';
+                        for (let j = 0; j < forOut.HoaDons.length; j++) {
+                            let forIn = forOut.HoaDons[j];
+                            let obj = {
+                                ID_ParentCombo: forIn.ID_HoaDon_DuocCK,
+                                PTChietKhau: forIn.PTChietKhau,
+                                TienChietKhau: forIn.TienChietKhau,
+                                SoThuTu: 1,// 1.thucthu, 2.doanhthu
+                                MaHangHoa: '',
+                                TenHangHoa: '',
+                                PTThue: forIn.TrangThai, //1.trich bosung
+                            };
+                            cthd.push(obj);
+                            sDetail = sDetail.concat('<br /> - <a> ', forIn.MaHoaDon, ' </a>, Thực thu: ', formatNumber3Digit(forIn.ConLai),
+                                ', PT chiết khấu: ', forIn.PTChietKhau, ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
+                        }
+                        sListHDOld = sListHDOld.concat('<br /> ', i + 1, '. ', forOut.TenDoiTuong, ' (', forOut.MaDoiTuong, ')', sDetail);
+                    }
+                    sOld = sOld.concat(' <br /> Thông tin chi tiết: ', sListHDOld);
                 }
 
                 let myData = {
@@ -1121,6 +1249,7 @@
                 if (!$.isEmptyObject(hd)) {
                     self.isLoading = true;
                     ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', myData).done(function (x) {
+                        console.log(x)
                         if (x.res) {
                             self.saveOK = true;
                             ShowMessage_Success(sType + ' phiếu trích hoa hồng thành công');
@@ -1137,58 +1266,62 @@
                                     ' <br /> Người giới thiệu là: ', self.sLoaiDoiTuong,
                                     ' <br /> Mã người giới thiệu: ', self.newHoaDon.MaNguoiGioiThieu,
                                     ' <br /> Tên người giới thiệu: ', self.newHoaDon.TenNguoiGioiThieu,
-                                    ' <br /> Tổng thanh toán: ', formatNumber3Digit(self.inforThanhToan.DaThanhToan),
+                                    ' <br /> Tổng giá trị: ', formatNumber3Digit(self.inforThanhToan.DaThanhToan),
                                     sListHD, user, sOld),
                             }
                             Insert_NhatKyThaoTac_1Param(diary);
 
-                            let idCus = null, idNhanVien = null;
-                            let loaiDT = parseInt(self.newHoaDon.TongChietKhau);
-                            switch (loaiDT) {
-                                case 5:// nhanvien
-                                    idCus = null;
-                                    idNhanVien = self.newHoaDon.ID_CheckIn;
-                                    break;
-                                default:
-                                    idCus = self.newHoaDon.ID_CheckIn;
-                                    idNhanVien = null;
-                                    break;
-                            }
+                            if (isSavePhieuChi) {
 
-                            vmThanhToan.inforHoaDon = {
-                                ID: data.ID,
-                                MaHoaDon: data.MaHoaDon,
-                                NgayLapHoaDon: data.NgayLapHoaDon,
-                                LoaiDoiTuong: loaiDT, // used to save diary at phieuchi
-                                ID_DoiTuong: idCus,
-                                ID_DonVi: self.newHoaDon.ID_DonVi,
-                                LoaiHoaDon: self.newHoaDon.LoaiHoaDon,
-                                ID_NhanVien: self.inforLogin.ID_NhanVien,
-                                ID_CheckIn: idNhanVien,
-                                MaDoiTuong: self.newHoaDon.MaNguoiGioiThieu,
-                                TenDoiTuong: self.newHoaDon.TenNguoiGioiThieu,
-                                DienGiai: self.newHoaDon.DienGiai,
-                                NguoiTao: self.inforLogin.UserLogin,
-                                SoDuDatCoc: 0,
-                                PhaiThanhToan: self.newHoaDon.TongTienHang,
-                                KhachDaTra: self.newHoaDon.KhachDaTra,
-                                HoanTraTamUng: 0,
-                                KhachDaTra: 0,
-                            };
-                            vmThanhToan.PhieuThuKhach = {
-                                TTBangDiem: 0,
-                                TienPOS: 0,
-                                TienTheGiaTri: 0,
-                                TienDatCoc: 0,
-                                LoaiDoiTuong: loaiDT,
-                                HoanTraTamUng: 0,// !important
-                                TienMat: self.inforThanhToan.TienMat,
-                                TienCK: self.inforThanhToan.TienCK,
-                                DaThanhToan: self.inforThanhToan.DaThanhToan - self.newHoaDon.KhachDaTra,// !important
-                                ID_TaiKhoanPos: null,
-                                ID_TaiKhoanNganHang: null,
+                                let idCus = null, idNhanVien = null;
+                                let loaiDT = parseInt(self.newHoaDon.TongChietKhau);
+                                switch (loaiDT) {
+                                    case 5:// nhanvien
+                                        idCus = null;
+                                        idNhanVien = self.newHoaDon.ID_CheckIn;
+                                        break;
+                                    default:
+                                        idCus = self.newHoaDon.ID_CheckIn;
+                                        idNhanVien = null;
+                                        break;
+                                }
+
+                                vmThanhToan.inforHoaDon = {
+                                    ID: data.ID,
+                                    MaHoaDon: data.MaHoaDon,
+                                    NgayLapHoaDon: data.NgayLapHoaDon,
+                                    LoaiDoiTuong: loaiDT, // used to save diary at phieuchi
+                                    ID_DoiTuong: idCus,
+                                    ID_DonVi: self.newHoaDon.ID_DonVi,
+                                    LoaiHoaDon: self.newHoaDon.LoaiHoaDon,
+                                    ID_NhanVien: self.inforLogin.ID_NhanVien,
+                                    ID_CheckIn: idNhanVien,
+                                    MaDoiTuong: self.newHoaDon.MaNguoiGioiThieu,
+                                    TenDoiTuong: self.newHoaDon.TenNguoiGioiThieu,
+                                    DienGiai: self.newHoaDon.DienGiai,
+                                    NguoiTao: self.inforLogin.UserLogin,
+                                    SoDuDatCoc: 0,
+                                    PhaiThanhToan: self.newHoaDon.TongTienHang,
+                                    KhachDaTra: self.newHoaDon.KhachDaTra,
+                                    HoanTraTamUng: 0,
+                                    KhachDaTra: 0,
+                                };
+                                vmThanhToan.PhieuThuKhach = {
+                                    TTBangDiem: 0,
+                                    TienPOS: 0,
+                                    TienTheGiaTri: 0,
+                                    TienDatCoc: 0,
+                                    LoaiDoiTuong: loaiDT,
+                                    PhaiThanhToan: self.inforThanhToan.HoanTraTamUng,
+                                    HoanTraTamUng: self.inforThanhToan.HoanTraTamUng,
+                                    TienMat: self.inforThanhToan.TienMat,
+                                    TienCK: self.inforThanhToan.TienCK,
+                                    DaThanhToan: self.inforThanhToan.DaThanhToan,// !important
+                                    ID_TaiKhoanPos: null,
+                                    ID_TaiKhoanNganHang: null,
+                                }
+                                vmThanhToan.SavePhieuThu();
                             }
-                            vmThanhToan.SavePhieuThu();
                         }
                         else {
                             ShowMessage_Danger(sType + ' phiếu trích hoa hồng thất bại');
