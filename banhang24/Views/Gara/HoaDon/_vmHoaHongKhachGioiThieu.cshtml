@@ -149,7 +149,9 @@
                                             </button>
                                             <div style="border-bottom:1px dashed #ccc; margin: 0 5px"></div>
                                         </div>
-                                        <input class="form-control" />
+                                        <date-range style="text-align:center"
+                                                    v-on:daterange-change="ChangeDateRange">
+                                        </date-range>
                                     </div>
                                 </div>
                             </div>
@@ -366,6 +368,7 @@
             'dropdown': cmpDropdown1Item,
             'nhanviens': ComponentChoseStaff,
             'contacts': cmpNguoiLienHe,
+            'date-range': cmpDateRange
         },
         created: function () {
             var self = this;
@@ -514,7 +517,51 @@
                 });
                 return xx;
             },
-            ChoseTypeTime: async function (item, isFistLoad = false) {
+            AddHoaDon_WhenChangeDate: async function () {
+                let self = this;
+                for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                    let itFor = self.ThongTinChiTiet[i];
+
+                    let hd = await self.GetListHoaDon_byIDCus(itFor.ID_DoiTuong);
+                    if (hd.length > 0) {
+                        hd.map(function (x) {
+                            x['PTChietKhau'] = ''
+                            x['TienChietKhau'] = ''
+                        })
+
+                        for (let k = 0; k < hd.length; k++) {
+                            let hdNew = hd[k];
+                            // chi add neu chua tontai trong hd & hdbs
+                            let exHD = $.grep(itFor.HoaDons, function (x) {
+                                return x.ID_HoaDon_DuocCK === hdNew.ID_HoaDon_DuocCK;
+                            });
+                            let hdBS = $.grep(itFor.HoaDonBoSung, function (x) {
+                                return x.ID_HoaDon_DuocCK === hdNew.ID_HoaDon_DuocCK;
+                            });
+
+                            if (exHD.length === 0 && hdBS.length === 0) {
+                                switch (hdNew.TrangThai) {
+                                    case 0:
+                                        itFor.HoaDons.push(hdNew);
+                                        break;
+                                    case 1:
+                                        itFor.HoaDonBoSung.push(hdNew);
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            ChangeDateRange: function (time) {
+                let self = this;
+                self.filter.TextDate = ''.concat(time.startDate.format('DD/MM/YYYY'), ' - ',
+                    time.endDate.format('DD/MM/YYYY'));
+                self.filter.DateFrom = time.startDate.format('YYYY-MM-DD');
+                self.filter.DateTo = time.endDate.add(1, 'days').format('YYYY-MM-DD');
+                self.AddHoaDon_WhenChangeDate();
+            },
+            ChoseTypeTime: function (item, isFistLoad = false) {
                 let self = this;
                 let _now = new Date();
                 let from = '', to = '';
@@ -559,40 +606,7 @@
                     moment(to, 'YYYY-MM-DD').add('days', -1).format('DD/MM/YYYY'));
 
                 if (!isFistLoad) {
-                    for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
-                        let itFor = self.ThongTinChiTiet[i];
-
-                        let hd = await self.GetListHoaDon_byIDCus(itFor.ID_DoiTuong);
-                        if (hd.length > 0) {
-                            hd.map(function (x) {
-                                x['PTChietKhau'] = ''
-                                x['TienChietKhau'] = ''
-                            })
-
-                            for (let k = 0; k < hd.length; k++) {
-                                let hdNew = hd[k];
-                                // chi add neu chua tontai trong hd & hdbs
-                                let exHD = $.grep(itFor.HoaDons, function (x) {
-                                    return x.ID_HoaDon_DuocCK === hdNew.ID_HoaDon_DuocCK;
-                                });
-                                let hdBS = $.grep(itFor.HoaDonBoSung, function (x) {
-                                    return x.ID_HoaDon_DuocCK === hdNew.ID_HoaDon_DuocCK;
-                                });
-
-                                if (exHD.length === 0 && hdBS.length === 0) {
-                                    switch (hdNew.TrangThai) {
-                                        case 0:
-                                            itFor.HoaDons.push(hdNew);
-                                            break;
-                                        case 1:
-                                            itFor.HoaDonBoSung.push(hdNew);
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    console.log(self.ThongTinChiTiet)
+                    self.AddHoaDon_WhenChangeDate();
                 }
             },
             showModal: function () {
