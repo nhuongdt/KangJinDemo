@@ -57,6 +57,13 @@ namespace Model
         public string LoaiHoaDons { get; set; }
     }
 
+    public class ParamHoaHongGioiThieu: CommonParamSearch
+    {
+        public string TextSearch2 { get; set; }
+        public List<string> LoaiDoiTuongs { get; set; }
+        public int? LaHoaDonBoSung { get; set; }
+    }
+
     public class Param_ReportText
     {
         public List<int> ColumnHide { get; set; }
