@@ -227,6 +227,7 @@ namespace Model
         public Guid? ID_DoiTuong { get; set; }
         public Guid? ID_HoaDon_DuocCK { get; set; }
         public Guid? ID_QuyHoaDon { get; set; }
+        public int? LoaiHoaDon { get; set; }// loaiHD trich: hdban, the, gdv
         public string MaHoaDon { get; set; }
         public DateTime? NgayLapHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
@@ -241,10 +242,27 @@ namespace Model
         public int? TrangThai { get; set; }
     }
 
+    public class BCHoaHongGioiThieu_ChiTiet: HoaHongGioiThieu_ChiTiet_DTO
+    {
+        public Guid? ID { get; set; }
+        public Guid? ID_CheckIn { get; set; }// idnguoigt
+        public string MaPhieuTrich { get; set; }
+        public DateTime? NgayLapPhieuTrich { get; set; }
+        public double? TongChietKhau { get; set; }// loaiDoiTuong (int)
+        public string SLoaiDoiTuong { get; set; }
+        public string MaNguoiGioiThieu { get; set; }
+        public string TenNguoiGioiThieu { get; set; }
+        public int? TotalRow { get; set; }
+        public double? SumTongTienHang { get; set; }
+        public double? SumDaTrich { get; set; }
+        public double? SumTienChietKhau { get; set; }
+    }
+
     public class HoaHongGioiThieuDTO
     {
         public Guid? ID { get; set; }
         public Guid? ID_CheckIn { get; set; }// idnguoigt
+        public Guid? ID_DonVi { get; set; }
         public string MaHoaDon { get; set; }
         public DateTime? NgayLapHoaDon { get; set; }
         public double? TongChietKhau { get; set; }// loaiDoiTuong (int)
@@ -255,7 +273,7 @@ namespace Model
         public double? KhachDaTra { get; set; }
         public double? ConNo { get; set; }
         public string DienGiai { get; set; }
-        public string STrangThai { get; set; }
+        public string STrangThai { get; set; }// hoanthanh, huy
         public string NguoiTao { get; set; }
         public string TenDonVi { get; set; }
         public int? TotalRow { get; set; }
