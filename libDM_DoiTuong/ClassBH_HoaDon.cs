@@ -4680,11 +4680,12 @@ namespace libDM_DoiTuong
             }
             return new List<HoaHongGioiThieu_ChiTiet_DTO>();
         }
-        public List<HoaHongGioiThieuDTO> GetList_PhieuTrichHoaHong(ParamNKyGDV param)
+        public List<HoaHongGioiThieuDTO> GetList_PhieuTrichHoaHong(ParamHoaHongGioiThieu param)
         {
             List<SqlParameter> lstParam = new List<SqlParameter>();
             string idChiNhanhs = string.Empty,
-                trangthais = string.Empty;
+                trangthais = string.Empty,
+                loaiDoiTuongs = string.Empty;
             if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
             {
                 idChiNhanhs = string.Join(",", param.IDChiNhanhs);
@@ -4693,12 +4694,16 @@ namespace libDM_DoiTuong
             {
                 trangthais = string.Join(",", param.TrangThais);
             }
+            if (param.LoaiDoiTuongs != null && param.LoaiDoiTuongs.Count > 0)
+            {
+                loaiDoiTuongs = string.Join(",", param.LoaiDoiTuongs);
+            }
 
             lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs ?? (object)DBNull.Value));
             lstParam.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
             lstParam.Add(new SqlParameter("DateFrom", param.DateFrom ?? (object)DBNull.Value));
             lstParam.Add(new SqlParameter("DateTo", param.DateTo ?? (object)DBNull.Value));
-            lstParam.Add(new SqlParameter("LoaiDoiTuongs", param.LoaiHoaDons ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("LoaiDoiTuongs", loaiDoiTuongs ?? (object)DBNull.Value));
             lstParam.Add(new SqlParameter("TrangThais", trangthais ?? (object)DBNull.Value));
             lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage));
             lstParam.Add(new SqlParameter("PageSize", param.PageSize));
@@ -4715,6 +4720,38 @@ namespace libDM_DoiTuong
         {
             SqlParameter param = new SqlParameter("ID", id);
             return db.Database.SqlQuery<HoaHongGioiThieu_ChiTiet_DTO>(" EXEC dbo.GetChiTietHoaHongGioiThieu_byID @ID", param).ToList();
+        }
+
+        public List<BCHoaHongGioiThieu_ChiTiet> GetAll_ChiTietPhieuTrich(ParamHoaHongGioiThieu param)
+        {
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            string idChiNhanhs = string.Empty,
+                trangthais = string.Empty,
+                 loaiDoiTuongs = string.Empty;
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
+            {
+                idChiNhanhs = string.Join(",", param.IDChiNhanhs);
+            }
+            if (param.TrangThais != null && param.TrangThais.Count > 0)
+            {
+                trangthais = string.Join(",", param.TrangThais);
+            }
+            if (param.LoaiDoiTuongs != null && param.LoaiDoiTuongs.Count > 0)
+            {
+                loaiDoiTuongs = string.Join(",", param.LoaiDoiTuongs);
+            }
+            lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TextSearch2", param.TextSearch2 ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("DateFrom", param.DateFrom ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("DateTo", param.DateTo ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("LoaiDoiTuongs", loaiDoiTuongs ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TrangThais", trangthais ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("LaHoaDonBoSung", param.LaHoaDonBoSung ?? 2));
+            lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage));
+            lstParam.Add(new SqlParameter("PageSize", param.PageSize));
+            return db.Database.SqlQuery<BCHoaHongGioiThieu_ChiTiet>(" EXEC dbo.GetAll_ChiTietPhieuTrich @IDChiNhanhs, @TextSearch, @TextSearch2," +
+            " @DateFrom, @DateTo, @LoaiDoiTuongs, @TrangThais, @LaHoaDonBoSung, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
         #endregion
