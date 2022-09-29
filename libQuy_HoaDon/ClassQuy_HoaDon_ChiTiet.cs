@@ -230,7 +230,7 @@ namespace libQuy_HoaDon
             return strErr;
         }
 
-        public string UpdateIDKhachHang_inSoQuy(Guid idHoaDonLienQuan)
+        public string UpdateIDKhachHang_inSoQuy(Guid idHoaDonLienQuan, int? loaiDoiTuong = 1)
         {
             string strErr = string.Empty;
             SsoftvnContext db = SystemDBContext.GetDBContext();
@@ -242,8 +242,10 @@ namespace libQuy_HoaDon
             {
                 try
                 {
-                    SqlParameter param = new SqlParameter("ID_HoaDonLienQuan", idHoaDonLienQuan);
-                    db.Database.ExecuteSqlCommand(" exec UpdateIDKhachHang_inSoQuy @ID_HoaDonLienQuan ", param);
+                    List<SqlParameter> lstPr = new List<SqlParameter>();
+                    lstPr.Add(new SqlParameter("ID_HoaDonLienQuan", idHoaDonLienQuan));
+                    lstPr.Add(new SqlParameter("LoaiDoiTuong", loaiDoiTuong));
+                    db.Database.ExecuteSqlCommand(" exec UpdateIDKhachHang_inSoQuy @ID_HoaDonLienQuan, @LoaiDoiTuong ", lstPr.ToArray());
                 }
                 catch (Exception e)
                 {

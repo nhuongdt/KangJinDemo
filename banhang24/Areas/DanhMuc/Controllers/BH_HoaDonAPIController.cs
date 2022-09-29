@@ -125,7 +125,49 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpGet, HttpPost]
-        public IHttpActionResult GetList_PhieuTrichHoaHong(ParamNKyGDV param)
+        public string Export_PhieuTrichHoaHong(ParamHoaHongGioiThieu param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                string fileSave = string.Empty;
+                try
+                {
+                    List<HoaHongGioiThieuDTO> lst = classhoadon.GetList_PhieuTrichHoaHong(param);
+                    DataTable excel = _classOFDCM.ToDataTable<HoaHongGioiThieuDTO>(lst);
+                    excel.Columns.Remove("ID");
+                    excel.Columns.Remove("ID_CheckIn");
+                    excel.Columns.Remove("ID_DonVi");
+                    excel.Columns.Remove("TongChietKhau");
+                    excel.Columns.Remove("TotalRow");
+                    excel.Columns.Remove("SumTongTienHang");
+                    excel.Columns.Remove("SumKhachDaTra");
+                    excel.Columns.Remove("SumConNo");
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachPhieuTrichHoaHong.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachPhieuTrichHoaHong.xlsx");
+                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    string columHide = string.Empty;
+                    if (param.ColumnHide != null && param.ColumnHide.Count > 0)
+                    {
+                        columHide = string.Join("_", param.ColumnHide);
+                    }
+                    _classOFDCM.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 4, 28, 24, false, columHide, 1, param.ReportTime, param.ReportBranch);
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("Export_PhieuTrichHoaHong " + ex.InnerException + ex.Message);
+                }
+                return fileSave;
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetList_PhieuTrichHoaHong(ParamHoaHongGioiThieu param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -155,6 +197,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpGet, HttpPost]
+        public IHttpActionResult GetPhieuTrichHoaHong_byID(Guid id)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<HoaHongGioiThieuDTO> data = classhoadon.GetPhieuTrichHoaHong_byID(id);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
         public IHttpActionResult GetChiTietHoaHongGioiThieu_byID(Guid id)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -164,6 +224,35 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                     List<HoaHongGioiThieu_ChiTiet_DTO> data = classhoadon.GetChiTietHoaHongGioiThieu_byID(id);
                     return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetAll_ChiTietPhieuTrich(ParamHoaHongGioiThieu param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<BCHoaHongGioiThieu_ChiTiet> data = classhoadon.GetAll_ChiTietPhieuTrich(param);
+                    var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
+                    int page = 0;
+                    var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
+                    return ActionTrueData(new
+                    {
+                        data,
+                        ListPage = listpage,
+                        PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
+                        (param.CurrentPage * param.PageSize + data.Count()), " trên tổng số ", count, " bản ghi"),
+                        NumOfPage = page,
+                        TotalRow = count
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -4122,11 +4211,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             classhoadon.HuyHoaDonLienQuan(id);
 
                             // update TrangThai = false in Quy_HoaDon
-                            var qct = _classQHDCT.Gets(idhd => idhd.ID_HoaDonLienQuan == id).GroupBy(x => x.ID_HoaDon).ToList();
-                            foreach (var itemCT in qct)
+                            var arrIDQuy = _classQHDCT.Gets(idhd => idhd.ID_HoaDonLienQuan == id).Select(x => x.ID_HoaDon).Distinct().ToList();
+                            foreach (var idQuy in arrIDQuy)
                             {
-                                var qhd = _classQHD.Get(x => x.ID == itemCT.Key);
-                                Quy_HoaDon qhdUpdate = db.Quy_HoaDon.Find(qhd.ID);
+                                Quy_HoaDon qhdUpdate = db.Quy_HoaDon.Find(idQuy);
                                 qhdUpdate.TrangThai = false; // Huy: false
                                 qhdUpdate.NgaySua = DateTime.Now;
                                 qhdUpdate.NguoiSua = nguoiSua;
@@ -5658,7 +5746,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         if (newHD.ID_DoiTuong != idOldCustomer)
                         {
                             ClassQuy_HoaDon_ChiTiet classQuyCT = new ClassQuy_HoaDon_ChiTiet(db);
-                            err += classQuyCT.UpdateIDKhachHang_inSoQuy(newHD.ID);
+                            err += classQuyCT.UpdateIDKhachHang_inSoQuy(newHD.ID, 2);
                         }
                         if (err == string.Empty)
                         {
@@ -7447,7 +7535,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         if (objHoaDon.ID_DoiTuong != idOldCustomer)
                         {
                             ClassQuy_HoaDon_ChiTiet classQuyCT = new ClassQuy_HoaDon_ChiTiet(db);
-                            err += classQuyCT.UpdateIDKhachHang_inSoQuy(objHoaDon.ID);
+                            err += classQuyCT.UpdateIDKhachHang_inSoQuy(objHoaDon.ID, 2);
                         }
 
                         if (err != string.Empty)
@@ -11814,7 +11902,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                         BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
-                        
+
                         Guid idQuiDoi = db.DonViQuiDois.FirstOrDefault().ID;// lưu idQuiDoi bất kỳ
 
                         string sMaHoaDon = string.Empty;
@@ -11853,7 +11941,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ID_DonViQuiDoi = idQuiDoi, // lấy đại 1 trường
                                 ID_HoaDon = objHoaDon.ID,
                                 ID_ParentCombo = item.ID_ParentCombo,// ID_HoaDon_DuocCK
-                                ID_ThueSuat = item.ID_ThueSuat,// ID_QuyHoaDon
+                                PTThue = item.PTThue,// 1. trichbosung
                                 PTChietKhau = item.PTChietKhau,
                                 TienChietKhau = item.TienChietKhau,
                                 SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
@@ -11906,12 +11994,38 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
 
                         Guid idQuiDoi = db.DonViQuiDois.FirstOrDefault().ID;
+                        string sMaHoaDon = string.Empty;
 
                         var hdUp = db.BH_HoaDon.Find(objHoaDon.ID);
+                        Guid? idNguoiGTOld = hdUp.ID_CheckIn;
+
+                        if (string.IsNullOrEmpty(objHoaDon.MaHoaDon))
+                        {
+                            sMaHoaDon = classhoadon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, objHoaDon.NgayLapHoaDon);
+                        }
+                        else
+                        {
+                            bool exist = classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon, objHoaDon.ID);
+                            if (exist)
+                            {
+                                return Json(new { res = false, mes = "Mã hóa đơn đã tồn tại" });
+                            }
+                            sMaHoaDon = objHoaDon.MaHoaDon;
+                        }
+
+                        if (idNguoiGTOld != objHoaDon.ID_CheckIn)
+                        {
+                            ClassQuy_HoaDon_ChiTiet classQuyCT = new ClassQuy_HoaDon_ChiTiet(db);
+                            classQuyCT.UpdateIDKhachHang_inSoQuy(objHoaDon.ID, Convert.ToInt32(hdUp.TongChietKhau));// tongchietkhau ~ loaiDoiTuong
+                        }
+
+                        hdUp.MaHoaDon = sMaHoaDon;
                         hdUp.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
                         hdUp.ID_CheckIn = objHoaDon.ID_CheckIn;// nguoigt
-                        hdUp.TongTienHang = objHoaDon.TongGiamGia;// tong CK
-                        hdUp.TongChietKhau = objHoaDon.TongChietKhau;// tinh CK theo
+                        hdUp.TongTienHang = objHoaDon.TongTienHang;
+                        hdUp.PhaiThanhToan = objHoaDon.PhaiThanhToan;
+                        hdUp.TongThanhToan = objHoaDon.TongThanhToan;
+                        hdUp.TongChietKhau = objHoaDon.TongChietKhau;// loaiDoiTuong
                         hdUp.DienGiai = objHoaDon.DienGiai;
                         hdUp.NguoiSua = objHoaDon.NguoiSua;
                         hdUp.NgaySua = DateTime.Now;
@@ -11928,7 +12042,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ID_DonViQuiDoi = idQuiDoi, // lấy đại 1 trường
                                 ID_HoaDon = objHoaDon.ID,
                                 ID_ParentCombo = item.ID_ParentCombo,// ID_HoaDon_DuocCK
-                                ID_ThueSuat = item.ID_ThueSuat,// ID_QuyHoaDon
+                                PTThue = item.PTThue,// 1.trichbosung
                                 PTChietKhau = item.PTChietKhau,
                                 TienChietKhau = item.TienChietKhau,
                                 SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
@@ -11937,6 +12051,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             lstCT.Add(ctHoaDon);
                         }
                         classhoadonchitiet.Add_ChiTietHoaDon(lstCT);
+                        db.SaveChanges();
                         #endregion
 
                         trans.Commit();
