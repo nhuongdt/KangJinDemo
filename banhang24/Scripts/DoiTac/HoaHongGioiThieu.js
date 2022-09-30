@@ -32,17 +32,6 @@
 
         self.PageLoad();
     },
-    //watch: {
-    //    LoaiBaoCao: {
-    //        handler: function () {
-    //            let self = this;
-    //            self.Paging.CurrentPage = 1;
-    //            self.LoadData();
-    //            self.InitHeader();
-    //        },
-    //        deep: true
-    //    },
-    //},
     computed: {
         txtLeftPlaceholder: function () {
             let self = this;
@@ -53,6 +42,25 @@
                     break;
                 case 2:
                     txt = 'Mã hóa đơn trích, mã khách hàng';
+                    break;
+                case 3:
+                    txt = 'Mã, tên, SĐT người giới thiệu';
+                    break;
+            }
+            return txt;
+        },
+        TenBaoCao: function () {
+            let self = this;
+            let txt = '';
+            switch (parseInt(self.LoaiBaoCao)) {
+                case 1:
+                    txt = 'Danh sách phiếu trích hoa hồng';
+                    break;
+                case 2:
+                    txt = 'Chi tiết phiếu trích hoa hồng';
+                    break;
+                case 3:
+                    txt = 'Danh sách người giới thiệu';
                     break;
             }
             return txt;
@@ -77,26 +85,22 @@
             NumberOfPage: 10,
         },
 
-        HoaDonChiTiet: [],
         LichSuThanhToan: [],
 
-        BaoCaoChiTiet: {
+        TongHop: {
             data: [],
             SumTongTienHang: 0,
             SumDaTrich: 0,
             SumTienChietKhau: 0,
-        },
-
-        BaoCaoTongHop: {
-            data: [],
-            SumDaTrich: 0,
-        },
-
-        HoaDon: {
-            data: [],
-            SumTongTienHang: 0,
             SumKhachDaTra: 0,
             SumConNo: 0,
+        },
+
+        ChiTiet: {
+            data: [],
+            SumTongTienHang: 0,
+            SumDaTrich: 0,
+            SumTienChietKhau: 0,
         },
 
         filter: {
@@ -104,6 +108,10 @@
             TypeTime: 0,
             DateFrom: null,
             DateTo: null,
+
+            NgayTao_TypeTime: 0,
+            NgayTaoFrom: null,
+            NgayTaoTo: null,
 
             LaHoaDonBoSung: 0,// 1. 
         },
@@ -115,6 +123,9 @@
             TrangThai: [
                 { Text: 'Hoàn thành', Value: 0, Checked: true },
                 { Text: 'Đã hủy', Value: 2, Checked: false }],
+            TrangThaiHoatDong: [
+                { Text: 'Đang theo dõi', Value: 1, Checked: true },
+                { Text: 'Ngừng theo dõi', Value: 0, Checked: false }],
             LoaiDoiTuong: [
                 { Text: 'Khách hàng', Value: 1, Checked: true },
                 { Text: 'Nhân viên', Value: 5, Checked: true },
@@ -182,25 +193,20 @@
                     { colName: 'colMaKhachHang', colText: 'Mã khách hàng', colShow: false, index: 7 },
                     { colName: 'colTenKhachHang', colText: 'Tên khách hàng', colShow: true, index: 8 },
                     { colName: 'colTongThanhToan', colText: 'Giá trị HĐ', colShow: true, index: 9 },
-                    { colName: 'colGiaTriTinh', colText: 'Giá trị tính', colShow: true, index: 10 },
-                    { colName: 'colPTChietKhau', colText: '% trích', colShow: false, index: 11 },
-                    { colName: 'colTienChietKhau', colText: 'Tiền hoa hồng', colShow: true, index: 12 },
+                    { colName: 'colPTChietKhau', colText: '% trích', colShow: false, index: 10 },
+                    { colName: 'colTienChietKhau', colText: 'Tiền hoa hồng', colShow: true, index: 11 },
                     ]
                     break;
                 case 3:
-                    self.ListHeader = [{ colName: 'colMaHoaDon', colText: 'Mã phiếu', colShow: true, index: 0 },
-                    { colName: 'colNgayLapPhieu', colText: 'Ngày lập phiếu', colShow: true, index: 1 },
-                    { colName: 'colLoaiDoiTuong', colText: 'Loại đối tượng', colShow: true, index: 2 },
-                    { colName: 'colMaNguoiGT', colText: 'Mã người giới thiệu', colShow: true, index: 3 },
-                    { colName: 'colTenNguoiGT', colText: 'Tên người giới thiệu', colShow: true, index: 4 },
-                    { colName: 'colMaHoaDon', colText: 'Mã hóa đơn trích', colShow: true, index: 5 },
-                    { colName: 'colNgayLapHoaDon', colText: 'Ngày lập HĐ', colShow: true, index: 6 },
-                    { colName: 'colMaKhachHang', colText: 'Mã khách hàng', colShow: true, index: 7 },
-                    { colName: 'colTenKhachHang', colText: 'Tên khách hàng', colShow: true, index: 8 },
-                    { colName: 'colTongThanhToan', colText: 'Giá trị HĐ', colShow: false, index: 9 },
-                    { colName: 'colGiaTriTinh', colText: 'Giá trị tính', colShow: false, index: 10 },
-                    { colName: 'colPTTrich', colText: '% trích', colShow: false, index: 11 },
-                    { colName: 'colTienHoaHong', colText: 'Tiền hoa hồng', colShow: false, index: 12 },
+                    self.ListHeader = [
+                        { colName: 'colLoaiDoiTuong', colText: 'Loại đối tượng', colShow: false, index: 1 },
+                        { colName: 'colMaNguoiGT', colText: 'Mã người giới thiệu', colShow: true, index: 2 },
+                        { colName: 'colTenNguoiGT', colText: 'Tên người giới thiệu', colShow: true, index: 3 },
+                        { colName: 'colSDTNguoiGT', colText: 'Số điện thoại', colShow: true, index: 4 },
+                        { colName: 'colTienHoaHong', colText: 'Tiền hoa hồng', colShow: true, index: 5 },
+                        { colName: 'colNguoiTao', colText: 'Người tạo', colShow: false, index: 6 },
+                        { colName: 'colNgayTao', colText: 'Ngày tạo', colShow: false, index: 7 },
+                        { colName: 'colTrangThai', colText: 'Trạng thái', colShow: false, index: 8 },
                     ]
                     break;
             }
@@ -227,6 +233,16 @@
                 laHDBoSung = arrLoaiHD[0].Value;
             }
 
+            let arrTrangThai = [];
+            switch (parseInt(self.LoaiBaoCao)) {
+                case 3:
+                    arrTrangThai = self.listData.TrangThaiHoatDong.filter(p => p.Checked === true);
+                    break;
+                default:
+                    arrTrangThai = self.listData.TrangThai.filter(p => p.Checked === true);
+                    break;
+            }
+
             let txt = self.filter.TextSearch;
             if (!commonStatisJs.CheckNull(txt)) {
                 txt = txt.trim();
@@ -238,7 +254,7 @@
 
             return {
                 IDChiNhanhs: arrCN.map(p => p.ID),
-                TrangThais: self.listData.TrangThai.filter(p => p.Checked === true).map(p => p.Value),
+                TrangThais: arrTrangThai.map(p => p.Value),
                 LoaiDoiTuongs: loaiDT,// 1.kh, 2.ncc,4, nguoi gt #, 5.nhanvien
                 DateFrom: self.filter.DateFrom,
                 DateTo: self.filter.DateTo,
@@ -247,6 +263,9 @@
                 CurrentPage: self.Paging.CurrentPage - 1,
                 PageSize: self.Paging.PageSize,
                 LaHoaDonBoSung: laHDBoSung,
+
+                NgayTaoFrom: self.filter.NgayTaoFrom,
+                NgayTaoTo: self.filter.NgayTaoTo,
 
                 ColumnHide: self.ListHeader.filter(p => p.colShow === false).map(p => p.index),
                 ReportBranch: arrCN.map(p => p.TenDonVi).toString(),
@@ -263,6 +282,9 @@
                 case 2:
                     self.GetAll_ChiTietPhieuTrich();
                     break;
+                case 3:
+                    self.GetList_NguoiGioiThieu();
+                    break;
             }
         },
         GetList_PhieuTrichHoaHong: function () {
@@ -271,12 +293,12 @@
             $('#tb').gridLoader({ show: true });
             ajaxHelper(self.UrlAPI.HoaDon + 'GetList_PhieuTrichHoaHong', 'POST', param).done(function (x) {
                 if (x.res && x.dataSoure.data.length > 0) {
-                    self.HoaDon.data = x.dataSoure.data;
+                    self.TongHop.data = x.dataSoure.data;
 
                     let itFirst = x.dataSoure.data[0];
-                    self.HoaDon.SumTongTienHang = itFirst.SumTongTienHang;
-                    self.HoaDon.SumKhachDaTra = itFirst.SumKhachDaTra;
-                    self.HoaDon.SumConNo = itFirst.SumConNo;
+                    self.TongHop.SumTongTienHang = itFirst.SumTongTienHang;
+                    self.TongHop.SumKhachDaTra = itFirst.SumKhachDaTra;
+                    self.TongHop.SumConNo = itFirst.SumConNo;
 
                     self.Paging.TotalRow = x.dataSoure.TotalRow;
                     self.Paging.PageView = x.dataSoure.PageView;
@@ -284,10 +306,10 @@
                     self.Paging.ListPage = x.dataSoure.ListPage;
                 }
                 else {
-                    self.HoaDon.data = [];
-                    self.HoaDon.SumTongTienHang = 0;
-                    self.HoaDon.SumKhachDaTra = 0;
-                    self.HoaDon.SumConNo = 0;
+                    self.TongHop.data = [];
+                    self.TongHop.SumTongTienHang = 0;
+                    self.TongHop.SumKhachDaTra = 0;
+                    self.TongHop.SumConNo = 0;
 
                     self.Paging.TotalRow = 0;
                     self.Paging.PageView = '';
@@ -302,15 +324,15 @@
             let self = this;
             let param = self.GetParam();
 
-            $('#tblDetail').gridLoader({ show: true });
+            $('#tb').gridLoader({ show: true });
             ajaxHelper(self.UrlAPI.HoaDon + 'GetAll_ChiTietPhieuTrich', 'POST', param).done(function (x) {
                 if (x.res && x.dataSoure.data.length > 0) {
-                    self.BaoCaoChiTiet.data = x.dataSoure.data;
+                    self.TongHop.data = x.dataSoure.data;
 
                     let itFirst = x.dataSoure.data[0];
-                    self.BaoCaoChiTiet.SumTongTienHang = itFirst.SumTongTienHang;
-                    self.BaoCaoChiTiet.SumDaTrich = itFirst.SumDaTrich;
-                    self.BaoCaoChiTiet.SumTienChietKhau = itFirst.SumTienChietKhau;
+                    self.TongHop.SumTongTienHang = itFirst.SumTongTienHang;
+                    self.TongHop.SumDaTrich = itFirst.SumDaTrich;
+                    self.TongHop.SumTienChietKhau = itFirst.SumTienChietKhau;
 
                     self.Paging.TotalRow = x.dataSoure.TotalRow;
                     self.Paging.PageView = x.dataSoure.PageView;
@@ -318,10 +340,10 @@
                     self.Paging.ListPage = x.dataSoure.ListPage;
                 }
                 else {
-                    self.BaoCaoChiTiet.data = [];
-                    self.BaoCaoChiTiet.SumTongTienHang = 0;
-                    self.BaoCaoChiTiet.SumDaTrich = 0;
-                    self.BaoCaoChiTiet.SumTienChietKhau = 0;
+                    self.TongHop.data = [];
+                    self.TongHop.SumTongTienHang = 0;
+                    self.TongHop.SumDaTrich = 0;
+                    self.TongHop.SumTienChietKhau = 0;
 
                     self.Paging.TotalRow = 0;
                     self.Paging.PageView = '';
@@ -329,7 +351,67 @@
                     self.Paging.ListPage = [];
                 }
             }).always(function () {
-                $('#tblDetail').gridLoader({ show: false })
+                $('#tb').gridLoader({ show: false })
+            })
+        },
+        GetList_NguoiGioiThieu: function () {
+            let self = this;
+            let param = self.GetParam();
+
+            $('#tb').gridLoader({ show: true });
+            ajaxHelper(self.UrlAPI.HoaDon + 'GetList_NguoiGioiThieu', 'POST', param).done(function (x) {
+                if (x.res && x.dataSoure.data.length > 0) {
+                    self.TongHop.data = x.dataSoure.data;
+
+                    let itFirst = x.dataSoure.data[0];
+                    self.TongHop.SumTongTienHang = itFirst.SumTongTienHang;
+
+                    self.Paging.TotalRow = x.dataSoure.TotalRow;
+                    self.Paging.PageView = x.dataSoure.PageView;
+                    self.Paging.NumberOfPage = x.dataSoure.NumOfPage;
+                    self.Paging.ListPage = x.dataSoure.ListPage;
+                }
+                else {
+                    self.TongHop.data = [];
+                    self.TongHop.SumTongTienHang = 0;
+
+                    self.Paging.TotalRow = 0;
+                    self.Paging.PageView = '';
+                    self.Paging.NumberOfPage = 0;
+                    self.Paging.ListPage = [];
+                }
+            }).always(function () {
+                $('#tb').gridLoader({ show: false })
+            })
+        },
+        GetPhieuTrichHoaHong_byNguoiGioiThieu: function (idNguoiGT) {
+            let self = this;
+            let param = self.GetParam();
+            param.IDCustomers = [idNguoiGT];
+            param.CurrentPage = 0;
+            param.PageSize = 50;
+
+            $('.table-detail').gridLoader({ show: true });
+            ajaxHelper(self.UrlAPI.HoaDon + 'GetPhieuTrichHoaHong_byNguoiGioiThieu', 'POST', param).done(function (x) {
+                console.log(x)
+                if (x.res && x.dataSoure.data.length > 0) {
+                    self.ChiTiet.data = x.dataSoure.data;
+
+                    self.Paging.TotalRow = x.dataSoure.TotalRow;
+                    self.Paging.PageView = x.dataSoure.PageView;
+                    self.Paging.NumberOfPage = x.dataSoure.NumOfPage;
+                    self.Paging.ListPage = x.dataSoure.ListPage;
+                }
+                else {
+                    self.ChiTiet.data = [];
+
+                    self.Paging.TotalRow = 0;
+                    self.Paging.PageView = '';
+                    self.Paging.NumberOfPage = 0;
+                    self.Paging.ListPage = [];
+                }
+            }).always(function () {
+                $('.table-detail').gridLoader({ show: false })
             })
         },
         showModalThemMoi: function () {
@@ -340,45 +422,35 @@
         },
         RowSelected: async function (item) {
             let self = this;
-            var $this = $(event.currentTarget).closest('tr');
-            if (!$this.hasClass('active')) {
-                $('tr').removeClass('active');
-                $this.addClass('active');
+            switch (parseInt(self.LoaiBaoCao)) {
+                case 1:
+                    if (self.inforOld.ID === item.ID) {
+                        // don't expand class .op-js-tr-hide
+                        self.inforOld = { ID: null, ID_CheckIn: null };
+                    }
+                    else {
+                        let ct = await vmHoaHongKhachGioiThieu.LoadChiTiet(item.ID);
+                        self.ChiTiet.data = ct;
+                        self.inforOld = $.extend({}, true, item);
+                    }
+                    break;
+                case 3:
+                    if (self.inforOld.ID_CheckIn === item.ID_CheckIn) {
+                        self.inforOld = { ID: null, ID_CheckIn: null };
+                    }
+                    else {
+                        self.GetPhieuTrichHoaHong_byNguoiGioiThieu(item.ID_CheckIn);
+                        self.inforOld = $.extend({}, true, item);
+                    }
+                    break;
             }
-            else {
-                $this.removeClass('active');
-            }
-            var $trdetail = $this.next();
-            $('.op-js-tr-hide').css('display', 'none');
-            $('.op-js-tr-hide').not($trdetail).removeClass('active');
-
-            if (!$trdetail.hasClass('active')) {
-                $trdetail.css('display', 'table-row');
-                $trdetail.addClass('active');
-            }
-            else {
-                $trdetail.css('display', 'none');
-                $trdetail.removeClass('active');
-            }
-            $('div[id^=nky_]').removeClass('active');
-            $('#infor_' + item.ID).addClass('active');
-            if (self.inforOld.ID !== item.ID) {
-                let ct = await vmHoaHongKhachGioiThieu.LoadChiTiet(item.ID);
-                self.HoaDonChiTiet = ct;
-            }
-            self.inforOld = $.extend({}, true, item);
         },
         ChangeTab: async function (type, item) {
             let self = this;
             switch (type) {
                 case 0:
-                    $('div[id^=nky_]').removeClass('active');
-                    $('#infor_' + item.ID).addClass('active');
                     break;
                 case 1:
-                    $('div[id^=infor]').removeClass('active');
-                    $('#nky_' + item.ID).addClass('active');
-
                     let his = await self.GetLichSuThanhToan(item.ID);
                     self.LichSuThanhToan = his;
                     break;
@@ -391,6 +463,7 @@
         },
         ChangeLoaiBaoCao: function () {
             let self = this;
+            self.inforOld = { ID: null, ID_CheckIn: null };
             self.Paging.CurrentPage = 1;
             self.LoadData();
             self.InitHeader();
@@ -422,6 +495,21 @@
                 else {
                     self.filter.DateFrom = '';
                     self.filter.DateTo = '';
+                }
+                self.ResetCurrentPage_andLoadData();
+            }
+        },
+        changeNgayTao: function (value) {
+            let self = this;
+            self.filter.NgayTao_TypeTime = value.radioselect;
+            if (self.filter.NgayTaoFrom !== value.fromdate || self.filter.NgayTaoTo !== value.todate) {
+                if (value.fromdate !== '2001-01-01') {
+                    self.filter.NgayTaoFrom = value.fromdate;
+                    self.filter.NgayTaoTo = value.todate;
+                }
+                else {
+                    self.filter.NgayTaoFrom = '';
+                    self.filter.NgayTaoTo = '';
                 }
                 self.ResetCurrentPage_andLoadData();
             }
@@ -528,4 +616,3 @@ $(function () {
         }
     })
 })
-

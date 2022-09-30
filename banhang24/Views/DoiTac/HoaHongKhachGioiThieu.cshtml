@@ -5,6 +5,11 @@
     Layout = null;
     ViewBag.Title = "Open24.vn - Gói dịch vụ";
 }
+<style>
+    table thead tr td {
+        text-align: center;
+    }
+</style>
 
 <div class="op-container" id="vmDanhSachHoaHongGioiThieu">
     <div class="container-fluid nopadding">
@@ -31,7 +36,8 @@
                                 </label>
                             </li>
                             <li>
-                                <input type="radio" name="LoaiBaoCao" id="rdotonghop" value="3" v-model="LoaiBaoCao" class="radio-option" />
+                                <input type="radio" name="LoaiBaoCao" id="rdotonghop" value="3" v-model="LoaiBaoCao" class="radio-option"
+                                       v-on:change="ChangeLoaiBaoCao" />
                                 <label for="rdotonghop">
                                     Tổng hợp
                                 </label>
@@ -62,12 +68,23 @@
 
                     <article class="boxLeft">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
-                            <i class="fal fa-calendar-alt"></i>       Thời gian
+                            <i class="fal fa-calendar-alt"></i>       Thời gian lập phiếu
                         </h3>
                         <aside class="op-filter-container">
                             <filter-datetime radioname="rdThoiGian" v-bind:typetime="filter.TypeTime"
                                              v-on:callfunction="onCallThoiGian"
                                              v-bind:selectvalue="5"></filter-datetime>
+                        </aside>
+                    </article>
+
+                    <article class="boxLeft" v-if="LoaiBaoCao == 3">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-calendar-alt"></i> Ngày tạo
+                        </h3>
+                        <aside class="op-filter-container">
+                            <filter-datetime radioname="rdThoiGian1" v-bind:typetime="filter.NgayTaoFrom"
+                                             v-on:callfunction="changeNgayTao"
+                                             v-bind:selectvalue="0"></filter-datetime>
                         </aside>
                     </article>
 
@@ -86,14 +103,24 @@
                             <i class="far fa-users-class"></i>
                             Loại đối tượng
                         </h3>
-                        <filter-checkbox v-bind:listitem="listData.LoaiDoiTuong" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
+                        <filter-checkbox v-bind:listitem="listData.LoaiDoiTuong"
+                                         v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
                     </article>
-                    <article class="boxLeft">
+                    <article class="boxLeft" v-if="LoaiBaoCao != 3">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <i class="fal fa-toggle-on"></i>
                             Trạng thái
                         </h3>
-                        <filter-checkbox v-bind:listitem="listData.TrangThai" v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
+                        <filter-checkbox v-bind:listitem="listData.TrangThai"
+                                         v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
+                    </article>
+                    <article class="boxLeft" v-if="LoaiBaoCao == 3">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-toggle-on"></i>
+                            Trạng thái hoạt động
+                        </h3>
+                        <filter-checkbox v-bind:listitem="listData.TrangThaiHoatDong"
+                                         v-on:callfunctionloaddata="ResetCurrentPage_andLoadData"></filter-checkbox>
                     </article>
                 </section>
                 <div class="op-filter-footer">
@@ -111,7 +138,7 @@
         <div class="col-right">
             <div class="op-header">
                 <div class="op-header-title">
-                    <h2 class="pull-left title">Hoa hồng khách giới thiệu</h2>
+                    <h2 class="pull-left title">{{TenBaoCao}}</h2>
                 </div>
                 <div class="flex flex-between">
                     <div class=" header-button">
@@ -166,7 +193,8 @@
 
             </div>
             <div class="content-table tab-content" style="top: 48px;position: sticky;">
-                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao == 1 }">
+
+                <div class="tab-pane active" v-if="LoaiBaoCao == 1">
                     <div class="table-frame">
                         <table class="table" id="tb">
                             <thead class="thead-boder">
@@ -177,7 +205,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <template v-for="(item, index) in HoaDon.data">
+                                <template v-for="(item, index) in TongHop.data">
                                     <tr class="prev-tr-hide">
                                         <td v-if="CheckColShow('colMaHoaDon')"
                                             v-on:click="RowSelected(item)">
@@ -221,15 +249,16 @@
                                             {{item.TenDonVi}}
                                         </td>
                                     </tr>
-                                    <tr class="op-js-tr-hide">
+                                    <tr class="op-js-tr-hide" v-bind:style="{display : inforOld.ID == item.ID ? 'table-row' : 'none'}">
                                         <td colspan="18">
                                             <div class="op-object-detail ">
                                                 <ul class="nav nav-tabs">
-                                                    <li class="active"><a data-toggle="tab" v-bind:href="'infor_'+ item.ID" v-on:click="ChangeTab(0,item)">Thông tin</a></li>
-                                                    <li><a data-toggle="tab" v-bind:href="'nky_'+ item.ID" v-on:click="ChangeTab(1, item)">Nhật ký thanh toán</a></li>
+                                                    <li class="active"><a data-toggle="tab" v-bind:href="'#infor_'+ item.ID" v-on:click="ChangeTab(0,item)">Thông tin</a></li>
+                                                    <li><a data-toggle="tab" v-bind:href="'#nky_'+ item.ID" v-on:click="ChangeTab(1, item)">Nhật ký thanh toán</a></li>
                                                 </ul>
+
                                                 <div class="tab-content">
-                                                    <div class="tab-pane active" v-bind:id="'infor_'+ item.ID">
+                                                    <div class="tab-pane active" role="tabpanel" v-bind:id="'infor_'+ item.ID">
                                                         <div class="op-object-detail ">
                                                             <div class="col-md-12 nopadding">
                                                                 <div class="op-object-detail-left min-45 ">
@@ -283,7 +312,7 @@
                                                                 </div>
                                                                 <div class="op-object-detail-right">
                                                                     <div class="table-res loadcthd">
-                                                                        <table class=" table table-filter table-detal" id="tblCT">
+                                                                        <table class=" table table-filter table-detail">
                                                                             <thead>
                                                                                 <tr>
                                                                                     <th>
@@ -302,9 +331,6 @@
                                                                                         Giá trị HĐ
                                                                                     </th>
                                                                                     <th>
-                                                                                        Giá trị tính
-                                                                                    </th>
-                                                                                    <th>
                                                                                         % trích
                                                                                     </th>
                                                                                     <th>
@@ -313,7 +339,7 @@
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                <tr v-for="(ct, index2) in HoaDonChiTiet">
+                                                                                <tr v-for="(ct, index2) in ChiTiet.data">
                                                                                     <td>
                                                                                         <a>{{ct.MaHoaDon}}</a>
                                                                                     </td>
@@ -325,9 +351,6 @@
                                                                                     </td>
                                                                                     <td>
                                                                                         {{ct.TenDoiTuong}}
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        {{formatNumber3Digit(ct.TongThanhToan)}}
                                                                                     </td>
                                                                                     <td>
                                                                                         {{formatNumber3Digit(ct.DaTrich)}}
@@ -374,7 +397,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="tab-pane" v-bind:id="'nky_'+ item.ID">
+                                                    <div class="tab-pane" role="tabpanel" v-bind:id="'nky_'+ item.ID">
                                                         <div class="table-res">
                                                             <table class='table'>
                                                                 <tr>
@@ -424,31 +447,32 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </div>
                                         </td>
                                     </tr>
                                 </template>
                             </tbody>
-                            <tfoot v-if="HoaDon.data.length > 0">
+                            <tfoot v-if="TongHop.data.length > 0">
                                 <tr class="border-bottom bold">
                                     <td v-bind:colspan="ListHeader.filter(p=>p.index < 5 && p.colShow).length">
                                         Tổng cộng
                                     </td>
                                     <td class="text-right">
-                                        {{formatNumber3Digit(HoaDon.SumTongTienHang)}}
+                                        {{formatNumber3Digit(TongHop.SumTongTienHang)}}
                                     </td>
                                     <td class="text-right" v-if="CheckColShow('colKhachDaTra')">
-                                        {{formatNumber3Digit(HoaDon.SumKhachDaTra)}}
+                                        {{formatNumber3Digit(TongHop.SumKhachDaTra)}}
                                     </td>
                                     <td class="text-right" v-if="CheckColShow('colConNo')">
-                                        {{formatNumber3Digit(HoaDon.SumConNo)}}
+                                        {{formatNumber3Digit(TongHop.SumConNo)}}
                                     </td>
                                     <td v-bind:colspan="ListHeader.filter(p=>p.index > 7 && p.colShow).length">
                                     </td>
                                 </tr>
                             </tfoot>
                             <tfoot class="Report_Empty"
-                                   v-if="HoaDon.data.length == 0">
+                                   v-if="TongHop.data.length == 0">
                                 <tr class="text-center">
                                     <td colspan="25">
                                         <i>Không có dữ liệu</i>
@@ -458,16 +482,18 @@
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane" v-bind:class="{ active: LoaiBaoCao == 2 }">
+
+                <div class="tab-pane active" v-if="LoaiBaoCao == 2">
                     <div class="table-frame">
-                        <table class="table" id="tblDetail">
+                        <table class="table" id="tb">
                             <thead class="thead-boder">
                                 <tr>
                                     <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
                                 </tr>
                             </thead>
-                            <tbody v-for="(item, index) in BaoCaoChiTiet.data">
+                            <tbody>
                                 <tr class="prev-tr-hide"
+                                    v-for="(item, index) in TongHop.data"
                                     v-bind:style="{background : item.TrangThai == 1 ? 'yellow' : 'none'}">
                                     <td v-if="CheckColShow('colMaHoaDon')">
                                         <a>{{item.MaPhieuTrich}}</a>
@@ -489,31 +515,27 @@
                                     <td v-if="CheckColShow('colMaKhachHang')"><a>{{item.MaDoiTuong}}</a></td>
                                     <td v-if="CheckColShow('colTenKhachHang')">{{item.TenDoiTuong}}</td>
                                     <td v-if="CheckColShow('colTongThanhToan')" class="text-right">{{formatNumber3Digit(item.TongThanhToan)}}</td>
-                                    <td v-if="CheckColShow('colGiaTriTinh')" class="text-right">{{formatNumber3Digit(item.DaTrich)}}</td>
                                     <td v-if="CheckColShow('colPTChietKhau')" class="text-right">{{item.PTChietKhau}}</td>
                                     <td v-if="CheckColShow('colTienChietKhau')" class="text-right">{{formatNumber3Digit(item.TienChietKhau)}}</td>
                                 </tr>
                             </tbody>
-                            <tfoot class="Report_Empty" v-show="BaoCaoChiTiet.length < 1">
+                            <tfoot class="Report_Empty" v-show="TongHop.data.length < 1">
                                 <tr>
                                     <td class="bg12 text-center" colspan="20"><i>Không có dữ liệu</i></td>
                                 </tr>
                             </tfoot>
-                            <tfoot v-if="BaoCaoChiTiet.data.length > 0">
+                            <tfoot v-if="TongHop.data.length > 0">
                                 <tr class="border-bottom bold">
                                     <td v-bind:colspan="ListHeader.filter(p=>p.index < 9 && p.colShow).length">
                                         Tổng cộng
                                     </td>
-                                    <td class="text-right" v-if="CheckColShow('colTongThanhToan')">
-                                        {{formatNumber3Digit(BaoCaoChiTiet.SumTongTienHang)}}
-                                    </td>
                                     <td class="text-right" v-if="CheckColShow('colGiaTriTinh')">
-                                        {{formatNumber3Digit(BaoCaoChiTiet.SumDaTrich)}}
+                                        {{formatNumber3Digit(TongHop.SumDaTrich)}}
                                     </td>
                                     <td v-if="CheckColShow('colPTChietKhau')">
                                     </td>
                                     <td v-if="CheckColShow('colTienChietKhau')" class="text-right">
-                                        {{formatNumber3Digit(BaoCaoChiTiet.SumTienChietKhau)}}
+                                        {{formatNumber3Digit(TongHop.SumTienChietKhau)}}
                                     </td>
                                 </tr>
                             </tfoot>
@@ -521,6 +543,166 @@
                     </div>
                 </div>
 
+
+                <div class="tab-pane active" v-if="LoaiBaoCao == 3">
+                    <div class="table-frame">
+                        <table class="table" id="tb">
+                            <thead class="thead-boder">
+                                <tr>
+                                    <th v-for="item in ListHeader.filter(p=>p.colShow === true)">{{item.colText}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template v-for="(item, index) in TongHop.data">
+                                    <tr class="prev-tr-hide">
+                                        <td v-if="CheckColShow('colLoaiDoiTuong')"
+                                            v-on:click="RowSelected(item)">
+                                            {{item.SLoaiDoiTuong}}
+                                        </td>
+                                        <td v-if="CheckColShow('colMaNguoiGT')"
+                                            v-on:click="RowSelected(item)">
+                                            {{item.MaNguoiGioiThieu}}
+                                        </td>
+                                        <td v-if="CheckColShow('colTenNguoiGT')"
+                                            v-on:click="RowSelected(item)">
+                                            {{item.TenNguoiGioiThieu}}
+                                        </td>
+                                        <td v-if="CheckColShow('colSDTNguoiGT')"
+                                            v-on:click="RowSelected(item)">
+                                            {{item.SDTNguoiGioiThieu}}
+                                        </td>
+                                        <td class="text-right" v-if="CheckColShow('colTienHoaHong')"
+                                            v-on:click="RowSelected(item)">
+                                            {{formatNumber3Digit(item.TongTienHang)}}
+                                        </td>
+                                        <td v-if="CheckColShow('colNguoiTao')"
+                                            v-on:click="RowSelected(item)">
+                                            {{item.NguoiTao}}
+                                        </td>
+                                        <td class="text-center"
+                                            v-if="CheckColShow('colNgayTao')"
+                                            v-on:click="RowSelected(item)">
+                                            {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                        </td>
+                                        <td v-if="CheckColShow('colTrangThai')">{{item.STrangThai}}</td>
+                                    </tr>
+                                    <tr class="op-js-tr-hide"
+                                        v-bind:style="{display : inforOld.ID_CheckIn == item.ID_CheckIn ? 'table-row' : 'none'}">
+                                        <td colspan="18">
+                                            <div class="op-object-detail ">
+                                                <ul class="nav nav-tabs">
+                                                    <li class="active"><a data-toggle="tab" v-bind:href="'inforBCTH_'+ item.ID_CheckIn">Thông tin</a></li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane active" v-bind:id="'inforBCTH_'+ item.ID_CheckIn">
+                                                        <div class="op-object-detail ">
+                                                            <div class="col-md-12 nopadding">
+                                                                <div class="op-object-detail-left min-45 ">
+                                                                    <div class="form-group floatleft ">
+                                                                        <label class="css-form-label">Mã người giới thiệu:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.MaNguoiGioiThieu}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Tên người giới thiệu:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.TenNguoiGioiThieu}}</span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Số điện thoại:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.SDTNguoiGioiThieu}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Địa chỉ:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span>  {{item.SDTNguoiGioiThieu}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Người giới thiệu là:</label>
+                                                                        <div class="css-form-detail">
+                                                                            {{item.SLoaiDoiTuong}}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-group floatleft">
+                                                                        <label class="css-form-label">Trạng thái:</label>
+                                                                        <div class="css-form-detail">
+                                                                            <span> {{item.STrangThai}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-none">
+
+                                                                    </div>
+                                                                    <div class="form-group floatleft border-end">
+                                                                        <button href="javascript:void(0)" class="btn btn-main">
+                                                                            <i class="fa fa-edit"></i> Cập nhật người giới thiệu
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="op-object-detail-right">
+                                                                    <div class="table-res loadcthd">
+                                                                        <table class=" table table-filter table-detail">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>
+                                                                                        Mã phiếu trích
+                                                                                    </th>
+                                                                                    <th class="text-center">
+                                                                                        Ngày lập phiếu
+                                                                                    </th>
+                                                                                    <th class="text-right">
+                                                                                        Giá trị hóa đơn
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Mã phiếu chi
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr v-for="(ct, index2) in ChiTiet.data">
+                                                                                    <td>
+                                                                                        <a>
+                                                                                            {{ct.MaHoaDon}}
+                                                                                        </a>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        {{moment(ct.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}
+                                                                                    </td>
+                                                                                    <td class="text-right">{{formatNumber3Digit(ct.PhaiThanhToan)}}</td>
+                                                                                    <td>
+                                                                                        <a>
+                                                                                            {{ct.MaPhieuChi}}
+                                                                                        </a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot class="Report_Empty" v-show="TongHop.data.length < 1">
+                                <tr>
+                                    <td class="bg12 text-center" colspan="20"><i>Không có dữ liệu</i></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
                 <page-list v-bind:pagesize="Paging.PageSize"
                            v-bind:listpage="Paging.ListPage" v-bind:currentpage="Paging.CurrentPage" v-bind:pageview="Paging.PageView"
                            v-bind:numberofpage="Paging.NumberOfPage"
