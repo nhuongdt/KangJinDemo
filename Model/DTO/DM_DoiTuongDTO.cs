@@ -113,12 +113,14 @@ namespace Model
         public double? TongThanhToan { get; set; }
         public double? KhachDaTra { get; set; }
         public double? ConNo { get; set; }
+        public double? NoThucTe { get; set; }
         public string TenNhanViens { get; set; }
         public string DienGiai { get; set; }
         public string TenDonVi { get; set; }
         public double? TongThanhToanAll { get; set; }
         public double? KhachDaTraAll { get; set; }
         public double? ConNoAll { get; set; }
+        public double? NoThucTeAll { get; set; }
         public int? TotalRow { get; set; }
         public double? TotalPage { get; set; }
     }

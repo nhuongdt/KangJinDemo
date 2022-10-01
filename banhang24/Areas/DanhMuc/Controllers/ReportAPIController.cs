@@ -6955,6 +6955,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TongThanhToanAll");
                     excel.Columns.Remove("KhachDaTraAll");
                     excel.Columns.Remove("ConNoAll");
+                    excel.Columns.Remove("NoThucTeAll");
                     excel.Columns.Remove("TotalRow");
                     excel.Columns.Remove("TotalPage");
                     excel.Columns.Remove("ID");
@@ -6969,7 +6970,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoCongNoChiTiet.xlsx");
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoCongNoChiTiet.xlsx");
                     fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, false, colHide, param.ReportTime, param.ReportBranch);
+                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, colHide, param.ReportTime, param.ReportBranch);
 
                     fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoCongNoChiTiet.xlsx");
                     return ActionTrueNotData(fileSave);
