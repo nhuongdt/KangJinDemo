@@ -5213,7 +5213,7 @@
         newHD.PTChietKhauHH = obj.PTChietKhauHH;
         newHD.HeaderBH_GiaTriPtram = 0;
         newHD.HeaderBH_Type = 1;
-        // reset infor pthuc ThanhToan
+      
         newHD.TienMat = 0;
         newHD.TienATM = 0;
         newHD.TienGui = 0;
@@ -5238,7 +5238,7 @@
                 newHD.DiemGiaoDichDB = 0;
                 newHD.DiemGiaoDich = item.DiemGiaoDich;
                 newHD.TrangThaiHD = 1;
-                newHD.TienGui = newHD.ChuyenKhoan;
+                newHD.TienMat = newHD.PhaiThanhToan;
                 newHD.TienTheGiaTri = newHD.ThuTuThe;
                 SetCache_ifGara('TN_copyHD');
                 SetCache_ifNotGara(3);
