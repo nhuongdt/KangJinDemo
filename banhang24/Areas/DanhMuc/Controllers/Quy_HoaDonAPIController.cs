@@ -1305,7 +1305,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     if (quyhd != null)
                     {
                         var qhdct = db.Quy_HoaDon_ChiTiet.Where(p => p.ID_HoaDon == id);
-                        if (qhdct != null)
+                        if (qhdct != null && qhdct.Count()> 0)
                         {
                             var quyctCus = qhdct.Where(x => x.ID_DoiTuong != null).FirstOrDefault();
                             if (quyctCus != null && quyctCus.ID_HoaDonLienQuan != null)
