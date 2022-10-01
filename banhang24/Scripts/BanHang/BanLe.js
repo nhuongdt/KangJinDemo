@@ -2660,6 +2660,7 @@ var NewModel_BanHangLe = function () {
         item.TenTrangThai = '';
         item.TenNhanVienPhuTrach = '';
         item.TenNguoiGioiThieu = item.NguoiGioiThieu;
+        item.LoaiDoiTuong = 1;
 
         vmThemMoiKhach.listData.NhanViens = self.NhanViens();
         vmThemMoiKhach.showModalUpdate(item);
@@ -7500,7 +7501,7 @@ var NewModel_BanHangLe = function () {
             return false;
         }
         if (ngaylapHD > dateNow) {
-            ShowMessage_Danger('Ngày lập hóa đơn  vượt quá thời gian hiện tại');
+            ShowMessage_Danger('Ngày lập hóa đơn vượt quá thời gian hiện tại');
             return false;
         }
         if (self.ThietLap().KhoaSo && self.ChotSo_ChiNhanh().length > 0) {
