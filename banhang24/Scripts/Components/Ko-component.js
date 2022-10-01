@@ -44,8 +44,8 @@ ko.components.register('jqauto-customer', {
         };
         self.searchDB = function (keyCode) {
             var self = this;
-            var txt = locdau(self.textSearch()).trim();
-            if (txt === '') {
+            var txt = self.textSearch();
+            if (commonStatisJs.CheckNull(txt)) {
                 self.searchList([]);
                 self.ChangeCustomer(
                     {
@@ -57,6 +57,7 @@ ko.components.register('jqauto-customer', {
                     });
                 return;
             }
+            txt = txt.trim();
             if (keyCode === 13 && self.searchList().length > 0) {
                 self.keyEnter();
             }
