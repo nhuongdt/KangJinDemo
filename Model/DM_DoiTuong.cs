@@ -385,8 +385,10 @@ namespace Model
 
     public class SP_DM_DoiTuong
     {
+        public Guid ID { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
+        public int? LoaiDoiTuong { get; set; }
         public string DienThoai { get; set; }
         public string TenNhomDT { get; set; }
         public bool? GioiTinhNam { get; set; }
@@ -413,7 +415,6 @@ namespace Model
         public string GhiChu { get; set; }
         public bool? TheoDoi { get; set; }
 
-        public Guid ID { get; set; }
         public string ID_NhomDoiTuong { get; set; }
         public string TenDoiTuong_KhongDau { get; set; }
         public string TenDoiTuong_ChuCaiDau { get; set; }
