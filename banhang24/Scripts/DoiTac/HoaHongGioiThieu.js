@@ -294,7 +294,6 @@
             ajaxHelper(self.UrlAPI.HoaDon + 'GetList_PhieuTrichHoaHong', 'POST', param).done(function (x) {
                 if (x.res && x.dataSoure.data.length > 0) {
                     self.TongHop.data = x.dataSoure.data;
-
                     let itFirst = x.dataSoure.data[0];
                     self.TongHop.SumTongTienHang = itFirst.SumTongTienHang;
                     self.TongHop.SumKhachDaTra = itFirst.SumKhachDaTra;
@@ -328,7 +327,6 @@
             ajaxHelper(self.UrlAPI.HoaDon + 'GetAll_ChiTietPhieuTrich', 'POST', param).done(function (x) {
                 if (x.res && x.dataSoure.data.length > 0) {
                     self.TongHop.data = x.dataSoure.data;
-
                     let itFirst = x.dataSoure.data[0];
                     self.TongHop.SumTongTienHang = itFirst.SumTongTienHang;
                     self.TongHop.SumDaTrich = itFirst.SumDaTrich;
@@ -576,7 +574,7 @@
                     txt = 'danh sách';
                     break;
                 case 2:
-                    url = '';
+                    url = 'Export_ChiTietPhieuTrichHoaHong';
                     txt = 'chi tiết';
                     break;
             }
@@ -599,7 +597,53 @@
                     Insert_NhatKyThaoTac_1Param(diary);
                 }
             })
-        }
+        },
+        updateNguoiGioiThieu: async function (idCus) {
+            let cus = await vmThemMoiKhach.GetInforKhachHangFromDB_ByID(idCus);
+            if (cus !== null && cus.length > 0) {
+                vmThemMoiKhach.showModalUpdate(cus[0]);
+            }
+        },
+        gotoPageOther: function (item,type) {
+            let self = this;
+            let url = '';
+            switch (type) {
+                case 0:// khachhang
+                    switch (item.TongChietKhau) {
+                        case 1:
+                            url = '/#/Customers';
+                            localStorage.setItem('FindKhachHang', item.MaNguoiGioiThieu);
+                            break;
+                        case 2:
+                            url = '/#/Suppliers';
+                            localStorage.setItem('FindKhachHang', item.MaNguoiGioiThieu);
+                            break;
+                        case 3:
+                            url = '/#/BaoHiem';
+                            localStorage.setItem('FindKhachHang', item.MaNguoiGioiThieu);
+                            break;
+                        case 5:
+                            url = '/#/User';
+                            break;
+                    }
+                    break;
+                case 1:// hoadon
+                    localStorage.setItem('FindHD', item.MaHoaDon);
+                    switch (item.LoaiHoaDon) {
+                        case 1:
+                            url = '/#/Invoices';
+                            break;
+                        case 19:
+                            url = '/#/ServicePackage';
+                            break;
+                        case 22:
+                            url = '/#/RechargeValueCard';
+                            break;
+                    }
+                    break;
+            }
+            window.open(url, '_blank');
+        },
     }
 })
 
