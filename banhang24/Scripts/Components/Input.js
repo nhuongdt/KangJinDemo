@@ -81,7 +81,7 @@ var cmpDateRange = {
     props: {
         id: { default: 'txtDaterange' },
         disable: { default: false },
-        dateRange: { default: moment(new Date()).format('DD/MM/YYY').concat(' - ', moment(new Date()).format('DD/MM/YYY')) },
+        dateRange: { default: moment(new Date()).format('DD/MM/YYYY').concat(' - ', moment(new Date()).format('DD/MM/YYYY')) },
     },
     template: ` <input type="text" class="form-control" v-model="dateRange" :id="id" onclick="this.select()"/>`,
     mounted: function () {
