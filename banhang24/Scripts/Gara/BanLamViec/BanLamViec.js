@@ -16,13 +16,15 @@
         self.roleHeader = false;
         self.isFirstLoad = true;
         self.role = {
-            PhieuTiepNhan: {},
+            PhieuTiepNhan: { ThemMoi: true, Xem: true },
             HangXe: {},
             LoaiXe: {},
             MauXe: {},
-            Xe: {},
-            BaoGia: {},
-            HoaDon: {},
+            Xe: {
+                XuatXuong: true
+            },
+            BaoGia: { ThemMoi: true, Duyet: true, XuLy: true, CapNhat: true, In: true },
+            HoaDon: { ThemMoi: true, SuaDoi: true, In: true },
             XuatKho: {},
         };
 
@@ -84,7 +86,7 @@
             });
         });
 
-        if (!VHeader) {
+        if (VHeader.Quyen.length === 0) {
             ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetListQuyen_OfNguoiDung", 'GET').done(function (data) {
                 if (data !== "" && data.length > 0) {
                     self.listData.Quyen_NguoiDung = data;
@@ -326,7 +328,6 @@
         },
         CheckRole_inPage: function () {
             var self = this;
-
             self.role.PhieuTiepNhan.Xem = self.CheckRole('PhieuTiepNhan_XemDS');
             self.role.PhieuTiepNhan.CapNhat = self.CheckRole('PhieuTiepNhan_CapNhat');
             self.role.PhieuTiepNhan.Xoa = self.CheckRole('PhieuTiepNhan_Xoa');
@@ -2472,6 +2473,7 @@
             if (!$.isEmptyObject(cus)) {
                 cus.TenTrangThai = '';
                 cus.TenNguoiGioiThieu = cus.NguoiGioiThieu;
+                cus.LoaiDoiTuong = 1;
                 vmThemMoiKhach.showModalUpdate(cus);
                 vmThemMoiKhach.inforLogin = {
                     ID_NhanVien: self.ID_NhanVien,
