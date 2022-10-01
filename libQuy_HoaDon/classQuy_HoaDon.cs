@@ -955,14 +955,14 @@ namespace libQuy_HoaDon
                 var tbl = from nh in db.DM_NganHang
                           select new DM_NganHangDTO
                           {
-                              ID= nh.ID,
-                              MaNganHang =nh.MaNganHang,
-                              TenNganHang=nh.TenNganHang,
-                              ChiNhanh=nh.ChiNhanh,
-                              ChiPhiThanhToan=nh.ChiPhiThanhToan,
-                              TheoPhanTram=nh.TheoPhanTram,
-                              MacDinh= nh.MacDinh,
-                              ThuPhiThanhToan=nh.ThuPhiThanhToan
+                              ID = nh.ID,
+                              MaNganHang = nh.MaNganHang,
+                              TenNganHang = nh.TenNganHang,
+                              ChiNhanh = nh.ChiNhanh,
+                              ChiPhiThanhToan = nh.ChiPhiThanhToan,
+                              TheoPhanTram = nh.TheoPhanTram,
+                              MacDinh = nh.MacDinh,
+                              ThuPhiThanhToan = nh.ThuPhiThanhToan
                           };
                 return tbl.ToList();
             }
@@ -2077,50 +2077,34 @@ namespace libQuy_HoaDon
 
 
         #region update
-        public string Update_SoQuy(Quy_HoaDon obj, List<Quy_HoaDon_ChiTiet> listCT)
+        public void Update_SoQuy(Quy_HoaDon obj, List<Quy_HoaDon_ChiTiet> listCT)
         {
-            string strErr = string.Empty;
-            if (db == null)
-            {
-                return "Kết nối CSDL không hợp lệ";
-            }
-            else
-            {
-                try
-                {
-                    ClassQuy_HoaDon_ChiTiet _classQHDCT = new ClassQuy_HoaDon_ChiTiet(db);
-                    #region Quy_HoaDon
-                    Quy_HoaDon objUpd = db.Quy_HoaDon.Find(obj.ID);
-                    objUpd.ID = obj.ID;
-                    objUpd.MaHoaDon = obj.MaHoaDon;
-                    objUpd.ID_NhanVien = obj.ID_NhanVien;
-                    objUpd.NguoiNopTien = obj.NguoiNopTien;
-                    objUpd.NgayLapHoaDon = obj.NgayLapHoaDon;
-                    objUpd.TongTienThu = obj.TongTienThu;
-                    objUpd.NoiDungThu = obj.NoiDungThu;
-                    objUpd.LoaiHoaDon = obj.LoaiHoaDon;
-                    objUpd.HachToanKinhDoanh = obj.HachToanKinhDoanh;
-                    objUpd.PhieuDieuChinhCongNo = obj.PhieuDieuChinhCongNo;
-                    objUpd.NgaySua = DateTime.Now;
-                    objUpd.NguoiSua = obj.NguoiSua;
-                    #endregion
+            ClassQuy_HoaDon_ChiTiet _classQHDCT = new ClassQuy_HoaDon_ChiTiet(db);
+            #region Quy_HoaDon
+            Quy_HoaDon objUpd = db.Quy_HoaDon.Find(obj.ID);
+            objUpd.ID = obj.ID;
+            objUpd.MaHoaDon = obj.MaHoaDon;
+            objUpd.ID_NhanVien = obj.ID_NhanVien;
+            objUpd.NguoiNopTien = obj.NguoiNopTien;
+            objUpd.NgayLapHoaDon = obj.NgayLapHoaDon;
+            objUpd.TongTienThu = obj.TongTienThu;
+            objUpd.NoiDungThu = obj.NoiDungThu;
+            objUpd.LoaiHoaDon = obj.LoaiHoaDon;
+            objUpd.HachToanKinhDoanh = obj.HachToanKinhDoanh;
+            objUpd.PhieuDieuChinhCongNo = obj.PhieuDieuChinhCongNo;
+            objUpd.NgaySua = DateTime.Now;
+            objUpd.NguoiSua = obj.NguoiSua;
+            #endregion
 
-                    var lstOld = db.Quy_HoaDon_ChiTiet.Where(x => x.ID_HoaDon == obj.ID);
-                    db.Quy_HoaDon_ChiTiet.RemoveRange(lstOld);
-                    foreach (var item in listCT)
-                    {
-                        item.ID = Guid.NewGuid();
-                        item.ID_HoaDon = obj.ID;
-                        db.Quy_HoaDon_ChiTiet.Add(item);
-                    }
-                    db.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    CookieStore.WriteLog("Update_SoQuy: " + ex.Message + ex.InnerException);
-                }
+            var lstOld = db.Quy_HoaDon_ChiTiet.Where(x => x.ID_HoaDon == obj.ID);
+            db.Quy_HoaDon_ChiTiet.RemoveRange(lstOld);
+            foreach (var item in listCT)
+            {
+                item.ID = Guid.NewGuid();
+                item.ID_HoaDon = obj.ID;
+                db.Quy_HoaDon_ChiTiet.Add(item);
             }
-            return strErr;
+            db.SaveChanges();
         }
 
         public string Update_TaiKHoan(DM_TaiKhoanNganHang obj)
