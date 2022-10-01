@@ -62,6 +62,12 @@ namespace Model
         public string TextSearch2 { get; set; }
         public List<string> LoaiDoiTuongs { get; set; }
         public int? LaHoaDonBoSung { get; set; }
+    } 
+    public class ParamSearchNguoiGioiThieu: CommonParamSearch
+    {
+        public DateTime? NgayTaoFrom { get; set; }
+        public DateTime? NgayTaoTo { get; set; }
+        public List<string> LoaiDoiTuongs { get; set; }
     }
 
     public class Param_ReportText
