@@ -17,7 +17,7 @@
             ID_DonVi: VHeader.IdDonVi,
             TenNhanVien: VHeader.TenNhanVien,
         };
-        console.log('thutien nhap', self.inforLogin)
+        console.log('vmThanhToanNhap')
         self.isKhoaSo = false;
 
         self.role.SoQuy.Insert = VHeader.Quyen.indexOf('SoQuy_ThemMoi') > -1;
@@ -25,7 +25,6 @@
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
         self.role.SoQuy.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
-        console.log('self.role.SoQuy.Insert', self.role.SoQuy.Insert)
     },
     computed: {
         sLoaiThuChi: function () {
@@ -34,7 +33,6 @@
         sLoaiDoiTuong: function () {
             let self = this;
             let txt = 'Nhà cung cấp';
-            console.log('loaidt ', self.newPhieuThu.LoaiDoiTuong)
             switch (self.newPhieuThu.LoaiDoiTuong) {
                 case 1:
                     txt = 'Khách hàng';
