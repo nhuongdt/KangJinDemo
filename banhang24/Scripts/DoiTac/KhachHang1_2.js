@@ -693,6 +693,7 @@
     self.editKH = function (item) {
         item.TenNguoiGioiThieu = item.NguoiGioiThieu;
         item.TenTrangThai = item.TrangThaiKhachHang;
+        item.LoaiDoiTuong = 1;
         vmThemMoiKhach.showModalUpdate(item);
     };
     self.RestoreCus = function (item) {
