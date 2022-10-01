@@ -16,6 +16,9 @@
                 padding-left: 0;
                 padding-right: 0;
             }
+    #ThongTinThanhToanKHNCC .input-simple {
+        width:100%;
+    }
 
     @@media (max-width: 1024px) {
         #ThongTinThanhToanKHNCC .table-frame.position-relative {
@@ -439,13 +442,14 @@
 
                                     <div class="col-md-4 col-sm-6 col-xs-12">
                                         <span>Phí ngân hàng: </span>
-                                        <span class="red" v-if="PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">{{PhieuThuKhach.PhiThanhToan_PTGiaTri}} %</span>
+                                        <span class="red" v-if="PhieuThuKhach.PhiThanhToan_LaPhanTram && PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">
+                                        {{PhieuThuKhach.PhiThanhToan_PTGiaTri}} %</span>
                                         <span class="red">
-                                            <span v-if="PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">(</span>
+                                            <span v-if="PhieuThuKhach.PhiThanhToan_LaPhanTram && PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">(</span>
                                             <span>
                                                 {{formatNumber3Digit(PhieuThuKhach.TongPhiThanhToan)}}
                                             </span>
-                                            <span v-if="PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">)</span>
+                                            <span v-if="PhieuThuKhach.PhiThanhToan_LaPhanTram && PhieuThuKhach.PhiThanhToan_PTGiaTri > 0">)</span>
                                         </span>
                                     </div>
                                     <div class="col-md-4 col-sm-6 col-xs-12 ">
@@ -477,8 +481,9 @@
                                         <thead>
                                             <tr>
                                                 <th>Tên nhân viên</th>
-                                                <th style="width:25%">% Chiết khấu</th>
-                                                <th style="width:25%">Thành tiền</th>
+                                                <th style="width:10%">% Chiết khấu</th>
+                                                <th style="width:25%">Thành tiền (chưa trừ phí)</th>
+                                                <th style="width:20%">Thành tiền</th>
                                                 <th style="width:5%">#</th>
                                             </tr>
                                         </thead>
@@ -493,8 +498,14 @@
                                                            v-on:keyup.13="HoaHongHD_KeyEnter(1)"
                                                            v-on:keyup="HoaHongHD_EditChietKhau(item, index)" />
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     <input class='input-simple text-right'
+                                                           v-model="item.TienChietKhau_ChuaTruCP"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(2)"
+                                                           v-on:keyup="$root.HoaHongHD_EditThanhTien_ChuaTruPhi(item, index)" />
+                                                </td>
+                                                <td>
+                                                    <input class='input-simple text-right' readonly
                                                            v-model="item.TienChietKhau"
                                                            v-on:keyup.13="HoaHongHD_KeyEnter(3)"
                                                            v-on:keyup="HoaHongHD_EditThanhTien(item, index)" />

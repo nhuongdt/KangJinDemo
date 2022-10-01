@@ -820,6 +820,8 @@
                     self.newPhieuThu.ListTKChuyenKhoan[i].TheoPhanTram = true;
                     self.newPhieuThu.ListTKChuyenKhoan[i].ThuPhiThanhToan = item.ThuPhiThanhToan;
                     self.newPhieuThu.ListTKChuyenKhoan[i].MacDinh = item.MacDinh;
+
+                    self.ddl_textVal.accountCKName = item.TenChuThe;
                     break;
                 }
             }
@@ -993,6 +995,7 @@
                         if (parseInt(nv.TinhChietKhauTheo) === 1) {
                             let chiphiNganHang = formatNumberToFloat(hd.TongPhiNganHang);
                             self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau = formatNumber3Digit((thucthu - chiphiNganHang) * (nv.PT_ChietKhau / 100) * nv.HeSo);
+                            self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(thucthu  * nv.PT_ChietKhau / 100 * nv.HeSo);
                         }
                     }
                     break;
@@ -2376,7 +2379,7 @@
                             DaThuTruoc: itFor.DaThuTruoc,
                             ConNo: itFor.PhaiThu - itFor.DaThuTruoc - formatNumberToFloat(itFor.TienThu),
                         }
-                        vmHoaHongHoaDon.GridNVienBanGoi_Chosed = itFor.BH_NhanVienThucHiens;
+                        vmHoaHongHoaDon.GridNVienBanGoi_Chosed = $.extend([], true, itFor.BH_NhanVienThucHiens);
                         vmHoaHongHoaDon.showModal(obj);
                         break;
                     }
@@ -2745,7 +2748,7 @@ $(function () {
                 for (let i = 0; i < vmThanhToan.listData.HoaDons.length; i++) {
                     let hd = vmThanhToan.listData.HoaDons[i];
                     if (hd.ID === vmHoaHongHoaDon.inforHoaDon.ID) {
-                        vmThanhToan.listData.HoaDons[i].BH_NhanVienThucHiens = vmHoaHongHoaDon.GridNVienBanGoi_Chosed;
+                        vmThanhToan.listData.HoaDons[i].BH_NhanVienThucHiens = $.extend([], true, vmHoaHongHoaDon.GridNVienBanGoi_Chosed);
                         break;
                     }
                 }

@@ -56,6 +56,7 @@
                         for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                             let itFor = self.GridNVienBanGoi_Chosed[i];
                             itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.PT_ChietKhau);
+                            itFor.TienChietKhau_ChuaTruCP = formatNumber3Digit(itFor.TienChietKhau);// todo
                             switch (itFor.TinhChietKhauTheo) {
                                 case 3:
                                     itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.TienChietKhau / itFor.HeSo);
@@ -123,6 +124,7 @@
                 switch (itFor.TinhChietKhauTheo) {
                     case 1:
                         itFor.TienChietKhau = formatNumber3Digit(itFor.PT_ChietKhau * (self.inforHoaDon.ThucThu - chiphiNganHang) * itFor.HeSo / 100);
+                        itFor.TienChietKhau_ChuaTruCP = formatNumber3Digit(itFor.PT_ChietKhau * self.inforHoaDon.ThucThu * itFor.HeSo / 100);
                         break;
                     case 3:
                         itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.TienChietKhau / itFor.HeSo);
@@ -133,22 +135,26 @@
         },
 
         newNhanVien_ChietKhauHoaDon: function (itemCK, itemNV, exitChietKhau) {
-            var self = this;
-            var doanhThu = self.inforHoaDon.TongThanhToan - self.inforHoaDon.TongTienThue;
-            var thucThu = self.inforHoaDon.ThucThu - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
+            let self = this;
+            let doanhThu = self.inforHoaDon.TongThanhToan - self.inforHoaDon.TongTienThue;
+            let thucThu = self.inforHoaDon.ThucThu - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
+            let thucThu_chuatruCP = self.inforHoaDon.ThucThu;
             if (exitChietKhau) {
-                var tinhCKTheo = parseInt(itemCK.TinhChietKhauTheo);
-                var valChietKhau = itemCK.GiaTriChietKhau;
-                var tienCK_NV = 0; // used to assign in Grid
-                var ptramCK = 0;
+                let tinhCKTheo = parseInt(itemCK.TinhChietKhauTheo);
+                let valChietKhau = itemCK.GiaTriChietKhau;
+                let tienCK_NV = 0; // used to assign in Grid
+                let ptramCK = 0;
+                let tienCK_chuatruCP = 0;
                 switch (tinhCKTheo) {
                     case 1:
                         ptramCK = valChietKhau;
-                        tienCK_NV = Math.round((valChietKhau / 100) * thucThu);
+                        tienCK_NV = valChietKhau / 100 * thucThu;
+                        tienCK_chuatruCP = valChietKhau / 100 * thucThu_chuatruCP;
                         break;
                     case 2:
                         ptramCK = valChietKhau;
-                        tienCK_NV = Math.round((valChietKhau / 100) * doanhThu);
+                        tienCK_NV = valChietKhau / 100 * doanhThu;
+                        tienCK_chuatruCP = tienCK_NV;
                         break;
                     case 3:
                         tienCK_NV = valChietKhau;
@@ -164,6 +170,7 @@
                     HeSo: 1,
                     TinhChietKhauTheo: tinhCKTheo.toString(),
                     TienChietKhau: formatNumber3Digit(tienCK_NV),
+                    TienChietKhau_ChuaTruCP: formatNumber3Digit(tienCK_chuatruCP),
                     PT_ChietKhau: ptramCK,
                     ChietKhauMacDinh: formatNumber3Digit(valChietKhau),
                 }
@@ -179,6 +186,7 @@
                     HeSo: 1,
                     TinhChietKhauTheo: '1',
                     TienChietKhau: 0,
+                    TienChietKhau_ChuaTruCP: 0,
                     PT_ChietKhau: 0,
                     ChietKhauMacDinh: 0,
                 }
@@ -227,10 +235,12 @@
                 ptramCK = gtriCK_After;
             }
             let tienCK = self.CaculatorAgain_TienDuocNhan(gtriCK_After, item.HeSo, tinhCKTheo);
+            let tienCK_chuatruCP = self.CaculatorAgain_TienDuocNhan_chuatruCP(gtriCK_After, item.HeSo, tinhCKTheo);
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 if (i === item.Index) {
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(tienCK_chuatruCP);
                     self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(gtriCK_After);
                     break;
                 }
@@ -247,12 +257,41 @@
 
             let chiphiNganHang = formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             let thucthu = self.inforHoaDon.ThucThu - chiphiNganHang;
+            let thucthu_chuatruCP = self.inforHoaDon.ThucThu;
             let ptramCK = gtriNhap / thucthu * 100;
 
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 if (i === item.Index) {
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = thisObj.val();
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(ptramCK * thucthu_chuatruCP / 100);
+                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(ptramCK);
+                    break;
+                }
+            }
+        },
+        HoaHongHD_EditThanhTien_ChuaTruPhi: function (item, index) {
+            let self = this;
+            item.Index = index;
+            self.itemChosing = item;
+
+            let thisObj = $(event.currentTarget);
+            let gtriNhap = formatNumberToFloat(thisObj.val());
+            formatNumberObj(thisObj);
+
+            let chiphiNganHang = formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
+            let thucthu = self.inforHoaDon.ThucThu - chiphiNganHang;
+            let thucthu_chuatruCP = self.inforHoaDon.ThucThu;
+            let ptramCK = gtriNhap / thucthu_chuatruCP * 100;
+            if (thucthu_chuatruCP===0) {
+                ptramCK = 0;
+            }
+
+            for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
+                if (i === item.Index) {
+                    self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(ptramCK * thucthu / 100);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = thisObj.val();
                     self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(ptramCK);
                     break;
                 }
@@ -307,7 +346,8 @@
             var self = this;
             var heso = 1;
             var lenGrid = self.GridNVienBanGoi_Chosed.length;
-           
+
+            var thucthu_chuatruCP = formatNumberToFloat(self.inforHoaDon.ThucThu);
             var thucthu = formatNumberToFloat(self.inforHoaDon.ThucThu) - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
             var doanhthu = formatNumberToFloat(self.inforHoaDon.TongThanhToan) - self.inforHoaDon.TongTienThue;
 
@@ -318,12 +358,15 @@
                     let itemFor = self.GridNVienBanGoi_Chosed[i];
                     let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
                     let tienCK = itemFor.TienChietKhau;
+                    let tienCK_chuatruCP = itemFor.TienChietKhau;
                     switch (tinhCKTheo) {
                         case 1:
-                            tienCK = Math.round(thucthu * ptCK_Share / 100 * heso);
+                            tienCK = thucthu * ptCK_Share / 100 * heso;
+                            tienCK_chuatruCP = thucthu_chuatruCP * ptCK_Share / 100 * heso;
                             break;
                         case 2:
-                            tienCK = Math.round(doanhthu * ptCK_Share / 100 * heso);
+                            tienCK = doanhthu * ptCK_Share / 100 * heso;
+                            tienCK_chuatruCP = tienCK;
                             break;
                         case 3:// vnd, keep heso =1
                             if (heso !== 1) {
@@ -332,12 +375,14 @@
                             else {
                                 tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) / heso;
                             }
+                            tienCK_chuatruCP = tienCK;
                             break;
                     }
                     self.GridNVienBanGoi_Chosed[i].HeSo = heso;
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptCK_Share;
                     self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(ptCK_Share);
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(tienCK_chuatruCP);
                 }
             }
             else {
@@ -346,12 +391,15 @@
                     let tinhCKTheo = parseInt(itemFor.TinhChietKhauTheo);
                     let ptCK = itemFor.PT_ChietKhau;
                     let tienCK = itemFor.TienChietKhau;
+                    let tienCK_chuatruCP = itemFor.TienChietKhau;
                     switch (tinhCKTheo) {
                         case 1:
-                            tienCK = Math.round(thucthu * ptCK / 100 * heso);
+                            tienCK = thucthu * ptCK / 100 * heso;
+                            tienCK_chuatruCP = thucthu_chuatruCP * ptCK / 100 * heso;
                             break;
                         case 2:
-                            tienCK = Math.round(doanhthu * ptCK / 100 * heso);
+                            tienCK = doanhthu * ptCK / 100 * heso;
+                            tienCK_chuatruCP = tienCK;
                             break;
                         case 3:// vnd, keep heso =1
                             if (heso !== 1) {
@@ -360,10 +408,12 @@
                             else {
                                 tienCK = formatNumberToFloat(itemFor.ChietKhauMacDinh) / heso;
                             }
+                            tienCK_chuatruCP = tienCK;
                             break;
                     }
                     self.GridNVienBanGoi_Chosed[i].HeSo = heso;
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(tienCK_chuatruCP);
                 }
             }
         },
@@ -411,10 +461,33 @@
             let tienCK = 0;
             switch (parseInt(tinhCKTheo)) {
                 case 1:
-                    tienCK = Math.round(thucthu * gtriCK / 100 * heso);
+                    tienCK = thucthu * gtriCK / 100 * heso;
                     break;
                 case 2:
-                    tienCK = Math.round(doanhthu * gtriCK / 100 * heso);
+                    tienCK = doanhthu * gtriCK / 100 * heso;
+                    break;
+                case 3:
+                    if (heso !== 1) {
+                        tienCK = gtriCK * heso;
+                    }
+                    else {
+                        tienCK = gtriCK / heso;
+                    }
+                    break;
+            }
+            return tienCK;
+        },
+        CaculatorAgain_TienDuocNhan_chuatruCP: function (gtriCK, heso, tinhCKTheo) {
+            let self = this;
+            let doanhthu = self.inforHoaDon.TongThanhToan - self.inforHoaDon.TongTienThue;
+            let thucthu_chuatruCP = self.inforHoaDon.ThucThu;
+            let tienCK = 0;
+            switch (parseInt(tinhCKTheo)) {
+                case 1:
+                    tienCK = thucthu_chuatruCP * gtriCK / 100 * heso;
+                    break;
+                case 2:
+                    tienCK = doanhthu * gtriCK / 100 * heso;
                     break;
                 case 3:
                     if (heso !== 1) {
@@ -466,12 +539,14 @@
                         break;
                 }
             }
-            var tienCK = self.CaculatorAgain_TienDuocNhan(gtriCK, item.HeSo, loaiCK);
+            let tienCK = self.CaculatorAgain_TienDuocNhan(gtriCK, item.HeSo, loaiCK);
+            let tienCK_chuatruCP = self.CaculatorAgain_TienDuocNhan(gtriCK, item.HeSo, loaiCK);
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 if (i === item.Index) {
                     self.GridNVienBanGoi_Chosed[i].TinhChietKhauTheo = loaiCK.toString();
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK);
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(tienCK_chuatruCP);
                     if (chietKhauMacDinh !== 0 || (chietKhauMacDinh === 0 && tienCK === 0)) {
                         self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(chietKhauMacDinh);
                     }
@@ -487,9 +562,11 @@
             var gtriCK = item.ChietKhauMacDinh;
             var heso = formatNumberToFloat($(thisObj).val());
             var tienCK = self.CaculatorAgain_TienDuocNhan(gtriCK, heso, item.TinhChietKhauTheo);
+            var tienCK_chuatruCP = self.CaculatorAgain_TienDuocNhan(gtriCK, heso, item.TinhChietKhauTheo);
             for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                 if (index === i) {
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = tienCK;
+                    self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = tienCK_chuatruCP;
                     break;
                 }
             }
