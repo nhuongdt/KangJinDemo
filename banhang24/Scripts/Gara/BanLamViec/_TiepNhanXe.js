@@ -972,10 +972,14 @@
             vmThemMoiKhach.inforLogin = self.inforLogin;
             vmThemMoiKhach.showModalAdd();
         },
-        UpdateCustomer: function () {
-            var self = this;
+        UpdateCustomer: async function () {
+            let self = this;
             vmThemMoiKhach.inforLogin = self.inforLogin;
-            vmThemMoiKhach.GetInforKhachHangFromDB_ByID(self.newPhieuTiepNhan.ID_KhachHang, true);
+
+            let cus = await vmThemMoiKhach.GetInforKhachHangFromDB_ByID(self.newPhieuTiepNhan.ID_KhachHang);
+            if (cus !== null && cus.length > 0) {
+                vmThemMoiKhach.showModalUpdate(cus[0]);
+            }
         },
         ResetCustomer: function () {
             var self = this;
