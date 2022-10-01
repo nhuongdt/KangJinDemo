@@ -6,10 +6,20 @@
         'nvien-hoadon-search': cmpSearchNVDisscount,
     },
     created: function () {
-        this.GuidEmpty = '00000000-0000-0000-0000-000000000000';
-        this.khoanthuchi = {
+        let self = this;
+        self.GuidEmpty = '00000000-0000-0000-0000-000000000000';
+        self.khoanthuchi = {
             ID: null,
             NoiDungThuChi: '',
+        };
+        console.log('ThongTinThanhToanNCC ')
+
+        self.inforLogin = {
+            ID_NhanVien: VHeader.IdNhanVien,
+            ID_User: VHeader.IdNguoiDung,
+            UserLogin: VHeader.UserLogin,
+            ID_DonVi: VHeader.IdDonVi,
+            TenNhanVien: VHeader.TenNhanVien,
         };
     },
     computed: {
@@ -25,7 +35,6 @@
         sLoaiDoiTuong: function () {
             let self = this;
             let txt = 'Nhà cung cấp';
-            console.log('loaidt ', self.inforHoaDon.LoaiDoiTuong)
             switch (self.inforHoaDon.LoaiDoiTuong) {
                 case 1:
                     txt = 'Khách hàng';
@@ -126,7 +135,6 @@
             return ktc;
         },
         showModalThanhToan: function (hd) {
-            console.log('hd ', hd)
             var self = this;
             self.saveOK = false;
             self.isCheckTraLaiCoc = false;
@@ -670,7 +678,6 @@
                 };
 
                 ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/PostQuy_HoaDon_DefaultIDDoiTuong', 'POST', myData).done(function (x) {
-                    console.log(x)
                     if (x.res === true) {
                         quyhd.MaHoaDon = x.data.MaHoaDon;
                         let diary = {
@@ -714,7 +721,6 @@
             let tenDoiTuong = hd.TenDoiTuong;
             var ptKhach = self.PhieuThuKhach;
             let idKhoanThuChi = ptKhach.ID_KhoanThuChi;
-            console.log('save pt')
             var loaiThuChi = hd.LoaiHoaDon === 7 ? 11 : 12;
             var sLoai = hd.LoaiHoaDon === 7 ? 'thu' : 'chi';
             var tiendatcoc = formatNumberToFloat(ptKhach.TienDatCoc), soduDatCoc = hd.SoDuDatCoc;
@@ -862,7 +868,6 @@
                 if (lstQuyCT.length > 0) {
                     console.log('myData_quyKH ', myData);
                     ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/PostQuy_HoaDon_DefaultIDDoiTuong', 'POST', myData).done(function (x) {
-                        console.log(x)
                         if (x.res === true) {
                             // update ID_QuyHoaDon in BH_NhanVienThucHien by ID_HoaDon
                             quyhd.MaHoaDon = x.data.MaHoaDon;
@@ -877,7 +882,7 @@
                                     ', Thời gian: ', moment(quyhd.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')),
                                 NoiDungChiTiet: 'Tạo phiếu ' + sLoai + ' <a style="cursor: pointer" onclick = "LoadHoaDon_byMaHD('.concat(quyhd.MaHoaDon, ')" >', quyhd.MaHoaDon, '</a> ',
                                     ' cho hóa đơn: <a style="cursor: pointer" onclick = "LoadHoaDon_byMaHD(', hd.MaHoaDon, ')" >', hd.MaHoaDon, '</a> ',
-                                    '<br /> ', self.sLoaiDoiTuong, ': < a style = "cursor: pointer" onclick = "LoadKhachHang_byMaKH(', quyhd.NguoiNopTien, ')" > ', quyhd.NguoiNopTien, '</a > ',
+                                    '<br /> ', self.sLoaiDoiTuong, ': <a style = "cursor: pointer" onclick = "LoadKhachHang_byMaKH(', quyhd.NguoiNopTien, ')" > ', quyhd.NguoiNopTien, '</a> ',
                                     '<br /> Giá trị: ', formatNumber3Digit(quyhd.TongTienThu),
                                     '<br /> Khoản ', sLoai, ': ', self.khoanthuchi.NoiDungThuChi,
                                     '<br/ > Phương thức thanh toán: ', phuongthucTT, chitracoc ? ' (NCC trả lại tiền cọc)' : '',
