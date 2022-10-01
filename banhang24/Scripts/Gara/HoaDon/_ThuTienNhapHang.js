@@ -306,6 +306,13 @@
                                 noHD = sumNoHD;
                             }
 
+                            let idDoiTuong = firstRow.ID_DoiTuong;
+                            switch (firstRow.LoaiDoiTuong) {
+                                case 5:// hoahong nv gioithieu
+                                    idDoiTuong = firstRow.ID_NhanVienCT;
+                                    break;
+                            }
+
                             self.newPhieuThu = {
                                 ID: firstRow.ID,
                                 LoaiHoaDon: firstRow.LoaiHoaDon,
@@ -322,7 +329,7 @@
                                 ID_TaiKhoanPos: idPos,
                                 ID_TaiKhoanChuyenKhoan: idChuyenKhoan,
                                 ID_KhoanThuChi: firstRow.ID_KhoanThuChi,
-                                ID_DoiTuong: firstRow.ID_DoiTuong,
+                                ID_DoiTuong: idDoiTuong,
                                 ID_NhanVien: firstRow.ID_NhanVien,
                                 ID_DonVi: firstRow.ID_DonVi,
                                 TongNoHD: sumNoHD,
@@ -1299,7 +1306,7 @@
                                     '<br/> - Mã hóa đơn: ', self.phieuThuOld.MaHoaDon,
                                     '<br/> - Ngày lập hóa đơn: ', moment(self.phieuThuOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
                                     '<br/> - Tổng tiền ', self.sLoaiThuChi, ': ', formatNumber3Digit(self.phieuThuOld.TongTienThu),
-                                    '<br/> - ', sLoaiDT,self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')',
+                                    '<br/> - ', sLoaiDT, self.phieuThuOld.NguoiNopTien, ' (', self.phieuThuOld.MaNguoiNop, ')',
                                     '<br/> - Khoản ', self.sLoaiThuChi, ': ', self.phieuThuOld.TenKhoanThuChi,
                                     '<br/> - Phương thức thanh toán: ', self.phieuThuOld.PhuongThucTT,
                                     '<br/> - Tiền mặt: ', formatNumber3Digit(self.phieuThuOld.TienMat),
