@@ -2660,7 +2660,6 @@ var NewModel_BanHangLe = function () {
         item.TenTrangThai = '';
         item.TenNhanVienPhuTrach = '';
         item.TenNguoiGioiThieu = item.NguoiGioiThieu;
-        item.LoaiDoiTuong = 1;
 
         vmThemMoiKhach.listData.NhanViens = self.NhanViens();
         vmThemMoiKhach.showModalUpdate(item);
