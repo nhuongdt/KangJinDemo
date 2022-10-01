@@ -153,7 +153,59 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         columHide = string.Join("_", param.ColumnHide);
                     }
-                    _classOFDCM.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 4, 28, 24, false, columHide, 1, param.ReportTime, param.ReportBranch);
+                    _classOFDCM.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 4, 28, 24, true, columHide, 0, param.ReportTime, param.ReportBranch);
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("Export_PhieuTrichHoaHong " + ex.InnerException + ex.Message);
+                }
+                return fileSave;
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public string Export_ChiTietPhieuTrichHoaHong(ParamHoaHongGioiThieu param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                string fileSave = string.Empty;
+                try
+                {
+                    List<BCHoaHongGioiThieu_ChiTiet> lst = classhoadon.GetAll_ChiTietPhieuTrich(param);
+                    DataTable excel = _classOFDCM.ToDataTable<BCHoaHongGioiThieu_ChiTiet>(lst);
+                    excel.Columns.Remove("ID_DoiTuong");
+                    excel.Columns.Remove("ID_HoaDon_DuocCK");
+                    excel.Columns.Remove("ID_QuyHoaDon");
+                    excel.Columns.Remove("LoaiHoaDon");
+                    excel.Columns.Remove("DienThoai");
+                    excel.Columns.Remove("KhachDaTra");
+                    excel.Columns.Remove("DaTrich");
+                    excel.Columns.Remove("ConLai");
+                    excel.Columns.Remove("TrangThai");
+
+                    excel.Columns.Remove("ID");
+                    excel.Columns.Remove("ID_CheckIn");
+                    excel.Columns.Remove("TongChietKhau");
+
+                    excel.Columns.Remove("TotalRow");
+                    excel.Columns.Remove("SumTongTienHang");
+                    excel.Columns.Remove("SumDaTrich");
+                    excel.Columns.Remove("SumTienChietKhau");
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_ChiTietPhieuTrichHoaHong.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/ChiTietPhieuTrichHoaHong.xlsx");
+                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    string columHide = string.Empty;
+                    if (param.ColumnHide != null && param.ColumnHide.Count > 0)
+                    {
+                        columHide = string.Join("_", param.ColumnHide);
+                    }
+                    _classOFDCM.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 4, 28, 24, true, columHide, 0, param.ReportTime, param.ReportBranch);
                     var index = fileSave.IndexOf(@"\Template");
                     fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
                     fileSave = fileSave.Replace(@"\", "/");
@@ -241,6 +293,64 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                     List<BCHoaHongGioiThieu_ChiTiet> data = classhoadon.GetAll_ChiTietPhieuTrich(param);
+                    var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
+                    int page = 0;
+                    var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
+                    return ActionTrueData(new
+                    {
+                        data,
+                        ListPage = listpage,
+                        PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
+                        (param.CurrentPage * param.PageSize + data.Count()), " trên tổng số ", count, " bản ghi"),
+                        NumOfPage = page,
+                        TotalRow = count
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetList_NguoiGioiThieu(ParamSearchNguoiGioiThieu param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<DM_NguoiGioiThieuDTO> data = classhoadon.GetList_NguoiGioiThieu(param);
+                    var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
+                    int page = 0;
+                    var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
+                    return ActionTrueData(new
+                    {
+                        data,
+                        ListPage = listpage,
+                        PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
+                        (param.CurrentPage * param.PageSize + data.Count()), " trên tổng số ", count, " bản ghi"),
+                        NumOfPage = page,
+                        TotalRow = count
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetPhieuTrichHoaHong_byNguoiGioiThieu(ParamNKyGDV param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<SoQuyDTO> data = classhoadon.GetPhieuTrichHoaHong_byNguoiGioiThieu(param);
                     var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
                     int page = 0;
                     var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
