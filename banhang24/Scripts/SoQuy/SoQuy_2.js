@@ -534,6 +534,8 @@ var ViewModelQuyHD = function () {
                         vmThanhToan.showModalUpdate(item.ID);
                         break;
                     case 2:
+                    case 4:// nguoi gt
+                    case 5:// hoahong nv
                         vmThanhToanNCC.showModalUpdate(item.ID);
                         break;
                 }
