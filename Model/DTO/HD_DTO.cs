@@ -281,4 +281,20 @@ namespace Model
         public double? SumKhachDaTra { get; set; }
         public double? SumConNo { get; set; }
     }
+    public class DM_NguoiGioiThieuDTO
+    {
+        public Guid? ID_CheckIn { get; set; }// idnguoigt
+        public double? LoaiDoiTuong { get; set; }// do muon truong {TongChietKhau} de luu, nen kieu dulieu = double
+        public string SLoaiDoiTuong { get; set; }
+        public string MaNguoiGioiThieu { get; set; }
+        public string TenNguoiGioiThieu { get; set; }
+        public string SDTNguoiGioiThieu { get; set; }
+        public string DiaChiNguoiGioiThieu { get; set; }
+        public double? TongTienHang { get; set; }
+        public string STrangThai { get; set; }// hoanthanh, huy
+        public DateTime? NgayTao { get; set; }
+        public string NguoiTao { get; set; }
+        public int? TotalRow { get; set; }
+        public double? SumTongTienHang { get; set; }
+    }
 }
