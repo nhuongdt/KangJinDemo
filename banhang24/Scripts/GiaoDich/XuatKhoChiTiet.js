@@ -79,6 +79,7 @@ var XuatKhoChiTiet = function () {
     self.InforHDprintf = ko.observableArray();
     self.ThietLap = ko.observableArray();
     self.NhanViens = ko.observableArray();
+    self.isLoading = ko.observable(false);
 
     self.selectedHHXuatKho = ko.observable();
     self.fileNameExcel = ko.observable();
@@ -87,6 +88,7 @@ var XuatKhoChiTiet = function () {
     self.TongSoLuongHH = ko.observable(0);
     self.Quyen_NguoiDung = ko.observableArray();
     self.XuatKho_ThayDoiThoiGian = ko.observable();
+    self.XuatKho_XacNhanXuat = ko.observable(false);
     self.HangHoa_XemGiaVon = ko.observable();
     modelTypeSearchProduct.TypeSearch(1);// jqAutoProduct
 
@@ -292,6 +294,7 @@ var XuatKhoChiTiet = function () {
                 if (data !== "" && data.length > 0) {
                     self.Quyen_NguoiDung(data);
                     self.XuatKho_ThayDoiThoiGian(CheckQuyenExist('XuatHuy_ThayDoiThoiGian'));
+                    self.XuatKho_XacNhanXuat(CheckQuyenExist('XuatHuy_XacNhanXuat'));
                 }
                 else {
                     ShowMessage_Danger('Không có quyền');
@@ -1743,8 +1746,7 @@ var XuatKhoChiTiet = function () {
     }
 
     function Enable_btnSave() {
-        document.getElementById("btnaddHDCHHT").disabled = false;
-        document.getElementById("btnaddHDCHHT").lastChild.data = "Lưu (F10)";
+        self.isLoading(false);
     }
 
     self.SaveInvoice = function (status) {
@@ -1753,9 +1755,6 @@ var XuatKhoChiTiet = function () {
             cthd = JSON.parse(cthd);
 
             if (cthd.length > 0) {
-                document.getElementById("btnaddHDCHHT").disabled = true;
-                document.getElementById("btnaddHDCHHT").lastChild.data = "Đang Lưu";
-
                 var hd = localStorage.getItem(lcHDXuatKho);
                 if (hd === null) {
                     ShowMessage_Danger('cache hoa don null');
@@ -1915,7 +1914,7 @@ var XuatKhoChiTiet = function () {
                 myData.objHoaDon = hd[0];
                 myData.objCTHoaDon = arrCT;
 
-                console.log(myData)
+                self.isLoading(true);
 
                 if (idHoaDon !== null && idHoaDon !== undefined && idHoaDon !== const_GuidEmpty) {
                     myData.objHoaDon.NguoiSua = _userLogin;
