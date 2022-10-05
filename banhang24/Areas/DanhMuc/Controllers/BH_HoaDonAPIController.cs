@@ -8239,6 +8239,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                     List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
+                    Guid idnhanvien = data["idnhanvien"].ToObject<Guid>();
 
                     if (!string.IsNullOrEmpty(objHoaDon.MaHoaDon))
                     {
@@ -8399,7 +8400,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         hT_NhatKySuDung.LoaiNhatKy = 2;
                         hT_NhatKySuDung.ChucNang = "Chuyển hàng";
                         hT_NhatKySuDung.ThoiGian = DateTime.Now;
-                        hT_NhatKySuDung.ID_NhanVien = itemBH_HoaDon.ID_NhanVien;
+                        hT_NhatKySuDung.ID_NhanVien = idnhanvien;
                         hT_NhatKySuDung.ID_HoaDon = itemBH_HoaDon.ID;
                         hT_NhatKySuDung.LoaiHoaDon = 10;
                         hT_NhatKySuDung.ThoiGianUpdateGV = dateOld;
