@@ -1844,11 +1844,14 @@ var XuatKhoChiTiet = function () {
 
                 for (let i = 0; i < cthd.length; i++) {
                     let itOut = cthd[i];
-                    if (formatNumberToFloat(itOut.SoLuong) === 0) {
+                    let sluong = RoundDecimal(formatNumberToFloat(itOut.SoLuong),3);
+                    let tkho = RoundDecimal(formatNumberToFloat(itOut.TonKho), 3);
+
+                    if (sluong === 0) {
                         err += itOut.TenHangHoa + ', ';
                     }
-                    // check soluong > tonkho
-                    if (formatNumberToFloat(itOut.SoLuong) > formatNumberToFloat(formatNumber3Digit(itOut.TonKho))) {
+                  
+                    if (sluong > tkho) {
                         errTonKho += itOut.TenHangHoa + ', ';
                     }
                     for (let j = 0; j < itOut.DM_LoHang.length; j++) {
