@@ -1277,6 +1277,20 @@ function ViewModel() {
             return;
         }
 
+        // check het tonkho (tai thoidiem hientai)
+        for (let i = 0; i < dataX.length; i++) {
+            let itFor = dataX[i];
+            let tk = RoundDecimal(itFor.TonKho);
+            let sl = RoundDecimal(itFor.SoLuong);
+            if (sl > tk) {
+                mes += itFor.MaHangHoa + ' ,';
+            }
+        }
+        if (!commonStatisJs.CheckNull(mes)) {
+            ShowMessage_Danger('Không đủ tồn kho cho sản phẩm: ' + Remove_LastComma(mes));
+            return;
+        }
+
         $.getJSON(BH_XuatHuyUri + 'PhieuXuatKho_XacNhanXuat?idHoaDon=' + item.ID).done(function (x) {
             if (x.res) {
                 let diary = {
