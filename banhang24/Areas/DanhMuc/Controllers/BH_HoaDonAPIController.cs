@@ -6707,27 +6707,54 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var nvthHD = db.BH_NhanVienThucHien.Where(x => x.ID_HoaDon == idHoaDon);
                         db.BH_NhanVienThucHien.RemoveRange(nvthHD);
 
-                        // get all soquy of hoadon
-                        var lstSQ = (from qhd in db.Quy_HoaDon
-                                     join qct in db.Quy_HoaDon_ChiTiet on qhd.ID equals qct.ID_HoaDon
-                                     join hd in db.BH_HoaDon on qct.ID_HoaDonLienQuan equals hd.ID
-                                     where hd.ID == idHoaDon && qhd.TrangThai != false
-                                     && qct.ID_HoaDonLienQuan == idHoaDon
-                                     group new { qhd, qct } by new { qhd.ID, } into g
-                                     select new
-                                     {
-                                         ID = g.Key.ID,
-                                         TongTienThu = g.Where(x => x.qct.HinhThucThanhToan != 4 && x.qct.HinhThucThanhToan != 5)
-                                         .Sum(x => x.qct.TienThu)
-                                         - g.Where(x => x.qct.HinhThucThanhToan == 2).Sum(x => x.qct.LaPTChiPhiNganHang == true ? x.qct.TienThu * x.qct.ChiPhiNganHang / 100 : x.qct.ChiPhiNganHang)
-                                     }).ToList();
+                        var allQuyCT = (from qhd in db.Quy_HoaDon
+                                        join qct in db.Quy_HoaDon_ChiTiet on qhd.ID equals qct.ID_HoaDon
+                                        join hd in db.BH_HoaDon on qct.ID_HoaDonLienQuan equals hd.ID
+                                        where hd.ID == idHoaDon && qhd.TrangThai != false
+                                        && qct.ID_HoaDonLienQuan == idHoaDon
+                                        select new
+                                        {
+                                            qct.ID_HoaDon,
+                                            qct.TienThu,
+                                            qct.HinhThucThanhToan,
+                                            qct.LaPTChiPhiNganHang,
+                                            qct.ChiPhiNganHang,
+                                        }).ToList();
+                        var thuAll = (from qct in allQuyCT
+                                      group new { qct } by new { qct.ID_HoaDon } into g
+                                      select new
+                                      {
+                                          g.Key.ID_HoaDon,
+                                          TongTienThu = g.Where(x => x.qct.HinhThucThanhToan != 4 && x.qct.HinhThucThanhToan != 5)
+                                           .Sum(x => x.qct.TienThu)
+                                      }).ToList();
+                        var thuPos = (from qct in allQuyCT
+                                      group new { qct } by new { qct.ID_HoaDon } into g
+                                      select new
+                                      {
+                                          g.Key.ID_HoaDon,
+                                          TongTienThu = (g.Where(x => x.qct.HinhThucThanhToan == 2)
+                                           .Sum(x => x.qct.LaPTChiPhiNganHang == true ? x.qct.TienThu * x.qct.ChiPhiNganHang / 100 : x.qct.ChiPhiNganHang)) ?? 0
+                                      }).ToList();
+                        var thuctinh = (from all in thuAll
+                                        join pos in thuPos on all.ID_HoaDon equals pos.ID_HoaDon
+                                        into thuc
+                                        from tt in thuc.DefaultIfEmpty()
+                                        select new
+                                        {
+                                            all.ID_HoaDon,
+                                            TongTienThu = all.TongTienThu - (thuc != null ? tt.TongTienThu : 0)
+                                        }).ToList();
+
 
                         Guid? idSQFirst = Guid.Empty;
                         List<BH_NhanVienThucHien> lstAdd = new List<BH_NhanVienThucHien>();
-                        if (lstSQ != null && lstSQ.Count() > 0)
+                        if (thuctinh != null && thuctinh.Count() > 0)
                         {
-                            idSQFirst = lstSQ.FirstOrDefault().ID;
+                            idSQFirst = thuctinh.FirstOrDefault().ID_HoaDon;
                         }
+
+
                         var lstNV_notThucThu = nv.Where(x => x.TinhChietKhauTheo != 1).ToList();
                         foreach (var nv1 in lstNV_notThucThu)
                         {
@@ -6740,12 +6767,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var lstNV_ThucThu = nv.Where(x => x.TinhChietKhauTheo == 1).ToList();
                         foreach (var nvien in lstNV_ThucThu)
                         {
-                            foreach (var sq in lstSQ)
+                            foreach (var sq in thuctinh)
                             {
                                 BH_NhanVienThucHien objNew = new BH_NhanVienThucHien
                                 {
                                     ID = Guid.NewGuid(),
-                                    ID_QuyHoaDon = sq.ID,
+                                    ID_QuyHoaDon = sq.ID_HoaDon,
                                     ID_NhanVien = nvien.ID_NhanVien,
                                     ID_HoaDon = nvien.ID_HoaDon,
                                     PT_ChietKhau = nvien.PT_ChietKhau,
