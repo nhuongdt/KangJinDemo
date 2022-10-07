@@ -1697,7 +1697,8 @@ namespace libNS_NhanVien
                                     + "<br/> Mã: " + bl.MaBangLuong
                                     + "<br/> Tên: " + bl.TenBangLuong
                                     + "<br/> Nhân viên hủy: " + _dbcontext.NS_NhanVien.Where(x => x.ID == diary.ID_NhanVien).FirstOrDefault().TenNhanVien;
-            diary.LoaiNhatKy = (int)commonEnumHellper.TypeHoatDong.update;
+            diary.LoaiNhatKy = (int)commonEnumHellper.TypeHoatDong.delete;
+            _dbcontext.HT_NhatKySuDung.Add(diary);
             _dbcontext.SaveChanges();
             UpdateStatusCongBoSung_WhenCreatBangLuong(idBangLuong, bl.TuNgay ?? DateTime.Now, bl.DenNgay ?? DateTime.Now);
             result.ErrorCode = false;
