@@ -685,7 +685,6 @@
         var dateChose = '';
 
         if (self.filterNgayLapHD() === '0') {
-
             switch (self.filterNgayLapHD_Quy()) {
                 case 0:
                     // all
@@ -703,19 +702,19 @@
                     // hom qua
                     self.TodayBC('Hôm qua');
                     dayEnd = moment(_now).format('YYYY-MM-DD');
-                    dayStart = moment(new Date(_now.setDate(_now.getDate() - 1))).format('YYYY-MM-DD');
+                    dayStart = moment(_now).subtract('days', 1).format('YYYY-MM-DD');
                     break;
                 case 3:
                     // tuan nay
                     self.TodayBC('Tuần này');
-                    dayStart = moment(new Date(_now.setDate(_now.getDate() - lessDays - 1))).format('YYYY-MM-DD'); // start of wwek
-                    dayEnd = moment(new Date(_now.setDate(_now.getDate() + 6))).add('days', 1).format('YYYY-MM-DD'); // end of week
+                    dayStart = moment().startOf('week').add('days', 1).format('YYYY-MM-DD');
+                    dayEnd = moment().endOf('week').add('days', 2).format('YYYY-MM-DD');
                     break;
                 case 4:
                     // tuan truoc
                     self.TodayBC('Tuần trước');
-                    dayStart = moment().weekday(-6).format('YYYY-MM-DD');
-                    dayEnd = moment(dayStart, 'YYYY-MM-DD').add(6, 'days').add('days', 1).format('YYYY-MM-DD'); // add day in moment.js
+                    dayStart = moment().startOf('week').subtract('days', 6).format('YYYY-MM-DD');
+                    dayEnd = moment().startOf('week').add('days', 1).format('YYYY-MM-DD');
                     break;
                 case 5:
                     // 7 ngay qua
@@ -726,15 +725,14 @@
                 case 6:
                     // thang nay
                     self.TodayBC('Tháng này');
-                    dayStart = moment(new Date(_now.getFullYear(), _now.getMonth(), 1)).format('YYYY-MM-DD');
-                    dayEnd = moment(new Date(_now.getFullYear(), _now.getMonth() + 1, 0)).add('days', 1).format('YYYY-MM-DD');
+                    dayStart = moment().startOf('month').format('YYYY-MM-DD');
+                    dayEnd = moment().endOf('month').add('days', 1).format('YYYY-MM-DD');
                     break;
                 case 7:
                     // thang truoc
-
                     self.TodayBC('Tháng trước');
-                    dayStart = moment(new Date(_now.getFullYear(), _now.getMonth() - 1, 1)).format('YYYY-MM-DD');
-                    dayEnd = moment(new Date(_now.getFullYear(), _now.getMonth(), 0)).add('days', 1).format('YYYY-MM-DD');
+                    dayStart = moment().subtract('months', 1).startOf('month').format('YYYY-MM-DD');
+                    dayEnd = moment().subtract('months', 1).endOf('month').add('days', 1).format('YYYY-MM-DD');
                     break;
                 case 10:
                     // quy nay
