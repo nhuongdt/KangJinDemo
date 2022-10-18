@@ -20245,6 +20245,7 @@ var NewModel_BanHangLe = function () {
         vmThanhToan.role.PhieuThu.Update = CheckQuyenExist('SoQuy_CapNhat');
         vmThanhToan.role.PhieuThu.Delete = CheckQuyenExist('SoQuy_Xoa');
         vmThanhToan.role.PhieuThu.ChangeNgayLap = CheckQuyenExist('SoQuy_ThayDoiThoiGian');
+        vmThanhToan.role.PhieuThu.ChangeNVLap = CheckQuyenExist('SoQuy_ThayDoiThoiNVLapPhieu');
 
         self.RoleInsert_Invoice(CheckQuyenExist('HoaDon_ThemMoi'));
         self.RoleInsert_Order(CheckQuyenExist('DatHang_ThemMoi'));
