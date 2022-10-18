@@ -846,6 +846,16 @@ var NewModel_BanHangLe = function () {
                 vmThemMoiKhach.listData.NguonKhachs = obj.NguonKhach;
                 vmThemMoiNhomKhach.listData.VungMiens = obj.VungMien;
                 vmThanhToan.ThietLapChotSo = obj.ChotSo;
+
+                if (self.CongTy().length > 0) {
+                    vmThanhToan.inforCongTy = {
+                        TenCongTy: self.CongTy()[0].TenCongTy,
+                        DiaChiCuaHang: self.CongTy()[0].DiaChi,
+                        LogoCuaHang: Open24FileManager.hostUrl + self.CongTy()[0].DiaChiNganHang,
+                        TenChiNhanh: self.titleChinhanh,
+                    };
+                }
+                vmThanhToan.listData.arrIDDonVi = [id_DonVi];
             }
         });
     }
@@ -855,6 +865,7 @@ var NewModel_BanHangLe = function () {
         ajaxHelper('/api/DanhMuc/Quy_HoaDonAPI/' + 'GetQuy_KhoanThuChi', 'GET').done(function (x) {
             if (x.res === true) {
                 self.KhoanThuChis(x.data);
+                vmThanhToan.listData.KhoanThuChis = self.KhoanThuChis();
             }
         })
     }
@@ -2409,13 +2420,28 @@ var NewModel_BanHangLe = function () {
                     lstNV_byDonVi[i].StatusCV = 0;
                 }
                 self.NhanViens(lstNV_byDonVi);
-
-                vmThanhToan.listData.NhanViens = lstNV_byDonVi;
+              
                 WriteData_Dexie(db.NS_NhanVien, data);
 
                 vmThanhToanGara.listData.NhanViens = lstNV_byDonVi;
                 vmHoaHongHoaDon.listData.NhanViens = lstNV_byDonVi;
                 vmHoaHongDV.listData.NhanViens = lstNV_byDonVi;
+
+                let tenNV = '';
+                let nvien = $.grep(self.NhanViens(), function (x) {
+                    return x.ID === _idNhanVien;
+                });
+                if (nvien.length > 0) {
+                    tenNV = nvien[0].TenNhanVien;
+                }
+                vmThanhToan.inforLogin = {
+                    ID_NhanVien: _idNhanVien,
+                    ID_User: id_User,
+                    UserLogin: userLogin,
+                    ID_DonVi: id_DonVi,
+                    TenNhanVien: tenNV,
+                };
+                vmThanhToan.listData.NhanViens = lstNV_byDonVi;
             }
         })
     }
@@ -14804,30 +14830,6 @@ var NewModel_BanHangLe = function () {
     }
     // Phieu Thu
     self.showPopupLapPhieuThu = function () {
-        var tenNV = '';
-        let nvien = $.grep(self.NhanViens(), function (x) {
-            return x.ID === _idNhanVien;
-        });
-        if (nvien.length > 0) {
-            tenNV = nvien[0].TenNhanVien;
-        }
-        vmThanhToan.inforLogin = {
-            ID_NhanVien: _idNhanVien,
-            ID_User: id_User,
-            UserLogin: userLogin,
-            ID_DonVi: id_DonVi,
-            TenNhanVien: tenNV,
-        };
-        if (self.CongTy().length > 0) {
-            vmThanhToan.inforCongTy = {
-                TenCongTy: self.CongTy()[0].TenCongTy,
-                DiaChiCuaHang: self.CongTy()[0].DiaChi,
-                LogoCuaHang: Open24FileManager.hostUrl + self.CongTy()[0].DiaChiNganHang,
-                TenChiNhanh: self.titleChinhanh,
-            };
-        }
-        vmThanhToan.listData.arrIDDonVi = [id_DonVi];
-        vmThanhToan.listData.KhoanThuChis = self.KhoanThuChis();
         vmThanhToan.showModalThanhToan(null, 2);
     }
 
