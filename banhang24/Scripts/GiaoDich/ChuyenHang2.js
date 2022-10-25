@@ -384,6 +384,14 @@ var ViewModelHD = function () {
         self.Enable_NgayLapHD(!chotso);
     }
 
+    async function LoadChiTietHD(idHoaDon) {
+        let xx = await $.getJSON(BH_HoaDonUri + "GetChiTietHD_byIDHoaDonChuyenHangThaoTac?idHoaDon=" + idHoaDon + '&iddonvi=' + _IDchinhanh, 'GET').done(function (data) { })
+            .then(function (data) {
+                return data;
+            })
+        return xx;
+    }
+
     self.LoadChiTietHD = function (item, e) {
         CheckKhoaSo(item);
 
@@ -1230,7 +1238,7 @@ var ViewModelHD = function () {
         var arrIDQuiDoi = [];
         var sumCT = 0;
         for (let i = 0; i < arrCT.length; i++) {
-            var ctNew = $.extend({}, arrCT[i]);
+            let ctNew = $.extend({}, arrCT[i]);
             ctNew.ID_HoaDon = itemHD.ID;
             ctNew.MaHoaDon = itemHD.MaHoaDon;
             ctNew.ID_CheckIn = itemHD.ID_CheckIn;
@@ -1300,8 +1308,9 @@ var ViewModelHD = function () {
         window.location.href = '/#/TransfersCT2';
     }
 
-    self.ChiTietMoPhieu = function (item) {
-        GetCTHD_andSaveCache(self.BH_HoaDonChiTietsThaoTac(), item, 2);
+    self.ChiTietMoPhieu = async function (item) {
+        let dataX = await LoadChiTietHD(item.ID);
+        GetCTHD_andSaveCache(dataX, item, 2);
         localStorage.setItem('createfrom', 2);// nhanhang
         GoToChiTietNhap();
     }
@@ -1318,14 +1327,26 @@ var ViewModelHD = function () {
         }
     }
     // mophieu tamluu
-    self.ChiTietMoPhieuTL = function (item, type) {
+    self.ChiTietMoPhieuTL = async function (item, type) {
+        let dataX = await LoadChiTietHD(item.ID);
+        let mes = '';
+        switch (parseInt(dataX[0].YeuCau)) {
+            case 4:
+                mes = 'Phiếu chuyển hàng đã được nhận thành công. Không thể sửa đổi ';
+                break;
+        };
+        if (mes != '') {
+            ShowMessage_Danger(mes);
+            return;
+        }
+
         if (type === 1) { // mo hdtam
             localStorage.setItem('createfrom', 3);
         }
         else {// update phieuchuyen
             localStorage.setItem('createfrom', 4);
         }
-        GetCTHD_andSaveCache(self.BH_HoaDonChiTietsThaoTac(), item, 3);
+        GetCTHD_andSaveCache(dataX, item, 3);
         GoToChiTietNhap();
     }
 
