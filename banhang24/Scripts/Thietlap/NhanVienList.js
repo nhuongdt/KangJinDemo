@@ -2614,7 +2614,7 @@ var ViewModel = function () {
             vmNsPhongBan.edit(nodeItem);
         }
     });
-   
+
     function GetChildren_Phong(arrParent, arrJson, txtSearch, arr, isRoot) {
         if (txtSearch === '') {
             return self.listphongbanold();
@@ -2763,6 +2763,44 @@ var ViewModel = function () {
         }
     }
 
+    self.listPB_byChiNhanh = ko.observableArray();
+    self.listPhongBanSearch = ko.observableArray();
+
+    console.log(333)
+    self.LoadPhongBan_byCN = function (itemCN) {
+        LoadPhongBan_byChiNhanh(itemCN.ID_ChiNhanh);
+    }
+
+    self.searchPhongBan = function (item) {
+        let idChiNhanh = item.ID_ChiNhanh;
+        let txt = $(event.currentTarget).val();
+        if (!commonStatisJs.CheckNull(txt)) {
+            txt = txt.trim();
+        }
+
+        if (commonStatisJs.CheckNull(txt)) {
+            LoadPhongBan_byChiNhanh(idChiNhanh);
+        }
+        else {
+            let data = $.grep(self.listPB_byChiNhanh(), function (e) {
+                let result = (commonStatisJs.convertVieToEng(e.text).indexOf(locdau(txt)) >= 0
+                    || (e.children.length > 0 && (e.children.some(evensearch1) || e.children.some(evensearch2))));
+                return result;
+            });
+            self.listPhongBanSearch(data);
+        }
+    }
+
+    function LoadPhongBan_byChiNhanh(idChiNhanh) {
+        for (let i = 0; i < self.listAddChiNhanh().length; i++) {
+            if (self.listAddChiNhanh()[i].ID_ChiNhanh === idChiNhanh) {
+                self.listPB_byChiNhanh(self.listAddChiNhanh()[i].listPhongBan);
+                self.listPhongBanSearch($.extend(true, [], self.listAddChiNhanh()[i].listPhongBan));
+                break;
+            }
+        }
+    }
+
     self.AddChiNhanh = function () {
         if (self.listAddChiNhanh().some(o => o.ID_ChiNhanh === null)) {
             bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Vui lòng chọn chi nhánh trước khi thêm ', "danger");
@@ -2809,10 +2847,13 @@ var ViewModel = function () {
                 bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Phòng ban chi nhánh này đã được chọn', "danger");
             }
             else {
-                root.ID_PhongBan = item.id;
-                root.Text_PhongBan = item.text;
-                self.listAddChiNhanh()[0].ID_PhongBan = item.id;
-                self.listAddChiNhanh()[0].Text_PhongBan = item.text;
+                for (let i = 0; i < self.listAddChiNhanh().length; i++) {
+                    if (self.listAddChiNhanh()[i].ID_ChiNhanh === root.ID_ChiNhanh) {
+                        self.listAddChiNhanh()[i].ID_PhongBan = item.id;
+                        self.listAddChiNhanh()[i].Text_PhongBan = item.text;
+                        break;
+                    }
+                }
                 self.listAddChiNhanh.refresh();
             }
         }
