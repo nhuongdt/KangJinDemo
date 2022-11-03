@@ -365,6 +365,7 @@
                 self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));
                 self.Role_HoaHongDichVu_Edit(CheckQuyenExist('BanHang_HoaDongDichVu_CapNhat'))
                 self.Role_HoaHongHoaDon_Edit(CheckQuyenExist('BanHang_HoaDongHoaDon_CapNhat'));
+                self.Show_BtnThanhToanCongNo(CheckQuyenExist('KhachHang_ThanhToanNo'));
 
                 self.Role_SuaChiPhiDV(CheckQuyenExist('HoaDon_SuaChiPhiDichVu'))
                 self.Role_NhapHangTuHoaDon(CheckQuyenExist('NhapHang_ThemMoi'))

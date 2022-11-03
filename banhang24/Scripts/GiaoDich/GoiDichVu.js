@@ -273,6 +273,7 @@
                 self.Role_EditChietKhauNVHoaDon(CheckQuyenExist('GoiDichVu_SuaDoiChietKhauNVHoaDon'));
                 self.Role_HoaHongDichVu_Edit(CheckQuyenExist('BanHang_HoaDongDichVu_CapNhat'))
                 self.Role_HoaHongHoaDon_Edit(CheckQuyenExist('BanHang_HoaDongHoaDon_CapNhat'));
+                self.Show_BtnThanhToanCongNo(CheckQuyenExist('KhachHang_ThanhToanNo'));
             }
             else {
                 bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + 'Không có quyền xem danh sách ' + sLoai, 'danger');
@@ -2247,18 +2248,6 @@
             else {
                 self.Show_BtnDelete(false);
             }
-        }
-
-        if (roleInsertQuy.length > 0) {
-            if (item.PhaiThanhToan > item.KhachDaTra) {
-                self.Show_BtnThanhToanCongNo(true);
-            }
-            else {
-                self.Show_BtnThanhToanCongNo(false);
-            }
-        }
-        else {
-            self.Show_BtnThanhToanCongNo(false);
         }
 
         var roleCopy_ServicePackage = $.grep(self.Quyen_NguoiDung(), function (x) {
