@@ -25,6 +25,7 @@
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
         self.role.SoQuy.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
+        self.role.SoQuy.XoaNeuKhacNgay = true;
     },
     computed: {
         sLoaiThuChi: function () {
@@ -381,7 +382,14 @@
                             self.ddl_textVal.accountCKName = tenTKCK;
                             self.HoaDonChosing.DienThoaiKhachHang = firstRow.SoDienThoai;
 
-                            self.isKhoaSo = VHeader.CheckKhoaSo(moment(self.phieuThuOld.NgayLapHoaDon).format('YYYY-MM-DD'), self.newPhieuThu.ID_DonVi);
+                            let ngayLap = moment(self.phieuThuOld.NgayLapHoaDon).format('YYYY-MM-DD');
+                            let dtNow = moment(new Date()).format('YYYY-MM-DD')
+                            let role = VHeader.Quyen.indexOf('SoQuy_Xoa_NeuKhacNgay') > -1;
+                            if (dtNow === ngayLap) {
+                                role = true;
+                            }
+                            self.role.SoQuy.XoaNeuKhacNgay = role;
+                            self.isKhoaSo = VHeader.CheckKhoaSo(ngayLap, self.newPhieuThu.ID_DonVi);
 
                             self.GetSoDuDatCoc(firstRow.ID_DoiTuong);
                             $('#vmThanhToanNCC').modal('show');

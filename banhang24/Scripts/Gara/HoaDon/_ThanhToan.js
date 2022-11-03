@@ -17,6 +17,7 @@
             self.role.PhieuThu.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
             self.role.PhieuThu.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
             self.role.PhieuThu.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
+            self.role.PhieuThu.XoaNeuKhacNgay = true;
 
             self.inforLogin = {
                 ID_NhanVien: VHeader.IdNhanVien,
@@ -2710,7 +2711,14 @@
                             self.HoaDonChosing.DienThoaiKhachHang = firstRow.SoDienThoai;
                             self.HoaDonChosing.SoDuTheGiaTri += sumTGT;
 
-                            self.isKhoaSo = self.CheckKhoaSo(moment(self.phieuThuOld.NgayLapHoaDon).format('YYYY-MM-DD'), self.phieuThuOld.ID_DonVi);
+                            let ngayLap = moment(self.phieuThuOld.NgayLapHoaDon).format('YYYY-MM-DD');
+                            let dtNow = moment(new Date()).format('YYYY-MM-DD')
+                            let role = VHeader.Quyen.indexOf('SoQuy_Xoa_NeuKhacNgay') > -1;
+                            if (dtNow === ngayLap) {
+                                role = true;
+                            }
+                            self.role.PhieuThu.XoaNeuKhacNgay = role;
+                            self.isKhoaSo = self.CheckKhoaSo(ngayLap, self.phieuThuOld.ID_DonVi);
 
                             self.GetSoDuTheGiaTri(firstRow.ID_DoiTuong);
                             self.GetSoDuDatCoc(firstRow.ID_DoiTuong);

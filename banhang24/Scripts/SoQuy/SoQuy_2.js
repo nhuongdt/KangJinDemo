@@ -223,6 +223,7 @@ var ViewModelQuyHD = function () {
     self.Allow_ChangeTimeSoQuy = ko.observable(false);
     self.Role_UpdateSoQuy = ko.observable(false);
     self.Role_XemDS = ko.observable(false);
+    self.Role_SoQuy_XoaNeuKhacNgay = ko.observable(false);
     self.Role_KhoanThuChi_ThemMoi = ko.observable(false);
     self.Role_KhoanThuChi_CapNhat = ko.observable(false);
     self.Role_KhoanThuChi_Xoa = ko.observable(false);
@@ -335,7 +336,7 @@ var ViewModelQuyHD = function () {
     function CheckRole_byVHeader() {
         self.Role_KhoanThuChi_ThemMoi(CheckRole('KhoanThuChi_ThemMoi'));
         self.Role_KhoanThuChi_CapNhat(CheckRole('KhoanThuChi_CapNhat'));
-        self.Role_KhoanThuChi_Xoa(CheckRole('KhoanThuChi_Xoa'));
+        self.Role_KhoanThuChi_Xoa(CheckRole('KhoanThuChi_Xoa'));       
     }
 
     //load quyền
@@ -1638,7 +1639,15 @@ var ViewModelQuyHD = function () {
     self.wasChotSo = ko.observable(false);
 
     self.loadLoaiHD = function (item) {
-        self.wasChotSo(VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
+        let dtNow = moment(new Date()).format('YYYY-MM-DD')
+        let ngayLapPhieu = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
+        let role = CheckRole('SoQuy_Xoa_NeuKhacNgay');
+        if (dtNow === ngayLapPhieu) {
+            role = true;
+        }
+        self.Role_SoQuy_XoaNeuKhacNgay(role);
+
+        self.wasChotSo(VHeader.CheckKhoaSo(ngayLapPhieu, item.ID_DonVi));
         if (item.LoaiHoaDon === 11) {
             self.arrMauInTQ(self.arrMauInPhieuThu());
         }

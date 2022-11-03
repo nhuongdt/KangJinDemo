@@ -24,6 +24,7 @@
         self.role.SoQuy.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
         self.role.SoQuy.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
         self.role.SoQuy.ChangeNVLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiNVLapPhieu') > -1;
+        self.role.SoQuy.XoaNeuKhacNgay = VHeader.Quyen.indexOf('SoQuy_Xoa_NeuKhacNgay') > -1;
 
         self.role.Customer.Insert = VHeader.Quyen.indexOf('KhachHang_ThemMoi') > -1;
         self.role.Vendor.Insert = VHeader.Quyen.indexOf('NhaCungCap_ThemMoi') > -1;
@@ -348,7 +349,14 @@
             self.inforOld = $.extend({}, quyHD);
             self.isNew = false;
             self.isLoading = false;
-            self.isKhoaSo = VHeader.CheckKhoaSo(moment(quyHD.NgayLapHoaDon).format('YYYY-MM-DD'), quyHD.ID_DonVi);
+            let ngayLap = moment(quyHD.NgayLapHoaDon).format('YYYY-MM-DD');
+            let dtNow = moment(new Date()).format('YYYY-MM-DD')
+            let role = VHeader.Quyen.indexOf('SoQuy_Xoa_NeuKhacNgay') > -1;
+            if (dtNow === ngayLap) {
+                role = true;
+            }
+            self.role.SoQuy.XoaNeuKhacNgay = role;
+            self.isKhoaSo = VHeader.CheckKhoaSo(ngayLap, quyHD.ID_DonVi);
             var isNapTien = true;
             var loaiHD = quyHD.LoaiHoaDon;
             switch (quyHD.LoaiDoiTuong) {
