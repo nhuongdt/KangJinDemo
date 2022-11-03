@@ -187,7 +187,7 @@
                                             <th class="td-stt">STT</th>
                                             <th>Mã hàng hóa</th>
                                             <th>Tên hàng hóa</th>
-                                            <th>Số lượng</th>
+                                            <th>Tên nhóm hàng</th>
                                             <th class="td-stt" v-on:click="PublicProducts_RemoveAll">
                                                 <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
                                                     <i class="fal fa-times"></i>
@@ -211,14 +211,17 @@
                                                     ({{item.TenDonViTinh}})
                                                 </span>
                                             </td>
-                                            <td style="width:10%">
-                                                <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                       v-model="item.SoLuong"
-                                                       v-on:keyup="PublicProducts_EditSoLuong(index)"
-                                                       v-on:keyup.13="Enter_FocusNext" />
+                                            <td>
+                                                {{item.TenNhomHangHoa}}
                                             </td>
+                                            @*<td style="width:10%">
+                                                    <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
+                                                           v-model="item.SoLuong"
+                                                           v-on:keyup="PublicProducts_EditSoLuong(index)"
+                                                           v-on:keyup.13="Enter_FocusNext" />
+                                                </td>*@
                                             <td class="text-center td-stt">
-                                                <a style="font-size:20px" v-on:click="PublicProducts_Remove(index)">
+                                                <a style="font-size:20px" v-on:click="PublicProducts_Remove(index,item)">
                                                     <i class="fal fa-times"></i>
                                                 </a>
                                             </td>
@@ -262,7 +265,7 @@
                                             <th class="td-stt">STT</th>
                                             <th>Mã hàng hóa</th>
                                             <th>Tên hàng hóa</th>
-                                            <th>Số lượng</th>
+                                            <th>Tên nhóm hàng</th>
                                             <th class="td-stt" v-on:click="DayProducts_RemoveAll">
                                                 <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
                                                     <i class="fal fa-times"></i>
@@ -286,14 +289,17 @@
                                                     ({{item.TenDonViTinh}})
                                                 </span>
                                             </td>
-                                            <td style="width:10%">
-                                                <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                       v-model="item.SoLuong"
-                                                       v-on:keyup.13="Enter_FocusNext"
-                                                       v-on:keyup="DayProducts_EditSoLuong(index)" />
+                                            <td>
+                                                {{item.TenNhomHangHoa}}
                                             </td>
+                                            @*<td style="width:10%">
+                                                    <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
+                                                           v-model="item.SoLuong"
+                                                           v-on:keyup.13="Enter_FocusNext"
+                                                           v-on:keyup="DayProducts_EditSoLuong(index)" />
+                                                </td>*@
                                             <td class="text-center td-stt">
-                                                <a style="font-size:20px" v-on:click="DayProducts_Remove(index)">
+                                                <a style="font-size:20px" v-on:click="DayProducts_Remove(index, item)">
                                                     <i class="fal fa-times"></i>
                                                 </a>
                                             </td>
@@ -526,6 +532,7 @@
                     self.khoangApDungOld = $.extend([], true, x.dataSoure);
                     self.PublicProducts = sp_public;
                     self.DayProducts = sp_day;
+                    console.log(sp_day)
                 })
                 $('#vmThemNhomHang_NangCao').modal('show');
             },
@@ -537,7 +544,9 @@
                     MaHangHoa: item.MaHangHoa,
                     TenHangHoa: item.TenHangHoa,
                     TenDonViTinh: item.TenDonViTinh,
-                    SoLuong: 0
+                    SoLuong: 0,
+                    ID_NhomHangHoa: item.ID_NhomHangHoa,
+                    TenNhomHangHoa: item.TenNhomHangHoa,
                 };
                 self.PublicProducts.unshift(obj);
             },
@@ -549,7 +558,9 @@
                     MaHangHoa: item.MaHangHoa,
                     TenHangHoa: item.TenHangHoa,
                     TenDonViTinh: item.TenDonViTinh,
-                    SoLuong: 0
+                    SoLuong: 0,
+                    ID_NhomHangHoa: item.ID_NhomHangHoa,
+                    TenNhomHangHoa: item.TenNhomHangHoa,
                 };
                 self.DayProducts.unshift(obj);
             },
@@ -562,14 +573,22 @@
                 self.typeProduct = type;
                 vmApplyGroupProduct.showModal(0, 0, null);
             },
-            PublicProducts_Remove: function (index) {
+            PublicProducts_Remove: function (index, item) {
                 let self = this;
-                for (let i = 0; i < self.PublicProducts.length; i++) {
-                    if (i === index) {
-                        self.PublicProducts.splice(i, 1);
-                        break;
+                let idNhom = item.ID_NhomHangHoa;
+                dialogConfirm_OKCancel('Thông báo xóa', 'Bạn có muốn xóa toàn bộ hàng thuộc nhóm <b> ' + item.TenNhomHangHoa + ' </b> không?', function () {
+                    self.PublicProducts = $.grep(self.PublicProducts, function (x) {
+                        return x.ID_NhomHangHoa !== idNhom;
+                    })
+                    console.log(1, self.PublicProducts)
+                }, function () {
+                    for (let i = 0; i < self.PublicProducts.length; i++) {
+                        if (i === index) {
+                            self.PublicProducts.splice(i, 1);
+                            break;
+                        }
                     }
-                }
+                })
             },
             PublicProducts_RemoveAll: function () {
                 let self = this;
@@ -579,14 +598,21 @@
                 let self = this;
                 self.DayProducts = [];
             },
-            DayProducts_Remove: function (index) {
+            DayProducts_Remove: function (index, item) {
                 let self = this;
-                for (let i = 0; i < self.DayProducts.length; i++) {
-                    if (i === index) {
-                        self.DayProducts.splice(i, 1);
-                        break;
+                let idNhom = item.ID_NhomHangHoa;
+                dialogConfirm_OKCancel('Thông báo xóa', 'Bạn có muốn xóa toàn bộ hàng thuộc nhóm <b> ' + item.TenNhomHangHoa + ' </b> không?', function () {
+                    self.DayProducts = $.grep(self.DayProducts, function (x) {
+                        return x.ID_NhomHangHoa !== idNhom;
+                    })
+                }, function () {
+                    for (let i = 0; i < self.DayProducts.length; i++) {
+                        if (i === index) {
+                            self.DayProducts.splice(i, 1);
+                            break;
+                        }
                     }
-                }
+                })
             },
             Enter_FocusNext: function () {
                 let self = this;
