@@ -759,8 +759,9 @@ function ViewModel() {
             }
         });
 
-        var lc_HangHoaChiTiet = [];
+        self.HDGoc_hasChange(false);
 
+        var lc_HangHoaChiTiet = [];
         $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + item.ID + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) {
             let arr = data.LstDataPrint;
             let xkSuDung = $.grep(data.LstDataPrint, function (x) {
@@ -782,6 +783,12 @@ function ViewModel() {
             lc_HangHoaChiTiet = arr;
             localStorage.setItem('lc_HangHoaChiTiet', JSON.stringify(lc_HangHoaChiTiet));
             SetHeightShowDetail($this);
+
+            let trangThaiPhieu = 0;
+            if (data.LstDataPrint.length > 0) {
+                trangThaiPhieu = parseInt(data.LstDataPrint[0].TrangThaiMoPhieu);
+            }
+            self.HDGoc_hasChange(trangThaiPhieu === 1 || trangThaiPhieu === 2);
         })
     }
 
@@ -1256,7 +1263,10 @@ function ViewModel() {
 
     }
 
+    self.HDGoc_hasChange = ko.observable(false);
     self.XacNhanXuat = async function (item) {
+        self.HDGoc_hasChange(false);
+
         var dataX = await LoadChiTietHD(item.ID);
         if (dataX.length === 0) {
             ShowMessage_Danger('Chi tiết hóa đơn rỗng');
@@ -1266,9 +1276,11 @@ function ViewModel() {
         let mes = '';
         switch (parseInt(dataX[0].TrangThaiMoPhieu)) {
             case 1:
+                self.HDGoc_hasChange(true);
                 mes = 'Phiếu xuất đã bị hủy do cập nhật lại nguyên vật liệu';
                 break;
             case 2:
+                self.HDGoc_hasChange(true);
                 mes = 'Hóa đơn gốc đã được hủy. Không thể xuất kho';
                 break;
         };
