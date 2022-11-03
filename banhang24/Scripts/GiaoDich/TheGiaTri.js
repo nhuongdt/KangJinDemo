@@ -720,7 +720,7 @@
                     // 7 ngay qua
                     self.TodayBC('7 ngày qua');
                     dayEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
-                    dayStart = moment(new Date(_now.setDate(_now.getDate() - 7))).format('YYYY-MM-DD');
+                    dayStart = moment(_now).add('days', -7).format('YYYY-MM-DD');
                     break;
                 case 6:
                     // thang nay

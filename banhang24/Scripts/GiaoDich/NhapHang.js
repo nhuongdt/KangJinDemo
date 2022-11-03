@@ -2536,7 +2536,6 @@
         for (let i = 0; i < arrCTHD.length; i++) {
             let ct = $.extend({}, arrCTHD[i]);
             ct.SoThuTu = i + 1;
-            ct.TenHangHoa = ct.TenHangHoa + (ct.TenDonViTinh !== "" && ct.TenDonViTinh !== null ? "(" + ct.TenDonViTinh + ")" : "") + (ct.ThuocTinh_GiaTri !== null ? ct.ThuocTinh_GiaTri : "") + (ct.MaLoHang !== "" && ct.MaLoHang !== null ? "(Lô: " + ct.MaLoHang + ")" : "");
             ct.DonGia = formatNumber3Digit(ct.DonGia, 2);
             ct.SoLuong = formatNumber3Digit(ct.SoLuong, 2);
             ct.TienThue = formatNumber3Digit(ct.TienThue * ct.SoLuong);
