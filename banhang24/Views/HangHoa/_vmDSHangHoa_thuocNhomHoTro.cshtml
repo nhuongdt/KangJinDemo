@@ -1,0 +1,333 @@
+﻿<style>
+    #vmDSHang_thuocNhomHoTro th {
+        text-align: center;
+        vertical-align: middle
+    }
+
+    #vmDSHang_thuocNhomHoTro .margin-top-10 {
+        margin-top: 10px
+    }
+
+    #vmDSHang_thuocNhomHoTro .td-stt {
+        width: 5%;
+    }
+
+    #vmDSHang_thuocNhomHoTro .css-form-detail {
+        width: 100%;
+    }
+    #vmDSHang_thuocNhomHoTro .a-font-18 {
+        font-size: 18px;
+    }
+</style>
+<div id="vmDSHang_thuocNhomHoTro" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button class="close close-modal" type="button" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    Tên nhóm: {{inforNhomHoTro.TenNhomHangHoa}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group margin-top-10">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <div class="css-form-detail">
+                            <products :con-ton-kho="0" title="Thêm sản phẩm từ nhóm hàng"
+                                      :show-gia-von="true"
+                                      :show-image="false"
+                                      :show-ton-kho="false"
+                                      :id-chi-nhanh="ID_DonVi"
+                                      :role-add="true"
+                                      v-on:show-modal="showModalNhomHang"
+                                      v-on:chose-product="ChoseProduct">
+                            </products>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" v-if="ListProduct.length > 0">
+                        <div class="table-reponsive table_price table_error table-frame"
+                             style=" overflow: auto; max-height: 400px">
+                            <table class="table">
+                                <thead class="thead-boder">
+                                    <tr>
+                                        <th class="td-stt">STT</th>
+                                        <th>Mã hàng hóa</th>
+                                        <th>Tên hàng hóa</th>
+                                        <th>Tên nhóm hàng</th>
+                                        <th class="td-stt" v-on:click="ListProduct_RemoveAll">
+                                            <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
+                                                <i class="fal fa-times"></i>
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in ListProduct">
+                                        <td class="text-center td-stt">
+                                            {{index + 1}}
+                                        </td>
+                                        <td>
+                                            {{item.MaHangHoa}}
+                                        </td>
+                                        <td>
+                                            <span>
+                                                {{item.TenHangHoa}}
+                                            </span>
+                                            <span class="blue" v-if="item.TenDonViTinh">
+                                                ({{item.TenDonViTinh}})
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{item.TenNhomHangHoa}}
+                                        </td>
+                                        <td class="text-center" style="width:8%">
+                                            <div class="flex flex-around">
+                                                <a class="a-font-18" v-on:click="ListProduct_Remove(index,item,0)" title="Xóa dòng">
+                                                    <i class="fal fa-times"></i>
+                                                </a>
+                                                <a class="a-font-18" v-on:click="ListProduct_Remove(index,item,1)" title="Xóa theo nhóm">
+                                                    <i class="far fa-minus"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                        <i class="fal fa-ban"></i>Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-main" v-if="!isLoading" v-on:click="saveListProduct">
+                        <i class="fa fa-save"></i> {{typeUpdate==1?'Lưu':'Cập nhật'}}
+                    </button>
+                    <button type="button" class="btn btn-main" v-if="isLoading">
+                        <i class="fa fa-save"></i> Đang lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    var vmDSHang_thuocNhomHoTro = new Vue({
+        el: '#vmDSHang_thuocNhomHoTro',
+        components: {
+            'products': cmpChoseProduct,
+        },
+        created: function () {
+            let self = this;
+            self.ID_DonVi = VHeader.IdDonVi;
+            self.urlAPI = '/api/DanhMuc/DM_NhomHangHoaAPI/';
+            console.log('vmDSHang_thuocNhomHoTro ')
+        },
+        computed: {
+
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            typeUpdate: 1,// 1.insert, 2.update
+            ListProductOld: [],
+
+            inforNhomHoTro: {
+                ID: null,
+                MaNhomHangHoa: '',
+                TenNhomHangHoa: null,
+                LaNhomHangHoa: false,
+                ThietLapNangCao: false,
+                GhiChu: '',
+            },
+            ListProduct: [],
+        },
+        methods: {
+            getListSanPham: async function (idNhom) {
+                let self = this;
+                let xx = await $.getJSON(self.urlAPI + 'NhomHang_GetListSanPhamHoTro?idNhom=' + idNhom).done(function () {
+                }).then(function (x) {
+                    return x.dataSoure;
+                });
+                return xx;
+            },
+            showModal: async function (nhomHT) {
+                let self = this;
+                self.saveOK = false;
+                self.isLoading = false;
+                self.typeUpdate = 1;
+
+                self.inforNhomHoTro = {
+                    ID: nhomHT.ID,
+                    MaNhomHangHoa: nhomHT.MaNhomHangHoa,
+                    TenNhomHangHoa: nhomHT.TenNhomHangHoa,
+                    LaNhomHangHoa: nhomHT.LaNhomHangHoa,
+                    GhiChu: nhomHT.GhiChu,
+                };
+
+                let lstAllSP = await self.getListSanPham(nhomHT.ID);
+                let arr = $.grep(lstAllSP, function (x) {
+                    return x.LaSanPhamNgayThuoc == 2;
+                })
+                self.ListProduct = arr;
+                self.ListProductOld = $.extend([], true, arr);
+                $('#vmDSHang_thuocNhomHoTro').modal('show');
+            },
+
+            ChoseProduct: function (item) {
+                let self = this;
+                let obj = {
+                    Id_DonViQuiDoi: item.ID_DonViQuiDoi,
+                    Id_LoHang: null,
+                    MaHangHoa: item.MaHangHoa,
+                    TenHangHoa: item.TenHangHoa,
+                    TenDonViTinh: item.TenDonViTinh,
+                    SoLuong: 0,
+                    ID_NhomHangHoa: item.ID_NhomHangHoa,
+                    TenNhomHangHoa: item.TenNhomHangHoa,
+                    LaSanPhamNgayThuoc: 3,// sp thuoc nhom hotro
+                };
+                self.ListProduct.unshift(obj);
+            },
+            showModalNhomHang: function () {
+                vmApplyGroupProduct.showModal(0, 0, null, 1);
+            },
+            ListProduct_Remove: function (index, item, type=0) {
+                let self = this;
+                let idNhom = item.ID_NhomHangHoa;
+                if (type===1) {
+                    self.ListProduct = $.grep(self.ListProduct, function (x) {
+                        return x.ID_NhomHangHoa !== idNhom;
+                    })
+                }
+                else {
+                    for (let i = 0; i < self.ListProduct.length; i++) {
+                        if (i === index) {
+                            self.ListProduct.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            },
+            ListProduct_RemoveAll: function () {
+                let self = this;
+                self.ListProduct = [];
+            },
+            Enter_FocusNext: function () {
+                let $this = $(event.currentTarget);
+                let $tr = $this.closest('tr').next();
+                $tr.find('td').eq(3).find('input').focus().select();
+            },
+            ApplyGroup: function () {
+                let self = this;
+
+                let param = {
+                    ID_DonVi: self.ID_DonVi,
+                    IDNhomHangs: vmApplyGroupProduct.arrIDNhomChosed,
+                    LoaiHangHoas: '1,2',// hanghoa + dv
+                }
+                ajaxHelper('/api/DanhMuc/BH_DieuChinh/' + 'getListHangHoaBy_IDNhomHang', 'POST', param).done(function (x) {
+                    if (x.res) {
+                        let data = x.dataSoure;
+                        for (let i = 0; i < data.length; i++) {
+                            let itFor = data[i];
+                            self.ListProduct.unshift(itFor);
+                        }
+                    }
+                })
+            },
+
+            CheckSave: function () {
+                let self = this;
+                if (self.ListProduct.length === 0 && self.DayProducts.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn sản phẩm thuộc nhóm');
+                    return false;
+                }
+
+                return true;
+            },
+            saveListProduct: function () {
+                let self = this;
+                if (self.inforNhomHoTro.ThietLapNangCao) {
+                    let check = self.CheckSave();
+                    if (!check) {
+                        return;
+                    }
+                }
+
+                let sListSP = '';
+                if (self.ListProduct.length > 0) {
+                    for (let i = 0; i < self.ListProduct.length; i++) {
+                        let itFor = self.ListProduct[i];
+                        sListSP += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa, '), nhóm hàng: ', itFor.TenNhomHangHoa);
+
+                        self.ListProduct[i].LaSanPhamNgayThuoc = 2;
+                        self.ListProduct[i].Id_NhomHang = self.inforNhomHoTro.ID;
+                    }
+                }
+
+                let myData = {
+                    lstSPHoTro: self.ListProduct,
+                }
+
+                ajaxHelper(self.urlAPI + 'AddListSanPham_toNhomHoTro?idNhomHang=' + self.inforNhomHoTro.ID, 'POST', myData).done(function (x) {
+
+                    let diary = {
+                        ID_DonVi: self.ID_DonVi,
+                        ID_NhanVien: VHeader.IdNhanVien,
+                    };
+
+                    let sType = '', sCreat = '', sListSPOld = '';
+                    if (self.ListProductOld.length === 0) {
+                        diary.LoaiNhatKy = 1;
+                        sType = 'Thêm mới';
+                        sCreat = '<br /> Người tạo: '.concat(VHeader.UserLogin);
+                    }
+                    else {
+                        diary.LoaiNhatKy = 2;
+                        sType = 'Cập nhật';
+                        sCreat = '<br /> Người sửa: '.concat(VHeader.UserLogin);
+
+                        if (self.ListProductOld.length > 0) {
+                            for (let i = 0; i < self.ListProductOld.length; i++) {
+                                let itFor = self.ListProductOld[i];
+                                sListSPOld += ' <br /> '.concat(i + 1, '. ', itFor.TenHangHoa, ' (', itFor.MaHangHoa, '), nhóm hàng: ', itFor.TenNhomHangHoa);
+                            }
+                            sListSPOld = ' <br /> Danh sách sản phẩm cũ gồm: '.concat(sListSPOld);
+                        }
+                    }
+                    ShowMessage_Success(sType + " danh sách sản phẩm thành công");
+
+                    diary.ChucNang = 'Cài đặt sản phẩm thuộc nhóm hỗ trợ';
+                    diary.NoiDung = sType.concat(' danh sách sản phẩm cho nhóm ', self.inforNhomHoTro.TenNhomHangHoa);
+                    diary.NoiDungChiTiet = ''.concat(
+                        ' Tên nhóm: ', self.inforNhomHoTro.TenNhomHangHoa,
+                        sCreat,
+                        '<br /> Danh sách sản phẩm gồm: ', sListSP,
+                        sListSPOld
+                    )
+
+                    Insert_NhatKyThaoTac_1Param(diary);
+
+                }).always(function () {
+                    self.isLoading = false;
+                    $('#vmDSHang_thuocNhomHoTro').modal('hide');
+                })
+            }
+        }
+    })
+
+    $('#vmApplyGroupProduct').on('hidden.bs.modal', function () {
+        if (vmApplyGroupProduct.saveOK) {
+            if (vmApplyGroupProduct.formType === 1) {
+                vmDSHang_thuocNhomHoTro.ApplyGroup();
+            }
+        }
+    })
+</script>
