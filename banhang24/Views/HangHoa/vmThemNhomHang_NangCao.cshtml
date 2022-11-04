@@ -22,6 +22,13 @@
     #vmThemNhomHang_NangCao .td-stt {
         width: 5%;
     }
+
+    #vmThemNhomHang_NangCao .css-form-detail {
+        width: 100%;
+    }
+    #vmThemNhomHang_NangCao .a-font-18 {
+        font-size: 18px;
+    }
 </style>
 <div id="vmThemNhomHang_NangCao" class="modal fade">
     <div class="modal-dialog modal-lg">
@@ -43,8 +50,12 @@
                     <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-12">
                         <label>Tên nhóm {{sLoai}}<span class="red">(*)</span></label>
                     </div>
-                    <div class="col-sm-9 col-lg-9 col-sm-9 col-xs-12">
+                    <div class="col-sm-6 col-lg-6 col-sm-6 col-xs-12">
                         <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa" />
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-13" v-if="typeUpdate===2 && newNhomHang.ThietLapNangCao">
+                        <a style="text-decoration:underline"
+                           v-on:click="showListSanPham_thuocNhomHoTro">Chọn hàng thuộc nhóm hỗ trợ</a>
                     </div>
                 </div>
 
@@ -141,10 +152,10 @@
                                             </td>
                                             <td>
                                                 <div class="flex flex-around">
-                                                    <a style="font-size:20px" v-on:click="KhoangApDung_Remove(index)">
+                                                    <a class="a-font-18" v-on:click="KhoangApDung_Remove(index)">
                                                         <i class="fal fa-times"></i>
                                                     </a>
-                                                    <a style="font-size:20px" v-on:click="KhoangApDung_AddNew(index)">
+                                                    <a class="a-font-18" v-on:click="KhoangApDung_AddNew(index)">
                                                         <i class="fal fa-plus"></i>
                                                     </a>
                                                 </div>
@@ -188,7 +199,7 @@
                                             <th>Mã hàng hóa</th>
                                             <th>Tên hàng hóa</th>
                                             <th>Tên nhóm hàng</th>
-                                            <th class="td-stt" v-on:click="PublicProducts_RemoveAll">
+                                            <th style="width:8%" v-on:click="PublicProducts_RemoveAll">
                                                 <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
                                                     <i class="fal fa-times"></i>
                                                 </span>
@@ -214,16 +225,15 @@
                                             <td>
                                                 {{item.TenNhomHangHoa}}
                                             </td>
-                                            @*<td style="width:10%">
-                                                    <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                           v-model="item.SoLuong"
-                                                           v-on:keyup="PublicProducts_EditSoLuong(index)"
-                                                           v-on:keyup.13="Enter_FocusNext" />
-                                                </td>*@
-                                            <td class="text-center td-stt">
-                                                <a style="font-size:20px" v-on:click="PublicProducts_Remove(index,item)">
-                                                    <i class="fal fa-times"></i>
-                                                </a>
+                                            <td class="text-center" style="width:8%">
+                                                <div class="flex flex-around">
+                                                    <a class="a-font-18" v-on:click="PublicProducts_Remove(index,item,0)" title="Xóa dòng">
+                                                        <i class="fal fa-times"></i>
+                                                    </a>
+                                                    <a class="a-font-18" v-on:click="PublicProducts_Remove(index,item,1)" title="Xóa theo nhóm">
+                                                        <i class="far fa-minus"></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -266,7 +276,7 @@
                                             <th>Mã hàng hóa</th>
                                             <th>Tên hàng hóa</th>
                                             <th>Tên nhóm hàng</th>
-                                            <th class="td-stt" v-on:click="DayProducts_RemoveAll">
+                                            <th style="width:8%" v-on:click="DayProducts_RemoveAll">
                                                 <span style="font-size:20px; cursor:pointer" title="Xóa tất cả">
                                                     <i class="fal fa-times"></i>
                                                 </span>
@@ -292,16 +302,16 @@
                                             <td>
                                                 {{item.TenNhomHangHoa}}
                                             </td>
-                                            @*<td style="width:10%">
-                                                    <input class="form-control text-right" onkeypress="keypressNumber_limitNumber(event,this)"
-                                                           v-model="item.SoLuong"
-                                                           v-on:keyup.13="Enter_FocusNext"
-                                                           v-on:keyup="DayProducts_EditSoLuong(index)" />
-                                                </td>*@
-                                            <td class="text-center td-stt">
-                                                <a style="font-size:20px" v-on:click="DayProducts_Remove(index, item)">
-                                                    <i class="fal fa-times"></i>
-                                                </a>
+                                          
+                                            <td class="text-center" style="width:8%">
+                                                <div class="flex flex-around">
+                                                    <a class="a-font-18" v-on:click="DayProducts_Remove(index,item,0)" title="Xóa dòng">
+                                                        <i class="fal fa-times"></i>
+                                                    </a>
+                                                    <a class="a-font-18" v-on:click="DayProducts_Remove(index,item,1)" title="Xóa theo nhóm">
+                                                        <i class="far fa-minus"></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -376,6 +386,7 @@
             nhomOld: {},
             khoangApDungOld: [],
             spHoTroOld: [],
+
             listData: {
                 ChiNhanhs: [],
             },
@@ -532,7 +543,6 @@
                     self.khoangApDungOld = $.extend([], true, x.dataSoure);
                     self.PublicProducts = sp_public;
                     self.DayProducts = sp_day;
-                    console.log(sp_day)
                 })
                 $('#vmThemNhomHang_NangCao').modal('show');
             },
@@ -573,22 +583,22 @@
                 self.typeProduct = type;
                 vmApplyGroupProduct.showModal(0, 0, null);
             },
-            PublicProducts_Remove: function (index, item) {
+            PublicProducts_Remove: function (index, item, type = 0) {
                 let self = this;
                 let idNhom = item.ID_NhomHangHoa;
-                dialogConfirm_OKCancel('Thông báo xóa', 'Bạn có muốn xóa toàn bộ hàng thuộc nhóm <b> ' + item.TenNhomHangHoa + ' </b> không?', function () {
+                if (type === 1) {
                     self.PublicProducts = $.grep(self.PublicProducts, function (x) {
                         return x.ID_NhomHangHoa !== idNhom;
                     })
-                    console.log(1, self.PublicProducts)
-                }, function () {
+                }
+                else {
                     for (let i = 0; i < self.PublicProducts.length; i++) {
                         if (i === index) {
                             self.PublicProducts.splice(i, 1);
                             break;
                         }
                     }
-                })
+                }
             },
             PublicProducts_RemoveAll: function () {
                 let self = this;
@@ -598,21 +608,22 @@
                 let self = this;
                 self.DayProducts = [];
             },
-            DayProducts_Remove: function (index, item) {
+            DayProducts_Remove: function (index, item, type= 0) {
                 let self = this;
                 let idNhom = item.ID_NhomHangHoa;
-                dialogConfirm_OKCancel('Thông báo xóa', 'Bạn có muốn xóa toàn bộ hàng thuộc nhóm <b> ' + item.TenNhomHangHoa + ' </b> không?', function () {
+                if (type === 1) {
                     self.DayProducts = $.grep(self.DayProducts, function (x) {
                         return x.ID_NhomHangHoa !== idNhom;
                     })
-                }, function () {
+                }
+                else {
                     for (let i = 0; i < self.DayProducts.length; i++) {
                         if (i === index) {
                             self.DayProducts.splice(i, 1);
                             break;
                         }
                     }
-                })
+                }
             },
             Enter_FocusNext: function () {
                 let self = this;
@@ -1039,13 +1050,19 @@
                         $('#vmThemNhomHang_NangCao').modal('hide');
                     })
                 }
-            }
+            },
+            showListSanPham_thuocNhomHoTro: function () {
+                let self = this;
+                vmDSHang_thuocNhomHoTro.showModal(self.newNhomHang);
+            },
         }
     })
 
     $('#vmApplyGroupProduct').on('hidden.bs.modal', function () {
         if (vmApplyGroupProduct.saveOK) {
-            vmThemNhomHang_NangCao.ApplyGroup();
+            if (vmApplyGroupProduct.formType === 0) {// vì cả 2 modal đều gọi đến vmThemNhomHang_NangCao, nên dùng formType để phân biệt
+                vmThemNhomHang_NangCao.ApplyGroup();
+            }
         }
     })
 
