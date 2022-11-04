@@ -179,7 +179,7 @@
                         <i class="fa fa-ban"></i> Bỏ qua
                     </button>
                     <button type="button" class="btn btn-cancel"
-                            v-if="typeUpdate != 1 && typeUpdate != 4 && $root.role.Delete && newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-if="typeUpdate != 1 && typeUpdate != 4 && $root.role.Delete && newPhieuThu.TrangThai && !$root.isKhoaSo && $root.role.XoaNeuKhacNgay"
                             v-on:click="$root.HuyPhieu">
                         <i class="fa fa-trash"></i> Xóa
                     </button>
@@ -191,7 +191,7 @@
                     <button type="button" class="btn btn-save" v-if="!isLoading && typeUpdate == 1 && !$root.isKhoaSo"
                             v-on:click="Save">
                         <i class="fa fa-save"></i> Lưu
-                    </button> 
+                    </button>
                     <button type="button" class="btn btn-save" v-if="!isLoading && typeUpdate == 4 && !$root.isKhoaSo"
                             v-on:click="Save">
                         <i class="fa fa-save"></i> Đồng ý
@@ -245,11 +245,12 @@
             self.role.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
             self.role.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
             self.role.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+            self.role.XoaNeuKhacNgay = true;
         },
         data: {
             saveOK: false,
             isNew: true,
-            typeUpdate: 1,// insert, 2.update, 3.delete, 4.copy 
+            typeUpdate: 1,// insert, 2.update, 3.delete, 4.copy
             isPhieuThu: true,
             loaiNapTien: 1,//1.mat, 0.ngan hang,
             isLoading: false,
@@ -498,11 +499,19 @@
                 else {
                     self.typeUpdate = 2;
                 }
-                
+
                 self.showBtnResetNguoiNop = true;
                 self.isPhieuThu = quyHD.LoaiHoaDon === 11;
+
+                let ngayLap = moment(quyHD.NgayLapHoaDon).format('YYYY-MM-DD');
+                let dtNow = moment(new Date()).format('YYYY-MM-DD')
+                let role = VHeader.Quyen.indexOf('SoQuy_Xoa_NeuKhacNgay') > -1;
+                if (dtNow === ngayLap) {
+                    role = true;
+                }
+                self.role.XoaNeuKhacNgay = role;
                 self.isKhoaSo = !commonStatisJs.CheckNull(self.qctOld[0].ID_BangLuongChiTiet)
-                    || VHeader.CheckKhoaSo(moment(quyHD.NgayLapHoaDon).format('YYYY-MM-DD'), quyHD.ID_DonVi)
+                    || VHeader.CheckKhoaSo(ngayLap, quyHD.ID_DonVi);
 
                 if (qct[0].ID_NhanVienCT !== null) {
                     quyHD.LoaiDoiTuong = 4;
