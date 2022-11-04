@@ -72,7 +72,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     return ActionFalseNotData(ex.InnerException + ex.Message);
                 }
             }
-        } 
+        }
 
         [HttpGet, HttpPost]
         public IHttpActionResult GetTongGiaTriSuDung_ofKhachHang(ParamNKyGDV param)
@@ -311,7 +311,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
         // PUT: api/DM_NhomHangHoaAPI/5
         [ResponseType(typeof(string))]
-       
+
         public IHttpActionResult PutDM_NhomHangHoa(Guid id, DM_NhomHangHoa dM_NhomHangHoa)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -466,7 +466,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var apdungOld = db.NhomHang_KhoangApDung.Where(x => x.Id_NhomHang == idNhomHang);
                         db.NhomHang_KhoangApDung.RemoveRange(apdungOld);
 
-                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang);
+                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang && (x.LaSanPhamNgayThuoc==1 || x.LaSanPhamNgayThuoc==2));
                         db.NhomHang_ChiTietSanPhamHoTro.RemoveRange(spOld);
 
                         foreach (var item in lstAD)
@@ -474,6 +474,43 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             item.Id = Guid.NewGuid();
                             db.NhomHang_KhoangApDung.Add(item);
                         }
+                        foreach (var item in lstSP)
+                        {
+                            item.Id = Guid.NewGuid();
+                            db.NhomHang_ChiTietSanPhamHoTro.Add(item);
+                        }
+
+                        db.SaveChanges();
+                        trans.Commit();
+
+                        return ActionTrueData(string.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.InnerException + ex.Message);
+                    }
+                }
+            }
+        }
+        [HttpGet, HttpPost]
+        public IHttpActionResult AddListSanPham_toNhomHoTro(Guid idNhomHang, [FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        List<NhomHang_ChiTietSanPhamHoTro> lstSP = new List<NhomHang_ChiTietSanPhamHoTro>();
+                        if (data["lstSPHoTro"] != null)
+                        {
+                            lstSP = data["lstSPHoTro"].ToObject<List<NhomHang_ChiTietSanPhamHoTro>>();
+                        }
+
+                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang && x.LaSanPhamNgayThuoc == 2);
+                        db.NhomHang_ChiTietSanPhamHoTro.RemoveRange(spOld);
+
                         foreach (var item in lstSP)
                         {
                             item.Id = Guid.NewGuid();
