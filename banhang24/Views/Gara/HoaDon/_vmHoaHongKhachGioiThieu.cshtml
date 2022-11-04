@@ -342,9 +342,10 @@
                                     <th class="text-right"> Giá trị</th>
                                     <th class="text-right"> Đã trích</th>
                                     <th class="text-right"> Còn lại</th>
-                                    <th class="text-right"> % chiết khấu</th>
+                                    <th class="text-right"> Số tiền trích</th>
+                                    <th class="text-right"> % trích</th>
                                     <th style="text-align:center; width: 10%">
-                                        Tiền chiết khấu
+                                        Thành tiền
                                     </th>
                                     <th title="Xóa tất cả dòng" class="red" v-on:click="RemoveAllRow(item)">
                                         <i class="fal fa-times"></i>
@@ -361,17 +362,25 @@
                                         {{formatNumber3Digit(ct.DaTrich)}}
                                     </td>
                                     <td class="text-right">{{formatNumber3Digit(ct.ConLai)}}</td>
-                                    <td style="width: 5%">
-                                        <input type="text" style="width:100px" class="text-right"
+                                    <td>
+                                        <input type="text" class="text-right" style="width:100px"
                                                onkeypress="keypressNumber_limitNumber(event, this)"
+                                               onclick="this.select()"
                                                v-on:keyup.13="Enter_FocusNext(5)"
+                                               v-model="ct.SoTienTrich"
+                                               v-on:keyup="editSoTienTrich(item,ct)" />
+                                    </td>
+                                    <td>
+                                        <input type="text" style="width:70px" class="text-right"
+                                               onkeypress="keypressNumber_limitNumber(event, this)"
+                                               v-on:keyup.13="Enter_FocusNext(6)"
                                                v-model="ct.PTChietKhau"
                                                v-on:keyup="editPTChietKhau(item,ct)" />
                                     </td>
                                     <td>
                                         <input type="text" style="width:120px" class="text-right"
                                                onkeypress="keypressNumber_limitNumber(event, this)"
-                                               v-on:keyup.13="Enter_FocusNext(6)"
+                                               v-on:keyup.13="Enter_FocusNext(7)"
                                                v-model="ct.TienChietKhau"
                                                v-on:keyup="editTienChietKhau(item,ct)" />
                                     </td>
@@ -548,7 +557,7 @@
                     self.listData.NhanViens = data;
                 })
             },
-            GetAllLienHe: function () {
+            GetAllLienHe: function () {// notuse
                 let self = this;
                 ajaxHelper("/api/DanhMuc/DM_LienHeAPI/" + "GetAllLienHe", 'GET').done(function (data) {
                     self.listData.LienHes = data;
@@ -579,6 +588,7 @@
                     let hd = await self.GetListHoaDon_byIDCus(itFor.ID_DoiTuong);
                     if (hd.length > 0) {
                         hd.map(function (x) {
+                            x['SoTienTrich'] = formatNumber3Digit(x.ConLai)
                             x['PTChietKhau'] = ''
                             x['TienChietKhau'] = ''
                         })
@@ -759,10 +769,11 @@
                 let arrIDCus = [];
                 let lstCT = await self.LoadChiTiet(id);
                 lstCT.map(function (x) {
-                    x['ConLai'] = x.DaTrich
-                    x['KhachDaTra'] = x.DaTrich
                     x['TienChietKhau'] = formatNumber3Digit(x.TienChietKhau)
-                    x['DaTrich'] = 0
+                    x['DaTrich'] = x.DaTrich
+                    x['KhachDaTra'] = x.DaTrich
+                    x['ConLai'] = x.ConLai
+                    x['SoTienTrich'] = formatNumber3Digit(x.SoTienTrich)
                 })
 
                 let arrIDHoaDonCK = lstCT.map(function (x) {
@@ -947,6 +958,7 @@
 
                 let hd = await self.GetListHoaDon_byIDCus(item.ID);
                 hd.map(function (x) {
+                    x['SoTienTrich'] = formatNumber3Digit(x.ConLai)
                     x['PTChietKhau'] = ''
                     x['TienChietKhau'] = ''
                 })
@@ -1047,11 +1059,46 @@
                                     TongThanhToan: ct.TongThanhToan,
                                     KhachDaTra: ct.KhachDaTra,
                                     DaTrich: ct.DaTrich,
+                                    SoTienTrich: formatNumber3Digit(ct.ConLai),
                                     ConLai: ct.ConLai,
                                     TrangThai: ct.TrangThai,
                                     PTChietKhau: '',
                                     TienChietKhau: '',
                                 })
+                                break;
+                            }
+                        }
+                        if (itFor.HoaDons.length ===0) {// remove all row of cus
+                            self.ThongTinChiTiet.splice(i, 1);
+                        }
+                        break;
+                    }
+                }
+                self.CaCulatorTongTienHang();
+            },
+            editSoTienTrich: function (item, ct) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let gtri = formatNumberToFloat($this.val());
+                if (gtri > ct.ConLai) {
+                    ShowMessage_Danger('Số tiền trích không được vượt quá số tiền đã thanh toán');
+                    return;
+                }
+
+                let gtriFormat = gtri;
+                let lastone = $this.val().toString().split('').pop();
+                if (lastone !== '.') {
+                    gtriFormat = formatNumber3Digit(gtri);
+                }
+
+                for (let i = 0; i < self.ThongTinChiTiet.length; i++) {
+                    let itFor = self.ThongTinChiTiet[i];
+                    if (itFor.ID_DoiTuong === item.ID_DoiTuong) {
+                        for (let j = 0; j < itFor.HoaDons.length; j++) {
+                            let forIn = itFor.HoaDons[j];
+                            if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
+                                itFor.HoaDons[j].TienChietKhau = formatNumber3Digit(gtri * forIn.PTChietKhau / 100);
+                                itFor.HoaDons[j].SoTienTrich = gtriFormat;
                                 break;
                             }
                         }
@@ -1071,7 +1118,7 @@
                         for (let j = 0; j < itFor.HoaDons.length; j++) {
                             let forIn = itFor.HoaDons[j];
                             if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
-                                itFor.HoaDons[j].TienChietKhau = formatNumber3Digit(forIn.ConLai * gtri / 100);
+                                itFor.HoaDons[j].TienChietKhau = formatNumber3Digit(formatNumberToFloat(forIn.SoTienTrich) * gtri / 100);
                                 break;
                             }
                         }
@@ -1097,7 +1144,7 @@
                         for (let j = 0; j < itFor.HoaDons.length; j++) {
                             let forIn = itFor.HoaDons[j];
                             if (forIn.ID_HoaDon_DuocCK === ct.ID_HoaDon_DuocCK) {
-                                itFor.HoaDons[j].PTChietKhau = gtri / forIn.ConLai * 100;
+                                itFor.HoaDons[j].PTChietKhau = gtri / formatNumberToFloat(forIn.SoTienTrich) * 100;
                                 itFor.HoaDons[j].TienChietKhau = gtriFormat;
                                 break;
                             }
@@ -1165,16 +1212,21 @@
                         let forIn = forOut.HoaDons[j];
                         let obj = {
                             ID_ParentCombo: forIn.ID_HoaDon_DuocCK,
-                            PTChietKhau: forIn.PTChietKhau,
-                            TienChietKhau: forIn.TienChietKhau,
                             SoThuTu: 1,// 1.thucthu, 2.doanhthu
                             MaHangHoa: '',
                             TenHangHoa: '',
-                            PTThue: forIn.TrangThai, //1.trich bosung
+                            PTChietKhau: forIn.PTChietKhau,
+                            TienChietKhau: forIn.TienChietKhau,
+                            PTThue: forIn.TrangThai, // 1.trich bosung
+                            PTChiPhi: forIn.DaTrich, // Số tiền đã trích trước đó
+                            TienChiPhi: forIn.ConLai,// Số tiền còn lại được trích
+                            TienThue: forIn.SoTienTrich,// Số tiền thực tế tính chiết khấu cho khách
                         };
                         cthd.push(obj);
                         sDetail = sDetail.concat('<br /> - <a> ', forIn.MaHoaDon, ' </a>, Thực thu: ', formatNumber3Digit(forIn.ConLai),
-                            ', PT chiết khấu: ', forIn.PTChietKhau, ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
+                            ', Số tiền trích: ', forIn.SoTienTrich,
+                            ', PT chiết khấu: ', forIn.PTChietKhau,
+                            ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
                     }
                     sListHD = sListHD.concat('<br /> ', i + 1, '. ', forOut.TenDoiTuong, ' (', forOut.MaDoiTuong, ')', sDetail);
                 }
@@ -1224,18 +1276,10 @@
                         let sDetail = '';
                         for (let j = 0; j < forOut.HoaDons.length; j++) {
                             let forIn = forOut.HoaDons[j];
-                            let obj = {
-                                ID_ParentCombo: forIn.ID_HoaDon_DuocCK,
-                                PTChietKhau: forIn.PTChietKhau,
-                                TienChietKhau: forIn.TienChietKhau,
-                                SoThuTu: 1,// 1.thucthu, 2.doanhthu
-                                MaHangHoa: '',
-                                TenHangHoa: '',
-                                PTThue: forIn.TrangThai, //1.trich bosung
-                            };
-                            cthd.push(obj);
                             sDetail = sDetail.concat('<br /> - <a> ', forIn.MaHoaDon, ' </a>, Thực thu: ', formatNumber3Digit(forIn.ConLai),
-                                ', PT chiết khấu: ', forIn.PTChietKhau, ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
+                                ', Số tiền trích: ', forIn.SoTienTrich,
+                                ', PT chiết khấu: ', forIn.PTChietKhau,
+                                ', Tiền chiết khấu: ', formatNumber3Digit(forIn.TienChietKhau));
                         }
                         sListHDOld = sListHDOld.concat('<br /> ', i + 1, '. ', forOut.TenDoiTuong, ' (', forOut.MaDoiTuong, ')', sDetail);
                     }
@@ -1304,7 +1348,6 @@
                                     PhaiThanhToan: self.newHoaDon.TongTienHang,
                                     KhachDaTra: self.newHoaDon.KhachDaTra,
                                     HoanTraTamUng: 0,
-                                    KhachDaTra: 0,
                                 };
                                 vmThanhToan.PhieuThuKhach = {
                                     TTBangDiem: 0,
