@@ -110,6 +110,7 @@ namespace Model
         public int? LoaiHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
+        public string NVPhuTrach { get; set; }
         public double? TongThanhToan { get; set; }
         public double? KhachDaTra { get; set; }
         public double? ConNo { get; set; }
