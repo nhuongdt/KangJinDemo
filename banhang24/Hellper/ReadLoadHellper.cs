@@ -1796,6 +1796,10 @@ namespace banhang24.Hellper
             ngaygiaodichgannhat,
             trangthaikhachhang,
             ghichu,
+            trangthaiSoDuCoc,
+            gtriNapCoc,
+            gtriSuDungCoc,
+            gtriSoDuCoc,
         }
 
         public static Dictionary<string, string> ListKhachHang = new Dictionary<string, string>()
@@ -1842,6 +1846,9 @@ namespace banhang24.Hellper
             tongmua,
             cpDichvu,
             ghichu,
+            napcoc,
+            sudungcoc,
+            soducoc
         }
 
         public static Dictionary<string, string> ListNhaCungCap = new Dictionary<string, string>()
@@ -1857,7 +1864,9 @@ namespace banhang24.Hellper
                 { ColumnNhaCungCap. nguoitao.ToString(),"Người tạo" },
                 {ColumnNhaCungCap.nohientai.ToString(),"Nợ hiện tại" },
                 { ColumnNhaCungCap.tongmua.ToString(),"Tổng mua" },
-                { ColumnNhaCungCap.cpDichvu.ToString(),"Chi phí DV ngoài" },
+                { ColumnNhaCungCap.napcoc.ToString(),"Tổng nạp cọc" },
+                { ColumnNhaCungCap.sudungcoc.ToString(),"Sử dụng cọc" },
+                { ColumnNhaCungCap.soducoc.ToString(),"Số dư cọc" },
                 { ColumnNhaCungCap.ghichu.ToString(),"Ghi chú" },
         };
 
@@ -2086,7 +2095,6 @@ namespace banhang24.Hellper
             tenchinhanh,
             ghichuct,
             nhanvienlap
-
         }
         public static Dictionary<string, string> ListReportDinhLuong = new Dictionary<string, string>()
         {
@@ -2122,6 +2130,20 @@ namespace banhang24.Hellper
               { colummReportDinhLuong.cl_soluong.ToString(),"Số lượng chênh lệch" },
               { colummReportDinhLuong.cl_giatri.ToString(),"Giá trị chênh lệch" },
               { colummReportDinhLuong.trangthai.ToString(),"Trạng thái" },
+        };
+
+        public static Dictionary<string, string> ListReportNhomHoTro = new Dictionary<string, string>()
+        {
+              { colummReportDinhLuong.machungtu.ToString(),"Mã chứng từ" },
+              { colummReportDinhLuong.ngaychungtu.ToString(),"Ngày chứng từ" },
+              { TypeRpDiscountInvoice.tennhanvien.ToString(),"Tư vấn phụ trách" },
+              { ColumnInvoices.makhachhang.ToString(),"Mã khách hàng" },
+              { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
+              { colummReportDinhLuong.nhomdichvu.ToString(),"Nhóm dịch vụ" },
+              { colummReportDinhLuong.dv_giatri.ToString(),"Giá trị nhóm dịch vụ mua" },
+              { colummReportDinhLuong.hh_giatri.ToString(),"Hỗ trợ theo quy định" },
+              { colummReportDinhLuong.tt_giatri.ToString(),"Đã hỗ trợ" },
+              { TypeReportprofit.profit_tysuat.ToString(),"Mức vượt" },
         };
         public enum columncalamviec
         {

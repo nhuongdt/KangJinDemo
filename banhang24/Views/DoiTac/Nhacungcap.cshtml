@@ -234,6 +234,44 @@
                             </div>
                         </aside>
                     </article>
+
+                    <article class="boxLeft supplier">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="fal fa-sack-dollar"></i> Giá trị tiền cọc
+                        </h3>
+                        <aside class="op-filter-container ">
+                            <div class="in-debt">
+                                <div class="form-group">
+                                    <label class="css-form-label"><input type="radio" value="0" data-bind="checked: trangthaiTienCoc">  Tất cả</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="css-form-label"><input type="radio" value="1" data-bind="checked: trangthaiTienCoc"> Còn tồn cọc</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="css-form-label"><input type="radio" value="2" data-bind="checked: trangthaiTienCoc"> Đã dùng hết</label>
+                                </div>
+                            </div>
+                            @*<div class="menuCheckbox" data-bind="visible: $root.trangthaiTienCoc() !=2 ">
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu"><label>Từ</label></div>
+                                    <div class="conten-choose">
+                                        <input type="text" class="form-control" placeholder="0" autocomplete="off"
+                                               data-bind="value: $root.SoDuTienCocFrom"
+                                               onkeyup="return formatNumberObj(this)" />
+                                    </div>
+                                </div>
+                                <div class="form-group floatleft">
+                                    <div class="radio-menu"><label>Tới</label></div>
+                                    <div class="conten-choose">
+                                        <input type="text" class="form-control" placeholder="Giá trị" autocomplete="off"
+                                               data-bind="value: $root.SoDuTienCocTo"
+                                               onkeyup="return formatNumberObj(this)" />
+                                    </div>
+                                </div>
+                            </div>*@
+                        </aside>
+                    </article>
+
                     <article class="boxLeft supplier">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <i class="fas fa-toggle-off"></i> Trạng thái hoạt động
@@ -330,6 +368,11 @@
                                         </ul>
                                     </div>
                                 </div>
+
+                                <button href="javascript:void(0)" class="btn btn-main pull-right showfiltercolumn img-filter-nang-cao" title="Tìm kiếm nâng cao"
+                                        data-bind="click: ResetColumnSearch">
+                                    <i class="fa fa-filter" style="font-size:15px;"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -388,7 +431,150 @@
                                 }
                             </tr>
                         </thead>
-                        <tbody data-bind="foreach: DoiTuongs">
+                        <tbody>
+                            <tr class="tr-filter-head">
+                                @{
+                                    var keycode = (int)commonEnum.ColumnKhachHang.madoituong;
+                                    var keyname = (int)commonEnum.ColumnKhachHang.tendoituong;
+                                    var keyphone = (int)commonEnum.ColumnKhachHang.dienthoai;
+                                    var keygroup = (int)commonEnum.ColumnKhachHang.nhomkhach;
+                                    var keyaddr = (int)commonEnum.ColumnKhachHang.diachi;
+                                    var keyemail = (int)commonEnum.ColumnKhachHang.email;
+                                    var keydistr = (int)commonEnum.ColumnKhachHang.quanhuyen;
+                                    var keycreater = (int)commonEnum.ColumnKhachHang.nguoitao;
+                                    var keynote = (int)commonEnum.ColumnKhachHang.ghichu;
+                                    var keydebit = (int)commonEnum.ColumnKhachHang.nohientai;
+                                    var keysale = (int)commonEnum.ColumnKhachHang.tongban;
+                                    var keygtriCoc = (int)commonEnum.ColumnKhachHang.gtriNapCoc;
+                                    var keygtriSuDungCoc = (int)commonEnum.ColumnKhachHang.gtriSuDungCoc;
+                                    var keySoDuCoc = (int)commonEnum.ColumnKhachHang.gtriSoDuCoc;
+                                }
+                                <td>
+                                    <i class="fa fa-search" aria-hidden="true" data-bind="click: $root.Click_IconSearch"></i>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.madoituong">
+                                    <input type="text" class="form-control search-grid"
+                                           data-id="@keycode" onclick="this.select()">
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.tendoituong">
+                                    <input type="text" class="form-control search-grid" data-id="@keyname" onclick="this.select()">
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.dienthoai">
+                                    <input type="text" class="form-control search-grid" data-id="@keyphone" onclick="this.select()">
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.nhomkhach" data-id="@keygroup">
+                                    <select class="form-control" data-bind="options: NhomDoiTuongs,
+                                                optionsText: 'TenNhomDoiTuong', optionsValue: 'ID', optionsCaption: 'Chọn',
+                                                value: selectNhomDT"></select>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.email">
+                                    <input type="text" class="form-control search-grid" data-id="@keyemail" onclick="this.select()">
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.diachi">
+                                    <input type="text" class="form-control search-grid" data-id="@keyaddr" onclick="this.select()">
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.tinhthanh"></td>
+                                <td class="@commonEnum.ColumnKhachHang.quanhuyen">
+                                    <div id="divSearchDistr">
+                                        <nav>
+                                            <input type="text" class="form-control search-grid" id="txtSearchDistr" data-id="@keydistr"
+                                                   v-model="query" v-on:keyup="submit"
+                                                   onfocusout="HideLostFocust()" placeholder="Tìm kiếm" onclick="this.select()">
+                                        </nav>
+                                        <div id="showsearch_Distr" hidden>
+                                            <ul>
+                                                <li v-for="item of searchResult" v-on:click="click(item)">
+                                                    <a>
+                                                        <b> <span> {{ item.TenQuanHuyen }} </span> </b>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.nguoitao">
+                                    <input type="text" class="form-control search-grid" data-id="@keycreater" onclick="this.select()">
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.nohientai h-filter-column">
+                                    <div class="hl-filter-column">
+                                        <div class="row inport-kv fl kv1">
+                                            <span>=</span>
+                                        </div>
+                                        <div class="list-kv fl" style="display: none;">
+                                            <ul data-bind="foreach:ComparisonFields" class="selec-person ">
+                                                <li data-bind="text:Value,click: function(){ $parent.selecttedKeyCompare(@keydebit,Key) }">     </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="hr-filter-column">
+                                        <input type="text" class="form-control  number-search" data-id="@keydebit" onclick="this.select()">
+                                    </div>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.tongban h-filter-column">
+                                    <div class="hl-filter-column">
+                                        <div class="row inport-kv fl kv1">
+                                            <span>=</span>
+                                        </div>
+                                        <div class="list-kv fl" style="display: none;">
+                                            <ul data-bind="foreach:ComparisonFields" class="selec-person ">
+                                                <li data-bind="text:Value,click: function(){ $parent.selecttedKeyCompare(@keysale,Key) }">     </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="hr-filter-column">
+                                        <input type="text" class="form-control  number-search" data-id="@keysale" onclick="this.select()">
+                                    </div>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.gtriNapCoc h-filter-column">
+                                    <div class="hl-filter-column">
+                                        <div class="row inport-kv fl kv1">
+                                            <span>=</span>
+                                        </div>
+                                        <div class="list-kv fl" style="display: none;">
+                                            <ul data-bind="foreach:ComparisonFields" class="selec-person ">
+                                                <li data-bind="text:Value,click: function(){ $parent.selecttedKeyCompare(@keygtriCoc,Key) }">     </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="hr-filter-column">
+                                        <input type="text" class="form-control  number-search" data-id="@keygtriCoc" onclick="this.select()">
+                                    </div>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.gtriSuDungCoc h-filter-column">
+                                    <div class="hl-filter-column">
+                                        <div class="row inport-kv fl kv1">
+                                            <span>=</span>
+                                        </div>
+                                        <div class="list-kv fl" style="display: none;">
+                                            <ul data-bind="foreach:ComparisonFields" class="selec-person ">
+                                                <li data-bind="text:Value,click: function(){ $parent.selecttedKeyCompare(@keygtriSuDungCoc,Key) }">     </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="hr-filter-column">
+                                        <input type="text" class="form-control  number-search" data-id="@keygtriSuDungCoc" onclick="this.select()">
+                                    </div>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.gtriSoDuCoc h-filter-column">
+                                    <div class="hl-filter-column">
+                                        <div class="row inport-kv fl kv1">
+                                            <span>=</span>
+                                        </div>
+                                        <div class="list-kv fl" style="display: none;">
+                                            <ul data-bind="foreach:ComparisonFields" class="selec-person ">
+                                                <li data-bind="text:Value,click: function(){ $parent.selecttedKeyCompare(@keySoDuCoc,Key) }">     </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="hr-filter-column">
+                                        <input type="text" class="form-control  number-search" data-id="@keySoDuCoc" onclick="this.select()">
+                                    </div>
+                                </td>
+                                <td class="@commonEnum.ColumnKhachHang.ghichu">
+                                    <input type="text" class="form-control search-grid" data-id="@keynote" onclick="this.select()">
+                                </td>
+                            </tr>
+                            <!--ko foreach: DoiTuongs -->
                             <tr class="prev-tr-hide" data-bind="css:{bggray : $index()%2 == 1},">
                                 <td class="check-group">
                                     <input type="checkbox" data-bind="attr:{id: ID}" onclick="ChoseDoiTuong(this)" />
@@ -405,7 +591,9 @@
                                 <td class="@commonEnum.ColumnNhaCungCap.nohientai text-right" data-bind="style: {color: NoHienTai*(-1) > 0 ? 'red' : 'black' },
                                         text:formatNumber3Digit(NoHienTai*(-1)), click: $parent.GetLichSuBanTraHang "></td>
                                 <td class="@commonEnum.ColumnNhaCungCap.tongmua text-right" text-right" data-bind="text: formatNumber3Digit(TongMua), click: $parent.GetLichSuBanTraHang"></td>
-                                <td class="@commonEnum.ColumnNhaCungCap.cpDichvu text-right" text-right" data-bind="text: formatNumber3Digit(PhiDichVu), click: $parent.GetLichSuBanTraHang"></td>
+                                <td class="@commonEnum.ColumnNhaCungCap.napcoc text-right" text-right" data-bind="text: formatNumber3Digit(NapCoc), click: $parent.GetLichSuBanTraHang"></td>
+                                <td class="@commonEnum.ColumnNhaCungCap.sudungcoc text-right" text-right" data-bind="text: formatNumber3Digit(SuDungCoc), click: $parent.GetLichSuBanTraHang"></td>
+                                <td class="@commonEnum.ColumnNhaCungCap.soducoc text-right" text-right" data-bind="text: formatNumber3Digit(SoDuCoc), click: $parent.GetLichSuBanTraHang"></td>
                                 <td class="@commonEnum.ColumnNhaCungCap.ghichu text-right" text-right" data-bind="text: GhiChu, click: $parent.GetLichSuBanTraHang"></td>
                             </tr>
                             <tr class="op-js-tr-hide">
@@ -414,25 +602,15 @@
                                         <ul class="nav nav-tabs">
                                             <li class="active" onclick="LoadGetHeight()"><a data-toggle="tab" data-bind=" attr: { href: '#home'+ ID }">Thông tin</a></li>
                                             <li onclick="LoadGetHeight()"><a data-toggle="tab" data-bind=" attr: { href: '#info'+ ID }, visible: $parent.VisibleHisSale">Nhật ký nhập/ trả hàng</a></li>
-                                            <li onclick="LoadGetHeight()">
-                                                <a data-toggle="tab"
-                                                   data-bind=" attr: { href: '#cpDichVu'+ ID }, click: $root.LoadTab_ChiPhiDichVu">Chi phí dịch vụ</a>
-                                            </li>
                                             <li onclick="LoadGetHeight()"><a data-toggle="tab" data-bind=" attr: { href: '#contact'+ ID }, click: $root.LoadTab_CongNo">Nợ cần trả nhà cung cấp</a></li>
                                             <li onclick="LoadGetHeight()">
                                                 <a data-toggle="tab"
-                                                   data-bind=" attr: { href: '#Conttact_'+ ID }, click: $root.LoadTab_UserContact">Người liên hệ</a>
+                                                   data-bind=" attr: { href: '#tiencoc_'+ ID }, click: $root.LoadTabTienCoc">Nhật ký sử dụng tiền cọc</a>
                                             </li>
                                             <li onclick="LoadGetHeight()">
                                                 <a data-toggle="tab"
                                                    data-bind=" attr: { href: '#DiaryWork_'+ ID }, click: $root.LoadTab_CongViec">Nhật ký công việc</a>
                                             </li>
-                                            <!--ko if: $root.IsGara()-->
-                                            <li onclick="LoadGetHeight()">
-                                                <a data-toggle="tab"
-                                                   data-bind=" attr: { href: '#tiencoc_'+ ID }, click: $root.LoadTabTienCoc">Nhật ký sử dụng tiền cọc</a>
-                                            </li>
-                                            <!--/ko-->
                                         </ul>
                                         <div class="tab-content  tab-content-next">
                                             <div class="tab-pane active" data-bind="attr: { id: 'home'+ ID }">
@@ -560,46 +738,7 @@
                                                 <!--/ko-->
                                             </div>
 
-                                            <div class="tab-pane" data-bind="attr: { id: 'cpDichVu'+ ID }">
-                                                <div class="table-res">
-                                                    <table class='table'>
-                                                        <tr>
-                                                            <th>Mã hóa đơn</th>
-                                                            <th class="text-center">Thời gian</th>
-                                                            <th class="text-right">Tổng chi phí</th>
-                                                            <th class="text-right">Đã thanh toán</th>
-                                                            <th class="text-right">Còn nợ</th>
-                                                        </tr>
-                                                        <tbody data-bind="foreach: $root.ListHoaDon_withChiPhi">
-                                                            <tr>
-                                                                <td>
-                                                                    <a href="javascript:void(0)" data-bind="text: MaHoaDon, click: $root.ShowPopup_InforHD_PhieuThu"></a>
-                                                                </td>
-                                                                <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')!='Invalid date'? moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss'):''"></td>
-                                                                <td class="text-right" data-bind="text: formatNumber3Digit(TongChiPhi)"></td>
-                                                                <td class="text-right" data-bind="text: formatNumber3Digit(DaThanhToan)"></td>
-                                                                <td class="text-right" data-bind="text: formatNumber3Digit(ConNo)"></td>
-                                                            </tr>
-                                                        </tbody>
-                                                        <tfoot data-bind="visible: $root.ListHoaDon_withChiPhi().length > 0">
-                                                            <tr class="bold">
-                                                                <td colspan="2"> Tổng cộng</td>
-                                                                <td class="text-right" data-bind="text: formatNumber3Digit($root.CPHoaDon_TongChiPhi())"></td>
-                                                                <td class="text-right" data-bind="text: formatNumber3Digit($root.CPHoaDon_DaThanhToan())"></td>
-                                                                <td class="text-right" data-bind="text: formatNumber3Digit($root.CPHoaDon_ConNo())"></td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                                <div class="group-btn floatleft text-right">
-                                                    <!--ko if: $root.Show_BtnThanhToanCongNo()-->
-                                                    <a class="btn btn-main btnThanhToanNo" data-toggle="modal"
-                                                       data-bind="click: $parent.showPopThanhToan_ChiPhiDV">
-                                                        <i class="fa fa-calculator"></i> Thanh toán
-                                                    </a>
-                                                    <!--/ko-->
-                                                </div>
-                                            </div>
+
                                             <div class="tab-pane" data-bind="attr: { id: 'contact'+ ID }">
                                                 <div data-bind="visible: $parent.PageResult_CongNoKhachHang().length>0">
                                                     <div class="table-res">
@@ -663,150 +802,6 @@
                                                         <span class="glyphicon glyphicon-export"></span>Xuất file
                                                     </a>
                                                     <!--/ko-->
-                                                </div>
-                                            </div>
-                                            <div class="tab-pane" data-bind="attr: { id: 'Conttact_'+ ID }">
-                                                <div class="col-md-12  btn-group nopadding ">
-                                                    <!--ko if: $root.Show_BtnAddContact()-->
-                                                    <div class="btnAddLienHe op-object-detail-function" style="justify-content:flex-start">
-                                                        <button type="button" class="btn btn-main add-new dropdown-toggle no-magrin btn-main" aria-haspopup="true" title="Thêm mới người liên hệ"
-                                                                data-bind="click: $root.ShowModal_AddNguoiLienHe">
-                                                            <i class="fa fa-plus"></i><font>Thêm mới</font>
-                                                        </button>
-                                                    </div>
-                                                    <!--/ko-->
-                                                </div>
-                                                <div data-bind="visible: $parent.PageResult_UserContact().length>0">
-                                                    <div class="table-res">
-                                                        <table class="table">
-                                                            <tr>
-                                                                <th>Mã liên hệ</th>
-                                                                <th>Tên người liên hệ</th>
-                                                                <th>Di động</th>
-                                                                <th>Email</th>
-                                                                <th>Địa chỉ</th>
-                                                                <th>Chức vụ</th>
-                                                                <th style="width:40px;">Xử lý</th>
-                                                            </tr>
-                                                            <tbody data-bind="foreach:$root.PageResult_UserContact">
-                                                                <tr class="tr-conttact-show" data-bind="click: $root.GetImages_LienHe">
-                                                                    <td data-bind="text:MaLienHe"></td>
-                                                                    <td data-bind="text:TenLienHe"></td>
-                                                                    <td data-bind="text:SoDienThoai"></td>
-                                                                    <td data-bind="text:Email"></td>
-                                                                    <td data-bind="text:DiaChi"></td>
-                                                                    <td data-bind="text:ChucVu"></td>
-                                                                    <td><a href="javascript:void(0)" title="Thêm công việc cho người liên hệ"><i class="fa fa-plus" style="color:var(--color-add);" aria-hidden="true"></i></a></td>
-                                                                </tr>
-                                                                <tr class="tr-conttact-hide" hidden>
-                                                                    <td colspan="7">
-                                                                        <ul class="nav nav-tabs contact-customer">
-                                                                            <li class="active"><a data-toggle="tab" href="#ct_home">Thông tin chi tiết</a></li>
-                                                                        </ul>
-                                                                        <div class="tab-content tab-content-next">
-                                                                            <div class="tab-pane active content-detail-table" id="ct_home">
-                                                                                <div class="col-md-12 nopadding">
-                                                                                    <div class="col-md-4 col-sm-12 col-xs-12">
-                                                                                        <div class="detail-content">
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Mã liên hệ:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: MaLienHe"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Tên liên hệ:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: TenLienHe"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Di động:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: SoDienThoai"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Điện thoại cố định:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: DienThoaiCoDinh"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Sinh nhật:</label>
-                                                                                                <div class="css-form-detail"
-                                                                                                     data-bind="text: NgaySinh==null?'':moment(NgaySinh).format('DD/MM/YYYY')"></div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-md-4 col-sm-12 col-xs-12">
-                                                                                        <div class="detail-content">
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Email:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: Email"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Chức vụ:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: ChucVu"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Địa chỉ:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: DiaChi"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Tỉnh thành:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: TenTinhThanh"></div>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft">
-                                                                                                <label class="css-form-label">Quận/ Huyện:</label>
-                                                                                                <div class="css-form-detail" data-bind="text: TenQuanHuyen"></div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-md-4 col-sm-12 col-xs-12">
-                                                                                        <div class="detail-content">
-                                                                                            <div class="form-group floatleft bor-none">
-                                                                                                <label class="css-form-label">Ghi chú:</label>
-                                                                                            </div>
-                                                                                            <div class="form-group floatleft bor-none">
-                                                                                                <textarea rows="6" data-bind="text:GhiChu" readonly />
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="col-md-12 nopadding">
-                                                                                    <div class="group-btn floatleft text-right">
-                                                                                        <a href="javascript:void(0)" class="btn btn-main editLienHe" hidden
-                                                                                           data-bind="click: $root.Update_NguoiLienHe">
-                                                                                            <i class="fa fa-check-square"></i> Sửa đổi
-                                                                                        </a>
-                                                                                        <a href="javascript:void(0)" class="btn btn-cancel xoaLienHe" hidden
-                                                                                           data-bind="click: function() {$root.Delete_Usercontact($parent, $data)} ">
-                                                                                            <i class="fa fa-trash"></i> Xóa
-                                                                                        </a>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div class="page">
-                                                        <div class="flex flex-end">
-                                                            <a href="javascript:void(0)" data-bind="click: $root.StartPageUserContact, visible: $parent.VisibleStartPageUserContact "><i class="fa fa-step-backward" aria-hidden="true"></i></a>
-                                                            <a href="javascript:void(0)" data-bind="click: $root.BackPageUserContact, visible: $parent.VisibleStartPageUserContact "><i class="fa fa-caret-left" aria-hidden="true"></i></a>
-                                                            <ul data-bind="foreach: $parent.PageListUserContact">
-                                                                <li>
-                                                                    <a href="javascript:void(0)" data-bind="text: pageNumber, click: $root.GoToPageUserContact, css: $root.GetClassUserContact($data)"></a>
-                                                                </li>
-                                                            </ul>
-                                                            <a href="javascript:void(0)" data-bind="click: $root.GoToNextPageUserContact, visible: $parent.VisibleEndPageUserContact"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
-                                                            <a href="javascript:void(0)" data-bind="click: $root.EndPageUserContact, visible: $parent.VisibleEndPageUserContact"><i class="fa fa-step-forward" aria-hidden="true"></i></a>
-                                                            <div class="total-recos">
-                                                                Hiển thị <span data-bind="text: $parent.fromitemUserContact"></span> - <span data-bind="text: $parent.toitemUserContact"></span> trên tổng số
-                                                                <span data-bind="text: $parent.TotalRecordUserContact"></span> bản ghi
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div data-bind="visible: $parent.PageResult_UserContact().length<=0" class="padding-10 bg-warning text-center">
-                                                    <i>
-                                                        Không có dữ liệu
-                                                    </i>
                                                 </div>
                                             </div>
                                             <div class="tab-pane" data-bind="attr: { id: 'DiaryWork_'+ ID }">
@@ -1087,10 +1082,12 @@
                                     </div>
                                 </td>
                             </tr>
+
+                            <!--/ko-->
                         </tbody>
                         <tfoot class="Report_Empty" data-bind="visible: DoiTuongs().length === 0">
                             <tr class="text-center">
-                                <td colspan="14">
+                                <td colspan="16">
                                     <i>Không có dữ liệu</i>
                                 </td>
                             </tr>
@@ -1109,7 +1106,9 @@
                                 <td class=" @commonEnum.ColumnNhaCungCap.nguoitao  text-right"></td>
                                 <td class=" @commonEnum.ColumnNhaCungCap.nohientai  text-right" data-bind="text: formatNumber3Digit(-NoHienTaiAll())"></td>
                                 <td class=" @commonEnum.ColumnNhaCungCap.tongmua  text-right" data-bind="text: formatNumber3Digit(-TongBanTruTraHangAll())"></td>
-                                <td class=" @commonEnum.ColumnNhaCungCap.cpDichvu  text-right" data-bind="text: formatNumber3Digit($root.TongPhiDichVu())"></td>
+                                <td class=" @commonEnum.ColumnNhaCungCap.napcoc  text-right" data-bind="text: formatNumber3Digit($root.TongPhiDichVu())"></td>
+                                <td class=" @commonEnum.ColumnNhaCungCap.sudungcoc  text-right" data-bind="text: formatNumber3Digit($root.TongPhiDichVu())"></td>
+                                <td class=" @commonEnum.ColumnNhaCungCap.soducoc  text-right" data-bind="text: formatNumber3Digit($root.TongPhiDichVu())"></td>
                                 <td class=" @commonEnum.ColumnNhaCungCap.ghichu  text-right"></td>
                             </tr>
                         </tfoot>

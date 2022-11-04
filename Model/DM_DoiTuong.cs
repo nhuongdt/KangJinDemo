@@ -379,7 +379,9 @@ namespace Model
         public string NguoiTao { get; set; }
         public double NoCanTraHienTai { get; set; }
         public double TongMua { get; set; }
-        public double? PhiDichVu { get; set; }
+        public double? NapCoc { get; set; }
+        public double? SuDungCoc { get; set; }
+        public double? SoDuCoc { get; set; }
         public string GhiChu { get; set; }
     }
 
@@ -408,6 +410,9 @@ namespace Model
         public double? NoHienTai { get; set; }
         public double? TongBan { get; set; }
         public double? TongBanTruTraHang { get; set; }
+        public double? NapCoc { get; set; }
+        public double? SuDungCoc { get; set; }
+        public double? SoDuCoc { get; set; }
         public double? PhiDichVu { get; set; }
         public double? TongTichDiem { get; set; }
         public DateTime? NgayGiaoDichGanNhat { get; set; }
@@ -431,8 +436,9 @@ namespace Model
         public string DinhDang_NgaySinh { get; set; }
         public Guid? ID_TrangThai { get; set; }
         public int? TrangThai_TheGiaTri { get; set; }
-        public double? NoTruoc { get { return 0; } }
-        public string MaNVPhuTrach { get; set; }
+        public double? NoTruoc { get; set; }
+        public string MaNVPhuTrach { get; set; }      
+
         public int? TotalRow { get; set; } // sum footer
         public double? TotalPage { get; set; }
         public double? TongBanAll { get; set; }
@@ -440,6 +446,9 @@ namespace Model
         public double? TongPhiDichVu { get; set; }
         public double? TongTichDiemAll { get; set; }
         public double? NoHienTaiAll { get; set; }
+        public double? NapCocAll { get; set; }
+        public double? SuDungCocAll { get; set; }
+        public double? SoDuCocAll { get; set; }
     }
 
     public class DoiTuongSMSDTO

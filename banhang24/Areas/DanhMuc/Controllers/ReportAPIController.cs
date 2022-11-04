@@ -4655,6 +4655,46 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return Json(json);
             }
         }
+        [HttpGet, HttpPost]
+        public IHttpActionResult BaoCaoNhomHoTro(array_BaoCaoKhoHang param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                db.Database.CommandTimeout = 60 * 60;
+                ClassReportKho reportKho = new ClassReportKho(db);
+                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst = reportKho.BaoCaoNhomHoTro(param);
+                int Rown = lst.Count();
+                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon, x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
+                {
+                    SoLuongDichVu = t.FirstOrDefault().SoLuongDichVu,
+                    GiaTriDichVu = t.FirstOrDefault().GiaTriDichVu,
+                }).ToList();
+                double SoLuongDichVu = lst_gr.Sum(x => x.SoLuongDichVu);
+                double GiaTriDichVu = lst_gr.Sum(x => x.GiaTriDichVu);
+                double SoLuongBanDau = lst.Sum(x => x.SoLuongDinhLuongBanDau);
+                double GiaTriGiaTriBanDau = lst.Sum(x => x.GiaTriDinhLuongBanDau);
+                double SoLuongThucTe = lst.Sum(x => x.SoLuongThucTe);
+                double GiaTriGiaTriThucTe = lst.Sum(x => x.GiaTriThucTe);
+                double SoLuongChenhLech = lst.Sum(x => x.SoLuongChenhLech);
+                double GiaTriChenhLech = lst.Sum(x => x.GiaTriChenhLech);
+                int lstPages = getNumber_Page(Rown, param.PageSize ?? 10);
+                JsonResultExampleTr<BaoCaoKho_XuatDichVuDinhLuongPRC> json = new JsonResultExampleTr<BaoCaoKho_XuatDichVuDinhLuongPRC>
+                {
+                    LstData = lst,
+                    Rowcount = Rown,
+                    numberPage = lstPages,
+                    a1 = Math.Round(SoLuongDichVu, 3, MidpointRounding.ToEven),
+                    a2 = Math.Round(GiaTriDichVu, 0, MidpointRounding.ToEven),
+                    a3 = Math.Round(SoLuongBanDau, 3, MidpointRounding.ToEven),
+                    a4 = Math.Round(GiaTriGiaTriBanDau, 0, MidpointRounding.ToEven),
+                    a5 = Math.Round(SoLuongThucTe, 3, MidpointRounding.ToEven),
+                    a6 = Math.Round(GiaTriGiaTriThucTe, 0, MidpointRounding.ToEven),
+                    a7 = Math.Round(SoLuongChenhLech, 3, MidpointRounding.ToEven),
+                    a8 = Math.Round(GiaTriChenhLech, 0, MidpointRounding.ToEven),
+                };
+                return Json(json);
+            }
+        }
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult BaoCaoTaiChinh_CongNo(array_BaoCaoTaiChinh array_BaoCaoTaiChinh)
         {
@@ -10124,6 +10164,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             break;
                         case (int)commonEnum.TypeReport.tonkhoth:
                             data = null;
+                            break;
+                        case 7:// BC xuat code
+                            data = commonEnum.ListReportNhomHoTro.ToList();
                             break;
                         default:
                             break;

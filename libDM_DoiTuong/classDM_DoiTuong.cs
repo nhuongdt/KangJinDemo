@@ -1084,10 +1084,19 @@ namespace libDM_DoiTuong
                             break;
                         case "PhiDichVu":
                             sortby = " PhiDichVu";
+                            break; 
+                        case "NapCoc":
+                            sortby = " NapCoc";
+                            break;
+                        case "SuDungCoc":
+                            sortby = " SuDungCoc";
+                            break;
+                        case "SoDuCoc":
+                            sortby = " SoDuCoc";
                             break;
                     }
 
-                    if (sort == 2)
+                    if (sort == 2 && !string.IsNullOrEmpty(sortby))
                     {
                         sortby = string.Concat(sortby, " DESC");
                     }

@@ -321,6 +321,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DataTable excel = classOffice.ToDataTable<SP_DM_DoiTuong>(data);
 
                     excel.Columns.Remove("ID");
+                    excel.Columns.Remove("LoaiDoiTuong");
+                    excel.Columns.Remove("TheoDoi");
+                    excel.Columns.Remove("GioiTinhNam");
                     excel.Columns.Remove("ID_NhomDoiTuong");
                     excel.Columns.Remove("TenDoiTuong_KhongDau");
                     excel.Columns.Remove("TenDoiTuong_ChuCaiDau");
@@ -338,6 +341,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("ID_TrangThai");
                     excel.Columns.Remove("TrangThai_TheGiaTri");
                     excel.Columns.Remove("NoTruoc");
+                    excel.Columns.Remove("PhiDichVu");
+                    excel.Columns.Remove("TongPhiDichVu");
                     excel.Columns.Remove("MaNVPhuTrach");
                     excel.Columns.Remove("TotalRow");
                     excel.Columns.Remove("TotalPage");
@@ -345,10 +350,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TongBanTruTraHangAll");
                     excel.Columns.Remove("TongTichDiemAll");
                     excel.Columns.Remove("NoHienTaiAll");
-                    excel.Columns.Remove("PhiDichVu");
-                    excel.Columns.Remove("TongPhiDichVu");
-                    excel.Columns.Remove("TheoDoi");
-                    excel.Columns.Remove("GioiTinhNam");
+                    excel.Columns.Remove("NapCoc");
+                    excel.Columns.Remove("SuDungCoc");
+                    excel.Columns.Remove("SoDuCoc");
+                    excel.Columns.Remove("NapCocAll");
+                    excel.Columns.Remove("SuDungCocAll");
+                    excel.Columns.Remove("SoDuCocAll"); 
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
                     fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachKhachHang.xlsx");
@@ -395,7 +402,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DM.TongMua = item.TongMua ?? 0;
                     DM.GhiChu = item.GhiChu;
                     DM.NoCanTraHienTai = item.NoHienTai * -1 ?? 0;
-                    DM.PhiDichVu = item.PhiDichVu ?? 0;
+                    DM.NapCoc = item.NapCoc ?? 0;
+                    DM.SuDungCoc = item.SuDungCoc ?? 0;
+                    DM.SoDuCoc = item.SoDuCoc ?? 0;
                     lst.Add(DM);
                 }
                 DataTable excel = classOffice.ToDataTable<DM_NhaCungCap_Excel>(lst);
@@ -1310,7 +1319,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.tongbantrutrahang , type=(int)commonEnumHellper.KeyCompare.bang },
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.tongtichdiem, type=(int)commonEnumHellper.KeyCompare.bang },
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.trangthaikhachhang, type=(int)commonEnumHellper.KeyCompare.bang },
-                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.ghichu},
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.ghichu },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.trangthaiSoDuCoc },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriNapCoc },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriSuDungCoc },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriSoDuCoc },
                 };
             return Json(new { keycolumn = ListComlumnSearchKhachHang.ToList(), compareFile = commonEnumHellper.ListCompare.ToList() });
         }
@@ -1329,146 +1342,457 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         var value = item.Value.ToString().Trim();
                         string where = string.Empty;
-                        switch (item.Key)
+                        switch (listParam.LoaiDoiTuong)
                         {
-                            case (int)commonEnum.ColumnKhachHang.nohientai:
-                                var debit = double.Parse(value.Replace(",", ""));
-                                switch (item.type)
+                            case 1:
+                                switch (item.Key)
                                 {
-                                    case (int)commonEnumHellper.KeyCompare.bang:
-                                        where = string.Concat(" ISNULL(NoHienTai,0) = ", debit);
+                                    case (int)commonEnum.ColumnKhachHang.nohientai:
+                                        var debit = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(NoHienTai,0) = ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(NoHienTai,0) > ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(NoHienTai,0) >= ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(NoHienTai,0) < ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(NoHienTai,0) <= ", debit);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhon:
-                                        where = string.Concat(" ISNULL(NoHienTai,0) > ", debit);
+                                    case (int)commonEnum.ColumnKhachHang.tongban:
+                                        var sale = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(TongBan,0) = ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(TongBan,0) > ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(TongBan,0) >= ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(TongBan,0) < ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(TongBan,0) <= ", sale);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                        where = string.Concat(" ISNULL(NoHienTai,0) >= ", debit);
+                                    case (int)commonEnum.ColumnKhachHang.tongbantrutrahang:
+                                        var sale_return = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(TongBanTruTraHang,0) = ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(TongBanTruTraHang,0) > ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(TongBanTruTraHang,0) >= ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(TongBanTruTraHang,0) < ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(TongBanTruTraHang,0) <= ", sale_return);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohon:
-                                        where = string.Concat(" ISNULL(NoHienTai,0) < ", debit);
+                                    case (int)commonEnum.ColumnKhachHang.tongtichdiem:
+                                        var point = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" TongTichDiem = ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" TongTichDiem > ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" TongTichDiem >= ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" TongTichDiem < ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" TongTichDiem <= ", point);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                        where = string.Concat(" ISNULL(NoHienTai,0) <= ", debit);
+                                    case (int)commonEnum.ColumnKhachHang.madoituong:
+                                        where = string.Concat(" MaDoiTuong like '%", value, "%'");
                                         break;
-                                    default:
+                                    case (int)commonEnum.ColumnKhachHang.tendoituong:
+                                        where = string.Concat(" (TenDoiTuong like N'%", value, "%' OR TenDoiTuong_KhongDau like '%", CommonStatic.ConvertToUnSign(value), "%')");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.dienthoai:
+                                        where = string.Concat(" DienThoai like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nhomkhach://??
+                                        listParam.ID_NhomDoiTuong = value;
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gioitinh:
+                                        listParam.GioiTinh = int.Parse(value);
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.ngaysinh:
+                                        //listParam.NgaySinh_TuNgay = int.Parse(value);
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.email:
+                                        where = string.Concat(" Email like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.diachi:
+                                        where = string.Concat(" DiaChi like N'%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.tinhthanh:
+                                        where = string.Concat(" ID_TinhThanh like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.quanhuyen:
+                                        where = string.Concat(" ID_QuanHuyen like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nguonkhach:
+                                        listParam.ID_NguonKhach = value;
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nguoigioithieu:
+                                        where = string.Concat(" ID_NguoiGioiThieu like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nguoitao:
+                                        where = string.Concat(" NguoiTao like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.trangthaikhachhang:
+                                        where = string.Concat(" TheoDoi = ", value, "");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.ghichu:
+                                        where = string.Concat(" GhiChu like N'%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.trangthaiSoDuCoc:
+                                        var gtriSD = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:// Còn tồn cọc
+                                                where = string.Concat(" SoDuCoc > ", gtriSD);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon: // Đã dùng hết
+                                                where = string.Concat(" SoDuCoc = ", 0);
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriNapCoc:
+                                        var gtriNap = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" NapCoc = ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" NapCoc > ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" NapCoc >= ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" NapCoc < ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" NapCoc <= ", gtriNap);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriSuDungCoc:
+                                        var gtSuDungCoc = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" SuDungCoc = ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" SuDungCoc > ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" SuDungCoc >= ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" SuDungCoc < ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" SuDungCoc <= ", gtSuDungCoc);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriSoDuCoc:
+                                        var gtriSoDuCoc = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" SoDuCoc = ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" SoDuCoc > ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" SoDuCoc >= ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" SoDuCoc < ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" SoDuCoc <= ", gtriSoDuCoc);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
                                 }
+
                                 break;
-                            case (int)commonEnum.ColumnKhachHang.tongban:
-                                var sale = double.Parse(value.Replace(",", ""));
-                                switch (item.type)
+                            case 2:
+                                switch (item.Key)
                                 {
-                                    case (int)commonEnumHellper.KeyCompare.bang:
-                                        where = string.Concat(" ISNULL(TongBan,0) = ", sale);
+                                    case (int)commonEnum.ColumnKhachHang.nohientai:
+                                        var debit = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(NoHienTai,0) = ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat("- ISNULL(NoHienTai,0) > ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" -ISNULL(NoHienTai,0) >= ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" -ISNULL(NoHienTai,0) < ", debit);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" -ISNULL(NoHienTai,0) <= ", debit);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhon:
-                                        where = string.Concat(" ISNULL(TongBan,0) > ", sale);
+                                    case (int)commonEnum.ColumnKhachHang.tongban:
+                                        var sale = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(TongBan,0) = ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" -ISNULL(TongBan,0) > ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" -ISNULL(TongBan,0) >= ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" -ISNULL(TongBan,0) < ", sale);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" -ISNULL(TongBan,0) <= ", sale);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                        where = string.Concat(" ISNULL(TongBan,0) >= ", sale);
+                                    case (int)commonEnum.ColumnKhachHang.tongbantrutrahang:
+                                        var sale_return = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" -ISNULL(TongBanTruTraHang,0) = ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" -ISNULL(TongBanTruTraHang,0) > ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" -ISNULL(TongBanTruTraHang,0) >= ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" -ISNULL(TongBanTruTraHang,0) < ", sale_return);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" -ISNULL(TongBanTruTraHang,0) <= ", sale_return);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohon:
-                                        where = string.Concat(" ISNULL(TongBan,0) < ", sale);
+                                    case (int)commonEnum.ColumnKhachHang.tongtichdiem:
+                                        var point = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" TongTichDiem = ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" TongTichDiem > ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" TongTichDiem >= ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" TongTichDiem < ", point);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" TongTichDiem <= ", point);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                        where = string.Concat(" ISNULL(TongBan,0) <= ", sale);
+                                    case (int)commonEnum.ColumnKhachHang.madoituong:
+                                        where = string.Concat(" MaDoiTuong like '%", value, "%'");
                                         break;
-                                    default:
+                                    case (int)commonEnum.ColumnKhachHang.tendoituong:
+                                        where = string.Concat(" (TenDoiTuong like N'%", value, "%' OR TenDoiTuong_KhongDau like '%", CommonStatic.ConvertToUnSign(value), "%')");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.dienthoai:
+                                        where = string.Concat(" DienThoai like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nhomkhach://??
+                                        listParam.ID_NhomDoiTuong = value;
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gioitinh:
+                                        listParam.GioiTinh = int.Parse(value);
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.ngaysinh:
+                                        //listParam.NgaySinh_TuNgay = int.Parse(value);
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.email:
+                                        where = string.Concat(" Email like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.diachi:
+                                        where = string.Concat(" DiaChi like N'%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.tinhthanh:
+                                        where = string.Concat(" ID_TinhThanh like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.quanhuyen:
+                                        where = string.Concat(" ID_QuanHuyen like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nguonkhach:
+                                        listParam.ID_NguonKhach = value;
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nguoigioithieu:
+                                        where = string.Concat(" ID_NguoiGioiThieu like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.nguoitao:
+                                        where = string.Concat(" NguoiTao like '%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.trangthaikhachhang:
+                                        where = string.Concat(" TheoDoi = ", value, "");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.ghichu:
+                                        where = string.Concat(" GhiChu like N'%", value, "%'");
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.trangthaiSoDuCoc:
+                                        var gtriSD = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:// Còn tồn cọc
+                                                where = string.Concat(" isnull(SoDuCoc,0) > ", gtriSD);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang: // Đã dùng hết (có cọc nhưng dùng hết)
+                                                where = string.Concat(" isnull(SoDuCoc,0) = 0 and isnull(NapCoc,0) > 0");
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriNapCoc:
+                                        var gtriNap = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" isnull(NapCoc,0) = ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" isnull(NapCoc,0) > ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" isnull(NapCoc,0) >= ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" isnull(NapCoc,0) < ", gtriNap);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" isnull(NapCoc,0) <= ", gtriNap);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriSuDungCoc:
+                                        var gtSuDungCoc = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" isnull(SuDungCoc,0) = ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" isnull(SuDungCoc,0) > ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" isnull(SuDungCoc,0) >= ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" isnull(SuDungCoc,0) < ", gtSuDungCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" isnull(SuDungCoc,0) <= ", gtSuDungCoc);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriSoDuCoc:
+                                        var gtriSoDuCoc = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" isnull(SoDuCoc,0) = ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" isnull(SoDuCoc,0) > ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" isnull(SoDuCoc,0) >= ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" isnull(SoDuCoc,0) < ", gtriSoDuCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" isnull(SoDuCoc,0) <= ", gtriSoDuCoc);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
                                 }
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.tongbantrutrahang:
-                                var sale_return = double.Parse(value.ToString().Replace(",", ""));
-                                switch (item.type)
-                                {
-                                    case (int)commonEnumHellper.KeyCompare.bang:
-                                        where = string.Concat(" ISNULL(TongBanTruTraHang,0) = ", sale_return);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhon:
-                                        where = string.Concat(" ISNULL(TongBanTruTraHang,0) > ", sale_return);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                        where = string.Concat(" ISNULL(TongBanTruTraHang,0) >= ", sale_return);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohon:
-                                        where = string.Concat(" ISNULL(TongBanTruTraHang,0) < ", sale_return);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                        where = string.Concat(" ISNULL(TongBanTruTraHang,0) <= ", sale_return);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.tongtichdiem:
-                                var point = double.Parse(value.Replace(",", ""));
-                                switch (item.type)
-                                {
-                                    case (int)commonEnumHellper.KeyCompare.bang:
-                                        where = string.Concat(" TongTichDiem = ", point);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhon:
-                                        where = string.Concat(" TongTichDiem > ", point);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                        where = string.Concat(" TongTichDiem >= ", point);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohon:
-                                        where = string.Concat(" TongTichDiem < ", point);
-                                        break;
-                                    case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                        where = string.Concat(" TongTichDiem <= ", point);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.madoituong:
-                                where = string.Concat(" MaDoiTuong like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.tendoituong:
-                                where = string.Concat(" (TenDoiTuong like N'%", value, "%' OR TenDoiTuong_KhongDau like '%", CommonStatic.ConvertToUnSign(value), "%')");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.dienthoai:
-                                where = string.Concat(" DienThoai like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.nhomkhach://??
-                                listParam.ID_NhomDoiTuong = value;
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.gioitinh:
-                                listParam.GioiTinh = int.Parse(value);
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.ngaysinh:
-                                //listParam.NgaySinh_TuNgay = int.Parse(value);
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.email:
-                                where = string.Concat(" Email like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.diachi:
-                                where = string.Concat(" DiaChi like N'%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.tinhthanh:
-                                where = string.Concat(" ID_TinhThanh like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.quanhuyen:
-                                where = string.Concat(" ID_QuanHuyen like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.nguonkhach:
-                                listParam.ID_NguonKhach = value;
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.nguoigioithieu:
-                                where = string.Concat(" ID_NguoiGioiThieu like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.nguoitao:
-                                where = string.Concat(" NguoiTao like '%", value, "%'");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.trangthaikhachhang:
-                                where = string.Concat(" TheoDoi = ", value, "");
-                                break;
-                            case (int)commonEnum.ColumnKhachHang.ghichu:
-                                where = string.Concat(" GhiChu like N'%", value, "%'");
                                 break;
                         }
+
                         whereSql = classDoiTuong.GetStringWhere(whereSql, where);
                     }
                 }

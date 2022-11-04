@@ -87,6 +87,10 @@
     self.searchDistrict = ko.observable();
     self.CusStatus = ko.observable('0');
 
+    self.trangthaiTienCoc = ko.observable('0');
+    self.SoDuTienCocFrom = ko.observable();
+    self.SoDuTienCocTo = ko.observable();
+
     // dieu chinh Diem
     self.DiemDieuChinh = ko.observable();
     self.ThietLap_TichDiem = ko.observableArray();
@@ -199,7 +203,7 @@
         if ($('.tr-filter-head').css('display') === 'none') {
             self.ListFilterColumn([]);
             self.currentPage(0);
-            $('.number-search, .search-grid imput').val('');
+            $('.number-search, .search-grid input').val('');
             SearchKhachHang();
         }
     }
@@ -799,6 +803,15 @@
                 case "cpDichvu":
                     self.columsort("PhiDichVu");
                     break;
+                case "napcoc":
+                    self.columsort("NapCoc");
+                    break;
+                case "sudungcoc":
+                    self.columsort("SuDungCoc");
+                    break;
+                case "soducoc":
+                    self.columsort("SoDuCoc");
+                    break;
             }
             SortGrid(id);
         }
@@ -881,6 +894,14 @@
         }
         else {
             $('#divDebitValue').css('display', '');
+        }
+        SearchKhachHang(false, false);
+    });
+    self.trangthaiTienCoc.subscribe(function (newVal) {
+        ResetSort();
+        if (newVal === '2') {
+            self.SoDuTienCocFrom(0);
+            self.SoDuTienCocTo(0);
         }
         SearchKhachHang(false, false);
     });
@@ -1282,12 +1303,41 @@
                 break;
         }
 
+        // trangthaiTienCoc (key = 24)
+        self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 24));
+        switch (parseInt(self.trangthaiTienCoc())) {
+            case 1:
+                self.ListFilterColumn.push({ Key: 24, Value: '0', type: 1 })
+                break;
+            case 2:
+                self.ListFilterColumn.push({ Key: 24, Value: '0', type: 2 })
+                break;
+        }
+
         if (loaiDoiTuong === 1) {
             if ($('#txtSearchDistr').val().trim() === '') {
                 self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 11));
             }
             if ($('#txtSearchNguoiGT').val().trim() === '') {
                 self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 13));
+            }
+        }
+
+        let typeSort = self.sort();// 0.No sort, 1.ASC, 2.DESC
+        if (loaiDoiTuong === 2) {
+            switch (self.columsort()) {
+                case 'NoHienTai':
+                    typeSort = typeSort == 1 ? 2 : 1;// nhacungcap sắp xếp ngược với khách hàng
+                    break;
+            }
+        }
+        else {
+            switch (self.columsort()) {
+                case 'NapCoc':
+                case 'SoDuCoc':
+                case 'SuDungCoc':
+                    typeSort = typeSort == 1 ? 2 : 1;
+                    break;
             }
         }
 
@@ -1313,7 +1363,7 @@
             LoaiNgaySinh: typeNgaySinh, // 0.Ngay/Thang, 1.Nam
             ID_NguonKhach: idNguonKhach,
             ID_NhanVienQuanLys: arrIDManager,
-            TrangThai_SapXep: self.sort(),  // 0.No sort, 1.Sort
+            TrangThai_SapXep: typeSort,  
             Cot_SapXep: self.columsort(),
             NguoiTao: user,
             ID_TrangThai: idTrangThai,
@@ -5657,3 +5707,27 @@ $('#modalpopup_NapThe').on('shown.bs.modal', function (e) {
         $(this).select();
     });
 });
+$(function () {
+    $('.showfiltercolumn').on('click', function () {
+        $('.tr-filter-head').toggle();
+    });
+
+    $(".kv1").click(function () {
+        var display = $(this).next(".list-kv").css('display');
+        $(".list-kv").each(function () {
+            $(this).hide();
+        });
+        if (display === 'none') {
+            $(this).next(".list-kv").show();
+        }
+        $(".list-kv").mouseup(function () {
+            return false
+        });
+        $(".kv1").mouseup(function () {
+            return false
+        });
+        $(document).mouseup(function () {
+            $(".list-kv").hide();
+        });
+    });
+})
