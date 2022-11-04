@@ -23,7 +23,7 @@ namespace Model
 
     public class NhomHangHoa_SanPhamHoTroDTO
     {
-        public Guid? Id_NhomHang { get; set; }
+        public Guid? Id_NhomHang { get; set; }// nhóm hỗ trợ
         public Guid? Id_DonViQuiDoi { get; set; }
         public Guid? Id_LoHang { get; set; }
         public double? SoLuong { get; set; }
@@ -32,7 +32,8 @@ namespace Model
         public string TenDonViTinh { get; set; }
         public int? LaSanPhamNgayThuoc { get; set; }
         public int? LoaiHangHoa { get; set; }
-
+        public Guid? ID_NhomHangHoa { get; set; } // nhóm hàng hóa
+        public string TenNhomHangHoa { get; set; } // nhóm hàng hóa
     }
 
     public class NhomHangHoa_TongSuDung
