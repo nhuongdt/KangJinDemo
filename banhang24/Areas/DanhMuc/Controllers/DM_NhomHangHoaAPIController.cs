@@ -466,7 +466,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var apdungOld = db.NhomHang_KhoangApDung.Where(x => x.Id_NhomHang == idNhomHang);
                         db.NhomHang_KhoangApDung.RemoveRange(apdungOld);
 
-                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang && (x.LaSanPhamNgayThuoc==1 || x.LaSanPhamNgayThuoc==2));
+                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang && (x.LaSanPhamNgayThuoc == 1 || x.LaSanPhamNgayThuoc == 2));
                         db.NhomHang_ChiTietSanPhamHoTro.RemoveRange(spOld);
 
                         foreach (var item in lstAD)
@@ -515,6 +515,67 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         {
                             item.Id = Guid.NewGuid();
                             db.NhomHang_ChiTietSanPhamHoTro.Add(item);
+                        }
+
+                        db.SaveChanges();
+                        trans.Commit();
+
+                        return ActionTrueData(string.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.InnerException + ex.Message);
+                    }
+                }
+            }
+        }
+        public IHttpActionResult MoveHangHoa_toNhomHoTro([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        List<Guid> arrID = new List<Guid>();
+                        Guid idNhomHang = new Guid();
+                        Guid idChiNhanh = new Guid();
+
+                        if (data["idNhomHoTro"] != null)
+                        {
+                            idNhomHang = data["idNhomHoTro"].ToObject<Guid>();
+                        }
+                        if (data["idChiNhanh"] != null)
+                        {
+                            idChiNhanh = data["idChiNhanh"].ToObject<Guid>();
+                        }
+                        if (data["arrIDQuiDoi"] != null)
+                        {
+                            arrID = data["arrIDQuiDoi"].ToObject<List<Guid>>();
+                        }
+
+                        // get list sp exist by idChiNhanh
+                        var arrEx = (from dt in db.NhomHang_ChiTietSanPhamHoTro
+                                     join nhomDV in db.NhomHangHoa_DonVi on dt.Id_NhomHang equals nhomDV.ID_NhomHangHoa
+                                     where arrID.Contains(dt.Id_DonViQuiDoi) && dt.LaSanPhamNgayThuoc == 2 && nhomDV.ID_DonVi == idChiNhanh
+                                     select dt.Id).ToList();
+
+                        // remove if exists
+                        var xx = db.NhomHang_ChiTietSanPhamHoTro.Where(x => arrEx.Contains(x.Id)).AsEnumerable();
+                        db.NhomHang_ChiTietSanPhamHoTro.RemoveRange(xx);
+
+                        // add again
+                        foreach (var item in arrID)
+                        {
+                            NhomHang_ChiTietSanPhamHoTro obj = new NhomHang_ChiTietSanPhamHoTro
+                            {
+                                Id = Guid.NewGuid(),
+                                Id_NhomHang = idNhomHang,
+                                Id_DonViQuiDoi = item,
+                                LaSanPhamNgayThuoc = 2,
+                            };
+                            db.NhomHang_ChiTietSanPhamHoTro.Add(obj);
                         }
 
                         db.SaveChanges();
