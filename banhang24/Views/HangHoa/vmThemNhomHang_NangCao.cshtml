@@ -302,7 +302,7 @@
                                             <td>
                                                 {{item.TenNhomHangHoa}}
                                             </td>
-                                          
+
                                             <td class="text-center" style="width:8%">
                                                 <div class="flex flex-around">
                                                     <a class="a-font-18" v-on:click="DayProducts_Remove(index,item,0)" title="Xóa dòng">
@@ -485,7 +485,6 @@
                     self.newNhomHang.LaNhomHangHoa = x.LaNhomHangHoa;
                     self.newNhomHang.GhiChu = x.GhiChu;
                     self.newNhomHang.TrangThai = x.TrangThai;
-                    console.log('xOld ', x)
                 })
 
                 $.getJSON(self.urlAPI + 'GetListDonVi_byIDNhomHang?idNhom=' + idNhom).done(function (x) {
@@ -548,6 +547,13 @@
             },
             ChoseProduct_Public: function (item) {
                 let self = this;
+                let itEx = $.grep(self.PublicProducts, function (x) {
+                    return x.Id_DonViQuiDoi == item.ID_DonViQuiDoi
+                });
+                if (itEx.length > 0) {
+                    ShowMessage_Danger('Sản phẩm đã được chọn');
+                    return;
+                }
                 let obj = {
                     Id_DonViQuiDoi: item.ID_DonViQuiDoi,
                     Id_LoHang: null,
@@ -562,6 +568,13 @@
             },
             ChoseProduct_Day: function (item) {
                 let self = this;
+                let itEx = $.grep(self.DayProducts, function (x) {
+                    return x.Id_DonViQuiDoi == item.ID_DonViQuiDoi
+                });
+                if (itEx.length > 0) {
+                    ShowMessage_Danger('Sản phẩm đã được chọn');
+                    return;
+                }
                 let obj = {
                     Id_DonViQuiDoi: item.ID_DonViQuiDoi,
                     Id_LoHang: null,
@@ -608,7 +621,7 @@
                 let self = this;
                 self.DayProducts = [];
             },
-            DayProducts_Remove: function (index, item, type= 0) {
+            DayProducts_Remove: function (index, item, type = 0) {
                 let self = this;
                 let idNhom = item.ID_NhomHangHoa;
                 if (type === 1) {
