@@ -1,0 +1,104 @@
+﻿<style>
+    .treeview-a {
+        clear: both;
+        font-weight: normal;
+        line-height: 1.42857143;
+        white-space: nowrap;
+        padding: 5px;
+        margin: 0 9px;
+        color: black !important;
+        white-space:pre-wrap;
+    }
+
+    .treeview-li {
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        position: relative;
+        line-height: 32px;
+        font-size: 1rem;
+        padding-left: 0px !important;
+        border: none !important;
+    }
+    .group-p1 .form-check, .group-p2 .form-check {
+        padding: 5px;
+    }
+</style>
+<div class="modal fade in" id="vmChuyenNhomHang">
+    <div class="modal-dialog draggable modal-md">
+        <div class="modal-content  draggable">
+            <div class="modal-header">
+                <button class="close close-modal" type="button" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Chuyển nhóm hàng</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                        <treeview-nhomhang :list-all="listNhomHang"
+                                           :list-search="listNhomHang"
+                                           :form-type="1"
+                                           :is-rdo="true"
+                                           v-on:chose-item="ChoseItem">
+                        </treeview-nhomhang>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <button type="button" data-dismiss="modal" class="btn btn-cancel">
+                        <i class="fa fa-ban"></i> Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-main"
+                            v-on:click="Agree">
+                        <i class="fa fa-check"></i>
+                        Đồng ý
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Components/treeview.js"></script>
+<script>
+    var vmChuyenNhomHang = new Vue({
+        el: '#vmChuyenNhomHang',
+        components: {
+            'treeview-nhomhang': cmpTreeView
+        },
+        created: function () {
+        },
+        data: {
+            saveOK: false,
+            formType: 0,
+            arrIDChosed: [],
+            TenNhomChoseds: '',
+
+            listNhomHang: [],
+        },
+        methods: {
+            showModal: function (formType = 0, arr = []) {
+                let self = this;
+                self.formType = formType;
+                self.listNhomHang = arr;
+                $('#vmChuyenNhomHang').modal('show');
+            },
+            ChoseItem: function (item) {
+                let self = this;
+                if (item !== null) {
+                    self.arrIDChosed = [item.id];
+                    self.TenNhomChoseds = item.text;
+                }
+                else {
+                    self.arrIDChosed = [];
+                    self.TenNhomChoseds = '';
+                }
+            },
+            Agree: function () {
+                let self = this;
+                self.saveOK = true;
+                $('#vmChuyenNhomHang').modal('hide');
+            },
+        },
+    })
+</script>
