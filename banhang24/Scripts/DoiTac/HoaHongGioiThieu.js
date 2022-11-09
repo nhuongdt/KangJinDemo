@@ -27,7 +27,6 @@
             }
         });
         self.listData.ChiNhanh = arr;
-        self.roleChangeNgayLapHD = VHeader.Quyen.indexOf('HoaDon_ThayDoiThoiGian') > -1;
         console.log('vmDSHoaHongGT')
 
         self.PageLoad();
@@ -71,6 +70,9 @@
         isLoading: false,
         typeUpdate: 1,
         isKhoaSo: false,
+        role: {
+            HoaHongGioiThieu: { ThemMoi: true, SuaDoi: true, Xoa: true },
+        },
         LoaiBaoCao: '1',
         inforOld: {},
         ngayLapHoaDon_update: null,
@@ -136,10 +138,19 @@
     methods: {
         PageLoad: function () {
             let self = this;
+            self.CheckRole();
             self.InitHeader();
             self.GetAllQuy_KhoanThuChi();
             self.getListNhanVien();
             self.GetDM_TaiKhoanNganHang();
+        },
+        CheckRole: function () {
+            let self = this;
+            let arrQuyen = VHeader.Quyen;
+            self.roleChangeNgayLapHD = arrQuyen.indexOf('HoaDon_ThayDoiThoiGian') > -1;
+            self.role.HoaHongGioiThieu.ThemMoi = arrQuyen.indexOf('HoaHongKhachGioiThieu_ThemMoi') > -1;
+            self.role.HoaHongGioiThieu.SuaDoi = arrQuyen.indexOf('HoaHongKhachGioiThieu_SuaDoi') > -1;
+            self.role.HoaHongGioiThieu.Xoa = arrQuyen.indexOf('HoaHongKhachGioiThieu_Xoa') > -1;
         },
         GetAllQuy_KhoanThuChi: function () {
             let self = this;
