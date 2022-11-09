@@ -12084,6 +12084,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 TienChietKhau = item.TienChietKhau,
                                 SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
                                 GhiChu = item.GhiChu,
+                                PTChiPhi= item.PTChiPhi,//Số tiền đã trích trước đó
+                                TienChiPhi = item.TienChiPhi,//Số tiền còn lại được trích
+                                TienThue = item.TienThue,// Số tiền thực tế tính chiết khấu cho khách
                             };
                             lstCT.Add(ctHoaDon);
                         }
@@ -12185,6 +12188,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 TienChietKhau = item.TienChietKhau,
                                 SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
                                 GhiChu = item.GhiChu,
+                                PTChiPhi = item.PTChiPhi,//Số tiền đã trích trước đó
+                                TienChiPhi = item.TienChiPhi,//Số tiền còn lại được trích
+                                TienThue = item.TienThue,//Số tiền thực tế tính chiết khấu cho khách
                             };
                             lstCT.Add(ctHoaDon);
                         }
