@@ -41,9 +41,11 @@ var cmpTreeView = {
             default: []
         },
         formType: { default: 0 },// 1.chuyennhom, 0.other
+        showAll: { default: false },
         isCheck: { default: false },
         isRdo: { default: false },
-        //idChosing: { default: null },
+        roleEdit: { default: false },
+        idChosing: { default: null },
     },
    
     template: `  <div>
@@ -63,66 +65,63 @@ var cmpTreeView = {
                            </div>
 
                      <ul>
-                       <li class="treeview-li" v-on:click="choseItem" v-if="isCheck">
-                            <div class="group-p1" >
-                                <a class="treeview-a" href="javascript:void(0)"> Tất cả</a>
+                       <li class="treeview-li" v-on:click="choseItem" v-if="showAll"
+                             v-bind:style="[idChosing == null ? {'background':'#eee'} : {'background':'none'}]">
+                            <div class="group-p1" style="padding-top: 5px;padding-bottom: 5px">
+                                <label class="treeview-a" href="javascript:void(0)"> Tất cả</label>
                             </div>
                         </li>
                         <li v-for="(item,index) in listSearch"
-                            v-on:click="choseItem(item,1)">
+                            v-bind:style="[idChosing === item.id ? {'background':'#eee'} : {'background':'none'}]">
                              <div class="col-sm-12 col-lg-12 col-md-12 group-p1">
-                                <div class="form-check">
+                                <div class="form-check flex">
                                   <input class="form-check-input" type="checkbox" v-if="isCheck" >
                                   <input class="form-check-input" type="radio" name="rdoTree"  
                                         v-if="isRdo"
                                         v-bind:checked="item.id == idChosing">
-                                  <label class="form-check-label" for="gridCheck">
-                                   {{item.text}}
-                                  </label>
+                                  <label class="form-check-label" for="gridCheck" v-on:click="choseItem(item,1)"> {{item.text}} </label>                     
+                                  <a v-if="roleEdit" v-on:click="editItem(item,1)"><i class="fa fa-edit"> </i> </a>
                                 </div> 
-                            </div>
-                            <ul class="floatleft" >
-                                <li v-for="(item2,index2) in item.children"
-                                    v-on:click="choseItem(item2,2)">
-                                    <div class="col-sm-12 col-lg-12 col-md-12 group-p2">
-                                        <div class="form-check">
-                                          <input class="form-check-input" type="checkbox"
-                                                 v-if="isCheck"> 
-                                          <input class="form-check-input" type="radio" name="rdoTree"
-                                                  v-if="isRdo"
-                                                  v-bind:checked="item2.id == idChosing">
-                                          <label class="form-check-label" for="gridCheck">
-                                           {{item2.text}}
-                                          </label>
-                                     </div> 
-                                    </div>      
-                                    <ul class="floatleft" >
-                                        <li v-for="(item3,index3) in item2.children"
-                                             v-on:click="choseItem(item3,3)">
-                                             <div class="col-sm-12 col-lg-12 col-md-12 group-p3">
-                                                <div class="form-check">
-                                                 <input class="form-check-input" type="checkbox"
-                                                     v-if="isCheck">
+                                    <ul>
+                                        <li v-for="(item2,index2) in item.children"
+                                            >
+                                            <div class="col-sm-12 col-lg-12 col-md-12 group-p2">
+                                                <div class="form-check flex">
+                                                  <input class="form-check-input" type="checkbox"
+                                                         v-if="isCheck"> 
                                                   <input class="form-check-input" type="radio" name="rdoTree"
-                                                        v-if="isRdo"
-                                                        v-bind:checked="item3.id == idChosing">
-                                                  <label class="form-check-label" for="gridCheck">
-                                                   {{item3.text}}
-                                                  </label>
-                                             </div> 
+                                                          v-if="isRdo"
+                                                          v-bind:checked="item2.id == idChosing">
+                                                  <label class="form-check-label" for="gridCheck" v-on:click="choseItem(item2,2)"> {{item2.text}} </label>
+                                                   <a v-if="roleEdit" v-on:click="editItem(item2,2)"><i class="fa fa-edit"> </i> </a>
+                                                </div> 
+                                            </div>      
+                                            <ul>
+                                                <li v-for="(item3,index3) in item2.children"
+                                                     v-on:click="choseItem(item3,3)">
+                                                     <div class="col-sm-12 col-lg-12 col-md-12 group-p3">
+                                                        <div class="form-check">
+                                                         <input class="form-check-input" type="checkbox"
+                                                             v-if="isCheck">
+                                                          <input class="form-check-input" type="radio" name="rdoTree"
+                                                                v-if="isRdo"
+                                                                v-bind:checked="item3.id == idChosing">
+                                                          <label class="form-check-label" for="gridCheck">
+                                                           {{item3.text}}
+                                                          </label>
+                                                     </div> 
+                                                </li>
+                                            </ul>
                                         </li>
                                     </ul>
-                                </li>
-                            </ul>
+                            </div>
                         </li>
                     </ul>
-                               
                   </div>
                     `,
     data: function () {
         return {
             txtSearch: '',
-            idChosing: null,
         }
     },
     methods: {
@@ -142,12 +141,17 @@ var cmpTreeView = {
             }
             else {
                 self.txtSearch = '';
+                self.idChosing = null;
             }
             switch (type) {
                 case 2:
                     break;
             }
             self.$emit('chose-item', item);
+        },
+        editItem: function (item, type) {
+            let self = this;
+            self.$emit('edit-item', item);
         }
     },
 }
