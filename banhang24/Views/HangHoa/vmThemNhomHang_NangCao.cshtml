@@ -51,7 +51,7 @@
                         <label>Tên nhóm {{sLoai}}<span class="red">(*)</span></label>
                     </div>
                     <div class="col-sm-6 col-lg-6 col-sm-6 col-xs-12">
-                        <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa" />
+                        <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa"autofocus autocomplete="off"/>
                     </div>
                     <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-13" v-if="typeUpdate===2 && newNhomHang.ThietLapNangCao">
                         <a style="text-decoration:underline"
@@ -438,6 +438,7 @@
                 self.saveOK = false;
                 self.isLoading = false;
                 self.typeUpdate = 1;
+                self.nhomOld = {};
 
                 self.newNhomHang = {
                     ID: null,
@@ -920,7 +921,7 @@
                     obj.NguoiTao = VHeader.UserLogin;
 
                     ajaxHelper(self.urlAPI + 'PostDM_NhomHangHoa', 'POST', obj).done(function (x) {
-
+                        self.saveOK = true;
                         ShowMessage_Success("Thêm mới nhóm " + self.sLoai + " thành công");
 
                         let objNhatKy = {
@@ -938,6 +939,8 @@
                         };
                         Insert_NhatKyThaoTac_1Param(objNhatKy);
 
+                        self.newNhomHang.ID = x.ID;
+
                         let idNhom = x.ID;
                         let param = self.ChiTietApDung_AssignNhomHang(idNhom);
                         let myData = {
@@ -945,16 +948,19 @@
                             lstSPHoTro: param.ListProduct,
                         }
 
-                        ajaxHelper(self.urlAPI + 'PostNhomHang_DonVi?checkAll=' + param.AllCN, 'POST', param.CNApDung).done(function (x) {
+                        ajaxHelper(self.urlAPI + 'PostNhomHang_DonVi?checkAll=' + param.AllCN + '&idNhomHang=' + idNhom, 'POST', param.CNApDung).done(function (x) {
                             console.log('PostNhomHang_DonVi ', x)
                         })
 
-                        ajaxHelper(self.urlAPI + 'PostNhomHang_ChiTietApDung', 'POST', myData).done(function (x) {
-                            console.log('PostNhomHang_ChiTietApDung ', x)
-                            if (x.res) {
+                        if (self.newNhomHang.ThietLapNangCao) {
+                            ajaxHelper(self.urlAPI + 'PostNhomHang_ChiTietApDung?idNhomHang=' + idNhom, 'POST', myData).done(function (x) {
+                                console.log('PostNhomHang_ChiTietApDung ', x)
+                                if (x.res) {
 
-                            }
-                        })
+                                }
+                            })
+                        }
+                       
                     }).always(function () {
                         self.isLoading = false;
                         $('#vmThemNhomHang_NangCao').modal('hide');
@@ -1013,7 +1019,7 @@
 
                     ajaxHelper(self.urlAPI + 'PutDM_NhomHangHoa', 'POST', objU).done(function (x) {
                         ShowMessage_Success("Cập nhật nhóm " + self.sLoai + " thành công");
-
+                        self.saveOK = true;
                         let objNhatKy = {
                             LoaiNhatKy: 2,
                             ID_DonVi: self.ID_DonVi,
