@@ -321,7 +321,8 @@ namespace Model
             giavon,
             tonkho,
             trangthai,//trangthai kinhdoanh
-            trangthaiXoa
+            trangthaiXoa,
+            nhomhotro
         }
 
 
