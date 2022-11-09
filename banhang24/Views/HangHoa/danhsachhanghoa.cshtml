@@ -16,7 +16,7 @@
         }
         if ($.inArray('HangHoa_Import', lc_CTQuyen) > -1 && $.inArray('HangHoa_ThemMoi', lc_CTQuyen) > -1 && $.inArray('HangHoa_CapNhat', lc_CTQuyen) > -1) {
             $('.btnImport').show();
-        } modalViTriKho
+        }
         $(".dshh1 a").click(function () {
             $('#txtTenHangHoa1').focus();
         });
@@ -214,17 +214,36 @@
                                     </ul>
                                 </li>
                             </ul>
-                            @*<div class="close-goods">
-                                    <a class="add-goods" href="javascript:void(0)"><em>Xem thêm </em><i class="fa fa-caret-down "></i></a>
-                                    <a class="c-goods" href="javascript:void(0)"><em>Thu gọn</em> <i class="fa fa-caret-up "></i></a>
-                                </div>*@
+
                         </aside>
                     </article>
+
+                    <article class="boxLeft">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="far fa-ball-pile"></i>
+                            <span> Nhóm hỗ trợ</span>
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div id="filterNhomHoTro">
+                                <treeview-nhomhang :list-all="listNhomHang"
+                                                   :list-search="listNhomHang"
+                                                   :form-type="0"
+                                                   :show-all="true"
+                                                   :role-edit="true"
+                                                   :id-chosing="null"
+                                                   v-on:chose-item="ChoseItem"
+                                                   v-on:edit-item="EditItem">
+                                </treeview-nhomhang>
+                            </div>
+                        </aside>
+                    </article>
+
+
                     <article class="boxLeft">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <img src="~/Content/images/icon/Iconbanhanggg-03.png" /> Loại hàng
                         </h3>
-                        <aside class="op-filter-container">
+                        <aside>
                             <div class="menuCheckbox">
                                 <ul>
                                     <li>
@@ -296,9 +315,6 @@
                                     </li>
                                     <li>
                                         <label><input type="radio" name="rdTonKho" data-bind="checked: Loc_TonKho, checkedvalue: true" value="1" /> Còn hàng trong kho</label>
-                                    </li>
-                                    <li>
-                                        <label><input type="radio" name="rdTonKho" data-bind="checked: Loc_TonKho, checkedvalue: true" value="2" /> Hết hàng trong kho</label>
                                     </li>
                                     <li>
                                         <label><input type="radio" name="rdTonKho" data-bind="checked: Loc_TonKho" value="5" /> Hàng âm kho</label>
@@ -500,6 +516,11 @@
                                     <i class="fa fa-external-link-square"></i> Chuyển nhóm hàng
                                 </a>
                             </li>
+                            <li data-bind="visible: $root.role_UpdateProduct()">
+                                <a href="javascript:void(0)" data-bind="click: $root.chuyenNhomHoTro" data-toggle="modal">
+                                    <i class="fa fa-sign-out"></i> Chuyển nhóm hỗ trợ
+                                </a>
+                            </li>
                             <li>
                                 <a href="#" data-bind="click: getListChooseHH" data-toggle="modal" data-target="#mymodaltableprint">
                                     <i class="fa fa-barcode"></i> In mã vạch
@@ -508,7 +529,7 @@
                             <!--ko if: $root.role_UpdateProduct()-->
                             <li id="chokinhdoanh">
                                 <a href="#" data-toggle="modal" data-target="#modalpopup_ChoKinhDoanh">
-                                    <i class="fa fa-lock"></i> Cho phép kinh doanh
+                                    <i class="fas fa-unlock"></i> Cho phép kinh doanh
                                 </a>
                             </li>
                             <li id="ngungkinhdoanh">
@@ -520,7 +541,7 @@
                             <!--ko if: $root.role_DeleteProduct()-->
                             <li class="xoaHH" style="display:none">
                                 <a href="#" data-toggle="modal" data-target="#modalpopup_deleteTTHH">
-                                    <i class="fa fa-sign-out"></i> Xóa hàng hóa
+                                    <i class="fas fa-trash"></i>    Xóa hàng hóa
                                 </a>
                             </li>
                             <!--/ko-->
@@ -705,30 +726,23 @@
                                     </td>
                                     <!--/ko-->
                                 </tr>
-                                <!--ko foreach: HangHoas -->
+                                <!--ko foreach: {data: HangHoas, as: 'itemHH'}  -->
                                 <tr class="prev-tr-hide" data-bind="css:{bggray : $index()%2 == 1}, attr:{id: ID_HangHoaCungLoai}">
                                     <td class="check-group hideCheck chacungloai">
-                                        <!-- ko if: ListChildren.length === 1-->
-                                        <input id="inputGetIDHH" type="checkbox" data-bind="attr:{id: ID_DonViQuiDoi}" onclick="getIDHHConCungLoai(this)" />
-                                        <!--/ko-->
-                                        <!-- ko if: ListChildren.length > 1-->
                                         <input id="inputGetIDHH" type="checkbox" data-bind="attr:{id: ID_DonViQuiDoi}" onclick="getIDHH(this)" />
-                                        <!--/ko-->
                                     </td>
                                     <!--ko if: $root.ColumnsExcel().indexOf('0') < 0-->
-                                    <td class="ch mahang cmmh" style="width:150px  !important;min-width:150px  !important" data-bind="text: commonStatisJs.SubStringContent(MaHangHoa,15), click: $parent.loadTheKho"></td>
+                                    <td class="ch mahang cmmh" style="width:150px  !important;min-width:150px  !important"
+                                        data-bind="text: commonStatisJs.SubStringContent(MaHangHoa,15), click: $parent.loadTheKho"></td>
                                     <!--/ko-->
                                     <!--ko if: $root.ColumnsExcel().indexOf('1') < 0-->
                                     <td class="ch tenhang cmth" style="width:150px  !important;min-width:355px  !important" data-bind="click: $parent.loadTheKho">
                                         <span data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,60)"></span>
-                                        <!-- ko if: ListChildren.length === 1-->
                                         <span data-bind="text: ThuocTinhGiaTri" style="color:#ff6a00"></span>
-                                        <!-- /ko -->
                                     </td>
                                     <!--/ko-->
                                     <!--ko if: $root.ColumnsExcel().indexOf('2') < 0-->
                                     <td class="ch tendvt">
-                                        <!-- ko if: ListChildren.length === 1-->
                                         <span data-bind="if: (DonViTinh.length == 1 && DonViTinhChuan != ''&& DonViTinhChuan!= null)">
                                             <span data-bind="text: DonViTinhChuan"></span>
                                         </span>
@@ -745,7 +759,6 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <!-- /ko -->
                                     </td>
                                     <!--/ko-->
                                     <!--ko if: $root.ColumnsExcel().indexOf('3') < 0-->
@@ -772,8 +785,9 @@
                                 </tr>
                                 <tr class="op-js-tr-hide">
                                     <td data-bind="attr: { colspan: 11- $root.ColumnsExcel().length }">
+                                        <!--ko if: CountCungLoai > 1 && !QuanLyTheoLoHang-->
                                         <div class="op-object-detail same-product">
-                                            <table class="table-hover " data-bind="foreach: $root.HangHoaCungLoai, attr:{id: 'cungl'+ ID_HangHoaCungLoai}">
+                                            <table class="table-hover " data-bind="foreach: {data: $root.HangHoaCungLoai, as:'itemCL'}, attr:{id: 'cungl'+ ID_HangHoaCungLoai}">
                                                 <tr class="prev-tr-hide1">
                                                     <td class="check-group hideCheck cmcheck" style="width:35px !important;min-width:35px !important">
                                                         <input id="inputGetIDHH" type="checkbox" data-bind="attr:{id: ID_DonViQuiDoi}" onclick="getIDHHConCungLoai(this)" />
@@ -789,11 +803,18 @@
                                                     <!--/ko-->
                                                     <!--ko if: $root.ColumnsExcel().indexOf('2') < 0-->
                                                     <td style="min-width: 21px;">
-                                                        <span data-bind="if: (DonViTinh.length == 1 && DonViTinhChuan != '' && DonViTinhChuan!= null)"><span data-bind="text: DonViTinhChuan"></span></span>
-                                                        <div class="dropdown proDropdown blue" data-bind="if: DonViTinh.length != 1">
-                                                            <button type="button" data-toggle="dropdown" style="    background: white; border: none;outline: none;"><span data-bind="text: DonViTinhChuan"></span> <i class="fa fa-angle-down" aria-hidden="true"></i></button>
-                                                            <ul class="dropdown-menu" data-bind="foreach: DonViTinh">
-                                                                <li data-toggle="dropdown"><a href="javascript:void(0);" data-bind="text: TenDonViTinh, visible: TenDonViTinh!=DonViTinhChuan, click: $root.getChiTietHangHoaCungLoaiByID"></a></li>
+                                                        <span data-bind="if: (itemHH.DonViTinh.length == 1 && itemHH.DonViTinhChuan != '' && itemHH.DonViTinhChuan!= null)">
+                                                            <span data-bind="text: itemHH.DonViTinhChuan"></span>
+                                                        </span>
+                                                        <div class="dropdown proDropdown blue" data-bind="if: itemHH.DonViTinh.length != 1">
+                                                            <button type="button" data-toggle="dropdown" style="    background: white; border: none;outline: none;">
+                                                                <span data-bind="text:itemHH.DonViTinhChuan"></span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu" data-bind="foreach: itemHH.DonViTinh">
+                                                                <li data-toggle="dropdown">
+                                                                    <a href="javascript:void(0);"
+                                                                       data-bind="text: TenDonViTinh, visible: TenDonViTinh!=DonViTinhChuan, click: $root.getChiTietHangHoaCungLoaiByID"></a>
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                     </td>
@@ -890,7 +911,7 @@
                                                                                         </div>
                                                                                         <div class="form-group floatleft">
                                                                                             <label class="css-form-label">Định mức tồn:</label>
-                                                                                            <div class="css-form-detail">
+                                                                                            <div class="css-form-label">
                                                                                                 <span data-bind="text: formatNumber3Digit(TonToiThieu) + ' > '"></span>
                                                                                                 <span data-bind="text: formatNumber3Digit(TonToiDa)"></span>
                                                                                             </div>
@@ -912,9 +933,9 @@
                                                                                             </div>
                                                                                         </div>
                                                                                         <div class="form-group floatleft">
-                                                                                            <label class="css-form-label">Ghi chú đặt hàng:</label>
+                                                                                            <label class="css-form-label">Ghi chú:</label>
                                                                                             <div class="css-form-detail">
-                                                                                                <span data-bind="text:MaHangHoa"></span>
+                                                                                                <span data-bind="text:GhiChu"></span>
                                                                                             </div>
                                                                                         </div>
                                                                                         <div class="form-group floatleft">
@@ -1463,7 +1484,8 @@
                                                 </a>
                                             </div>
                                         </div>
-                                        <div class="op-object-detail js-thongtinkhicothanhphan" style="width:100%">
+                                        <!--/ko-->
+                                        <div class="op-object-detail js-thongtinkhicothanhphan" data-bind="visible: CountCungLoai == 1 || QuanLyTheoLoHang">
                                             <ul class="nav nav-tabs" style="width:100%;">
                                                 <li class="active" onclick="LoadGetHeight()"
                                                     data-bind="click: function(){$root.ChangeTab_HangHoa(0)}"><a data-toggle="tab" data-bind="attr:{href:'#home' + ID}">Thông tin</a></li>
@@ -2136,7 +2158,7 @@
                                     <td class="bg12 mahang bold" data-bind="attr: { colspan: 7 - $root.ColumnsExcel().filter(p=> p < 7).length }">Tổng cộng</td>
                                     <!--ko if: $root.ColumnsExcel().indexOf('7') < 0-->
                                     <td class="bg12  bold text-right">
-                                        <span data-bind="text: $root.TongTon"></span>
+                                        <span data-bind="text: formatNumber3Digit($root.TongTon())"></span>
                                     </td>
                                     <!--/ko-->
                                     <td class="bg12" data-bind="attr: { colspan: 2 - $root.ColumnsExcel().filter(p=> p > 7).length }"></td>
@@ -3139,6 +3161,8 @@
 @Html.Partial("~/Views/HangHoa/_vmApplyGroupProduct.cshtml")
 @Html.Partial("~/Views/Gara/QuanLySuaChua/_ThemMoiXe.cshtml")
 @Html.Partial("~/Views/HangHoa/vmThemNhomHang_NangCao.cshtml")
+@Html.Partial("~/Views/HangHoa/_vmDSHangHoa_thuocNhomHoTro.cshtml")
+@Html.Partial("~/Views/HangHoa/_vmChuyenNhomHang.cshtml")
 
 <script type="text/javascript">
     $("#treeviewnhomhang li").hover(function () {
@@ -3555,5 +3579,40 @@
         $('.modal-dialog').draggable({
             handle: ".modal-header"
         });
+    })
+</script>
+
+<script>
+    var filterNhomHoTro = new Vue({
+        el: '#filterNhomHoTro',
+        components: {
+            'treeview-nhomhang': cmpTreeView
+        },
+        created: function () {
+        },
+        data: {
+            listNhomHang: [],
+            arrIDChosed: [],
+        },
+        methods: {
+            ChoseItem: function (item) {
+                let self = this;
+                if (item === null) {
+                    self.arrIDChosed = [];
+                }
+                else {
+                    self.arrIDChosed = [item.id];
+                }
+                modelHangHoa.ResetCurrentPage();
+            },
+            EditItem: function (item) {
+                let self = this;
+                let obj = {
+                    ID: item.id,
+                    TenNhomHangHoa: item.text,
+                }
+                modelHangHoa.editNhomHangHoa(obj);
+            },
+        }
     })
 </script>
