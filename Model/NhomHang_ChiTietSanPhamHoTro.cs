@@ -30,7 +30,7 @@ namespace Model
         public Guid? Id_LoHang { get; set; }
 
         [Column(TypeName = "float")]
-        public double SoLuong { get; set; }
+        public double SoLuong { get; set; } = 0;
 
         [Column(TypeName = "int")]
         public int LaSanPhamNgayThuoc { get; set; } //0. False, 1. True
