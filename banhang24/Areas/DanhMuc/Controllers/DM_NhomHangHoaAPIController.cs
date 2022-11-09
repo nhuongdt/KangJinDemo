@@ -466,7 +466,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var apdungOld = db.NhomHang_KhoangApDung.Where(x => x.Id_NhomHang == idNhomHang);
                         db.NhomHang_KhoangApDung.RemoveRange(apdungOld);
 
-                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang && (x.LaSanPhamNgayThuoc == 1 || x.LaSanPhamNgayThuoc == 2));
+                        var spOld = db.NhomHang_ChiTietSanPhamHoTro.Where(x => x.Id_NhomHang == idNhomHang && (x.LaSanPhamNgayThuoc == 0 || x.LaSanPhamNgayThuoc == 1));
                         db.NhomHang_ChiTietSanPhamHoTro.RemoveRange(spOld);
 
                         foreach (var item in lstAD)
@@ -555,10 +555,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             arrID = data["arrIDQuiDoi"].ToObject<List<Guid>>();
                         }
 
-                        // get list sp exist by idChiNhanh
+                        // get list sp exist 
                         var arrEx = (from dt in db.NhomHang_ChiTietSanPhamHoTro
                                      join nhomDV in db.NhomHangHoa_DonVi on dt.Id_NhomHang equals nhomDV.ID_NhomHangHoa
-                                     where arrID.Contains(dt.Id_DonViQuiDoi) && dt.LaSanPhamNgayThuoc == 2 && nhomDV.ID_DonVi == idChiNhanh
+                                     where arrID.Contains(dt.Id_DonViQuiDoi) && dt.LaSanPhamNgayThuoc == 2
                                      select dt.Id).ToList();
 
                         // remove if exists
