@@ -4420,6 +4420,100 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult GetHangCungLoai_byID(Guid idCungLoai, Guid idChiNhanh)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
+                    List<DMHangHoaDTO> data = classDMHangHoa.GetHangCungLoai_byID(idCungLoai, idChiNhanh);
+                    return ActionTrueData(data);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
+        [HttpPost]
+        public IHttpActionResult LoadDanhMuchangHoa(ParamSearch_DMHangHoa param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
+                    classDonViQuiDoi _classDVQD = new classDonViQuiDoi(db);
+
+                    var whereColumn = classDMHangHoa.SearchColumn(param.ListSearchColumn, string.Empty, ref param);
+                    param.WhereSql = whereColumn;
+
+                    List<DMHangHoaDTO> data = classDMHangHoa.LoadDanhMucHangHoa(param);
+                    List<DMHangHoaDTO> lst = data.Select(x => new DMHangHoaDTO
+                    {
+                        ID = x.ID,
+                        ID_DonViQuiDoi = x.ID_DonViQuiDoi,
+                        ID_HangHoaCungLoai = x.ID_HangHoaCungLoai,
+                        LaChaCungLoai = x.LaChaCungLoai,
+                        CountCungLoai = x.CountCungLoai,
+                        MaHangHoa = x.MaHangHoa,
+                        TenHangHoa = x.TenHangHoa,
+                        LaHangHoa = x.LaHangHoa,
+                        LoaiHangHoa = x.LoaiHangHoa,
+                        TenDonViTinh = x.TenDonViTinh,
+                        DonViTinhChuan = x.DonViTinhChuan,
+                        ThuocTinhGiaTri = x.ThuocTinhGiaTri,
+                        NhomHangHoa = x.NhomHangHoa,
+                        ID_NhomHangHoa = x.ID_NhomHangHoa,
+                        GiaBan = x.GiaBan,
+                        GiaVon = x.GiaVon,
+                        TonKho = x.TonKho,
+                        TonToiDa = x.TonToiDa,
+                        TonToiThieu = x.TonToiThieu,
+                        DuocBanTrucTiep = x.DuocBanTrucTiep,
+                        TheoDoi = x.TheoDoi,
+                        TrangThai = x.TheoDoi,
+                        Xoa = x.Xoa,
+                        sLoaiHangHoa = x.sLoaiHangHoa,
+                        GhiChu = x.GhiChu,
+                        LoaiBaoDuong = x.LoaiBaoDuong,
+                        QuanLyBaoDuong = x.QuanLyBaoDuong,
+                        SoKmBaoHanh = x.SoKmBaoHanh,
+                        SoPhutThucHien = x.SoPhutThucHien,
+                        DichVuTheoGio = x.DichVuTheoGio,
+                        DuocTichDiem = x.DuocTichDiem,
+                        QuanLyTheoLoHang = x.QuanLyTheoLoHang,
+                        HoaHongTruocChietKhau = x.HoaHongTruocChietKhau,
+                        ID_Xe = x.ID_Xe,
+                        BienSo = x.BienSo,
+                        ChietKhauMD_NVTheoPT = x.ChietKhauMD_NVTheoPT,
+                        TenNhomHoTro = x.TenNhomHoTro,
+                        ChiPhiThucHien = x.ChiPhiThucHien,
+                        ChiPhiTinhTheoPT = x.ChiPhiTinhTheoPT,
+                        TotalRow = x.TotalRow,
+                        TotalPage = x.TotalPage,
+                        SumTonKho = x.SumTonKho,
+                        DonViTinh = _classDVQD.Gets(ct => ct.ID_HangHoa == x.ID && ct.Xoa != true).Select(o => new DonViTinh
+                        {
+                            ID_DonViQuiDoi = o.ID,
+                            ID_HangHoa = o.ID_HangHoa,
+                            TenDonViTinh = o.TenDonViTinh,
+                            DonViTinhChuan = x.TenDonViTinh,
+                            QuanLyTheoLoHang = x.QuanLyTheoLoHang
+                        }).ToList(),
+                    }).ToList();
+                    return ActionTrueData(lst);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
         [HttpPost]
         public IHttpActionResult SearchHangHoaForColumn(GridModel model)
         {
@@ -5332,9 +5426,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ct.LoaiHangHoa = dM_HangHoa.LoaiHangHoa == null ? dM_HangHoa.LaHangHoa == true ? 1 : 2 : dM_HangHoa.LoaiHangHoa;
                 ct.LoaiBaoDuong = dM_HangHoa.LoaiBaoDuong ?? 0;
                 ct.SoKmBaoHanh = dM_HangHoa.SoKmBaoHanh ?? 0;
-                ct.ID_Xe = dM_HangHoa.ID_Xe;  
+                ct.ID_Xe = dM_HangHoa.ID_Xe;
                 ct.ChietKhauMD_NV = dM_HangHoa.ChietKhauMD_NV ?? 0;
-                ct.ChietKhauMD_NVTheoPT = dM_HangHoa.ChietKhauMD_NVTheoPT??true;
+                ct.ChietKhauMD_NVTheoPT = dM_HangHoa.ChietKhauMD_NVTheoPT ?? true;
 
                 DonViQuiDoi dm_DVQD = dM_HangHoa.DonViQuiDois.Where(p => p.LaDonViChuan == true && p.Xoa != true).FirstOrDefault();
                 DM_GiaVon dmgv = db.DM_GiaVon.Where(p => p.ID_DonViQuiDoi == dm_DVQD.ID && p.ID_DonVi == iddonvi && p.ID_LoHang == null).FirstOrDefault();

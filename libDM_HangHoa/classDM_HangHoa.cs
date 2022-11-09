@@ -1834,6 +1834,40 @@ namespace libDM_HangHoa
             }
         }
 
+        public List<DMHangHoaDTO> GetHangCungLoai_byID(Guid idCungLoai, Guid idChiNhanh)
+        {
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("ID_HangCungLoai", idCungLoai));
+            lstParam.Add(new SqlParameter("IDChiNhanh", idChiNhanh));
+            return db.Database.SqlQuery<DMHangHoaDTO>("exec dbo.GetHangCungLoai_byID @ID_HangCungLoai, @IDChiNhanh", lstParam.ToArray()).ToList();
+        }
+
+        public List<DMHangHoaDTO> LoadDanhMucHangHoa(ParamSearch_DMHangHoa param)
+        {
+            string idChiNhanh = string.Empty, idThuocTinhs = string.Empty;
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
+            {
+                idChiNhanh = string.Join(",", param.IDChiNhanhs);
+            }
+            if (param.ListThuocTinh != null && param.ListThuocTinh.Count > 0)
+            {
+                idThuocTinhs = string.Join(",", param.ListThuocTinh);
+            }
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("IDChiNhanh", idChiNhanh));
+            lstParam.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("IDThuocTinhHangs", idThuocTinhs ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TrangThaiKho", param.TrangThaiKho ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("Where", param.WhereSql ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
+            lstParam.Add(new SqlParameter("PageSize", param.PageSize ?? 50));
+            lstParam.Add(new SqlParameter("ColumnSort", param.ColumnSort ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("SortBy", param.SortBy ?? (object)DBNull.Value));
+            return db.Database.SqlQuery<DMHangHoaDTO>("exec LoadDanhMucHangHoa @IDChiNhanh, @TextSearch, @IDThuocTinhHangs, " +
+                "@TrangThaiKho, @Where ,@CurrentPage, @PageSize," +
+                      "@ColumnSort, @SortBy", lstParam.ToArray()).ToList();
+        }
+
         public List<DM_HangHoaDTO> GetListHangHoas_WhereNew(int currentPage, int pageSize, string maHoaDon, int tonkho, int kinhdoanh,
          string loaihangs, string[] idnhomhang, Guid iddonvi, string listthuoctinh, string columsort, string sort, List<ColumSearch> listColumsearch, ref double tongton, ref int total, ref int pagecount)
         {
@@ -2065,6 +2099,127 @@ namespace libDM_HangHoa
                 return new List<DM_HangHoaDTO>();
             }
         }
+
+        public string SearchColumn(List<ColumSearch> lstColumn, string whereSql, ref ParamSearch_DMHangHoa listParam)
+        {
+            char[] whitespace = new char[] { ' ', '\t' };
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                if (lstColumn != null && lstColumn.Count > 0)
+                {
+
+                    classDM_DoiTuong classDoiTuong = new classDM_DoiTuong(db);
+
+                    foreach (var item in lstColumn)
+                    {
+                        if (item.Value != null)
+                        {
+                            var value = item.Value.ToString().Trim();
+                            string where = string.Empty;
+
+                            switch (item.Key)
+                            {
+                                case (int)GridHellper.ColumnHangHoa.mahanghoa:
+                                    where = string.Concat(" MaHangHoa like '%", value, "%'");
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.tenhanghoa:
+                                    where = string.Concat(" (TenHangHoa like N'%", value, "%' OR TenHangHoa_KhongDau like '%", CommonStatic.ConvertToUnSign(value), "%')");
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.nhomhang:
+                                    where = string.Concat(" ID_NhomHangHoa in (select name from dbo.splitstring('", value, "'))");
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.loaihang:
+                                    where = string.Concat(" LoaiHangHoa in (select name from dbo.splitstring('", value, "'))");
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.giaban:
+                                    var giaban = double.Parse(value.Replace(",", ""));
+                                    switch (item.type)
+                                    {
+                                        case (int)commonEnumHellper.KeyCompare.bang:
+                                            where = string.Concat(" GiaBan = ", giaban);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.lonhon:
+                                            where = string.Concat(" GiaBan > ", giaban);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                            where = string.Concat(" GiaBan >= ", giaban);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.nhohon:
+                                            where = string.Concat(" GiaBan < ", giaban);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                            where = string.Concat(" GiaBan <= ", giaban);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.giavon:
+                                    var giavon = double.Parse(value.Replace(",", ""));
+                                    switch (item.type)
+                                    {
+                                        case (int)commonEnumHellper.KeyCompare.bang:
+                                            where = string.Concat(" GiaVon = ", giavon);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.lonhon:
+                                            where = string.Concat(" GiaVon > ", giavon);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                            where = string.Concat(" GiaVon >= ", giavon);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.nhohon:
+                                            where = string.Concat(" GiaVon < ", giavon);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                            where = string.Concat(" GiaVon <= ", giavon);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.tonkho:
+                                    var tonkho = double.Parse(value.Replace(",", ""));
+                                    switch (item.type)
+                                    {
+                                        case (int)commonEnumHellper.KeyCompare.bang:
+                                            where = string.Concat(" TonKho = ", tonkho);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.lonhon:
+                                            where = string.Concat(" TonKho > ", tonkho);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                            where = string.Concat(" TonKho >= ", tonkho);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.nhohon:
+                                            where = string.Concat(" TonKho < ", tonkho);
+                                            break;
+                                        case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                            where = string.Concat(" TonKho <= ", tonkho);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.trangthaiXoa:
+                                    where = string.Concat(" TrangThaiHang = ", value);
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.trangthai:
+                                    where = string.Concat(" TrangThaiKinhDoanh = ", value);
+                                    break;
+                                case (int)GridHellper.ColumnHangHoa.nhomhotro:// chỉ lấy SP thuộc nhóm hỗ trợ (không lấy SP được hỗ trợ)
+                                    where = string.Concat(" ID_NhomHoTro in (select name from dbo.splitstring('", value, "'))");
+                                    break;
+                            }
+
+                            whereSql = classDoiTuong.GetStringWhere(whereSql, where);
+                        }
+                    }
+                }
+            }
+            return whereSql;
+        }
+
 
         public List<DM_HangHoaDTO> searchColumn(List<ColumSearch> listColumsearch, List<DM_HangHoaDTO> model)
         {
