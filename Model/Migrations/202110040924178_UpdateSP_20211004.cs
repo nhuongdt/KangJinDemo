@@ -3351,42 +3351,6 @@ as (
 		FETCH NEXT @PageSize ROWS ONLY
 END");
 
-			Sql(@"ALTER PROCEDURE [dbo].[UpdateIDKhachHang_inSoQuy]
-    @ID_HoaDonLienQuan [uniqueidentifier]
-AS
-BEGIN
-    declare @ID_DonVi UNIQUEIDENTIFIER, @ID_NhanVien  UNIQUEIDENTIFIER, @MaHoaDon nvarchar(max), @MaPhieuThus nvarchar(max)
-	select @ID_NhanVien = ID_NhanVien, @ID_DonVi = ID_DonVi ,@MaHoaDon = MaHoaDon
-	from BH_HoaDon where id= @ID_HoaDonLienQuan
-
-	declare @sDetail nvarchar(max) =concat(N'Cập nhật hóa đơn ', @MaHoaDon , N': hủy phiếu thu ', @MaPhieuThus , N' của khách hàng cũ')
-
-	----- get list quyhoadon old	
-		select @MaPhieuThus =
-		(
-		select distinct qhd.MaHoaDon + ', '  as  [text()]
-			from Quy_HoaDon_ChiTiet qct
-			join Quy_HoaDon qhd on qct.ID_HoaDon = qhd.ID
-			where qct.ID_HoaDonLienQuan= @ID_HoaDonLienQuan
-			and qhd.TrangThai = 1
-			for xml path ('')
-		) 
-	
-		--- update satatus = 0 (huy) if change customer of hoadon
-		update qhd set qhd.TrangThai=0, qhd.NoiDungThu = CONCAT(qhd.NoiDungThu, ' ', @sDetail)
-		from Quy_HoaDon qhd
-		where exists (
-		select qct.ID from Quy_HoaDon_ChiTiet qct where qct.ID_HoaDonLienQuan= @ID_HoaDonLienQuan and qhd.ID= qct.ID_HoaDon
-		)
-
-		insert into HT_NhatKySuDung(ID, ID_DonVi, ID_NhanVien, LoaiNhatKy, ChucNang, NoiDung, NoiDungChiTiet, ThoiGian)
-		values (NEWID(), @ID_DonVi, @ID_NhanVien, 2, N'Cập nhật hóa đơn - thay đổi khách hàng ', 
-		concat(N'Cập nhật hóa đơn ', @MaHoaDon , N' thay đổi khách hàng'),
-		concat(N'Cập nhật hóa đơn ', @MaHoaDon , N': hủy phiếu thu ', @MaPhieuThus , N' của khách hàng cũ'),
-		GETDATE())
-		
-END");
-
 			DropStoredProcedure("[dbo].[BCBanHang_GetGiaVonHDSC]");
 			DropStoredProcedure("[dbo].[GetList_ServicePackages_ByMaGoi]");
 			DropStoredProcedure("[dbo].[SP_GetInfor_TPDinhLuong]");
