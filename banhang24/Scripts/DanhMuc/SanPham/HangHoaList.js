@@ -231,6 +231,7 @@ var ViewModel = function () {
     self.deleteID = ko.observable();
     self.deleteTenNhomHang = ko.observable();
     self.selectedNHomHHSua = ko.observable();
+    self.header_filterNhomHang = ko.observable();
     self.number_GioiHanSoMatHang = ko.observable();
     self.CheckLocNhomHangCap3 = ko.observable(false);
     self.ID_NganhKinhDoanh = ko.observable($('#nganhkinhdoanh').val());
@@ -3803,15 +3804,13 @@ var ViewModel = function () {
 
     self.getChiTietHangHoaCungLoaiByID = function (item) {
         ajaxHelper("/api/DanhMuc/DM_HangHoaAPI/" + "GetHangHoa_ByIDQuyDoiDVT?id=" + item.ID_DonViQuiDoi + '&iddonvi=' + _IDchinhanh, 'GET').done(function (data) {
-            for (var i = 0; i < self.HangHoaCungLoai().length; i++) {
-                for (var j = 0; j < self.HangHoaCungLoai()[i].DonViTinh.length; j++) {
-                    if (data.ID_DonViQuiDoi === self.HangHoaCungLoai()[i].DonViTinh[j].ID_DonViQuiDoi) {
-                        self.HangHoaCungLoai.replace(self.HangHoaCungLoai()[i], data);
-                    }
-                    if ($.inArray(data.ID_DonViQuiDoi, arrIDHang) > -1) {
-                        $('#cungl' + data.ID_HangHoaCungLoai).find('#' + data.ID_DonViQuiDoi).prop('checked', true);
-                    }
+            for (let i = 0; i < self.HangHoaCungLoai().length; i++) {
+                for (let j = 0; j < data.DonViTinh.length; j++) {
+                    let dvt = data.DonViTinh[j];
+                    if (self.HangHoaCungLoai()[i].ID_DonViQuiDoi == dvt.ID_DonViQuiDoi) {
 
+                        break;
+                    }
                 }
             }
         })
@@ -11215,6 +11214,15 @@ var ViewModel = function () {
             arrLoaiHang = [1, 2, 3];
         }
 
+        let filterLoai = $.grep(self.ListFilterColumn(), function (x) {
+            return x.Key === 3 && x.Value != null;
+        });
+        if (filterLoai.length > 0) {
+            arrLoaiHang = filterLoai.map(function (x) {
+                return x.Value;
+            })
+        }
+
         var tonkho = 0;
         switch (parseInt(self.Loc_TonKho())) {
             case 1:// tonkho > 0
@@ -11239,9 +11247,15 @@ var ViewModel = function () {
 
         // nhomhanghoa (key = 2)     
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 2));
-        if (self.arrIDNhomHang().length > 0) {
-            self.ListFilterColumn.push({ Key: 2, Value: self.arrIDNhomHang().toString(), type: 0 })
+        if (!commonStatisJs.CheckNull(self.header_filterNhomHang())) {
+            self.ListFilterColumn.push({ Key: 2, Value: self.header_filterNhomHang(), type: 0 })
         }
+        else {
+            if (self.arrIDNhomHang().length > 0) {
+                self.ListFilterColumn.push({ Key: 2, Value: self.arrIDNhomHang().toString(), type: 0 })
+            }
+        }
+        
         // nhomHoTro (key = 9)
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 9));
         if (!commonStatisJs.CheckNull(filterNhomHoTro.arrIDChosed)) {
@@ -11254,16 +11268,33 @@ var ViewModel = function () {
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 3));
         self.ListFilterColumn.push({ Key: 3, Value: arrLoaiHang.toString(), type: 0 })
 
-        // trangthaikinhdoanh (key = 7)     
+        // trangthaikinhdoanh (key = 7)   
+        let filterKD = $.grep(self.ListFilterColumn(), function (x) {
+            return x.Key === 7 && $.inArray(x.Value, ['true', 'false']) > -1;
+        });
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 7));
-        switch (parseInt(self.Loc_TinhTrangKD())) {
-            case 1:
-                self.ListFilterColumn.push({ Key: 7, Value: 1, type: 0 })
-                break;
-            case 2:
-                self.ListFilterColumn.push({ Key: 7, Value: 2, type: 0 })
-                break;
+
+        if (filterKD.length === 0) {
+            switch (parseInt(self.Loc_TinhTrangKD())) {
+                case 1:
+                    self.ListFilterColumn.push({ Key: 7, Value: 1, type: 0 })
+                    break;
+                case 2:
+                    self.ListFilterColumn.push({ Key: 7, Value: 2, type: 0 })
+                    break;
+            }
         }
+        else {
+            for (let i = 0; i < filterKD.length; i++) {
+                if (filterKD[i].Value === 'true') {
+                    self.ListFilterColumn.push({ Key: 7, Value: 1, type: 0 })
+                }
+                if (filterKD[i].Value === 'false') {
+                    self.ListFilterColumn.push({ Key: 7, Value: 2, type: 0 })
+                }
+            }
+        }
+
 
         // trangthaixoa (key = 8)     
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 8));
@@ -11277,6 +11308,7 @@ var ViewModel = function () {
         }
 
         let arrFilter = self.ListFilterColumn().filter(x => x.Value != null);
+
         let colSort = self.columsort();
         if (commonStatisJs.CheckNull(colSort)) {
             colSort = 'NgayTao'
@@ -11364,10 +11396,12 @@ var ViewModel = function () {
         }
         $('.tr-show').toggle();
     });
+
+    self.header_filterNhomHang.subscribe(function () {
+        SearchColumnHangHoa();
+    })
     function ResetSearchColumn() {
-        for (var i = 0; i < self.ListFilterColumn().length; i++) {
-            self.ListFilterColumn()[i].Value = '';
-        }
+        self.ListFilterColumn([]);
         $('.search-grid').each(function () {
             $(this).val('');
         });
@@ -11559,11 +11593,11 @@ var ViewModel = function () {
     $('#myTable thead tr').on('click', 'th', function () {
         var id = $(this).attr('id');
         if (id === "txtMaHang") {
-            self.columsort("MaHang");
+            self.columsort("MaHangHoa");
             SortGrid(id);
         }
         if (id === "txttenhang") {
-            self.columsort("TenHang");
+            self.columsort("TenHangHoa");
             SortGrid(id);
         }
         if (id === "txtnhomhang") {
@@ -11652,7 +11686,7 @@ var ViewModel = function () {
 
     // xuất danh mục hàng hóa
     self.ExportDMHHtoExcel = function () {
-        let param = GetParamSearch();
+        let param = GetParamSearch1();
         let columnHide = null;
         for (let i = 0; i < self.ColumnsExcel().length; i++) {
             if (i == 0) {
@@ -11662,10 +11696,10 @@ var ViewModel = function () {
                 columnHide = self.ColumnsExcel()[i] + "_" + columnHide;
             }
         }
-        param.ColumnHides = columnHide;
-        param.pageSize = self.TotalRecord();
+        param.ColumnHide = columnHide;
+        param.PageSize = self.TotalRecord();
 
-        ajaxHelper(DMHangHoaUri + 'ExportExel_DMHH', 'POST', param).done(function (x) {
+        ajaxHelper(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param).done(function (x) {
             $('.content-table').gridLoader({ show: false });
             console.log('x ', x)
             if (x.res) {
@@ -11674,9 +11708,9 @@ var ViewModel = function () {
                 let objDiary = {
                     ID_NhanVien: _IDNhanVien,
                     ID_DonVi: _IDchinhanh,
-                    ChucNang: "Danh Mục Hàng hóa",
-                    NoiDung: "Xuất báo cáo danh sách hàng hóa",
-                    NoiDungChiTiet: "Xuất báo cáo danh sách hàng hóa",
+                    ChucNang: "Danh mục hàng hóa",
+                    NoiDung: "Xuất file danh mục hàng hóa",
+                    NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat('Người xuất: ', VHeader.UserLogin),
                     LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
                 };
                 Insert_NhatKyThaoTac_1Param(objDiary);

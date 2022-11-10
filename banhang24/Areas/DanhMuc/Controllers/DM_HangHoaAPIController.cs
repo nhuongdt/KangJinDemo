@@ -4187,6 +4187,57 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return pageDTO;
             }
         }
+
+        [HttpPost]
+        public IHttpActionResult ExportExcel_DanhMucHangHoa(ParamSearch_DMHangHoa param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
+                    Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+
+                    var whereColumn = classDMHangHoa.SearchColumn(param.ListSearchColumn, string.Empty, ref param);
+                    param.WhereSql = whereColumn;
+
+                    List<DMHangHoaDTO> data = classDMHangHoa.LoadDanhMucHangHoa(param);
+                    List<DM_HangHoa_Excel> lst = data.Select(x => new DM_HangHoa_Excel
+                    {
+                        MaHangHoa = x.MaHangHoa,
+                        TenHangHoa = x.TenHangHoa,
+                        TenDonViTinh = x.TenDonViTinh,
+                        NhomHangHoa = x.NhomHangHoa,
+                        LoaiHangHoa = x.sLoaiHangHoa,
+                        GiaBan = x.GiaBan,
+                        GiaVon = x.GiaVon,
+                        TonKho = x.TonKho,
+                        GhiChu = x.GhiChu,
+                        TrangThai = x.TrangThai ?? true ? "Đang kinh doanh" : "Ngừng kinh doanh",
+                    }).ToList();
+
+                    DataTable excel = _classOFDCM.ToDataTable<DM_HangHoa_Excel>(lst);
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucHangHoa.xlsx");
+                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhMucHangHoa.xlsx");
+                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    string colHides = string.Empty;
+                    if (param.ColumnHide!=null && param.ColumnHide.Count> 0)
+                    {
+                        colHides = string.Join("_", param.ColumnHide);
+                    }
+                    _classOFDCM.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, colHides);
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                    return ActionTrueData(fileSave);
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult ExportExel_DMHH(GridModel model)
         {

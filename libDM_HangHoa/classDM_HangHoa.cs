@@ -2133,72 +2133,81 @@ namespace libDM_HangHoa
                                     where = string.Concat(" LoaiHangHoa in (select name from dbo.splitstring('", value, "'))");
                                     break;
                                 case (int)GridHellper.ColumnHangHoa.giaban:
-                                    var giaban = double.Parse(value.Replace(",", ""));
-                                    switch (item.type)
+                                    if (!string.IsNullOrEmpty(value))
                                     {
-                                        case (int)commonEnumHellper.KeyCompare.bang:
-                                            where = string.Concat(" GiaBan = ", giaban);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.lonhon:
-                                            where = string.Concat(" GiaBan > ", giaban);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                            where = string.Concat(" GiaBan >= ", giaban);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.nhohon:
-                                            where = string.Concat(" GiaBan < ", giaban);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                            where = string.Concat(" GiaBan <= ", giaban);
-                                            break;
-                                        default:
-                                            break;
+                                        var giaban = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" GiaBan = ", giaban);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" GiaBan > ", giaban);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" GiaBan >= ", giaban);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" GiaBan < ", giaban);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" GiaBan <= ", giaban);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                     }
                                     break;
                                 case (int)GridHellper.ColumnHangHoa.giavon:
-                                    var giavon = double.Parse(value.Replace(",", ""));
-                                    switch (item.type)
+                                    if (!string.IsNullOrEmpty(value))
                                     {
-                                        case (int)commonEnumHellper.KeyCompare.bang:
-                                            where = string.Concat(" GiaVon = ", giavon);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.lonhon:
-                                            where = string.Concat(" GiaVon > ", giavon);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                            where = string.Concat(" GiaVon >= ", giavon);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.nhohon:
-                                            where = string.Concat(" GiaVon < ", giavon);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                            where = string.Concat(" GiaVon <= ", giavon);
-                                            break;
-                                        default:
-                                            break;
+                                        var giavon = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" GiaVon = ", giavon);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" GiaVon > ", giavon);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" GiaVon >= ", giavon);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" GiaVon < ", giavon);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" GiaVon <= ", giavon);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                     }
                                     break;
                                 case (int)GridHellper.ColumnHangHoa.tonkho:
-                                    var tonkho = double.Parse(value.Replace(",", ""));
-                                    switch (item.type)
+                                    if (!string.IsNullOrEmpty(value))
                                     {
-                                        case (int)commonEnumHellper.KeyCompare.bang:
-                                            where = string.Concat(" TonKho = ", tonkho);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.lonhon:
-                                            where = string.Concat(" TonKho > ", tonkho);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
-                                            where = string.Concat(" TonKho >= ", tonkho);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.nhohon:
-                                            where = string.Concat(" TonKho < ", tonkho);
-                                            break;
-                                        case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
-                                            where = string.Concat(" TonKho <= ", tonkho);
-                                            break;
-                                        default:
-                                            break;
+                                        var tonkho = double.Parse(value.Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" TonKho = ", tonkho);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" TonKho > ", tonkho);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" TonKho >= ", tonkho);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" TonKho < ", tonkho);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" TonKho <= ", tonkho);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                     }
                                     break;
                                 case (int)GridHellper.ColumnHangHoa.trangthaiXoa:
@@ -2208,11 +2217,13 @@ namespace libDM_HangHoa
                                     where = string.Concat(" TrangThaiKinhDoanh = ", value);
                                     break;
                                 case (int)GridHellper.ColumnHangHoa.nhomhotro:// chỉ lấy SP thuộc nhóm hỗ trợ (không lấy SP được hỗ trợ)
-                                    where = string.Concat(" ID_NhomHoTro in (select name from dbo.splitstring('", value, "'))");
+                                    where = string.Concat(" exists (select name from  dbo.splitstring('", value, "') where ID_NhomHoTro = name)");
                                     break;
                             }
-
-                            whereSql = classDoiTuong.GetStringWhere(whereSql, where);
+                            if (!string.IsNullOrEmpty(where))
+                            {
+                                whereSql = classDoiTuong.GetStringWhere(whereSql, where);
+                            }
                         }
                     }
                 }
