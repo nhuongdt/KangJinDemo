@@ -166,7 +166,6 @@ namespace libDM_NhomHangHoa
                     DM_NhomHangHoa objUpd = db.DM_NhomHangHoa.Find(objNew.ID);
                     if (objUpd != null)
                     {
-                        #region update
                         objUpd.GhiChu = objNew.GhiChu;
                         objUpd.HienThi_BanThe = objNew.HienThi_BanThe;
                         objUpd.HienThi_Chinh = objNew.HienThi_Chinh;
@@ -174,7 +173,6 @@ namespace libDM_NhomHangHoa
                         objUpd.ID_Kho = objNew.ID_Kho;
                         objUpd.ID_Parent = objNew.ID_Parent;
                         objUpd.LaNhomHangHoa = objNew.LaNhomHangHoa;
-                        //objUpd.MaNhomHangHoa = objNew.MaNhomHangHoa;
                         objUpd.MauHienThi = objNew.MauHienThi;
                         objUpd.MayIn = objNew.MayIn;
                         objUpd.TenNhomHangHoa = objNew.TenNhomHangHoa;
@@ -183,10 +181,7 @@ namespace libDM_NhomHangHoa
                         objUpd.NgaySua = objNew.NgaySua;
                         objUpd.NguoiSua = objNew.NguoiSua;
                         objUpd.TrangThai = objNew.TrangThai;
-                        //
                         db.Entry(objUpd).State = EntityState.Modified;
-                        #endregion
-
                       
                         #region NhomHangHoa_DonVi
                         if (objNew.NhomHangHoa_DonVi != null && objNew.NhomHangHoa_DonVi.Count > 0)
@@ -209,7 +204,6 @@ namespace libDM_NhomHangHoa
                                     if (objUpd_DVi != null)
                                     {
                                         objUpd_DVi.ID_DonVi = orderDetail.ID_DonVi;
-                                        //
                                         db.Entry(objUpd_DVi).State = EntityState.Modified;
                                     }
                                     else
@@ -218,7 +212,6 @@ namespace libDM_NhomHangHoa
                                         objUpd_DVi.ID = Guid.NewGuid();
                                         objUpd_DVi.ID_DonVi = orderDetail.ID_DonVi;
                                         objUpd_DVi.ID_NhomHangHoa = objUpd.ID;
-                                        //
                                         db.Entry(orderDetail).State = EntityState.Added;
                                     }
                                 }
