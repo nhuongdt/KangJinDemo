@@ -608,7 +608,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        [System.Web.Http.HttpDelete]
+        [System.Web.Http.HttpDelete, HttpGet]
         [ResponseType(typeof(string))]
         public string DeleteDM_NhomHangHoa1(Guid id)
         {
