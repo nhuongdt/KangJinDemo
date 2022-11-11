@@ -51,7 +51,7 @@
                         <label>Tên nhóm {{sLoai}}<span class="red">(*)</span></label>
                     </div>
                     <div class="col-sm-6 col-lg-6 col-sm-6 col-xs-12">
-                        <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa"autofocus autocomplete="off"/>
+                        <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa" autofocus autocomplete="off" />
                     </div>
                     <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-13" v-if="typeUpdate===2 && newNhomHang.ThietLapNangCao">
                         <a style="text-decoration:underline"
@@ -325,6 +325,11 @@
                 <div class="container-fluid">
                     <button type="button" class="btn btn-cancel" data-dismiss="modal">
                         <i class="fal fa-ban"></i>Bỏ qua
+                    </button>
+                    <button type="button" class="btn btn-delete" data-dismiss="modal"
+                            v-if="typeUpdate==2"
+                            v-on:click="XoaNhomHang">
+                        <i class="fal fa-trash"></i> Xóa
                     </button>
                     <button type="button" class="btn btn-main" v-if="!isLoading" v-on:click="saveNhomHang">
                         <i class="fa fa-save"></i> {{typeUpdate==1?'Lưu':'Cập nhật'}}
@@ -870,6 +875,34 @@
                     ListProduct: lstSP,
                 }
             },
+            XoaNhomHang: function () {
+                let self = this;
+                dialogConfirm('Thông báo xóa', 'Bạn có chắc chắn muốn xóa nhóm '.concat(self.sLoai, ' <b> ', self.newNhomHang.TenNhomHangHoa, ' </b> không? '), function () {
+                    $.getJSON(self.urlAPI + 'DeleteDM_NhomHangHoa1/' + self.newNhomHang.ID).done(function () {
+                        self.saveOK = true;
+                        ShowMessage_Success('Xóa nhóm ' + self.sLoai + ' thành công');
+                        let diary = {
+                            LoaiNhatKy: 3,
+                            ID_DonVi: self.ID_DonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            ChucNang: 'Xóa nhóm ' + self.sLoai,
+                            NoiDung: 'Xóa nhóm '.concat(self.sLoai, ' <b> ', self.newNhomHang.TenNhomHangHoa, ' </b>'),
+                            NoiDungChiTiet: 'Thêm nhóm '.concat(self.sLoai,
+                                '<br /> <b> Thông tin chi tiết: </b> ',
+                                '<br /> Tên nhóm: ', self.newNhomHang.TenNhomHangHoa,
+                                '<br /> Là nhóm hàng hóa: ' + self.newNhomHang.LaNhomHangHoa,
+                                '<br /> Người xóa: ', VHeader.UserLogin),
+                        };
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }).fail(function () {
+                        self.saveOK = false;
+                        ShowMessage_Danger('Xóa nhóm ' + self.sLoai + ' thất bại');
+                       
+                    }).always(function () {
+                        $('#vmThemNhomHang_NangCao').modal('hide');
+                    })
+                });
+            },
             saveNhomHang: function () {
                 let self = this;
                 if (commonStatisJs.CheckNull(self.newNhomHang.TenNhomHangHoa)) {
@@ -960,7 +993,7 @@
                                 }
                             })
                         }
-                       
+
                     }).always(function () {
                         self.isLoading = false;
                         $('#vmThemNhomHang_NangCao').modal('hide');
