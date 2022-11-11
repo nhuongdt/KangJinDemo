@@ -1,9 +1,7 @@
 ﻿var ViewModal = function () {
     var self = this;
-    //var _rdTime = 1;
     var tab_TonKho = 1;
     var ReportUri = '/api/DanhMuc/ReportAPI/';
-    //var BH_HoaDonUri = '/api/DanhMuc/BH_HoaDonAPI/';
     var DiaryUri = '/api/DanhMuc/SaveDiary/';
     var _IDDoiTuong = $('.idnguoidung').text();
     var _id_DonVi = $('#hd_IDdDonVi').val();
@@ -59,10 +57,13 @@
     self.pageNumber_XDVDL = ko.observable(1);
     self.LoaiSP_HH = ko.observable(true);
     self.LoaiSP_DV = ko.observable(true);
+
     $('.ip_TimeReport').val("Hôm nay");
     self.Loc_TinhTrangKD = ko.observable('2');
     self.Loc_TrangThai = ko.observable('1');
     self.Loc_TonKho = ko.observable('0');
+
+    self.BaoCaoNhomHoTro = ko.observableArray();
 
     var tk = null;
     // TuanDL Cache Show Hide Column Grid
@@ -127,6 +128,14 @@
                 if ($(this).hasClass('active'))
                     self.columnCheckType($(this).data('id'));
             });
+        }
+        else {
+            if (type == 7) {
+                $('#home .tab-content .tab-pane').each(function (i) {
+                    if ($(this).hasClass('active'))
+                        self.columnCheckType($(this).data('id'));
+                });
+            }
         }
         GetListCheckBox();
     }
@@ -793,6 +802,7 @@
             self.SelectedChungTu(self.ChungTus()[0]);
         }
     });
+
     //nhóm hàng
     function GetAllNhomHH() {
         ajaxHelper(ReportUri + "GetListID_NhomHangHoa?TenNhomHang=" + tk, 'GET').done(function (data) {
@@ -829,11 +839,7 @@
                     self.NhomHangHoas.push(objParent);
                 }
             }
-            //var objParentMD = {
-            //    ID: '00000000-0000-0000-0000-000000000000',
-            //    TenNhomHangHoa: 'Nhóm mặc định',
-            //    Childs: [],
-            //}
+
             //self.NhomHangHoas.unshift(objParentMD);
             if (self.NhomHangHoas().length > 10) {
                 $('.close-goods').css('display', 'block');
@@ -943,6 +949,8 @@
         $(".showChungTu").hide();
         $('#btnExport').show();
         $('#select-column').show();
+        _pageNumber = 1;
+        Assign_Page();
 
         if ($(this).data('id') === 1) {
             self.shouldTonKho(true);
@@ -1032,292 +1040,133 @@
                 self.MoiQuanTam('Báo cáo tổng hợp hàng xuất kho');
                 self.getListDM_LoaiChungTuXuatKho("1,7,8,9,10");
                 break;
+            case 7:
+                $("#txt_search").attr("placeholder", "Theo mã, tên khách hàng").blur();
+                self.LoaiBaoCao('Xuất code');
+                self.MoiQuanTam('Báo cáo xuất code');
+                break;
         }
 
         if (valNew === valOld) {
             return;
         }
-        loadCheckbox($(this).data('id'));
+        loadCheckbox($(this).data('id'), valNew !== 7);
         self.LoadReport();
     });
 
+    function ChangeTypeDate_SetFromTo(_rdoNgayPage) {
+        var _now = new Date();
+        switch (parseInt(_rdoNgayPage)) {
+            case 13:
+                // all
+                _timeStart = '2016-01-01';
+                _timeEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Ngày nhập: Toàn thời gian');
+                break;
+            case 1:
+                // hom nay
+                _timeStart = moment(_now).format('YYYY-MM-DD');
+                _timeEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Ngày nhập: ' + moment(_now).format('DD/MM/YYYY'));
+                break;
+            case 2:
+                // hom qua : _timeEnd must set infont of _timeStart
+                _timeEnd = moment(_now).format('YYYY-MM-DD');
+                _timeStart = moment(_now).subtract('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Ngày nhập: ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                break;
+            case 3:
+                // tuan nay (start: monday, end: sunday)
+                _timeStart = moment().startOf('week').add('days', 1).format('YYYY-MM-DD');
+                _timeEnd = moment().endOf('week').add('days', 2).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 4:
+                // tuan truoc (OK)
+                _timeStart = moment().startOf('week').subtract('days', 6).format('YYYY-MM-DD');
+                _timeEnd = moment().startOf('week').add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 6:
+                // thang nay
+                _timeStart = moment().startOf('month').format('YYYY-MM-DD');
+                _timeEnd = moment().endOf('month').add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 7:
+                // thang truoc
+                _timeStart = moment().subtract('months', 1).startOf('month').format('YYYY-MM-DD');
+                _timeEnd = moment().subtract('months', 1).endOf('month').add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 9:
+                // quy nay
+                _timeStart = moment().startOf('quarter').format('YYYY-MM-DD');
+                _timeEnd = moment().endOf('quarter').add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 10:// uy truoc
+                var prevQuarter = moment().quarter() - 1;
+                if (prevQuarter === 0) {
+                    // get quy 4 cua nam truoc 01/10/... -->  31/21/...
+                    let prevYear = moment().year() - 1;
+                    _timeStart = prevYear + '-' + '10-01';
+                    _timeEnd = moment().year() + '-' + '01-01';
+                }
+                else {
+                    _timeStart = moment().quarter(prevQuarter).startOf('quarter').format('YYYY-MM-DD');
+                    _timeEnd = moment().quarter(prevQuarter).endOf('quarter').add(1, 'days').format('YYYY-MM-DD');
+                }
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 11:
+                // nam nay
+                _timeStart = moment().startOf('year').format('YYYY-MM-DD');
+                _timeEnd = moment().endOf('year').add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+            case 12:
+                // nam truoc
+                var prevYear = moment().year() - 1;
+                _timeStart = moment().year(prevYear).startOf('year').format('YYYY-MM-DD');
+                _timeEnd = moment().year(prevYear).endOf('year').add('days', 1).format('YYYY-MM-DD');
+                self.TodayBC('Từ ngày ' + moment(_timeStart, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    + ' Đến ngày ' + moment(_timeEnd).add('days', -1).format('DD/MM/YYYY'));
+                break;
+        }
+    }
+
     $('.choose_txtTime li').on('click', function () {
         var _rdoNgayPage = $(this).val();
-        var datime = new Date();
-        var datimeBC = new Date();
-        //Toàn thời gian
-        if (_rdoNgayPage === 13) {
-            _timeStart = '2015-09-26';
-            _timeEnd = moment(new Date(datime.setDate(datime.getDate() + 1))).format('YYYY-MM-DD');
-            self.TodayBC('Ngày nhập: Toàn thời gian');
-        }
-        //Hôm nay
-        else if (_rdoNgayPage === 1) {
-            _timeStart = datime.getFullYear() + "-" + (datime.getMonth() + 1) + "-" + datime.getDate();
-            _timeEnd = moment(new Date(datime.setDate(datime.getDate() + 1))).format('YYYY-MM-DD');
-            self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
-        }
-        //Hôm qua
-        else if (_rdoNgayPage === 2) {
-            var dt1 = new Date();
-            var dt2 = new Date();
-            _timeStart = moment(new Date(dt1.setDate(dt1.getDate() - 1))).format('YYYY-MM-DD');
-            _timeEnd = dt2.getFullYear() + "-" + (dt2.getMonth() + 1) + "-" + dt2.getDate();
-            self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
-        }
-        //Tuần này
-        else if (_rdoNgayPage === 3) {
-            var currentWeekDay = datime.getDay();
-            var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
-            _timeStart = moment(new Date(datime.setDate(datime.getDate() - lessDays))).format('YYYY-MM-DD'); // start of wwek
-            let _timeBC = moment(new Date(datimeBC.setDate(datimeBC.getDate() + 6))).format('YYYY-MM-DD');
-            _timeEnd = moment(new Date(datime.setDate(datime.getDate() + 7))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
 
-        }
-        //Tuần trước
-        else if (_rdoNgayPage === 4) {
-            _timeEnd = moment(new Date(datime.setDate(datime.getDate() - datime.getDay() + 1))).format('YYYY-MM-DD');
-            let _timeBC = moment(new Date(datimeBC.setDate(datimeBC.getDate() - datimeBC.getDay()))).format('YYYY-MM-DD');
-            _timeStart = moment(new Date(datime.setDate(datime.getDate() - datime.getDay() - 6))).format('YYYY-MM-DD');
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //7 ngày qua
-        else if (_rdoNgayPage === 5) {
-            _timeStart = moment(new Date(datime.setDate(datime.getDate() - 6))).format('YYYY-MM-DD');
-            let newtime = new Date();
-            let _timeBC = moment(new Date(datimeBC.setDate(datimeBC.getDate()))).format('YYYY-MM-DD');
-            _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //Tháng này
-        else if (_rdoNgayPage === 6) {
-            _timeStart = moment(new Date(datime.getFullYear(), datime.getMonth(), 1)).format('YYYY-MM-DD');
-            _timeEnd = moment(new Date(datime.getFullYear(), datime.getMonth() + 1, 1)).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //Tháng trước
-        else if (_rdoNgayPage === 7) {
-            _timeStart = moment(new Date(datime.getFullYear(), datime.getMonth() - 1, 1)).format('YYYY-MM-DD');
-            _timeEnd = moment(new Date(datime.getFullYear(), datime.getMonth(), 1)).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //30 ngày qua
-        else if (_rdoNgayPage === 8) {
-            _timeStart = moment(new Date(datime.setDate(datime.getDate() - 29))).format('YYYY-MM-DD');
-            let newtime = new Date();
-            _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //Quý này
-        else if (_rdoNgayPage === 9) {
-            _timeStart = moment().startOf('quarter').format('YYYY-MM-DD');
-            let newtime = new Date(moment().endOf('quarter'));
-            _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        // Quý trước
-        else if (_rdoNgayPage === 10) {
-            var prevQuarter = moment().quarter() - 1 === 0 ? 1 : moment().quarter() - 1;
-            _timeStart = moment().quarter(prevQuarter).startOf('quarter').format('YYYY-MM-DD');
-            let newtime = new Date(moment().quarter(prevQuarter).endOf('quarter'));
-            _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //Năm này
-        else if (_rdoNgayPage === 11) {
-            _timeStart = moment().startOf('year').format('YYYY-MM-DD');
-            let newtime = new Date(moment().endOf('year'));
-            _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
-        //năm trước
-        else if (_rdoNgayPage === 12) {
-            var prevYear = moment().year() - 1;
-            _timeStart = moment().year(prevYear).startOf('year').format('YYYY-MM-DD');
-            let newtime = new Date(moment().year(prevYear).endOf('year'));
-            _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-            let dtBC = new Date(_timeEnd);
-            let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-        }
+        ChangeTypeDate_SetFromTo(_rdoNgayPage);
+
         _pageNumber = 1;
-
         self.LoadReport();
     });
     $('.newDateTime').on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
-        var dt = new Date(picker.endDate.format('MM/DD/YYYY'));
-        let dtBC = new Date(picker.endDate.format('MM/DD/YYYY'));
+
         _timeStart = picker.startDate.format('YYYY-MM-DD');
-        _timeEnd = moment(new Date(dt.setDate(dt.getDate() + 1))).format('YYYY-MM-DD');// picker.endDate.format('YYYY-MM-DD');
-        let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate()))).format('YYYY-MM-DD');
+        _timeEnd = moment(picker.endDate).add('days', 1).format('YYYY-MM-DD');// picker.endDate.format('YYYY-MM-DD');
+
+        let _timeBC = moment(picker.endDate).format('YYYY-MM-DD');
         if (_timeStart === _timeBC)
             self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
         else
-            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
+            self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(picker.endDate).format('DD/MM/YYYY'));
+
         _pageNumber = 1;
         self.LoadReport();
     });
-    $('.choose_TimeReport input').on('click', function () {
-        if (parseInt($(this).val()) === 1) {
-            $('.ip_TimeReport').removeAttr('disabled');
-            $('.dr_TimeReport').attr("data-toggle", "dropdown");
-            $('.ip_DateReport').attr('disabled', 'false');
-            var _rdoNgayPage = $('.ip_TimeReport').val();
-            var datime = new Date();
-            //Toàn thời gian
-            if (_rdoNgayPage === "Toàn thời gian") {
-                _timeStart = '2015-09-26';
-                _timeEnd = moment(new Date(datime.setDate(datime.getDate() + 1))).format('YYYY-MM-DD');
-                self.TodayBC('Ngày nhập: Toàn thời gian');
-            }
-            //Hôm nay
-            else if (_rdoNgayPage === "Hôm nay") {
-                _timeStart = datime.getFullYear() + "-" + (datime.getMonth() + 1) + "-" + datime.getDate();
-                _timeEnd = moment(new Date(datime.setDate(datime.getDate() + 1))).format('YYYY-MM-DD');
-                self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
-            }
-            //Hôm qua
-            else if (_rdoNgayPage === "Hôm qua") {
-                var dt1 = new Date();
-                var dt2 = new Date();
-                _timeStart = moment(new Date(dt1.setDate(dt1.getDate() - 1))).format('YYYY-MM-DD');
-                _timeEnd = dt2.getFullYear() + "-" + (dt2.getMonth() + 1) + "-" + dt2.getDate();
-                self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
-            }
-            //Tuần này
-            else if (_rdoNgayPage === "Tuần này") {
-                var currentWeekDay = datime.getDay();
-                var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
-                _timeStart = moment(new Date(datime.setDate(datime.getDate() - lessDays))).format('YYYY-MM-DD'); // start of wwek
-                _timeEnd = moment(new Date(datime.setDate(datime.getDate() + 7))).format('YYYY-MM-DD'); // end of week
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //Tuần trước
-            else if (_rdoNgayPage === "Tuần trước") {
-                _timeEnd = moment(new Date(datime.setDate(datime.getDate() - datime.getDay() + 1))).format('YYYY-MM-DD');
-                _timeStart = moment(new Date(datime.setDate(datime.getDate() - datime.getDay() - 6))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //7 ngày qua
-            else if (_rdoNgayPage === "7 ngày qua") {
-                _timeStart = moment(new Date(datime.setDate(datime.getDate() - 6))).format('YYYY-MM-DD');
-                let newtime = new Date();
-                _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //Tháng này
-            else if (_rdoNgayPage === "Tháng này") {
-                _timeStart = moment(new Date(datime.getFullYear(), datime.getMonth(), 1)).format('YYYY-MM-DD');
-                _timeEnd = moment(new Date(datime.getFullYear(), datime.getMonth() + 1, 1)).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //Tháng trước
-            else if (_rdoNgayPage === "Tháng trước") {
-                _timeStart = moment(new Date(datime.getFullYear(), datime.getMonth() - 1, 1)).format('YYYY-MM-DD');
-                _timeEnd = moment(new Date(datime.getFullYear(), datime.getMonth(), 1)).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //30 ngày qua
-            else if (_rdoNgayPage === "30 ngày qua") {
-                _timeStart = moment(new Date(datime.setDate(datime.getDate() - 29))).format('YYYY-MM-DD');
-                let newtime = new Date();
-                _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //Quý này
-            else if (_rdoNgayPage === "Quý này") {
-                _timeStart = moment().startOf('quarter').format('YYYY-MM-DD');
-                let newtime = new Date(moment().endOf('quarter'));
-                _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            // Quý trước
-            else if (_rdoNgayPage === "Quý trước") {
-                var prevQuarter = moment().quarter() - 1 === 0 ? 1 : moment().quarter() - 1;
-                _timeStart = moment().quarter(prevQuarter).startOf('quarter').format('YYYY-MM-DD');
-                let newtime = new Date(moment().quarter(prevQuarter).endOf('quarter'));
-                _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //Năm này
-            else if (_rdoNgayPage === "Năm này") {
-                _timeStart = moment().startOf('year').format('YYYY-MM-DD');
-                let newtime = new Date(moment().endOf('year'));
-                _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            //năm trước
-            else if (_rdoNgayPage === "Năm trước") {
-                var prevYear = moment().year() - 1;
-                _timeStart = moment().year(prevYear).startOf('year').format('YYYY-MM-DD');
-                let newtime = new Date(moment().year(prevYear).endOf('year'));
-                _timeEnd = moment(new Date(newtime.setDate(newtime.getDate() + 1))).format('YYYY-MM-DD');
-                let dtBC = new Date(_timeEnd);
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate() - 1))).format('YYYY-MM-DD'); // end of week
-                self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-            }
-            _pageNumber = 1;
-            self.LoadReport();
-        }
-        else if (parseInt($(this).val()) === 2) {
-            $('.ip_DateReport').removeAttr('disabled');
-            $('.ip_TimeReport').attr('disabled', 'false');
-            $('.dr_TimeReport').removeAttr('data-toggle');
-            if ($('.ip_DateReport').val() !== "") {
-                thisDate = $('.ip_DateReport').val();
-                var t = thisDate.split("-");
-                var checktime1 = t[0].trim().split("/");
-                var checktime2 = t[1].trim().split("/");
-                var t1 = t[0].trim().split("/").reverse().join("-");
-                var thisDateStart = moment(t1).format('MM/DD/YYYY');
-                var t2 = t[1].trim().split("/").reverse().join("-");
-                var thisDateEnd = moment(t2).format('MM/DD/YYYY');
-                _timeStart = moment(new Date(thisDateStart)).format('YYYY-MM-DD');
-                var dt = new Date(thisDateEnd);
-                let dtBC = new Date(thisDateEnd);
-                _timeEnd = moment(new Date(dt.setDate(dt.getDate() + 1))).format('YYYY-MM-DD');
-                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate()))).format('YYYY-MM-DD');
-                if (_timeStart === _timeBC)
-                    self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
-                else
-                    self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
-                _pageNumber = 1;
-                self.LoadReport();
-            }
-        }
-    });
+
     $('#datetimepicker_mask').keypress(function (e) {
         if (e.keyCode === 13) {
             dktime = $(this).val();
@@ -1336,6 +1185,80 @@
             }
         }
     });
+
+    $('.choose_TimeReport input').on('click', function () {
+        if (parseInt($(this).val()) === 1) {
+            $('.ip_TimeReport').removeAttr('disabled');
+            $('.dr_TimeReport').attr("data-toggle", "dropdown");
+            $('.ip_DateReport').attr('disabled', 'false');
+
+            let val = $('.ip_TimeReport').val();
+            switch (val) {
+                case 'Toàn thời gian':
+                    _rdoNgayPage = 13;
+                    break;
+                case 'Hôm nay':
+                    _rdoNgayPage = 1;
+                    break;
+                case 'Hôm qua':
+                    _rdoNgayPage = 2;
+                    break;
+                case 'Tuần này':
+                    _rdoNgayPage = 3;
+                    break;
+                case 'Tuần trước':
+                    _rdoNgayPage = 4;
+                    break;
+                case 'Tháng này':
+                    _rdoNgayPage = 6;
+                    break;
+                case 'Tháng trước':
+                    _rdoNgayPage = 7;
+                    break;
+                case 'Quý này':
+                    _rdoNgayPage = 9;
+                    break;
+                case 'Quý trước':
+                    _rdoNgayPage = 10;
+                    break;
+                case 'Năm này':
+                    _rdoNgayPage = 11;
+                    break;
+                case 'Năm trước':
+                    _rdoNgayPage = 12;
+                    break;
+            }
+            ChangeTypeDate_SetFromTo(_rdoNgayPage);
+
+            _pageNumber = 1;
+            self.LoadReport();
+        }
+        else if (parseInt($(this).val()) === 2) {
+            $('.ip_DateReport').removeAttr('disabled');
+            $('.ip_TimeReport').attr('disabled', 'false');
+            $('.dr_TimeReport').removeAttr('data-toggle');
+            if ($('.ip_DateReport').val() !== "") {
+                thisDate = $('.ip_DateReport').val();
+                var t = thisDate.split("-");
+                var t1 = t[0].trim().split("/").reverse().join("-");
+                var thisDateStart = moment(t1).format('MM/DD/YYYY');
+                var t2 = t[1].trim().split("/").reverse().join("-");
+                var thisDateEnd = moment(t2).format('MM/DD/YYYY');
+                _timeStart = moment(new Date(thisDateStart)).format('YYYY-MM-DD');
+                var dt = new Date(thisDateEnd);
+                let dtBC = new Date(thisDateEnd);
+                _timeEnd = moment(new Date(dt.setDate(dt.getDate() + 1))).format('YYYY-MM-DD');
+                let _timeBC = moment(new Date(dtBC.setDate(dtBC.getDate()))).format('YYYY-MM-DD');
+                if (_timeStart === _timeBC)
+                    self.TodayBC('Ngày nhập: ' + moment(_timeStart).format('DD/MM/YYYY'));
+                else
+                    self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
+                _pageNumber = 1;
+                self.LoadReport();
+            }
+        }
+    });
+
     $('#datetimepicker_mask').on('change.dp', function (e) {
         dktime = $(this).val();
         thisDate = $(this).val();
@@ -1365,11 +1288,6 @@
         $('#btnExport').show();
         $('#select-column').show();
         tab_TonKho = 1;
-        //$('.showChiNhanh').hide();
-        //if (self.DonVis().length < 2)
-        //    $('.showChiNhanh').hide();
-        //else
-        //    $('.showChiNhanh').show();
         self.LoaiBaoCao('hàng hóa');
         self.MoiQuanTam('Báo cáo hàng hóa tồn kho');
         self.TenChiNhanh(TenChiNhanh_tab);
@@ -1379,10 +1297,6 @@
         $('#btnExport').hide();
         $('#select-column').hide();
         tab_TonKho = 2;
-        //if (self.DonVis().length < 2)
-        //    $('.showChiNhanh').hide();
-        //else
-        //    $('.showChiNhanh').show();
         self.TenChiNhanh(TenChiNhanh);
         self.LoaiBaoCao('chi nhánh');
         self.MoiQuanTam('Báo cáo hàng hóa tồn kho theo chi nhánh');
@@ -1393,7 +1307,6 @@
         tab_TonKho = 1;
         self.TenChiNhanh(item.TenChiNhanh);
         TenChiNhanh_tab = item.TenChiNhanh;
-        //$('.showChiNhanh').hide();
         $('#tabble_TonKhoChiTiet').addClass('active');
         $('#tabble_TonKhoTongHop').removeClass('active');
         $('#table_TonKho').addClass('active');
@@ -1908,8 +1821,40 @@
                     LoadingForm(false);
                 }
                 break;
+            case 7:
+                array_Seach.CurrentPage = self.currentPage() - 1;
+                if (!commonStatisJs.CheckNull(filterNhomHoTro.arrIDChosed) && filterNhomHoTro.arrIDChosed.length > 0) {
+                    array_Seach.ID_NhomHang = filterNhomHoTro.arrIDChosed[0];
+                }
+                else {
+                    array_Seach.ID_NhomHang = null;
+                }
+
+                ajaxHelper(ReportUri + "BaoCaoNhomHoTro", "POST", array_Seach).done(function (x) {
+                    if (x.res && x.LstData.length > 0) {
+                        self.BaoCaoNhomHoTro(x.LstData);
+
+                        AllPage = x.TotalPage;
+                        self.SumRowsHangHoa(x.TotalRow);
+                    }
+                    else {
+                        self.BaoCaoNhomHoTro([]);
+                        AllPage = 0;
+                        self.SumRowsHangHoa(0);
+                    }
+                    self.RowsStart((_pageNumber - 1) * self.pageSize() + 1);
+                    let toItem = AllPage < _pageNumber * self.pageSize() ? AllPage : _pageNumber * self.pageSize();
+                    self.RowsEnd(toItem);
+
+                    self.selecPage();
+                    loadHtmlGrid();
+                    LoadingForm(false);
+                    $('#bcXuatCode .table-reponsive').css('display', 'block');
+                });
+                break;
         }
     };
+
     self.BaoCaoKho_TonKho_Page = ko.computed(function (x) {
         var first = (self.pageNumber_TK() - 1) * self.pageSize();
         if (self.BaoCaoKho_TonKho() !== null) {
@@ -2164,8 +2109,6 @@
                 break;
         }
 
-        console.log('arrayColumn ', arrayColumnCT, arrayColumn)
-
         LoadingForm(false);
         arrayColumn.sort();
         for (let i = 0; i < arrayColumn.length; i++) {
@@ -2190,7 +2133,7 @@
             ID_DonVi: _id_DonVi,
             ChucNang: "Báo cáo bán hàng",
             NoiDung: "Xuất " + self.MoiQuanTam().toLowerCase(),
-            NoiDungChiTiet: "Xuất " + self.MoiQuanTam().toLowerCase(),
+            NoiDungChiTiet: "Xuất ".concat(self.MoiQuanTam().toLowerCase(), ', Người xuất:', VHeader.UserLogin),
             LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
         };
 
@@ -2277,7 +2220,6 @@
                     arrayColumn.push(11);
                     arrayColumn.push(12);
                 }
-                console.log('arrayColumn ', arrayColumn)
                 let thisC = '';
                 for (let i = 0; i < arrayColumn.length; i++) {
                     thisC += arrayColumn[i] + '_';
@@ -2410,6 +2352,20 @@
                         }
                     });
                 }
+                break;
+            case 7:
+                array_Seach.CurrentPage = 0;
+                array_Seach.PageSize = self.SumRowsHangHoa();
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: ReportUri + "Export_BaoCaoNhomHoTro",
+                    data: { objExcel: array_Seach },
+                    success: function (url) {
+                        self.DownloadFileTeamplateXLSX(url);
+                        LoadingForm(false);
+                    }
+                });
                 break;
         }
     };
@@ -2611,16 +2567,19 @@
 
         self.currentPage(parseInt(_pageNumber));
     };
-    self.NextPage = function (item) {
-        if (_pageNumber < AllPage) {
-            _pageNumber = _pageNumber + 1;
-            if (self.check_MoiQuanTam() === 1)
+
+    function Assign_Page() {
+        switch (parseInt(self.check_MoiQuanTam())) {
+            case 1:
                 self.pageNumber_TK(_pageNumber);
-            else if (self.check_MoiQuanTam() === 2)
+                break;
+            case 2:
                 self.pageNumber_NXT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 3)
+                break;
+            case 3:
                 self.pageNumber_NXTCT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 4) {
+                break;
+            case 4:// bc dieuchuyen
                 if (dk_tab === 1)
                     if (_selectTab === 1)
                         self.pageNumber_TQXH(_pageNumber);
@@ -2631,247 +2590,135 @@
                         self.pageNumber_TQNH(_pageNumber);
                     else
                         self.pageNumber_CTDC(_pageNumber);
-            }
-            else if (self.check_MoiQuanTam() === 5) {
+                break;
+            case 5:// nhapkho (TH +CT)
                 if (dk_tabtk === 1)
                     self.pageNumber_THNHH(_pageNumber);
                 else
                     self.pageNumber_THNGD(_pageNumber);
-            }
-
-            else if (self.check_MoiQuanTam() === 6) {
+                break;
+            case 6:// xuatkho (TH + CT)
                 if (dk_tabxk === 1)
                     self.pageNumber_THXHH(_pageNumber);
                 else if (dk_tabxk === 2)
                     self.pageNumber_THXGD(_pageNumber);
                 else
                     self.pageNumber_XDVDL(_pageNumber);
-            }
+                break;
+            case 7:
+                self.currentPage(_pageNumber);
+                self.LoadReport();
+                break;
+        }
+
+        if (parseInt(self.check_MoiQuanTam()) !== 7) {
             self.ReserPage();
+        }
+    }
+
+    self.NextPage = function (item) {
+        if (_pageNumber < AllPage) {
+            _pageNumber = _pageNumber + 1;
+            Assign_Page();
         }
     };
     self.BackPage = function (item) {
         if (_pageNumber > 1) {
             _pageNumber = _pageNumber - 1;
-            if (self.check_MoiQuanTam() === 1)
-                self.pageNumber_TK(_pageNumber);
-            else if (self.check_MoiQuanTam() === 2)
-                self.pageNumber_NXT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 3)
-                self.pageNumber_NXTCT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 4) {
-                if (dk_tab === 1)
-                    if (_selectTab === 1)
-                        self.pageNumber_TQXH(_pageNumber);
-                    else
-                        self.pageNumber_CTDC(_pageNumber);
-                else
-                    if (_selectTab === 1)
-                        self.pageNumber_TQNH(_pageNumber);
-                    else
-                        self.pageNumber_CTDC(_pageNumber);
-            }
-            else if (self.check_MoiQuanTam() === 5) {
-                if (dk_tabtk === 1)
-                    self.pageNumber_THNHH(_pageNumber);
-                else
-                    self.pageNumber_THNGD(_pageNumber);
-            }
-
-            else if (self.check_MoiQuanTam() === 6) {
-                if (dk_tabxk === 1)
-                    self.pageNumber_THXHH(_pageNumber);
-                else if (dk_tabxk === 2)
-                    self.pageNumber_THXGD(_pageNumber);
-                else
-                    self.pageNumber_XDVDL(_pageNumber);
-            }
-            self.ReserPage();
+            Assign_Page();
         }
     };
     self.EndPage = function (item) {
         _pageNumber = AllPage;
-        if (self.check_MoiQuanTam() === 1)
-            self.pageNumber_TK(_pageNumber);
-        else if (self.check_MoiQuanTam() === 2)
-            self.pageNumber_NXT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 3)
-            self.pageNumber_NXTCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 4) {
-            if (dk_tab === 1)
-                if (_selectTab === 1)
-                    self.pageNumber_TQXH(_pageNumber);
-                else
-                    self.pageNumber_CTDC(_pageNumber);
-            else
-                if (_selectTab === 1)
-                    self.pageNumber_TQNH(_pageNumber);
-                else
-                    self.pageNumber_CTDC(_pageNumber);
-        }
-        else if (self.check_MoiQuanTam() === 5) {
-            if (dk_tabtk === 1)
-                self.pageNumber_THNHH(_pageNumber);
-            else
-                self.pageNumber_THNGD(_pageNumber);
-        }
-
-        else if (self.check_MoiQuanTam() === 6) {
-            if (dk_tabxk === 1)
-                self.pageNumber_THXHH(_pageNumber);
-            else if (dk_tabxk === 2)
-                self.pageNumber_THXGD(_pageNumber);
-            else
-                self.pageNumber_XDVDL(_pageNumber);
-        }
-        self.ReserPage();
+        Assign_Page();
     };
     self.StartPage = function (item) {
         _pageNumber = 1;
-        if (self.check_MoiQuanTam() === 1)
-            self.pageNumber_TK(_pageNumber);
-        else if (self.check_MoiQuanTam() === 2)
-            self.pageNumber_NXT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 3)
-            self.pageNumber_NXTCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 4) {
-            if (dk_tab === 1)
-                if (_selectTab === 1)
-                    self.pageNumber_TQXH(_pageNumber);
-                else
-                    self.pageNumber_CTDC(_pageNumber);
-            else
-                if (_selectTab === 1)
-                    self.pageNumber_TQNH(_pageNumber);
-                else
-                    self.pageNumber_CTDC(_pageNumber);
-        }
-        else if (self.check_MoiQuanTam() === 5) {
-            if (dk_tabtk === 1)
-                self.pageNumber_THNHH(_pageNumber);
-            else
-                self.pageNumber_THNGD(_pageNumber);
-        }
-
-        else if (self.check_MoiQuanTam() === 6) {
-            if (dk_tabxk === 1)
-                self.pageNumber_THXHH(_pageNumber);
-            else if (dk_tabxk === 2)
-                self.pageNumber_THXGD(_pageNumber);
-            else
-                self.pageNumber_XDVDL(_pageNumber);
-        }
-        self.ReserPage();
+        Assign_Page();
     };
     self.gotoNextPage = function (item) {
         _pageNumber = item.SoTrang;
-        if (self.check_MoiQuanTam() === 1)
-            self.pageNumber_TK(_pageNumber);
-        else if (self.check_MoiQuanTam() === 2)
-            self.pageNumber_NXT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 3)
-            self.pageNumber_NXTCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 4) {
-            if (dk_tab === 1)
-                if (_selectTab === 1)
-                    self.pageNumber_TQXH(_pageNumber);
-                else
-                    self.pageNumber_CTDC(_pageNumber);
-            else
-                if (_selectTab === 1)
-                    self.pageNumber_TQNH(_pageNumber);
-                else
-                    self.pageNumber_CTDC(_pageNumber);
-        }
-        else if (self.check_MoiQuanTam() === 5) {
-            if (dk_tabtk === 1)
-                self.pageNumber_THNHH(_pageNumber);
-            else
-                self.pageNumber_THNGD(_pageNumber);
-        }
-
-        else if (self.check_MoiQuanTam() === 6) {
-            if (dk_tabxk === 1)
-                self.pageNumber_THXHH(_pageNumber);
-            else if (dk_tabxk === 2)
-                self.pageNumber_THXGD(_pageNumber);
-            else
-                self.pageNumber_XDVDL(_pageNumber);
-        }
-        self.ReserPage();
+        Assign_Page();
     };
 
     self.ResetCurrentPage = function () {
         _pageNumber = 1;
-        switch (parseInt(self.check_MoiQuanTam())) {
-            case 1:
-                if (tab_TonKho === 1) {
-                    self.pageNumber_TK(1);
-                    AllPage = Math.ceil(self.BaoCaoKho_TonKho().length / self.pageSize());
-                }
-                else {
-                    self.pageNumber_TK_TH(1);
-                    AllPage = Math.ceil(self.BaoCaoKho_TongKho_TongHop().length / self.pageSize());
-                }
-                break;
-            case 2:
-                self.pageNumber_NXT(1);
-                AllPage = Math.ceil(self.BaoCaoKho_NhapXuatTon().length / self.pageSize());
-                break;
-            case 3:
-                self.pageNumber_NXTCT(1);
-                AllPage = Math.ceil(self.BaoCaoKho_NhapXuatTonChiTiet().length / self.pageSize());
-                break;
-            case 4:
-                if (dk_tab === 1) {
-                    if (_selectTab === 1) {
-                        self.pageNumber_TQXH(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_XuatDieuChuyen().length / self.pageSize());
-                    }
-                    else {
-                        self.pageNumber_CTDC(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_DieuChuyenChiTiet().length / self.pageSize());
-                    }
-                }
-                else {
-                    if (dk_tab === 1) {
-                        self.pageNumber_TQNH(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_NhapDieuChuyen().length / self.pageSize());
-                    }
-                    else {
-                        self.pageNumber_CTDC(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_DieuChuyenChiTiet().length / self.pageSize());
-                    }
-                }
-                break;
-            case 5:
-                if (dk_tabtk === 1) {
-                    self.pageNumber_THNHH(1);
-                    AllPage = Math.ceil(self.BaoCaoKho_TongHopHangNhap().length / self.pageSize());
-                }
-                else {
-                    self.pageNumber_THNGD(1);
-                    AllPage = Math.ceil(self.BaoCaoKho_ChiTietHangNhap().length / self.pageSize());
-                }
-                break;
-            case 6:
-                switch (dk_tabxk) {
-                    case 1:
-                        self.pageNumber_THXHH(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_TongHopHangXuat().length / self.pageSize());
-                        break;
-                    case 2:
-                        self.pageNumber_THXGD(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_ChiTietHangXuat().length / self.pageSize());
-                        break;
-                    case 3:
-                        self.pageNumber_XDVDL(1);
-                        AllPage = Math.ceil(self.BaoCaoKho_XuatDichVuDinhLuong().length / self.pageSize());
-                        break;
-                }
-                break;
+
+        // BC nhomhotro: get DB
+        if (parseInt(self.check_MoiQuanTam()) === 7) {
+            self.LoadReport();
         }
-        self.ReserPage();
+        else {
+            switch (parseInt(self.check_MoiQuanTam())) {
+                case 1:
+                    if (tab_TonKho === 1) {
+                        self.pageNumber_TK(1);
+                        AllPage = Math.ceil(self.BaoCaoKho_TonKho().length / self.pageSize());
+                    }
+                    else {
+                        self.pageNumber_TK_TH(1);
+                        AllPage = Math.ceil(self.BaoCaoKho_TongKho_TongHop().length / self.pageSize());
+                    }
+                    break;
+                case 2:
+                    self.pageNumber_NXT(1);
+                    AllPage = Math.ceil(self.BaoCaoKho_NhapXuatTon().length / self.pageSize());
+                    break;
+                case 3:
+                    self.pageNumber_NXTCT(1);
+                    AllPage = Math.ceil(self.BaoCaoKho_NhapXuatTonChiTiet().length / self.pageSize());
+                    break;
+                case 4:
+                    if (dk_tab === 1) {
+                        if (_selectTab === 1) {
+                            self.pageNumber_TQXH(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_XuatDieuChuyen().length / self.pageSize());
+                        }
+                        else {
+                            self.pageNumber_CTDC(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_DieuChuyenChiTiet().length / self.pageSize());
+                        }
+                    }
+                    else {
+                        if (dk_tab === 1) {
+                            self.pageNumber_TQNH(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_NhapDieuChuyen().length / self.pageSize());
+                        }
+                        else {
+                            self.pageNumber_CTDC(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_DieuChuyenChiTiet().length / self.pageSize());
+                        }
+                    }
+                    break;
+                case 5:
+                    if (dk_tabtk === 1) {
+                        self.pageNumber_THNHH(1);
+                        AllPage = Math.ceil(self.BaoCaoKho_TongHopHangNhap().length / self.pageSize());
+                    }
+                    else {
+                        self.pageNumber_THNGD(1);
+                        AllPage = Math.ceil(self.BaoCaoKho_ChiTietHangNhap().length / self.pageSize());
+                    }
+                    break;
+                case 6:
+                    switch (dk_tabxk) {
+                        case 1:
+                            self.pageNumber_THXHH(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_TongHopHangXuat().length / self.pageSize());
+                            break;
+                        case 2:
+                            self.pageNumber_THXGD(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_ChiTietHangXuat().length / self.pageSize());
+                            break;
+                        case 3:
+                            self.pageNumber_XDVDL(1);
+                            AllPage = Math.ceil(self.BaoCaoKho_XuatDichVuDinhLuong().length / self.pageSize());
+                            break;
+                    }
+                    break;
+                    self.ReserPage();
+            }
+        }
     };
 };
 var reportWarehouse = new ViewModal();

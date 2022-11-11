@@ -4615,6 +4615,33 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return fileSave;
             }
         }
+
+        [AcceptVerbs("GET", "POST")]
+        public string Export_BaoCaoNhomHoTro([FromBody] JObject data)
+        {
+            array_BaoCaoKhoHang param = data["objExcel"].ToObject<array_BaoCaoKhoHang>();
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                ClassReportKho reportKho = new ClassReportKho(db);
+                List<BaoCaoHoTroDTO> lst = reportKho.BaoCaoNhomHoTro(param);
+                DataTable excel = classOffice.ToDataTable<BaoCaoHoTroDTO>(lst);
+
+                excel.Columns.Remove("ID_DoiTuong");
+                excel.Columns.Remove("TotalRow");
+                excel.Columns.Remove("Totalpage");
+                excel.Columns.Remove("SumGiaTriSuDung");
+                excel.Columns.Remove("SumGiaTriHoTro");
+
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/Teamplate_BaoCaoNhomHoTro.xlsx");
+                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoNhomHoTro.xlsx");
+                fileSave = classOffice.createFolder_Download(fileSave);
+                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 5, 29, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                HttpResponse Response = HttpContext.Current.Response;
+                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoNhomHoTro.xlsx");
+                return fileSave;
+            }
+        }
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult BaoCaoKho_XuatDichVuDinhLuong(array_BaoCaoKhoHang param)
         {
@@ -4660,41 +4687,65 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                db.Database.CommandTimeout = 60 * 60;
-                ClassReportKho reportKho = new ClassReportKho(db);
-                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst = reportKho.BaoCaoNhomHoTro(param);
-                int Rown = lst.Count();
-                List<BaoCaoKho_XuatDichVuDinhLuongPRC> lst_gr = lst.GroupBy(x => new { x.MaHoaDon, x.ID_DichVu, x.MaDichVu, x.SoLuongDichVu }).Select(t => new BaoCaoKho_XuatDichVuDinhLuongPRC
+                try
                 {
-                    SoLuongDichVu = t.FirstOrDefault().SoLuongDichVu,
-                    GiaTriDichVu = t.FirstOrDefault().GiaTriDichVu,
-                }).ToList();
-                double SoLuongDichVu = lst_gr.Sum(x => x.SoLuongDichVu);
-                double GiaTriDichVu = lst_gr.Sum(x => x.GiaTriDichVu);
-                double SoLuongBanDau = lst.Sum(x => x.SoLuongDinhLuongBanDau);
-                double GiaTriGiaTriBanDau = lst.Sum(x => x.GiaTriDinhLuongBanDau);
-                double SoLuongThucTe = lst.Sum(x => x.SoLuongThucTe);
-                double GiaTriGiaTriThucTe = lst.Sum(x => x.GiaTriThucTe);
-                double SoLuongChenhLech = lst.Sum(x => x.SoLuongChenhLech);
-                double GiaTriChenhLech = lst.Sum(x => x.GiaTriChenhLech);
-                int lstPages = getNumber_Page(Rown, param.PageSize ?? 10);
-                JsonResultExampleTr<BaoCaoKho_XuatDichVuDinhLuongPRC> json = new JsonResultExampleTr<BaoCaoKho_XuatDichVuDinhLuongPRC>
+                    ClassReportKho reportKho = new ClassReportKho(db);
+                    List<BaoCaoHoTroDTO> lst = reportKho.BaoCaoNhomHoTro(param);
+
+                    if (lst.Count() > 0)
+                    {
+
+                        var firstRow = lst[0];
+                        var lstGr = lst.GroupBy(x => new
+                        {
+                            x.ID_DoiTuong,
+                            x.MaDoiTuong,
+                            x.TenDoiTuong,
+                            x.TenNhanVien,
+                            x.TenDonVi,
+                        }).Select(x => new
+                        {
+                            x.Key.ID_DoiTuong,
+                            x.Key.MaDoiTuong,
+                            x.Key.TenDoiTuong,
+                            x.Key.TenNhanVien,
+                            x.Key.TenDonVi,
+                            lstDetail = x,
+                        });
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = lstGr,
+                            firstRow.TotalRow,
+                            firstRow.TotalPage,
+                            firstRow.SumGiaTriHoTro,
+                            firstRow.SumGiaTriSuDung,
+                        });
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = new List<BaoCaoHoTroDTO>(),
+                            TotalRow = 0,
+                            TotalPage = 0,
+                            SumGiaTriHoTro = 0,
+                            SumGiaTriSuDung = 0,
+                        });
+                    }
+                }
+                catch (Exception ex)
                 {
-                    LstData = lst,
-                    Rowcount = Rown,
-                    numberPage = lstPages,
-                    a1 = Math.Round(SoLuongDichVu, 3, MidpointRounding.ToEven),
-                    a2 = Math.Round(GiaTriDichVu, 0, MidpointRounding.ToEven),
-                    a3 = Math.Round(SoLuongBanDau, 3, MidpointRounding.ToEven),
-                    a4 = Math.Round(GiaTriGiaTriBanDau, 0, MidpointRounding.ToEven),
-                    a5 = Math.Round(SoLuongThucTe, 3, MidpointRounding.ToEven),
-                    a6 = Math.Round(GiaTriGiaTriThucTe, 0, MidpointRounding.ToEven),
-                    a7 = Math.Round(SoLuongChenhLech, 3, MidpointRounding.ToEven),
-                    a8 = Math.Round(GiaTriChenhLech, 0, MidpointRounding.ToEven),
-                };
-                return Json(json);
+                    return Json(new
+                    {
+                        res = false,
+                        mes = ex.InnerException + ex.Message
+                    });
+                }
             }
         }
+
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult BaoCaoTaiChinh_CongNo(array_BaoCaoTaiChinh array_BaoCaoTaiChinh)
         {
@@ -6933,10 +6984,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     var count = data.Count() > 0 ? (int)data[0].TotalRow : 0;
                     int page = 0;
-                    var listpage = GetListPage(count, param.PageSize??10, param.CurrentPage??1, ref page);
+                    var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
                     return ActionTrueData(new
                     {
-                        data ,
+                        data,
                         ListPage = listpage,
                         PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
                         (param.CurrentPage * param.PageSize + data.Count()), " trên tổng số ", count, " bản ghi"),
@@ -7002,7 +7053,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("LoaiHoaDon");
 
                     string colHide = string.Empty;
-                    if (param.ColumnHide!=null && param.ColumnHide.Count > 0)
+                    if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                     {
                         colHide = string.Join("_", param.ColumnHide);
                     }

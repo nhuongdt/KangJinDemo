@@ -89,7 +89,7 @@ namespace libReport
                 sql.Add(new SqlParameter("ID_DonVis", obj.IDChiNhanhs));
                 sql.Add(new SqlParameter("TheoDoi", obj.TheoDoi));
                 sql.Add(new SqlParameter("TrangThai", obj.TrangThai));
-                sql.Add(new SqlParameter("ID_NhomHang", param.ID_NhomHang??(object)DBNull.Value));
+                sql.Add(new SqlParameter("ID_NhomHang", param.ID_NhomHang ?? (object)DBNull.Value));
                 sql.Add(new SqlParameter("ID_NguoiDung", param.ID_NguoiDung));
                 sql.Add(new SqlParameter("TonKho", param.TonKho));
                 return _db.Database.SqlQuery<BaoCaoKho_TonKho_TongHopPRC>("exec BaoCaoKho_TonKho_TongHop @ID_DonVis, @ThoiGian, @SearchString, @ID_NhomHang, @TheoDoi, @TrangThai, @ID_NguoiDung, @TonKho", sql.ToArray()).ToList();
@@ -226,7 +226,7 @@ namespace libReport
                 sql.Add(new SqlParameter("ID_NhomHang", param.ID_NhomHang ?? (object)DBNull.Value));
                 sql.Add(new SqlParameter("ID_NguoiDung", param.ID_NguoiDung));
                 sql.Add(new SqlParameter("LoaiChungTu", param.LoaiChungTu));
-                if (param.XuatKho??true)
+                if (param.XuatKho ?? true)
                 {
                     return _db.Database.SqlQuery<BaoCaoKho_XuatChuyenHangPRC>("exec BaoCaoKho_TongHopHangXuat @ID_DonVi, @timeStart, @timeEnd, @SearchString, @ID_NhomHang, @TheoDoi, @TrangThai, @ID_NguoiDung, @LoaiChungTu", sql.ToArray()).ToList();
                 }
@@ -296,6 +296,20 @@ namespace libReport
                 CookieStore.WriteLog("libReport - ClassReportKho - GetBaoCaoKho_XuatDichVuDinhLuong: " + ex.Message);
                 return new List<BaoCaoKho_XuatDichVuDinhLuongPRC>();
             }
+        }
+        public List<BaoCaoHoTroDTO> BaoCaoNhomHoTro(array_BaoCaoKhoHang param)
+        {
+            var obj = ReportSale_GetCommonParam(param);
+            List<SqlParameter> sql = new List<SqlParameter>();
+            sql.Add(new SqlParameter("IDChiNhanhs", obj.IDChiNhanhs));
+            sql.Add(new SqlParameter("DateFrom", param.timeStart));
+            sql.Add(new SqlParameter("DateTo", param.timeEnd));
+            sql.Add(new SqlParameter("IDNhomHoTros", param.ID_NhomHang ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("TextSearch", param.MaHangHoa ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("CurrentPage", param.CurrentPage));
+            sql.Add(new SqlParameter("PageSize", param.PageSize));
+            return _db.Database.SqlQuery<BaoCaoHoTroDTO>("exec dbo.BaoCaoNhomHoTro @IDChiNhanhs,@DateFrom, @DateTo, @IDNhomHoTros," +
+                " @TextSearch, @CurrentPage, @PageSize", sql.ToArray()).ToList();
         }
     }
 }

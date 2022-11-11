@@ -299,4 +299,22 @@ namespace Model
         public int? TotalRow { get; set; }
         public double? SumTongTienHang { get; set; }
     }
+
+    public class BaoCaoHoTroDTO
+    {
+        public Guid? ID_DoiTuong { get; set; }
+        public string TenNhanVien { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string TenDonVi { get; set; }
+        public string TenNhomHoTro { get; set; }
+        public double? GiaTriSuDung { get; set; }
+        public double? GtriHoTro_theoQuyDinh { get; set; }
+        public double? DaHoTro { get; set; }
+        public double? PTramHoTro { get; set; }
+        public int? TotalRow { get; set; }
+        public double? TotalPage { get; set; }
+        public double? SumGiaTriSuDung { get; set; }
+        public double? SumGiaTriHoTro { get; set; }
+    }
 }
