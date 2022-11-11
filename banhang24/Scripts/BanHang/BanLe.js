@@ -333,6 +333,27 @@ var NewModel_BanHangLe = function () {
             return "";
         }
     });
+    self.cusChosing = ko.computed(function () {
+        if (self.ChiTietDoiTuong() !== null && self.ChiTietDoiTuong() !== undefined && self.ChiTietDoiTuong().length > 0) {
+            console.log('sdt ', self.ChiTietDoiTuong()[0].DienThoai)
+            return {
+                MaNguoiNop: self.ChiTietDoiTuong()[0].MaDoiTuong,
+                TenNguoiNop: self.ChiTietDoiTuong()[0].TenDoiTuong,
+                SoDienThoai: self.ChiTietDoiTuong()[0].DienThoai,
+                NoHienTai: self.ChiTietDoiTuong()[0].NoHienTai,
+                TongTichDiem: self.ChiTietDoiTuong()[0].TongTichDiem,
+            }
+        }
+        else {
+            return {
+                MaNguoiNop: '',
+                TenNguoiNop: '',
+                SoDienThoai: '',
+                NoHienTai: 0,
+                TongTichDiem: 0,
+            }
+        }
+    });
     self.CTHoaDonPrint = ko.observableArray();
     self.CTHoaDonPrintMH = ko.observableArray();
     self.InforHDprintf = ko.observableArray();
@@ -2420,7 +2441,7 @@ var NewModel_BanHangLe = function () {
                     lstNV_byDonVi[i].StatusCV = 0;
                 }
                 self.NhanViens(lstNV_byDonVi);
-              
+
                 WriteData_Dexie(db.NS_NhanVien, data);
 
                 vmThanhToanGara.listData.NhanViens = lstNV_byDonVi;
@@ -8592,7 +8613,6 @@ var NewModel_BanHangLe = function () {
                         UpdateNhomKH_DB(objHDAdd.ID_DoiTuong);
                         vmApDungNhomHoTro.CreatePhieuXuat_NguyenVatLieu(objHDAdd.ID);
                         vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(objHDAdd.ID, objHDAdd.LoaiHoaDon);
-                        //vmApDungNhomHoTro.saveHoaDonHoTro(objHDAdd.IDRandom, itemDB.NgayLapHoaDon);
                         break;
                     case 19:
                     case 6:
@@ -17144,7 +17164,7 @@ var NewModel_BanHangLe = function () {
         if (commonStatisJs.CheckNull(ctDoiTuong) || ctDoiTuong.length === 0) {
             //ShowMessage_Danger('Vui lòng chọn khách hàng');
             //return;
-             objHD = {
+            objHD = {
                 IDRandom: self.HoaDons().IDRandom(),
                 LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
                 ID: self.HoaDons().ID(),
@@ -17158,7 +17178,7 @@ var NewModel_BanHangLe = function () {
         else {
             let cusCode = ctDoiTuong[0].MaDoiTuong;
             let cusName = ctDoiTuong[0].TenDoiTuong;
-             objHD = {
+            objHD = {
                 IDRandom: self.HoaDons().IDRandom(),
                 LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
                 ID: self.HoaDons().ID(),
@@ -17169,7 +17189,7 @@ var NewModel_BanHangLe = function () {
                 NguoiTao: userLogin,
             }
         }
-       
+
         vmApDungNhomHoTro.showModal(objHD);
         return;
 
