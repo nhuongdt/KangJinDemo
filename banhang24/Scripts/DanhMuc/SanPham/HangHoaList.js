@@ -9619,6 +9619,7 @@ var ViewModel = function () {
     $('#vmThemNhomHang_NangCao').on('hidden.bs.modal', function () {
         if (vmThemNhomHang_NangCao.saveOK) {
             GetListNhomHang_SetupHoTro();
+            GetAllNhomHH();
 
             let objNhom = vmThemNhomHang_NangCao.newNhomHang;
             $('#choose_TenNHHAddHH').text(objNhom.TenNhomHangHoa);
@@ -11255,7 +11256,7 @@ var ViewModel = function () {
                 self.ListFilterColumn.push({ Key: 2, Value: self.arrIDNhomHang().toString(), type: 0 })
             }
         }
-        
+
         // nhomHoTro (key = 9)
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 9));
         if (!commonStatisJs.CheckNull(filterNhomHoTro.arrIDChosed)) {
