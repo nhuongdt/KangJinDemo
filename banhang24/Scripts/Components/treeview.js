@@ -72,6 +72,7 @@ var cmpTreeView = {
                             </div>
                         </li>
                         <li v-for="(item,index) in listSearch"
+                            style="padding-top: 5px;padding-bottom: 5px"
                             v-bind:style="[idChosing === item.id ? {'background':'#eee'} : {'background':'none'}]">
                              <div class="col-sm-12 col-lg-12 col-md-12 group-p1">
                                 <div class="form-check flex">
