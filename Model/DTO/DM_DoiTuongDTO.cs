@@ -83,6 +83,13 @@ namespace Model
         public Guid? ID_DonVi { get; set; }
         public List<string> IDNhomHangs { get; set; }
         public string LoaiHangHoas { get; set; }
+    } 
+    public class ParamNhatKyGiaoDich_Cus
+    {
+        public List<string> IDChiNhanhs { get; set; }
+        public Guid? ID_DoiTuong { get; set; }
+        public int? CurrentPage { get; set; }
+        public int? PageSize { get; set; }
     }
 
     public class ParamPreportThuChi : CommonParamSearch

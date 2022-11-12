@@ -1,0 +1,515 @@
+﻿<style>
+    ._body-nap-tien {
+        max-height: initial
+    }
+
+    ._nap-tien-chi-tiet {
+        border-radius: 2px;
+        background: #e0e0e0;
+        width: 100%;
+        float: left;
+    }
+
+        ._nap-tien-chi-tiet h5 {
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+    ._nt-du {
+        text-align: right;
+        font-weight: bold
+    }
+
+        ._nt-du image {
+            margin-left: 10px;
+            color: black;
+        }
+
+    #vmTatToanTGT .span-number {
+        text-align: right;
+    }
+
+        #vmTatToanTGT .span-number span {
+            font-weight: 600
+        }
+
+    .bgsienna {
+        background: sienna;
+        color: white;
+    }
+</style>
+<div class="modal fade" id="vmTatToanTGT">
+    <div class="modal-dialog draggable modal-lg">
+        <div class="modal-content ">
+            <div class="modal-header bgsienna">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                <h4 class="modal-title">
+                    Tất toán công nợ thẻ
+                </h4>
+            </div>
+            <div class="modal-body _body-nap-tien">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="form-group floatleft">
+                        <label class="form-label control-label">Khách hàng</label>
+                        <div class=" form-news input-group">
+                            <customers :text-search="cusChosing.TenDoiTuong"
+                                       :loai-doi-tuong="1"
+                                       :disable-search="formType === 1"
+                                       :showbutton="false"
+                                       :id-chi-nhanh="VHeader.IdDonVi"
+                                       v-on:change-customer-parent="ChangeCustomer">
+                            </customers>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label></label>
+                        <div class="form-news">
+                            <input type="text" class="form-control" readonly
+                                   v-bind:value="cusChosing.MaDoiTuong.concat(' (',cusChosing.DienThoai, ')')">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="form-group floatleft">
+                        <label>Ngày tất toán</label>
+                        <div class="form-news add-icon-date">
+                            <my-date-time :date-chose="newHoaDon.NgayLapHoaDon"
+                                          :role-change-date="role.ChangeNgayNapThe"
+                                          v-on:change-date="ChangeNgayLapPhieu">
+                            </my-date-time>
+                        </div>
+                    </div>
+                    <div class="form-group floatleft">
+                        <label>Số dư tài khoản</label>
+                        <div class="form-news _nt-du">
+                            <span style="font-size:14px;">{{formatNumber(inforTheGiaTri.SoDuTheGiaTri)}}</span>
+                            <i class="fa fa-money"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 nopadding _nap-tien-chi-tiet">
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <h5>Thông tin thẻ nạp</h5>
+                        <div class="form-group floatleft">
+                            <label>Mã thẻ</label>
+                            <div class="form-news">
+                                <input type="text" class="form-control text-right"
+                                       readonly
+                                       onclick="this.select()"
+                                       autocomplete="off"
+                                       onkeypress="keypressNumber_limitNumber(event, this)"
+                                       v-model="newHoaDon.MaTheGiaTri" />
+                            </div>
+                        </div>
+                        <div class="form-group floatleft ">
+                            <label>Giá trị nạp</label>
+                            <div class="form-news span-number">
+                                <span>
+                                    {{formatNumber(newHoaDon.GiaTriNap)}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Đã thanh toán</label>
+                            <div class="form-news span-number">
+                                <span>
+                                    {{formatNumber(newHoaDon.KhachDaTra)}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Còn nợ</label>
+                            <div class="form-news span-number">
+                                <span>
+                                    {{formatNumber(newHoaDon.ConNo)}}
+                                </span>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <h5>Thông tin tất toán</h5>
+                        <div class="form-group floatleft">
+
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Giá trị tất toán</label>
+                            <div class="form-news">
+                                <input type="text"
+                                       class="form-control text-right"
+                                       onclick="this.select()"
+                                       autocomplete="off"
+                                       onkeypress="keypressNumber_limitNumber(event, this)"
+                                       v-model="newHoaDon.TongTienHang"
+                                       v-on:keyup="EditGiaTriTatToan">
+                            </div>
+                        </div>
+                        <div class="form-group floatleft">
+                            <label>Nợ còn lại</label>
+                            <div class="form-news">
+                                <span style="float:right;">{{formatNumber3Digit(newHoaDon.NoHienTai)}}</span>
+                            </div>
+                        </div>
+                        <div class="form-group floatleft" style="align-items:flex-start">
+                            <label>Ghi chú</label>
+                            <div class="form-news">
+                                <textarea type="text" rows="2" v-model="newHoaDon.DienGiai"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer " v-if="formType!==2">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal" style="background: #a53a38">
+                    <i class="fa fa-ban"></i>Đóng
+                </button>
+                <button type="button" class="btn btn-cancel" v-if="typeUpdate === 2" v-on:click="HuyPhieu">
+                    <i class="fa fa-save" aria-hidden="true"></i>Hủy phiếu
+                </button>
+                <button type="button" class="btn bgsienna" v-if="typeUpdate === 1 && !$root.isLoading" v-on:click="SavePhieu">
+                    <i class="fa fa-save" aria-hidden="true"></i>Lưu
+                </button>
+                <button type="button" class="btn btn-save" v-if="$root.isLoading">
+                    <i class="fa fa-save" aria-hidden="true"></i>Đang lưu
+                </button>
+            </div>
+            <div class="modal-footer " v-if="formType ===2">
+                <button type="button" class="btn btn-save" v-on:click="GotoTheGiaTri">
+                    <i class="fa fa-share" aria-hidden="true"></i>Mở phiếu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vmTatToanTGT = new Vue({
+        el: '#vmTatToanTGT',
+        components: {
+            'my-date-time': cpmDatetime,
+            'customers': cmpChoseCustomer,
+        },
+        created: function () {
+            var self = this;
+            self.role.ChangeNgayNapThe = self.CheckRole('TheGiaTri_ThayDoiThoiGian');
+            console.log('vmTatToanTGT');
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            typeUpdate: 1,// 1.insert, 2.update
+            formType: 0,// 0.from DSTheGT, 1. from DS KhachHang, 2.baocao (cho phép chọn lại khách hya không)
+            isShowList: false,
+            tgtOld: {},
+            role: {
+                ChangeNgayNapThe: true,
+            },
+            cusChosing: {
+                MaDoiTuong: '',
+                TenDoiTuong: '',
+                DienThoai: '',
+                DiaChi: '',
+            },
+
+            inforCongTy: {
+                TenCongTy: '',
+                DiaChiCuaHang: '',
+                LogoCuaHang: ''
+            },
+
+            inforTheGiaTri: {// used to print
+                SoDuTheGiaTri: 0,
+                CongNoThe: 0,
+            },
+
+            newHoaDon: {
+                MaTheGiaTri: 0,
+                GiaTriNap: 0,
+                KhachDaTra: 0,
+                ConNo: 0,
+            },
+            listData: {
+                KhachHangs: [],
+                NhanViens: [],
+                ListLichSuNap: [],
+            },
+        },
+        methods: {
+            CheckRole: function (maquyen) {
+                var xx = VHeader.Quyen.indexOf(maquyen) > -1;
+                return xx;
+            },
+
+            GetSoDuTheGiaTri: function (idDoiTuong) {
+                var self = this;
+                var date = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+                ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + 'Get_SoDuTheGiaTri_ofKhachHang?idDoiTuong=' + idDoiTuong
+                    + '&datetime=' + date, 'GET').done(function (data) {
+                        let sodu = 0, congno = 0, tongthu = 0;
+                        console.log(3, data)
+                        if (data != null && data.length > 0) {
+                            sodu = data[0].SoDuTheGiaTri;
+                            sodu = sodu > 0 ? sodu : 0;
+
+                            congno = data[0].CongNoThe;
+                            congno = congno > 0 ? congno : 0;
+
+                            tongthu = data[0].TongThuTheGiaTri;
+                            tongthu = tongthu > 0 ? tongthu : 0;
+                        }
+                        if (self.formType === 2) {
+                            sodu = sodu - self.newHoaDon.TongTienHang;
+                        }
+                        self.inforTheGiaTri.SoDuTheGiaTri = sodu;
+                        self.inforTheGiaTri.TongTaiKhoanThe = tongthu;
+                        self.inforTheGiaTri.SoDuTheSauNap = sodu;
+                        self.inforTheGiaTri.CongNoThe = congno;
+                    });
+            },
+
+            showModalUpdate: function (obj = {}, formType = 2) {
+                let self = this;
+                self.saveOk = false;
+                self.isLoading = false;
+                self.typeUpdate = 2;
+                self.formType = formType;
+
+                self.tgtOld = $.extend({}, obj);
+                self.newHoaDon = obj;
+
+                self.cusChosing = {
+                    MaDoiTuong: obj.MaDoiTuong,
+                    TenDoiTuong: obj.TenDoiTuong,
+                    DienThoai: obj.DienThoai,
+                    DiaChi: '',
+                }
+                self.inforTheGiaTri = {
+                    TongTaiKhoanThe: 0,
+                    TongSuDungThe: 0,
+                    SoDuTheGiaTri: 0,
+                    SoDuTheSauNap: 0,
+                };
+                self.GetSoDuTheGiaTri(obj.ID_DoiTuong);
+                $('#vmTatToanTGT').modal('show');
+            },
+            showModalAddNew: function (itemThe = {}, formType = 2) {
+                var self = this;
+                self.saveOk = false;
+                self.isLoading = false;
+                self.typeUpdate = 1;
+                self.formType = formType;
+
+                self.inforTheGiaTri = {
+                    TongTaiKhoanThe: 0,
+                    TongSuDungThe: 0,
+                    SoDuTheGiaTri: 0,
+                    SoDuTheSauNap: 0,
+                };
+
+                self.newHoaDon = {
+                    ID: '00000000-0000-0000-0000-000000000000',
+                    MaHoaDon: '',
+                    LoaiHoaDon: 42,
+                    ChoThanhToan: false,
+                    NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    NguoiTao: VHeader.UserLogin,
+                    TongTienHang: 0, // giá trị tất toán
+                    PhaiThanhToan: 0,
+                    TongThanhToan: 0,
+                    DienGiai: '',
+                    NoHienTai: 0,
+
+                    // infor TGT tattoan
+                    ID_DoiTuong: null,
+                    ID_HoaDon: null,
+                    MaTheGiaTri: '',
+                    GiaTriNap: 0,
+                    KhachDaTra: 0,
+                    ConNo: 0,
+                };
+
+                if (!$.isEmptyObject(itemThe)) {
+                    self.newHoaDon.ID_DoiTuong = itemThe.ID_DoiTuong;
+                    self.newHoaDon.ID_HoaDon = itemThe.ID;
+                    self.newHoaDon.MaTheGiaTri = itemThe.MaHoaDon;
+                    self.newHoaDon.GiaTriNap = itemThe.TongTienNap;
+                    self.newHoaDon.KhachDaTra = itemThe.KhachDaTra;
+                    self.newHoaDon.ConNo = itemThe.ConNo;
+
+                    self.newHoaDon.TongTienHang = formatNumber3Digit(itemThe.ConNo);
+                    self.newHoaDon.PhaiThanhToan = itemThe.ConNo;
+                    self.newHoaDon.TongThanhToan = itemThe.ConNo;
+
+                    self.cusChosing = {
+                        MaDoiTuong: itemThe.MaDoiTuong,
+                        TenDoiTuong: itemThe.TenDoiTuong,
+                        DienThoai: itemThe.DienThoai,
+                        DiaChi: '',
+                    }
+
+                    self.GetSoDuTheGiaTri(itemThe.ID_DoiTuong);
+                }
+                else {
+                    self.cusChosing = {
+                        MaDoiTuong: '',
+                        TenDoiTuong: '',
+                        DienThoai: '',
+                        DiaChi: '',
+                    }
+                }
+                $('#vmTatToanTGT').modal('show');
+            },
+            ChangeCustomer: function (item) {
+                var self = this;
+                var idCus = item.ID;
+                self.newHoaDon.ID_DoiTuong = idCus;
+                self.cusChosing.MaDoiTuong = item.MaDoiTuong;
+                self.cusChosing.TenDoiTuong = item.TenDoiTuong;
+                self.cusChosing.DienThoai = item.DienThoai;
+                self.GetSoDuTheGiaTri(idCus);
+            },
+
+            ChangeNgayLapPhieu: function (e) {
+                let self = this;
+                let dt = moment(e).format('YYYY-MM-DD HH:mm');
+                let khoaSo = VHeader.CheckKhoaSo(moment(e).format('YYYY-MM-DD'));
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                }
+                self.newHoaDon.NgayLapHoaDon = dt;
+            },
+
+            EditGiaTriTatToan: function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+
+                let gtri = formatNumberToFloat($this.val());
+                let lastone = $this.val().toString().split('').pop();
+
+                if (lastone !== '.') {
+                    self.newHoaDon.TongTienHang = formatNumber3Digit(gtri);
+                }
+
+                if (gtri > self.newHoaDon.ConNo) {
+                    ShowMessageDanger('Không nhập quá giá trị nợ thẻ');
+                    return;
+                }
+                self.newHoaDon.NoHienTai = self.newHoaDon.ConNo - gtri;
+            },
+            HuyPhieu: function () {
+                let self = this;
+                $.getJSON('/api/DanhMuc/Bh_HoaDonAPI/' + 'TGT_HuyPhieuDieuChinh?id=' + self.newHoaDon.ID).done(function (x) {
+                    if (x.res) {
+                        ShowMessageSuccess('Hủy phiếu thành công');
+                        let diary = {
+                            LoaiNhatKy: 3,
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            ChucNang: 'Hủy phiếu tất toán công nợ thẻ giá trị',
+                            NoiDung: 'Hủy phiếu tất toán công nợ thẻ giá trị '.concat(self.newHoaDon.MaHoaDon),
+                            NoiDungChiTiet: 'Thông tin hủy:'.concat('<br /> Mã phiếu: ', self.newHoaDon.MaHoaDon,
+                                '<br /> Khách hàng: ', self.cusChosing.TenDoiTuong, ' (', self.cusChosing.MaDoiTuong, ')',
+                                '<br /> Giá trị tất toán: ', formatNumber3Digit(self.newHoaDon.TongTienHang),
+                                '<br /> Ngày tất toán: ', moment(self.newHoaDon.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
+                                '<br /> User hủy phiếu: ', VHeader.UserLogin),
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                        $('#vmTatToanTGT').modal('show');
+                    }
+                })
+            },
+            SavePhieu: function () {
+                var self = this;
+                var hd = self.newHoaDon;
+                if (hd.ID_DoiTuong === null) {
+                    commonStatisJs.ShowMessageDanger('Vui lòng chọn khách hàng');
+                    return;
+                }
+
+                if (formatNumberToFloat(self.newHoaDon.TongTienHang) === 0) {
+                    commonStatisJs.ShowMessageDanger('Vui lòng nhập giá rị tất toán');
+                    return;
+                }
+
+                let khoaSo = VHeader.CheckKhoaSo(moment(hd.NgayLapHoaDon).format('YYYY-MM-DD'));
+                if (khoaSo) {
+                    ShowMessage_Danger(VHeader.warning.ChotSo.Update);
+                    return;
+                }
+                self.isLoading = true;
+
+                var nowSeconds = (new Date()).getSeconds();
+                hd.NgayLapHoaDon = moment(hd.NgayLapHoaDon).add(nowSeconds, 'seconds').format('YYYY-MM-DD HH:mm:ss');
+                hd.TongThanhToan = hd.PhaiThanhToan;
+                hd.TongTienThue = self.inforTheGiaTri.SoDuTheSauNap;
+
+                hd.PhaiThanhToan = hd.TongTienHang;
+                hd.TongThanhToan = hd.TongTienHang;
+
+                if (self.typeUpdate === 2) {
+                    hd.NguoiSua = VHeader.UserLogin;
+                }
+
+                var myData = {
+                    objHoaDon: hd
+                }
+
+                ajaxHelper('/api/DanhMuc/Bh_HoaDonAPI/PostBH_HoaDonNapThe', 'POST', myData).done(function (x) {
+                    console.log(x)
+                    if (x.res === true) {
+                        self.saveOK = true;
+                        self.newHoaDon.ID = x.dataSoure.ID;
+                        self.newHoaDon.MaHoaDon = x.dataSoure.MaHoaDon;
+                        commonStatisJs.ShowMessageSuccess('Tất toán thẻ thành công');
+
+                        let sDiary = '<b>Thông tin chi tiết </b>'.concat(
+                            '<br /> - Khách hàng: ', self.cusChosing.TenDoiTuong, ' (', self.cusChosing.MaDoiTuong, ')',
+                            '<br /> - Mã thẻ: ', self.newHoaDon.MaTheGiaTri,
+                            '<br /> - Tổng nạp: ', formatNumber3Digit(self.newHoaDon.GiaTriNap),
+                            '<br /> - Nợ thẻ: ', formatNumber3Digit(self.newHoaDon.ConNo),
+                            '<br /> - Mã phiếu tất toán: ', self.newHoaDon.MaHoaDon,
+                            '<br /> - Giá trị tất toán: ', formatNumber3Digit(self.newHoaDon.PhaiThanhToan),
+                            '<br /> - Còn nợ: ', formatNumber3Digit(self.newHoaDon.NoHienTai),
+                            '<br /> - Ngày tất toán: ', hd.NgayLapHoaDon
+                        )
+
+                        let diary = {
+                            LoaiNhatKy: 1,
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            ChucNang: 'Quyết toán công nợ thẻ',
+                            NoiDung: (self.typeUpdate === 1 ? 'Thêm mới quyết toán công nợ thẻ ' : 'Cập nhật phiếu quyết toán công nợ thẻ')
+                                .concat(self.newHoaDon.MaHoaDon, ' cho khách hàng ', self.cusChosing.TenDoiTuong),
+                            NoiDungChiTiet: sDiary
+                        }
+                        console.log('VHeader.IdNhanVien', VHeader.IdNhanVien)
+
+                        if (self.typeUpdate === 2) {
+                            diary.LoaiNhatKy = 2;
+                            diary.NoiDungChiTiet = sDiary.concat('<br /> <b>Thông tin cũ: </b>',
+                                '<br /> - Mã phiếu tất toán: ', self.tgtOld.MaHoaDon,
+                                '<br /> - Giá trị tất toán: ', formatNumber3Digit(self.tgtOld.PhaiThanhToan),
+                                '<br /> - Ngày tất toán: ', moment(self.tgtOld.NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss'));
+                        }
+                        Insert_NhatKyThaoTac_1Param(diary);
+                    }
+                }).always(function () {
+                    self.isLoading = false;
+                    $('#vmTatToanTGT').modal('hide');
+                })
+            },
+            GotoTheGiaTri: function () {
+                let self = this;
+                localStorage.setItem('FindHD', self.newHoaDon.MaHoaDon);
+                window.open('/#/RechargeValueCard');
+            }
+        },
+        computed: {
+        }
+    })
+</script>
+
+

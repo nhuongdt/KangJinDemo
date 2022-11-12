@@ -128,6 +128,7 @@
     self.TienATMAll = ko.observable(0);
     self.TienGuiAll = ko.observable(0);
     self.KhachDaTraAll = ko.observable(0);
+    self.ConNoAll = ko.observable(0);
     self.error = ko.observable();
     var userID = '';
     var idNhanVien = '';
@@ -863,6 +864,7 @@
                         self.TienATMAll(itFirst.TienATMAll);
                         self.TienGuiAll(itFirst.TienGuiAll);
                         self.KhachDaTraAll(itFirst.KhachDaTraAll);
+                        //self.ConNoAll(itFirst.ConNoAll);
 
                         LoadHtmlGrid();
                     }
@@ -879,7 +881,7 @@
                         self.TienMatAll(0);
                         self.TienATMAll(0);
                         self.TienGuiAll(0);
-                        self.KhachDaTraAll(0);
+                        self.ConNoAll(0);
                     }
                 }
             });
@@ -1273,6 +1275,28 @@
         });
     }
 
+    self.NhatKy_TatToanCongNo = ko.observableArray();
+    self.GetNhatKy_TatToan = function (item) {
+        let arrID = [];
+        arrID = self.MangNhomDV().map(function (x) {
+            return x.ID;
+        })
+        let param = {
+            IDChiNhanhs: arrID,
+            ID_DoiTuong: item.ID_DoiTuong,
+            CurrentPage: 0,
+            PageSize: 50,
+        }
+        ajaxHelper(BH_HoaDonUri + 'TGT_GetNhatKyTatToanCongNo', 'POST', param).done(function (x) {
+            if (x.res) {
+                self.NhatKy_TatToanCongNo(x.lst);
+            }
+            else {
+                self.NhatKy_TatToanCongNo([]);
+            }
+        });
+    }
+
     self.wasKhoaSo = ko.observable(false);
 
     self.LoadChiTiet = function (item) {
@@ -1602,6 +1626,48 @@
         let obj = await vmDieuChinhTGT.GetSoDuTGT_byTime();
         vmDieuChinhTGT.SoDuHienTai_toDate = obj.SoDuTheGiaTri + vmDieuChinhTGT.GiaTriDieuChinh;
         vmDieuChinhTGT.Save();
+    }
+
+    self.vm_ShowModalTatToanThe = function (item) {
+        let obj = {
+            ID: item.ID,
+            ID_DoiTuong: item.ID_DoiTuong,
+            MaHoaDon: item.MaHoaDon,
+            TongTienNap: item.TongTienNap,
+            KhachDaTra: item.KhachDaTra,
+            ConNo: item.ConNo,
+
+            MaDoiTuong: item.MaKhachHang,
+            TenDoiTuong: item.TenKhachHang,
+            DienThoai: item.SoDienThoai,
+        }
+        vmTatToanTGT.showModalAddNew(obj, 1);
+    }
+    self.vm_ShowInforTatToanThe = function (tgt, item) {
+        let obj = {
+            ID: item.ID,
+            ID_DoiTuong: item.ID_DoiTuong,
+            ID_DonVi: item.ID_DonVi,
+            ID_NhanVien: item.ID_NhanVien,
+            MaHoaDon: item.MaHoaDon,
+            NgayLapHoaDon: item.NgayLapHoaDon,
+            TongTienHang: formatNumber3Digit(item.PhaiThanhToan),
+            PhaiThanhToan: item.PhaiThanhToan,
+            TongThanhToan: item.PhaiThanhToan,
+            DienGiai: item.DienGiai,
+
+            ID_HoaDon: tgt.ID,
+            MaTheGiaTri: tgt.MaHoaDon,
+            GiaTriNap: tgt.TongTienNap,
+            KhachDaTra: tgt.KhachDaTra,
+            ConNo: tgt.ConNo,
+            NoHienTai: tgt.ConNo,
+
+            MaDoiTuong: tgt.MaKhachHang,
+            TenDoiTuong: tgt.TenKhachHang,
+            DienThoai: tgt.SoDienThoai,
+        }
+        vmTatToanTGT.showModalUpdate(obj,1);
     }
 };
 

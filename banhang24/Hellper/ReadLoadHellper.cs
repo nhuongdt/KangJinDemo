@@ -2713,6 +2713,7 @@ namespace banhang24.Hellper
             nvthuchien,
             ghichu,
             trangthai,
+            tatToanCongNo
         }
         public static Dictionary<string, string> ListColumnValueCard = new Dictionary<string, string>()
         {
@@ -2728,6 +2729,8 @@ namespace banhang24.Hellper
               { ColumnValueCard.chuyenkhoan.ToString(),"Chuyển khoản" },
               { ColumnValueCard.pos.ToString(),"Tiền POS" },
               { ColumnValueCard.khachdatra.ToString(),"Đã thanh toán" },
+              { ColumnValueCard.tatToanCongNo.ToString(),"Giá trị tất toán" },
+              { ColumnInvoices.conno.ToString(),"Còn nợ" },
               { ColumnValueCard.nvthuchien.ToString(),"Nhân viên bán" },
               { ColumnValueCard.ghichu.ToString(),"Ghi chú" },
               { ColumnValueCard.trangthai.ToString(),"Trạng thái" },
