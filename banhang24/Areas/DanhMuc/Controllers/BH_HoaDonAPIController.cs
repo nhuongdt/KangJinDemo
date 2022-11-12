@@ -2352,6 +2352,31 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
             }
         }
+        [AcceptVerbs("GET", "POST")]
+        public IHttpActionResult TGT_GetNhatKyTatToanCongNo(ParamNhatKyGiaoDich_Cus model)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
+                    List<TGT_NhatKyTatToanTGT> dataxx = classHoaDon.TGT_GetNhatKyTatToanCongNo(model);
+                    return Json(new
+                    {
+                        res = true,
+                        lst = dataxx,
+                    });
+                }
+                catch (Exception e)
+                {
+                    return Json(new
+                    {
+                        res = false,
+                        mes = e,
+                    });
+                }
+            }
+        }
 
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult GetInforTheGiaTri_byID(Guid id)
@@ -2693,6 +2718,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         objTN.TienATM = item.TienATM ?? 0;
                         objTN.TienGui = item.TienGui ?? 0;
                         objTN.KhachDaTra = item.KhachDaTra;
+                        objTN.GiaTriTatToan = item.GiaTriTatToan;
+                        objTN.ConNo = item.ConNo;
                         objTN.MaNhanVienThucHien = item.NhanVienThucHien;
                         objTN.GhiChu = item.GhiChu;
                         objTN.TrangThai = item.ChoThanhToan == false ? "Hoàn thành" : "Đã hủy";

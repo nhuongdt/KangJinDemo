@@ -166,6 +166,25 @@ namespace libDM_DoiTuong
                  " @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
+        public List<TGT_NhatKyTatToanTGT> TGT_GetNhatKyTatToanCongNo(ParamNhatKyGiaoDich_Cus param)
+        {
+            var isDonVis = string.Empty;
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
+            {
+                isDonVis = string.Join(",", param.IDChiNhanhs);
+            }
+            if (param.ID_DoiTuong != null && param.ID_DoiTuong != Guid.Empty)
+            {
+                List<SqlParameter> lstParam = new List<SqlParameter>();
+                lstParam.Add(new SqlParameter("IDChiNhanhs", isDonVis));
+                lstParam.Add(new SqlParameter("ID_DoiTuong", param.ID_DoiTuong));
+                lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? 0));
+                lstParam.Add(new SqlParameter("PageSize", param.PageSize ?? 50));
+                return db.Database.SqlQuery<TGT_NhatKyTatToanTGT>("EXEC dbo.TGT_GetNhatKyTatToanCongNo @IDChiNhanhs, @ID_DoiTuong, " +
+                     " @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
+            }
+            return new List<TGT_NhatKyTatToanTGT>();
+        }
         public List<DM_GiaBanSelect1> GetDM_GiaBanByIDDonVi(Guid iddonvi)
         {
             try
@@ -884,7 +903,7 @@ namespace libDM_DoiTuong
                             break;
                         case 36: // HD datcoc
                             dto.strLoaiHoaDon = "Hóa đơn hỗ trợ";
-                            break;  
+                            break;
                         case 41: // HD datcoc
                             dto.strLoaiHoaDon = "Phiếu trích hao hồng";
                             break;
@@ -6018,6 +6037,8 @@ namespace libDM_DoiTuong
         public double? TienMat { get; set; }
         public double? TienGui { get; set; } // ck
         public double? TienATM { get; set; } // pos
+        public double? GiaTriTatToan { get; set; } // pos
+        public double? ConNo { get; set; } // pos
         public bool? TaiKhoanPOS { get; set; }
         public string NhanVienThucHien { get; set; }
         public string MaNhanVienThucHien { get; set; }
@@ -6036,6 +6057,7 @@ namespace libDM_DoiTuong
         public double? TienATMAll { get; set; }
         public double? TienGuiAll { get; set; }
         public double? KhachDaTraAll { get; set; }
+        public double? ConNoAll { get; set; }
     }
 
     public class BH_HoaDonTheNapDTOXuatFile
@@ -6055,6 +6077,8 @@ namespace libDM_DoiTuong
         public double TienATM { get; set; }
         public double TienGui { get; set; }
         public double KhachDaTra { get; set; } //PhaiThanhToan
+        public double? GiaTriTatToan { get; set; } 
+        public double? ConNo { get; set; } 
         public string MaNhanVienThucHien { get; set; }
         public string GhiChu { get; set; }
         public string TrangThai { get; set; }
