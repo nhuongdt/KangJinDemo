@@ -290,6 +290,9 @@
                             <td class="text-right @commonEnum.ColumnValueCard.chuyenkhoan" data-bind="text: formatNumber(TienGui)"></td>
                             <td class="text-right @commonEnum.ColumnValueCard.pos" data-bind="text: formatNumber(TienATM)"></td>
                             <td class="text-right @commonEnum.ColumnValueCard.khachdatra" data-bind="text: formatNumber(KhachDaTra)"></td>
+                            <td class="text-right @commonEnum.ColumnValueCard.tatToanCongNo" data-bind="text: formatNumber(GiaTriTatToan)"></td>
+                            <td class="text-right @commonEnum.ColumnInvoices.conno"
+                                data-bind="text: formatNumber(ConNo),style: {color: ConNo > 0?'red':'black'}"></td>
                             <td class="text-center @commonEnum.ColumnValueCard.nvthuchien" data-bind="text: NhanVienThucHien"></td>
                             <td class="text-center @commonEnum.ColumnValueCard.ghichu" data-bind="text: GhiChu"></td>
                             <td class="text-center @commonEnum.ColumnValueCard.trangthai" data-bind="text: ChoThanhToan === false ? 'Hoàn thành' : 'Đã hủy'"></td>
@@ -307,6 +310,14 @@
                                                 Nhật ký thanh toán
                                             </a>
                                         </li>
+                                        <!--ko if: GiaTriTatToan > 0-->
+                                        <li>
+                                            <a data-toggle="tab"
+                                               data-bind="attr:{href:'#inforTatToan_'+ ID}, visible: ChoThanhToan !== null, click: $root.GetNhatKy_TatToan">
+                                                Nhật ký tất toán công nợ
+                                            </a>
+                                        </li>
+                                        <!--/ko-->
                                     </ul>
                                     <div class="tab-content ">
                                         <div class="tab-pane active" data-bind="attr:{id:'summary_'+ ID}">
@@ -383,6 +394,13 @@
                                                 </div>
                                             </div>
                                             <div class="op-object-detail-function">
+                                                <!--ko if: !$root.wasKhoaSo() && ConNo > 0-->
+                                                <button href="javascript:void(0)" class="btn"
+                                                        style=" background: sienna; color: white    "
+                                                        data-bind="click: $root.vm_ShowModalTatToanThe">
+                                                    <i class="far fa-do-not-enter"></i> Tất toán công nợ thẻ
+                                                </button>
+                                                <!-- /ko-->
                                                 <!--ko if: !$root.wasKhoaSo()-->
                                                 <button href="javascript:void(0)" class="btn btn-main " data-bind="click: $root.vm_showModalDiscount">
                                                     <i class="fa fa-edit" aria-hidden="true"></i> Sửa đổi chiết khấu nhân viên
@@ -460,6 +478,36 @@
                                             </div>
                                         </div>
                                         <!--/ko-->
+                                        <!--ko if: $root.GDVChosing() &&  $root.GDVChosing().ID === ID -->
+                                        <div class="tab-pane" data-bind="attr:{id:'inforTatToan_'+ ID}">
+                                            <div class="table-res">
+                                                <table class='table'>
+                                                    <tr data-bind="visible: $root.NhatKy_TatToanCongNo().length >0">
+                                                        <th>Mã phiếu</th>
+                                                        <th>Ngày tất toán</th>
+                                                        <th>Người tạo</th>
+                                                        <th>Giá trị</th>
+                                                        <th>Trạng thái</th>
+                                                    </tr>
+                                                    <tbody data-bind="foreach: $root.NhatKy_TatToanCongNo">
+                                                        <tr>
+                                                            <td>
+                                                                <a href="javascript:void(0)"
+                                                                   data-bind="text: MaHoaDon, click: function(){ $root.vm_ShowInforTatToanThe($parent,$data)}"></a>
+                                                            </td>
+                                                            <td data-bind="text: moment(NgayLapHoaDon).format('DD/MM/YYYY HH:mm')"></td>
+                                                            <td data-bind="text: NguoiTao"></td>
+                                                            <td data-bind="text: formatNumber(PhaiThanhToan)"></td>
+                                                            <td data-bind="text: STrangThai"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <div class="bg-warning text-center padding-10" data-bind="visible: $root.NhatKy_TatToanCongNo().length ==0">
+                                                    <i>Không có dữ liệu</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--/ko-->
                                     </div>
                                 </div>
                             </td>
@@ -479,6 +527,8 @@
                             <td class="text-right @commonEnum.ColumnValueCard.chuyenkhoan bold" data-bind="text: formatNumber3Digit(TienGuiAll())"></td>
                             <td class="text-right @commonEnum.ColumnValueCard.pos bold" data-bind="text: formatNumber3Digit(TienATMAll())"></td>
                             <td class="text-right @commonEnum.ColumnValueCard.khachdatra bold" data-bind="text: formatNumber3Digit(KhachDaTraAll())"></td>
+                            <td class="text-right @commonEnum.ColumnValueCard.tatToanCongNo bold"></td>
+                            <td class="text-right @commonEnum.ColumnInvoices.conno bold"></td>
                             <td class="@commonEnum.ColumnValueCard.nvthuchien"></td>
                             <td class="@commonEnum.ColumnValueCard.ghichu "></td>
                             <td class="@commonEnum.ColumnValueCard.trangthai "></td>
@@ -881,6 +931,7 @@
 @Html.Partial("~/Views/Gara/_ThongTinThanhToanKH.cshtml")
 @Html.Partial("~/Views/Gara/HoaDon/_TraLaiTheGiaTri.cshtml")
 @Html.Partial("~/Views/DoiTac/_vmDieuChinhTGT.cshtml")
+@Html.Partial("~/Views/Gara/HoaDon/_TatToanTheGiaTri.cshtml")
 <div class="modal " id="modalPopuplgDelete">
     <div class="modal-dialog">
         @Html.Action("_modalDelete", new { area = "", Controller = "GiaoDich" })
