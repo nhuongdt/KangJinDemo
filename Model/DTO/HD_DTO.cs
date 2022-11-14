@@ -67,6 +67,32 @@ namespace Model
         public string DienGiai { get; set; }
         public bool? ChoThanhToan { get; set; }
     }
+    public class PhieuTatToanTheGiaTriDTO
+    {
+        public Guid? ID { get; set; }
+        public Guid? ID_DoiTuong { get; set; }
+        public Guid? ID_DonVi { get; set; }
+        public Guid? ID_NhanVien { get; set; }
+        public Guid? ID_HoaDon { get; set; }
+        public string MaHoaDon { get; set; }
+        public int? LoaiHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public double? PhaiThanhToan { get; set; }
+        public double? TongTienHang { get; set; }
+        public string NguoiTao { get; set; }
+        public string STrangThai { get; set; }
+        public string DienGiai { get; set; }
+        public bool? ChoThanhToan { get; set; }
+
+        // infor thenap
+        public string MaTheGiaTri { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+        public double? GiaTriNap { get; set; }
+        public double? KhachDaTra { get; set; }
+        public double? ConNo { get; set; }
+    }
 
     public class BaoCaoHoatDongXe_TongHop
     {
