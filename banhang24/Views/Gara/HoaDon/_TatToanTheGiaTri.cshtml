@@ -164,7 +164,7 @@
                 <button type="button" class="btn btn-cancel" data-dismiss="modal" style="background: #a53a38">
                     <i class="fa fa-ban"></i>Đóng
                 </button>
-                <button type="button" class="btn btn-cancel" v-if="typeUpdate === 2" v-on:click="HuyPhieu">
+                <button type="button" class="btn btn-cancel" v-if="typeUpdate === 2 && $root.role.TGT_TatToanCongNo" v-on:click="HuyPhieu">
                     <i class="fa fa-save" aria-hidden="true"></i>Hủy phiếu
                 </button>
                 <button type="button" class="btn bgsienna" v-if="typeUpdate === 1 && !$root.isLoading" v-on:click="SavePhieu">
@@ -193,17 +193,19 @@
         created: function () {
             var self = this;
             self.role.ChangeNgayNapThe = self.CheckRole('TheGiaTri_ThayDoiThoiGian');
+            self.role.TGT_TatToanCongNo = self.CheckRole('TheGiaTri_TatToanCongNo');
             console.log('vmTatToanTGT');
         },
         data: {
             saveOK: false,
             isLoading: false,
             typeUpdate: 1,// 1.insert, 2.update
-            formType: 0,// 0.from DSTheGT, 1. from DS KhachHang, 2.baocao (cho phép chọn lại khách hya không)
+            formType: 0,// 1.không cho phép tìm và chọn khách hàng
             isShowList: false,
             tgtOld: {},
             role: {
                 ChangeNgayNapThe: true,
+                TGT_TatToanCongNo: true,
             },
             cusChosing: {
                 MaDoiTuong: '',
@@ -240,6 +242,18 @@
                 var xx = VHeader.Quyen.indexOf(maquyen) > -1;
                 return xx;
             },
+            GetInfor_PhieuTatToan: async function (id) {
+                if (commonStatisJs.CheckNull(id)) {
+                    return [];
+                }
+                let xx = $.getJSON('/api/DanhMuc/BH_HoaDonAPI/' + 'GetInfor_PhieuTatToanTheGiaTri/' + id).done().then(function (x) {
+                    if (x.res) {
+                        return x.dataSoure;
+                    }
+                    return [];
+                })
+                return xx;
+            },
 
             GetSoDuTheGiaTri: function (idDoiTuong) {
                 var self = this;
@@ -267,7 +281,15 @@
                         self.inforTheGiaTri.CongNoThe = congno;
                     });
             },
-
+            getData_andShowModalUpdate: async function (id) {
+                let self = this;
+                let phieu = await self.GetInfor_PhieuTatToan(id);
+                if (phieu.length > 0) {
+                    phieu[0].TongTienHang = formatNumber3Digit(phieu[0].TongTienHang);
+                    phieu[0].NoHienTai = phieu[0].ConNo - phieu[0].PhaiThanhToan;
+                    self.showModalUpdate(phieu[0], 1);
+                }
+            },
             showModalUpdate: function (obj = {}, formType = 2) {
                 let self = this;
                 self.saveOk = false;
