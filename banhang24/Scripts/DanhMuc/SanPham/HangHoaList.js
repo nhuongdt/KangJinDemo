@@ -561,6 +561,7 @@ var ViewModel = function () {
     };
     self.arrListThuocTinh = ko.observableArray();
     self.ListThuocTinh = ko.observableArray();
+    self.ListGiaTri_ThuocTinh = ko.observableArray();
     self.hienThiGiaTri = function (item) {
         if (item.ID_ThuocTinh !== undefined) {
             $('span[id=txtTenThuocTinh_' + item.ID_ThuocTinh + ']').html(item.GiaTri);
@@ -574,16 +575,19 @@ var ViewModel = function () {
             }
         }
         else {
-            var index1 = self.arrListThuocTinh().map(function (e) { return e.ID_ThuocTinh; }).indexOf(item.ID);
+            let arrThuocTinh = self.arrListThuocTinh().map(function (e) { return e.ID_ThuocTinh; });
+            let index1 = self.arrListThuocTinh().map(function (e) { return e.ID_ThuocTinh; }).indexOf(item.ID);
             if (index1 >= 0) {
                 self.arrListThuocTinh.remove(self.arrListThuocTinh()[index1]);
             }
             $('span[id=txtTenThuocTinh_' + item.ID + ']').html('---' + item.TenThuocTinh + '---');
+
         }
         self.ListThuocTinh([]);
         for (var i = 0; i < self.arrListThuocTinh().length; i++) {
             self.ListThuocTinh.push(self.arrListThuocTinh()[i].GiaTri + self.arrListThuocTinh()[i].ID_ThuocTinh.toUpperCase())
         }
+       
         SearchHangHoa();
     };
 
@@ -11263,7 +11267,7 @@ var ViewModel = function () {
             self.ListFilterColumn.push({ Key: 9, Value: filterNhomHoTro.arrIDChosed.toString(), type: 0 })
         }
         // thuoctinhhang
-        let arrThuocTinh = self.arrListThuocTinh().map(function (x) { return x.ID_ThuocTinh });
+        let arrThuocTinh = self.arrListThuocTinh().map(function (x) { return x.ID });
 
         // loaihanghoa (key = 3)     
         self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 3));
