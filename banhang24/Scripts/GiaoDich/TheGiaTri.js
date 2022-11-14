@@ -104,6 +104,7 @@
     self.Show_BtnThanhToanCongNo = ko.observable(false);
     self.Role_ChangeInvoice_ifOtherDate = ko.observable(false);
     self.Role_DeleteInvoice_ifOtherDate = ko.observable(false);
+    self.RoleTGT_TatToanCongNo = ko.observable(false);
 
     // chon nhieu nhom
     self.NhomDoiTuongDB = ko.observableArray();
@@ -1407,6 +1408,7 @@
                 self.Quyen_NguoiDung(data.HT_Quyen_NhomDTO);
                 self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));
                 self.Show_BtnThanhToanCongNo(CheckQuyenExist('KhachHang_ThanhToanNo'));
+                self.RoleTGT_TatToanCongNo(CheckQuyenExist('TheGiaTri_TatToanCongNo'));
 
                 vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
                 vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
