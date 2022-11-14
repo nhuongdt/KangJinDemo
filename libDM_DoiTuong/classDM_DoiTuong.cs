@@ -1901,7 +1901,7 @@ namespace libDM_DoiTuong
 
             foreach (var item in tblLeftjoin)
             {
-                var debit = Math.Round(item.PhaiThanhToan) - Math.Round(item.TongTienThu   );
+                var debit = Math.Round(item.PhaiThanhToan) - Math.Round(item.TongTienThu);
                 if (debit > 0)
                 {
                     BH_HoaDonDTO dto = new BH_HoaDonDTO();
