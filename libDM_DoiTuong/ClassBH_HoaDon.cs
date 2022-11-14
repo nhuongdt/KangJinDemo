@@ -73,10 +73,11 @@ namespace libDM_DoiTuong
             SqlParameter param = new SqlParameter("ID", id);
             return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetInforTheGiaTri_byID @ID", param).ToList();
         }
-        public List<BH_HoaDonTheNapDTO> GetInfor_PhieuHoanTraCoc(Guid id)
+
+        public List<PhieuTatToanTheGiaTriDTO> GetInfor_PhieuTatToanTheGiaTri(Guid id)
         {
             SqlParameter param = new SqlParameter("ID", id);
-            return db.Database.SqlQuery<BH_HoaDonTheNapDTO>("EXEC GetInforTheGiaTri_byID @ID", param).ToList();
+            return db.Database.SqlQuery<PhieuTatToanTheGiaTriDTO>("EXEC dbo.GetInfor_PhieuTatToanTheGiaTri @ID", param).ToList();
         }
 
         public List<BH_HoaDonTheNapDTO> LoadDanhMucTheGiaTri(ModelHoaDonTheNap model)
@@ -906,6 +907,9 @@ namespace libDM_DoiTuong
                             break;
                         case 41: // HD datcoc
                             dto.strLoaiHoaDon = "Phiếu trích hao hồng";
+                            break;  
+                        case 42: // HD datcoc
+                            dto.strLoaiHoaDon = "Tất toán công nợ thẻ";
                             break;
                     }
                     lstReturn.Add(dto);
