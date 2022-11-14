@@ -4589,6 +4589,9 @@
                     vmNapTienDatCoc.getQuyHoaDon_byID(item.ID_SoQuy, true, 1);// 1.formType: tra lai tiencoc
                 }
                 break;
+            case 42:
+                vmTatToanTGT.getData_andShowModalUpdate(item.ID);
+                break;
             default:
                 vmChiTietHoaDon.showModalChiTietHoaDon(item.ID);
                 break;
@@ -4819,6 +4822,14 @@
         self.TenKhachHangNapThe(item.TenDoiTuong);
         self.TrangThai_TheGiaTri(item.TrangThai_TheGiaTri);
         SearchNhatKySDThe();
+
+        // active tab0
+        let tabTGT = $('#naptien' + item.ID);
+        $(tabTGT).find('ul li').removeClass('active');
+        $(tabTGT).find('ul li:eq(0)').addClass('active');
+
+        $('#tab_b1' + item.ID).addClass('active');
+        $('#tab_b2' + item.ID).removeClass('active');
     };
     self.clickLichSuNap = function (item) {
         ResetTime_TheGiaTri();
@@ -4837,16 +4848,26 @@
         });
     };
     self.DieuChinhThe_showUpdate = function (item) {
-        self.TGT_ID(item.ID);
-        self.MaDieuChinh(item.MaHoaDon);
-        if (item.PhatSinhTang > 0) {
-            self.GiaTriDieuChinh(item.PhatSinhTang);
+        switch (item.LoaiHoaDon) {
+            case 22:// napthe
+                vmThemMoiTheNap.showModalUpdate(item.ID, 1);
+                break;
+            case 42:// tattoan congno
+                vmTatToanTGT.getData_andShowModalUpdate(item.ID);
+                break;
+            case 23:// dieuchinh
+                self.TGT_ID(item.ID);
+                self.MaDieuChinh(item.MaHoaDon);
+                if (item.PhatSinhTang > 0) {
+                    self.GiaTriDieuChinh(item.PhatSinhTang);
+                }
+                else {
+                    self.GiaTriDieuChinh(item.PhatSinhGiam);
+                }
+                self.NgayDieuChinh(moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'));
+                $('#modalPopup_thegiatri').modal('show');
+                break;
         }
-        else {
-            self.GiaTriDieuChinh(item.PhatSinhGiam);
-        }
-        self.NgayDieuChinh(moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'));
-        $('#modalPopup_thegiatri').modal('show');
     }
 
     self.TGT_HuyPhieuDieuChinh = function () {
@@ -5038,6 +5059,7 @@
         $('#dropdownMenuButt2on').text('Toàn thời gian');
         self.NKyTheFrom('2016-01-01');
         self.NKyTheTo(moment(new Date()).add('days', 1).format('YYYY-MM-DD'));
+
     }
     self.SearchTheGiaTri = function () {
         self.NKyTheFrom(moment(self.DateRangeThe_From(), 'DD/MM/YYYY').format('YYYY-MM-DD'));
