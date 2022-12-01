@@ -1024,8 +1024,8 @@
             switch (parseInt(self.filterNgayTao_Quy())) {
                 case 0:
                     // all
-                    dayStart = '2016-01-01';
-                    dayEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
+                    //dayStart = '2016-01-01';
+                    //dayEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
                     break;
                 case 1:
                     // hom nay
@@ -1097,8 +1097,8 @@
             switch (parseInt(self.filterDateTongBan_Quy())) {
                 case 0:
                     // all
-                    dateSellStart = '2016-01-01';
-                    dateSellEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
+                    //dateSellStart = '2016-01-01';
+                    //dateSellEnd = moment(_now).add('days', 1).format('YYYY-MM-DD');
                     break;
                 case 1:
                     // hom nay
@@ -1324,6 +1324,9 @@
         }
 
         let typeSort = self.sort();// 0.No sort, 1.ASC, 2.DESC
+        if (typeSort === 0) {
+            typeSort = 2;
+        }
         if (loaiDoiTuong === 2) {
             switch (self.columsort()) {
                 case 'NoHienTai':
@@ -1340,7 +1343,7 @@
                     break;
             }
         }
-
+        let sortBy = typeSort == 2 ? 'DESC' : 'ASC';
         var Params_GetListKhachHang = {
             ID_DonVis: arrDV,
             LoaiDoiTuong: loaiDoiTuong,
@@ -1371,6 +1374,8 @@
             CurrentPage: self.currentPage(),
             PageSize: self.pageSize(),
             SearchColumns: self.ListFilterColumn(),
+            ColumnSort: self.columsort(),
+            SortBy: sortBy
         }
         console.log(1, Params_GetListKhachHang)
         if (isXuatExcel) {
@@ -1404,7 +1409,7 @@
             }
             if (hasPermisson) {
                 $('.content-table').gridLoader();
-                ajaxHelper(DMDoiTuongUri + 'GetListKhachHang_Where_PassObject_Paging', 'POST', Params_GetListKhachHang)
+                ajaxHelper(DMDoiTuongUri + 'LoadDanhMuc_KhachHangNhaCungCap', 'POST', Params_GetListKhachHang)
                     .done(function (x) {
                         $('.content-table').gridLoader({ show: false });
                         if (x.res === true) {

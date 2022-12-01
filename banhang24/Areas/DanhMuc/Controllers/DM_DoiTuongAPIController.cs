@@ -1464,10 +1464,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                         where = string.Concat(" DiaChi like N'%", value, "%'");
                                         break;
                                     case (int)commonEnum.ColumnKhachHang.tinhthanh:
-                                        where = string.Concat(" ID_TinhThanh like '%", value, "%'");
+                                        where = string.Concat(" exists (select * from dbo.splitstring ('", value, "') tinh where tinh.Name = tbl.ID_TinhThanh) ");
                                         break;
                                     case (int)commonEnum.ColumnKhachHang.quanhuyen:
-                                        where = string.Concat(" ID_QuanHuyen like '%", value, "%'");
+                                        where = string.Concat(" exists (select * from dbo.splitstring ('", value, "') huyen where huyen.Name = tbl.ID_QuanHuyen) ");
                                         break;
                                     case (int)commonEnum.ColumnKhachHang.nguonkhach:
                                         listParam.ID_NguonKhach = value;
@@ -1564,6 +1564,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                             default:
                                                 break;
                                         }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.laCaNhan:
+                                        where = string.Concat(" LaCanhan = ", value);
                                         break;
                                 }
 
@@ -1955,6 +1958,54 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     var whereColumn = SearchColumn(listParams.SearchColumns, string.Empty, ref listParams);
                     listParams.WhereSql = whereColumn;
                     List<SP_DM_DoiTuong> data = classdoituong.SP_GetListKhachHang_Where_Paging(listParams);
+
+                    if (data != null && data.Count() > 0)
+                    {
+                        var itFirst = data[0];
+                        return Json(new
+                        {
+                            res = true,
+                            data,
+                            itFirst.TotalRow,
+                            itFirst.TotalPage,
+                            itFirst.NoHienTaiAll,
+                            itFirst.TongBanAll,
+                            itFirst.TongBanTruTraHangAll,
+                            itFirst.TongTichDiemAll,
+                            itFirst.TongPhiDichVu,
+                        });
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            res = true,
+                            data = new List<SP_DM_DoiTuong>()
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    res = false,
+                    mes = string.Concat("GetListKhachHang_Where_PassObject_Paging", ex.InnerException, ex.Message)
+                });
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public IHttpActionResult LoadDanhMuc_KhachHangNhaCungCap(Params_GetListKhachHang listParams)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    var classdoituong = new classDM_DoiTuong(db);
+                    var whereColumn = SearchColumn(listParams.SearchColumns, string.Empty, ref listParams);
+                    listParams.WhereSql = whereColumn;
+                    List<SP_DM_DoiTuong> data = classdoituong.LoadDanhMuc_KhachHangNhaCungCap(listParams);
 
                     if (data != null && data.Count() > 0)
                     {

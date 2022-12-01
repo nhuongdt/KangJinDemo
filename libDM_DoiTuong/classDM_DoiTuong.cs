@@ -769,6 +769,236 @@ namespace libDM_DoiTuong
             return wherePr == string.Empty ? whereitem : string.Concat(wherePr, " AND ", whereitem);
         }
 
+        public List<SP_DM_DoiTuong> LoadDanhMuc_KhachHangNhaCungCap(Params_GetListKhachHang listParams)
+        {
+            var idChiNhanh = string.Join(",", listParams.ID_DonVis);
+            string whereSql = listParams.WhereSql;
+            string where1 = string.Empty;
+            if (listParams.LoaiDoiTuong == 1)
+            {
+                if (listParams.TongBan_Tu > 0)
+                {
+                    whereSql = " ISNULL(TongBan,0) >=" + listParams.TongBan_Tu;
+                }
+
+                if (listParams.TongBan_Den > 0)
+                {
+                    where1 = " ISNULL(TongBan,0) <=" + listParams.TongBan_Den;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+            }
+            else
+            {
+                if (listParams.TongBan_Tu > 0)
+                {
+                    where1 = " ISNULL(TongMua,0) >=" + listParams.TongBan_Tu;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+
+                if (listParams.TongBan_Den > 0)
+                {
+                    where1 = " ISNULL(TongMua,0) <=" + listParams.TongBan_Den;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+            }
+
+            switch (listParams.LoaiKhach)
+            {
+                case 1:
+                    where1 = " LaCaNhan = '1' ";
+                    whereSql = GetStringWhere(whereSql, where1);
+                    break;
+                case 2:
+                    where1 = " LaCaNhan = '0' ";
+                    whereSql = GetStringWhere(whereSql, where1);
+                    break;
+            }
+
+            switch (listParams.GioiTinh)
+            {
+                case 1:
+                    where1 = " GioiTinhNam = '1' ";
+                    whereSql = GetStringWhere(whereSql, where1);
+                    break;
+                case 2:
+                    where1 = " GioiTinhNam = '0' ";
+                    whereSql = GetStringWhere(whereSql, where1);
+                    break;
+            }
+
+            if (listParams.ID_NguonKhach != null)
+            {
+                where1 = " ID_NguonKhach = '" + listParams.ID_NguonKhach + "' ";
+                whereSql = GetStringWhere(whereSql, where1);
+            }
+
+            var lstIDTinhThanh = listParams.ID_TinhThanhs;
+            if (listParams.ID_TinhThanhs != null)
+            {
+                if (lstIDTinhThanh.Count > 0)
+                {
+                    var idTinhThanhs = string.Join(",", lstIDTinhThanh);
+                    where1 = string.Concat(" exists (select * from splitstring('", idTinhThanhs, "') tinh where tinh.Name = tbl.ID_TinhThanh and tinh.Name!='')");
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+            }
+
+            var ngaySinhFrom = listParams.NgaySinh_TuNgay;
+            var ngaySinhTo = listParams.NgaySinh_DenNgay;
+
+            if (listParams.NgaySinh_TuNgay != null && listParams.NgaySinh_DenNgay != null)
+            {
+                var monthFrom = ngaySinhFrom.Value.Month;
+                var monthTo = ngaySinhTo.Value.Month;
+                var dateFrom = ngaySinhFrom.Value.Day;
+                var dateTo = ngaySinhTo.Value.Day;
+
+                if (listParams.NgaySinh_TuNgay == listParams.NgaySinh_DenNgay)
+                {
+                    //lst = lst.Where(dt => dt.NgaySinh_NgayTLap != null
+                    where1 = string.Concat(" NgaySinh_NgayTLap is not null AND DATEPART(month,NgaySinh_NgayTLap)= ", monthFrom, " AND DATEPART(day,NgaySinh_NgayTLap)= ", dateFrom);
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+                else
+                {
+                    if (ngaySinhFrom != new DateTime(1918, 1, 1))
+                    {
+                        // get KH with NgaySinh != null
+                        where1 = " NgaySinh_NgayTLap is not null ";
+                        whereSql = GetStringWhere(whereSql, where1);
+
+                        // compare nam
+                        if (listParams.LoaiNgaySinh == 1)
+                        {
+                            where1 = " DATEPART(year,NgaySinh_NgayTLap) = " + ngaySinhFrom.Value.Year;
+                            whereSql = GetStringWhere(whereSql, where1);
+                        }
+                        else
+                        {
+                            // compare month/day
+                            if (monthFrom == monthTo)
+                            {
+                                // compare date (dateFrom <= ngaysinh <= dateTo)
+                                where1 = string.Concat(" DATEPART(month,NgaySinh_NgayTLap) = ", monthFrom, " AND DATEPART(day,NgaySinh_NgayTLap) >= ", dateFrom,
+                                   " AND DATEPART(day, NgaySinh_NgayTLap) <= ", dateTo, "");
+                                whereSql = GetStringWhere(whereSql, where1);
+                            }
+                            else
+                            {
+                                // tu 11/09 - 01/12 --> get all KH sinh nhat thang 10,11 OR (KH co ngay sinh >=11 va thang sinh = 9) OR (KH co ngay sinh <=01 va thang 12)
+                                //monthbetween = monthbetween.TrimEnd(',');
+                                where1 = string.Concat(" (DATEPART(month,NgaySinh_NgayTLap) > ", monthFrom, " AND DATEPART(month,NgaySinh_NgayTLap) < ", monthTo,
+                                  " ) OR ( DATEPART(month, NgaySinh_NgayTLap) = ", monthFrom, " AND DATEPART(day, NgaySinh_NgayTLap) >= ", dateFrom,
+                                  " ) OR ( DATEPART(month, NgaySinh_NgayTLap) = ", monthTo, " AND DATEPART(day, NgaySinh_NgayTLap) <= ", dateTo, " )");
+                                whereSql = GetStringWhere(whereSql, where1);
+                            }
+                        }
+                    }
+                }
+            }
+            var loaiDoiTuong = listParams.LoaiDoiTuong;
+            var customerDebit = listParams.No_TrangThai;
+            switch (customerDebit)
+            {
+                case 1:// còn nợ
+                    if (loaiDoiTuong == 2)
+                    {
+                        where1 = " ISNULL(NoHienTai,0) * (-1) > 0 ";
+                        whereSql = GetStringWhere(whereSql, where1);
+                    }
+                    else
+                    {
+                        where1 = " ISNULL(NoHienTai,0) > 0 ";
+                        whereSql = GetStringWhere(whereSql, where1);
+                    }
+                    break;
+                case 2:  // hết nợ
+                    if (loaiDoiTuong == 2)
+                    {
+                        where1 = " ISNULL(NoHienTai,0) * (-1) = 0 ";
+                        whereSql = GetStringWhere(whereSql, where1);
+                    }
+                    else
+                    {
+                        where1 = " ISNULL(NoHienTai,0) = 0 ";
+                        whereSql = GetStringWhere(whereSql, where1);
+                    }
+                    break;
+            }
+
+            //double noHienTaiFromSearch = 0;
+            var noHienTaiFrom = listParams.NoHienTai_Tu;
+            var noHienTaiTo = listParams.NoHienTai_Den;
+
+            if (noHienTaiFrom != null)
+            {
+                if (loaiDoiTuong == 2)
+                {
+                    where1 = " ISNULL(NoHienTai,0) * (-1) >=  " + noHienTaiFrom;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+                else
+                {
+                    where1 = " ISNULL(NoHienTai,0) >=  " + noHienTaiFrom;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+            }
+
+            if (noHienTaiTo != null)
+            {
+                if (loaiDoiTuong == 2)
+                {
+                    where1 = " ISNULL(NoHienTai,0) * (-1) <=  " + noHienTaiTo;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+                else
+                {
+                    where1 = " ISNULL(NoHienTai,0) <=  " + noHienTaiTo;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+            }
+
+            var lstReturnIDManager = listParams.ID_NhanVienQuanLys;
+            if (lstReturnIDManager != null)
+            {
+                if (lstReturnIDManager.Count > 0)
+                {
+                    var nguoiTao = listParams.NguoiTao;
+                    string idManagers = string.Join(",", lstReturnIDManager);
+                    //where1 = string.Concat(" (exists (select Name from splitstring('", idManagers, "') tblMng where ID_NhanVienPhuTrach = tblMng.Name ) OR ID_NhanVienPhuTrach is null OR NguoiTao like '%", nguoiTao, "%' )");
+                    where1 = string.Concat(" (exists (select Name from splitstring('", idManagers, "') tblMng where ID_NhanVienPhuTrach = tblMng.Name ))");
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+            }
+
+            var idTrangThai = listParams.ID_TrangThai;
+            if (idTrangThai != null)
+            {
+                where1 = string.Concat(" ID_TrangThai = '", idTrangThai, "'");
+                whereSql = GetStringWhere(whereSql, where1);
+            }
+
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            lstParam.Add(new SqlParameter("ID_ChiNhanh", idChiNhanh));
+            lstParam.Add(new SqlParameter("LoaiDoiTuong", listParams.LoaiDoiTuong));
+            lstParam.Add(new SqlParameter("IDNhomKhachs", listParams.ID_NhomDoiTuong ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TongBan_FromDate", listParams.TongBan_TuNgay ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TongBan_ToDate", listParams.TongBan_DenNgay ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("NgayTao_FromDate", listParams.NgayTao_TuNgay ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("NgayTao_ToDate", listParams.NgayTao_DenNgay ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TextSearch", listParams.MaDoiTuong ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("Where", whereSql ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("ColumnSort", listParams.ColumnSort ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("SortBy", listParams.SortBy ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("CurrentPage", listParams.CurrentPage));
+            lstParam.Add(new SqlParameter("PageSize", listParams.PageSize));
+
+            List<SP_DM_DoiTuong> lst = db.Database.SqlQuery<SP_DM_DoiTuong>("exec LoadDanhMuc_KhachHangNhaCungCap @ID_ChiNhanh, @LoaiDoiTuong, @IDNhomKhachs," +
+                " @TongBan_FromDate, @TongBan_ToDate, @NgayTao_FromDate ,@NgayTao_ToDate, @TextSearch," +
+                     "@Where, @ColumnSort, @SortBy, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
+            return lst;
+        }
+
 
         /// <summary>
         /// get list khachhang , paging in sql
@@ -1084,7 +1314,7 @@ namespace libDM_DoiTuong
                             break;
                         case "PhiDichVu":
                             sortby = " PhiDichVu";
-                            break; 
+                            break;
                         case "NapCoc":
                             sortby = " NapCoc";
                             break;
