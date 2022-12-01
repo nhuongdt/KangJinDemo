@@ -1800,6 +1800,7 @@ namespace banhang24.Hellper
             gtriNapCoc,
             gtriSuDungCoc,
             gtriSoDuCoc,
+            laCaNhan,
         }
 
         public static Dictionary<string, string> ListKhachHang = new Dictionary<string, string>()
