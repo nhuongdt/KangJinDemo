@@ -14,7 +14,6 @@ namespace Model
     public class ParamSearch_DMHangHoa: CommonParamSearch
     {
         public int? TrangThaiKho { get; set; }
-        //public int? TrangThaiHang { get; set; }
         public string ColumnSort { get; set; }
         public string SortBy { get; set; }
         public string WhereSql { get; set; }
