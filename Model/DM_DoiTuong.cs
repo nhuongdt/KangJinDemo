@@ -537,6 +537,9 @@ namespace Model
         public int PageSize { get; set; }
         public string WhereSql { get; set; }
         public List<ColumSearch> SearchColumns { get; set; }
+        public string ColumnSort { get; set; }
+        public string SortBy { get; set; }
+
     }
 
     public partial class Params_GetListKHSMSDTOLT
