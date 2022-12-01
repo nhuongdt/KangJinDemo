@@ -587,7 +587,7 @@ var ViewModel = function () {
         for (var i = 0; i < self.arrListThuocTinh().length; i++) {
             self.ListThuocTinh.push(self.arrListThuocTinh()[i].GiaTri + self.arrListThuocTinh()[i].ID_ThuocTinh.toUpperCase())
         }
-       
+
         SearchHangHoa();
     };
 
@@ -3777,6 +3777,7 @@ var ViewModel = function () {
                 for (var i = 0; i < self.HangHoas().length; i++) {
                     for (var j = 0; j < self.HangHoas()[i].DonViTinh.length; j++) {
                         if (data.ID_DonViQuiDoi === self.HangHoas()[i].DonViTinh[j].ID_DonViQuiDoi) {
+                            data.CountCungLoai = 1;
                             self.HangHoas.replace(self.HangHoas()[i], data);
                         }
                         if ($.inArray(data.ID_DonViQuiDoi, arrIDHang) > -1) {
@@ -3793,6 +3794,7 @@ var ViewModel = function () {
                 for (var i = 0; i < self.HangHoas().length; i++) {
                     for (var j = 0; j < self.HangHoas()[i].DonViTinh.length; j++) {
                         if (data.ID_DonViQuiDoi === self.HangHoas()[i].DonViTinh[j].ID_DonViQuiDoi) {
+                            data.CountCungLoai = 1;
                             self.HangHoas.replace(self.HangHoas()[i], data);
                         }
                         if ($.inArray(data.ID_DonViQuiDoi, arrIDHang) > -1) {
@@ -11219,13 +11221,15 @@ var ViewModel = function () {
             arrLoaiHang = [1, 2, 3];
         }
 
-        let filterLoai = $.grep(self.ListFilterColumn(), function (x) {
-            return x.Key === 3 && x.Value != null;
-        });
-        if (filterLoai.length > 0) {
-            arrLoaiHang = filterLoai.map(function (x) {
-                return x.Value;
-            })
+        // loaihanghoa (key = 3)  
+        self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 3));
+
+        let filterHeader_LoaiHang = $('#exampleFormControlSelect2').val();
+        if (formatNumberToFloat(filterHeader_LoaiHang) !== 0) {
+            self.ListFilterColumn.push({ Key: 3, Value: filterHeader_LoaiHang, type: 0 })
+        }
+        else {
+            self.ListFilterColumn.push({ Key: 3, Value: arrLoaiHang.toString(), type: 0 })
         }
 
         var tonkho = 0;
@@ -11268,10 +11272,6 @@ var ViewModel = function () {
         }
         // thuoctinhhang
         let arrThuocTinh = self.arrListThuocTinh().map(function (x) { return x.ID });
-
-        // loaihanghoa (key = 3)     
-        self.ListFilterColumn(self.ListFilterColumn().filter(x => x.Key !== 3));
-        self.ListFilterColumn.push({ Key: 3, Value: arrLoaiHang.toString(), type: 0 })
 
         // trangthaikinhdoanh (key = 7)   
         let filterKD = $.grep(self.ListFilterColumn(), function (x) {
@@ -11692,21 +11692,15 @@ var ViewModel = function () {
     // xuất danh mục hàng hóa
     self.ExportDMHHtoExcel = function () {
         let param = GetParamSearch1();
-        let columnHide = null;
+        let columnHide = [];
         for (let i = 0; i < self.ColumnsExcel().length; i++) {
-            if (i == 0) {
-                columnHide = self.ColumnsExcel()[i];
-            }
-            else {
-                columnHide = self.ColumnsExcel()[i] + "_" + columnHide;
-            }
+            columnHide.push(self.ColumnsExcel()[i]);
         }
         param.ColumnHide = columnHide;
         param.PageSize = self.TotalRecord();
 
         ajaxHelper(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param).done(function (x) {
             $('.content-table').gridLoader({ show: false });
-            console.log('x ', x)
             if (x.res) {
                 self.DownloadFile_byURL(x.dataSoure);
 
@@ -11715,7 +11709,7 @@ var ViewModel = function () {
                     ID_DonVi: _IDchinhanh,
                     ChucNang: "Danh mục hàng hóa",
                     NoiDung: "Xuất file danh mục hàng hóa",
-                    NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat('Người xuất: ', VHeader.UserLogin),
+                    NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat(', Người xuất: ', VHeader.UserLogin),
                     LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
                 };
                 Insert_NhatKyThaoTac_1Param(objDiary);
