@@ -2102,8 +2102,6 @@ namespace libDM_HangHoa
 
         public string SearchColumn(List<ColumSearch> lstColumn, string whereSql, ref ParamSearch_DMHangHoa listParam)
         {
-            char[] whitespace = new char[] { ' ', '\t' };
-
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 if (lstColumn != null && lstColumn.Count > 0)
