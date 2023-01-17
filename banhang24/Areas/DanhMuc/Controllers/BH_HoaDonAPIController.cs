@@ -4948,8 +4948,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     ThanhToan = item.ThanhToan, // Giá trị lệch
                                     GiaVon = item.GiaVon,
                                     SoThuTu = dem,
-                                    ID_LoHang = item.ID_LoHang == null ? null : item.ID_LoHang
-                                    // tien giam 
+                                    ID_LoHang = item.ID_LoHang == null ? null : item.ID_LoHang,
+                                    TonLuyKe = item.ThanhTien
                                 };
 
                                 strUpd = classhoadonchitiet.Add_ChiTietHoaDon(ctHoaDon);
