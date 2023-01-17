@@ -123,6 +123,7 @@ namespace libReport
         public DateTime? HanBaoHanh { get; set; }
         public string TrangThai { get; set; }
         public double? SoNgay { get; set; }
+        public string MaNhanVien { get; set; }
         public string TenNhanVien { get; set; }
         public string GhiChu { get; set; }
     }
@@ -638,7 +639,9 @@ namespace libReport
     {
         public string NhomDoiTac { get; set; }
         public string MaDoiTac { get; set; }
-        public string TenDoiTac { get; set; }
+        public string TenDoiTac { get; set; }  
+        public string MaNhanVien { get; set; }// nvPhutrach
+        public string TenNhanVien { get; set; }
         public double PhaiThuDauKy { get; set; }
         public double PhaiTraDauKy { get; set; }
         public double TongTienChi { get; set; }
@@ -1321,6 +1324,8 @@ namespace libReport
         public double DonGia { get; set; }
         public double TienChietKhau { get; set; }
         public double ThanhTien { get; set; }
+        public string MaNhanVien { get; set; }
+        public string TenNhanVien { get; set; }
     }
 
     public class BaoCaoNhanVien_TongHopPRC
