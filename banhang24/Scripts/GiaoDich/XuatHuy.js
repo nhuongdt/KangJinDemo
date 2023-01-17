@@ -405,6 +405,10 @@ function ViewModel() {
             }
         }
 
+        if (!commonStatisJs.CheckNull(txtSeach)) {
+            txtSeach = txtSeach.trim();
+        }
+
         let sTenChiNhanhs = '', arrDV = [];;
         for (let i = 0; i < self.MangChiNhanh().length; i++) {
             if ($.inArray(self.MangChiNhanh()[i], arrDV) === -1) {
@@ -1320,7 +1324,7 @@ function ViewModel() {
                         '<br /> Ghi chú: ', item.DienGiai
                     ),
                 }
-                Post_NhatKySuDung_UpdateGiaVon(diary);
+                //Post_NhatKySuDung_UpdateGiaVon(diary);
 
                 self.currentPage(0);
                 getAllHoaDon();
