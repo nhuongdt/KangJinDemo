@@ -4440,6 +4440,7 @@
                 self.RoleInsert_HoaDonBaoHanh(CheckQuyenExist('HoaDonBaoHanh_ThemMoi'));
                 self.RoleUpdate_Invoice(CheckQuyenExist('HoaDonBaoHanh_CapNhat'));
                 self.RoleDelete_Invoice(CheckQuyenExist('HoaDonBaoHanh_Xoa'));
+                self.ThayDoi_NgayLapHD(CheckQuyenExist('HoaDonBaoHanh_ThayDoiThoiGian'));
 
                 self.Show_BtnCopy(CheckQuyenExist('HoaDonBaoHanh_SaoChep'));
                 self.RoleExport_Invoice(CheckQuyenExist('HoaDonBaoHanh_XuatFile'));
