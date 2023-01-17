@@ -201,15 +201,14 @@
                         TongCong: data.PhaiThanhToan - data.KhachDaTra
                     };
 
-                    self.GetSoDuTheGiaTri(data.ID_DoiTuong);
-
                     self.cusChosing = {
+                        ID: data.ID_DoiTuong,
                         MaDoiTuong: data.MaKhachHang,
                         TenDoiTuong: data.TenKhachHang,
                         DienThoai: data.SoDienThoai,
                         DiaChi: data.DiaChiKhachHang,
                     }
-
+                    self.ChangeCustomer(self.cusChosing);
                     $('#vmThemMoiTheNap').modal('show');
                 }
             })
@@ -221,6 +220,7 @@
             self.isLoading = false;
             self.typeUpdate = 1;
             self.formType = formType;
+            vmThanhToanGara.GridNVienBanGoi_Chosed = [];
 
             self.newHoaDon = {
                 ID: '00000000-0000-0000-0000-000000000000',
@@ -460,7 +460,6 @@
                         NoiDung: (self.typeUpdate === 1 ? 'Tạo mới thẻ nạp ' : 'Cập nhật thẻ nạp ').concat(self.newHoaDon.MaHoaDon, ' cho khách hàng ', self.cusChosing.TenDoiTuong),
                         NoiDungChiTiet: sDiary
                     }
-                    console.log('VHeader.IdNhanVien', VHeader.IdNhanVien)
 
                     if (self.typeUpdate === 2) {
                         diary.LoaiNhatKy = 2;
