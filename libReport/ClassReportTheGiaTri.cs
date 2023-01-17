@@ -169,26 +169,7 @@ namespace libReport
 
                 var data = _db.Database.SqlQuery<SP_ValueCard_ServiceUsed>("EXEC ValueCard_ServiceUsed @ID_ChiNhanhs, @TextSearch, @DateFrom, @DateTo, @Status," +
                     "@CurrentPage, @PageSize", paramSql.ToArray()).ToList();
-                if (data != null && data.Count() > 0)
-                {
-                    // filter by Ma, TenDoiTuong
-                    txtSearch = txtSearch.ToLower();
-                    char[] whitespace = new char[] { ' ', '\t' };
-                    string[] textFilter = txtSearch.Split(whitespace);
-                    string[] utf8 = textFilter.Where(o => o.Any(c => VietnameseSigns.ToList().Contains(c.ToString()))).ToArray();
-                    string[] utf = textFilter.Where(o => !o.Any(c => VietnameseSigns.ToList().Contains(c.ToString()))).ToArray();
-                    string txtSearchUnSign = CommonStatic.ConvertToUnSign(txtSearch).ToLower().Trim();
-
-                    // ma,ten doi tuong
-                    data = data.Where(o =>
-                        o.MaDoiTuong.ToLower().Contains(@txtSearchUnSign)
-                        || o.TenDoiTuong.Contains(@txtSearchUnSign.Trim())
-                        || (o.TenDoiTuong.ToLower().Contains(txtSearch))
-                        || utf.All(d => CommonStatic.ConvertToUnSign(o.TenDoiTuong).ToLower().Contains(d))
-                        || o.MaHangHoa.ToLower().Contains(@txtSearchUnSign)
-                        || utf.All(d => CommonStatic.ConvertToUnSign(o.TenHangHoa).ToLower().Contains(d))
-                        ).ToList();
-                }
+               
                 return data;
             }
             catch (Exception ex)
