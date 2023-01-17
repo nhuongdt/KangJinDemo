@@ -851,7 +851,18 @@
                             ID_DoiTuong: obj.ID,
                         }
                     });
-                    self.UpdateNhomKhachHang(lstNhom);
+                    // compare nhomold with nhomnew
+                    let idNhomsOld = self.customerOld.ID_NhomDoiTuong;
+                    let arrNhomOld = $.unique(idNhomsOld.split(',').filter(x => x !== '')).map(function (x) { return x.trim() });
+                    // nhom # --> nhom mac dinh
+                    console.log('arrNhomOld', arrNhomOld, obj.ListIDNhomKhach)
+                    if (arrNhomOld.filter(x => x !== const_GuidEmpty).length > 0
+                        && (obj.ListIDNhomKhach.length === 0 || obj.ListIDNhomKhach.length === 1 && obj.ListIDNhomKhach[0] === const_GuidEmpty)) {
+                        self.Delete_NhomOld_ofCus([obj.ID]);
+                    }
+                    else {
+                        self.UpdateNhomKhachHang(lstNhom);
+                    }
                     self.InsertImage();
 
                     // remind birthday KH if NgaySinh_NgayTLap is today
@@ -900,6 +911,14 @@
                     ShowMessage_Danger('Sai ngày sinh hoặc chưa đúng định dạng');
                 }
             })
+        },
+        Delete_NhomOld_ofCus: function (arrIDCus = []) {
+            let self = this;
+            if (arrIDCus.length > 0) {
+                ajaxHelper(self.UrlDoiTuongAPI + 'DeleteAllNhom_ofDoiTuong?lstIDDoiTuong=' + arrIDCus, 'POST', arrIDCus).done(function (x) {
+
+                });
+            }
         },
         UpdateNhomKhachHang: function (lstNhom, isChuyenNhom = false) {
             var self = this;
