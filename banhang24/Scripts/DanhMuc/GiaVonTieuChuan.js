@@ -291,10 +291,19 @@
                 arrTT.push(2);
             }
 
+            let from = self.filter.DateFrom;
+            let to = self.filter.DateTo;
+            if (commonStatisJs.CheckNull(from)) {
+                from = '2016-01-01';
+            }
+            if (commonStatisJs.CheckNull(to)) {
+                to = moment(new Date()).add('days', 1).format('YYYY-DD-DD');
+            }
+
             return {
                 IDChiNhanhs: self.listData.ChiNhanhs.filter(p => p.CNChecked === true).map(p => p.ID),
-                DateFrom: self.filter.DateFrom,
-                DateTo: self.filter.DateTo,
+                DateFrom: from,
+                DateTo: to,
                 TrangThais: arrTT,
                 TextSearch: self.filter.TextSearch,
             }
@@ -329,7 +338,6 @@
             let param = self.GetParamSearch();
             param.CurrentPage = self.BaoCaoChiTiet.currentPage - 1;
             param.PageSize = self.BaoCaoChiTiet.PageSize;
-
             $('#vmGiaVonTieuChuan').gridLoader({ show: true });
 
             ajaxHelper(self.urlApi.BHDieuChinh + "GetListGiaVonTieuChuan_ChiTiet", 'POST', param).done(function (data) {
@@ -354,10 +362,19 @@
             let self = this;
             self.InvoiceChosing = item;
             self.NgayLapHoaDon_Change = item.NgayLapHoaDon;
+
+            let from = self.filter.DateFrom;
+            let to = self.filter.DateTo;
+            if (commonStatisJs.CheckNull(from)) {
+                from = '2016-01-01';
+            }
+            if (commonStatisJs.CheckNull(to)) {
+                to = moment(new Date()).add('days', 1).format('YYYY-DD-DD');
+            }
             let param = {
                 IDChiNhanhs: self.listData.ChiNhanhs.filter(p => p.CNChecked === true).map(p => p.ID),
-                DateFrom: self.filter.DateFrom,
-                DateTo: self.filter.DateTo,
+                DateFrom: from,
+                DateTo: to,
                 TrangThais: [0, 1, 2],
                 TextSearch: item.MaHoaDon,
                 CurrentPage: 0,
