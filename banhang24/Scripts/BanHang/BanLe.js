@@ -335,7 +335,6 @@ var NewModel_BanHangLe = function () {
     });
     self.cusChosing = ko.computed(function () {
         if (self.ChiTietDoiTuong() !== null && self.ChiTietDoiTuong() !== undefined && self.ChiTietDoiTuong().length > 0) {
-            console.log('sdt ', self.ChiTietDoiTuong()[0].DienThoai)
             return {
                 MaNguoiNop: self.ChiTietDoiTuong()[0].MaDoiTuong,
                 TenNguoiNop: self.ChiTietDoiTuong()[0].TenDoiTuong,
@@ -586,7 +585,8 @@ var NewModel_BanHangLe = function () {
         DM_DoiTuong_TrangThai: 'ID',
         DinhLuong_DichVu: 'ID',
     });
-    db.version(21).stores({ DM_NhanVienLienQuan: null });
+
+
     var t;
     var now = serverTime;
     var date = now.getDate();
@@ -20236,11 +20236,11 @@ var NewModel_BanHangLe = function () {
             timepicker: false,
         });
     function WriteData_Dexie(tbl, data) {
-        db.transaction("rw", tbl, () => {
-            tbl.bulkPut(data);
-        }).catch(function (e) {
-            console.log(tbl.name, e);
-        });
+        //db.transaction("rw", tbl, () => {
+        //    tbl.bulkPut(data);
+        //}).catch(function (e) {
+        //    console.log(tbl.name, e);
+        //});
     }
 
     function CheckRole() {
@@ -20444,7 +20444,7 @@ var NewModel_BanHangLe = function () {
             $('#pressNormal').hide();
             $("#searchandadd").css("width", "calc(100% - 50px)")
         }
-        var loaiHoaDon = GetLoaiHoaDon_ofHDopening();
+        var loaiHoaDon = self.HoaDons().LoaiHoaDon();
         var roleChangePriceProduct = true;
         switch (loaiHoaDon) {
             case 1:
@@ -24033,6 +24033,7 @@ var NewModel_BanHangLe = function () {
             _maHoaDon = $('.bill-bxslide li.using font').text();
         }
         var loaiHoaDon = 1;
+        // Hóa đơn, HDBL
         if (_maHoaDon.indexOf('H') === 0 || _maHoaDon.indexOf('CopyH') === 0) {
             loaiHoaDon = 1;
         }
@@ -24043,14 +24044,16 @@ var NewModel_BanHangLe = function () {
         if (_maHoaDon.indexOf('T') > -1) {
             loaiHoaDon = 6;
         }
-        if (_maHoaDon.indexOf('B') > -1) {// bao hanh
+        // bao hanh: Bảo hành, HDB, BH
+        if (_maHoaDon.indexOf('B') === 0 ||
+            (_maHoaDon.indexOf('HDB') > -1 && _maHoaDon.indexOf('L') === -1)) {
             loaiHoaDon = 2;
         }
         // neu trả gói dịch vụ, return loai = 19 --> show icon chiết khấu NV + ngày áp dụng (nếu đổi trả) (mặc dù thực tế loại = 6)
         if (_maHoaDon.indexOf('DV') > -1) {
             loaiHoaDon = 19;
         }
-        return loaiHoaDon;
+        return self.HoaDons().LoaiHoaDon();
     }
 
     function GetTonKho_ofHangHoafromDB(item, type = 1) {// 1.nhapnhanh, 2.nhapsoluong
