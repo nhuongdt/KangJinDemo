@@ -1255,7 +1255,7 @@
                             ID_DonVi: idDonVi,
                             ChucNang: "Thẻ giá trị",
                             NoiDung: "Hủy thẻ nạp có mã hóa đơn" + item.MaHoaDon,
-                            NoiDungChiTiet: "Hủy thẻ nạp có mã hóa đơn" + item.MaHoaDon,
+                            NoiDungChiTiet: "Hủy thẻ nạp có mã hóa đơn" .concat( item.MaHoaDon,', Người hủy:', VHeader.UserLogin),
                             LoaiNhatKy: 3 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
                         };
                         Insert_NhatKyThaoTac_1Param(objDiary);
