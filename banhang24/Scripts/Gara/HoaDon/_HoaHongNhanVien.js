@@ -639,7 +639,7 @@
                             LoaiNhatKy: 2,
                             ChucNang: sLoaiHD + ' - Cập nhật chiết khấu nhân viên',
                             NoiDung: 'Cập nhật chiết khấu nhân viên cho '.concat(sLoaiHD.toLowerCase(), ' ', self.inforHoaDon.MaHoaDon),
-                            NoiDungChiTiet: 'Cập nhật chiết khấu nhân viên cho '.concat(sLoaiHD.toLowerCase(), self.inforHoaDon.MaHoaDon,
+                            NoiDungChiTiet: 'Cập nhật chiết khấu nhân viên cho '.concat(sLoaiHD.toLowerCase(),' ', self.inforHoaDon.MaHoaDon,
                                 ' gồm: ', nviens, ' <br /> Mã phiếu thu ', self.inforPhieuThu.MaHoaDon),
                         }
                         Insert_NhatKyThaoTac_1Param(diary);
