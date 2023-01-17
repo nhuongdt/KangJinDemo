@@ -3677,6 +3677,7 @@ namespace libDM_HangHoa
         public bool LaDonViChuan { get; set; }
         public double? TonLuyKe { get; set; }
         public double? TonLuyKe_NhanChuyenHang { get; set; }
+        public double? LuyKeTonKho { get; set; }
     }
 
     public class List_TenDonViTinh
