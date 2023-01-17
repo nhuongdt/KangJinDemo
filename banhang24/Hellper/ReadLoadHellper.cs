@@ -720,7 +720,8 @@ namespace banhang24.Hellper
                       {TypeReportDetail.Detail_hanbaohanh.ToString(),"Hạn bảo hành" },
                       {TypeReportDetail.Detail_trangthai.ToString(),"Trạng thái" },
                       {TypeReportDetail.Detail_ngayconhan.ToString(),"Ngày còn hạn/hết hạn" },
-                 {TypeReportDetail.Detail_nhanvien.ToString(),"Nhân viên" },
+                 {ColumnReportNhanVien.manhanvien.ToString(),"Mã nhân viên" },
+                 {ColumnReportNhanVien.tennhanvien.ToString(),"Tên nhân viên" },
                    {TypeReportDetail.Detail_ghichu.ToString(),"Ghi chú" },
         };
 
@@ -2306,6 +2307,8 @@ namespace banhang24.Hellper
              { ColumnReportValueCard_HisUsed. dongia.ToString(),"Đơn giá" },
              {ColumnReportValueCard_HisUsed. tienchietkhau.ToString(),"Chiết khấu" },
              {ColumnReportValueCard_HisUsed. thanhtien.ToString(),"Thành tiền" },
+             {TypeRpDiscountInvoice.manhanvien.ToString(),"Mã nhân viên" },
+             {TypeRpDiscountInvoice. tennhanvien.ToString(),"Tên nhân viên" },
         };
         public enum ECashFlow
         {
