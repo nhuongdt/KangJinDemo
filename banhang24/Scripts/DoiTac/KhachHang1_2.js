@@ -61,7 +61,6 @@
     self.TongTichDiemAll = ko.observable();
     self.ContinueImport = ko.observable(false);
     self.GhiChuQuyHD = ko.observable();
-    self.NgayDieuChinh = ko.observable(moment(today).format('DD/MM/YYYY'));
     self.TongThuDieuChinh = ko.observable();
     self.NguoiNopTien = ko.observable();
     self.ID_NguoiNopTien = ko.observable();
@@ -4815,7 +4814,7 @@
     self.TenKhachHangNapThe = ko.observable();
     self.GiaTriDieuChinh = ko.observable('');
     self.MaDieuChinh = ko.observable('');
-    self.NgayDieuChinh = ko.observable('');
+    self.NgayDieuChinh = ko.observable(moment(today).format('DD/MM/YYYY'));
     self.TGT_ID = ko.observable(null);
 
     self.clickTheGiaTri = function (item) {
@@ -4845,6 +4844,7 @@
     self.DieuChinhSoDu = function (item) {
         self.TGT_ID(null);
         self.GiaTriDieuChinh(0);
+        self.TenKhachHangNapThe(item.TenDoiTuong);
         self.TrangThaiTheGiaTriChoose(item.TrangThai_TheGiaTri);
         $('#modalPopup_thegiatri').modal('show');
         $('#txtSoDuPopup').val(formatNumber(self.SoDuTheGiaTri()));
@@ -4892,7 +4892,7 @@
                     NoiDung: 'Hủy phiếu điều chỉnh thẻ giá trị '.concat(self.MaDieuChinh()),
                     NoiDungChiTiet: 'Thông tin hủy:'.concat('<br /> Mã phiếu: ', self.MaDieuChinh(),
                         '<br /> Khách hàng: ', self.TenKhachHangNapThe(),
-                        '<br /> Giá trị điều chỉnh: ', ormatNumber3Digit(self.GiaTriDieuChinh()),
+                        '<br /> Giá trị điều chỉnh: ', formatNumber3Digit(self.GiaTriDieuChinh()),
                         '<br /> Ngày điều chỉnh: ', self.NgayDieuChinh(),
                         '<br /> User hủy phiếu: ', VHeader.UserLogin),
                 }
@@ -4965,12 +4965,26 @@
         var trangthai = self.TrangThaiTheGiaTriChoose();
         var nguoitao = $('#txtTenTaiKhoan').text();
         self.SoDuTheGiaTri(sodu);
+        let sDieuChinh = chenhlech > 0 ? 'Điều chỉnh tăng' : 'Điều chỉnh giảm';
         ajaxHelper(DMDoiTuongUri + 'UpdateDieuChinhSoDu?chenhlech=' + chenhlech + '&trangthai=' + trangthai + '&iddt=' + self.IDDT() + '&iddonvi=' + idDonVi + '&idnhanvien=' + idNhanVien + '&nguoitao=' + nguoitao + '&sodusaunap=' + sodu, 'GET').done(function (data) {
             if (data === "") {
                 bottomrightnotify('<i class="fa fa-check" aria-hidden="true"></i>' + 'Điều chỉnh thành công thẻ giá trị', 'success');
                 $('#modalPopup_thegiatri').modal('hide');
                 SearchNhatKySDThe();
                 SearchLichSuNapTien();
+
+                let diary = {
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    ChucNang: 'Điều chỉnh số dư thẻ giá trị',
+                    LoaiNhatKy: 1,
+                    NoiDung: sDieuChinh,
+                    NoiDungChiTiet: 'Khách hàng: '.concat(self.TenKhachHangNapThe(),
+                        '<br /> ', sDieuChinh, ': ', formatNumber3Digit(chenhlech),
+                        '<br /> User điều chỉnh: ', VHeader.UserLogin
+                    ),
+                }
+                Insert_NhatKyThaoTac_1Param(diary);
             }
         });
     };
