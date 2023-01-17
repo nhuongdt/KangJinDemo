@@ -4636,7 +4636,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/Teamplate_BaoCaoNhomHoTro.xlsx");
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoNhomHoTro.xlsx");
                 fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 5, 29, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 29, 25, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
                 HttpResponse Response = HttpContext.Current.Response;
                 fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoKho/BaoCaoNhomHoTro.xlsx");
                 return fileSave;
@@ -4712,12 +4712,19 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.Key.TenDonVi,
                             lstDetail = x,
                         });
+
+                        var count = firstRow.TotalRow ?? 0;
+                        int page = 0;
+                        var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
                         return Json(new
                         {
                             res = true,
                             LstData = lstGr,
+                            ListPage = listpage,
+                            PageView = string.Concat("Hiển thị " + (param.CurrentPage * param.PageSize + 1), " - ",
+                            (param.CurrentPage * param.PageSize + lst.Count()), " trên tổng số ", count, " bản ghi"),
+                            NumOfPage = page,
                             firstRow.TotalRow,
-                            firstRow.TotalPage,
                             firstRow.SumGiaTriHoTro,
                             firstRow.SumGiaTriSuDung,
                         });
@@ -4729,9 +4736,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             res = true,
                             LstData = new List<BaoCaoHoTroDTO>(),
                             TotalRow = 0,
-                            TotalPage = 0,
+                            NumOfPage = 0,
                             SumGiaTriHoTro = 0,
                             SumGiaTriSuDung = 0,
+                            PageView= string.Empty,
                         });
                     }
                 }
