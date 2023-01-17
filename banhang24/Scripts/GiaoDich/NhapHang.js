@@ -2157,8 +2157,8 @@
 
             localStorage.setItem('lcHDForNH', JSON.stringify(hd));
             localStorage.setItem('lcCTHDForNH', JSON.stringify(cthdLoHang));
-            localStorage.setItem('gara_CreateFrom', 'NH_XuatBan');
             if (self.shopCookies() === 'C16EDDA0-F6D0-43E1-A469-844FAB143014') {
+                localStorage.setItem('gara_CreateFrom', 'NH_XuatBan');
                 let newwindow = window.open('/g/Gara', '_blank');
                 let popupTick = setInterval(function () {
                     if (newwindow.closed) {
