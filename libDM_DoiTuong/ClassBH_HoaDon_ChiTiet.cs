@@ -142,7 +142,6 @@ namespace libDM_DoiTuong
             catch (Exception ex)
             {
                 CookieStore.WriteLog("CreatePhieuXuat_FromHoaDon, LoaiHoaDon = " + loaiHoaDon + ex.InnerException + ex.Message);
-                throw;
             }
         }
         /// <summary>
