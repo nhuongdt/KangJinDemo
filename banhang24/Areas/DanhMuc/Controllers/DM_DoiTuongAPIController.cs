@@ -4120,8 +4120,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         var classDoiTuongNhom = new ClassDM_DoiTuong_Nhom(db);
                         classDoiTuongNhom.Delete_DM_DoiTuong_Nhom(lstIDDoiTuong);
-                        return ActionTrueNotData(string.Empty);
                         trans.Commit();
+                        return ActionTrueNotData(string.Empty);
                     }
                     catch (Exception e)
                     {
