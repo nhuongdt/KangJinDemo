@@ -448,8 +448,13 @@ var ViewModel = function () {
                     index: self.Indexx(),
                     ID_ThuocTinh: item.ID,
                     TenThuocTinh: "",
-                    GiaTri: ""
+                    GiaTri: [{
+                        ID_ThuocTinh: item.ID,
+                        TenGiaTri: '',
+                        ID: const_GuidEmpty
+                    }]
                 };
+
                 for (var i = 0; i < self.ThuocTinhCuaHH().length; i++) {
                     if (self.ThuocTinhCuaHH()[i].index === self.Indexx()) {
                         self.ThuocTinhCuaHH.splice(i, 1);
@@ -489,7 +494,6 @@ var ViewModel = function () {
             })
         }
     };
-
 
     self.editThuocTinh = function (item) {
         self.deleteID(item.ID_ThuocTinh);
@@ -3116,7 +3120,16 @@ var ViewModel = function () {
         req.onsuccess = function (event) {
             var cursor = event.target.result;
             if (cursor) {
-                myData.objChiTietKho = JSON.parse(cursor.value.Value);
+                let objKK = [];
+                let lc_CTKiemKho = JSON.parse(cursor.value.Value);
+                for (let i = 0; i < lc_CTKiemKho.length; i++) {
+                    if (lc_CTKiemKho[i].ThanhTien !== "" && lc_CTKiemKho[i].ThanhTien !== null) {
+                        lc_CTKiemKho[i].TienThue = 0;
+                        objKK.push(lc_CTKiemKho[i]);
+                    }
+                }
+                myData.objChiTietKho = objKK;
+
                 if (myData.objChiTietKho == null || self.newKiemKho().BH_KiemKho_ChiTiet() == null) {
                     EnableBtnTamLuu();
                     ShowMessage_Danger("Chưa có hàng hóa trong danh sách kiểm hàng");
@@ -14467,6 +14480,41 @@ var ViewModel = function () {
         self.textSearch(item.TenNhanVien);
         self.selectedNV(item.ID);
         self.newKiemKho().ID_NhanVien(item.ID);
+    }
+
+    self.CapNhatTonKho = function (item) {
+        let itemTK = {}
+        for (let i = 0; i < self.TheKhos().length; i++) {
+            let tk = self.TheKhos()[i]
+            if (tk.LuyKeTonKho !== tk.TonKho) {
+                if (i > 0) {
+                    itemTK = self.TheKhos()[i - 1];// tìm đến dòng đầu tiên bị sai lũy kế --> get dòng trc đó
+                }
+                else {
+                    itemTK = tk;
+                }
+                break;
+            }
+        }
+        if (!$.isEmptyObject(itemTK)) {
+            let diary = {
+                ID_DonVi: itemTK.ID_DonVi,
+                ID_NhanVien: VHeader.IdNhanVien,
+                LoaiNhatKy: 2,
+                ChucNang: 'Cập nhật tồn lũy kế',
+                NoiDung: 'Cập nhật tồn lũy kế cho hàng hóa '.concat(item.TenHangHoa, ' (', item.MaHangHoa, ')'),
+                NoiDungChiTiet: 'Cập nhật tồn lũy kế '.concat(item.TenHangHoa, ' (', item.MaHangHoa,
+                    ') <br /> Mã phiếu: ', itemTK.MaHoaDon,
+                    ') <br /> Ngày lập phiếu: ', itemTK.NgayLapHoaDon,
+                    ' <br /> Người cập nhật: ', VHeader.UserLogin
+                ),
+                ID_HoaDon: itemTK.ID_HoaDon,
+                LoaiHoaDon: itemTK.LoaiHoaDon,
+                ThoiGianUpdateGV: itemTK.NgayLapHoaDon,
+            }
+            Post_NhatKySuDung_UpdateGiaVon(diary);
+            ShowMessage_Success('Cập nhật thành công');
+        }
     }
 };
 var FileModel = function (filef, srcf) {
