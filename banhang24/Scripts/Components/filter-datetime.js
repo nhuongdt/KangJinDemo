@@ -1,5 +1,10 @@
 ﻿Vue.component('filter-datetime', {
-    props: ['typetime', 'radioname', 'selectvalue'],
+    props: {
+        typetime: { default: 0 },
+        radioname: { default: 'rdo' },
+        selectvalue: { default: '3' },
+        showThreeChose: { default: false },
+    },
     template: `
 <aside class="op-filter-container" >
     <div class="menuCheckbox">
@@ -49,6 +54,24 @@
                 </div>
             </div>
         </div>
+            
+        <div class="form-group floatleft" v-if="showThreeChose">
+            <div class="radio-menu" >
+                <input type="radio" v-bind:name="radioname" value="2" v-model="typetime" v-on:click="changetypetime($event)"/>
+            </div>
+            <div class="conten-choose" v-bind:style="[typetime == 0 ? {'pointer-events':'none'} : '']">
+                <div class="floatleft form-wrap ">
+                    <input type='text' class="form-control op-js-component-datetimepicker" 
+                                        autocomplete="off"
+                             title="Đến ngày" placeholder="Đến ngày" 
+                            v-bind:name="radioname"  
+                           :disabled="typetime==0"
+                           v-model="dateFormat" 
+                            v-on:click="formatDatetime"/>
+                </div>
+            </div>
+        </div>
+
     </div>
 </aside>
 `,
@@ -58,7 +81,8 @@
             Thang: [{ value: 5, text: 'Tháng này' }, { value: 6, text: 'Tháng trước' }, { value: 7, text: 'Quý này' }, { value: 8, text: 'Quý trước' }],
             Nam: [{ value: 9, text: 'Năm nay' }, { value: 10, text: 'Năm trước' }, { value: 0, text: 'Toàn thời gian' }],
             SelectedType: this.selectvalue,
-            SelectTypetime: this.typetime
+            SelectTypetime: this.typetime,
+            dateFormat: moment(new Date()).format('DD/MM/YYYY')
         }
     },
 
@@ -95,7 +119,7 @@
                     self.setvaluedate(self.SelectedType);
                 }
             }
-            
+
         },
         changetypetime(event) {
             var self = this;
@@ -103,8 +127,19 @@
             var val = parseInt($this.val());
             if (self.SelectTypetime !== val) {
                 self.SelectTypetime = val;
-                if (self.SelectTypetime === 0) {
-                    self.setvaluedate(self.SelectedType);
+
+                switch (self.SelectTypetime) {
+                    case 0:// ngay, thang, nam
+                        self.setvaluedate(self.SelectedType);
+                        break;
+                    case 2:// denngay
+                        let obj = {
+                            fromdate: '2016-01-01',
+                            todate: moment(self.dateFormat, 'DD/MM/YYYY').add('days',1).format('YYYY-MM-DD'),
+                            radioselect: val,
+                        }
+                        self.$emit('callfunction', obj);
+                        break;
                 }
             }
         },
@@ -170,8 +205,24 @@
                     break;
             }
             todate = moment(todate).add('days', 1).format('YYYY-MM-DD');
-            var radioselect = self.SelectTypetime; 
+            var radioselect = self.SelectTypetime;
             self.$emit('callfunction', { fromdate, todate, radioselect });
+        },
+        formatDatetime: function () {
+            var self = this;
+            $(event.currentTarget).datetimepicker(
+                {
+                    format: 'd/m/Y',
+                    defaultDate: new Date(),
+                    mask: true,
+                    scrollMonth: false,
+                    onChangeDateTime: function (dp, $input) {
+                        if (!commonStatisJs.CheckNull(dp)) {
+                            self.dateFormat = moment(dp).format('DD/MM/YYYY');
+                            self.$emit('change-date', dp);
+                        }
+                    }
+                })
         },
     },
     created: function () {
@@ -184,9 +235,18 @@
             var fromdate = picker.startDate.format('YYYY-MM-DD');
             var todate = picker.endDate.format('YYYY-MM-DD');
             todate = moment(todate).add('days', 1).format('YYYY-MM-DD');
-            var radioselect = self.SelectTypetime; 
+            var radioselect = self.SelectTypetime;
             self.$emit('callfunction', { fromdate, todate, radioselect });
         });
+
+        $('.op-js-component-datetimepicker').datetimepicker(
+            {
+                format: 'd/m/Y',
+                defaultDate: new Date(),
+                mask: true,
+                scrollMonth: false,
+                maxDate: new Date(),
+            })
     },
     watch: {
         typetime: function () {

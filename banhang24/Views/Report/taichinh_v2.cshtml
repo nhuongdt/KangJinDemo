@@ -284,7 +284,9 @@
                         </h3>
                         <filter-datetime radioname="rdThoiGian" v-bind:typetime="ThoiGian.TypeTime"
                                          v-on:callfunction="onCallThoiGian"
-                                         v-bind:selectvalue="3"></filter-datetime>
+                                         v-bind:selectvalue="3"
+                                         v-bind:show-three-chose="LoaiBaoCao=='9'"
+                                         v-on:change-date="ChangeDate"></filter-datetime>
                     </article>
                     <article class="boxLeft DatePK showDate"
                              id="BCSQtheoCN" v-show="LoaiBaoCao === '4' && SoQuyLoai === 4">
@@ -2089,16 +2091,16 @@
             },
             onCallThoiGian: function (value) {
                 let self = this;
+                console.log('self.ThoiGian.From ', self.ThoiGian.From,',', value.fromdate,
+                    'self.ThoiGian.To ', self.ThoiGian.To, ',', value.todate)
                 if (self.ThoiGian.From !== value.fromdate || self.ThoiGian.To !== value.todate) {
                     if (value.fromdate !== '2001-01-01') {
                         self.ThoiGian.From = value.fromdate;
                         self.ThoiGian.To = value.todate;
-                        //self.BaoCaoThoiGianText = 'Từ ngày ' + moment(self.ThoiGian.From).format('DD/MM/YYYY') + ' đến ngày ' + moment(self.ThoiGian.To).add(-1, 'days').format('DD/MM/YYYY');
                     }
                     else {
                         self.ThoiGian.From = '';
                         self.ThoiGian.To = '';
-                        //self.BaoCaoThoiGianText = 'Toàn thời gian';
                     }
                     self.BaoCaoTongHopCongNo.Reload = true;
                     self.BaoCaoNhatKyThuTien.Reload = true;
@@ -2328,6 +2330,14 @@
                 }).always(function () {
                     self.isLoading = false;
                 });
+            },
+            ChangeDate: function (e) {
+                let self = this;
+                let dt = moment(e).add('days', 1).format('YYYY-MM-DD');
+                self.ThoiGian.To = dt;
+                self.ThoiGian.From = '2016-01-01';
+                self.PageList.currentPage = 1;
+                self.LoadData();
             },
             LoadBaoCaoXuatHoTro: function () {
                 let self = this;
