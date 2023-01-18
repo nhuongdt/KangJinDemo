@@ -133,6 +133,41 @@ namespace libQuy_HoaDon
 
             wbook.Save(exportPath, Aspose.Cells.SaveFormat.Xlsx);
         }
+        public void DataToExcel_WithText(string strFileTemplatePath, string exportPath, System.Data.DataTable tblDuLieu,
+            int sourceRowIndex, int destinationRowIndex, int rowNumber, bool checkSum, List<CellDTO> lstCell)
+        {
+            Aspose.Cells.Workbook wbook = new Aspose.Cells.Workbook(strFileTemplatePath);
+            Aspose.Cells.Worksheet wSheet = wbook.Worksheets[0];
+
+            int dkrange = (tblDuLieu.Rows.Count) / rowNumber;
+            if (dkrange >= 1)
+            {
+                //Chèn chữ ký
+                if (checkSum)
+                {
+                    wSheet.Cells.CopyRows(wSheet.Cells, destinationRowIndex, tblDuLieu.Rows.Count + sourceRowIndex, 10);
+                }
+            }
+            if (dkrange < 1)
+            {
+                wSheet.Cells.DeleteRows(sourceRowIndex + tblDuLieu.Rows.Count, rowNumber - tblDuLieu.Rows.Count);
+            }
+            for (int i = 1; i < dkrange; i++)
+            {
+                wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (rowNumber * i) + sourceRowIndex, rowNumber);
+            }
+            if (dkrange * rowNumber < tblDuLieu.Rows.Count)
+            {
+                wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
+            }
+            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+
+            foreach (var cell in lstCell)
+            {
+                wSheet.Cells[cell.Row, cell.Column].Value = cell.Text;
+            }
+            wbook.Save(exportPath, Aspose.Cells.SaveFormat.Xlsx);
+        }
 
         public void listToOfficeExcel(string strFileTemplatePath, string exportPath, System.Data.DataTable tblDuLieu, int sourceRowIndex, int destinationRowIndex, int rowNumber, bool checkSum, string columnsHide)
         {

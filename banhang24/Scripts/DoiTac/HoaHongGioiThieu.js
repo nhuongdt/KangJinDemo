@@ -573,6 +573,40 @@
                     })
             })
         },
+        Export_PhieuTrichHoaHong_byID: function (item) {
+            let self = this;
+            let ngay = item.NgayLapHoaDon;
+            let obj = {
+                id: item.ID,
+                lstCell: [
+                    { Row: 1, Column: 0, Text: 'Mã phiếu: '.concat(item.MaHoaDon, ' - Ngày lập:', moment(ngay).format('DD/MM/YYYY HH:mm')) },
+                    { Row: 2, Column: 1, Text: item.MaNguoiGioiThieu },
+                    { Row: 3, Column: 1, Text: item.TenNguoiGioiThieu },
+                    { Row: 4, Column: 1, Text: item.DienGiai },
+
+                    { Row: 2, Column: 7, Text: item.TongTienHang },
+                    { Row: 3, Column: 7, Text: item.KhachDaTra },
+                    { Row: 4, Column: 7, Text: item.ConNo },
+                ],
+            }
+            ajaxHelper(self.UrlAPI.HoaDon + 'Export_PhieuTrichHoaHong_byID', 'post', obj).done(function (pathFile) {
+                if (pathFile !== '') {
+
+                    let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
+                    window.location.href = url;
+
+                    let diary = {
+                        ID_NhanVien: VHeader.IdNhanVien,
+                        ID_DonVi: VHeader.IdDonVi,
+                        ChucNang: "Phiếu trích hoa hồng",
+                        NoiDung: "Xuất excel phiếu trích hoa hồng ".concat(item.MaHoaDon),
+                        NoiDungChiTiet: "Xuất excel phiếu trích hoa hồng ".concat(item.MaHoaDon, '<br />- Người xuất: ', VHeader.UserLogin),
+                        LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                    };
+                    Insert_NhatKyThaoTac_1Param(diary);
+                }
+            });
+        },
         ExportExcel: function () {
             let self = this;
             let param = self.GetParam();
@@ -615,7 +649,7 @@
                 vmThemMoiKhach.showModalUpdate(cus[0]);
             }
         },
-        gotoPageOther: function (item,type) {
+        gotoPageOther: function (item, type) {
             let self = this;
             let url = '';
             switch (type) {

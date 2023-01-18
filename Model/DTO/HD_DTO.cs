@@ -277,11 +277,11 @@ namespace Model
         public string DienThoai { get; set; }
         public double? TongThanhToan { get; set; }
         public double? KhachDaTra { get; set; }
+        public double? SoTienTrich { get; set; } // = (TienThue) Số tiền thực tế tính chiết khấu cho khách
         public double? PTChietKhau { get; set; }
         public double? TienChietKhau { get; set; }
         public double? DaTrich { get; set; }// (PTChiPhi) số tiền đã trích trước đó
         public double? ConLai { get; set; }// (PTChiPhi) Số tiền còn lại được trích
-        public double? SoTienTrich { get; set; } // = (TienThue) Số tiền thực tế tính chiết khấu cho khách
         public int? TrangThai { get; set; }
     }
 
@@ -358,5 +358,12 @@ namespace Model
         public double? TotalPage { get; set; }
         public double? SumGiaTriSuDung { get; set; }
         public double? SumGiaTriHoTro { get; set; }
+    }
+
+    public class CellDTO
+    {
+        public int Row { get; set; }
+        public int Column { get; set; }
+        public string Text { get; set; }
     }
 }
