@@ -140,6 +140,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("ID_CheckIn");
                     excel.Columns.Remove("ID_DonVi");
                     excel.Columns.Remove("TongChietKhau");
+                    excel.Columns.Remove("TrangThai");
                     excel.Columns.Remove("TotalRow");
                     excel.Columns.Remove("SumTongTienHang");
                     excel.Columns.Remove("SumKhachDaTra");
@@ -213,6 +214,55 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 catch (Exception ex)
                 {
                     CookieStore.WriteLog("Export_PhieuTrichHoaHong " + ex.InnerException + ex.Message);
+                }
+                return fileSave;
+            }
+        }
+
+        [HttpGet, HttpPost]
+        public string Export_PhieuTrichHoaHong_byID([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                string fileSave = string.Empty;
+                try
+                {
+                    List<CellDTO> lstCell = new List<CellDTO>();
+                    Guid idPhieuTrich = Guid.Empty;
+                    if (data["id"] != null)
+                    {
+                        idPhieuTrich = data["id"].ToObject<Guid>();
+                    }
+                    if (data["lstCell"] != null)
+                    {
+                        lstCell = data["lstCell"].ToObject<List<CellDTO>>();
+                    }
+                    List<HoaHongGioiThieu_ChiTiet_DTO> lst = classhoadon.GetChiTietHoaHongGioiThieu_byID(idPhieuTrich);
+                    DataTable excel = _classOFDCM.ToDataTable<HoaHongGioiThieu_ChiTiet_DTO>(lst);
+                    excel.Columns.Remove("ID_DoiTuong");
+                    excel.Columns.Remove("ID_HoaDon_DuocCK");
+                    excel.Columns.Remove("ID_QuyHoaDon");
+                    excel.Columns.Remove("LoaiHoaDon");
+                    excel.Columns.Remove("DienThoai");
+                    excel.Columns.Remove("KhachDaTra");
+                    excel.Columns.Remove("TrangThai");
+                    excel.Columns.Remove("DaTrich");
+                    excel.Columns.Remove("ConLai");
+
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuTrichHoaHongbyID.xlsx");
+                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuTrichHoaHongbyID.xlsx");
+                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+
+                    _classOFDCM.DataToExcel_WithText(fileTeamplate, fileSave, excel, 9, 17, 6, true, lstCell);
+                    var index = fileSave.IndexOf(@"\Template");
+                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    fileSave = fileSave.Replace(@"\", "/");
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog("Export_PhieuTrichHoaHong_byID " + ex.InnerException + ex.Message);
                 }
                 return fileSave;
             }
@@ -12128,7 +12178,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 TienChietKhau = item.TienChietKhau,
                                 SoThuTu = item.SoThuTu,// tinh Ck theo (0.doanhthu, 1.thucthu, 2.vnd)
                                 GhiChu = item.GhiChu,
-                                PTChiPhi= item.PTChiPhi,//Số tiền đã trích trước đó
+                                PTChiPhi = item.PTChiPhi,//Số tiền đã trích trước đó
                                 TienChiPhi = item.TienChiPhi,//Số tiền còn lại được trích
                                 TienThue = item.TienThue,// Số tiền thực tế tính chiết khấu cho khách
                             };
