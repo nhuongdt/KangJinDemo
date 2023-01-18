@@ -936,12 +936,15 @@
                                 </tbody>
                                 <tfoot v-if="BaoCaoXuatHoTro.data.length > 0">
                                     <tr class="bold bg12">
-                                        <td v-bind:colspan="ListHeader.filter(p=>p.index < 5 && p.colShow).length">Tổng cộng</td>
-                                        <td v-if="CheckColShow('colTongThanhToan')" class="text-right"></td>
-                                        <td v-if="CheckColShow('colKhachDaTra')" class="text-right"></td>
-                                        <td v-if="CheckColShow('colConNo')" class="text-right"></td>
-                                        <td v-if="CheckColShow('colNoThucTe')" class="text-right"></td>
-                                        <td v-bind:colspan="ListHeader.filter(p=>p.index > 8 && p.colShow).length"></td>
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index < 4 && p.colShow).length"
+                                            v-if="ListHeader.filter(p=>p.index < 4 && p.colShow).length > 0">
+                                            Tổng cộng
+                                        </td>
+                                        <td v-if="CheckColShow('colGiaTriMua')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoXuatHoTro.TongGiaTriMua)}}</td>
+                                        <td v-if="CheckColShow('colHotroQuyDinh')"></td>
+                                        <td v-if="CheckColShow('colDaHoTro')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoXuatHoTro.TongDaHoTro)}}</td>
+                                        <td v-if="CheckColShow('colVuotMuc')"></td>
+                                        <td v-if="CheckColShow('colChiNhanh')"></td>
                                     </tr>
                                 </tfoot>
                                 <tfoot v-if="BaoCaoXuatHoTro.data.length === 0">
@@ -2091,7 +2094,7 @@
             },
             onCallThoiGian: function (value) {
                 let self = this;
-                console.log('self.ThoiGian.From ', self.ThoiGian.From,',', value.fromdate,
+                console.log('self.ThoiGian.From ', self.ThoiGian.From, ',', value.fromdate,
                     'self.ThoiGian.To ', self.ThoiGian.To, ',', value.todate)
                 if (self.ThoiGian.From !== value.fromdate || self.ThoiGian.To !== value.todate) {
                     if (value.fromdate !== '2001-01-01') {
@@ -2355,6 +2358,9 @@
                 ajaxHelper(self.urlApi.ReportApi + 'BaoCaoNhomHoTro', 'POST', param).done(function (x) {
                     if (x.res && x.LstData.length > 0) {
                         self.BaoCaoXuatHoTro.data = x.LstData;
+                        self.BaoCaoXuatHoTro.TongGiaTriMua = x.SumGiaTriSuDung;
+                        self.BaoCaoXuatHoTro.TongDaHoTro = x.SumGiaTriHoTro;
+
                         self.BaoCaoXuatHoTro.TotalRow = x.TotalRow;
                         self.PageList.PageView = x.PageView;
                         self.PageList.NumberOfPage = x.NumOfPage;
@@ -2362,6 +2368,8 @@
                     }
                     else {
                         self.BaoCaoXuatHoTro.data = [];
+                        self.BaoCaoXuatHoTro.TongGiaTriMua = 0;
+                        self.BaoCaoXuatHoTro.TongDaHoTro = 0;
                         self.BaoCaoXuatHoTro.TotalRow = 0;
                         self.PageList.PageView = '';
                         self.PageList.NumberOfPage = 0;
