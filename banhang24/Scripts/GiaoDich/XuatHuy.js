@@ -1324,7 +1324,7 @@ function ViewModel() {
                         '<br /> Ghi chú: ', item.DienGiai
                     ),
                 }
-                //Post_NhatKySuDung_UpdateGiaVon(diary);
+                Post_NhatKySuDung_UpdateGiaVon(diary);
 
                 self.currentPage(0);
                 getAllHoaDon();
