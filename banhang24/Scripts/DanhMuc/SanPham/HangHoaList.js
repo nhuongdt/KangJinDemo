@@ -14483,19 +14483,20 @@ var ViewModel = function () {
     }
 
     self.CapNhatTonKho = function (item) {
-        let itemTK = {}
-        for (let i = 0; i < self.TheKhos().length; i++) {
-            let tk = self.TheKhos()[i]
+        let saiTK = $.grep(self.TheKhos(), (x) => {
+            return x.LuyKeTonKho !== tk.TonKho;
+        });
+
+        let itemTK = {};
+        // tìm đến dòng đầu tiên bị sai lũy kế
+        for (let i = saiTK.length - 1; i > 0; i--) {
+            let tk = saiTK[i];
             if (tk.LuyKeTonKho !== tk.TonKho) {
-                if (i > 0) {
-                    itemTK = self.TheKhos()[i - 1];// tìm đến dòng đầu tiên bị sai lũy kế --> get dòng trc đó
-                }
-                else {
-                    itemTK = tk;
-                }
+                itemTK = tk;
                 break;
             }
         }
+
         if (!$.isEmptyObject(itemTK)) {
             let diary = {
                 ID_DonVi: itemTK.ID_DonVi,
@@ -14514,6 +14515,7 @@ var ViewModel = function () {
             }
             Post_NhatKySuDung_UpdateGiaVon(diary);
             ShowMessage_Success('Cập nhật thành công');
+            SearchHangHoa();
         }
     }
 };
