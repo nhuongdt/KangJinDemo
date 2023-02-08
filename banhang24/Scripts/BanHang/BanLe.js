@@ -1723,6 +1723,17 @@ var NewModel_BanHangLe = function () {
         if (cthd != null) {
             cthd = JSON.parse(cthd);
 
+            let arrIDHoaDon_update = [];
+            let lstHD = localStorage.getItem(lcListHD);
+            if (lstHD !== null) {
+                lstHD = JSON.parse(lstHD);
+                arrIDHoaDon_update = $.grep(lstHD, function (x) {
+                    return x.TrangThaiHD == 8
+                }).map(function (o) {
+                    return o.ID
+                })
+            }
+
             var loaiHD = 1;
             if (cthd.length > 0) {
                 loaiHD = cthd[0].LoaiHoaDon;
@@ -1749,12 +1760,24 @@ var NewModel_BanHangLe = function () {
                 return x.ID_LoHang;
             });
 
-            // idquidoi of combo
+            // idquidoi of combo + tpdl
             for (let i = 0; i < cthd.length; i++) {
                 let forOut = cthd[i];
                 if (!commonStatisJs.CheckNull(forOut.ThanhPhanComBo) && forOut.ThanhPhanComBo.length > 0) {
                     for (let j = 0; j < forOut.ThanhPhanComBo.length; j++) {
                         let forIn = forOut.ThanhPhanComBo[j];
+                        if (forIn.LoaiHangHoa === 1) {
+                            arrIDQuiDoi.push(forIn.ID_DonViQuiDoi);
+                            if (forIn.QuanLyTheoLoHang) {
+                                arrIDLoHang.push(forIn.ID_LoHang);
+                            }
+                        }
+                    }
+                }
+
+                if (!commonStatisJs.CheckNull(forOut.ThanhPhan_DinhLuong) && forOut.ThanhPhan_DinhLuong.length > 0) {
+                    for (let j = 0; j < forOut.ThanhPhan_DinhLuong.length; j++) {
+                        let forIn = forOut.ThanhPhan_DinhLuong[j];
                         if (forIn.LoaiHangHoa === 1) {
                             arrIDQuiDoi.push(forIn.ID_DonViQuiDoi);
                             if (forIn.QuanLyTheoLoHang) {
@@ -1785,7 +1808,7 @@ var NewModel_BanHangLe = function () {
                     for (let j = 0; j < cthd.length; j++) {
                         let forOut = cthd[j];
                         let isUpdate = false;
-                        if (forOut.MaHoaDon.indexOf('HD') === 0) {
+                        if ($.inArray(forOut.ID_HoaDon, arrIDHoaDon_update) > -1) {
                             isUpdate = true;
                         }
                         if (forOut.LaHangHoa) {
@@ -1837,6 +1860,18 @@ var NewModel_BanHangLe = function () {
                                 cthd[j].ThanhPhanComBo[k].TonKho = dataDB2[0].TonKho + (isUpdate ? cthd[j].ThanhPhanComBo[k].SoLuong : 0);
                             }
                             cthd[j].ThanhPhanComBo[k].CssWarning = xuatAm === false && cthd[j].ThanhPhanComBo[k].TonKho < forIn.SoLuong;
+                        }
+
+                        for (let k = 0; k < cthd[j].ThanhPhan_DinhLuong.length; k++) {
+                            let forIn = cthd[j].ThanhPhan_DinhLuong[k];
+                            let dataDB2 = $.grep(data, function (o) {
+                                return o.ID_DonViQuiDoi === forIn.ID_DonViQuiDoi
+                                    && (!forIn.QuanLyTheoLoHang || (o.ID_LoHang === forIn.ID_LoHang))
+                            });
+                            if (dataDB2.length > 0) {
+                                cthd[j].ThanhPhan_DinhLuong[k].TonKho = dataDB2[0].TonKho + (isUpdate ? cthd[j].ThanhPhan_DinhLuong[k].SoLuong : 0);
+                            }
+                            cthd[j].ThanhPhan_DinhLuong[k].CssWarning = xuatAm === false && cthd[j].ThanhPhan_DinhLuong[k].TonKho < forIn.SoLuong;
                         }
                     }
                     localStorage.setItem(cacheName, JSON.stringify(cthd));
@@ -3738,34 +3773,89 @@ var NewModel_BanHangLe = function () {
     // use when list HangHoa = list HangHoa + list LoHang
     function UpdateTonKho_forListHangHoa_andCTHD(objCTHD, isTraHang) {
 
-        // check CTHD con lai by IDRandomHD
-        var maHDOld = objCTHD[0].IDRandomHD;
-        // update again TonKho for list HangHoaAll
-        var lengHH = self.HangHoaAll().length;
+        // group cthd by idquyidoi + idlo (baogom ca TPDL)
+        let arrCT = []; arrQuiDoi = [];
         for (let i = 0; i < objCTHD.length; i++) {
-            let idLoHangCTHD = objCTHD[i].ID_LoHang;
+            let itFor = objCTHD[i];
+
+            switch (itFor.LoaiHangHoa) {
+                case 1:
+                    arrQuiDoi.push(itFor.ID_DonViQuiDoi);
+                    arrCT.push(itFor);
+                    break;
+                case 2:
+                    if (itFor.ThanhPhan_DinhLuong.length > 0) {
+                        // dluong chon thucong
+                        for (let k = 0; k < itFor.ThanhPhan_DinhLuong.length; k++) {
+                            let tpdl = itFor.ThanhPhan_DinhLuong[k];
+                            if ($.inArray(tpdl.ID_DonViQuiDoi, arrQuiDoi) === -1) {
+                                arrQuiDoi.push(tpdl.ID_DonViQuiDoi);
+                                arrCT.push(tpdl);
+                            }
+                            else {
+                                for (let j = 0; j < arrCT.length; j++) {
+                                    if (arrCT[j].ID_DonViQuiDoi === tpdl.ID_DonViQuiDoi && tpdl.ID_LoHang === arrCT[j].ID_LoHang) {
+                                        arrCT[j].SoLuong += tpdl.SoLuong;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        // dluong was setup
+                        let arrTP = $.grep(vmThanhPhanDinhLuong.All_DinhLuongDichVu, function (x) {
+                            return x.ID_DichVu === itFor.ID_DonViQuiDoi;
+                        });
+                        if (arrTP.length > 0) {
+                            for (let k = 0; k < arrTP.length; k++) {
+                                let tpdl = arrTP[k];
+                                if (tpdl.LoaiHangHoa === 1) {
+                                    if ($.inArray(tpdl.ID_DonViQuiDoi, arrQuiDoi) === -1) {
+                                        arrQuiDoi.push(tpdl.ID_DonViQuiDoi);
+                                        tpdl.SoLuong = itFor.SoLuong * tpdl.SoLuongMacDinh;
+                                        arrCT.push(tpdl);
+                                    }
+                                    else {
+                                        for (let j = 0; j < arrCT.length; j++) {
+                                            if (arrCT[j].ID_DonViQuiDoi === tpdl.ID_DonViQuiDoi && tpdl.ID_LoHang === arrCT[j].ID_LoHang) {
+                                                arrCT[j].SoLuong += tpdl.SoLuong * itFor.SoLuong;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // update again TonKho for list HangHoaAll
+        let lengHH = self.HangHoaAll().length;
+        for (let i = 0; i < arrCT.length; i++) {
+            let idLoHangCTHD = arrCT[i].ID_LoHang;
             idLoHangCTHD = (idLoHangCTHD === undefined ? null : idLoHangCTHD);
             let j = 0;
             for (j; j < lengHH; j++) {
                 let itemHH = self.HangHoaAll()[j];
-                if (itemHH.ID_DonViQuiDoi === objCTHD[i].ID_DonViQuiDoi && itemHH.LaHangHoa) {
+                if (itemHH.ID_DonViQuiDoi === arrCT[i].ID_DonViQuiDoi && itemHH.LaHangHoa) {
                     // update self.HangHoaAll() --> knockout auto update self.HangHoas
                     if (itemHH.QuanLyTheoLoHang === false) {
                         if (isTraHang) {
-                            self.HangHoaAll()[j].TonKho = self.HangHoaAll()[j].TonKho + objCTHD[i].SoLuong;
+                            self.HangHoaAll()[j].TonKho += arrCT[i].SoLuong;
                         }
                         else {
-                            self.HangHoaAll()[j].TonKho = self.HangHoaAll()[j].TonKho - objCTHD[i].SoLuong;
+                            self.HangHoaAll()[j].TonKho -= arrCT[i].SoLuong;
                         }
                         break;
                     }
                     else {
                         if (itemHH.ID_LoHang === idLoHangCTHD) {
                             if (isTraHang) {
-                                self.HangHoaAll()[j].TonKho = self.HangHoaAll()[j].TonKho + objCTHD[i].SoLuong;
+                                self.HangHoaAll()[j].TonKho += arrCT[i].SoLuong;
                             }
                             else {
-                                self.HangHoaAll()[j].TonKho = self.HangHoaAll()[j].TonKho - objCTHD[i].SoLuong;
+                                self.HangHoaAll()[j].TonKho -= arrCT[i].SoLuong;
                             }
                             UpdateTonKho_InDMLo(itemHH.ID_DonViQuiDoi, itemHH.ID_LoHang, self.HangHoaAll()[j].TonKho);
                             break;
@@ -3774,74 +3864,146 @@ var NewModel_BanHangLe = function () {
                 }
             }
         }
-        // update TonKho for lstCTHD con lai
-        var lstCTHD = localStorage.getItem(lcListCTHD);
-        if (lstCTHD !== null) {
-            lstCTHD = JSON.parse(lstCTHD);
-            for (let i = 0; i < lstCTHD.length; i++) {
+
+        let idRandomHD = objCTHD[0].IDRandomHD;
+        // update TonKho for cthd con lai
+        let ctMua = localStorage.getItem(lcListCTHD);
+        if (ctMua !== null) {
+            ctMua = JSON.parse(ctMua);
+            for (let i = 0; i < ctMua.length; i++) {
                 // chi update nhung hang hoa con lai chua luu HoaDon
-                if (lstCTHD[i].MaHoaDon !== maHDOld) {
-                    let j = 0;
-                    for (j; j < lengHH; j++) {
-                        let itemHH2 = self.HangHoaAll()[j];
-                        if (itemHH2.ID_DonViQuiDoi === lstCTHD[i].ID_DonViQuiDoi && itemHH2.LaHangHoa) {
-                            if (itemHH2.QuanLyTheoLoHang) {
-                                // update TomKho for DM_LoHang in CTHD
-                                for (let k = 0; k < lstCTHD[i].DM_LoHang.length; k++) {
-                                    var itemHH_Lo = $.grep(self.HangHoaAll(), function (x) {
-                                        return x.ID_DonViQuiDoi === lstCTHD[i].ID_DonViQuiDoi && x.ID_LoHang === lstCTHD[i].DM_LoHang[k].ID_LoHang;
-                                    });
-                                    if (itemHH_Lo.length > 0) {
-                                        lstCTHD[i].DM_LoHang[k].TonKho = itemHH_Lo[0].TonKho;
-                                        if (k === 0) {
-                                            lstCTHD[i].TonKho = itemHH_Lo[0].TonKho;
-                                        }
+                if (ctMua[i].IDRandomHD !== idRandomHD) {
+
+                    // update tonkho for tpdl
+                    if (ctMua[i].LoaiHangHoa === 2) {
+                        for (let k = 0; k < ctMua[i].ThanhPhan_DinhLuong.length; k++) {
+                            let tpdl = ctMua[i].ThanhPhan_DinhLuong[k];
+                            if (tpdl.LoaiHangHoa === 1) {
+                                let itXuat = $.grep(arrCT, (x) => {
+                                    return x.ID_DonViQuiDoi === tpdl.ID_DonViQuiDoi;
+                                });
+                                if (itXuat.length > 0) {
+                                    if (itXuat[0].QuanLyTheoLoHang) {
+                                        itXuat = $.grep(itXuat, (x) => {
+                                            return x.ID_LoHang === tpdl.ID_LoHang;
+                                        });
+                                    }
+                                    if (itXuat.length > 0 && !isTraHang) {
+                                        ctMua[i].ThanhPhan_DinhLuong[k].TonKho -= itXuat[0].SoLuong;
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    for (let j = 0; j < arrCT.length; j++) {
+                        let ctOld = arrCT[j];
+                        if (ctOld.ID_DonViQuiDoi === ctMua[i].ID_DonViQuiDoi && ctOld.LaHangHoa) {
+                            if (ctOld.QuanLyTheoLoHang) {
+                                for (let k = 0; i < ctMua[i].DM_LoHang.length; i++) {
+                                    if (ctOld.ID_LoHang === ctMua[i].DM_LoHang[k].ID_LoHang) {
+                                        if (isTraHang) {
+                                            ctMua[i].DM_LoHang[k].TonKho += ctOld.SoLuong;
+                                        }
+                                        else {
+                                            ctMua[i].DM_LoHang[k].TonKho -= ctOld.SoLuong;
+                                        }
+                                        break;
+                                    }
+                                }
+                                if (ctOld.ID_LoHang === ctMua[i].ID_LoHang) {
+                                    if (isTraHang) {
+                                        ctMua[i].TonKho += ctOld.SoLuong;
+                                    }
+                                    else {
+                                        ctMua[i].TonKho -= ctOld.SoLuong;
+                                    }
+                                    break;
+                                }
+                            }
                             else {
-                                lstCTHD[i].TonKho = itemHH2.TonKho;
+                                if (isTraHang) {
+                                    ctMua[i].TonKho += ctOld.SoLuong;
+                                }
+                                else {
+                                    ctMua[i].TonKho -= ctOld.SoLuong;
+                                }
                                 break;
                             }
                         }
                     }
                 }
             }
-            localStorage.setItem(lcListCTHD, JSON.stringify(lstCTHD));
+            localStorage.setItem(lcListCTHD, JSON.stringify(ctMua));
         }
-        // update TonKho for lstCTHD_DoiTra
-        var lstCTHD_DT = localStorage.getItem(lcListCTHD_DoiTra);
-        if (lstCTHD_DT !== null) {
-            lstCTHD_DT = JSON.parse(lstCTHD_DT);
-            for (let i = 0; i < lstCTHD_DT.length; i++) {
+
+        // update TonKho for cthd_DoiTra
+        let ctDoi = localStorage.getItem(lcListCTHD_DoiTra);
+        if (ctDoi !== null) {
+            ctDoi = JSON.parse(ctDoi);
+            for (let i = 0; i < ctDoi.length; i++) {
                 // chi update nhung hang hoa con lai chua luu HoaDon
-                if (lstCTHD_DT[i].MaHoaDon !== maHDOld) {
-                    let j = 0;
-                    for (j; j < lengHH; j++) {
-                        let itemHH3 = self.HangHoaAll()[j];
-                        if (itemHH3.ID_DonViQuiDoi === lstCTHD_DT[i].ID_DonViQuiDoi && itemHH3.LaHangHoa) {
-                            if (itemHH3.QuanLyTheoLoHang) {
-                                // update TomKho for DM_LoHang in CTHD
-                                for (let k = 0; k < lstCTHD_DT[i].DM_LoHang.length; k++) {
-                                    var itemHH3_Lo = $.grep(self.HangHoaAll(), function (x) {
-                                        return x.ID_DonViQuiDoi === lstCTHD_DT[i].ID_DonViQuiDoi && x.ID_LoHang === lstCTHD_DT[i].DM_LoHang[k].ID_LoHang;
-                                    });
-                                    if (itemHH3_Lo.length > 0) {
-                                        lstCTHD_DT[i].DM_LoHang[k].TonKho = itemHH3_Lo[0].TonKho;
-                                        if (k === 0) {
-                                            lstCTHD_DT[i].TonKho = itemHH3_Lo[0].TonKho;
+                if (ctDoi[i].IDRandomHD !== idRandomHD) {
+                    for (let j = 0; j < arrCT.length; j++) {
+                        let ctOld = arrCT[j];
+                        if (ctOld.ID_DonViQuiDoi === ctDoi[i].ID_DonViQuiDoi && ctOld.LaHangHoa) {
+                            if (ctOld.QuanLyTheoLoHang) {
+                                for (let k = 0; i < ctDoi[i].DM_LoHang.length; i++) {
+                                    if (ctOld.ID_LoHang === ctDoi[i].DM_LoHang[k].ID_LoHang) {
+                                        if (isTraHang) {
+                                            ctDoi[i].DM_LoHang[k].TonKho += ctOld.SoLuong;
                                         }
+                                        else {
+                                            ctDoi[i].DM_LoHang[k].TonKho -= ctOld.SoLuong;
+                                        }
+                                        break;
                                     }
+                                }
+                                if (ctOld.ID_LoHang === ctDoi[i].ID_LoHang) {
+                                    if (isTraHang) {
+                                        ctDoi[i].TonKho += ctOld.SoLuong;
+                                    }
+                                    else {
+                                        ctDoi[i].TonKho -= ctOld.SoLuong;
+                                    }
+                                    break;
                                 }
                             }
                             else {
-                                lstCTHD_DT[i].TonKho = self.HangHoaAll()[j].TonKho;
+                                if (isTraHang) {
+                                    ctDoi[i].TonKho += ctOld.SoLuong;
+                                }
+                                else {
+                                    ctDoi[i].TonKho -= ctOld.SoLuong;
+                                }
+                                break;
                             }
                         }
                     }
                 }
             }
-            localStorage.setItem(lcListCTHD_DoiTra, JSON.stringify(lstCTHD_DT));
+            localStorage.setItem(lcListCTHD_DoiTra, JSON.stringify(ctDoi));
+        }
+
+        // update tonkho for vmThanhPhanDinhLuong.All_DinhLuongDichVu
+        let lenDL = vmThanhPhanDinhLuong.All_DinhLuongDichVu.length;
+        for (let i = 0; i < lenDL; i++) {
+            let itFor = vmThanhPhanDinhLuong.All_DinhLuongDichVu[i];
+            if (itFor.LoaiHangHoa === 1) {
+                let itXuat = $.grep(arrCT, (x) => {
+                    return x.ID_DonViQuiDoi === itFor.ID_DonViQuiDoi;
+                });
+                if (itXuat.length > 0) {
+                    if (itXuat[0].QuanLyTheoLoHang) {
+                        itXuat = $.grep(itXuat, (x) => {
+                            return x.ID_LoHang === itFor.ID_LoHang;
+                        });
+                    }
+                    if (itXuat.length > 0 && !isTraHang) {
+                        vmThanhPhanDinhLuong.All_DinhLuongDichVu[i].TonKho -= itXuat[0].SoLuong;
+                    }
+                }
+            }
         }
     }
 
@@ -16842,42 +17004,7 @@ var NewModel_BanHangLe = function () {
             self.ListKM_ofHangHoa.push(self.HHTang_AfterRender()[i]);
         }
     }
-    function CheckTonKho_TPDinhLuong(objCTHD) {
-        var sHangHoa = '';
-        if (self.ThietLap().XuatAm === false) {
-            for (let i = 0; i < objCTHD.length; i++) {
-                // get TPdinhluong of hanghoa
-                var lstTPDL = $.grep(vmThanhPhanDinhLuong.All_DinhLuongDichVu, function (x) {
-                    return x.ID_Dichvu = objCTHD[i].ID_DonViQuiDoi;
-                });
-                if (lstTPDL.length > 0) {
-                    // chek TonKho
-                    for (let j = 0; j < lstTPDL.length; j++) {
-                        var itemHH = $.grep(self.HangHoaAll(), function (x) {
-                            return x.ID_DonViQuiDoi === lstTPDL[j].ID_DonViQuiDoi;
-                        });
-                        if (itemHH.length > 0) {
-                            if (itemHH[0].LaHangHoa) {
-                                if (itemHH[0].QuanLyTheoLoHang) {
-                                    var itemHH_Lo = $.grep(itemHH, function (x) {
-                                        return x.ID_LoHang === lstTPDL[j].ID_LoHang;
-                                    });
-                                    if (itemHH_Lo.length > 0 && itemHH_Lo[0].TonKho < 0) {
-                                        sHangHoa += itemHH_Lo[0].TenHangHoa + ',';
-                                    }
-                                }
-                                else {
-                                    if (itemHH[0].TonKho < 0) {
-                                        sHangHoa += itemHH[0].TenHangHoa + ',';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+
     function CheckTonKho_SameIDHangHoa_DifferenceDVT(objCTHD) {
         var err = '';
         for (let i = 0; i < objCTHD.length; i++) {
@@ -16966,9 +17093,9 @@ var NewModel_BanHangLe = function () {
                     }
                     if (loaiHD === 1 || loaiHD === 2) {
                         let errTPDL = '';
-                        let errCT = '';
                         // check TonKho TPDinhLuong
                         for (let i = 0; i < objCTAdd.length; i++) {
+                            let errCT = '';
                             if (objCTAdd[i].ThanhPhan_DinhLuong.length > 0) {
                                 for (let j = 0; j < objCTAdd[i].ThanhPhan_DinhLuong.length; j++) {
                                     let dluong = objCTAdd[i].ThanhPhan_DinhLuong[j];
@@ -16990,14 +17117,16 @@ var NewModel_BanHangLe = function () {
                                 }
                                 else {
                                     // find TP dinhluong & check TonKho  
-                                    let arrTP = $.grep(vmThanhPhanDinhLuong.All_DinhLuongDichVu, function (x) {
-                                        return x.ID_DichVu === objCTAdd[i].ID_DonViQuiDoi;
-                                    });
-                                    for (let j = 0; j < arrTP.length; j++) {
-                                        if (arrTP[j].LoaiHangHoa === 1) {
-                                            let sluongDL = objCTAdd[i].SoLuong * arrTP[j].SoLuong;
-                                            if (sluongDL > arrTP[j].TonKho) {
-                                                errCT += arrTP[j].TenHangHoa + ' ,';
+                                    if (objCTAdd[i].LoaiHangHoa !== 1) {
+                                        let arrTP = $.grep(vmThanhPhanDinhLuong.All_DinhLuongDichVu, function (x) {
+                                            return x.ID_DichVu === objCTAdd[i].ID_DonViQuiDoi;
+                                        });
+                                        for (let j = 0; j < arrTP.length; j++) {
+                                            if (arrTP[j].LoaiHangHoa === 1) {
+                                                let sluongDL = objCTAdd[i].SoLuong * arrTP[j].SoLuongMacDinh;
+                                                if (sluongDL > arrTP[j].TonKho) {
+                                                    errCT += arrTP[j].TenHangHoa + ' ,';
+                                                }
                                             }
                                         }
                                     }
