@@ -527,67 +527,6 @@ BEGIN
     	END
 END
 			");
-            Sql(@"ALTER PROCEDURE [dbo].[Search_DMHangHoa_TonKho]
-    @MaHH [nvarchar](max),
-    @MaHH_TV [nvarchar](max),
-    @ID_ChiNhanh [uniqueidentifier],
-    @ID_NguoiDung [uniqueidentifier]
-AS
-BEGIN
-SET NOCOUNT ON;
-    DECLARE @XemGiaVon as nvarchar
-    Set @XemGiaVon = (Select 
-    						Case when nd.LaAdmin = '1' then '1' else
-    						Case when nd.XemGiaVon is null then '0' else nd.XemGiaVon end end as XemGiaVon
-    						From
-    						HT_NguoiDung nd	
-    						where nd.ID = @ID_NguoiDung)
-    DECLARE @tablename TABLE(
-    Name [nvarchar](max))
-    	DECLARE @tablenameChar TABLE(
-    Name [nvarchar](max))
-    	DECLARE @count int
-    	DECLARE @countChar int
-    	INSERT INTO @tablename(Name) select  Name from [dbo].[splitstring](@MaHH+',') where Name!='';
-    	INSERT INTO @tablenameChar(Name) select  Name from [dbo].[splitstring](@MaHH_TV+',') where Name!='';
-    	Select @count =  (Select count(*) from @tablename);
-    	Select @countChar =   (Select count(*) from @tablenameChar);
-
-select qd.ID as ID_DonViQuiDoi,
-		MaHangHoa, TenHangHoa, TenHangHoa_KhongDau, TenHangHoa_KyTuDau,TenDonViTinh, ThuocTinhGiaTri as ThuocTinh_GiaTri,
-		CONCAT(TenHangHoa,' ', ThuocTinhGiaTri,' ', case when TenDonViTinh='' or TenDonViTinh is null then '' else ' (' + TenDonViTinh + ')' end) as TenHangHoaFull,
-		ISNULL(tk.TonKho,0) as TonCuoiKy,
-		CAST(ROUND((qd.GiaBan), 0) as float) as GiaBan,		
-		case when @XemGiaVon= '1' then CAST(ROUND((ISNULL(gv.GiaVon,0)), 0) as float) else 0 end as GiaVon,
-		case when @XemGiaVon= '1' then	
-			case when hh.LaHangHoa='1' then CAST(ROUND((ISNULL(gv.GiaVon,0)), 0) as float)
-			else CAST(ROUND((ISNULL(tblDVu.GiaVon,0)), 0) as float) end
-		else 0 end as GiaVon,
-		gv.ID_DonVi, hh.LaHangHoa
-	from DonViQuiDoi qd 
-	join DM_HangHoa hh on qd.ID_HangHoa= hh.ID
-	left join DM_HangHoa_TonKho tk on qd.ID= tk.ID_DonViQuyDoi
-	left join DM_GiaVon gv on qd.id= gv.ID_DonViQuiDoi
-	left join (select qd2.ID,sum(dl.SoLuong *  ISNULL(gv.GiaVon,0)) as GiaVon
-				from DonViQuiDoi qd2
-				join DinhLuongDichVu dl on qd2.ID= dl.ID_DichVu
-				left join DM_GiaVon gv on dl.ID_DonViQuiDoi= gv.ID_DonViQuiDoi
-				where gv.ID_DonVi=@ID_ChiNhanh 
-				group by qd2.ID
-				) tblDVu on qd.ID= tblDVu.ID
-	where qd.Xoa= 0 and hh.TheoDoi=1
-	and ((tk.ID_DonVi = @ID_ChiNhanh and hh.LaHangHoa='1') or hh.LaHangHoa=0)
-	and ((gv.ID_DonVi= @ID_ChiNhanh) or gv.ID_DonVi is null )
-	and	((select count(*) from @tablename b where 
-    		qd.MaHangHoa like '%'+b.Name+'%' 
-    		or hh.TenHangHoa_KhongDau like '%'+b.Name+'%' 
-    		--or hh.TenHangHoa_KyTuDau like '%'+b.Name+'%' 
-			)=@count or @count=0)	 
-    	and	qd.Xoa = 0
-	order by tk.TonKho desc
-END
-
---Search_DMHangHoa_TonKho 'goi','goi','d93b17ea-89b9-4ecf-b242-d03b8cde71de','28fef5a1-f0f2-4b94-a4ad-081b227f3b77'");
 
             Sql(@"ALTER PROCEDURE [dbo].[SP_GetChiTietHoaDonGoiDV_AfterUseAndTra]
     @ID_HoaDon [uniqueidentifier]

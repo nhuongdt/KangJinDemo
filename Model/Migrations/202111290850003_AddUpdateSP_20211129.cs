@@ -2634,81 +2634,6 @@ BEGIN
     order by tn.NgayVaoXuong desc
 END");
 
-			Sql(@"ALTER PROCEDURE [dbo].[SP_GetHDDebit_ofKhachHang]
-    @ID_DoiTuong [nvarchar](max),
-    @ID_DonVi [nvarchar](max),
-	@LoaiDoiTuong int
-AS
-BEGIN
-	if @ID_DonVi='00000000-0000-0000-0000-000000000000'
-		begin
-			set @ID_DonVi = (select CAST(ID as varchar(40)) + ',' as  [text()] from DM_DonVi  where TrangThai is null or TrangThai='1' for xml path(''))	
-			set @ID_DonVi= left(@ID_DonVi, LEN(@ID_DonVi) -1) -- remove last comma ,
-		end
-		-- get hoadon all chinhanh
-
-		select *
-		from
-		(
-		select *
-		from
-		(
-			select 
-			a.ID, a.MaHoaDon, a.NgayLapHoaDon,	a.LoaiHoaDon,
-			a.TongThanhToan,
-			a.TongTienThue,
-			TinhChietKhauTheo,
-			iif(@LoaiDoiTuong=3, a.PhaiThanhToanBaoHiem,a.PhaiThanhToan) - ISNULL(b.TongThanhToan,0) as PhaiThanhToan
-			from
-			(
-		select hd.ID, hd.MaHoaDon, hd.NgayLapHoaDon, hd.LoaiHoaDon,
-				hd.TongTienThue,
-				hd.TongThanhToan,
-    			ISNULL(hd.PhaiThanhToan,0) - ISNULL(hdt.PhaiThanhToan,0) as PhaiThanhToan,
-				ISNULL(hd.PhaiThanhToanBaoHiem,0) - ISNULL(hdt.PhaiThanhToanBaoHiem,0) as PhaiThanhToanBaoHiem,
-    			ISNULL(TinhChietKhauTheo,1) as TinhChietKhauTheo
-    		from BH_HoaDon hd
-    		left join BH_HoaDon hdt on hd.ID_HoaDon= hdt.ID and hdt.LoaiHoaDon= 6
-    		left join 
-    				(select ID_HoaDon, min(TinhChietKhauTheo) as TinhChietKhauTheo
-    				from BH_NhanVienThucHien nvth
-    				where nvth.ID_HoaDon is not null
-    				group by ID_HoaDon) tblNV on hd.ID = tblNV.ID_HoaDon
-    		where 
-			exists (select Name from dbo.splitstring(@ID_DonVi) where Name= hd.ID_DonVi)
-			and iif(@LoaiDoiTuong=3, hd.ID_BaoHiem, hd.ID_DoiTuong) like @ID_DoiTuong		
-    		and hd.LoaiHoaDon in (1,19,4,22, 25)
-    		and hd.ChoThanhToan='0' 
-			) a
-			left join
-			(
-			-- get hoadon trahang of khachhang
-			select
-				hd.ID_HoaDon, hd.TongThanhToan
-			from BH_HoaDon hd
-			where hd.ID_DoiTuong like @ID_DoiTuong
-			and hd.ID_HoaDon is not null
-			and hd.LoaiHoaDon= 6		
-			) b on a.ID= b.ID_HoaDon
-		) tbl
-		--order by a.NgayLapHoaDon desc
-
-		union all
-
-		select 
-			cp.ID_HoaDon, hd.MaHoaDon, hd.NgayLapHoaDon,hd.LoaiHoaDon,
-			sum(cp.ThanhTien) as TongThanhToan,
-			0 as TongTienThue,
-			0 as TinhChietKhauTheo,
-			sum(cp.ThanhTien) as PhaiThanhToan
-		from BH_HoaDon_ChiPhi cp
-		join BH_HoaDon hd on cp.ID_HoaDon = hd.ID
-		where hd.ChoThanhToan= 0
-		and cp.ID_NhaCungCap= @ID_DoiTuong
-		group by cp.ID_HoaDon, hd.MaHoaDon, hd.NgayLapHoaDon,	hd.LoaiHoaDon
-		)tblView order by NgayLapHoaDon desc
-END");
-
 			Sql(@"ALTER PROCEDURE [dbo].[SP_GetQuyHoaDon_ofDoiTuong]
     @ID_DoiTuong [nvarchar](max),
     @ID_DonVi [nvarchar](max)
@@ -2867,56 +2792,6 @@ BEGIN
     	ON ct.ID_HoaDon = KKHoaDon.IDHoaDon AND ct.ID_DonViQuiDoi = KKHoaDon.IDDonViQuiDoi AND (ct.ID_LoHang = KKHoaDon.ID_LoHang OR KKHoaDon.ID_LoHang IS NULL) 
     		GROUP BY ct.ID_HoaDon) AS dshoadonkkupdate
     ON hdkkupdate.ID = dshoadonkkupdate.ID_HoaDon;
-END");
-
-            Sql(@"ALTER PROCEDURE [dbo].[ValueCard_ServiceUsed]
-    @ID_ChiNhanhs [nvarchar](max),
-    @TextSearch [nvarchar](max),
-    @DateFrom [nvarchar](14),
-    @DateTo [nvarchar](14),
-    @Status [nvarchar](14),
-    @CurrentPage [int],
-    @PageSize [int]
-AS
-BEGIN
-    SET NOCOUNT ON;   
-	declare @tblChiNhanh table (ID_Donvi uniqueidentifier)
-	insert into @tblChiNhanh
-	select name from dbo.splitstring(@ID_ChiNhanhs)
-
-    		DECLARE @tblSearchString TABLE (Name [nvarchar](max));
-    		INSERT INTO @tblSearchString(Name) select  Name from [dbo].[splitstringByChar](@TextSearch, ' ') where Name!='';
-    		DECLARE @count int =  (Select count(*) from @tblSearchString);
-    	
-    		select hd.ID as ID_HoaDon,tblq.ID_HoaDon as ID_PhieuThuChi, hd.MaHoaDon,tblq.NgayLapHoaDon,ISNULL(dt.MaDoiTuong,'') as MaDoiTuong, ISNULL(dt.TenDoiTuong, N'Khách lẻ') as TenDoiTuong, 
-    	qd.MaHangHoa,hh.TenHangHoa,ct.SoLuong, ct.DonGia, ct.TienChietKhau, ct.ThanhTien,  ISNULL(tblq.PhatSinhGiam,0) as PhatSinhGiam, ISNULL(tblq.PhatSinhTang,0) as PhatSinhTang, tblq.MaHoaDon as MaPhieuThu,		
-    		case hd.LoaiHoaDon
-    			when 1 then N'Bán hàng'
-    			when 3 then N'Đặt hàng'
-    			when 6 then N'Trả hàng'
-    			when 19 then N'Gói dịch vụ'
-    			when 25 then N'Sửa chữa'
-    		else '' end as SLoaiHoaDon
-    	from BH_HoaDon hd
-    	join BH_HoaDon_ChiTiet ct on hd.id= ct.id_hoadon
-    	left join DM_DoiTuong dt on hd.ID_DoiTuong = dt.ID
-    	join DonViQuiDoi qd on ct.id_donviquidoi= qd.id
-    	join DM_HangHoa hh on qd.ID_HangHoa = hh.ID
-    	join (select qct.ID_HoaDonLienQuan, MaHoaDon, NgayLapHoaDon, qct.ID_HoaDon,
-    				case when qhd.LoaiHoaDon = 11 then SUM(ISNULL(qct.ThuTuThe ,0)) end as PhatSinhGiam,
-    				case when qhd.LoaiHoaDon = 12 then SUM(ISNULL(qct.ThuTuThe ,0)) end as PhatSinhTang
-    		from Quy_HoaDon_Chitiet qct 
-    		join Quy_HoaDon qhd on qct.ID_HoaDon = qhd.ID
-    		where qhd.TrangThai ='1' 
-    			and qct.HinhThucThanhToan=4
-    		and FORMAT(qhd.NgayLapHoaDon,'yyyy-MM-dd') >=@DateFrom
-    		and FORMAT(qhd.NgayLapHoaDon,'yyyy-MM-dd') <= @DateTo
-    		group by qct.ID_HoaDonLienQuan, qct.ID_HoaDon, qhd.MaHoaDon, qhd.NgayLapHoaDon, qhd.LoaiHoaDon) tblq on hd.ID= tblq.ID_HoaDonLienQuan
-    	where hd.LoaiHoaDon in ( 1,3,6,19,25) 
-    	and hd.ChoThanhToan ='0'
-		and exists (select cn.ID_DonVi from @tblChiNhanh cn where hd.ID_DonVi= cn.ID_Donvi)
-    	and (ct.ID_ChiTietDinhLuong is null or ct.ID_ChiTietDinhLuong = ct.ID)	
-    		order by hd.NgayLapHoaDon desc
 END");
 
             CreateStoredProcedure(name: "[dbo].[BaoCaoGoiDV_GetCTMua]", parametersAction: p => new
