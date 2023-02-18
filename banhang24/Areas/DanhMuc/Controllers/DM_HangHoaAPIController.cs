@@ -5271,7 +5271,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 lstreturn = lstreturn.Skip(currentPage * pageSize).Take(pageSize).ToList();
                 JSONTheKho json = new JSONTheKho
                 {
-                    lst = lstreturn.ToList(),
+                    lst = lstreturn,
                     Rowcount = totalRecords,
                     pageCount = System.Math.Ceiling(totalRecords * 1.0 / pageSize),
                 };
