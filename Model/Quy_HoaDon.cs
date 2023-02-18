@@ -41,8 +41,7 @@ namespace Model
         [StringLength(250)]
         [Column(TypeName = "nvarchar")]
         public string NguoiNopTien { get; set; } = string.Empty;
-
-        [StringLength(500)]
+        
         [Column(TypeName = "nvarchar")]
         public string NoiDungThu { get; set; } = string.Empty;
 
