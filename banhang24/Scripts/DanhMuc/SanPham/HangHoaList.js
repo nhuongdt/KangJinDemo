@@ -8007,9 +8007,15 @@ var ViewModel = function () {
         }
     };
 
-    self.ResetCurrentPageTheKho = function () {
-        self.currentPageLH(0);
-        SeartTheKhoByMaLoHang();
+    self.ResetCurrentPageTheKho = function (item) {
+        if (item.QuanLyTheoLoHang) {
+            self.currentPageLH(0);
+            SeartTheKhoByMaLoHang();
+        }
+        else {
+            self.currentPageTK(0);
+            searchTheKho();
+        }
     };
 
     self.VisibleStartPageTheKho = ko.computed(function () {
@@ -14483,16 +14489,18 @@ var ViewModel = function () {
     }
 
     self.CapNhatTonKho = function (item) {
-        let saiTK = $.grep(self.TheKhos(), (x) => {
-            return x.LuyKeTonKho !== tk.TonKho;
-        });
-
+        let lenTK = self.TheKhos().length;
         let itemTK = {};
         // tìm đến dòng đầu tiên bị sai lũy kế
-        for (let i = saiTK.length - 1; i > 0; i--) {
-            let tk = saiTK[i];
+        for (let i = lenTK - 1; i > -1; i--) {
+            let tk = self.TheKhos()[i];
             if (tk.LuyKeTonKho !== tk.TonKho) {
-                itemTK = tk;
+                if (i === lenTK - 1) {
+                    itemTK = tk;
+                }
+                else {
+                    itemTK = self.TheKhos()[i + 1];
+                }
                 break;
             }
         }
