@@ -463,6 +463,7 @@ var NewModel_BanHangLe = function () {
     self.RoleXuly_Order = ko.observable(false);
     self.RoleView_ChietKhauNV = ko.observable(false);
     self.rolePrintDraf_Invoice = ko.observable(false);
+    self.roleHoaDonHoTro_Insert = ko.observable(false);
 
     // const localStorage
     const lcMaHD = 'maHDCache';
@@ -20376,6 +20377,7 @@ var NewModel_BanHangLe = function () {
         self.RoleChange_ChietKhauNV(CheckQuyenExist('HoaHong_ThayDoi'));
         self.RoleView_ChietKhauNV(CheckQuyenExist('BanHang_HoaDongDichVu_XemChietKhau'));
         self.roleUpdateImg(CheckQuyenExist('HoaDon_CapNhatAnh'));
+        self.roleHoaDonHoTro_Insert(CheckQuyenExist('HoaDonHoTro_ThemMoi'));
 
         vmHoaHongDV.role.XemChietKhau = CheckQuyenExist('BanHang_HoaDongDichVu_XemChietKhau');
         vmHoaHongDV.role.ThayDoiChietKhau = CheckQuyenExist('HoaHong_ThayDoi');
