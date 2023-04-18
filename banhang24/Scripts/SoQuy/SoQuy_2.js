@@ -224,6 +224,7 @@ var ViewModelQuyHD = function () {
     self.Role_UpdateSoQuy = ko.observable(false);
     self.Role_XemDS = ko.observable(false);
     self.Role_SoQuy_XoaNeuKhacNgay = ko.observable(false);
+    self.Role_SoQuy_Xoa = ko.observable(false);
     self.Role_KhoanThuChi_ThemMoi = ko.observable(false);
     self.Role_KhoanThuChi_CapNhat = ko.observable(false);
     self.Role_KhoanThuChi_Xoa = ko.observable(false);
@@ -345,6 +346,7 @@ var ViewModelQuyHD = function () {
             self.Quyen_NguoiDung(data.HT_Quyen_NhomDTO);
             self.Allow_ChangeTimeSoQuy(CheckQuyenExist('SoQuy_ThayDoiThoiGian'));
             self.Role_UpdateSoQuy(CheckQuyenExist('SoQuy_CapNhat'));
+            self.Role_SoQuy_Xoa(CheckQuyenExist('SoQuy_Xoa'));
         });
         ajaxHelper('/api/DanhMuc/HT_ThietLapAPI/' + 'GetCauHinhHeThong/' + _IDchinhanh, 'GET').done(function (data) {
             localStorage.setItem('lc_CTThietLap', JSON.stringify(data));
@@ -1643,7 +1645,7 @@ var ViewModelQuyHD = function () {
         let ngayLapPhieu = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
         let role = CheckRole('SoQuy_Xoa_NeuKhacNgay');
         if (dtNow === ngayLapPhieu) {
-            role = true;
+            role = self.Role_SoQuy_Xoa();
         }
         self.Role_SoQuy_XoaNeuKhacNgay(role);
 
