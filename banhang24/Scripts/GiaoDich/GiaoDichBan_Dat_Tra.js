@@ -540,7 +540,7 @@
                                 Post_NhatKySuDung_UpdateGiaVon(objDiary);
                                 vmThanhToan.NangNhomKhachHang(item.ID_DoiTuong);
 
-                                switch (item.LoaiHoaDon) {                                 
+                                switch (item.LoaiHoaDon) {
                                     case 25:
                                         HuyHoaDon_UpdateLichBaoDuong(idHoaDon);
                                         break;
@@ -567,7 +567,7 @@
         ajaxHelper('/api/DanhMuc/GaraAPI/' + 'HuyHoaDon_UpdateLichBaoDuong?idHoaDon=' + idHoaDon, 'GET').done(function (x) {
         });
     }
-   
+
     function UpdateLichBD_whenChangeNgayLapHD(idHoaDon, ngaylapOld, ngaylapNew) {
         ajaxHelper('/api/DanhMuc/GaraAPI/UpdateLichBD_whenChangeNgayLapHD?idHoaDon=' + idHoaDon +
             '&ngaylapOld=' + ngaylapOld + '&ngaylapNew=' + ngaylapNew, 'GET')
@@ -654,7 +654,7 @@
         };
         // compare to update GiaVon (alway Ngay min)
         ngaylapHDOld = moment(ngaylapHDOld).format('YYYY-MM-DD HH:mm:ss'); // alway NgayLapHoaDon old 
-       
+
         var myData = {};
         myData.id = id;
         myData.objNewHoaDon = HoaDon;
@@ -674,7 +674,7 @@
                         ID_DonVi: id_donvi,
                         ChucNang: 'Danh mục ' + sLoai,
                         NoiDung: "Cập nhật  ".concat(sLoai, ": ", maHoaDon),
-                        NoiDungChiTiet: "Cập nhật  ".concat(sLoai, ": ", maHoaDon, 
+                        NoiDungChiTiet: "Cập nhật  ".concat(sLoai, ": ", maHoaDon,
                             '<br /> Ngày lập hóa đơn cũ: ', ngaylapHDOld,
                             '<br /> Ngày lập hóa đơn mới: ', ngaylapHD,
                         ),
@@ -1096,12 +1096,15 @@
             if (self.La_HDBan()) {
                 arrLoaiHD.push(1);
             }
-            if (self.La_HDHoTro()) {
+            if (self.RoleView_HDHoTro() && self.La_HDHoTro()) {
                 arrLoaiHD.push(36);
             }
 
             if (arrLoaiHD.length === 0) {
-                arrLoaiHD = [1, 36];
+                arrLoaiHD = [1];
+                if (self.RoleView_HDHoTro()) {
+                    arrLoaiHD.push(36);
+                }
             }
         }
         else {
@@ -4419,6 +4422,7 @@
                 self.RoleInsert_HoaDonBaoHanh(CheckQuyenExist('HoaDonBaoHanh_ThemMoi'));
 
                 // hdHoTro
+                self.RoleView_HDHoTro(CheckQuyenExist('HoaDonHoTro_XemDS'));
                 self.RoleUpdate_HDHoTro(CheckQuyenExist('HoaDonHoTro_SuaDoi'));
                 self.RoleDelete_HDHoTro(CheckQuyenExist('HoaDonHoTro_Xoa'));
 
@@ -5215,7 +5219,7 @@
         newHD.PTChietKhauHH = obj.PTChietKhauHH;
         newHD.HeaderBH_GiaTriPtram = 0;
         newHD.HeaderBH_Type = 1;
-      
+
         newHD.TienMat = 0;
         newHD.TienATM = 0;
         newHD.TienGui = 0;
