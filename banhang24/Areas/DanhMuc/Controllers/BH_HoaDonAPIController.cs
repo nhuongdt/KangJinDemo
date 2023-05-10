@@ -6777,8 +6777,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             HeSo = item.HeSo
                         };
                         db.BH_NhanVienThucHien.Add(nvth);
-                        db.SaveChanges();
                     }
+                    db.SaveChanges();
                     return ActionTrueNotData(string.Empty);
                 }
                 catch (Exception ex)

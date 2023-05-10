@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\Users\PhuongND\Source\Workspaces\banhang24\Model_banhang24vn\BanHang24vn.edmx'. 
+﻿// T4 code generation is enabled for model 'D:\SSOFT\KangJinDemo\KangJinDemo\Model_banhang24vn\BanHang24vn.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

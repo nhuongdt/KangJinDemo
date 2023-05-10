@@ -1890,10 +1890,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DateTime dt = DateTime.Now;
                     if (hd != null)
                     {
+                        db.Database.ExecuteSqlCommand("exec DISABLE TRIGGER dbo.UpdateNgayGiaoDichGanNhat_DMDoiTuong ON dbo.BH_HoaDon");
                         dt = hd.NgayLapHoaDon;// keep ngaylapold & return
                         hd.ChoThanhToan = false;
                         hd.NgaySua = DateTime.Now;
                         db.SaveChanges();
+                        db.Database.ExecuteSqlCommand("exec Enable TRIGGER dbo.UpdateNgayGiaoDichGanNhat_DMDoiTuong ON dbo.BH_HoaDon");
                     }
                     return ActionTrueData(dt);
                 }
