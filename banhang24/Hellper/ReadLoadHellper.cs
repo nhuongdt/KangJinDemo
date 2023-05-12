@@ -2125,7 +2125,7 @@ namespace banhang24.Hellper
               { colummReportDinhLuong.tenhanghoa.ToString(),"Tên hàng hóa" },
               { colummReportDinhLuong.hh_donvitinh.ToString(),"Đvt hàng hóa" },
               { colummReportDinhLuong.hh_soluong.ToString(),"Số lượng hàng hóa" },
-              { colummReportDinhLuong.hh_giatri.ToString(),"Giá trị hàng hóa" },
+              { colummReportDinhLuong.hh_giatri.ToString(),"Giá vốn tiêu chuẩn" },
               { colummReportDinhLuong.ghichuct.ToString(),"Ghi chú" },
               { colummReportDinhLuong.tt_soluong.ToString(),"Số lượng đã xuất" },
               { colummReportDinhLuong.tt_giatri.ToString(),"Giá trị đã xuất" },
