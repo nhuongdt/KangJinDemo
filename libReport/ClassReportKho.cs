@@ -306,10 +306,11 @@ namespace libReport
             sql.Add(new SqlParameter("DateTo", param.timeEnd));
             sql.Add(new SqlParameter("IDNhomHoTros", param.ID_NhomHang ?? (object)DBNull.Value));
             sql.Add(new SqlParameter("TextSearch", param.MaHangHoa ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("IsVuotMuc", param.TrangThai));
             sql.Add(new SqlParameter("CurrentPage", param.CurrentPage));
             sql.Add(new SqlParameter("PageSize", param.PageSize));
             return _db.Database.SqlQuery<BaoCaoHoTroDTO>("exec dbo.BaoCaoNhomHoTro @IDChiNhanhs,@DateFrom, @DateTo, @IDNhomHoTros," +
-                " @TextSearch, @CurrentPage, @PageSize", sql.ToArray()).ToList();
+                " @TextSearch,@IsVuotMuc, @CurrentPage, @PageSize", sql.ToArray()).ToList();
         }
     }
 }

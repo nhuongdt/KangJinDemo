@@ -319,6 +319,24 @@
                             </treeview-nhomhang>
                         </aside>
                     </article>
+                    <article class="boxLeft" v-show="LoaiBaoCao=='9'">
+                        <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
+                            <i class="far fa-ball-pile"></i>
+                            <span> Mức vượt</span>
+                        </h3>
+                        <aside class="op-filter-container">
+                            <div class="menuRadio ">
+                                <ul>
+                                    <li>
+                                        <label><input type="checkbox" v-model="$root.VuotMuc_Yes" v-on:change="$root.BCHoTro_ChangeLoaiMucVuot"> Vượt mức</label>
+                                    </li>
+                                    <li>
+                                        <label><input type="checkbox" v-model="$root.VuotMuc_No" v-on:change="$root.BCHoTro_ChangeLoaiMucVuot"> Không vượt</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </article>
                     <article class="boxLeft showNhomKH"
                              v-show="!['5','7', '8','9'].includes(LoaiBaoCao)">
                         <h3 class="op-filter-title " onclick="toggleSubFilter(this)">
@@ -1368,6 +1386,8 @@
 
             ListNhomHoTro: [],
             IDNhomHotro: null,
+            VuotMuc_Yes: true,
+            VuotMuc_No: true,
             BaoCaoXuatHoTro: {
                 data: [],
                 TotalRow: 0,
@@ -1513,6 +1533,11 @@
                 else {
                     self.IDNhomHotro = item.id;
                 }
+                self.LoadData();
+            },
+            BCHoTro_ChangeLoaiMucVuot: function () {
+                let self = this;
+                self.PageList.currentPage = 1;
                 self.LoadData();
             },
             GetCurrentPageBaoCao: function () {
@@ -2283,12 +2308,19 @@
                 }
                 let arrStatus = [];
                 switch (parseInt(self.LoaiBaoCao)) {
-                    case 8:
+                    case 8: // bc chitiet congno
                         if (self.Debit_No) {
                             arrStatus.push(0);
                         }
                         if (self.Debit_Yes) {
                             arrStatus.push(1);
+                        } 
+                    case 9://bc xuathotro
+                        if (self.VuotMuc_No) {
+                            arrStatus.push(10);
+                        }
+                        if (self.VuotMuc_Yes) {
+                            arrStatus.push(11);
                         }
                         break;
                 }
@@ -2353,6 +2385,12 @@
                 param.TinhTrang = 0;
                 param.LaHangHoa = 0;
                 param.CurrentPage = param.CurrentPage - 1;
+                if (param.TrangThais.length==2 || param.TrangThais == 0) {// all
+                    param.TrangThai = 1;
+                }
+                else{
+                     param.TrangThai =param.TrangThais[0];
+                }
                 self.isLoading = true;
 
                 ajaxHelper(self.urlApi.ReportApi + 'BaoCaoNhomHoTro', 'POST', param).done(function (x) {
@@ -2696,7 +2734,7 @@
                 { colName: 'colGiaTriMua', colText: 'Giá trị mua', colShow: true, index: 4 },
                 { colName: 'colHotroQuyDinh', colText: 'Hỗ trợ theo quy định', colShow: true, index: 5 },
                 { colName: 'colDaHoTro', colText: 'Đã hỗ trợ', colShow: true, index: 6 },
-                { colName: 'colVuotMuc', colText: 'Mức vượt', colShow: true, index: 7 },
+                { colName: 'colVuotMuc', colText: '% Đã hỗ trợ', colShow: true, index: 7 },
                 { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 8 }];
             },
             GetListYear: function () {
