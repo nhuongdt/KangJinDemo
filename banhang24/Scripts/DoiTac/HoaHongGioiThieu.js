@@ -71,7 +71,7 @@
         typeUpdate: 1,
         isKhoaSo: false,
         role: {
-            HoaHongGioiThieu: { ThemMoi: true, SuaDoi: true, Xoa: true },
+            HoaHongGioiThieu: { ThemMoi: true, SuaDoi: true, Xoa: true, Xoa_NeuKhacNgay: false },
         },
         LoaiBaoCao: '1',
         inforOld: {},
@@ -441,6 +441,14 @@
                         let ct = await vmHoaHongKhachGioiThieu.LoadChiTiet(item.ID);
                         self.ChiTiet.data = ct;
                         self.inforOld = $.extend({}, true, item);
+                        // hide/show btnXoa
+                        let dtNow = moment(new Date()).format('YYYY-MM-DD')
+                        let ngayLapPhieu = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
+                        let role = VHeader.Quyen.indexOf('HoaHongKhachGioiThieu_Xoa_NeuKhacNgay') > -1;
+                        if (dtNow === ngayLapPhieu) {
+                            role = self.role.HoaHongGioiThieu.Xoa;
+                        }
+                        self.role.HoaHongGioiThieu.Xoa_NeuKhacNgay = role;
                     }
                     break;
                 case 3:

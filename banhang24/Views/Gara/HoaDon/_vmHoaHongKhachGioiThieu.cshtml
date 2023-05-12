@@ -299,10 +299,10 @@
                                 <div class="form-news">
                                     <input type="text" class="form-control" style="text-align:left" readonly
                                            v-if="item.DienThoai"
-                                           v-bind:value="item.TenDoiTuong.concat(' (', item.DienThoai, ')')" />
+                                           v-bind:value="item.TenDoiTuong.concat(' (',item.MaDoiTuong,' - ', item.DienThoai, ')')" />
                                     <input type="text" class="form-control" style="text-align:left" readonly
-                                           v-else="item.DienThoai"
-                                           v-bind:value="item.TenDoiTuong" />
+                                           v-if="item.MaDoiTuong && !item.DienThoai"
+                                           v-bind:value="item.TenDoiTuong.concat(' (',item.MaDoiTuong, ')')" />
                                 </div>
                             </div>
                         </div>
@@ -845,13 +845,17 @@
                     for (let j = 0; j < forOut.HoaDons.length; j++) {
                         let forIn = forOut.HoaDons[j];
                         let ck = formatNumberToFloat(forIn.TienChietKhau);
+                        let sotienTrich = formatNumberToFloat(forIn.SoTienTrich);
                         if (ck === 0) {
                             ShowMessage_Danger('Vui lòng nhập đủ thông tin tiền chiết khấu');
                             return;
                         }
+                        if (sotienTrich > forIn.ConLai) {
+                            ShowMessage_Danger('Số tiền trích không được vượt quá số tiền đã thanh toán');
+                            return;
+                        }
                     }
                 }
-
                 return true;
             },
             ChangeNgayLapHoaDon: function (e) {
@@ -1069,7 +1073,7 @@
                                 break;
                             }
                         }
-                        if (itFor.HoaDons.length ===0) {// remove all row of cus
+                        if (itFor.HoaDons.length === 0) {// remove all row of cus
                             self.ThongTinChiTiet.splice(i, 1);
                         }
                         break;
