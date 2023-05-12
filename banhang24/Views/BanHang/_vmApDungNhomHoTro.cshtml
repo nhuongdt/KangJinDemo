@@ -231,7 +231,7 @@
                                                 </span>&nbsp;
                                                 <span class="span-i" title="Thành phần định lượng"
                                                       v-on:click="showModalTPDL(item)"
-                                                      v-if="item.LoaiHangHoa == 2 && $root.roleChangeDinhLuong">
+                                                      v-if="item.LoaiHangHoa == 2 && $root.roleChangeDinhLuong_NeuKhacNgay">
                                                     <i class="fa fa-list-alt"></i>
                                                 </span>
                                             </a>
@@ -396,6 +396,7 @@
                 })
                 self.roleCapNhatHoaHongDichVu = hhDV.length > 0;
                 self.roleChangeDinhLuong = VHeader.Quyen.indexOf('HoaDon_ThayDoiThanhPhanDinhLuong') > -1;
+                self.roleChangeDinhLuong_NeuKhacNgay = VHeader.Quyen.indexOf('HoaDon_ThayDoiThanhPhanDinhLuong_NeuKhacNgay') > -1;
                 self.roleChangeNgayLapHD = VHeader.Quyen.indexOf('HoaDon_ThayDoiThoiGian') > -1;
             }
             console.log('vmApDungNhomHoTro')
@@ -408,6 +409,7 @@
             typeProduct: 1,// 1.sp ngaythuoc, 0. sp chung
 
             roleChangeDinhLuong: true,
+            roleChangeDinhLuong_NeuKhacNgay: true,
             roleCapNhatHoaHongDichVu: true,
             roleChangeNgayLapHD: false,
             roleUpdate_ifOtherDate: false,
@@ -727,6 +729,14 @@
                 $.getJSON(self.UrlAPI.HoaDon + 'GetInfor_HDHoTro?idHoaDon=' + idHoaDon).done(function (x) {
                     if (x.res && x.dataSoure.length > 0) {
                         let hd = x.dataSoure[0];
+
+                        let dtNow = moment(new Date()).format('YYYY-MM-DD')
+                        let ngayLapPhieu = moment(hd.NgayLapHoaDon).format('YYYY-MM-DD');
+                        let role = VHeader.Quyen.indexOf('HoaDon_ThayDoiThanhPhanDinhLuong_NeuKhacNgay') > -1
+                        if (dtNow === ngayLapPhieu) {
+                            role = self.roleChangeDinhLuong;
+                        }
+                        self.roleChangeDinhLuong_NeuKhacNgay = role;
 
                         self.InvoiceChosing = {
                             IDRandom: hd.ID,
@@ -1103,7 +1113,7 @@
             },
             showModalTPDL: function (item) {
                 if (formatNumberToFloat(item.SoLuong) === 0) {
-                    ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập nguyên vậy liệu');
+                    ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập nguyên vật liệu');
                     return;
                 }
 
