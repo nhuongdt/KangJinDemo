@@ -1241,33 +1241,41 @@
         });
     }
 
+    async function CheckTheDaSuDung(idThe) {
+        var xx = await ajaxHelper(BH_HoaDonUri + 'CheckTheDaSuDung?id=' + idThe, 'GET').done(function () {
+        }).then(function (data) {
+            return data;
+        })
+        return xx;
+    }
 
-    self.HuyBoThe = function (item) {
+    self.HuyBoThe = async function (item) {
         var idThe = item.ID;
-        ajaxHelper(BH_HoaDonUri + 'CheckTheDaSuDung?id=' + idThe, 'GET').done(function (data) {
-            if (data === "") {
-                dialogConfirm('Thông báo hủy', 'Bạn có chắc chắn muốn xóa thẻ <b>' + item.MaHoaDon + '</b> không?', function () {
-                    ajaxHelper(BH_HoaDonUri + 'XoaTheNap?id=' + idThe, 'GET').done(function (data) {
-                        ShowMessage_Success("Cập nhật hóa đơn nạp thẻ thành công");
-                        SearchTheNap();
-                        var objDiary = {
-                            ID_NhanVien: idNhanVien,
-                            ID_DonVi: idDonVi,
-                            ChucNang: "Thẻ giá trị",
-                            NoiDung: "Hủy thẻ nạp có mã hóa đơn" + item.MaHoaDon,
-                            NoiDungChiTiet: "Hủy thẻ nạp có mã hóa đơn" .concat( item.MaHoaDon,', Người hủy:', VHeader.UserLogin),
-                            LoaiNhatKy: 3 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-                        };
-                        Insert_NhatKyThaoTac_1Param(objDiary);
-                    });
-                });
-            }
-            else {
-                ShowMessage_Danger(data);
-            }
-        });
-    };
+        let check = '';
+        // 22. napthe
+        if (item.LoaiHoaDon === 22) { check = await CheckTheDaSuDung(item.ID); }
 
+        if (check === '') {
+            dialogConfirm('Thông báo hủy', 'Bạn có chắc chắn muốn xóa thẻ <b>' + item.MaHoaDon + '</b> không?', function () {
+                ajaxHelper(BH_HoaDonUri + 'XoaTheNap?id=' + idThe, 'GET').done(function (data) {
+                    ShowMessage_Success("Cập nhật hóa đơn nạp thẻ thành công");
+                    SearchTheNap();
+                    let objDiary = {
+                        ID_NhanVien: idNhanVien,
+                        ID_DonVi: idDonVi,
+                        ChucNang: "Thẻ giá trị",
+                        NoiDung: "Hủy thẻ nạp có mã hóa đơn" + item.MaHoaDon,
+                        NoiDungChiTiet: "Hủy thẻ nạp có mã hóa đơn".concat(item.MaHoaDon, ', Người hủy:', VHeader.UserLogin),
+                        LoaiNhatKy: 3 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                    };
+                    Insert_NhatKyThaoTac_1Param(objDiary);
+                });
+            });
+        }
+        else {
+            ShowMessage_Danger(data);
+        }
+    };
 
     self.ClickTab_NhatKyThanhToan = function (item) {
         // load data from Quy_HoaDon
@@ -1669,7 +1677,7 @@
             TenDoiTuong: tgt.TenKhachHang,
             DienThoai: tgt.SoDienThoai,
         }
-        vmTatToanTGT.showModalUpdate(obj,1);
+        vmTatToanTGT.showModalUpdate(obj, 1);
     }
 };
 
