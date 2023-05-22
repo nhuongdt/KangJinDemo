@@ -1671,7 +1671,7 @@
         for (let i = 0; i < arrCTsort.length; i++) {
             var ctNew = $.extend({}, arrCTsort[i]);
             ctNew.ID_HoaDon = idHoaDon;
-            ctNew.ID_HoaDonGoc = type == 2 ? item.ID_HoaDon : null;// update again nhaphang from PO (get ID_HoaDon of PO)
+            ctNew.ID_HoaDonGoc = type !== 0 ? item.ID_HoaDon : null;// update again nhaphang (keep ID_HoaDon)
             ctNew.TenDoiTuong = item.TenDoiTuong;
             ctNew.TongTienHangChuaCK = self.TongTienHangChuaCK();
             ctNew.TongGiamGiaHang = self.TongGiamGiaHang();
