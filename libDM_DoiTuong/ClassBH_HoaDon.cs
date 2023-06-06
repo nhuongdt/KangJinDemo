@@ -6248,6 +6248,7 @@ namespace libDM_DoiTuong
         public double? TotalPage { get; set; }
         public double? SoNgayThuoc { get; set; }
         public bool? IsChuyenPhatNhanh { get; set; } // = column An_Hien
+        public bool? IsChuaXuatKho { get; set; } // HD có định lượng, nhưng lỗi chưa tạo phiếu xuất kho
     }
     public class BH_KiemKho_Excel
     {
