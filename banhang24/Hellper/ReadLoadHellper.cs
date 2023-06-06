@@ -1703,6 +1703,7 @@ namespace banhang24.Hellper
              { TypeRChietKhau.makhachhang.ToString(),"Mã khách hàng" },
              { TypeRChietKhau.tenkhachhang.ToString(),"Tên khách hàng" },
              { TypeRChietKhau.dienthoaikh.ToString(),"Điện thoại" },
+             {ColumnKhachHang. nvphutrach.ToString(),"NV phụ trách" },
              { TypeRChietKhau.tennhomhang.ToString(),"Tên nhóm hàng" },
              { TypeRChietKhau.mahang.ToString(),"Mã hàng/dịch vụ" },
              { TypeRChietKhau.tenhang.ToString(),"Tên hàng/dịch vụ" },
