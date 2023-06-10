@@ -258,6 +258,7 @@ var NhapHangChiTiet = function () {
     self.TraHangNhap_ThayDoiNhanVien = ko.observable();
     self.HangHoa_GiaBan = ko.observable();
     self.HangHoa_GiaNhap = ko.observable();
+    self.HangHoa_ThemMoi = ko.observable();
     self.HangHoa_XemGiaVon = ko.observable(true);
     self.HoaDon_ThemMoi = ko.observable();
     modelTypeSearchProduct.TypeSearch(1);// jqAutoProduct
@@ -749,6 +750,7 @@ var NhapHangChiTiet = function () {
                     self.Quyen_NguoiDung(data);
                     self.HangHoa_GiaBan(CheckQuyenExist('HangHoa_GiaBan'));
                     self.HangHoa_GiaNhap(CheckQuyenExist('HangHoa_GiaNhap'));
+                    self.HangHoa_ThemMoi(CheckQuyenExist('HangHoa_ThemMoi'));
 
                     switch (self.LoaiHoaDonMenu()) {
                         case 4:
