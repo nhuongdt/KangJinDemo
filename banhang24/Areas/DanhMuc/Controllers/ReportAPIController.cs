@@ -8623,6 +8623,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.TenKhachHang,
                             x.DienThoaiKH,
                             x.DoanhThu,
+                            x.TenNVPhuTrach,
                         })
                             .Select(x => new
                             {
@@ -8633,6 +8634,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 x.Key.TenKhachHang,
                                 x.Key.DienThoaiKH,
                                 x.Key.DoanhThu,
+                                x.Key.TenNVPhuTrach,
                                 lstHoaHong = x,
                             });
                         return Json(new
