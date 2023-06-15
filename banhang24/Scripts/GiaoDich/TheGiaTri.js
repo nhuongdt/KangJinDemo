@@ -1313,7 +1313,7 @@
 
         let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
         let role = CheckQuyenExist('GiaoDich_ChoPhepSuaDoiChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
-        let role2 = CheckQuyenExist('GiaoDich_ChoPhepHuyChungTu_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
+        let role2 = CheckQuyenExist('TheGiaTri_Huy_NeuKhacNgayHienTai');// bat buoc chay lai sau khi gan quyen o ben duoi
         if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
             role = true;
             role2 = true;
