@@ -487,10 +487,6 @@
 
         HoaHongDV_EditHeSo: function (item, index) {
             var self = this;
-            if (self.role.ThayDoiChietKhau === false) {
-                ShowMessage_Danger('Không có quyền thay đổi chiết khấu nhân viên');
-                return false;
-            }
             var thisObj = $(event.currentTarget);
             var heso = formatNumberToFloat(thisObj.val());
             if (heso > 1) {
@@ -629,8 +625,12 @@
 
         clickVND_NoVND_ChietKhau: function (item) {
             var self = this;
-            var item = self.ItemChosing;
+            if (self.role.ThayDoiChietKhau === false) {
+                ShowMessage_Danger('Không có quyền thay đổi chiết khấu nhân viên');
+                return false;
+            }
 
+            var item = self.ItemChosing;
             var gtriCKNew = 0;
             var isPtramNew = true;
             var ckMacDinh = 0;
