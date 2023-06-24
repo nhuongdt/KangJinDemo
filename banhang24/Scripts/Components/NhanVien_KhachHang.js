@@ -43,6 +43,7 @@ var ComponentChoseStaff = {
                 </a>
             </div> 
         <input class="gara-search-HH " placeholder="Chọn nhân viên" style="padding-right: 27px!important"
+               :disabled="!roleChangeStaff"
                 onclick= "this.select()"
                 v-model="textSearch" v-on:keyup="searchStaff" v-on:click="showList" />
         <div class="gara-search-dropbox drop-search " v-if="roleChangeStaff">
