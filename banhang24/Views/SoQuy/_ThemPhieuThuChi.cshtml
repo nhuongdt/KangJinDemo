@@ -9,6 +9,11 @@
         /*use at vmThemKhoanThuChi*/
         width: 100% !important;
     }
+
+    #vmThemPhieuThuChi .disabled {
+        pointer-events: none;
+        opacity: 0.6
+    }
 </style>
 <div class="modal fade" id="vmThemPhieuThuChi">
     <div id="modalContainerlg_SQ" class="modal-dialog draggable modal-md">
@@ -28,6 +33,7 @@
                         <input type="text"
                                class="form-control "
                                v-model="newPhieuThu.MaHoaDon"
+                               v-bind:disabled="!role.Update && typeUpdate!==1"
                                required="" placeholder="Mã tự động">
                     </div>
                 </div>
@@ -46,24 +52,28 @@
                         <div role="tabpanel" data-example-id="togglable-tabs">
                             <ul class="nav nav-tabs " role="tablist">
                                 <li role="presentation" class="khachhang active"
+                                    v-bind:class="{disabled: !role.Update && typeUpdate!==1}"
                                     v-on:click="ChangeTab(1)">
                                     <a href="javascript:void(0)" role="tab"
                                        data-toggle="tab" ria-expanded="true">Khách hàng</a>
                                 </li>
                                 <li role="presentation" class="nhacungcap"
-                                    v-on:click="ChangeTab(2)">
+                                    v-on:click="ChangeTab(2)"
+                                    v-bind:class="{disabled: !role.Update && typeUpdate!==1}">
                                     <a href="javascript:void(0)" role="tab"
                                        data-toggle="tab" aria-expanded="false">Nhà cung cấp</a>
                                 </li>
 
                                 <li role="presentation" class="baohiem"
                                     v-if="LoaiNganhNghe===1"
-                                    v-on:click="ChangeTab(3)">
+                                    v-on:click="ChangeTab(3)"
+                                    v-bind:class="{disabled: !role.Update && typeUpdate!==1}">
                                     <a href="javascript:void(0)" role="tab"
                                        data-toggle="tab" aria-expanded="false">Bảo hiểm</a>
                                 </li>
                                 <li role="presentation" class="nhanv"
-                                    v-on:click="ChangeTab(4)">
+                                    v-on:click="ChangeTab(4)"
+                                    v-bind:class="{disabled: !role.Update && typeUpdate!==1}">
                                     <a href="javascript:void(0)" role="tab"
                                        data-toggle="tab" aria-expanded="false">Nhân viên</a>
                                 </li>
@@ -73,9 +83,9 @@
                                     <div v-if="newPhieuThu.LoaiDoiTuong !==4" class="gara-detail-information">
                                         <customers :text-search="newPhieuThu.NguoiNopTien"
                                                    :loai-doi-tuong="newPhieuThu.LoaiDoiTuong"
-                                                   :disable-search="false"
+                                                   :disable-search="!role.Update && typeUpdate!==1"
                                                    :showbutton="false"
-                                                   :showbutton-reset="showBtnResetNguoiNop"
+                                                   :showbutton-reset="showBtnResetNguoiNop && role.Update"
                                                    :id-chi-nhanh="inforLogin.ID_DonVi"
                                                    v-on:change-customer-parent="ChoseNguoiNopTien"
                                                    v-on:reset-customer-parent="ResetNguoiNopTien">
@@ -83,7 +93,8 @@
                                     </div>
                                     <div v-if="newPhieuThu.LoaiDoiTuong===4">
                                         <nhanviens :text-search="newPhieuThu.NguoiNopTien"
-                                                   :showbutton-reset="showBtnResetNguoiNop"
+                                                   :showbutton-reset="showBtnResetNguoiNop && role.Update"
+                                                   :role-change-staff="role.Update || typeUpdate ==1"
                                                    :staffs="listData.NhanViens"
                                                    :search-list="listData.NhanViens"
                                                    v-on:change-staff-parent="ChoseNhanVien"
@@ -116,13 +127,16 @@
                     <label>
                         Tiền {{sLoaiThuChi}}
                         <span title="Chuyển đổi hình thức thanh toán"
-                              v-on:click="ChuyenHinhThucTT"><i class="fa fa-exchange"></i></span>
+                              v-on:click="ChuyenHinhThucTT">
+                            <i class="fa fa-exchange"></i>
+                        </span>
                         <span class="red">(*)</span>
                     </label>
                     <div class="form-news">
                         <input type="text" class="form-control  text-right"
                                onkeypress="keypressNumber_limitNumber(event,this)"
                                v-model="newPhieuThu.TongTienThu"
+                               v-bind:disabled="!role.Update && typeUpdate !==1"
                                v-on:keyup="EditTongThu">
                     </div>
                 </div>
@@ -201,7 +215,8 @@
                         <i class="fa fa-save"></i> Lưu và in
                     </button>
                     <button type="button" class="btn btn-save"
-                            v-if="!isLoading && typeUpdate != 1 && typeUpdate != 4 && $root.role.Update && newPhieuThu.TrangThai && !$root.isKhoaSo"
+                            v-if="!isLoading && typeUpdate != 1 && typeUpdate != 4
+                            && ($root.role.Update || role.ThayDoiKhoanThuChi) && newPhieuThu.TrangThai && !$root.isKhoaSo"
                             v-on:click="Save">
                         <i class="fa fa-save"></i> Cập nhật
                     </button>
@@ -245,6 +260,10 @@
             self.role.Update = VHeader.Quyen.indexOf('SoQuy_CapNhat') > -1;
             self.role.Delete = VHeader.Quyen.indexOf('SoQuy_Xoa') > -1;
             self.role.ChangeNgayLap = VHeader.Quyen.indexOf('SoQuy_ThayDoiThoiGian') > -1;
+            // nếu có quyền Cập nhật phiếu thu/chi: luôn có quyền ThayDoiKhoanThuChi
+            // ngược lại: chỉ dc thay đổi khoản mục + nội dung thuchi
+            self.role.ThayDoiKhoanThuChi = VHeader.Quyen.indexOf('SoQuy_ThayDoiKhoanThuChi') > -1;
+            console.log('self.role.ThayDoiKhoanThuChi', self.role.ThayDoiKhoanThuChi)
             self.role.XoaNeuKhacNgay = true;
         },
         data: {
@@ -257,7 +276,7 @@
             showBtnResetNguoiNop: false,
             isKhoaSo: false,
 
-            role: {},
+            role: { ThayDoiKhoanThuChi: false },
             phieuThuOld: {},
             qctOld: {},
             khoanthuchi: {
@@ -339,6 +358,10 @@
             },
             ChuyenHinhThucTT: function () {
                 let self = this;
+                if (self.typeUpdate !== 1 && !self.role.Update) {
+                    ShowMessage_Danger("Không có quyền thay đổi hình thức thanh toán");
+                    return;
+                }
                 if (self.loaiNapTien === 1) {//mat -->chuyenkhoan
                     self.loaiNapTien = 0;
                 }
