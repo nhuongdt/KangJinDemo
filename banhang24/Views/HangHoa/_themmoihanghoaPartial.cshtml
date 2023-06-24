@@ -30,14 +30,16 @@
         </div>
     </div>
     <ul class="nav nav-tabs ">
-        <li class="active" data-bind="click: function(){$root.ChangeTab_HangHoa(0)}, 
+        <li class="active" data-bind="click: function(){$root.ChangeTab_HangHoa(0)},
             ">
             <a data-toggle="tab" href="#thongtin_HH" aria-expanded="true">Thông tin</a>
         </li>
-        <li data-bind="click: function(){$root.ChangeTab_HangHoa(1)}, visible: $root.role_UpdateProduct()">
-        <a data-toggle="tab" href="#motachitiet_HH" aria-expanded="false">Mô tả chi tiết</a></li>
+        <li data-bind="click: function(){$root.ChangeTab_HangHoa(1)}, visible: $root.role_UpdateProduct() || $root.booleanAdd()">
+            <a data-toggle="tab" href="#motachitiet_HH" aria-expanded="false">Mô tả chi tiết</a>
+        </li>
         <li data-bind="click: function(){$root.ChangeTab_HangHoa(2)}, visible: $root.role_CaiDatDinhLuong()">
-        <a data-toggle="tab" href="#thanhphan_HH" aria-expanded="false">Định mức</a></li>
+            <a data-toggle="tab" href="#thanhphan_HH" aria-expanded="false">Định mức</a>
+        </li>
         <li data-bind="click: function(){$root.ChangeTab_HangHoa(5)}, visible: $root.QuanLyBaoDuong">
             <a data-toggle="tab"
                href="#baoduong_HH" aria-expanded="false">Quản lý Bảo dưỡng</a>
@@ -67,7 +69,7 @@
                         <label class="css-form-label">Mã hàng hóa</label>
                         <div class="css-form-detail">
                             <input class="form-control" id="txtMaHangHoa1" autocomplete="off" type="text" name="txtMaHangHoa"
-                                   data-bind="value: MaHangHoa, enable: $root.role_UpdateProduct()" placeholder="Mã hàng tự động" />
+                                   data-bind="value: MaHangHoa, enable: $root.role_UpdateProduct() || $root.booleanAdd()" placeholder="Mã hàng tự động" />
                         </div>
                         <span class="commodity-note">
                             <i class="fa fa-info-circle"></i>
@@ -81,7 +83,7 @@
                         <div class="css-form-detail">
                             <input class="form-control" type="text" autocomplete="off"
                                    id="txtTenHangHoa1" name="txtTenHangHoa"
-                                   data-bind="value: TenHangHoa, enable: $root.role_UpdateProduct()" />
+                                   data-bind="value: TenHangHoa, enable: $root.role_UpdateProduct() || $root.booleanAdd()" />
                         </div>
                         <span class="commodity-note">
                             <i class="fa fa-info-circle"></i>
@@ -90,7 +92,7 @@
                     </div>
                     <div class="form-group">
                         <label class="css-form-label">Nhóm hàng hóa</label>
-                        <!-- ko if: $root.role_UpdateProduct()-->
+                        <!-- ko if: $root.role_UpdateProduct() || $root.booleanAdd()-->
                         <div class="css-form-detail ">
                             <div class="flex flex-row op-form-group ">
                                 <div class="dropdown" style="position:relative; width:calc(100% - 33px);"
@@ -140,9 +142,9 @@
                             </div>
                         </div>
                         <!--/ko-->
-                        <!-- ko if: !$root.role_UpdateProduct()-->
+                        <!-- ko if: !$root.role_UpdateProduct() && !$root.booleanAdd()-->
                         <div class="css-form-detail">
-                            <input class="form-control" data-bind="value: newHangHoa().TenNhomHangHoa()" disabled/>
+                            <input class="form-control" data-bind="value: newHangHoa().TenNhomHangHoa()" disabled />
                         </div>
                         <!--/ko-->
                     </div>
@@ -191,7 +193,7 @@
                             <div class="css-form-detail">
                                 <input class="form-control" id="txtTonKho" autocomplete="off" name="txtTonKho"
                                        type="text"
-                                       data-bind="value: TonKho, event:{change: $root.clicktien }, enable: $root.role_UpdateProduct()"
+                                       data-bind="value: TonKho, event:{change: $root.clicktien }, enable: $root.role_UpdateProduct() || $root.booleanAdd()"
                                        onkeypress="return keypressNumber_limitNumber(event,this)" onkeyup="return formatNumberObj(this)" />
                             </div>
                             <span class="commodity-note">
@@ -239,13 +241,13 @@
                             <label class="css-form-label">Bảo hành</label>
                             <div class="css-form-detail bao-hanh" data-bind="with: newHangHoa" style="display:flex; flex-direction:row; justify-content:space-between">
                                 <input type="text" autocomplete="off" class="dropdown input-add-select form-control"
-                                       data-bind="value: formatNumber3Digit(ThoiGianBaoHanh), enable: $root.role_UpdateProduct()"
+                                       data-bind="value: formatNumber3Digit(ThoiGianBaoHanh), enable: $root.role_UpdateProduct() || $root.booleanAdd()"
                                        onkeypress="return keypressNumber(event,this)"
                                        onkeyup="return formatNumberObj(this)">
                                 <select style="right:0" class="form-control select-add-input"
                                         id="dllLoaiThoiGianBH"
                                         data-bind="options: $root.LoaiThoiGianBaoHanhs, optionsValue: 'value',
-                                    optionsText: 'TenLoai', value: $root.selectedLoaiThoiGianBH, enable: $root.role_UpdateProduct()"></select>
+                                    optionsText: 'TenLoai', value: $root.selectedLoaiThoiGianBH, enable: $root.role_UpdateProduct() || $root.booleanAdd()"></select>
                             </div>
                         </div>
                     </div>
@@ -365,7 +367,9 @@
                     <p id="errorAnh" class="errorAnhHH" style="color:red"></p>
                     <div class="floatleft">
                         <label class="op-form-checkbox">
-                            <input type="checkbox" value="checked" data-bind="checked: DuocBanTrucTiep, checkedValue: true" /> Được bán trực tiếp
+                            <input type="checkbox" value="checked"
+                                   data-bind="checked: DuocBanTrucTiep, checkedValue: true, 
+                                   enable: $root.role_UpdateProduct() || $root.booleanAdd()" /> Được bán trực tiếp
                         </label>
                     </div>
 
@@ -378,17 +382,24 @@
                     </div>
                     <div class="floatleft " id="QuanLyTheoLoHangCheck" style="display:none">
                         <label class="op-form-checkbox">
-                            <input type="checkbox" value="checked" data-bind="checked: QuanLyTheoLoHang, checkedValue: false, click: $root.CheckQuanLyLoHang" /><span> Quản lý theo lô</span>
+                            <input type="checkbox" value="checked"
+                                   data-bind="checked: QuanLyTheoLoHang, 
+                                   checkedValue: false, click: $root.CheckQuanLyLoHang,
+                                   enable: $root.role_UpdateProduct() || $root.booleanAdd()" /><span> Quản lý theo lô</span>
                         </label>
                     </div>
                     <div class="floatleft ">
                         <label class="op-form-checkbox">
-                            <input type="checkbox" value="checked" id="checkmanageDVT" data-bind="click :$root.CheckQuanLyDVT" /> <span>Quản lý đơn vị tính</span>
+                            <input type="checkbox" value="checked" id="checkmanageDVT"
+                                   data-bind="click :$root.CheckQuanLyDVT,
+                                   enable: $root.role_UpdateProduct() || $root.booleanAdd()" /> <span>Quản lý đơn vị tính</span>
                         </label>
                     </div>
                     <div class="floatleft ">
                         <label class="op-form-checkbox">
-                            <input type="checkbox" value="checked" id="checkmanageThuocTinh" data-bind="click :$root.CheckQuanLyThuocTinh" /> <span>Quản lý thuộc tính(Màu sắc, kích thước...)</span>
+                            <input type="checkbox" value="checked" id="checkmanageThuocTinh"
+                                   data-bind="click :$root.CheckQuanLyThuocTinh,
+                                   enable: $root.role_UpdateProduct() || $root.booleanAdd()" /> <span>Quản lý thuộc tính(Màu sắc, kích thước...)</span>
                         </label>
                     </div>
                     <div class="floatleft " data-bind="visible: $root.IsGara()">
@@ -421,7 +432,7 @@
                                             <div class="css-form-detail">
                                                 <input type="text" autocomplete="off" class="form-control"
                                                        data-bind="value: DonViTinhChuan, event: {change: $root.DVTChuanHangHoaCungLoai},
-                                                       enable: $root.role_UpdateProduct()" id="txtDonViTinhChuan" />
+                                                       enable: $root.role_UpdateProduct() || $root.booleanAdd()" id="txtDonViTinhChuan" />
                                             </div>
                                             <span class="commodity-note">
                                                 <i class="fa fa-info-circle"></i>
@@ -433,7 +444,7 @@
                                         <div class="form-group">
                                             <label class=" css-form-label" style="letter-spacing:-1px">Số lượng quy cách</label>
                                             <div class="css-form-detail">
-                                                <input type="text" data-bind="value: QuyCach, enable: $root.role_UpdateProduct()" onkeypress="return keypressNumber_limitNumber(event,this)" class="form-control" />
+                                                <input type="text" data-bind="value: QuyCach, enable: $root.role_UpdateProduct() || $root.booleanAdd()" onkeypress="return keypressNumber_limitNumber(event,this)" class="form-control" />
                                             </div>
                                             <span class="commodity-note">
                                                 <i class="fa fa-info-circle"></i>
@@ -445,7 +456,9 @@
                                         <div class="form-group">
                                             <label class="css-form-label">Đơn vị quy cách</label>
                                             <div class="css-form-detail">
-                                                <input autocomplete="off" type="text" data-bind="value: DonViTinhQuyCach, enable: $root.role_UpdateProduct()" class="form-control" />
+                                                <input autocomplete="off" type="text"
+                                                       data-bind="value: DonViTinhQuyCach,
+                                                       enable: $root.role_UpdateProduct() || $root.booleanAdd()" class="form-control" />
                                             </div>
                                             <span class="commodity-note">
                                                 <i class="fa fa-info-circle"></i>
@@ -470,7 +483,9 @@
                                         <tbody data-bind="foreach: DonViTinh">
                                             <tr class="DonViTinhChiTiets" data-bind="attr: {id: $data.ID}">
                                                 <td>
-                                                    <input type="text" autocomplete="off" class="form-control Ten_DVT" data-bind="value: $data.TenDonViTinh , event: {change: $root.DVTChuanHangHoaCungLoai}, enable: $root.role_UpdateProduct()" />
+                                                    <input type="text" autocomplete="off" class="form-control Ten_DVT"
+                                                           data-bind="value: $data.TenDonViTinh , event: {change: $root.DVTChuanHangHoaCungLoai},
+                                                           enable: $root.role_UpdateProduct()|| $root.booleanAdd()" />
                                                 </td>
                                                 <td>
                                                     <input type="text" autocomplete="off" class="form-control TyLeQuyDoi_DVT" data-bind="value: $data.TyLeChuyenDoi,
@@ -483,7 +498,7 @@
                                                 </td>
                                                 <td data-bind="visible: $root.newHangHoa().HangHoaCungLoaiArr().length === 0">
                                                     <input type="text" autocomplete="off" class="form-control MaHangHoa_DVT" data-bind="value: $data.MaHangHoa, attr: {id: 'txtmadv' + $data.ID},
-                                                           enable: $root.role_UpdateProduct()" placeholder="Mã tự động" />
+                                                           enable: $root.role_UpdateProduct() || $root.booleanAdd()" placeholder="Mã tự động" />
                                                 </td>
                                                 <td><a title="Xóa đơn vị" class="icon-del" data-bind="click: $root.removeDonViQuiDoi"><img src="~/Content/images/icon/Iconthemmoi-17.png" id="xoaCTHH" /></a></td>
                                             </tr>
@@ -491,7 +506,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <!-- ko if: $root.role_UpdateProduct()-->
+                            <!-- ko if: $root.role_UpdateProduct() || $root.booleanAdd()-->
                             <div class="row">
                                 <div class="col-sm-12">
                                     <button id="btnDonVi" class="btn btn-main btn-green themdonviclick" type="button" data-bind="click: addDVQD">Thêm đơn vị</button>
@@ -558,9 +573,13 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <!--ko if: $root.role_UpdateProduct() || $root.booleanAdd()-->
                             <div>
-                                <button class="btn btn-main btn-green themdonviclick1" type="button" data-bind="click: addThuocTinhCon"><i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính</button>
+                                <button class="btn btn-main btn-green themdonviclick1" type="button" data-bind="click: addThuocTinhCon">
+                                    <i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính
+                                </button>
                             </div>
+                            <!--/ko-->
                         </div>
                         <div id="results"></div>
                     </div>
@@ -600,11 +619,15 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <!--ko if: $root.role_UpdateProduct() || $root.booleanAdd()-->
                             <div class="row" data-bind="visible: $root.CheckLaChaCungLoai() === true">
                                 <div class="col-sm-12">
-                                    <button class="btn btn-main themdonviclick1" type="button" data-bind="click: addThuocTinhConOld"><i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính</button>
+                                    <button class="btn btn-main themdonviclick1" type="button" data-bind="click: addThuocTinhConOld">
+                                        <i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính
+                                    </button>
                                 </div>
                             </div>
+                            <!--/ko-->
                         </div>
                         <div id="results"></div>
                     </div>
@@ -651,11 +674,15 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <!--ko if: $root.role_UpdateProduct() || $root.booleanAdd()-->
                             <div class="row" data-bind="visible: $root.CheckLaChaCungLoai() === true">
                                 <div class="col-sm-12">
-                                    <button class="btn btn-main themdonviclick1" type="button" data-bind="click: addThuocTinhConOld"><i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính</button>
+                                    <button class="btn btn-main themdonviclick1" type="button" data-bind="click: addThuocTinhConOld">
+                                        <i class="fa fa-plus" aria-hidden="true"></i> Thêm thuộc tính
+                                    </button>
                                 </div>
                             </div>
+                            <!--/ko-->
                         </div>
                         <div id="results"></div>
                     </div>
@@ -796,7 +823,7 @@
                         <div class="form-group " style="display:flex; flex-direction:row;flex-wrap:wrap">
                             <label class="control-label">Hàng hóa định mức<span style="color:red"> (*)</span></label>
                             <div style="position:relative;max-width:400px;min-width: 250px;margin-left: 15px;">
-                                <input type="text" class=" form-control" 
+                                <input type="text" class=" form-control"
                                        data-bind="jqAutoProduct: { source: HangHoas, value: getCTHH,
                                                      inputProp: 'MaHangHoa', labelProp: 'TenHangHoa', valueProp: 'MaHangHoa',  template: 'rowChiTiet'}"
                                        placeholder="Thêm hàng hóa thành phần" />
