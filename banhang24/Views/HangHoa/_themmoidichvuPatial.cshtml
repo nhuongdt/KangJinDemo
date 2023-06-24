@@ -66,7 +66,8 @@
         <div class=" container-fluid nopadding ">
             <ul class="nav nav-tabs ">
                 <li data-bind="click: function(){$root.ChangeTab_HangHoa(0)}" class="active"><a data-toggle="tab" href="#thongtin_DV" aria-expanded="true">Thông tin</a></li>
-                <li data-bind="click: function(){$root.ChangeTab_HangHoa(2)}"><a data-toggle="tab" href="#thanhphan_DV" aria-expanded="false">Thành phần</a></li>
+                <li data-bind="click: function(){$root.ChangeTab_HangHoa(2)}, visible: $root.role_CaiDatDinhLuong()">
+                <a data-toggle="tab" href="#thanhphan_DV" aria-expanded="false">Thành phần</a></li>
                 <li data-bind="click: function(){$root.ChangeTab_HangHoa(5)},
                     visible: $root.QuanLyBaoDuong">
                     <a data-toggle="tab" href="#baoduong_DV" aria-expanded="false">Quản lý Bảo dưỡng</a>
@@ -96,7 +97,9 @@
                         <div data-bind="with: newHangHoa" class="form-group">
                             <label class="css-form-label">Mã dịch vụ</label>
                             <div class="css-form-detail">
-                                <input class="form-control" autocomplete="off" type="text" id="txtMaHangHoa" name="txtMaHangHoa" data-bind="value: MaHangHoa" placeholder="Mã tự động" />
+                                <input class="form-control" autocomplete="off" type="text" id="txtMaHangHoa"
+                                       name="txtMaHangHoa"
+                                       data-bind="value: MaHangHoa, enable: $root.role_UpdateProduct()" placeholder="Mã tự động" />
                             </div>
                             <span class="commodity-note">
                                 <i class="fa fa-info-circle"></i>
@@ -107,7 +110,8 @@
                         <div class="form-group" data-bind="with: newHangHoa">
                             <label class="css-form-label">Tên dịch vụ <span style="color:red">(*)</span></label>
                             <div class="css-form-detail">
-                                <input class="form-control" autocomplete="off" type="text" id="txtTenHangHoa" name="txtTenHangHoa" data-bind="value: TenHangHoa" />
+                                <input class="form-control" autocomplete="off" type="text" id="txtTenHangHoa" name="txtTenHangHoa"
+                                       data-bind="value: TenHangHoa, enable: $root.role_UpdateProduct()" />
                             </div>
                             <span class="commodity-note">
                                 <i class="fa fa-info-circle"></i>
@@ -117,6 +121,7 @@
 
                         <div class="form-group">
                             <label class="css-form-label">Nhóm dịch vụ</label>
+                            <!-- ko if: $root.role_UpdateProduct()-->
                             <div class="css-form-detail">
                                 <div class="input-group">
                                     <div class="outselect">
@@ -164,23 +169,22 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- /ko-->
+                            <!-- ko if: !$root.role_UpdateProduct()-->
+                            <div class="css-form-detail">
+                                <input class="form-control" data-bind="value: newHangHoa().TenNhomHangHoa()" disabled />
+                            </div>
+                            <!-- /ko-->
                         </div>
                         <div class="form-group" data-bind="with: newHangHoa">
                             <label class="css-form-label">Giá bán</label>
-                            <!-- ko if: $root.booleanAdd() === true-->
                             <div class="css-form-detail">
                                 <input class="form-control" autocomplete="off"
                                        type="text"
-                                       data-bind="value: GiaBan, valueUpdate: 'afterkeydown'" onkeyup="return formatNumberObj(this)" onkeypress="return keyPress(event)" />
-                            </div>
-                            <!-- /ko-->
-                            <!-- ko if: $root.booleanAdd() === false-->
-                            <div class="css-form-detail">
-                                <input class="form-control" autocomplete="off" type="text"
-                                       data-bind="value: GiaBan,valueUpdate: 'afterkeydown', enable: $root.HangHoa_GiaBan()==='HangHoa_GiaBan'"
+                                       data-bind="value: GiaBan, valueUpdate: 'afterkeydown',
+                                       enable: $root.HangHoa_GiaBan()==='HangHoa_GiaBan'" 
                                        onkeyup="return formatNumberObj(this)" onkeypress="return keyPress(event)" />
                             </div>
-                            <!-- /ko-->
                         </div>
                         <div class="form-group " style="display:none">
                             <label class="css-form-label">Phí dịch vụ</label>
@@ -234,7 +238,10 @@
                             <div class="form-group ">
                                 <label class="css-form-label">Bảo hành</label>
                                 <div class="css-form-detail bao-hanh" data-bind="with: newHangHoa">
-                                    <input type="text" autocomplete="off" class="dropdown input-add-select form-control" data-bind="value: ThoiGianBaoHanh" onkeypress="return keypressNumber_limitNumberBH(event,this)" onkeyup="return formatNumberObj(this)">
+                                    <input type="text" autocomplete="off" class="dropdown input-add-select form-control"
+                                           data-bind="value: ThoiGianBaoHanh, enable: $root.role_UpdateProduct()"
+                                           onkeypress="return keypressNumber_limitNumberBH(event,this)" 
+                                           onkeyup="return formatNumberObj(this)">
                                     <select class="form-control select-add-input" id="dllLoaiThoiGianBHDV" data-bind="options: $root.LoaiThoiGianBaoHanhs, optionsValue: 'value',
                                     optionsText: 'TenLoai', value: $root.selectedLoaiThoiGianBH"></select>
                                 </div>
@@ -401,7 +408,8 @@
                                 <div class="form-group" data-bind="with: newHangHoa" style="max-width:400px;">
                                     <label class="css-form-label">Đơn vị cơ bản</label>
                                     <div class="css-form-detail">
-                                        <input autocomplete="off" type="text" class="form-control" data-bind="value: DonViTinhChuan" />
+                                        <input autocomplete="off" type="text" class="form-control"
+                                               data-bind="value: DonViTinhChuan, enable: $root.role_UpdateProduct()" />
                                     </div>
                                     <span class="commodity-note">
                                         <i class="fa fa-info-circle"></i>
