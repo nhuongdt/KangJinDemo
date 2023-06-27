@@ -17,6 +17,7 @@ namespace Model
             Kho_HoaDon_ChiTiet = new HashSet<Kho_HoaDon_ChiTiet>();
             BH_NhanVienThucHien = new HashSet<BH_NhanVienThucHien>();
             BH_HoaDon_ChiPhi = new HashSet<BH_HoaDon_ChiPhi>();
+            BH_ChiTiet_DinhDanh = new HashSet<BH_ChiTiet_DinhDanh>();
         }
 
         [Column(TypeName = "uniqueidentifier")]
@@ -204,6 +205,9 @@ namespace Model
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BH_HoaDon_ChiPhi> BH_HoaDon_ChiPhi { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BH_ChiTiet_DinhDanh> BH_ChiTiet_DinhDanh { get; set; }
 
         [NotMapped]
         public ICollection<BH_HoaDon_ChiTiet> ThanhPhan_DinhLuong { get; set; }

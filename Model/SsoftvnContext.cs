@@ -196,6 +196,7 @@ namespace Model
         public virtual DbSet<Gara_Xe_NhatKyHoatDong> Gara_Xe_NhatKyHoatDong { get; set; }
         public virtual DbSet<NhomHang_ChiTietSanPhamHoTro> NhomHang_ChiTietSanPhamHoTro { get; set; }
         public virtual DbSet<NhomHang_KhoangApDung> NhomHang_KhoangApDung { get; set; }
+        public virtual DbSet<BH_ChiTiet_DinhDanh> BH_ChiTiet_DinhDanh { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -257,6 +258,11 @@ namespace Model
                 .HasMany(e => e.BH_HoaDon_ChiPhi)
                 .WithRequired(e => e.BH_HoaDon_ChiTiet)
                 .HasForeignKey(e => e.ID_HoaDon_ChiTiet);
+
+            modelBuilder.Entity<BH_HoaDon_ChiTiet>()
+                .HasMany(e => e.BH_ChiTiet_DinhDanh)
+                .WithRequired(e => e.BH_HoaDon_ChiTiet)
+                .HasForeignKey(e => e.IdHoaDonChiTiet);
 
             modelBuilder.Entity<DM_ChucVu>()
                 .HasMany(e => e.DM_LienHe)
