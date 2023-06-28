@@ -128,6 +128,32 @@ namespace libReport
         public string GhiChu { get; set; }
     }
 
+    public class BaoCaoBanHang_DinhDanhDichVu
+    {
+        public Guid? ID_HoaDon { get; set; }
+        public int? LoaiHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+        public string MaHangHoa { get; set; }
+        public int? MaDinhDanh { get; set; }
+        public string MaHoaDon { get; set; }
+        public string TenHangHoa { get; set; }
+        public string TenNhomHangHoa { get; set; }
+        public double? SoLuong { get; set; }
+        public double? DonGia { get; set; }
+        public double? TienChietKhau { get; set; }
+        public double? ThanhTien { get; set; }
+        public string MaNhanVien { get; set; }
+        public string TenNhanVien { get; set; }
+        public string GhiChu { get; set; }
+
+        public int? TotalRow { get; set; }
+        public double? TotalPage { get; set; }
+    }
+
+
     public class BaoCaoBanHang_NhomHangPRC
     {
         public string TenNhomHangHoa { get; set; }

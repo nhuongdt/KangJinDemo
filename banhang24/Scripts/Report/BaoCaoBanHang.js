@@ -37,6 +37,9 @@
     self.BaoCaoBanHang_LoiNhuan_Print = ko.observableArray();
     self.BaoCaoKhachHang_TanSuat = ko.observableArray();
     self.BaoCaoHangKhuyenMai = ko.observableArray();
+    self.BaoCaoBanHang_DinhDanhDichVu = ko.observableArray();
+    self.role_BCBH_DinhDanhDichVu = ko.observable(true);
+
     self.ArrDonVi = ko.observableArray();
     self.LstIDDonVi = ko.observableArray([_id_DonVi]);
     self.LoaiNganhNghe = ko.observable(0);
@@ -299,6 +302,8 @@
         else {
             self.BCBH_ChiTiet('false');
         }
+
+        self.role_BCBH_DinhDanhDichVu(VHeader.Quyen.indexOf('BCBH_DinhDanhDichVu') > -1);
 
         if (VHeader.Quyen.indexOf('BCBH_TheoNhomHang') > -1) {
             self.BCBH_TheoNhomHang('BCBH_TheoNhomHang');
@@ -857,6 +862,11 @@
                 $("#txt_search").attr("placeholder", "Theo mã/tên hàng, mã/tên khuyến mại, mã/tên khách hàng, hình thức ").blur();
                 self.MoiQuanTam('Báo cáo hàng khuyến mại');
                 break;
+            case 10:
+                self.LoaiBaoCao('định danh dịch vụ');
+                $("#txt_search").attr("placeholder", "Theo mã, tên hàng, tên khách hàng").blur();
+                self.MoiQuanTam('Báo cáo định danh dịch vụ');
+                break;
         }
     };
 
@@ -1166,7 +1176,7 @@
                 if (self.BCBH_ChiTiet() == "BCBH_ChiTiet") {
                     $(".PhanQuyen").hide();
                     ajaxHelper(ReportUri + "BaoCaoBanHang_ChiTiet", "POST", array_Seach).done(function (data) {
-                        console.log(data.LstData)
+
                         self.BaoCaoBanHang_ChiTiet(data.LstData);
                         if (self.BaoCaoBanHang_ChiTiet().length != 0) {
                             $('.TC_ChiTiet').show();
@@ -1204,6 +1214,29 @@
                     $(".page").hide();
                     LoadingForm(false);
                 }
+                break;
+            case 10:
+                MenuLeft_ShowSearchHang();
+
+                ajaxHelper(ReportUri + "BaoCaoBanHang_DinhDanhDichVu", "POST", array_Seach).done(function (data) {
+                    self.BaoCaoBanHang_DinhDanhDichVu(data.LstData);
+                    console.log(data)
+                    if (self.BaoCaoBanHang_DinhDanhDichVu().length > 0) {
+                        self.RowsStart((_pageNumber - 1) * _pageSize + 1);
+                        self.RowsEnd((_pageNumber - 1) * _pageSize + self.BaoCaoBanHang_DinhDanhDichVu().length)
+                    }
+                    else {
+                        self.RowsStart('0');
+                        self.RowsEnd('0');
+                    }
+                    AllPage = data.numberPage;
+                    self.SumRowsHangHoa(data.TotalRow);
+
+                    self.selecPage();
+                    self.ReserPage();
+                    LoadingForm(false);
+                });
+
                 break;
             case 3:
                 MenuLeft_ShowSearchHang();
@@ -2163,6 +2196,7 @@
 
                         }
                         break;
+
                     case 2:
                         func = 'Export_BCBH_ChiTiet';
                         lenData = self.BaoCaoBanHang_ChiTiet().length;
@@ -2176,6 +2210,21 @@
                                 LoadingForm(false);
                             }
                         });
+                        break;
+                    case 10:
+                        func = 'Export_BaoCaoBanHang_DinhDanhDichVu';
+                        lenData = self.BaoCaoBanHang_DinhDanhDichVu().length;
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: ReportUri + "Export_BaoCaoBanHang_DinhDanhDichVu",
+                            data: { objExcel: array_Seach },
+                            success: function (url) {
+                                self.DownloadFileTeamplateXLSX(url)
+                                LoadingForm(false);
+                            }
+                        });
+
                         break;
                     case 3:
                         func = 'Export_BCBH_TheoNhomHang';
@@ -2494,6 +2543,7 @@
         switch (parseInt(self.check_MoiQuanTam())) {
             case 1:
             case 2:
+            case 10:
                 self.LoadReport();
                 break;
             case 3://  NhomHang
@@ -2851,7 +2901,7 @@
         _pageSize = self.pageSize();
 
         let moiquantam = parseInt(self.check_MoiQuanTam());
-        if ($.inArray(moiquantam, [1, 2, 52]) > -1) {//banhang tonghop + chitiet + bc tansuat
+        if ($.inArray(moiquantam, [1, 2, 52, 10]) > -1) {//banhang tonghop + chitiet + bc tansuat + bc dinhdanh
             self.LoadReport();
         }
         else {

@@ -36,7 +36,7 @@ namespace banhang24.Hellper
         public const string DatHangNCC = "DatHangNCC";
         public const string DatHangNCCItem = "DatHangNCCItem";
         public const string NhapNoiBo = "NhapNoiBo";
-        public const string NhapNoiBoItem = "NhapNoiBoItem";   
+        public const string NhapNoiBoItem = "NhapNoiBoItem";
         public const string NhapHangThua = "NhapHangThua";
         public const string NhapHangThuaItem = "NhapHangThuaItem";
         public const string NhapHangItem = "PurchaseOrderItem";
@@ -561,7 +561,7 @@ namespace banhang24.Hellper
             taichinh,
             nhapxuatton,
             xuattonchitiet,
-            dieuchuyenhhXC= 20,
+            dieuchuyenhhXC = 20,
             dieuchuyenhhNC,
             dieuchuyenhhCT,
             thnhapkhoHH,
@@ -571,7 +571,7 @@ namespace banhang24.Hellper
             duchitiet,
             nhatkysdct,
             nhatkysdth,
-            tonchuasudung=30,
+            tonchuasudung = 30,
             rnv_th,
             rnv_hopdong,
             rnv_baohiem,
@@ -581,10 +581,10 @@ namespace banhang24.Hellper
             rnv_miengiamthue,
             rnv_daotao,
             rnv_congtac,
-            rnv_giadinh= 40,
+            rnv_giadinh = 40,
             rnv_suckhoe,
             xuatkhohhtheodinhluong,
-            tonkhoth =43,
+            tonkhoth = 43,
             phantichthuchi,
             hanghoath,
             hanghoact,
@@ -688,6 +688,7 @@ namespace banhang24.Hellper
             Detail_doanhthuthuan,
             Detail_tienthue,
             Detail_chiphi,
+            Detail_maDinhDanhDV,
         }
 
         public static Dictionary<string, string> listNameReportDetail = new Dictionary<string, string>()
@@ -720,6 +721,25 @@ namespace banhang24.Hellper
                       {TypeReportDetail.Detail_hanbaohanh.ToString(),"Hạn bảo hành" },
                       {TypeReportDetail.Detail_trangthai.ToString(),"Trạng thái" },
                       {TypeReportDetail.Detail_ngayconhan.ToString(),"Ngày còn hạn/hết hạn" },
+                 {ColumnReportNhanVien.manhanvien.ToString(),"Mã nhân viên" },
+                 {ColumnReportNhanVien.tennhanvien.ToString(),"Tên nhân viên" },
+                   {TypeReportDetail.Detail_ghichu.ToString(),"Ghi chú" },
+        };
+        public static Dictionary<string, string> listNameReportDetail_DinhDanhDV = new Dictionary<string, string>()
+        {
+               { TypeReportDetail.Detail_ngaychungtu.ToString(),"Ngày sử dụng DV" },
+            {TypeReportDetail.Detail_makhach.ToString(),"Mã khách hàng" },
+               { TypeReportDetail.Detail_tenkhach.ToString(),"Tên khách hàng" },
+               { TypeReportDetail.Detail_dienthoai.ToString(),"Điện thoại" },
+                {TypeReportDetail.Detail_mahang.ToString(),"Mã dịch vụ" },
+              {TypeReportDetail.Detail_maDinhDanhDV.ToString(),"Mã định danh dịch vụ" },
+            {TypeReportDetail.Detail_machungtu.ToString(),"Mã chứng từ" },
+                {TypeReportDetail.Detail_tenhang.ToString(),"Tên dịch vụ" },
+              {TypeReportDetail.Detail_nhomhang.ToString(),"Nhóm dịch vụ" },
+                  { TypeReportDetail.Detail_soluong.ToString(),"Số lượng" },
+                   { TypeReportDetail.Detail_giaban.ToString(),"Đơn giá" },
+                    { TypeReportDetail.Detail_chietkhau.ToString(),"Chiết khấu" },
+              {TypeReportDetail.Detail_thanhtien.ToString(),"Thành tiền" },
                  {ColumnReportNhanVien.manhanvien.ToString(),"Mã nhân viên" },
                  {ColumnReportNhanVien.tennhanvien.ToString(),"Tên nhân viên" },
                    {TypeReportDetail.Detail_ghichu.ToString(),"Ghi chú" },

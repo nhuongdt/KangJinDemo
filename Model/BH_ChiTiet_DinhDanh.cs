@@ -23,7 +23,6 @@ namespace Model
 
         [Column(TypeName = "uniqueidentifier")]
         public Guid IdHoaDonChiTiet { get; set; }
-
         public virtual BH_HoaDon_ChiTiet BH_HoaDon_ChiTiet { get; set; }
     }
 }

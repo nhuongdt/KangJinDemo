@@ -180,6 +180,32 @@ namespace libReport
                 return new List<BaoCaoBanHang_ChiTietPRC>();
             }
         }
+        public List<BaoCaoBanHang_DinhDanhDichVu> BaoCaoBanHang_DinhDanhDichVu(array_BaoCaoBanHang param)
+        {
+            try
+            {
+                var obj = ReportSale_GetCommonParam(param);
+                List<SqlParameter> sql = new List<SqlParameter>();
+                sql.Add(new SqlParameter("pageNumber", param.pageNumber));
+                sql.Add(new SqlParameter("pageSize", param.pageSize));
+                sql.Add(new SqlParameter("SearchString", param.MaHangHoa));
+                sql.Add(new SqlParameter("timeStart", param.timeStart));
+                sql.Add(new SqlParameter("timeEnd", param.timeEnd));
+                sql.Add(new SqlParameter("ID_ChiNhanh", obj.IDChiNhanhs));
+                sql.Add(new SqlParameter("LoaiHangHoa", obj.LoaiHangHoa));
+                sql.Add(new SqlParameter("TheoDoi", obj.TheoDoi));
+                sql.Add(new SqlParameter("TrangThai", obj.TrangThai));
+                sql.Add(new SqlParameter("ID_NhomHang", param.ID_NhomHang ?? (object)DBNull.Value));
+                sql.Add(new SqlParameter("LoaiChungTu", param.LoaiChungTu));
+                return _db.Database.SqlQuery<BaoCaoBanHang_DinhDanhDichVu>("exec BCBanHang_theoMaDinhDanh @pageNumber,@pageSize, " +
+                    "@SearchString, @timeStart, @timeEnd, @ID_ChiNhanh, @LoaiHangHoa, @TheoDoi, @TrangThai, @ID_NhomHang,@LoaiChungTu", sql.ToArray()).ToList();
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("ClassReportBanHang - BaoCaoBanHang_DinhDanhDichVu: " + ex.Message);
+                return new List<BaoCaoBanHang_DinhDanhDichVu>();
+            }
+        }
 
         public List<BaoCaoBanHang_NhomHangPRC> GetBaoCaoBanHang_NhomHangPRC(array_BaoCaoBanHang param)
         {

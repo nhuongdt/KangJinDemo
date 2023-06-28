@@ -3336,6 +3336,7 @@ var NewModel_BanHangLe = function () {
                                         }
 
                                         vmThemMoiKhach.NangNhomKhachHang(objMuaHang.ID_DoiTuong);
+                                        Post_BHChiTiet_DinhDanh(objMuaHang.ID, objMuaHang.LoaiHoaDon);
                                     }
                                 })
                             }
@@ -8533,6 +8534,7 @@ var NewModel_BanHangLe = function () {
                     UpdateStatus_HDDatHang();
                     RemoveKHoffline_afterSave();
                     vmThemMoiKhach.NangNhomKhachHang(objHDAdd.ID_DoiTuong);
+                    Post_BHChiTiet_DinhDanh(objHDAdd.ID, objHDAdd.LoaiHoaDon);
                 }
                 else {
                     ShowMessage_Danger(obj.mes);
@@ -8635,6 +8637,14 @@ var NewModel_BanHangLe = function () {
         return {
             GioVao: ngaygioVao,
             GioRa: ngaygioRa,
+        }
+    }
+
+    function Post_BHChiTiet_DinhDanh(idHoaDon, loaiHD) {
+        // hd le, baohanh, hotro
+        if (loaiHD === 1 || loaiHD === 2 || loaiHD === 36) {
+            ajaxHelper(BHHoaDonUri + 'Post_BHChiTiet_DinhDanh?idHoaDon=' + idHoaDon).done(function (x) {
+            })
         }
     }
 
@@ -8776,6 +8786,7 @@ var NewModel_BanHangLe = function () {
                         UpdateNhomKH_DB(objHDAdd.ID_DoiTuong);
                         vmApDungNhomHoTro.CreatePhieuXuat_NguyenVatLieu(objHDAdd.ID);
                         vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(objHDAdd.ID, objHDAdd.LoaiHoaDon);
+                        Post_BHChiTiet_DinhDanh(objHDAdd.ID, objHDAdd.LoaiHoaDon);
                         break;
                     case 19:
                     case 6:
@@ -8786,6 +8797,9 @@ var NewModel_BanHangLe = function () {
 
                 // get maHDDatHang -> delete in cacheDatHang after save
                 var maHDDatHang = myData.objHoaDon.MaHoaDonTraHang;
+                if (commonStatisJs.CheckNull(maHDDatHang) && objHDAdd.LoaiHoaDon === 3 && !isInsert) {
+                    maHDDatHang = objHDAdd.MaHoaDon;// nếu xử lý báo giá, nhưng không lưu hóa đơn mà lại cập nhật báo giá
+                }
                 // if updateHDDatHang --> don't remove (HD DatHang  + HD new create)
                 var lstHDafter = [];
                 if (updateHDDatHang === false) {
@@ -8796,6 +8810,15 @@ var NewModel_BanHangLe = function () {
                     // remove hd DatHang (if HD was creat from DatHang)
                     lstHDafter = $.grep(lstHDafter, function (x) {
                         return x.MaHoaDon !== maHDDatHang;
+                    });
+                    // remove hd dang xuly (if HD was creat from DatHang)
+                    let arrIDRandom_ofHDdangXuLy = $.grep(lstHDafter, function (x) {
+                        return x.MaHoaDonTraHang === maHDDatHang;
+                    }).map((o) => {
+                        return o.IDRandom;
+                    });
+                    lstHDafter = $.grep(lstHDafter, function (x) {
+                        return x.MaHoaDonTraHang !== maHDDatHang;
                     });
                     localStorage.setItem(lcListHD, JSON.stringify(lstHDafter));
                     // remove CTHoaDon in Cache
@@ -8808,6 +8831,10 @@ var NewModel_BanHangLe = function () {
                         // remove cthd DatHang (if HD was creat from DatHang)
                         lstCTHD = $.grep(lstCTHD, function (x) {
                             return x.MaHoaDon !== maHDDatHang;
+                        });
+                        // remove cthd of hd dang xuly from baogia (if HD was creat from DatHang)
+                        lstCTHD = $.grep(lstCTHD, function (x) {
+                            return $.inArray(x.IDRandomHD, arrIDRandom_ofHDdangXuLy) === -1;
                         });
                         localStorage.setItem(lcListCTHD, JSON.stringify(lstCTHD));
                     }

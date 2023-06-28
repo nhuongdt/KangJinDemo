@@ -712,6 +712,22 @@ namespace libDM_DoiTuong
                     db.BH_NhanVienThucHien.RemoveRange(data);
                 IQueryable<BH_HoaDon_ChiTiet> lstCTHD = db.BH_HoaDon_ChiTiet.Where(p => p.ID_HoaDon == idHD);
 
+                // delete BH_HoaDon_ChiPhi
+                var lstCPDV = db.BH_HoaDon_ChiPhi.Where(x => x.ID_HoaDon == idHD && x.ID_HoaDon_ChiTiet != null);
+                if (lstCPDV != null)
+                {
+                    db.BH_HoaDon_ChiPhi.RemoveRange(lstCPDV);
+                }
+
+                #region remove BH_ChiTiet_DinhDanh
+                var lstIDCTHD = db.BH_HoaDon_ChiTiet.Where(x => x.ID_HoaDon == idHD).Select(x => x.ID).ToList();
+                var lstDinhDanh = db.BH_ChiTiet_DinhDanh.Where(x => lstIDCTHD.Contains(x.IdHoaDonChiTiet));
+                if (lstDinhDanh != null)
+                {
+                    db.BH_ChiTiet_DinhDanh.RemoveRange(lstDinhDanh);
+                }
+                #endregion
+
                 db.BH_HoaDon_ChiTiet.RemoveRange(lstCTHD); //remove cthd
                 db.SaveChanges();
             }

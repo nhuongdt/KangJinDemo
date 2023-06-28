@@ -12121,6 +12121,53 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost, HttpGet]
+        public IHttpActionResult Post_BHChiTiet_DinhDanh(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        List<BH_ChiTiet_DinhDanh> lst = new List<BH_ChiTiet_DinhDanh>();
+                        var lstCTHD = db.BH_HoaDon_ChiTiet.Where(x => x.ID_HoaDon == idHoaDon
+                        && (x.ID_ChiTietDinhLuong == x.ID || x.ID_ChiTietDinhLuong == null) && x.ID_ParentCombo != x.ID);
+
+                        if (lstCTHD != null && lstCTHD.Count() > 0)
+                        {
+                            foreach (var item in lstCTHD)
+                            {
+                                BH_ChiTiet_DinhDanh dinhdanh = new BH_ChiTiet_DinhDanh
+                                {
+                                    IdHoaDonChiTiet = item.ID
+                                };
+                                lst.Add(dinhdanh);
+                            }
+                        }
+                        db.BH_ChiTiet_DinhDanh.AddRange(lst);
+                        db.SaveChanges();
+                        trans.Commit();
+
+                        return Json(new
+                        {
+                            res = true,
+                        });
+
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return Json(new
+                        {
+                            res = false,
+                            mes = ex.InnerException + ex.Message
+                        });
+                    }
+                }
+            }
+        }
+
+        [HttpPost, HttpGet]
         public IHttpActionResult Post_HoaDonTrichHoaHong([FromBody] JObject data)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())

@@ -2994,6 +2994,54 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet, HttpPost]
+        public IHttpActionResult BaoCaoBanHang_DinhDanhDichVu(libReport.array_BaoCaoBanHang param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassReportBanHang report = new ClassReportBanHang(db);
+                List<BaoCaoBanHang_DinhDanhDichVu> lst = report.BaoCaoBanHang_DinhDanhDichVu(param);
+                int totalRow = 0;
+                if (lst.Count() > 0)
+                {
+                    totalRow = Convert.ToInt32(lst.FirstOrDefault().TotalRow);
+                }
+                int lstPages = getNumber_Page(totalRow, param.pageSize);
+                return Json(new
+                {
+                    LstData = lst,
+                    TotalRow = totalRow,
+                    numberPage = lstPages,
+                });
+            }
+        }
+        [HttpGet, HttpPost]
+        public string Export_BaoCaoBanHang_DinhDanhDichVu([FromBody] JObject data)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                db.Database.CommandTimeout = 60 * 60;
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
+
+                ClassReportBanHang report = new ClassReportBanHang(db);
+                List<BaoCaoBanHang_DinhDanhDichVu> lst = report.BaoCaoBanHang_DinhDanhDichVu(param);
+
+                DataTable excel = classOffice.ToDataTable<BaoCaoBanHang_DinhDanhDichVu>(lst);
+                excel.Columns.Remove("ID_HoaDon");
+                excel.Columns.Remove("LoaiHoaDon");
+                excel.Columns.Remove("TotalRow");
+                excel.Columns.Remove("TotalPage");
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHang_DinhDanhDichVu.xlsx");
+                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHang_DinhDanhDichVu.xlsx");
+                fileSave = classOffice.createFolder_Download(fileSave);
+                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                HttpResponse Response = HttpContext.Current.Response;
+                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHang_DinhDanhDichVu.xlsx");
+                return fileSave;
+            }
+        }
+
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult BaoCaoBanHang_NhomHang(libReport.array_BaoCaoBanHang param)
         {
@@ -4739,7 +4787,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             NumOfPage = 0,
                             SumGiaTriHoTro = 0,
                             SumGiaTriSuDung = 0,
-                            PageView= string.Empty,
+                            PageView = string.Empty,
                         });
                     }
                 }
@@ -10123,6 +10171,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             break;
                         case (int)commonEnum.TypeReport.khachhang_tansuat:
                             data = commonEnum.Dictionary_BaoCaoTanSuatDoanhThu.ToList();
+                            break;
+                        case 10:// bc banhang - dinhdanh dichvu
+                            data = commonEnum.listNameReportDetail_DinhDanhDV.ToList();
                             break;
                         default:
                             break;
