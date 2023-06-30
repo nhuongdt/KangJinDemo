@@ -11678,7 +11678,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost, HttpGet]
-        public IHttpActionResult Post_HoaDonHoTro([FromBody] JObject data)
+        public IHttpActionResult Post_HoaDonHoTro([FromBody] JObject data, Guid? idHoaDonOld = null)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -11707,16 +11707,51 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         }
                         else
                         {
-                            bool exist = classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
-                            if (exist)
+                            if (idHoaDonOld != null && idHoaDonOld != Guid.Empty)
                             {
-                                return Json(new
+                                // update hdHoTro: huy phieu cu + phat sinh phieu moi
+                                string[] arrMa = objHoaDon.MaHoaDon.Split('_');
+                                string maGoc = objHoaDon.MaHoaDon;
+                                if (arrMa.Length > 0)
                                 {
-                                    res = false,
-                                    mes = "Mã hóa đơn đã tồn tại",
-                                });
+                                    maGoc = arrMa[0];
+                                }
+                                var count = db.BH_HoaDon.Where(x => x.MaHoaDon.Contains(maGoc)).Count();
+                                if (count > 0)
+                                {
+                                    sMaHoaDon = string.Concat(maGoc, "_", count);
+                                }
+
+                                var hdOld = db.BH_HoaDon.Find(idHoaDonOld);
+                                if (hdOld != null)
+                                {
+                                    // compare ngaylapOld + new
+                                    string sDateNew = objHoaDon.NgayLapHoaDon.ToString("yyyy-MM-dd HH:mm");
+                                    string sDateOld = hdOld.NgayLapHoaDon.ToString("yyyy-MM-dd HH:mm");
+                                    if (string.Compare(sDateNew, sDateOld) == 0)
+                                    {
+                                        // neu trung ngay: add 3 milisecond --> used to tinh tonkho
+                                        objHoaDon.NgayLapHoaDon = objHoaDon.NgayLapHoaDon.AddMilliseconds(3);
+                                    }
+                                    hdOld.ChoThanhToan = null;
+
+                                    // huy phieu xuatkho of hdOld
+                                    db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDonOld).ToList().ForEach(x => x.ChoThanhToan = null);
+                                }
                             }
-                            sMaHoaDon = classhoadon.GetMaHoaDon_Copy(objHoaDon.MaHoaDon);
+                            else
+                            {
+                                bool exist = classhoadon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
+                                if (exist)
+                                {
+                                    return Json(new
+                                    {
+                                        res = false,
+                                        mes = "Mã hóa đơn đã tồn tại",
+                                    });
+                                }
+                                sMaHoaDon = classhoadon.GetMaHoaDon_Copy(objHoaDon.MaHoaDon);
+                            }
                         }
                         objHoaDon.MaHoaDon = sMaHoaDon;
 

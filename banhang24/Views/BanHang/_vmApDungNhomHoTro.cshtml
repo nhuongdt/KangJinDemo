@@ -799,12 +799,12 @@
                             x['IDRandom'] = x.ID_ChiTietHD
                         });
                         self.PublicProducts = spChung;
-                        self.DayProducts = spNgay;
+                        self.DayProducts = spNgay
 
                         self.inforOld = {
                             HoaDon: $.extend({}, true, self.InvoiceChosing),
                             NhomHang: $.extend({}, true, self.NhomHangApply),
-                            SanPham: $.extend([], true, x.dataSoure),
+                            SanPham: [...x.dataSoure],
                         };
 
                         self.NhomHangEnoughCondition_getAll();
@@ -1427,13 +1427,14 @@
                     }
                 }
                 else {
-                    url = 'Update_HoaDonHoTro';
+                    url = 'Post_HoaDonHoTro?idHoaDonOld=' + self.InvoiceChosing.ID;// hủy hóa đơn cũ + tạo hóa đơn mới "Mahoaon_01" (giống phiếu xuất kho)
                     spChung = self.PublicProducts;
                     spNgay = self.DayProducts;
 
                     hd = {
                         ID: self.InvoiceChosing.ID,
                         LoaiHoaDon: 36,
+                        MaHoaDon: self.InvoiceChosing.MaHoaDon,
                         ID_DonVi: self.InvoiceChosing.ID_DonVi,
                         ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
                         ID_CheckIn: self.NhomHangApply.Id_NhomHang,
@@ -1452,11 +1453,13 @@
 
                     sType = 'Cập nhật';
                     user = ' <br /> Người sửa: ' + VHeader.UserLogin;
+                    console.log('self.inforOld.NhomHang ', self.inforOld)
 
                     sOld = '<br /> <b> Thông tin cũ: </b>';
-                    sOld = sOld.concat('<br> Ngày lập:', moment(self.inforOld.HoaDon.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'));
-                    sOld = sOld.concat('<br> Nhóm hàng:', self.inforOld.NhomHang.TenNhomHangHoa);
-                    sOld = sOld.concat('<br /> Xuất ngày thuốc: ', self.inforOld.NhomHang.IsXuatNgayThuoc ? hd.SoNgayThuoc : 'không');
+                    sOld = sOld.concat('<br> Mã hóa đơn: ', self.InvoiceChosing.MaHoaDon);
+                    sOld = sOld.concat('<br> Ngày lập: ', moment(self.inforOld.HoaDon.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'));
+                    sOld = sOld.concat('<br> Nhóm hàng: ', self.inforOld.NhomHang.TenNhomHangHoa);
+                    sOld = sOld.concat('<br /> Xuất ngày thuốc: ', self.inforOld.NhomHang.IsXuatNgayThuoc ? self.inforOld.NhomHang.SoNgayThuoc : 'không');
                     sOld = sOld.concat('<br /> Chuyển phát nhanh: ', self.inforOld.NhomHang.IsChuyenPhatNhanh ? 'có' : 'không');
 
                     let arrChung = $.grep(self.inforOld.SanPham, function (x) {
@@ -1554,16 +1557,15 @@
                                 NoiDung: sType.concat(' hóa đơn hỗ trợ ', data.MaHoaDon,
                                     ', Khách hàng ', hd.TenDoiTuong, '(', hd.MaDoiTuong, ')'),
                                 NoiDungChiTiet: 'Nội dung chi tiết '.concat(' <br /> Tên nhóm hàng: ', hd.TenNhomHangHoa,
-                                    ' <br /> Xuất ngày thuốc: ', hd > 0 ? hd.SoNgayThuoc : 'không',
+                                    ' <br /> Xuất ngày thuốc: ', hd.TongGiamGia > 0 ? hd.TongGiamGia : 'không',
                                     ' <br /> Chuyển phát nhanh: ', hd.An_Hien ? 'có' : 'không',
                                     ' <br /> Ngày lập phiếu: ', moment(data.NgayLapHoaDon).format('DD/MM/YYYY HH:mm'),
                                     sListSP, user, sOld),
                                 LoaiHoaDon: 36,
-                                ID_HoaDon: data.ID,
-                                ThoiGianUpdateGV: data.NgayLapHoaDon
+                                ID_HoaDon: self.typeUpdate === 1 ? data.ID : self.InvoiceChosing.ID, // !important: nếu cập nhật, lưu idHoaDonOld để chạy lại tồn kho
+                                ThoiGianUpdateGV: self.typeUpdate === 1 ? data.NgayLapHoaDon : self.InvoiceChosing.NgayLapHoaDon
                             }
                             Post_NhatKySuDung_UpdateGiaVon(diary);
-                        
 
                             hdHoTro = $.grep(hdHoTro, function (x) {
                                 return x.IDRandomHD !== idRandomHD;
@@ -1598,7 +1600,7 @@
             Post_BHChiTiet_DinhDanh: function (idHoaDon) {
                 let self = this;
                 ajaxHelper(self.UrlAPI.HoaDon + 'Post_BHChiTiet_DinhDanh?idHoaDon=' + idHoaDon).done(function (x) {
-                    
+
                 })
             },
 
