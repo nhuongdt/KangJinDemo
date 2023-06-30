@@ -137,7 +137,7 @@ namespace libReport
         public string TenDoiTuong { get; set; }
         public string DienThoai { get; set; }
         public string MaHangHoa { get; set; }
-        public int? MaDinhDanh { get; set; }
+        public string MaDinhDanh { get; set; }
         public string MaHoaDon { get; set; }
         public string TenHangHoa { get; set; }
         public string TenNhomHangHoa { get; set; }
