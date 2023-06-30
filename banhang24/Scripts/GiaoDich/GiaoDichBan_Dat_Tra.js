@@ -6337,6 +6337,40 @@
         vmApDungNhomHoTro.showModalUpdate(item.ID, self.BH_HoaDonChiTiets(),);
     }
 
+    self.XuatKho_withHD_chuaXuat = function (item) {
+        let idHoaDon = item.ID;
+
+        vmApDungNhomHoTro.CreatePhieuXuat_NguyenVatLieu(idHoaDon);
+
+        if (item.LoaiHoaDon === 36) {
+            vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(idHoaDon, 36, false);
+            vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(idHoaDon, 36, true);
+        }
+        else {
+            vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(idHoaDon, item.LoaiHoaDon);
+        }
+       
+        ShowMessage_Success('Xuất kho thành công');
+
+        let diary = {
+            ID_DonVi: item.ID_DonVi,
+            ID_NhanVien: VHeader.IdNhanVien,
+            ChucNang: 'Tạo lại phiếu xuất kho',
+            NoiDung: 'Tạo lại phiếu xuất kho cho hóa đơn '.concat(item.MaHoaDon),
+            NoiDungChiTiet: 'Tạo lại phiếu xuất kho cho hóa đơn '.concat(item.MaHoaDon, ',  Người tạo: ', VHeader.UserLogin),
+        }
+        Insert_NhatKyThaoTac_1Param(diary);
+
+        for (let i = 0; i < self.HoaDons().length; i++) {
+            if (self.HoaDons()[i].ID === idHoaDon) {
+                let dataNew = { ...self.HoaDons()[i] }
+                dataNew.IsChuaXuatKho = false;
+                self.HoaDons.replace(self.HoaDons()[i], dataNew);
+                break;
+            }
+        }
+        HideShowColumn();
+    }
 };
 var modelGiaoDich = new ViewModelHD();
 ko.applyBindings(modelGiaoDich, document.getElementById('divPage'));
