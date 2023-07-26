@@ -317,7 +317,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     var whereColumn = SearchColumn(lstParam.SearchColumns, string.Empty, ref lstParam);
                     lstParam.WhereSql = whereColumn;
-                    List<SP_DM_DoiTuong> data = classdoituong.SP_GetListKhachHang_Where_Paging(lstParam);
+                    List<SP_DM_DoiTuong> data = classdoituong.LoadDanhMuc_KhachHangNhaCungCap(lstParam);
                     DataTable excel = classOffice.ToDataTable<SP_DM_DoiTuong>(data);
 
                     excel.Columns.Remove("ID");
@@ -355,7 +355,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("SoDuCoc");
                     excel.Columns.Remove("NapCocAll");
                     excel.Columns.Remove("SuDungCocAll");
-                    excel.Columns.Remove("SoDuCocAll"); 
+                    excel.Columns.Remove("SoDuCocAll");  
+                    excel.Columns.Remove("SumTongThuKhachHang");
+                    excel.Columns.Remove("SumTongChiKhachHang");
+                    excel.Columns.Remove("SumGiaTriDVSuDung");
+                    excel.Columns.Remove("SumGiaTriDVHoanTra"); 
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
                     fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachKhachHang.xlsx");
@@ -1324,6 +1328,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriNapCoc },
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriSuDungCoc },
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriSoDuCoc },
+                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.tongthuKhach },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.tongChiKhach },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriDVSuDung },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriDVKhachTra },
                 };
             return Json(new { keycolumn = ListComlumnSearchKhachHang.ToList(), compareFile = commonEnumHellper.ListCompare.ToList() });
         }
@@ -1411,6 +1419,98 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                                 break;
                                             case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
                                                 where = string.Concat(" ISNULL(TongBanTruTraHang,0) <= ", sale_return);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.tongthuKhach:
+                                        var tongKhachThanhToan = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(TongThuKhachHang,0) = ", tongKhachThanhToan);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(TongThuKhachHang,0) > ", tongKhachThanhToan);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(TongThuKhachHang,0) >= ", tongKhachThanhToan);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(TongThuKhachHang,0) < ", tongKhachThanhToan);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(TongThuKhachHang,0) <= ", tongKhachThanhToan);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.tongChiKhach:
+                                        var tongHoanCoc = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(TongChiKhachHang,0) = ", tongHoanCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(TongChiKhachHang,0) > ", tongHoanCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(TongChiKhachHang,0) >= ", tongHoanCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(TongChiKhachHang,0) < ", tongHoanCoc);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(TongChiKhachHang,0) <= ", tongHoanCoc);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriDVSuDung:
+                                        var tongDVKhachSuDung = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(GiaTriDVSuDung,0) = ", tongDVKhachSuDung);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(GiaTriDVSuDung,0) > ", tongDVKhachSuDung);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(GiaTriDVSuDung,0) >= ", tongDVKhachSuDung);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(GiaTriDVSuDung,0) < ", tongDVKhachSuDung);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(GiaTriDVSuDung,0) <= ", tongDVKhachSuDung);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.gtriDVKhachTra:
+                                        var gtriHoanDV = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(GiaTriDVHoanTra,0) = ", gtriHoanDV);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(GiaTriDVHoanTra,0) > ", gtriHoanDV);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(GiaTriDVHoanTra,0) >= ", gtriHoanDV);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(GiaTriDVHoanTra,0) < ", gtriHoanDV);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(GiaTriDVHoanTra,0) <= ", gtriHoanDV);
                                                 break;
                                             default:
                                                 break;

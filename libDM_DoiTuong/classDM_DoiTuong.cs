@@ -778,12 +778,35 @@ namespace libDM_DoiTuong
             {
                 if (listParams.TongBan_Tu > 0)
                 {
-                    whereSql = " ISNULL(TongBan,0) >=" + listParams.TongBan_Tu;
+                    where1 = " ISNULL(TongBan,0) >=" + listParams.TongBan_Tu;
+                    whereSql = GetStringWhere(whereSql, where1);
                 }
 
                 if (listParams.TongBan_Den > 0)
                 {
                     where1 = " ISNULL(TongBan,0) <=" + listParams.TongBan_Den;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+                if (listParams.GiaTriThanhToan_Tu != null)
+                {
+                    where1 = " ISNULL(TongThuKhachHang,0) >=" + listParams.GiaTriThanhToan_Tu;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+
+                if (listParams.GiaTriThanhToan_Den != null)
+                {
+                    where1 = " ISNULL(TongThuKhachHang,0) <=" + listParams.GiaTriThanhToan_Den;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+                if (listParams.GiaTriSuDung_Tu != null)
+                {
+                    where1 = " ISNULL(GiaTriDVSuDung,0) >=" + listParams.GiaTriSuDung_Tu;
+                    whereSql = GetStringWhere(whereSql, where1);
+                }
+
+                if (listParams.GiaTriSuDung_Den != null)
+                {
+                    where1 = " ISNULL(GiaTriDVSuDung,0) <=" + listParams.GiaTriSuDung_Den;
                     whereSql = GetStringWhere(whereSql, where1);
                 }
             }
@@ -994,7 +1017,8 @@ namespace libDM_DoiTuong
             lstParam.Add(new SqlParameter("PageSize", listParams.PageSize));
 
             List<SP_DM_DoiTuong> lst = db.Database.SqlQuery<SP_DM_DoiTuong>("exec LoadDanhMuc_KhachHangNhaCungCap @ID_ChiNhanh, @LoaiDoiTuong, @IDNhomKhachs," +
-                " @TongBan_FromDate, @TongBan_ToDate, @NgayTao_FromDate ,@NgayTao_ToDate, @TextSearch," +
+                " @TongBan_FromDate, @TongBan_ToDate, " +
+                "@NgayTao_FromDate ,@NgayTao_ToDate, @TextSearch," +
                      "@Where, @ColumnSort, @SortBy, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
             return lst;
         }

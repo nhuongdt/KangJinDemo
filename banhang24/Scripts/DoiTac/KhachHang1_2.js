@@ -40,6 +40,14 @@
     self.filterTongBan = ko.observable("0");
     self.filterDateTongBan_Quy = ko.observable("0");
     self.filterDateTongBan_Input = ko.observable();
+
+    self.tongThanhToanFrom = ko.observable(null);
+    self.tongThanhToanTo = ko.observable(null);
+    self.tongSuDungFrom = ko.observable(null);
+    self.tongSuDungTo = ko.observable(null);
+    self.ngaySuDungTo = ko.observable(null);
+    self.ngaySuDungTo = ko.observable(null);
+
     self.selectedNhomDT = ko.observable();
     self.selectedNguonKhach = ko.observable();
     self.selectedNguoiGT = ko.observable();
@@ -57,6 +65,10 @@
     self.NoHienTaiAll = ko.observable();
     self.TongBanAll = ko.observable();
     self.TongBanTruTraHangAll = ko.observable();
+    self.SumTongThuKhachHang = ko.observable();
+    self.SumTongChiKhachHang = ko.observable();
+    self.SumGiaTriDVSuDung = ko.observable();
+    self.SumGiaTriDVHoanTra = ko.observable();
     self.TongPhiDichVu = ko.observable(0);
     self.TongTichDiemAll = ko.observable();
     self.ContinueImport = ko.observable(false);
@@ -808,8 +820,17 @@
                 case "sudungcoc":
                     self.columsort("SuDungCoc");
                     break;
-                case "soducoc":
-                    self.columsort("SoDuCoc");
+                case "tongthuKhach":
+                    self.columsort("TongThuKhachHang");
+                    break;
+                case "tongChiKhach":
+                    self.columsort("TongChiKhachHang");
+                    break;
+                case "gtriDVSuDung":
+                    self.columsort("GiaTriDVSuDung");
+                    break;
+                case "gtriDVKhachTra":
+                    self.columsort("GiaTriDVHoanTra");
                     break;
             }
             SortGrid(id);
@@ -975,6 +996,7 @@
         else {
             debitTo = null;
         }
+    
         // loai khach
         var loaiKhach = self.customerType();
         var gioiTinh = parseInt(self.customerSex());
@@ -1342,6 +1364,7 @@
                     break;
             }
         }
+
         let sortBy = typeSort == 2 ? 'DESC' : 'ASC';
         var Params_GetListKhachHang = {
             ID_DonVis: arrDV,
@@ -1356,6 +1379,10 @@
             TongBan_Den: tongBanTo,
             NoHienTai_Tu: debitFrom,
             NoHienTai_Den: debitTo,
+            GiaTriThanhToan_Tu: self.tongThanhToanFrom(),
+            GiaTriThanhToan_Den: self.tongThanhToanTo(),
+            GiaTriSuDung_Tu: self.tongSuDungFrom(),
+            GiaTriSuDung_Den: self.tongSuDungTo(),
             No_TrangThai: self.customerDebit(),
             GioiTinh: gioiTinh,
             LoaiKhach: loaiKhach, // ca nhan, cong ty
@@ -1422,6 +1449,11 @@
                                 self.TongTichDiemAll(x.TongTichDiemAll);
                                 self.NoHienTaiAll(x.NoHienTaiAll);
                                 self.TongPhiDichVu(x.TongPhiDichVu);
+
+                                self.SumTongThuKhachHang(data[0].SumTongThuKhachHang);
+                                self.SumTongChiKhachHang(data[0].SumTongChiKhachHang);
+                                self.SumGiaTriDVSuDung(data[0].SumGiaTriDVSuDung);
+                                self.SumGiaTriDVHoanTra(data[0].SumGiaTriDVHoanTra);
                             }
                             else {
                                 self.PageCount(0);
@@ -1493,6 +1525,30 @@
         }
     });
     $('#txtTongBanTo').keypress(function (e) {
+        if (e.keyCode == 13) {
+            ResetSort();
+            SearchKhachHang(false, false);
+        }
+    });
+    $('#txtTongThanhToanFrom').keypress(function (e) {
+        if (e.keyCode == 13) {
+            ResetSort();
+            SearchKhachHang(false, false);
+        }
+    });
+    $('#txtTongThanhToanTo').keypress(function (e) {
+        if (e.keyCode == 13) {
+            ResetSort();
+            SearchKhachHang(false, false);
+        }
+    });
+    $('#txtTongSuDungFrom').keypress(function (e) {
+        if (e.keyCode == 13) {
+            ResetSort();
+            SearchKhachHang(false, false);
+        }
+    });
+    $('#txtTongSuDungTo').keypress(function (e) {
         if (e.keyCode == 13) {
             ResetSort();
             SearchKhachHang(false, false);

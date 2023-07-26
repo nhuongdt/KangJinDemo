@@ -1809,7 +1809,6 @@ namespace banhang24.Hellper
             nguonkhach,
             nguoigioithieu,
             nvphutrach,
-            manvphutrach,
             nguoitao,
             ngaytao,
             nohientai,
@@ -1824,6 +1823,11 @@ namespace banhang24.Hellper
             gtriSuDungCoc,
             gtriSoDuCoc,
             laCaNhan,
+            manvphutrach,
+            tongthuKhach,
+            tongChiKhach,
+            gtriDVSuDung,
+            gtriDVKhachTra
         }
 
         public static Dictionary<string, string> ListKhachHang = new Dictionary<string, string>()
@@ -1848,6 +1852,10 @@ namespace banhang24.Hellper
                 {ColumnKhachHang.nohientai.ToString(),"Nợ hiện tại" },
                 { ColumnKhachHang.tongban.ToString(),"Tổng bán" },
             {ColumnKhachHang.tongbantrutrahang.ToString(),"Tổng bán trừ trả hàng" },
+            {ColumnKhachHang.tongthuKhach.ToString(),"Tổng gtrị thanh toán" },
+            {ColumnKhachHang.tongChiKhach.ToString(),"Tổng hoàn cọc" },
+            {ColumnKhachHang.gtriDVSuDung.ToString(),"Tổng gtrị sử dụng" },
+            {ColumnKhachHang.gtriDVKhachTra.ToString(),"Tổng hoàn dịch vụ" },
              { ColumnKhachHang. tongtichdiem.ToString(),"Tổng tích điểm" },
              { ColumnKhachHang. ngaygiaodichgannhat.ToString(),"Ngày giao dịch gần nhất" },
              {ColumnKhachHang.trangthaikhachhang.ToString(),"Trạng thái khách hàng" },

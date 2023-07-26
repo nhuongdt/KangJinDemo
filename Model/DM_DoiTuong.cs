@@ -410,6 +410,10 @@ namespace Model
         public double? NoHienTai { get; set; }
         public double? TongBan { get; set; }
         public double? TongBanTruTraHang { get; set; }
+        public double? TongThuKhachHang { get; set; }// tong gia tri khach da thanh toan
+        public double? TongChiKhachHang { get; set; }// hoan tu the, hoac hoadon/gdv chua sudung
+        public double? GiaTriDVSuDung { get; set; }
+        public double? GiaTriDVHoanTra { get; set; }
         public double? NapCoc { get; set; }
         public double? SuDungCoc { get; set; }
         public double? SoDuCoc { get; set; }
@@ -448,7 +452,11 @@ namespace Model
         public double? NoHienTaiAll { get; set; }
         public double? NapCocAll { get; set; }
         public double? SuDungCocAll { get; set; }
-        public double? SoDuCocAll { get; set; }
+        public double? SoDuCocAll { get; set; }  
+        public double? SumTongThuKhachHang { get; set; }
+        public double? SumTongChiKhachHang { get; set; }
+        public double? SumGiaTriDVSuDung { get; set; }
+        public double? SumGiaTriDVHoanTra { get; set; }
     }
 
     public class DoiTuongSMSDTO
@@ -516,7 +524,18 @@ namespace Model
         public DateTime? TongBan_TuNgay { get; set; }
         public DateTime? TongBan_DenNgay { get; set; }
         public double? TongBan_Tu { get; set; }
-        public double? TongBan_Den { get; set; }
+        public double? TongBan_Den { get; set; } 
+      
+        public double? GiaTriThanhToan_Tu { get; set; } = null;
+        public double? GiaTriThanhToan_Den { get; set; } = null;
+        public DateTime? GiaTriThanhToan_TuNgay { get; set; }
+        public DateTime? GiaTriThanhToan_DenNgay { get; set; }
+
+        public double? GiaTriSuDung_Tu { get; set; } = null;
+        public double? GiaTriSuDung_Den { get; set; } = null;
+        public DateTime? GtriSuDung_TuNgay { get; set; }
+        public DateTime? GtriSuDung_DenNgay { get; set; }
+
         public double? NoHienTai_Tu { get; set; }
         public double? NoHienTai_Den { get; set; }
         public int No_TrangThai { get; set; } // 0.Tất cả, 1.Còn nợ, 2.Hết nợ
