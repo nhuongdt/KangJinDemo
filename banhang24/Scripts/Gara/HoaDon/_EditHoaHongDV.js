@@ -570,19 +570,30 @@
             }
             thisVal = formatNumberToFloat(thisVal);
 
-            if (gtritinhCK > 0) {
+            if (gtritinhCK === 0) {
+                // khong update thanh tien nếu gtrị CK = 0
                 if (ptramCK > 0) {
-                    heso = thisVal * 100 / (ptramCK * gtritinhCK);
+                    thisVal = 0;
                 }
                 else {
-                    if (ckMacDinh === 0) {
-                        heso = 1 / self.GridNV_TVTH.filter(x => x.TacVu === 1).length;
-                    }
-                    else {
-                        heso = thisVal / ckMacDinh / self.DichVu_isDoing.SoLuong;
-                    }
+                    thisVal = ckMacDinh / self.GridNV_TVTH.filter(x => x.TacVu === 1).length;
+                }
+                thisObj.val(formatNumber3Digit(thisVal));// gán lại trên giao diện đúng = gtrị ck đã cài đặt
+                return;
+            }
+
+            if (ptramCK > 0) {
+                heso = thisVal * 100 / (ptramCK * gtritinhCK);
+            }
+            else {
+                if (ckMacDinh === 0) {
+                    heso = 1 / self.GridNV_TVTH.filter(x => x.TacVu === 1).length;
+                }
+                else {
+                    heso = thisVal / ckMacDinh / self.DichVu_isDoing.SoLuong;
                 }
             }
+
 
             // update infor %CK, tienCK into grid
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
