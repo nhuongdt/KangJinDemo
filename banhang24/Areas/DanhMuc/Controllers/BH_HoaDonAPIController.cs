@@ -1367,7 +1367,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     var nganhnghe = CookieStore.GetCookieAes("shop").ToUpper();
 
-                    List<BH_HoaDonDTO> lstAllHDs = classhoadon.SP_GetListHoaDons_Where_PassObject(listParams);
+                    List<BH_HoaDonDTO> lstAllHDs = classhoadon.GetListInvoice_Paging(listParams);
                     List<GoiDichVuExcel> lst = lstAllHDs.Select(x => new GoiDichVuExcel
                     {
                         MaHoaDon = x.MaHoaDon,
@@ -1389,6 +1389,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         TongTienThue = x.TongTienThue,
                         TongGiamGia = x.TongGiamGia,
                         PhaiThanhToan = x.PhaiThanhToan,
+                        BuTruTraHang = x.TongTienHDTra,
+                        GiaTriSauTra = x.PhaiThanhToan - x.TongTienHDTra,
                         KhachDaTra = x.KhachDaTra,
                         TienMat = x.TienMat,
                         ChuyenKhoan = x.ChuyenKhoan,

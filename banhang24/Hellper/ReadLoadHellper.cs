@@ -1500,6 +1500,8 @@ namespace banhang24.Hellper
                        { ColumnInvoices.tienthue.ToString(),"Tiền thuế" },
                     {TypeServicepackage.giamgia.ToString(),"Giảm giá" },
              { TypeServicepackage. khachcantra.ToString(),"Khách cần trả" },
+                      { ColumnInvoices. butruTraHang.ToString(),"Bù trừ trả hàng" },
+             { ColumnInvoices. gtriSauTra.ToString(),"Giá trị sau trả" },
                     {TypeServicepackage.khachdatra.ToString(),"Khách đã trả" },
               { TypeServicepackage. tienmat.ToString(),"Tiền mặt" },
              { TypeServicepackage. chuyenkhoan.ToString(),"Chuyển khoản" },
@@ -2516,7 +2518,8 @@ namespace banhang24.Hellper
             tienthue,
             tongphaitra,
             khachcantra,
-
+            butruTraHang,
+            gtriSauTra,
             tongtienBHduyet,
             khautrutheovu,
             giamtruboithuong,

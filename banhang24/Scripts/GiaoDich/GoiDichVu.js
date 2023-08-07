@@ -120,7 +120,7 @@
     self.TongSL_DichVu = ko.observable(0);
     self.TongSL_PhuTung = ko.observable(0);
 
-    self.columsort = ko.observable(null);
+    self.columsort = ko.observable('');
     self.sort = ko.observable(null);
     // PThucThanhToan
     self.PThucChosed = ko.observableArray();
@@ -1172,84 +1172,19 @@
         }
 
         // trang thai hoadon
-        var statusInvoice = 1;
+        let arrStatus = [];
+        if (self.TT_HoanThanh()) {
+            arrStatus.push('0');
+        }
+        if (self.TT_TamLuu()) {
+            arrStatus.push('1');
+        }
+        if (self.TT_GiaoHang()) {
+            arrStatus.push('2');
+        }
         if (self.TT_DaHuy()) {
-            if (self.TT_HoanThanh()) {
-                if (self.TT_TamLuu()) {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 0; // Huy + HoanThanh +TamLuu + GiaoHang (All)
-                    }
-                    else {
-                        statusInvoice = 1; // Huy + HoanThanh +TamLuu
-                    }
-
-                } else {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 2; // Huy + HoanThanh + GiaoHang
-                    }
-                    else {
-                        statusInvoice = 3; // Huy + HoanThanh
-                    }
-                }
-            }
-            else {
-                if (self.TT_TamLuu()) {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 4; // Huy + TamLuu + GiaoHang
-                    }
-                    else {
-                        statusInvoice = 5; // Huy + TamLuu
-                    }
-                }
-                else {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 6; // Huy + GiaoHang
-                    }
-                    else {
-                        statusInvoice = 7; // Huy
-                    }
-                }
-            }
+            arrStatus.push('4');
         }
-        else {
-            if (self.TT_HoanThanh()) {
-                if (self.TT_TamLuu()) {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 8; // HoanThanh +TamLuu + GiaoHang
-                    }
-                    else {
-                        statusInvoice = 9; // HoanThanh +TamLuu
-                    }
-
-                } else {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 10; // HoanThanh + GiaoHang
-                    }
-                    else {
-                        statusInvoice = 11; //  HoanThanh
-                    }
-                }
-            }
-            else {
-                if (self.TT_TamLuu()) {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 12; // TamLuu + GiaoHang
-                    }
-                    else {
-                        statusInvoice = 13; // TamLuu
-                    }
-                }
-                else {
-                    if (self.TT_GiaoHang()) {
-                        statusInvoice = 14; // GiaoHang
-                    }
-                    else {
-                        statusInvoice = 15; // Khong check cai nao ca
-                    }
-                }
-            }
-        }
-
 
         var currentWeekDay = _now.getDay();
         var lessDays = currentWeekDay == 0 ? 6 : currentWeekDay - 1;
@@ -1366,12 +1301,12 @@
             ID_BangGias: arrIDBangGia,
             ID_NhanViens: arrIDNhanVien,
             NguoiTao: userLogin,
-            TrangThai: statusInvoice,
+            TrangThaiHDs: arrStatus,
             NgayTaoHD_TuNgay: dayStart,
             NgayTaoHD_DenNgay: dayEnd,
-            TrangThai_SapXep: self.sort(),
+            SortBy: self.sort() == 0 ? 'DESC' : 'ASC',
             Cot_SapXep: self.columsort(),
-            PTThanhToan: ptThuc,
+            PhuongThucTTs: [],
             ColumnsHide: columnHide,
             ValueText: sTenChiNhanhs,
         }
@@ -1396,52 +1331,33 @@
         }
         else {
             if (hasPermission) {
-                // get list HoaDon
-                //hidewait('content-table');
                 $('.table-reponsive').gridLoader();
-                ajaxHelper(BH_HoaDonUri + 'GetAllHoaDons_Where_PassObject', 'POST', Params_GetListHoaDon).done(function (data) {
-                    //$("div[id ^= 'wait']").text("");
+                ajaxHelper(BH_HoaDonUri + 'GetListInvoice_Paging', 'POST', Params_GetListHoaDon).done(function (x) {
                     $('.table-reponsive').gridLoader({ show: false });
+                    console.log(x)
 
-                    if (data !== null) {
-                        self.HoaDons(data.lstCH);
-                        self.TotalRecord(data.Rowcount);
-                        self.PageCount(data.pageCount);
+                    if (x.res && x.dataSoure.length > 0) {
+                        let first = x.dataSoure[0];
+                        self.HoaDons(x.dataSoure);
+                        self.TotalRecord(first.TotalRow);
+                        self.PageCount(first.TotalPage);
 
-                        self.TongTienThue(data.TongTienThue);
-                        self.TongTienHang(data.TongTienHang);
-                        self.TongThanhToan(data.TongThanhToan);
-                        self.TongGiamGia(data.TongGiamGia);
-                        self.TongGiamGiaKM(data.TongGiamGiaKM);
-                        self.TongKhachTra(data.TongKhachTra);
-                        self.TongTienDoiDiem(data.TienDoiDiem);
-                        self.TongTienTheGTri(data.ThuTuThe);
+                        self.TongTienThue(first.SumTongTienThue);
+                        self.TongTienHang(first.SumTongTienHang);
+                        self.TongThanhToan(first.SumTongThanhToan);
+                        self.TongGiamGia(first.SumTongGiamGia);
+                        self.TongGiamGiaKM(first.SumKhuyeMai_GiamGia);
+                        self.TongKhachTra(first.SumKhachDaTra);
+                        self.TongTienDoiDiem(first.SumTienDoiDiem);
+                        self.TongTienTheGTri(first.SumThuTuThe);
+                        self.TongTienMat(first.SumTienMat);
+                        self.TongChuyenKhoan(first.SumChuyenKhoan);
+                        self.TongPOS(first.SumPOS);
 
-                        var mat = data.lstCH.reduce(function (_this, val) {
-                            return _this + val.TienMat;
+                        let conno = x.dataSoure.reduce(function (x, item) {
+                            return x + item.ConNo;
                         }, 0);
-                        self.TongTienMat(mat);
-
-                        var ck = data.lstCH.reduce(function (_this, val) {
-                            return _this + val.ChuyenKhoan;
-                        }, 0);
-                        self.TongChuyenKhoan(ck);
-
-                        var pos = data.lstCH.reduce(function (_this, val) {
-                            return _this + val.TienATM;
-                        }, 0);
-                        self.TongPOS(pos);
-
-                        // tinh tien khach no = Sum Conlai (at footer)
-                        var lstHDHuy = $.grep(data.lstCH, function (x) {
-                            return x.ChoThanhToan === null;
-                        });
-                        var sumKhachCanTra_HDHuy = lstHDHuy.reduce(function (_this, val) {
-                            return _this + val.PhaiThanhToan;
-                        }, 0);
-                        // vi HD Huy: KhachCanTra >0, nhung KhachDaTra =0, nen khong tinh vao tien khach no (OK)
-                        var conlai = data.TongThanhToan - data.TongKhachTra - sumKhachCanTra_HDHuy;
-                        self.TongKhachNo(conlai);
+                        self.TongKhachNo(conno);
                     }
                 });
             }
