@@ -126,6 +126,9 @@ namespace Model
         public string DienGiai { get; set; }
         public string TenDonVi { get; set; }
         public double? TongThanhToanAll { get; set; }
+        public double? TongTienHDTra { get; set; }
+        public string MaHoaDonGoc { get; set; }
+        public double? GiaTriSauTra { get; set; }
         public double? KhachDaTraAll { get; set; }
         public double? ConNoAll { get; set; }
         public double? NoThucTeAll { get; set; }

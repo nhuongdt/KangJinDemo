@@ -1602,9 +1602,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         DM.TongSauGiamGia = item.TongTienHang - item.TongGiamGia;
                         DM.PhiTraHang = item.TongChiPhi;
                         DM.TongTienThue = item.TongTienThue;
-                        DM.CanTraKhach = item.PhaiThanhToan;
+                        DM.CanTraKhach = item.TongTienHDTra;
                         DM.DaTraKhach = item.KhachDaTra;
-                        DM.ConNo = item.PhaiThanhToan - item.KhachDaTra;
+                        DM.ConNo = item.TongTienHDTra - item.KhachDaTra;
                         DM.GhiChu = item.DienGiai;
                         DM.TrangThai = item.TrangThai;
                         lst.Add(DM);

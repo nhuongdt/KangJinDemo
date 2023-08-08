@@ -1344,6 +1344,15 @@
                         self.TongGiaTriSDDV(first.TongGiaTriSDDV);
                         self.TongKhachNo(first.SumConNo);
                         self.TongNoKhach(first.SumConNo);// trahang
+
+
+                          // sum in page (1 page)
+                        let phaiTTSauTrahang = x.dataSoure.reduce(function (x, item) {
+                            return x + item.TongTienHDTra;
+                        }, 0);
+                        if(loaiHoaDon===6){
+                              self.KhachCanTra(phaiTTSauTrahang);
+                        }
                     }
                     else {
                         // if not data, reset 

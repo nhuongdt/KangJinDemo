@@ -886,10 +886,13 @@
                                             <a href="javascript:void(0)" v-on:click="gotoPageOther(1,item)">{{item.MaHoaDon}}</a>
                                         </td>
                                         <td v-if="CheckColShow('colThoiGian')" style="width:10%" class="text-center">{{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm')}}</td>
-                                        <td v-if="CheckColShow('colMaDoiTuong')" v-on:click="gotoPageOther(0,item)"><a>{{item.MaDoiTuong}}</a></td>
+                                        <td v-if="CheckColShow('colMaDoiTuong')" v-on:click="gotoPageOther(item)"><a>{{item.MaDoiTuong}}</a></td>
                                         <td v-if="CheckColShow('colTenDoiTuong')">{{item.TenDoiTuong}}</td>
                                         <td v-if="CheckColShow('colNVPhuTrach')">{{item.NVPhuTrach}}</td>
                                         <td v-if="CheckColShow('colTongThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.TongThanhToan)}}</td>
+                                        <td v-if="CheckColShow('colBuTruTraHang')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.TongTienHDTra)}}</td>
+                                        <td v-if="CheckColShow('colMaHoaDonTra')" class="text-right"><a v-on:click="$root.gotoHDTraHang(item.MaHoaDonGoc)">{{item.MaHoaDonGoc}}</a></td>
+                                        <td v-if="CheckColShow('colGTriSauTra')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.GiaTriSauTra)}}</td>
                                         <td v-if="CheckColShow('colKhachDaTra')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.KhachDaTra)}}</td>
                                         <td v-if="CheckColShow('colConNo')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.ConNo)}}</td>
                                         <td v-if="CheckColShow('colNoThucTe')" class="text-right">{{commonStatisJs.FormatNumber3Digit(item.NoThucTe)}}</td>
@@ -902,10 +905,13 @@
                                     <tr class="bold bg12">
                                         <td v-bind:colspan="ListHeader.filter(p=>p.index < 5 && p.colShow).length">Tổng cộng</td>
                                         <td v-if="CheckColShow('colTongThanhToan')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoCongNoChiTiet.TongThanhToanAll)}}</td>
+                                        <td v-if="CheckColShow('colBuTruTraHang')" class="text-right"></td>
+                                        <td v-if="CheckColShow('colMaHoaDonTra')" class="text-right"></td>
+                                        <td v-if="CheckColShow('colGTriSauTra')" class="text-right"></td>
                                         <td v-if="CheckColShow('colKhachDaTra')" class="text-right">{{commonStatisJs.FormatNumber3Digit(BaoCaoCongNoChiTiet.KhachDaTraAll)}}</td>
                                         <td v-if="CheckColShow('colConNo')" class="text-right"></td>
                                         <td v-if="CheckColShow('colNoThucTe')" class="text-right"></td>
-                                        <td v-bind:colspan="ListHeader.filter(p=>p.index > 8 && p.colShow).length"></td>
+                                        <td v-bind:colspan="ListHeader.filter(p=>p.index > 11 && p.colShow).length"></td>
                                     </tr>
                                 </tfoot>
                                 <tfoot v-if="BaoCaoCongNoChiTiet.data.length === 0">
@@ -2719,12 +2725,15 @@
                 { colName: 'colTenDoiTuong', colText: 'Tên khách hàng', colShow: true, index: 3 },
                 { colName: 'colNVPhuTrach', colText: 'NV phụ trách', colShow: true, index: 4 },
                 { colName: 'colTongThanhToan', colText: 'Tổng phải trả', colShow: true, index: 5 },
-                { colName: 'colKhachDaTra', colText: 'Khách đã trả', colShow: true, index: 6 },
-                { colName: 'colConNo', colText: 'Còn nợ', colShow: true, index: 7 },
-                { colName: 'colNoThucTe', colText: 'Nợ thực tế', colShow: true, index: 8 },
-                { colName: 'colNVThucHien', colText: 'NV hoa hồng', colShow: true, index: 9 },
-                { colName: 'colDienGiai', colText: 'Ghi chú', colShow: true, index: 10 },
-                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 11 }];
+                { colName: 'colBuTruTraHang', colText: 'Bù trừ trả hàng', colShow: true, index: 6 },
+                { colName: 'colMaHoaDonTra', colText: 'Mã hóa đơn trả', colShow: true, index: 7 },
+                { colName: 'colGTriSauTra', colText: 'Giá trị sau trả', colShow: true, index: 8 },
+                { colName: 'colKhachDaTra', colText: 'Khách đã trả', colShow: true, index: 9 },
+                { colName: 'colConNo', colText: 'Còn nợ', colShow: true, index: 10 },
+                { colName: 'colNoThucTe', colText: 'Nợ thực tế', colShow: true, index: 11 },
+                { colName: 'colNVThucHien', colText: 'NV hoa hồng', colShow: true, index: 12 },
+                { colName: 'colDienGiai', colText: 'Ghi chú', colShow: true, index: 13 },
+                { colName: 'colChiNhanh', colText: 'Chi nhánh', colShow: true, index: 14 }];
             },
             InitHeaderBaoCaoHoTro: function () {
                 return [{ colName: 'colNVPhuTrach', colText: 'NV phụ trách', colShow: true, index: 0 },
@@ -3181,6 +3190,10 @@
                 let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + item;
                 window.location.href = url;
             },
+            gotoHDTraHang: function (maHDGoc) {
+                localStorage.setItem('FindHD', maHDGoc);
+                window.open("/#/Returns", '_blank');
+            },
             gotoPageOther: function (type, item) {
                 let self = this;
                 let url = '';
@@ -3204,6 +3217,9 @@
                                 break;
                             case 22:
                                 url = "/#/RechargeValueCard";
+                                break;
+                            case 6:
+                                url = "/#/Returns";
                                 break;
                         }
                         break;
