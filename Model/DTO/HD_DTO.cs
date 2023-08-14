@@ -359,6 +359,21 @@ namespace Model
         public double? SumGiaTriSuDung { get; set; }
         public double? SumGiaTriHoTro { get; set; }
     }
+    public class BaoCaoDoanhThuKhachHangDTO
+    {
+        public string NgayThanhToan { get; set; }// yyyy-MM-dd
+        public Guid? ID_DoiTuong { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoaiKhachHang { get; set; }
+        public double? TongThanhToan { get; set; }
+        public double? HoanCoc { get; set; }
+        public double? HoanDichVu { get; set; }
+        public int? TotalRow { get; set; }
+        public double? SumTongThanhToan { get; set; }
+        public double? SumHoanCoc { get; set; }
+        public double? SumHoanDichVu { get; set; }
+    }
 
     public class CellDTO
     {

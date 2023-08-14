@@ -4691,6 +4691,32 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
         [AcceptVerbs("GET", "POST")]
+        public string Export_BaoCaoDoanhThuKhachHang([FromBody] JObject data)
+        {
+            array_BaoCaoKhoHang param = data["objExcel"].ToObject<array_BaoCaoKhoHang>();
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                ClassReportKho reportKho = new ClassReportKho(db);
+                List<BaoCaoDoanhThuKhachHangDTO> lst = reportKho.BaoCao_DoanhThuKhachHang(param);
+                DataTable excel = classOffice.ToDataTable<BaoCaoDoanhThuKhachHangDTO>(lst);
+
+                excel.Columns.Remove("ID_DoiTuong");
+                excel.Columns.Remove("TotalRow");
+                excel.Columns.Remove("SumTongThanhToan");
+                excel.Columns.Remove("SumHoanCoc");
+                excel.Columns.Remove("SumHoanDichVu");
+
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/Teamplate_BaoCaoDoanhThuKhachHang.xlsx");
+                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoDoanhThuKhachHang.xlsx");
+                fileSave = classOffice.createFolder_Download(fileSave);
+                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                HttpResponse Response = HttpContext.Current.Response;
+                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoTaiChinh/BaoCaoDoanhThuKhachHang.xlsx");
+                return fileSave;
+            }
+        }
+        [AcceptVerbs("GET", "POST")]
         public IHttpActionResult BaoCaoKho_XuatDichVuDinhLuong(array_BaoCaoKhoHang param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -4787,6 +4813,72 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             NumOfPage = 0,
                             SumGiaTriHoTro = 0,
                             SumGiaTriSuDung = 0,
+                            PageView = string.Empty,
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(new
+                    {
+                        res = false,
+                        mes = ex.InnerException + ex.Message
+                    });
+                }
+            }
+        }
+        [HttpGet, HttpPost]
+        public IHttpActionResult BaoCaoDoanhThuKhachHang(array_BaoCaoKhoHang param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassReportKho reportKho = new ClassReportKho(db);
+                    List<BaoCaoDoanhThuKhachHangDTO> lst = reportKho.BaoCao_DoanhThuKhachHang(param);
+
+                    if (lst.Count() > 0)
+                    {
+
+                        var firstRow = lst[0];
+                        var lstGr = lst.GroupBy(x => new
+                        {
+                            x.NgayThanhToan,
+                        }).Select(x => new
+                        {
+                            x.Key.NgayThanhToan,
+                            lstDetail = x,
+                        });
+
+                        var count = firstRow.TotalRow ?? 0;
+                        int page = 0;
+                        var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
+                        int pageNow = (param.CurrentPage??1) - 1;
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = lstGr,
+                            ListPage = listpage,
+                            PageView = string.Concat("Hiển thị " + (pageNow * param.PageSize + 1), " - ",
+                            (pageNow * param.PageSize + lst.Count()), " trên tổng số ", count, " bản ghi"),
+                            NumOfPage = page,
+                            firstRow.TotalRow,
+                            firstRow.SumTongThanhToan,
+                            firstRow.SumHoanCoc,
+                            firstRow.SumHoanDichVu,
+                        });
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = new List<BaoCaoHoTroDTO>(),
+                            TotalRow = 0,
+                            NumOfPage = 0,
+                            SumTongThanhToan = 0,
+                            SumHoanCoc = 0,
+                            SumHoanDichVu = 0,
                             PageView = string.Empty,
                         });
                     }

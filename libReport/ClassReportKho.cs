@@ -312,6 +312,19 @@ namespace libReport
             return _db.Database.SqlQuery<BaoCaoHoTroDTO>("exec dbo.BaoCaoNhomHoTro @IDChiNhanhs,@DateFrom, @DateTo, @IDNhomHoTros," +
                 " @TextSearch,@IsVuotMuc, @CurrentPage, @PageSize", sql.ToArray()).ToList();
         }
+        public List<BaoCaoDoanhThuKhachHangDTO> BaoCao_DoanhThuKhachHang(array_BaoCaoKhoHang param)
+        {
+            var obj = ReportSale_GetCommonParam(param);
+            List<SqlParameter> sql = new List<SqlParameter>();
+            sql.Add(new SqlParameter("IDChiNhanhs", obj.IDChiNhanhs));
+            sql.Add(new SqlParameter("DateFrom", param.timeStart));
+            sql.Add(new SqlParameter("DateTo", param.timeEnd));
+            sql.Add(new SqlParameter("TextSearch", param.MaHangHoa ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("CurrentPage", param.CurrentPage));
+            sql.Add(new SqlParameter("PageSize", param.PageSize));
+            return _db.Database.SqlQuery<BaoCaoDoanhThuKhachHangDTO>("exec dbo.BaoCao_DoanhThuKhachHang @IDChiNhanhs,@DateFrom, @DateTo,@TextSearch," +
+                " @CurrentPage, @PageSize", sql.ToArray()).ToList();
+        }
     }
 }
 
