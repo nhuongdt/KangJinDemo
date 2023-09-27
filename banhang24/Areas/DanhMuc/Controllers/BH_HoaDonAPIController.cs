@@ -6785,6 +6785,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 catch (Exception ex)
                 {
+                    CookieStore.WriteLog(string.Concat("PostNhanVien_ThucHien: ", ex.Message + ex.InnerException));
                     return ActionFalseNotData(ex.Message + ex.InnerException);
                 }
             }
