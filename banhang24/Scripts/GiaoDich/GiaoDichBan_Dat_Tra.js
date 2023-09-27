@@ -102,7 +102,7 @@
     self.GiaBanChosed = ko.observableArray();
     self.filterNgayLapHD = ko.observable("0");
     self.filterNgayLapHD_Input = ko.observable(); // ngày cụ thể
-    self.filterNgayLapHD_Quy = ko.observable(6); // Theo tháng
+    self.filterNgayLapHD_Quy = ko.observable(1); // Hôm nay
     self.BH_HoaDonChiTiets = ko.observableArray(); // split HoaDon = Hoa Don + Chi Tiet
     self.HoaDonDoiTra = ko.observableArray();
     self.LichSuThanhToan = ko.observableArray();
