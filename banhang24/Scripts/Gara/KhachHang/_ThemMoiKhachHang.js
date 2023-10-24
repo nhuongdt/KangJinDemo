@@ -45,6 +45,7 @@
 
             self.role.KhachHang.ThemMoi = VHeader.Quyen.indexOf('KhachHang_ThemMoi') > -1;
             self.role.KhachHang.CapNhat = VHeader.Quyen.indexOf('KhachHang_CapNhat') > -1;
+            self.role.NguonKhach.ThemMoi = VHeader.Quyen.indexOf('NguonKhach_ThemMoi') > -1;
         }
     },
     computed: {
@@ -82,6 +83,7 @@
             // role nhom + nguon + trangthai = role customer
             KhachHang: {},
             NhomKhach: { ThemMoi: false },
+            NguonKhach: { ThemMoi: false, }
         },
         customerDoing: {},
         customerOld: {},

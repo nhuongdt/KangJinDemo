@@ -179,6 +179,9 @@
     self.RoleDelete_Cus = ko.observable(false);
     self.RoleExport_Cus = ko.observable(false);
     self.RoleImport_Cus = ko.observable(false);
+    self.RoleNguonKhach_ThemMoi = ko.observable(false);
+    self.RoleNguonKhach_CapNhat = ko.observable(false);
+    self.RoleNguonKhach_Xoa = ko.observable(false);
     self.RoleView_Vendor = ko.observable(false);
     self.RoleInsert_Vendor = ko.observable(false);
     self.RoleUpdate_Vendor = ko.observable(false);
@@ -996,7 +999,7 @@
         else {
             debitTo = null;
         }
-    
+
         // loai khach
         var loaiKhach = self.customerType();
         var gioiTinh = parseInt(self.customerSex());
@@ -1392,7 +1395,7 @@
             LoaiNgaySinh: typeNgaySinh, // 0.Ngay/Thang, 1.Nam
             ID_NguonKhach: idNguonKhach,
             ID_NhanVienQuanLys: arrIDManager,
-            TrangThai_SapXep: typeSort,  
+            TrangThai_SapXep: typeSort,
             Cot_SapXep: self.columsort(),
             NguoiTao: user,
             ID_TrangThai: idTrangThai,
@@ -3600,6 +3603,10 @@
                 self.RoleXemTongDoanhThu(CheckQuyenExist('KhachHang_XemTongDoanhThu'));
                 self.RoleUpdateImg_Invoice(CheckQuyenExist('HoaDon_CapNhatAnh'));
                 self.RoleInsert_CusGroup(CheckQuyenExist('NhomKhachHang_ThemMoi'));
+
+                self.RoleNguonKhach_ThemMoi(CheckQuyenExist('NguonKhach_ThemMoi'));
+                self.RoleNguonKhach_CapNhat(CheckQuyenExist('NguonKhach_CapNhat'));
+                self.RoleNguonKhach_Xoa(CheckQuyenExist('NguonKhach_Xoa'));
 
                 if (loaiDoiTuong == 2) {
                     HideShowButton_Vendor();

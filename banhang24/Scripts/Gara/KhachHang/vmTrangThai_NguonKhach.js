@@ -135,6 +135,10 @@ var vmNguonKhach = new Vue({
     el: '#modalNguonKhach',
     created: function () {
         this.NguonKhachAPI = '/api/DanhMuc/DM_NguonKhachAPI/';
+        const header = $('#op24-nav');
+        if (header.length > 0) {
+            this.role.Delete = VHeader.Quyen.indexOf('NguonKhach_Xoa') > -1;
+        }
     },
     data: {
         saveOK: false,
