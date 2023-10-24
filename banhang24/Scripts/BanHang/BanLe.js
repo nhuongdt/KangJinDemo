@@ -20411,6 +20411,7 @@ var NewModel_BanHangLe = function () {
         vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
         vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
         vmThemMoiKhach.role.NhomKhach.ThemMoi = CheckQuyenExist('NhomKhachHang_ThemMoi');
+        vmThemMoiKhach.role.NguonKhach.ThemMoi = CheckQuyenExist('NguonKhach_ThemMoi');
         vmThanhToanGara.RoleChange_ChietKhauNV = vmHoaHongDV.role.ThayDoiChietKhau;
         vmUpAnhHoaDon.roleUpdateImg = self.roleUpdateImg();
         vmNKGoiBaoDuong.roleUpdateImg = self.roleUpdateImg();
