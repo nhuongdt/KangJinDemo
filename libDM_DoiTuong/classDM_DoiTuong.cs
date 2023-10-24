@@ -258,17 +258,17 @@ namespace libDM_DoiTuong
             {
                 if (wasChotSo)
                 {
-                    lst = db.Database.SqlQuery<SP_DM_DoiTuong>("exec SP_GetInforKhachHang_ByID @ID_DoiTuong, @ID_ChiNhanh, @timeStart, @timeEnd", lstParam.ToArray()).ToList();
+                    lst = db.Database.SqlQuery<SP_DM_DoiTuong>("exec GetInforKhachHang_ByID @ID_DoiTuong, @ID_ChiNhanh, @timeStart, @timeEnd", lstParam.ToArray()).ToList();
                 }
                 else
                 {
-                    lst = db.Database.SqlQuery<SP_DM_DoiTuong>("exec SP_GetInforKhachHang_ByID @ID_DoiTuong,  @ID_ChiNhanh, @timeStart, @timeEnd", lstParam.ToArray()).ToList();
+                    lst = db.Database.SqlQuery<SP_DM_DoiTuong>("exec GetInforKhachHang_ByID @ID_DoiTuong,  @ID_ChiNhanh, @timeStart, @timeEnd", lstParam.ToArray()).ToList();
                 }
                 return lst;
             }
             catch (Exception e)
             {
-                CookieStore.WriteLog("classDM_DoiTuong.SP_GetInforKhachHang_ByID: " + e.InnerException + e.Message);
+                CookieStore.WriteLog("classDM_DoiTuong.GetInforKhachHang_ByID: " + e.InnerException + e.Message);
                 return null;
             }
         }
