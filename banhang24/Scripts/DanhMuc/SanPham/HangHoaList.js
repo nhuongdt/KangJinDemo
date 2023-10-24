@@ -329,6 +329,7 @@ var ViewModel = function () {
     self.role_InsertProduct = ko.observable(false);
     self.role_DeleteProduct = ko.observable(false);
     self.role_UpdateProduct = ko.observable(false);// = role chuyen nhomhang, role ngungkinhdoanh
+    self.role_UpdateMoTaProduct = ko.observable(false);// = sửa đổi thông tin: qunr lý DVT, thuộc tính, mô tả chi tiết
     self.role_CaiDatDinhLuong = ko.observable(false);
     self.KiemKho_Insert = ko.observable(false);
     self.KiemKho_Update = ko.observable(false);
@@ -359,8 +360,8 @@ var ViewModel = function () {
             self.role_InsertProduct(CheckQuyenExist('HangHoa_ThemMoi'));
             self.role_DeleteProduct(CheckQuyenExist('HangHoa_Xoa'));
             self.role_UpdateProduct(CheckQuyenExist('HangHoa_CapNhat'));
+            self.role_UpdateMoTaProduct(CheckQuyenExist('HangHoa_SuaDoiThongTinMoTaHangHoa'));
             self.role_CaiDatDinhLuong(CheckQuyenExist('HangHoa_CaiTPDinhLuong'));
-            console.log(1, self.role_CaiDatDinhLuong(), self.role_UpdateProduct())
 
             self.KiemKho_Insert(CheckQuyenExist('KiemKho_ThemMoi'));
             self.KiemKho_Copy(CheckQuyenExist('KiemKho_SaoChep'));
