@@ -146,12 +146,12 @@ function ViewModel() {
 
     var timeStart = null;
     var timeEnd = null;
-    self.timeValue = ko.observable('Tháng này');
+    self.timeValue = ko.observable('Hôm nay');
     self.TodayBC = ko.observable('');
     self.DonVis = ko.observableArray();
     self.MangChiNhanh = ko.observableArray();
     self.filterNgayPhieuHuy = ko.observable('0');
-    self.NgayTaoLH = ko.observable('6');
+    self.NgayTaoLH = ko.observable('1');
     self.pageSizes = [10, 20, 30, 40, 50];
     self.pageSize = ko.observable(self.pageSizes[0]);
     self.currentPage = ko.observable(0);
