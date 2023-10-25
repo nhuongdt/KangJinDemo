@@ -5536,6 +5536,10 @@
                 obj.TongBan = 0;
                 obj.TongBanTruTraHang = 0;
                 obj.TongTichDiem = 0;
+                obj.TongThuKhachHang = 0;
+                obj.TongChiKhachHang = 0;
+                obj.GiaTriDVSuDung = 0;
+                obj.GiaTriDVHoanTra = 0;
                 self.DoiTuongs.unshift(obj);
                 self.TotalRecord(self.TotalRecord() + 1);
                 HideShowColumn();
