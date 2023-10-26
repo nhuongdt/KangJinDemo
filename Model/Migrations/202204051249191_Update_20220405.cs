@@ -5439,30 +5439,6 @@ and (b.DoanhThu >= ckct.DoanhThuTu)
 )
 ");
 
-            Sql(@"ALTER TRIGGER [dbo].[UpdateNgayGiaoDichGanNhat_DMDoiTuong]
-   ON [dbo].[BH_HoaDon]
-   after insert, update
-AS 
-BEGIN
-
-	SET NOCOUNT ON;
-	declare @ID_KhachHang uniqueidentifier = (select top 1  ID_DoiTuong from inserted)
-	DECLARE @NgayMaxTemp datetime;
-	SELECT @NgayMaxTemp = NgayGiaoDichGanNhat FROM DM_DoiTuong where ID = @ID_KhachHang
-	declare @NgayMax datetime;
-	 
-			select top 1 @NgayMax = hd.NgayLapHoaDon
-			FROM BH_HoaDon hd
-			where hd.ChoThanhToan is not null and hd.LoaiHoaDon != 23
-				and hd.ID_DoiTuong= @ID_KhachHang and (hd.NgayLapHoaDon > @NgayMaxTemp OR @NgayMaxTemp IS NULL)
-				ORDER BY NgayLapHoaDon desc
-	if(@NgayMax IS NOT null)
-	BEGIN
-		update dt set NgayGiaoDichGanNhat = @NgayMax -- inserted.NgayLapHoaDon
-		from DM_DoiTuong dt
-		where ID = @ID_KhachHang
-	END
-END");
         }
         
         public override void Down()
