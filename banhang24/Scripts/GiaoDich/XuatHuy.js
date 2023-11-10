@@ -765,7 +765,6 @@ function ViewModel() {
 
         self.HDGoc_hasChange(false);
 
-        var lc_HangHoaChiTiet = [];
         $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + item.ID + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) {
             let arr = data.LstDataPrint;
             let xkSuDung = $.grep(data.LstDataPrint, function (x) {
@@ -784,8 +783,6 @@ function ViewModel() {
             }, 0);
             self.sum_SoLuongXuat(RoundDecimal(sumSL, 3));
             self.sum_GiaTriXuat(RoundDecimal(sumGT, 3));
-            lc_HangHoaChiTiet = arr;
-            localStorage.setItem('lc_HangHoaChiTiet', JSON.stringify(lc_HangHoaChiTiet));
             SetHeightShowDetail($this);
 
             let trangThaiPhieu = 0;
