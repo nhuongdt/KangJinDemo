@@ -911,8 +911,6 @@ namespace libDM_DoiTuong
         public bool? QuanLyTheoLoHang { get; set; }
         public DateTime? NgaySanXuat { get; set; }
         public DateTime? NgayHetHan { get; set; }
-        public string MaHoaDon { get; set; }
-        public string TenNhanVien { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoa { get; set; }
         public string TenHangHoaFull { get; set; }
@@ -927,8 +925,6 @@ namespace libDM_DoiTuong
         public double? GiaVon { get; set; }
         public double GiaTriHuy { get; set; }
         public double GiamGia { get; set; }
-        public DateTime NgayLapHoaDon { get; set; }
-        public Guid? ID_NhanVien { get; set; }
         public string GhiChu { get; set; }
         public string ChatLieu { get; set; } // = 4.xuat kho sudung Goi bao duong
         public int SoThuTu { get; set; }
