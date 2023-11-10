@@ -236,9 +236,8 @@
                     <button type="button" class="btn btn-save" v-if="$root.typeUpdate ==2 && !$root.isLoading"
                             v-on:click="Agree_TPDinhLuong">
                         <i class="fa fa-save"></i> Cập nhật
-                    </button>  
-                    <button type="button" class="btn btn-save" v-if="$root.isLoading"
-                            >
+                    </button>
+                    <button type="button" class="btn btn-save" v-if="$root.isLoading">
                         <i class="fa fa-save"></i> Đang lưu
                     </button>
                 </div>
@@ -467,7 +466,33 @@
                 var tdNext = trClosest.next().find('td');
                 $(tdNext).eq(columnEdit).find('input').focus().select();
             },
-            Agree_TPDinhLuong: function () {
+
+            CTHD_UpdateThanhPhanDinhLuong: async function (myData) {
+                let self = this;
+                const xx = await ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'CTHD_UpdateThanhPhanDinhLuong?idCTHD=' + self.DichVu_isDoing.ID, 'POST', myData).done()
+                    .then(function (x) {
+                        return x;
+                    });
+                return xx;
+            },
+            HuyPhieuXuatKho_WhenUpdateTPDL: async function () {
+                let self = this;
+                const xx = await ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'HuyPhieuXuatKho_WhenUpdateTPDL?idCTHD=' + self.DichVu_isDoing.ID, 'GET').done()
+                    .then(function (x) {
+                        return x;
+                    });
+                return xx;
+            },
+
+            CreateAgainPhieuXuatKho_WhenUpdateTPDL: async function () {
+                let self = this;
+                const xx = await ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'CreateAgainPhieuXuatKho_WhenUpdateTPDL?idCTHD=' + self.DichVu_isDoing.ID, 'GET').done()
+                    .then(function (x) {
+                        return x;
+                    });
+                return xx;
+            },
+            Agree_TPDinhLuong: async function () {
                 let self = this;
                 if (self.typeUpdate === 2) { // update in DB
                     self.isLoading = true;
@@ -494,39 +519,38 @@
                     }
 
                     let myData = { lstTPhan: self.Grid_TPDinhLuongChosed };
-                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'CTHD_UpdateThanhPhanDinhLuong?idCTHD=' + self.DichVu_isDoing.ID,
-                        'POST', myData).done(function (x) {
-                            console.log(x)
-                            if (x.res) {
-                                self.saveOK = true;
-                                ShowMessage_Success('Cập nhật thành thành phần định lượng thành công');
+                    const xx = await self.CTHD_UpdateThanhPhanDinhLuong(myData);
+                    self.isLoading = false;
+                    if (xx.res) {
+                        self.saveOK = true;
 
-                                // run tonkho, giavon
-                                let diary = {
-                                    ID_DonVi: VHeader.IdDonVi,
-                                    ID_NhanVien: VHeader.IdNhanVien,
-                                    LoaiNhatKy: 2,
-                                    ChucNang: 'Cập nhật thành phần định lượng',
-                                    NoiDung: 'Cập nhật thành phần định lượng cho hóa đơn ' + self.inforHoaDon.MaHoaDon,
-                                    NoiDungChiTiet: 'Cập nhật thành phần định lượng cho hóa đơn '.concat(self.inforHoaDon.MaHoaDon,
-                                        '<br /> <b> Thông tin chi tiết </b>',
-                                        '<br /> Dịch vụ: ', self.DichVu_isDoing.TenHangHoa,
-                                        '<br /> Thành phần: ', sTPNew,
-                                        '<br /> <b> Thông tin cũ </b>', sTPOld
-                                    ),
-                                    LoaiHoaDon: self.inforHoaDon.LoaiHoaDon,
-                                    ID_HoaDon: self.inforHoaDon.ID,
-                                    ThoiGianUpdateGV: self.inforHoaDon.NgayLapHoaDon,
-                                }
-                                Post_NhatKySuDung_UpdateGiaVon(diary);
-                                $('#vmThanhPhanDinhLuong').modal('hide');
-                            }
-                            else {
-                                ShowMessage_Danger(x.mess);
-                            }
-                        }).always(function () {
-                            self.isLoading = false;
-                        })
+                        // phải chạy lần lượt (vì ctOld.ChatLieu = '5')
+                        const huyPX = await self.HuyPhieuXuatKho_WhenUpdateTPDL();
+                        if (huyPX.res) {
+                            await self.CreateAgainPhieuXuatKho_WhenUpdateTPDL();
+                        }
+                    
+                        let diary = {
+                            ID_DonVi: VHeader.IdDonVi,
+                            ID_NhanVien: VHeader.IdNhanVien,
+                            LoaiNhatKy: 2,
+                            ChucNang: 'Cập nhật thành phần định lượng',
+                            NoiDung: 'Cập nhật thành phần định lượng cho hóa đơn ' + self.inforHoaDon.MaHoaDon,
+                            NoiDungChiTiet: 'Cập nhật thành phần định lượng cho hóa đơn '.concat(self.inforHoaDon.MaHoaDon,
+                                '<br /> <b> Thông tin chi tiết </b>',
+                                '<br /> Dịch vụ: ', self.DichVu_isDoing.TenHangHoa,
+                                '<br /> Thành phần: ', sTPNew,
+                                '<br /> <b> Thông tin cũ </b>', sTPOld
+                            ),
+                            LoaiHoaDon: self.inforHoaDon.LoaiHoaDon,
+                            ID_HoaDon: self.inforHoaDon.ID,
+                            ThoiGianUpdateGV: self.inforHoaDon.NgayLapHoaDon,
+                        }
+                        Post_NhatKySuDung_UpdateGiaVon(diary);
+                        $('#vmThanhPhanDinhLuong').modal('hide');
+                        ShowMessage_Success('Cập nhật thành thành phần định lượng thành công');
+                    }
+                    self.isLoading = false;
                 }
                 else {
                     self.saveOK = true;

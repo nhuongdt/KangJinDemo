@@ -509,7 +509,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     try
                     {
                         List<BH_HoaDon_ChiTiet> lstTPhan = new List<BH_HoaDon_ChiTiet>();
-                        ClassBH_HoaDon_ChiTiet classHDChiTiet = new ClassBH_HoaDon_ChiTiet(db);
 
                         // get all tpdluong of dichvu --> assisgn ChatLieu =5'
                         var tpDLOld = db.BH_HoaDon_ChiTiet.Where(x => x.ID_ChiTietDinhLuong == idCTHD && x.ID_ChiTietDinhLuong != x.ID)
@@ -551,14 +550,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                             db.BH_HoaDon_ChiTiet.AddRange(lstNew);
 
-                            // !! important: huy phieuxuat cu truoc khi luu
-                            classHDChiTiet.HuyPhieuXuatKho_WhenUpdateTPDL(idCTHD);
                             db.SaveChanges();
                             trans.Commit();
-
-                            // !! important: tao moi again sau khi luu 
-                            classHDChiTiet.CreateAgainPhieuXuatKho_WhenUpdateTPDL(idCTHD);
-
                             return ActionTrueData(string.Empty);
                         }
                         return ActionFalseNotData("Tham số null");
@@ -569,6 +562,40 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         return ActionFalseNotData(ex.InnerException + ex.Message);
                     }
                 }
+            }
+        }
+        [HttpGet]
+        public IHttpActionResult HuyPhieuXuatKho_WhenUpdateTPDL(Guid idCTHD)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    ClassBH_HoaDon_ChiTiet classHDChiTiet = new ClassBH_HoaDon_ChiTiet(db);
+                    classHDChiTiet.HuyPhieuXuatKho_WhenUpdateTPDL(idCTHD);
+                    return ActionTrueNotData(string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ActionFalseNotData(ex.InnerException + ex.Message);
+            }
+        }
+        [HttpGet]
+        public IHttpActionResult CreateAgainPhieuXuatKho_WhenUpdateTPDL(Guid idCTHD)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    ClassBH_HoaDon_ChiTiet classHDChiTiet = new ClassBH_HoaDon_ChiTiet(db);
+                    classHDChiTiet.CreateAgainPhieuXuatKho_WhenUpdateTPDL(idCTHD);
+                    return ActionTrueNotData(string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ActionFalseNotData(ex.InnerException + ex.Message);
             }
         }
 
