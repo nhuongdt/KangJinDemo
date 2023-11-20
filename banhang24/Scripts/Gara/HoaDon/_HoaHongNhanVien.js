@@ -5,6 +5,7 @@
     },
     data: {
         saveOK: false,
+        isLoading: false,
         isNew: true,
         IsShareDiscount: '2',
         LoaiChietKhauHD_NV: '1',
@@ -91,6 +92,7 @@
         showModal: function (item) {
             var self = this;
             self.saveOK = false;
+            self.isLoading = false;
             self.isNew = true;
             self.inforHoaDon = item;
             self.inforPhieuThu = {};
@@ -100,6 +102,7 @@
             var self = this;
             self.IsShareDiscount = '2';
             self.saveOK = false;
+            self.isLoading = false;
             self.isNew = false;
             self.inforHoaDon = item;
 
@@ -283,7 +286,7 @@
             let thucthu = self.inforHoaDon.ThucThu - chiphiNganHang;
             let thucthu_chuatruCP = self.inforHoaDon.ThucThu;
             let ptramCK = gtriNhap / thucthu_chuatruCP * 100;
-            if (thucthu_chuatruCP===0) {
+            if (thucthu_chuatruCP === 0) {
                 ptramCK = 0;
             }
 
@@ -587,6 +590,8 @@
 
             self.saveOK = true;
             if (self.isNew === false) {
+                if (self.isLoading) return;
+                self.isLoading = true;
                 self.UpdateChietKhauNVHoaDon_toDB();
             }
             else {
@@ -639,7 +644,7 @@
                             LoaiNhatKy: 2,
                             ChucNang: sLoaiHD + ' - Cập nhật chiết khấu nhân viên',
                             NoiDung: 'Cập nhật chiết khấu nhân viên cho '.concat(sLoaiHD.toLowerCase(), ' ', self.inforHoaDon.MaHoaDon),
-                            NoiDungChiTiet: 'Cập nhật chiết khấu nhân viên cho '.concat(sLoaiHD.toLowerCase(),' ', self.inforHoaDon.MaHoaDon,
+                            NoiDungChiTiet: 'Cập nhật chiết khấu nhân viên cho '.concat(sLoaiHD.toLowerCase(), ' ', self.inforHoaDon.MaHoaDon,
                                 ' gồm: ', nviens, ' <br /> Mã phiếu thu ', self.inforPhieuThu.MaHoaDon),
                         }
                         Insert_NhatKyThaoTac_1Param(diary);
@@ -648,6 +653,7 @@
                     else {
                         ShowMessage_Danger(x.mes);
                     }
+                    self.isLoading = false;
                 });
             }
             else {
@@ -669,6 +675,7 @@
                     else {
                         ShowMessage_Danger(x.mes);
                     }
+                    self.isLoading = false;
                 });
             }
         },
