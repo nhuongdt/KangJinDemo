@@ -834,6 +834,10 @@ function ViewModel() {
 
                 // get from hd
                 ctNew.ID_DonVi = hd.ID_DonVi;
+                ctNew.ID_NhanVien = hd.ID_NhanVien;
+                ctNew.MaHoaDon = hd.MaHoaDon;
+                ctNew.NgayLapHoaDon = hd.NgayLapHoaDon;
+                ctNew.TenNhanVien = hd.TenNhanVien;
                 ctNew.TongTienHang = hd.TongTienHang;
                 ctNew.ID_PhieuTiepNhan = hd.ID_PhieuTiepNhan;
                 ctNew.ID_HoaDon = loai === 1 ? '00000000-0000-0000-0000-000000000000' : hd.ID;
