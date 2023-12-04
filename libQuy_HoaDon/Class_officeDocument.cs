@@ -997,7 +997,7 @@ namespace libQuy_HoaDon
         {
             Aspose.Cells.Workbook wbook = new Aspose.Cells.Workbook(strFileTemplatePath);
             Aspose.Cells.Worksheet wSheet = wbook.Worksheets[sheet];
-           
+
             int dkrange = (tblDuLieu.Rows.Count) / rowNumber;
             if (dkrange >= 1)
             {
@@ -5910,8 +5910,8 @@ namespace libQuy_HoaDon
             bool dung = false;
             if (maHangHoa != "")
             {
-
-                DonViQuiDoi objDVT_QuyDoi_New = db.DonViQuiDois.Where(x => x.MaHangHoa == maHangHoa & x.Xoa != true).FirstOrDefault();
+                maHangHoa = maHangHoa.Trim();
+                DonViQuiDoi objDVT_QuyDoi_New = db.DonViQuiDois.Where(x => x.MaHangHoa.Trim() == maHangHoa & x.Xoa != true).FirstOrDefault();
                 if (objDVT_QuyDoi_New != null)
                 {
                     DM_HangHoa HH = db.DM_HangHoa.Where(x => x.ID == objDVT_QuyDoi_New.ID_HangHoa & x.TheoDoi == true).FirstOrDefault();
@@ -12410,7 +12410,7 @@ namespace libQuy_HoaDon
                             var nocanthu = dataTable.Rows[i][12].ToString().Trim();
                             var nocantra = dataTable.Rows[i][13].ToString().Trim();
 
-                            List <SqlParameter> sqlparamt = new List<SqlParameter>();
+                            List<SqlParameter> sqlparamt = new List<SqlParameter>();
                             sqlparamt.Add(new SqlParameter("MaNhomDoiTuong", sMaNhom));
                             sqlparamt.Add(new SqlParameter("TenNhomDoiTuong", dataTable.Rows[i][0].ToString()));
                             sqlparamt.Add(new SqlParameter("TenNhomDoiTuong_KhongDau", ""));
@@ -12438,7 +12438,7 @@ namespace libQuy_HoaDon
                             sqlparamt.Add(new SqlParameter("ID_NhanVien", ID_NhanVien));
                             sqlparamt.Add(new SqlParameter("NguoiTao", nguoitao));
                             sqlparamt.Add(new SqlParameter("ID_DonVi", ID_DonVi));
-                            sqlparamt.Add(new SqlParameter("NoCanThu", string.IsNullOrEmpty(nocanthu)? 0 : double.Parse(nocanthu)));
+                            sqlparamt.Add(new SqlParameter("NoCanThu", string.IsNullOrEmpty(nocanthu) ? 0 : double.Parse(nocanthu)));
                             sqlparamt.Add(new SqlParameter("NoCanTra", string.IsNullOrEmpty(nocantra) ? 0 : double.Parse(nocantra)));
                             sqlparamt.Add(new SqlParameter("TongTichDiem", string.Empty));
                             sqlparamt.Add(new SqlParameter("MaDieuChinhDiem", string.Empty));
