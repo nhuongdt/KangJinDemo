@@ -12871,12 +12871,10 @@ var ViewModel = function () {
                 hdct[i].ID_HangHoa = hdct[i].ID;
                 hdct[i].SoLuong = 0;
                 if (dataDB.length > 0) {
-                    hdct[i].SoLuong = dataDB[0].TonKho;
+                    hdct[i].SoLuong = dataDB[0].TonKho;// soluongDB
                 }
-
-                //hdct[i].TienChietKhau = hdct[i].TienChietKhau;
-                //hdct[i].ThanhTien = hdct[i].ThanhTien;
-                //hdct[i].ThanhToan = hdct[i].ThanhToan;//gtri lech
+                hdct[i].TienChietKhau = hdct[i].ThanhTien - hdct[i].SoLuong;// soluong thucte - soluongDB
+                hdct[i].ThanhToan = hdct[i].TienChietKhau * hdct[i].GiaVon;//gtri lech
                 //hdct[i].QuanLyTheoLoHang = hdct[i].QuanLyTheoLoHang;
                 //hdct[i].ThuocTinh_GiaTri = hdct[i].ThuocTinh_GiaTri;
                 //hdct[i].DonViTinh = hdct[i].DonViTinh;
