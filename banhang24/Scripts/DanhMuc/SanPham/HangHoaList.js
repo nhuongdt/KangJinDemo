@@ -12780,7 +12780,18 @@ var ViewModel = function () {
         self.sumError(0);
     }
     self.loiExcel = ko.observableArray();
-    self.importKiemKho = function () {
+
+    async function GetTonKho_byIDQuyDoi(param) {
+        let xx = await ajaxHelper(DMHangHoaUri + 'GetTonKho_byIDQuyDois', 'POST', param).done(function (x) { }).then(function (x) {
+            if (x.res) return x.data;
+            return [];
+        }).fail(function () {
+            return [];
+        });
+        return xx;
+    }
+
+    self.importKiemKho = async function () {
         $('.choose-file').gridLoader({
             style: "left: 200px;top: 77px;"
         });
@@ -12801,118 +12812,127 @@ var ViewModel = function () {
             formData.append("imageUploadForm", file);
         }
 
-        $.ajax({
+        const dataErr = await $.ajax({
             type: "POST",
             url: DMHangHoaUri + "ImfortExcelKiemKho",
             data: formData,
             dataType: 'json',
             contentType: false,
-            processData: false,
-            success: function (item) {
-                self.loiExcel(item);
-                if (self.loiExcel().length > 0) {
-                    self.loiExcel(item);
-                    $(".BangBaoLoi").show();
-                    $(".btnImportExcel").hide();
-                    $(".refreshFile").show();
-                    $(".deleteFile").hide();
-                    $('.choose-file').gridLoader({ show: false });
+            processData: false
+        }).done()
+            .then(function (data) {
+                return data
+            })
+
+        if (dataErr.length > 0) {
+            self.loiExcel(dataErr);
+            $(".BangBaoLoi").show();
+            $(".btnImportExcel").hide();
+            $(".refreshFile").show();
+            $(".deleteFile").hide();
+            $('.choose-file').gridLoader({ show: false });
+        }
+        else {
+            const hdct = await $.ajax({
+                type: "POST",
+                url: DMHangHoaUri + "getList_DanhSachHangKiemKho?iddonvi=" + _IDchinhanh + '&timeKK=' + _ngayKiemKe,
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false
+            }).done()
+                .then(function (data) {
+                    return data;
+                });
+
+            let arrIDQuyDoi = $.unique(hdct.map(function (x) {
+                return x.ID_DonViQuiDoi;
+            }));
+            let arrIDLoHang = hdct.map(function (x) {
+                return x.ID_LoHang;
+            }).filter(x => x !== null);
+
+            const paramCheckTon = {
+                ID_ChiNhanh: _IDchinhanh,
+                ToDate: _ngayKiemKe,
+                ListIDQuyDoi: arrIDQuyDoi,
+                ListIDLoHang: arrIDLoHang,
+            };
+
+            const dataTonkho = await GetTonKho_byIDQuyDoi(paramCheckTon);
+
+            for (let i = 0; i < hdct.length; i++) {
+                let itFor = hdct[i];
+                let dataDB = $.grep(dataTonkho, function (o) {
+                    return o.ID_DonViQuiDoi === itFor.ID_DonViQuiDoi
+                        && (!itFor.QuanLyTheoLoHang || (o.ID_LoHang === itFor.ID_LoHang))
+                });
+
+                hdct[i].ID_HangHoa = hdct[i].ID;
+                hdct[i].SoLuong = 0;
+                if (dataDB.length > 0) {
+                    hdct[i].SoLuong = dataDB[0].TonKho;
                 }
-                else {
-                    $.ajax({
-                        type: "POST",
-                        url: DMHangHoaUri + "getList_DanhSachHangKiemKho?iddonvi=" + _IDchinhanh + '&timeKK=' + _ngayKiemKe,
-                        data: formData,
-                        dataType: 'json',
-                        contentType: false,
-                        processData: false,
-                        success: function (item) {
-                            var hdct = item;
-                            console.log('import ', item)
-                            for (var i = 0; i < hdct.length; i++) {
-                                hdct[i].ID_HangHoa = hdct[i].ID;
-                                hdct[i].SoLuong = hdct[i].TonKho;
-                                hdct[i].TienChietKhau = hdct[i].TienChietKhau;
-                                hdct[i].ThanhTien = hdct[i].ThanhTien;
-                                hdct[i].ThanhToan = hdct[i].ThanhToan;//gtri lech
-                                hdct[i].QuanLyTheoLoHang = hdct[i].QuanLyTheoLoHang;
-                                hdct[i].ThuocTinh_GiaTri = hdct[i].ThuocTinh_GiaTri;
-                                hdct[i].DonViTinh = hdct[i].DonViTinh;
-                                var idLoHang = hdct[i].ID_LoHang;
-                                var itemLot = [];
-                                if (idLoHang !== null) {
-                                    itemLot = $.grep(self.ListLoHang(), function (x) {
-                                        return x.ID === idLoHang;
-                                    });
-                                }
-                                var rd = Math.floor(Math.random() * 1000000 + 1);
-                                hdct[i].ID_Random = 'IDRandom' + rd + '_';
-                                hdct[i].ID_LoHang = idLoHang;
-                                hdct[i].MaLoHang = hdct[i].MaLoHang === '' ? null : hdct[i].MaLoHang;
-                                hdct[i].NgaySanXuat = hdct[i].QuanLyTheoLoHang ? (itemLot.length > 0 ? itemLot[0].NgaySanXuat : '') : '';
-                                hdct[i].NgayHetHan = hdct[i].QuanLyTheoLoHang ? (itemLot.length > 0 ? itemLot[0].NgayHetHan : '') : '';
-                            }
 
-                            self.newKiemKho().BH_KiemKho_ChiTiet(hdct);
-                            for (var i = 0; i < self.newKiemKho().BH_KiemKho_ChiTiet().length; i++) {
-                                if (parseInt(self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien) === self.newKiemKho().BH_KiemKho_ChiTiet()[i].SoLuong) {
-                                    self.SLKhops.push(self.newKiemKho().BH_KiemKho_ChiTiet()[i]);
-                                }
-                                if (self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien === null) {
-                                    self.SLChuaKiems.push(self.newKiemKho().BH_KiemKho_ChiTiet()[i]);
-                                }
-                                if (self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien !== null && parseInt(self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien) !== self.newKiemKho().BH_KiemKho_ChiTiet()[i].SoLuong) {
-                                    self.SLLechs.push(self.newKiemKho().BH_KiemKho_ChiTiet()[i]);
-                                }
-                            }
-                            var objectStore = db.transaction(table, "readwrite").objectStore(table);
-                            var req = objectStore.openCursor(key_Add);
-                            req.onsuccess = function (evt) {
-                                objectStore.delete(key_Add);
-                                objectStore.add({ Key: key_Add, Value: JSON.stringify(self.newKiemKho().BH_KiemKho_ChiTiet()) });
-
-                            };
-                            if (self.newKiemKho().BH_KiemKho_ChiTiet().length > 0) {
-                                $('#importKiemKho').hide();
-                            }
-                            else {
-                                $('#importKiemKho').show();
-                                self.deleteFileSelect();
-                            }
-                            $('#tongitem').text(self.newKiemKho().BH_KiemKho_ChiTiet().length);
-                            $('#tongitemkhop').text(self.SLKhops().length);
-                            $('#tongitemlech').text(self.SLLechs().length);
-                            $('#tongitemchuakiem').text(self.SLChuaKiems().length);
-                            self.TinhLaiLech();
-                            self.TinhLaiSLKhop();
-                            self.TinhLaiSLThuc();
-                            UpdateAgain_ListDVT();
-                            //$("#wait").remove();
-                            $('.choose-file').gridLoader({ show: false });
-                            ShowMessage_Success("Import file thành công");
-                        },
-                        statusCode: {
-                            500: function (item) {
-                                $('.choose-file').gridLoader({ show: false });
-                                ShowMessage_Danger("Load danh sách hàng kiểm kho thất bại!");
-                            }
-                        }
+                //hdct[i].TienChietKhau = hdct[i].TienChietKhau;
+                //hdct[i].ThanhTien = hdct[i].ThanhTien;
+                //hdct[i].ThanhToan = hdct[i].ThanhToan;//gtri lech
+                //hdct[i].QuanLyTheoLoHang = hdct[i].QuanLyTheoLoHang;
+                //hdct[i].ThuocTinh_GiaTri = hdct[i].ThuocTinh_GiaTri;
+                //hdct[i].DonViTinh = hdct[i].DonViTinh;
+                var idLoHang = hdct[i].ID_LoHang;
+                var itemLot = [];
+                if (idLoHang !== null) {
+                    itemLot = $.grep(self.ListLoHang(), function (x) {
+                        return x.ID === idLoHang;
                     });
                 }
-            },
-            statusCode: {
-                404: function () {
-                },
-                406: function (item) {
-                    $('.choose-file').gridLoader({ show: false });
-                    ShowMessage_Danger(item.responseJSON.Message)
-                },
-                500: function (item) {
-                    $('.choose-file').gridLoader({ show: false });
-                    ShowMessage_Danger("Import hàng kiểm kho thất bại!");
+                var rd = Math.floor(Math.random() * 1000000 + 1);
+                hdct[i].ID_Random = 'IDRandom' + rd + '_';
+                hdct[i].ID_LoHang = idLoHang;
+                hdct[i].MaLoHang = hdct[i].MaLoHang === '' ? null : hdct[i].MaLoHang;
+                hdct[i].NgaySanXuat = hdct[i].QuanLyTheoLoHang ? (itemLot.length > 0 ? itemLot[0].NgaySanXuat : '') : '';
+                hdct[i].NgayHetHan = hdct[i].QuanLyTheoLoHang ? (itemLot.length > 0 ? itemLot[0].NgayHetHan : '') : '';
+            }
+
+            self.newKiemKho().BH_KiemKho_ChiTiet(hdct);
+            for (var i = 0; i < self.newKiemKho().BH_KiemKho_ChiTiet().length; i++) {
+                if (parseInt(self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien) === self.newKiemKho().BH_KiemKho_ChiTiet()[i].SoLuong) {
+                    self.SLKhops.push(self.newKiemKho().BH_KiemKho_ChiTiet()[i]);
+                }
+                if (self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien === null) {
+                    self.SLChuaKiems.push(self.newKiemKho().BH_KiemKho_ChiTiet()[i]);
+                }
+                if (self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien !== null && parseInt(self.newKiemKho().BH_KiemKho_ChiTiet()[i].ThanhTien) !== self.newKiemKho().BH_KiemKho_ChiTiet()[i].SoLuong) {
+                    self.SLLechs.push(self.newKiemKho().BH_KiemKho_ChiTiet()[i]);
                 }
             }
-        });
+            var objectStore = db.transaction(table, "readwrite").objectStore(table);
+            var req = objectStore.openCursor(key_Add);
+            req.onsuccess = function (evt) {
+                objectStore.delete(key_Add);
+                objectStore.add({ Key: key_Add, Value: JSON.stringify(self.newKiemKho().BH_KiemKho_ChiTiet()) });
+
+            };
+            if (self.newKiemKho().BH_KiemKho_ChiTiet().length > 0) {
+                $('#importKiemKho').hide();
+            }
+            else {
+                $('#importKiemKho').show();
+                self.deleteFileSelect();
+            }
+            $('#tongitem').text(self.newKiemKho().BH_KiemKho_ChiTiet().length);
+            $('#tongitemkhop').text(self.SLKhops().length);
+            $('#tongitemlech').text(self.SLLechs().length);
+            $('#tongitemchuakiem').text(self.SLChuaKiems().length);
+            self.TinhLaiLech();
+            self.TinhLaiSLKhop();
+            self.TinhLaiSLThuc();
+            UpdateAgain_ListDVT();
+            //$("#wait").remove();
+            $('.choose-file').gridLoader({ show: false });
+            ShowMessage_Success("Import file thành công");
+        }
     }
     //keycode
     var ttsl = 0;
