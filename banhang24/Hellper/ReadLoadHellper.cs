@@ -737,6 +737,7 @@ namespace banhang24.Hellper
                 {TypeReportDetail.Detail_tenhang.ToString(),"Tên dịch vụ" },
               {TypeReportDetail.Detail_nhomhang.ToString(),"Nhóm dịch vụ" },
                   { TypeReportDetail.Detail_soluong.ToString(),"Số lượng" },
+                  {TypeReportDetail.Detail_donvitinh.ToString(),"Đơn vị tính" },
                    { TypeReportDetail.Detail_giaban.ToString(),"Đơn giá" },
                     { TypeReportDetail.Detail_chietkhau.ToString(),"Chiết khấu" },
               {TypeReportDetail.Detail_thanhtien.ToString(),"Thành tiền" },

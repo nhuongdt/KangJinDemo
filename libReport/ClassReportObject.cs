@@ -142,6 +142,7 @@ namespace libReport
         public string TenHangHoa { get; set; }
         public string TenNhomHangHoa { get; set; }
         public double? SoLuong { get; set; }
+        public string TenDonViTinh { get; set; }
         public double? DonGia { get; set; }
         public double? TienChietKhau { get; set; }
         public double? ThanhTien { get; set; }
