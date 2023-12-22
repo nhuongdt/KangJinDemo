@@ -5926,8 +5926,8 @@ namespace libQuy_HoaDon
             bool dung = false;
             if (maHangHoa != "")
             {
-
-                DonViQuiDoi objDVT_QuyDoi_New = db.DonViQuiDois.Where(x => x.MaHangHoa == maHangHoa & x.Xoa != true).FirstOrDefault();
+                maHangHoa = maHangHoa.Trim();
+                DonViQuiDoi objDVT_QuyDoi_New = db.DonViQuiDois.Where(x => x.MaHangHoa.Trim() == maHangHoa & x.Xoa != true).FirstOrDefault();
                 if (objDVT_QuyDoi_New != null)
                 {
                     DM_HangHoa HH = db.DM_HangHoa.Where(x => x.ID == objDVT_QuyDoi_New.ID_HangHoa & x.LaHangHoa == true).FirstOrDefault();
