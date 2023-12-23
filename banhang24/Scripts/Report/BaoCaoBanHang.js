@@ -1100,7 +1100,7 @@
             toDate = moment(arrDate[1], 'DD/MM/YYYY').add('days', 1).format('YYYY-MM-DD');
         }
         if (!commonStatisJs.CheckNull(Text_search)) {
-            Text_search = locdau(Text_search);
+            Text_search = Text_search.trim();
         }
         var array_Seach = {
             MaHangHoa: Text_search,
