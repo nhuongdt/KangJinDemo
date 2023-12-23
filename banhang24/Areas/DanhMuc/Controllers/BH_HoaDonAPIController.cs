@@ -12977,26 +12977,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
         #endregion
 
-        //public void AddQueueJob(HT_NhatKySuDung nky)
-        //{
-        //    Model_banhang24vn.DAL.QueueJobService queueJobService = new Model_banhang24vn.DAL.QueueJobService();
-        //    Model_banhang24vn.QueueJob qj = new Model_banhang24vn.QueueJob();
-        //    string subdomain = CookieStore.GetCookieAes("SubDomain");
-        //    qj.ID = Guid.NewGuid();
-        //    qj.IDNhatKySuDung = nky.ID;
-        //    qj.SoLanDaChay = 0;
-        //    qj.Subdomain = subdomain;
-        //    qj.ThoiGianTao = DateTime.Now;
-        //    qj.TrangThai = 0;
-        //    queueJobService.Insert(qj);
-        //    HttpClient httpClient = new HttpClient();
-        //    httpClient.BaseAddress = new Uri("https://qj.open24.vn/");
-        //    //httpClient.BaseAddress = new Uri("https://localhost:44309/");
-        //    httpClient.DefaultRequestHeaders.Accept.Clear();
-        //    httpClient.DefaultRequestHeaders.Accept.Add(
-        //        new MediaTypeWithQualityHeaderValue("application/json"));
-        //    httpClient.GetAsync("api/Queues/AddQueue/" + subdomain);
-        //}
+        [HttpGet]
+        public string UpdateChiTietKiemKe_WhenEditCTHD(Guid idHoaDonUpdate, Guid idChiNhanh, DateTime ngayLapHDMin)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                return classhoadon.UpdateChiTietKiemKe_WhenEditCTHD(idHoaDonUpdate, idChiNhanh, ngayLapHDMin);
+            }
+        }
     }
 
     public class DM_GiaBan_NhapHang_DTO

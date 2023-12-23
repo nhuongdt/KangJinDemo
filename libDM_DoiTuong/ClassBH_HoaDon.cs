@@ -41,6 +41,22 @@ namespace libDM_DoiTuong
             paramlist.Add(new SqlParameter("IDDoiTuong", iddoituong));
             db1.Database.ExecuteSqlCommand("exec UpdateLaiSoDuTheNap @NgayLapHoaDonInput, @IDDoiTuong", paramlist.ToArray());
             return "";
+        } 
+        public string UpdateChiTietKiemKe_WhenEditCTHD(Guid idHoaDonUpdate, Guid idChiNhanh, DateTime ngayLapHDMin)
+        {
+            try
+            {
+                List<SqlParameter> paramlist = new List<SqlParameter>();
+                paramlist.Add(new SqlParameter("@IDHoaDonInput", idHoaDonUpdate));
+                paramlist.Add(new SqlParameter("@IDChiNhanhInput", idChiNhanh));
+                paramlist.Add(new SqlParameter("@NgayLapHDMin", ngayLapHDMin));
+                db.Database.ExecuteSqlCommand("exec UpdateChiTietKiemKe_WhenEditCTHD @IDHoaDonInput, @IDChiNhanhInput, @NgayLapHDMin", paramlist.ToArray());
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.InnerException + ex.Message;
+            }
         }
 
         public string CheckTheDaSuDung(Guid id)

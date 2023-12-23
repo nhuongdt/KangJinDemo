@@ -14515,6 +14515,14 @@ var ViewModel = function () {
         }
 
         if (!$.isEmptyObject(itemTK)) {
+            // check if PhieuKiemKe: update PhieuKiemKe, xong roi moi chay TonLuyKe
+            if (itemTK.LoaiHoaDon === 9) {
+                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/UpdateChiTietKiemKe_WhenEditCTHD?idHoaDonUpdate=' + itemTK.ID_HoaDon
+                    + "&idChiNhanh=" + itemTK.ID_DonVi + "&ngayLapHDMin=" + itemTK.NgayLapHoaDon).done(function (x) {
+                        console.log('UpdateChiTietKiemKe_WhenEditCTHD ', x)
+                    })
+            }
+
             let diary = {
                 ID_DonVi: itemTK.ID_DonVi,
                 ID_NhanVien: VHeader.IdNhanVien,
