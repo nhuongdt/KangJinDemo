@@ -3057,9 +3057,22 @@ var NewModel_BanHangLe = function () {
                     var loaiHD_DoiTra = 1;
                     if (itemHD[0].MaHoaDon.indexOf('DV') > -1) {
                         loaiHD_DoiTra = 19;
-                        // format NgayApDung GoiDV
-                        itemHD[0].NgayApDungGoiDV = moment(itemHD[0].NgayApDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
-                        itemHD[0].HanSuDungGoiDV = moment(itemHD[0].HanSuDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                        let ngayapdung = myData.objHoaDon.NgayApDungGoiDV;
+                        if (ngayapdung === '' || ngayapdung === null) {
+                            ngayapdung = null;
+                        }
+                        else {
+                            ngayapdung = moment(ngayapdung, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                        }
+                        let handung = myData.objHoaDon.HanSuDungGoiDV;
+                        if (handung === '' || handung === null) {
+                            handung = null;
+                        }
+                        else {
+                            handung = moment(handung, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                        }
+                        itemHD[0].NgayApDungGoiDV = ngayapdung;
+                        itemHD[0].HanSuDungGoiDV = handung;
                     }
                     // if MuaMoi < TongTienTra: KhachCanTra = 0, nhung van phai luu PhaiThanhToan = Tong tien ma khach phai Thanh toan
                     var phaiTTMuaMoi = itemHD[0].TongTienHang - itemHD[0].TongGiamGia + itemHD[0].TongTienThue;
