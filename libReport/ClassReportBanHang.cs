@@ -512,5 +512,6 @@ namespace libReport
         public string TheoDoi { get; set; }
         public string TrangThai { get; set; }
         public string IDChiNhanhs { get; set; }
+        public string ThoiHanSuDung { get; set; }
     }
 }
