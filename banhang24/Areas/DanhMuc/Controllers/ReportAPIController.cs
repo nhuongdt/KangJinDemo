@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -2418,6 +2419,51 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return Json(json);
             }
         }
+        [AcceptVerbs("GET", "POST")]
+        public IHttpActionResult BaoCaoGoiDichVu_BanDoiTra(Param_BCGDVDoiTra param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassReportGoiDichVu reportGoiDichVu = new ClassReportGoiDichVu(db);
+
+                float totalRow = 0;
+                List<BaoCaoGoiDichVu_BanDoiTra> data = reportGoiDichVu.BaoCaoGoiDichVu_BanDoiTra(param);
+                if (data.Count > 0)
+                {
+                    totalRow = (float)data.FirstOrDefault().TotalRow;
+
+                    var dtGr = data.GroupBy(x => new
+                    {
+                        x.MaDoiTuong,
+                        x.TenDoiTuong,
+                        x.GDVDoi_ID,
+                        x.GDVMua_ID,
+                        x.GDVMua_LoaiHoaDon,
+                        x.GDVMua_MaHoaDon,
+                        x.GDVMua_NgayLapHoaDon,
+                        x.GDVDoi_MaHoaDon,
+                        x.GiaTriChenhLech
+                    })
+                        .Select(x => new
+                        {
+                            x.Key.GDVMua_ID,
+                            x.Key.GDVDoi_ID,
+                            x.Key.GDVMua_LoaiHoaDon,
+                            x.Key.GDVMua_MaHoaDon,
+                            x.Key.GDVDoi_MaHoaDon,
+                            x.Key.GDVMua_NgayLapHoaDon,
+                            x.Key.MaDoiTuong,
+                            x.Key.TenDoiTuong,
+                            x.Key.GiaTriChenhLech,
+                            lstDetail = x
+                        });
+                    int lstPages = getNumber_Page(totalRow, 10);
+                    return Json(new { LstData = dtGr, Rowcount = totalRow, numberPage = lstPages });
+                }
+                return Json(new { Rowcount = 0, numberPage = 0 });
+            }
+        }
+
         [AcceptVerbs("GET", "POST")]
         public string Export_BCGDV_NhatKySuDungTongHop([FromBody] JObject data)
         {
@@ -4853,7 +4899,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         var count = firstRow.TotalRow ?? 0;
                         int page = 0;
                         var listpage = GetListPage(count, param.PageSize ?? 10, param.CurrentPage ?? 1, ref page);
-                        int pageNow = (param.CurrentPage??1) - 1;
+                        int pageNow = (param.CurrentPage ?? 1) - 1;
                         return Json(new
                         {
                             res = true,
@@ -10391,7 +10437,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             data = commonEnum.TypeRGoiDichVuDuCT.ToList();
                             break;
                         case (int)commonEnum.TypeReport.nhatkysdth:
-                            data = commonEnum.TypeRGoiDichVuNhatKyTH.ToList();
+                            data = commonEnum.ListColumnBCGDV_BanDoiTra.ToList();
                             break;
                         case (int)commonEnum.TypeReport.nhatkysdct:
                             data = commonEnum.TypeRGoiDichVuNhatKyCT.ToList();

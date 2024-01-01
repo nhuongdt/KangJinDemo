@@ -1554,6 +1554,28 @@ namespace banhang24.Hellper
             mahoadon
 
         }
+
+        public enum Column_BCGDVBanDoiTra
+        {
+            MaKhachHang,
+            TenKhachHang,
+            GDVMua_MaHoaDon,
+            GDVMua_NgayLapHoaDon,
+
+            MaHangHoa,
+            TenHangHoa,
+            TenDonViTinh,
+            SoLuongMua,
+            GiaTriMua,
+
+            GDVDoi_MaHoaDon,
+            GDVDoi_MaHangHoa,
+            GDVDoi_TenHangHoa,
+            GDVDoi_TenDonViTinh,
+            SoLuongDoi,
+            GiaTriDoi,
+            GiaTriChenhLech
+        }
         public static Dictionary<string, string> TypeRGoiDichVuDuTH = new Dictionary<string, string>()
         {
              { TypeRGoiDichVu.magoi.ToString(),"Mã gói DV" },
@@ -1576,6 +1598,27 @@ namespace banhang24.Hellper
              { TypeRGoiDichVu.hansudung.ToString(),"Hạn sử dụng" },
              { TypeRGoiDichVu.songayconlai.ToString(),"Số ngày còn hạn" },
              { TypeRGoiDichVu.songayquahan.ToString(),"Số ngày quá hạn" },
+
+        };
+        public static Dictionary<string, string> ListColumnBCGDV_BanDoiTra = new Dictionary<string, string>()
+        {
+             { Column_BCGDVBanDoiTra.MaKhachHang.ToString(),"Mã khách hàng" },
+             { Column_BCGDVBanDoiTra.TenKhachHang.ToString(),"Tên khách hàng" },
+             { Column_BCGDVBanDoiTra.GDVMua_MaHoaDon.ToString(),"Mã chứng từ" },
+             { Column_BCGDVBanDoiTra.GDVMua_NgayLapHoaDon.ToString(),"Ngày lập" },
+             { Column_BCGDVBanDoiTra.MaHangHoa.ToString(),"Mã hàng" },
+             { Column_BCGDVBanDoiTra.TenHangHoa.ToString(),"Tên hàng" },
+             { Column_BCGDVBanDoiTra.TenDonViTinh.ToString(),"DVT" },
+             { Column_BCGDVBanDoiTra.SoLuongMua.ToString(),"Số lượng" },
+             { Column_BCGDVBanDoiTra.GiaTriMua.ToString(),"Giá trị" },
+
+             { Column_BCGDVBanDoiTra.GDVDoi_MaHoaDon.ToString(),"Mã chứng từ" },
+             { Column_BCGDVBanDoiTra.GDVDoi_MaHangHoa.ToString(),"Mã hàng" },
+             { Column_BCGDVBanDoiTra.GDVDoi_TenHangHoa.ToString(),"Tên hàng" },
+             { Column_BCGDVBanDoiTra.GDVDoi_TenDonViTinh.ToString(),"DVT" },
+             { Column_BCGDVBanDoiTra.SoLuongDoi.ToString(),"Số lượng" },
+             { Column_BCGDVBanDoiTra.GiaTriDoi.ToString(),"Giá trị" },
+             { Column_BCGDVBanDoiTra.GiaTriChenhLech.ToString(),"Chênh lệch" },
 
         };
         public static Dictionary<string, string> TypeRGoiDichVuDuCT = new Dictionary<string, string>()

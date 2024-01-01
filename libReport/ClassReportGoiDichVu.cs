@@ -16,6 +16,48 @@ namespace libReport
             _db = db;
         }
 
+        public ReportSale_ParamCommon ReportGDV_GetCommonParam(Param_ReportGoiDichVu param)
+        {
+            string theoDoi = "%%", trangThai = "%%", thoiHan = "%%";
+            string idChiNhanhs = string.Empty;
+            if (param != null && param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
+            {
+                idChiNhanhs = string.Join(",", param.IDChiNhanhs);
+            }
+
+            switch (param.TinhTrang)
+            {
+                case 2:
+                    theoDoi = "%1%";
+                    trangThai = "%0%";
+                    break;
+                case 3:
+                    theoDoi = "%0%";
+                    break;
+                case 4:
+                    trangThai = "%1%";
+                    break;
+            }
+
+            switch (param.ThoiHanSuDung)
+            {
+                case 2:
+                    thoiHan = "%1%";
+                    break;
+                case 3:
+                    thoiHan = "%0%";
+                    break;
+            }
+
+            return new ReportSale_ParamCommon()
+            {
+                TheoDoi = theoDoi,
+                TrangThai = trangThai,
+                ThoiHanSuDung = thoiHan,
+                IDChiNhanhs = idChiNhanhs,
+            };
+        }
+
         public List<BaoCaoGoiDichVu_SoDuTongHopPRC> GetBaoCaoDichVu_SoDuTongHop(string maHD_search, string MaHH_search, string MaKH_search, string MaKH_TV, DateTime timeStart, DateTime timeEnd,
             string ID_ChiNhanh, string LaHH_search, string TheoDoi, string TrangThai, string ThoiHan, string ID_NhomHang_search, string ID_NhomHang_SP, Guid ID_NguoiDung)
         {
@@ -45,7 +87,7 @@ namespace libReport
             }
         }
 
-        public List<BaoCaoGoiDichVu_SoDuChiTietPRC> GetBaoCaoDichVu_SoDuChiTiet(string maHD_search, string MaHH_search, string MaKH_search, string MaKH_TV, DateTime timeStart, DateTime timeEnd, 
+        public List<BaoCaoGoiDichVu_SoDuChiTietPRC> GetBaoCaoDichVu_SoDuChiTiet(string maHD_search, string MaHH_search, string MaKH_search, string MaKH_TV, DateTime timeStart, DateTime timeEnd,
             string ID_ChiNhanh, string LaHH_search, string TheoDoi, string TrangThai, string ThoiHan, string ID_NhomHang_search, string ID_NhomHang_SP, Guid ID_NguoiDung)
         {
             try
@@ -74,7 +116,7 @@ namespace libReport
             }
         }
 
-        public List<BaoCaoGoiDichVu_NhatKySuDungTongHopPRC> GetBaoCaoDichVu_NhatKySuDungTongHop(string MaHangHoa, DateTime timeStart, DateTime timeEnd, string ID_ChiNhanh, string LaHH_search, 
+        public List<BaoCaoGoiDichVu_NhatKySuDungTongHopPRC> GetBaoCaoDichVu_NhatKySuDungTongHop(string MaHangHoa, DateTime timeStart, DateTime timeEnd, string ID_ChiNhanh, string LaHH_search,
             string TheoDoi, string TrangThai, string ThoiHan, Guid? ID_NhomHang)
         {
             try
@@ -175,6 +217,33 @@ namespace libReport
             {
                 CookieStore.WriteLog("libReport - ClassReportGoiDichVu - GetBaoCaoDichVu_NhapXuatTon: " + ex.Message);
                 return new List<BaoCaoGoiDichVu_NhapXuatTonPRC>();
+            }
+        }
+
+        public List<BaoCaoGoiDichVu_BanDoiTra> BaoCaoGoiDichVu_BanDoiTra(Param_BCGDVDoiTra param)
+        {
+            try
+            {
+                var obj = ReportGDV_GetCommonParam(param);
+                List<SqlParameter> sql = new List<SqlParameter>
+                {
+                    new SqlParameter("IDChiNhanhs", obj.IDChiNhanhs),
+                    new SqlParameter("FromDate", param.DateFrom),
+                    new SqlParameter("ToDate", param.DateTo),
+                    new SqlParameter("TxtMaHD", param.TextSearch ?? (object)DBNull.Value),
+                    new SqlParameter("TxtDVMua", param.TxtDVMua ?? (object)DBNull.Value),
+                    new SqlParameter("TxtDVDoi", param.TxtDVDoi ?? (object)DBNull.Value),
+                    new SqlParameter("ThoiHanSuDung", obj.ThoiHanSuDung),
+                    new SqlParameter("CurrentPage", param.CurrentPage ?? 0),
+                    new SqlParameter("PageSize", param.PageSize ?? 10)
+                };
+                return _db.Database.SqlQuery<BaoCaoGoiDichVu_BanDoiTra>("exec BaoCaoGoiDichVu_BanDoiTra @IDChiNhanhs,@FromDate, @ToDate," +
+                    "@TxtMaHD, @TxtDVMua, @TxtDVDoi, @ThoiHanSuDung, @CurrentPage, @PageSize", sql.ToArray()).ToList();
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("libReport - ClassReportGoiDichVu - BaoCaoGoiDichVu_BanDoiTra: " + ex.Message);
+                return new List<BaoCaoGoiDichVu_BanDoiTra>();
             }
         }
     }
