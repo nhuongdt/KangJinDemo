@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -1274,6 +1275,46 @@ namespace libReport
         public double GiaTriSuDungGK { get; set; }
         public double SoLuongConLaiCK { get; set; }
         public double GiaTriConLaiCK { get; set; }
+    }
+    public class BaoCaoGoiDichVu_BanDoiTra
+    {
+        public Guid GDVMua_ID { get; set; }
+        public Guid? GDVDoi_ID { get; set; }
+        public int? GDVMua_LoaiHoaDon { get; set; }// check link to page
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string GDVMua_MaHoaDon { get; set; }
+        public DateTime? GDVMua_NgayLapHoaDon { get; set; }
+
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public string TenDonViTinh { get; set; }
+        public double? SoLuongMua { get; set; }
+        public double? GiaTriMua { get; set; }
+
+        public string GDVDoi_MaHoaDon { get; set; }
+        public string GDVDoi_MaHangHoa { get; set; }
+        public string GDVDoi_TenHangHoa { get; set; }
+        public string GDVDoi_TenDonViTinh { get; set; }
+        public double? SoLuongDoi { get; set; }
+        public double? GiaTriDoi { get; set; }
+        public double? GiaTriChenhLech { get; set; }
+        public int? TotalRow { get; set; }
+
+    }
+
+    public class Param_ReportGoiDichVu : CommonParamSearch
+    {
+        public List<string> LoaiHangHoas { get; set; }
+        public int? TinhTrang { get; set; } = 0;
+        public int? ThoiHanSuDung { get; set; } = 0;
+        public Guid? ID_NhomHang { get; set; }
+    }
+
+    public class Param_BCGDVDoiTra : Param_ReportGoiDichVu
+    {
+        public string TxtDVMua { get; set; }
+        public string TxtDVDoi { get; set; }
     }
 
     public class ParamReportValueCard
