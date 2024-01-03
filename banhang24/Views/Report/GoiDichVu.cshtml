@@ -18,11 +18,6 @@
         $('#' + tar).show();
     })
 </script>
-<style>
-    .bcBanDoiTra_bgColor_tra {
-        background-color: lightgoldenrodyellow
-    }
-</style>
 <div class="op-container ">
     <div class="container-fluid nopadding position-relative">
         <div class="op-baocao-type">
@@ -196,6 +191,7 @@
                             </div>
                         </aside>
                     </article>
+                    <!--ko if: (check_MoiQuanTam() === 2 && tab_NhatKySuDung() !== 1) || check_MoiQuanTam() !== 2-->
                     <article class="boxLeft">
                         <h3 class="op-filter-title" onclick="toggleSubFilter(this)">
                             <img src="/Content/images/icon/trangthai-black.png"> Thời hạn sử dụng
@@ -277,6 +273,7 @@
                             </ul>
                         </aside>
                     </article>
+                    <!--/ko-->
                 </section>
                 <div class="op-filter-footer">
                     <button type="button" class="btn btn-link" style="color:red" onclick="closeFilter()">Hủy</button>
@@ -311,6 +308,7 @@
                         <button class="btn btn-main btn-group  btn-print-report" style="display: none" type="submit" data-toggle="modal">
                             <img src="/Content/images/icon/print-black.png"> In báo cáo
                         </button>
+                        <!--ko if: (check_MoiQuanTam() === 2 && tab_NhatKySuDung() !== 1) || check_MoiQuanTam() !== 2-->
                         <div class="dropdown " id="select-column">
                             <button type="button" class="btn btn-main  dropdown-toggle" onclick="showCollumnFilter(this)" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-angle-double-down"></i>
@@ -351,6 +349,7 @@
                                 </div>
                             </div>
                         </div>
+                        <!--/ko-->
                     </div>
                     <div class="flex ">
                         <div class="op-search">
@@ -442,17 +441,20 @@
                                                 <td class="@commonEnum.TypeRGoiDichVu.songayquahan  text-right" data-bind="text: formatNumber3Digit(SoNgayHetHan) "></td>
                                             </tr>
                                         </tbody>
-                                        <tfoot class="PhanQuyen" hidden>
+                                        <!--ko if: !BCGDV_SoDuTongHop()-->
+                                        <tfoot>
                                             <tr>
-                                                <td class="bg12 bhma text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                                <td class="text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="Report_Empty" hidden>
+                                        <!--/ko-->
+
+                                        <tfoot class="Report_Empty" data-bind="visible: BaoCaoGoiDichVu_SoDuTongHop_Page().length === 0">
                                             <tr>
-                                                <td class="bg12 bhma text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
+                                                <td class="text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="SD_TongHop" hidden>
+                                        <tfoot data-bind="visible: BaoCaoGoiDichVu_SoDuTongHop_Page().length > 0">
                                             <tr>
                                                 <td class="@commonEnum.TypeRGoiDichVu.magoi  bg12 text-left bold ">Tổng cộng</td>
                                                 <td class="@commonEnum.TypeRGoiDichVu.ngayban bg12"></td>
@@ -558,17 +560,19 @@
                                                 <td class="@commonEnum.TypeRGoiDichVu.nhanvien  text-left" data-bind="text: NhanVienChietKhau"></td>
                                             </tr>
                                         </tbody>
-                                        <tfoot class="PhanQuyen" hidden>
+                                        <!--ko if: !BCGDV_SoDuChiTiet()-->
+                                        <tfoot>
                                             <tr>
-                                                <td class="bg12 bhma text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                                <td class="bg12 text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="Report_Empty" hidden>
+                                        <!--/ko-->
+                                        <tfoot class="Report_Empty" data-bind="visible: BaoCaoGoiDichVu_SoDuChiTiet_Page().length === 0">
                                             <tr>
-                                                <td class="bg12 bhma text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
+                                                <td class="bg12 text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="SD_ChiTiet" hidden>
+                                        <tfoot data-bind="visible: BaoCaoGoiDichVu_SoDuChiTiet_Page().length > 0">
                                             <tr class="bg12 bold">
                                                 <td class="@commonEnum.TypeRGoiDichVu.magoi  text-left  ">Tổng cộng</td>
                                                 <td class="@commonEnum.TypeRGoiDichVu.ngayban"></td>
@@ -605,7 +609,10 @@
                 </div>
                 <div class="tab-pane tab" id="nhatkysudung" data-id="@((int)commonEnum.TypeReport.nhatkysdth)">
                     <ul class="nav nav-tabs nav-news" style="padding-right:0px!important">
-                        <li class="active" data-id="@((int)commonEnum.TypeReport.nhatkysdth)"><a data-toggle="tab" href="#nhatky_tonghop" aria-expanded="true" data-bind="click: select_NhatKyTongHop">Tổng hợp</a></li>
+                        <li class="active" data-id="@((int)commonEnum.TypeReport.nhatkysdth)">
+                            <a data-toggle="tab" href="#nhatky_tonghop"
+                               aria-expanded="true" data-bind="click: select_NhatKyTongHop">Tổng hợp</a>
+                        </li>
                         <li data-id="@((int)commonEnum.TypeReport.nhatkysdct)">
                             <a data-toggle="tab"
                                href="#nhatky_chitiet" data-bind="click: select_NhatKyChiTiet">Chi tiết</a>
@@ -700,12 +707,14 @@
                                             <!--/ko-->
 
                                         </tbody>
-                                        <tfoot class="PhanQuyen">
+                                        <!--ko if: !BCGDV_NhatKySuDungTongHop()-->
+                                        <tfoot class="Report_Empty">
                                             <tr>
                                                 <td class="bg12 text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="Report_Empty">
+                                        <!--/ko-->
+                                        <tfoot class="Report_Empty" data-bind="visible: BaoCaoGoiDichVu_NhatKySuDungTongHop().length === 0">
                                             <tr>
                                                 <td class="bg12 text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
                                             </tr>
@@ -797,17 +806,19 @@
                                                 <td class="@commonEnum.TypeRGoiDichVu.ghichu  text-left " data-bind="text: GhiChu"></td>
                                             </tr>
                                         </tbody>
-                                        <tfoot class="PhanQuyen" hidden>
+                                        <!--ko if: !BCGDV_NhatKySuDungChiTiet()-->
+                                        <tfoot class="Report_Empty">
                                             <tr>
-                                                <td class="bg12 bhma text-center" colspan="21"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                                <td class="bg12 text-center" colspan="21"><i>Bạn không có quyền xem báo cáo này!</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="Report_Empty" hidden>
+                                        <!--/ko-->
+                                        <tfoot data-bind="visible: BaoCaoGoiDichVu_NhatKySuDungChiTiet_Page().length === 0">
                                             <tr>
-                                                <td class="bg12 bhma text-center" colspan="21"><i>Báo cáo không có dữ liệu</i></td>
+                                                <td class="bg12 text-center" colspan="21"><i>Báo cáo không có dữ liệu</i></td>
                                             </tr>
                                         </tfoot>
-                                        <tfoot class="NK_ChiTiet" hidden>
+                                        <tfoot data-bind="visible: BaoCaoGoiDichVu_NhatKySuDungChiTiet_Page().length > 0">
                                             <tr class="bg12 bold">
                                                 <!--ko if: $root.LoaiNganhNghe()===1 -->
                                                 <td class="@commonEnum.ColumnInvoices.bienso text-left ">Tổng cộng</td>
@@ -887,17 +898,19 @@
                                         <td class="@commonEnum.TypeRGoiDichVu.giatriconlai  text-right" data-bind="text: formatNumber3Digit(GiaTriConLai,2) "></td>
                                     </tr>
                                 </tbody>
-                                <tfoot class="PhanQuyen" hidden>
+                                <!--ko if: !BCGDV_TonChuaSuDung()-->
+                                <tfoot>
                                     <tr>
-                                        <td class="bg12 bhma text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
+                                        <td class="bg12 text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
                                     </tr>
                                 </tfoot>
-                                <tfoot class="Report_Empty" hidden>
+                                <!--/ko-->
+                                <tfoot class="Report_Empty" data-bind="visible: BaoCaoGoiDichVu_TonChuaSuDung_Page().length === 0">
                                     <tr>
-                                        <td class="bg12 bhma text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
+                                        <td class="bg12 text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
                                     </tr>
                                 </tfoot>
-                                <tfoot class="DV_TonChuaSuDung" hidden>
+                                <tfoot data-bind="visible: BaoCaoGoiDichVu_TonChuaSuDung_Page().length > 0">
                                     <tr>
                                         <td class="@commonEnum.TypeRGoiDichVu.mahanghoa  bg12 text-left bold ">Tổng cộng</td>
                                         <td class="@commonEnum.TypeRGoiDichVu.tenhanghoa bg12"></td>
@@ -969,17 +982,19 @@
                                         <td class="@commonEnum.TypeRGoiDichVu.giatriconlai  text-right" data-bind="text: formatNumber3Digit(GiaTriConLaiCK,2) "></td>
                                     </tr>
                                 </tbody>
-                                <tfoot class="PhanQuyen" hidden>
+                                <!--ko if: !BCGDV_NhapXuatTon()-->
+                                <tfoot>
                                     <tr>
                                         <td class="bg12 bhma text-center" colspan="20"><i>Bạn không có quyền xem báo cáo này!</i></td>
                                     </tr>
                                 </tfoot>
-                                <tfoot class="Report_Empty" hidden>
+                                <!--/ko-->
+                                <tfoot class="Report_Empty" data-bind="visible: BaoCaoGoiDichVu_NhapXuatTon_Page().length === 0">
                                     <tr>
-                                        <td class="bg12 bhma text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
+                                        <td class="bg12 text-center" colspan="20"><i>Báo cáo không có dữ liệu</i></td>
                                     </tr>
                                 </tfoot>
-                                <tfoot class="DV_NhapXuatTon" hidden>
+                                <tfoot data-bind="visible: BaoCaoGoiDichVu_NhapXuatTon_Page().length > 0">
                                     <tr>
                                         <td class="@commonEnum.TypeRGoiDichVu.mahanghoa  bg12 text-left bold ">Tổng cộng</td>
                                         <td class="@commonEnum.TypeRGoiDichVu.tenhanghoa bg12"></td>

@@ -24,6 +24,8 @@
     self.ArrDonVi = ko.observableArray();
     self.LstIDDonVi = ko.observableArray([_id_DonVi]);
     self.TxtSearchDV = ko.observable('');
+    self.currentPage = ko.observable(1);
+
 
     self.QuanLyTheoLo = ko.observable(false);
     if (VHeader.ThietLapCuaHang.length > 0) {
@@ -275,68 +277,45 @@
     var tk = null;
     self.NhomHangHoas = ko.observableArray();
     //trinhpv phân quyền
-    self.BCGDV_SoDuTongHop = ko.observable();
-    self.BCGDV_SoDuChiTiet = ko.observable();
-    self.BCGDV_NhatKySuDungChiTiet = ko.observable();
-    self.BCGDV_NhatKySuDungTongHop = ko.observable();
-    self.BCGDV_TonChuaSuDung = ko.observable();
-    self.BCGDV_NhapXuatTon = ko.observable();
-    self.BCGDV_XuatFile = ko.observable();
+    self.BCGDV_SoDuTongHop = ko.observable(false);
+    self.BCGDV_SoDuChiTiet = ko.observable(false);
+    self.BCGDV_NhatKySuDungChiTiet = ko.observable(false);
+    self.BCGDV_NhatKySuDungTongHop = ko.observable(false);
+    self.BCGDV_TonChuaSuDung = ko.observable(false);
+    self.BCGDV_NhapXuatTon = ko.observable(false);
+    self.BCGDV_XuatFile = ko.observable(false);
+
     var BH_DonViUri = '/api/DanhMuc/DM_DonViAPI/';
     var _nameDonViSeach = null;
     self.DonVis = ko.observableArray();
     self.searchDonVi = ko.observableArray();
     self.MangChiNhanh = ko.observableArray();
+    self.Quyen_NguoiDung = ko.observableArray();
+
+    function CheckQuyenExist(maquyen) {
+        var role = $.grep(self.Quyen_NguoiDung(), function (x) {
+            return x.MaQuyen === maquyen;
+        });
+        return role.length > 0;
+    }
+
     function getQuyen_NguoiDung() {
-        if (VHeader.Quyen.indexOf('BCGDV_SoDuTongHop') > -1) {
-            self.BCGDV_SoDuTongHop('BCGDV_SoDuTongHop');
+        ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetListQuyen_OfNguoiDung", 'GET').done(function (data) {
+            if (data !== "" && data.length > 0) {
+                self.Quyen_NguoiDung(data);
+            }
+            else {
+                self.Quyen_NguoiDung([]);
+            }
+            self.BCGDV_SoDuTongHop(CheckQuyenExist('BCGDV_SoDuTongHop'));
+            self.BCGDV_SoDuChiTiet(CheckQuyenExist('BCGDV_SoDuChiTiet'));
+            self.BCGDV_NhatKySuDungTongHop(CheckQuyenExist('BCGDV_NhatKySuDungTongHop'));
+            self.BCGDV_NhatKySuDungChiTiet(CheckQuyenExist('BCGDV_NhatKySuDungChiTiet'));
+            self.BCGDV_TonChuaSuDung(CheckQuyenExist('BCGDV_TonChuaSuDung'));
+            self.BCGDV_NhapXuatTon(CheckQuyenExist('BCGDV_NhapXuatTon'));
+            self.BCGDV_XuatFile(CheckQuyenExist('BCGDV_XuatFile'));
             getDonVi();
-        }
-        else {
-            self.BCGDV_SoDuTongHop('false');
-        }
-
-        if (VHeader.Quyen.indexOf('BCGDV_SoDuChiTiet') > -1) {
-            self.BCGDV_SoDuChiTiet('BCGDV_SoDuChiTiet');
-        }
-        else {
-            self.BCGDV_SoDuChiTiet('false');
-        }
-
-        if (VHeader.Quyen.indexOf('BCGDV_NhatKySuDungTongHop') > -1) {
-            self.BCGDV_NhatKySuDungTongHop('BCGDV_NhatKySuDungTongHop');
-        }
-        else {
-            self.BCGDV_NhatKySuDungTongHop('false');
-        }
-
-        if (VHeader.Quyen.indexOf('BCGDV_NhatKySuDungChiTiet') > -1) {
-            self.BCGDV_NhatKySuDungChiTiet('BCGDV_NhatKySuDungChiTiet');
-        }
-        else {
-            self.BCGDV_NhatKySuDungChiTiet('false');
-        }
-
-        if (VHeader.Quyen.indexOf('BCGDV_TonChuaSuDung') > -1) {
-            self.BCGDV_TonChuaSuDung('BCGDV_TonChuaSuDung');
-        }
-        else {
-            self.BCGDV_TonChuaSuDung('false');
-        }
-
-        if (VHeader.Quyen.indexOf('BCGDV_NhapXuatTon') > -1) {
-            self.BCGDV_NhapXuatTon('BCGDV_NhapXuatTon');
-        }
-        else {
-            self.BCGDV_NhapXuatTon('false');
-        }
-
-        if (VHeader.Quyen.indexOf('BCGDV_XuatFile') > -1) {
-            self.BCGDV_XuatFile('BCGDV_XuatFile');
-        }
-        else {
-            self.BCGDV_XuatFile('false');
-        }
+        })
     }
     getQuyen_NguoiDung();
 
@@ -372,8 +351,8 @@
                 $(this).find('i').remove();
             }
         });
-        console.log(self.MangNhomDoiTuong());
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     };
 
@@ -404,6 +383,7 @@
             });
         }
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     };
     self.NoteNameNhomDoiTuong = function () {
@@ -421,7 +401,6 @@
         self.NhomDoiTuongs(arrNhomDoiTuong);
         if ($('#NoteNameNhomDoiTuong').val() === "") {
             self.NhomDoiTuongs(self.searchNhomDoiTuong());
-            // console.log(self.NhomDoiTuongs())
             for (let i = 0; i < self.MangNhomDoiTuong().length; i++) {
                 $('#selec-all-NhomDoiTuong li').each(function () {
                     if ($(this).attr('id') === self.MangNhomDoiTuong()[i].ID) {
@@ -646,7 +625,6 @@
                 tk = $('#SeachNhomHang').val();
                 if (tk.trim() !== '') {
                     ajaxHelper(ReportUri + "GetListID_NhomHangHoa?TenNhomHang=" + tk, 'GET').done(function (data) {
-                        console.log(data);
                         for (let i = 0; i < data.length; i++) {
                             if (data[i].ID_Parent === null) {
                                 var objParent = {
@@ -696,6 +674,7 @@
     self.SelectRepoert_NhomHangHoa = function (item) {
         _ID_NhomHang = item.ID;
         _pageNumber = 1;
+        self.currentPage(1);
         if (item.ID === undefined) {
             $('.li-oo').removeClass("yellow");
             $('#tatcanhh a').css("display", "block");
@@ -713,30 +692,32 @@
     $('.SelectALLNhomHang').on('click', function () {
         _ID_NhomHang = null;
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     });
     $('.chose_TinhTrangKD input').on('click', function () {
         TinhTrangHH = $(this).val();
         _pageNumber = 1;
+        self.currentPage(1);
         self.Loc_TinhTrangKD($(this).val());
         self.LoadReport();
     });
     $('.chose_ThoiHanSuDung input').on('click', function () {
         ThoiHanSuDung = $(this).val();
-        console.log(ThoiHanSuDung);
         _pageNumber = 1;
+        self.currentPage(1);
         self.Loc_HanSuDungDV($(this).val());
         self.LoadReport();
     });
     self.select_SoDuTongHop = function () {
-        $("#txt_search").attr("placeholder", "Theo mã, tên hàng, mã gói dịch vụ, mã KH, tên KH").blur();
+        $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
         self.LoaiBaoCao('gói dịch vụ');
         self.MoiQuanTam('Báo cáo tổng hợp số dư gói dịch vụ');
         self.tab_SoDu(1);
         self.LoadReport();
     };
     self.select_SoDuChiTiet = function () {
-        $("#txt_search").attr("placeholder", "Theo mã, tên hàng, mã gói dịch vụ, mã KH, tên KH").blur();
+        $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
         self.LoaiBaoCao('hàng hóa');
         self.MoiQuanTam('Báo cáo chi tiết số dư gói dịch vụ');
         self.tab_SoDu(2);
@@ -748,6 +729,7 @@
         self.MoiQuanTam('Tổng hợp nhật ký sử dụng gói dịch vụ');
         self.tab_NhatKySuDung(1);
         self.LoadReport();
+        console.log('select_NhatKyTongHop')
     };
     self.select_NhatKyChiTiet = function () {
         $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
@@ -780,7 +762,7 @@
     $('.tab-show').on('click', '.tab ul li', function () {
         self.loadCheckbox($(this).data('id'));
     });
-    $('.chose_kieubang').on('click', 'li', function () {
+    $('.chose_kieubang').on('click', 'li', function (index3) {
         $(".chose_kieubang li").each(function (i) {
             $(this).find('a').removeClass('box-tab');
         });
@@ -802,29 +784,33 @@
         $('#showTime').show();
         $(this).find('a').addClass('box-tab');
         self.check_MoiQuanTam(parseInt($(this).find('a input').val()));
+
+        console.log('chose_kieubang li click')
         switch (self.check_MoiQuanTam()) {
             case 1:// bc sodu
                 if (self.tab_SoDu() === 1) {
-                    $("#txt_search").attr("placeholder", "Theo mã, tên hàng, mã gói dịch vụ, mã KH, tên KH").blur();
+                    $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
                     self.LoaiBaoCao('gói dịch vụ');
                     self.MoiQuanTam('Báo cáo tổng hợp số dư gói dịch vụ');
                 }
                 else {
-                    $("#txt_search").attr("placeholder", "Theo mã, tên hàng, mã gói dịch vụ, mã KH, tên KH").blur();
+                    $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
                     self.LoaiBaoCao('hàng hóa');
                     self.MoiQuanTam('Báo cáo chi tiết số dư gói dịch vụ');
                 }
                 break;
             case 2:// bc nhatky sudung
-                if (self.tab_NhatKySuDung() === 1) {
-                    $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng").blur();
-                    self.LoaiBaoCao('hàng hóa');
-                    self.MoiQuanTam('Tổng hợp nhật ký sử dụng gói dịch vụ');
-                }
-                else {
-                    $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
-                    self.LoaiBaoCao('chi tiết gói dịch vụ');
-                    self.MoiQuanTam('Chi tiết nhật ký sử dụng gói dịch vụ');
+                {
+                    if (self.tab_NhatKySuDung() === 1) {
+                        $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng").blur();
+                        self.LoaiBaoCao('hàng hóa');
+                        self.MoiQuanTam('Tổng hợp nhật ký sử dụng gói dịch vụ');
+                    }
+                    else {
+                        $("#txt_search").attr("placeholder", "Theo mã chứng từ, khách hàng, dịch vụ").blur();
+                        self.LoaiBaoCao('chi tiết gói dịch vụ');
+                        self.MoiQuanTam('Chi tiết nhật ký sử dụng gói dịch vụ');
+                    }
                 }
                 break;
             case 3:// bc ton gdv
@@ -850,12 +836,14 @@
         }
 
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     });
     $('.choose_txtTime li').on('click', function () {
         var _rdoNgayPage = $(this).val();
         var datime = new Date();
         var datimeBC = new Date();
+
         //Toàn thời gian
         switch (_rdoNgayPage) {
             case 13:
@@ -981,6 +969,7 @@
         }
 
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     });
     $('.newDateTime').on('apply.daterangepicker', function (ev, picker) {
@@ -995,6 +984,7 @@
         else
             self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     });
     $('#datetimepicker_mask').keypress(function (e) {
@@ -1007,7 +997,6 @@
             _tonkhoStart = moment(new Date(thisDate)).format('YYYY-MM-DD');
             var dt = new Date(thisDate);
             _tonkhoEnd = moment(new Date(dt.setDate(dt.getDate() + 1))).format('YYYY-MM-DD');
-            console.log(_timeEnd);
             if (thisDate !== 'Invalid date') {
                 self.TodayBC_TK('Đến ngày: ' + $(this).val());
                 self.LoadReport();
@@ -1167,6 +1156,7 @@
                     break;
             }
             _pageNumber = 1;
+            self.currentPage(1);
             self.LoadReport();
         }
         else if (parseInt($(this).val()) === 2) {
@@ -1190,6 +1180,7 @@
                 else
                     self.TodayBC('Từ ngày ' + moment(_timeStart).format('DD/MM/YYYY') + ' Đến ngày ' + moment(_timeBC).format('DD/MM/YYYY'));
                 _pageNumber = 1;
+                self.currentPage(1);
                 self.LoadReport();
             }
         }
@@ -1277,14 +1268,7 @@
     }
     self.LoadReport = function () {
         LoadingForm(true);
-        $('.table-reponsive').css('display', 'none');
         _pageNumber = 1;
-        self.pageNumber_SDTH(1);
-        self.pageNumber_SDCT(1);
-        self.pageNumber_NKSDTH(1);
-        self.pageNumber_NKSDCT(1);
-        self.pageNumber_TCSD(1);
-        self.pageNumber_NXT(1);
 
         if (!commonStatisJs.CheckNull(Text_search)) {
             Text_search = Text_search.trim();
@@ -1310,62 +1294,41 @@
             case 1:
                 {
                     if (self.tab_SoDu() === 1) {
-                        if (self.BCGDV_SoDuTongHop() === "BCGDV_SoDuTongHop") {
-                            $(".PhanQuyen").hide();
-                            ajaxHelper(ReportUri + "BaoCaoDichVu_SoDuTongHop", "POST", array_Seach).done(function (data) {
-                                self.BaoCaoGoiDichVu_SoDuTongHop(data.LstData);
-                                AllPage = data.numberPage;
-                                self.ResetCurrentPage();
-                                self.SumRowsHangHoa(data.Rowcount);
-                                self.SDTH_SoLuong(data.a1);
-                                self.SDTH_ThanhTien(data.a2);
-                                self.SDTH_SoLuongTra(data.a3);
-                                self.SDTH_GiaTriTra(data.a4);
-                                self.SDTH_SoLuongSuDung(data.a5);
-                                self.SDTH_GiaVon(data.a6);
-                                self.SDTH_SoLuongConLai(data.a7);
-                                LoadingForm(false);
-                            });
-                        }
-                        else {
-                            $(".PhanQuyen").show();
-                            $(".Report_Empty").hide();
-                            $(".SD_TongHop").hide();
-                            $(".page").hide();
+                        ajaxHelper(ReportUri + "BaoCaoDichVu_SoDuTongHop", "POST", array_Seach).done(function (data) {
+                            self.BaoCaoGoiDichVu_SoDuTongHop(data.LstData);
+                            AllPage = data.numberPage;
+                            self.ResetCurrentPage();
+                            self.SumRowsHangHoa(data.Rowcount);
+                            self.SDTH_SoLuong(data.a1);
+                            self.SDTH_ThanhTien(data.a2);
+                            self.SDTH_SoLuongTra(data.a3);
+                            self.SDTH_GiaTriTra(data.a4);
+                            self.SDTH_SoLuongSuDung(data.a5);
+                            self.SDTH_GiaVon(data.a6);
+                            self.SDTH_SoLuongConLai(data.a7);
                             LoadingForm(false);
-                        }
+                        });
                     }
                     else {
-                        if (self.BCGDV_SoDuChiTiet() === "BCGDV_SoDuChiTiet") {
-                            $(".PhanQuyen").hide();
-                            ajaxHelper(ReportUri + "BaoCaoDichVu_SoDuChiTiet", "POST", array_Seach).done(function (data) {
-                                self.BaoCaoGoiDichVu_SoDuChiTiet(data.LstData);
-                                AllPage = data.numberPage;
-                                self.ResetCurrentPage();
-                                self.SumRowsHangHoa(data.Rowcount);
-                                self.SDCT_SoLuong(data.a1);
-                                self.SDCT_ThanhTien(data.a2);
-                                self.SDCT_GiamGiaHD(data.a3);
-                                self.SDCT_SoLuongTra(data.a4);
-                                self.SDCT_GiaTriTra(data.a5);
-                                self.SDCT_SoLuongSuDung(data.a6);
-                                self.SDCT_GiaVon(data.a7);
-                                self.SDCT_SoLuongConLai(data.a8);
-                                let sumTTChuaCK = data.LstData.reduce(function (x, item) {
-                                    return x + item.ThanhTienChuaCK;
-                                }, 0);
-                                self.SDCT_ThanhTienChuaCK(sumTTChuaCK);
-
-                                LoadingForm(false);
-                            });
-                        }
-                        else {
-                            $(".PhanQuyen").show();
-                            $(".Report_Empty").hide();
-                            $(".SD_ChiTiet").hide();
-                            $(".page").hide();
+                        ajaxHelper(ReportUri + "BaoCaoDichVu_SoDuChiTiet", "POST", array_Seach).done(function (data) {
+                            self.BaoCaoGoiDichVu_SoDuChiTiet(data.LstData);
+                            AllPage = data.numberPage;
+                            self.ResetCurrentPage();
+                            self.SumRowsHangHoa(data.Rowcount);
+                            self.SDCT_SoLuong(data.a1);
+                            self.SDCT_ThanhTien(data.a2);
+                            self.SDCT_GiamGiaHD(data.a3);
+                            self.SDCT_SoLuongTra(data.a4);
+                            self.SDCT_GiaTriTra(data.a5);
+                            self.SDCT_SoLuongSuDung(data.a6);
+                            self.SDCT_GiaVon(data.a7);
+                            self.SDCT_SoLuongConLai(data.a8);
+                            let sumTTChuaCK = data.LstData.reduce(function (x, item) {
+                                return x + item.ThanhTienChuaCK;
+                            }, 0);
+                            self.SDCT_ThanhTienChuaCK(sumTTChuaCK);
                             LoadingForm(false);
-                        }
+                        });
                     }
                 }
                 break;
@@ -1375,255 +1338,190 @@
                     if (!commonStatisJs.CheckNull(txtDV)) {
                         txtDV = txtDV.trim();
                     }
-                    const param = {
+                    let param = {
                         IDChiNhanhs: array_Seach.lstIDChiNhanh,
                         DateFrom: array_Seach.timeStart,
                         DateTo: array_Seach.timeEnd,
                         TextSearch: array_Seach.MaHangHoa,
                         TxtDVMua: txtDV,
                         TxtDVDoi: '',
-                        CurrentPage: 0,
-                        PageSize: 10,
+                        CurrentPage: self.currentPage() > 0 ? self.currentPage() - 1 : self.currentPage(),
+                        PageSize: self.pageSize(),
                     }
                     if (self.tab_NhatKySuDung() === 1) {
                         ajaxHelper(ReportUri + "BaoCaoGoiDichVu_BanDoiTra", "POST", param).done(function (data) {
-                            console.log('BaoCaoGoiDichVu_BanDoiTra ', data)
                             if (data.Rowcount > 0) {
                                 self.BaoCaoGoiDichVu_NhatKySuDungTongHop(data.LstData);
                             }
                             else {
                                 self.BaoCaoGoiDichVu_NhatKySuDungTongHop([]);
                             }
+                            AllPage = Math.ceil(data.Rowcount / self.pageSize());
+                            self.SumRowsHangHoa(data.Rowcount);
+
+                            self.ReserPage();
+                            LoadingForm(false);
+                        });
+                    }
+                    else {
+                        ajaxHelper(ReportUri + "BaoCaoDichVu_NhatKySuDungChiTiet", "POST", array_Seach).done(function (data) {
+                            self.BaoCaoGoiDichVu_NhatKySuDungChiTiet(data.LstData);
                             AllPage = data.numberPage;
                             self.ResetCurrentPage();
                             self.SumRowsHangHoa(data.Rowcount);
-                        });
-                        LoadingForm(false);
-                    }
-                    else {
-                        if (self.BCGDV_NhatKySuDungChiTiet() === "BCGDV_NhatKySuDungChiTiet") {
-                            $(".PhanQuyen").hide();
-                            ajaxHelper(ReportUri + "BaoCaoDichVu_NhatKySuDungChiTiet", "POST", array_Seach).done(function (data) {
-                                self.BaoCaoGoiDichVu_NhatKySuDungChiTiet(data.LstData);
-                                AllPage = data.numberPage;
-                                self.ResetCurrentPage();
-                                self.SumRowsHangHoa(data.Rowcount);
-                                self.NKCT_SoLuong(data.a1);
-                                self.SDTH_ThanhTien(data.TongGiaTriSD);
-                                self.SDTH_GiaVon(data.TongTienVon);
-                                LoadingForm(false);
-                            });
-                        }
-                        else {
-                            $(".PhanQuyen").show();
-                            $(".Report_Empty").hide();
-                            $(".NK_ChiTiet").hide();
-                            $(".page").hide();
+                            self.NKCT_SoLuong(data.a1);
+                            self.SDTH_ThanhTien(data.TongGiaTriSD);
+                            self.SDTH_GiaVon(data.TongTienVon);
                             LoadingForm(false);
-                        }
+                        });
                     }
                 }
                 break;
             case 3:
                 {
-                    if (self.BCGDV_TonChuaSuDung() === "BCGDV_TonChuaSuDung") {
-                        $(".PhanQuyen").hide();
-                        ajaxHelper(ReportUri + "BaoCaoDichVu_TonChuaSuDung", "POST", array_Seach).done(function (data) {
-                            self.BaoCaoGoiDichVu_TonChuaSuDung(data.LstData);
-                            AllPage = data.numberPage;
-                            /*self.selecPage();*/
-                            self.ResetCurrentPage();
-                            self.SumRowsHangHoa(data.Rowcount);
-                            self.TCSD_SoLuong(data.a1);
-                            self.TCSD_GiaTri(data.a2);
-                            self.TCSD_SoLuongTra(data.a3);
-                            self.TCSD_GiaTriTra(data.a4);
-                            self.TCSD_SoLuongSuDung(data.a5);
-                            self.TCSD_GiaTriSuDung(data.a6);
-                            self.TCSD_SoLuongConLai(data.a7);
-                            self.TCSD_GiaTriConLai(data.a8);
-                            LoadingForm(false);
-                        });
-                    }
-                    else {
-                        $(".PhanQuyen").show();
-                        $(".Report_Empty").hide();
-                        $(".DV_TonChuaSuDung").hide();
-                        $(".page").hide();
+                    ajaxHelper(ReportUri + "BaoCaoDichVu_TonChuaSuDung", "POST", array_Seach).done(function (data) {
+                        self.BaoCaoGoiDichVu_TonChuaSuDung(data.LstData);
+                        AllPage = data.numberPage;
+                        self.ResetCurrentPage();
+                        self.SumRowsHangHoa(data.Rowcount);
+                        self.TCSD_SoLuong(data.a1);
+                        self.TCSD_GiaTri(data.a2);
+                        self.TCSD_SoLuongTra(data.a3);
+                        self.TCSD_GiaTriTra(data.a4);
+                        self.TCSD_SoLuongSuDung(data.a5);
+                        self.TCSD_GiaTriSuDung(data.a6);
+                        self.TCSD_SoLuongConLai(data.a7);
+                        self.TCSD_GiaTriConLai(data.a8);
                         LoadingForm(false);
-                    }
+                    });
                 }
                 break;
             case 4:
                 {
-                    if (self.BCGDV_NhapXuatTon() === "BCGDV_NhapXuatTon") {
-                        $(".PhanQuyen").hide();
-                        ajaxHelper(ReportUri + "BaoCaoDichVu_NhapXuatTon", "POST", array_Seach).done(function (data) {
-                            self.BaoCaoGoiDichVu_NhapXuatTon(data.LstData);
-                            AllPage = data.numberPage;
-                            /*self.selecPage();*/
-                            self.ResetCurrentPage();
-                            self.SumRowsHangHoa(data.Rowcount);
-                            self.NXT_SoLuongConLaiDK(data.a1);
-                            self.NXT_GiaTriConLaiDK(data.a2);
-                            self.NXT_SoLuongBanGK(data.a3);
-                            self.NXT_GiaTriBanGK(data.a4);
-                            self.NXT_SoLuongTraGK(data.a5);
-                            self.NXT_GiaTriTraGK(data.a6);
-                            self.NXT_SoLuongSuDungGK(data.a7);
-                            self.NXT_GiaTriSuDungGK(data.a8);
-                            self.NXT_SoLuongConLaiCK(data.a9);
-                            self.NXT_GiaTriConLaiCK(data.a10);
-                            LoadingForm(false);
-                        });
-                    }
-                    else {
-                        $(".PhanQuyen").show();
-                        $(".Report_Empty").hide();
-                        $(".DV_NhapXuatTon").hide();
-                        $(".page").hide();
+                    ajaxHelper(ReportUri + "BaoCaoDichVu_NhapXuatTon", "POST", array_Seach).done(function (data) {
+                        self.BaoCaoGoiDichVu_NhapXuatTon(data.LstData);
+                        AllPage = data.numberPage;
+                        self.ResetCurrentPage();
+                        self.SumRowsHangHoa(data.Rowcount);
+                        self.NXT_SoLuongConLaiDK(data.a1);
+                        self.NXT_GiaTriConLaiDK(data.a2);
+                        self.NXT_SoLuongBanGK(data.a3);
+                        self.NXT_GiaTriBanGK(data.a4);
+                        self.NXT_SoLuongTraGK(data.a5);
+                        self.NXT_GiaTriTraGK(data.a6);
+                        self.NXT_SoLuongSuDungGK(data.a7);
+                        self.NXT_GiaTriSuDungGK(data.a8);
+                        self.NXT_SoLuongConLaiCK(data.a9);
+                        self.NXT_GiaTriConLaiCK(data.a10);
                         LoadingForm(false);
-                    }
+                    });
                 }
+                break;
         }
     };
     self.BaoCaoGoiDichVu_SoDuTongHop_Page = ko.computed(function (x) {
+        console.log('BaoCaoGoiDichVu_SoDuTongHop_Page ')
         if (self.check_MoiQuanTam() === 1 && self.tab_SoDu() === 1) {
-            var first = (self.pageNumber_SDTH() - 1) * self.pageSize();
+            var first = (self.currentPage() - 1) * self.pageSize();
+            console.log('self.currentPage() ')
             if (self.BaoCaoGoiDichVu_SoDuTongHop() !== null) {
                 if (self.BaoCaoGoiDichVu_SoDuTongHop().length !== 0) {
-                    $('.SD_TongHop').show();
-                    $(".Report_Empty").hide();
-                    $(".page").show();
-                    self.RowsStart((self.pageNumber_SDTH() - 1) * self.pageSize() + 1);
-                    self.RowsEnd((self.pageNumber_SDTH() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_SoDuTongHop().slice(first, first + self.pageSize()).length);
+                    self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
+                    self.RowsEnd((self.currentPage() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_SoDuTongHop().slice(first, first + self.pageSize()).length);
                 }
                 else {
-                    $('.SD_TongHop').hide();
-                    $(".Report_Empty").show();
-                    $(".page").hide();
                     self.RowsStart('0');
                     self.RowsEnd('0');
                 }
                 return self.BaoCaoGoiDichVu_SoDuTongHop().slice(first, first + self.pageSize());
             }
         }
-        return null;
+        return [];
     });
     self.BaoCaoGoiDichVu_SoDuChiTiet_Page = ko.computed(function (x) {
-        var first = (self.pageNumber_SDCT() - 1) * self.pageSize();
+        var first = (self.currentPage() - 1) * self.pageSize();
         if (self.check_MoiQuanTam() === 1 && self.tab_SoDu() === 2) {
             if (self.BaoCaoGoiDichVu_SoDuChiTiet() !== null) {
                 if (self.BaoCaoGoiDichVu_SoDuChiTiet().length !== 0) {
-                    $('.SD_ChiTiet').show();
-                    $(".Report_Empty").hide();
-                    $(".page").show();
-                    self.RowsStart((self.pageNumber_SDCT() - 1) * self.pageSize() + 1);
-                    self.RowsEnd((self.pageNumber_SDCT() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_SoDuChiTiet().slice(first, first + self.pageSize()).length);
+                    self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
+                    self.RowsEnd((self.currentPage() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_SoDuChiTiet().slice(first, first + self.pageSize()).length);
                 }
                 else {
-                    $('.SD_ChiTiet').hide();
-                    $(".Report_Empty").show();
-                    $(".page").hide();
                     self.RowsStart('0');
                     self.RowsEnd('0');
                 }
                 return self.BaoCaoGoiDichVu_SoDuChiTiet().slice(first, first + self.pageSize());
             }
         }
-        return null;
+        return [];
     });
     self.BaoCaoGoiDichVu_NhatKySuDungTongHop_Page = ko.computed(function (x) {
         if (self.check_MoiQuanTam() === 2 && self.tab_NhatKySuDung() === 1) {
-            var first = (self.pageNumber_NKSDTH() - 1) * self.pageSize();
+            var first = (self.currentPage() - 1) * self.pageSize();
             if (self.BaoCaoGoiDichVu_NhatKySuDungTongHop() !== null) {
                 if (self.BaoCaoGoiDichVu_NhatKySuDungTongHop().length !== 0) {
-                    $('.NK_TongHop').show();
-                    $(".Report_Empty").hide();
-                    $(".page").show();
-                    self.RowsStart((self.pageNumber_NKSDTH() - 1) * self.pageSize() + 1);
-                    self.RowsEnd((self.pageNumber_NKSDTH() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_NhatKySuDungTongHop().slice(first, first + self.pageSize()).length);
+                    self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
+                    self.RowsEnd((self.currentPage() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_NhatKySuDungTongHop().slice(first, first + self.pageSize()).length);
                 }
                 else {
-                    $('.NK_TongHop').hide();
-                    $(".Report_Empty").show();
-                    $(".page").hide();
                     self.RowsStart('0');
                     self.RowsEnd('0');
                 }
                 return self.BaoCaoGoiDichVu_NhatKySuDungTongHop().slice(first, first + self.pageSize());
             }
         }
-        return null;
+        return [];
     });
     self.BaoCaoGoiDichVu_NhatKySuDungChiTiet_Page = ko.computed(function (x) {
         if (self.check_MoiQuanTam() === 2 && self.tab_NhatKySuDung() === 2) {
-            var first = (self.pageNumber_NKSDCT() - 1) * self.pageSize();
+            var first = (self.currentPage() - 1) * self.pageSize();
             if (self.BaoCaoGoiDichVu_NhatKySuDungChiTiet() !== null) {
                 if (self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().length !== 0) {
-                    $('.NK_ChiTiet').show();
-                    $(".Report_Empty").hide();
-                    $(".page").show();
-                    self.RowsStart((self.pageNumber_NKSDCT() - 1) * self.pageSize() + 1);
-                    self.RowsEnd((self.pageNumber_NKSDCT() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().slice(first, first + self.pageSize()).length);
+                    self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
+                    self.RowsEnd((self.currentPage() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().slice(first, first + self.pageSize()).length);
                 }
                 else {
-                    $('.NK_ChiTiet').hide();
-                    $(".Report_Empty").show();
-                    $(".page").hide();
                     self.RowsStart('0');
                     self.RowsEnd('0');
                 }
                 return self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().slice(first, first + self.pageSize());
             }
         }
-        return null;
+        return [];
     });
     self.BaoCaoGoiDichVu_TonChuaSuDung_Page = ko.computed(function (x) {
         if (self.check_MoiQuanTam() === 3) {
-            var first = (self.pageNumber_TCSD() - 1) * self.pageSize();
+            var first = (self.currentPage() - 1) * self.pageSize();
             if (self.BaoCaoGoiDichVu_TonChuaSuDung() !== null) {
                 if (self.BaoCaoGoiDichVu_TonChuaSuDung().length !== 0) {
-                    $('.DV_TonChuaSuDung').show();
-                    $(".Report_Empty").hide();
-                    $(".page").show();
-                    self.RowsStart((self.pageNumber_TCSD() - 1) * self.pageSize() + 1);
-                    self.RowsEnd((self.pageNumber_TCSD() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_TonChuaSuDung().slice(first, first + self.pageSize()).length);
+                    self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
+                    self.RowsEnd((self.currentPage() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_TonChuaSuDung().slice(first, first + self.pageSize()).length);
                 }
                 else {
-                    $('.DV_TonChuaSuDung').hide();
-                    $(".Report_Empty").show();
-                    $(".page").hide();
                     self.RowsStart('0');
                     self.RowsEnd('0');
                 }
                 return self.BaoCaoGoiDichVu_TonChuaSuDung().slice(first, first + self.pageSize());
             }
         }
-        return null;
+        return [];
     });
     self.BaoCaoGoiDichVu_NhapXuatTon_Page = ko.computed(function (x) {
         if (self.check_MoiQuanTam() === 4) {
-            var first = (self.pageNumber_NXT() - 1) * self.pageSize();
+            var first = (self.currentPage() - 1) * self.pageSize();
             if (self.BaoCaoGoiDichVu_NhapXuatTon() !== null) {
                 if (self.BaoCaoGoiDichVu_NhapXuatTon().length !== 0) {
-                    $('.DV_NhapXuatTon').show();
-                    $(".Report_Empty").hide();
-                    $(".page").show();
-                    self.RowsStart((self.pageNumber_NXT() - 1) * self.pageSize() + 1);
-                    self.RowsEnd((self.pageNumber_NXT() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_NhapXuatTon().slice(first, first + self.pageSize()).length);
+                    self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
+                    self.RowsEnd((self.currentPage() - 1) * self.pageSize() + self.BaoCaoGoiDichVu_NhapXuatTon().slice(first, first + self.pageSize()).length);
                 }
                 else {
-                    $('.DV_NhapXuatTon').hide();
-                    $(".Report_Empty").show();
-                    $(".page").hide();
                     self.RowsStart('0');
                     self.RowsEnd('0');
                 }
                 return self.BaoCaoGoiDichVu_NhapXuatTon().slice(first, first + self.pageSize());
             }
         }
-        return null;
+        return [];
     });
     //Loại hàng
     var _ckHangHoa = 1;
@@ -1666,6 +1564,7 @@
             }
         }
         _pageNumber = 1;
+        self.currentPage(1);
         self.LoadReport();
     });
 
@@ -1674,16 +1573,19 @@
     };
     $('#txt_search').keypress(function (e) {
         if (e.keyCode === 13) {
+            self.currentPage(1);
             self.LoadReport();
         }
-    }); 
+    });
     $('#txtSearchDV').keypress(function (e) {
         if (e.keyCode === 13) {
+            self.currentPage(1);
             self.LoadReport();
         }
     });
     $('#txtMaKH').keypress(function (e) {
         if (e.keyCode === 13) {
+            self.currentPage(1);
             self.LoadReport();
         }
     });
@@ -1692,6 +1594,7 @@
     };
     $('#txtMaGT').keypress(function (e) {
         if (e.keyCode === 13) {
+            self.currentPage(1);
             self.LoadReport();
         }
     });
@@ -1859,7 +1762,7 @@
                     TenChiNhanh: self.TenChiNhanh(),
                     lstIDChiNhanh: self.LstIDDonVi(),
                 };
-                if (self.BCGDV_XuatFile() !== "BCGDV_XuatFile") {
+                if (!self.BCGDV_XuatFile()) {
                     bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này", "danger");
                     LoadingForm(false);
                     return false;
@@ -1896,16 +1799,39 @@
                 }
                 else if (self.check_MoiQuanTam() === 2) {
                     if (self.tab_NhatKySuDung() === 1 && self.BaoCaoGoiDichVu_NhatKySuDungTongHop().length !== 0) {
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCGDV_NhatKySuDungTongHop",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
+                        let txtDV = self.TxtSearchDV();
+                        if (!commonStatisJs.CheckNull(txtDV)) {
+                            txtDV = txtDV.trim();
+                        }
+                        const param = {
+                            IDChiNhanhs: array_Seach.lstIDChiNhanh,
+                            DateFrom: array_Seach.timeStart,
+                            DateTo: array_Seach.timeEnd,
+                            TextSearch: array_Seach.MaHangHoa,
+                            TxtDVMua: txtDV,
+                            TxtDVDoi: '',
+                            CurrentPage: 0,
+                            PageSize: self.SumRowsHangHoa(),
+                            ReportBranch: self.TenChiNhanh()
+                        };
+
+                        ajaxHelper(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param).done(function (pathFile) {
+                            if (pathFile !== '') {
+                                self.DownloadFileTeamplateXLSX(pathFile);
+                                commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+
+                                let diary = {
+                                    ID_DonVi: VHeader.IdDonVi,
+                                    ID_NhanVien: VHeader.IdNhanVien,
+                                    LoaiNhatKy: 6,
+                                    ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
+                                    NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
+                                    NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
+                                        concat('<br /> Người xuất: ', VHeader.UserLogin),
+                                }
+                                Insert_NhatKyThaoTac_1Param(diary);
                             }
-                        });
+                        })
                     }
                     else if (self.tab_NhatKySuDung() === 2 && self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().length !== 0) {
                         if (self.LoaiNganhNghe() !== 1) {
@@ -2048,7 +1974,6 @@
             }
         });
     };
-    self.currentPage = ko.observable(1);
     self.GetClass = function (page) {
         return page.SoTrang === self.currentPage() ? "click" : "";
     };
@@ -2072,6 +1997,8 @@
         $('#NextPage').show();
         $('#EndPage').show();
     };
+
+    // assign list page
     self.ReserPage = function (item) {
         loadHtmlGrid();
         self.SumNumberPageReport([]);
@@ -2118,138 +2045,89 @@
                 $('#EndPage').hide();
             }
         }
-
-        self.currentPage(parseInt(_pageNumber));
     };
+
+    function CaculatorAgain_ListPage() {
+        self.currentPage(parseInt(_pageNumber));
+
+        switch (self.check_MoiQuanTam()) {
+            case 2:
+                if (self.tab_NhatKySuDung() === 1) {
+                    self.LoadReport();
+                }
+                break;
+            default:
+                {
+                    self.ReserPage();
+                }
+                break;
+        }
+    }
+
     self.NextPage = function (item) {
         if (_pageNumber < AllPage) {
             _pageNumber = _pageNumber + 1;
-            if (self.check_MoiQuanTam() === 1)
-                if (self.tab_SoDu() === 1)
-                    self.pageNumber_SDTH(_pageNumber);
-                else
-                    self.pageNumber_SDCT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 2)
-                if (self.tab_NhatKySuDung() === 1)
-                    self.pageNumber_NKSDTH(_pageNumber);
-                else
-                    self.pageNumber_NKSDCT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 3)
-                self.pageNumber_TCSD(_pageNumber);
-            else if (self.check_MoiQuanTam() === 4)
-                self.pageNumber_NXT(_pageNumber);
-            self.ReserPage();
+            CaculatorAgain_ListPage();
         }
     };
     self.BackPage = function (item) {
         if (_pageNumber > 1) {
             _pageNumber = _pageNumber - 1;
-            if (self.check_MoiQuanTam() === 1)
-                if (self.tab_SoDu() === 1)
-                    self.pageNumber_SDTH(_pageNumber);
-                else
-                    self.pageNumber_SDCT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 2)
-                if (self.tab_NhatKySuDung() === 1)
-                    self.pageNumber_NKSDTH(_pageNumber);
-                else
-                    self.pageNumber_NKSDCT(_pageNumber);
-            else if (self.check_MoiQuanTam() === 3)
-                self.pageNumber_TCSD(_pageNumber);
-            else if (self.check_MoiQuanTam() === 4)
-                self.pageNumber_NXT(_pageNumber);
-            self.ReserPage();
+            CaculatorAgain_ListPage();
         }
     };
     self.EndPage = function (item) {
         _pageNumber = AllPage;
-        if (self.check_MoiQuanTam() === 1)
-            if (self.tab_SoDu() === 1)
-                self.pageNumber_SDTH(_pageNumber);
-            else
-                self.pageNumber_SDCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 2)
-            if (self.tab_NhatKySuDung() === 1)
-                self.pageNumber_NKSDTH(_pageNumber);
-            else
-                self.pageNumber_NKSDCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 3)
-            self.pageNumber_TCSD(_pageNumber);
-        else if (self.check_MoiQuanTam() === 4)
-            self.pageNumber_NXT(_pageNumber);
-        self.ReserPage();
+        CaculatorAgain_ListPage();
     };
     self.StartPage = function (item) {
         _pageNumber = 1;
-        if (self.check_MoiQuanTam() === 1)
-            if (self.tab_SoDu() === 1)
-                self.pageNumber_SDTH(_pageNumber);
-            else
-                self.pageNumber_SDCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 2)
-            if (self.tab_NhatKySuDung() === 1)
-                self.pageNumber_NKSDTH(_pageNumber);
-            else
-                self.pageNumber_NKSDCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 3)
-            self.pageNumber_TCSD(_pageNumber);
-        else if (self.check_MoiQuanTam() === 4)
-            self.pageNumber_NXT(_pageNumber);
+        CaculatorAgain_ListPage();
         self.ReserPage();
     };
     self.gotoNextPage = function (item) {
         _pageNumber = item.SoTrang;
-        if (self.check_MoiQuanTam() === 1)
-            if (self.tab_SoDu() === 1)
-                self.pageNumber_SDTH(_pageNumber);
-            else
-                self.pageNumber_SDCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 2)
-            if (self.tab_NhatKySuDung() === 1)
-                self.pageNumber_NKSDTH(_pageNumber);
-            else
-                self.pageNumber_NKSDCT(_pageNumber);
-        else if (self.check_MoiQuanTam() === 3)
-            self.pageNumber_TCSD(_pageNumber);
-        else if (self.check_MoiQuanTam() === 4)
-            self.pageNumber_NXT(_pageNumber);
-        self.ReserPage();
+        CaculatorAgain_ListPage();
     };
 
     self.ResetCurrentPage = function () {
         _pageNumber = 1;
+
         switch (parseInt(self.check_MoiQuanTam())) {
             case 1:
-                if (self.tab_SoDu() === 1) {
-                    self.pageNumber_SDTH(_pageNumber);
-                    AllPage = Math.ceil(self.BaoCaoGoiDichVu_SoDuTongHop().length / self.pageSize());
+                {
+                    if (self.tab_SoDu() === 1) {
+                        AllPage = Math.ceil(self.BaoCaoGoiDichVu_SoDuTongHop().length / self.pageSize());
+                    }
+                    else {
+                        self.pageNumber_SDCT(_pageNumber);
+                        AllPage = Math.ceil(self.BaoCaoGoiDichVu_SoDuChiTiet().length / self.pageSize());
+                    }
+                    self.ReserPage();
                 }
-                else {
-                    self.pageNumber_SDCT(_pageNumber);
-                    AllPage = Math.ceil(self.BaoCaoGoiDichVu_SoDuChiTiet().length / self.pageSize());
-                }
-
                 break;
             case 2:
                 if (self.tab_NhatKySuDung() === 1) {
-                    self.pageNumber_NKSDTH(_pageNumber);
-                    AllPage = Math.ceil(self.BaoCaoGoiDichVu_NhatKySuDungTongHop().length / self.pageSize());
+                    self.LoadReport();
                 }
                 else {
-                    self.pageNumber_NKSDCT(_pageNumber);
                     AllPage = Math.ceil(self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().length / self.pageSize());
+                    self.ReserPage();
                 }
                 break;
             case 3:
-                self.pageNumber_TCSD(1);
-                AllPage = Math.ceil(self.BaoCaoGoiDichVu_TonChuaSuDung().length / self.pageSize());
+                {
+                    AllPage = Math.ceil(self.BaoCaoGoiDichVu_TonChuaSuDung().length / self.pageSize());
+                    self.ReserPage();
+                }
                 break;
             case 4:
-                self.pageNumber_NXT(1);
-                AllPage = Math.ceil(self.BaoCaoGoiDichVu_NhapXuatTon().length / self.pageSize());
+                {
+                    AllPage = Math.ceil(self.BaoCaoGoiDichVu_NhapXuatTon().length / self.pageSize());
+                    self.ReserPage();
+                }
                 break;
         }
-        self.ReserPage();
     };
 
     self.hide = function () {

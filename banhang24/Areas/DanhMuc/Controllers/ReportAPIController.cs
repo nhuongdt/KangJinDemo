@@ -2465,6 +2465,35 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [AcceptVerbs("GET", "POST")]
+        public string Export_BCGDV_BanDoiTra(Param_BCGDVDoiTra param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                ClassReportGoiDichVu reportGoiDichVu = new ClassReportGoiDichVu(db);
+                List<BaoCaoGoiDichVu_BanDoiTra> data = reportGoiDichVu.BaoCaoGoiDichVu_BanDoiTra(param);
+                DataTable excel = classOffice.ToDataTable<BaoCaoGoiDichVu_BanDoiTra>(data);
+                excel.Columns.Remove("GDVMua_ID");
+                excel.Columns.Remove("GDVDoi_ID");
+                excel.Columns.Remove("GDVMua_LoaiHoaDon");
+                excel.Columns.Remove("TotalRow");
+
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoGoiDichVu/Teamplate_BCGoiDichVu_BanDoiTra.xlsx");
+                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/TongHopNhatKySuDungGoiDichVu.xlsx");
+                fileSave = classOffice.createFolder_Download(fileSave);
+                string columHide = string.Empty;
+                if (param.ColumnHide != null && param.ColumnHide.Count > 0)
+                {
+                    columHide = string.Join("_", param.ColumnHide);
+                }
+                classOffice.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 5, 29, 24, true, columHide, 0, param.ReportTime, param.ReportBranch);
+                var index = fileSave.IndexOf(@"\Template");
+                fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                fileSave = fileSave.Replace(@"\", "/");
+                return fileSave;
+            }
+        }
+        [AcceptVerbs("GET", "POST")]
         public string Export_BCGDV_NhatKySuDungTongHop([FromBody] JObject data)
         {
             array_BaoCaoGoiDichVu array_BaoCaoGoiDichVu = data["objExcel"].ToObject<array_BaoCaoGoiDichVu>();

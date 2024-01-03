@@ -121,7 +121,7 @@
     self.TongSL_PhuTung = ko.observable(0);
 
     self.columsort = ko.observable('');
-    self.sort = ko.observable(null);
+    self.sort = ko.observable(0);
     // PThucThanhToan
     self.PThucChosed = ko.observableArray();
     self.PTThanhToan = ko.observableArray([
@@ -1358,6 +1358,9 @@
                             return x + item.ConNo;
                         }, 0);
                         self.TongKhachNo(conno);
+                    }
+                    else {
+                        self.HoaDons([]);
                     }
                 });
             }
