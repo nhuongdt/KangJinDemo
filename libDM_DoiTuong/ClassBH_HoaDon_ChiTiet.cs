@@ -906,6 +906,7 @@ namespace libDM_DoiTuong
         public Guid ID { get; set; }
         public Guid ID_HoaDon { get; set; }
         public Guid ID_DonViQuiDoi { get; set; }
+        public Guid? ID_ChiTietGoiDV { get; set; }// used to get all when printXuatKho (nvThucHien)
         public Guid? ID_LoHang { get; set; }
         public Guid? ID_HangHoa { get; set; }
         public bool? QuanLyTheoLoHang { get; set; }
