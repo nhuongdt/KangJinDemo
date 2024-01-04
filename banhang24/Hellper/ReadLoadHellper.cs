@@ -705,6 +705,7 @@ namespace banhang24.Hellper
                 {TypeReportDetail.Detail_tenhang.ToString(),"Tên hàng" },
                 {TypeReportDetail.Detail_tenhangthaythe.ToString(),"Tên hàng hóa thay thế" },
                    { TypeReportDetail.Detail_donvitinh.ToString(),"Đvt" },
+                   { TypeReportImport.Import_machungtugoc.ToString(),"Mã gói dịch vụ" },
                     { TypeReportDetail.Detail_lohang.ToString(),"Lô hàng" },
                   { TypeReportDetail.Detail_soluong.ToString(),"Số lượng" },
                    { TypeReportDetail.Detail_giaban.ToString(),"Giá bán" },

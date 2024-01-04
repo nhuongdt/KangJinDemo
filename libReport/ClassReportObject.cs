@@ -108,6 +108,7 @@ namespace libReport
         public string TenHangHoa { get; set; }
         public string ThuocTinh_GiaTri { get; set; }
         public string TenDonViTinh { get; set; }
+        public string MaGoiDichVu { get; set; }// xem hd dc sử dụng từ GDV nào
         public string TenLoHang { get; set; }
         public double SoLuong { get; set; }
         public double GiaBan { get; set; }
