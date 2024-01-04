@@ -2456,7 +2456,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.Key.TenDoiTuong,
                             x.Key.GiaTriChenhLech,
                             lstDetail = x
-                        });
+                        }).OrderByDescending(x=>x.GDVMua_NgayLapHoaDon);
                     int lstPages = getNumber_Page(totalRow, 10);
                     return Json(new { LstData = dtGr, Rowcount = totalRow, numberPage = lstPages });
                 }
