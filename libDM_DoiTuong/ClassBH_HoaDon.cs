@@ -1833,6 +1833,31 @@ namespace libDM_DoiTuong
             return data;
         }
 
+        public List<BH_NhanVienThucHienDTO> PhieuXuatKho_GetNVThucHien_byIDChiTietGDV(List<Guid?> arrID_CTGDV)
+        {
+            if (arrID_CTGDV != null && arrID_CTGDV.Count > 0)
+            {
+                string idCTs = string.Join(",", arrID_CTGDV);
+                SqlParameter param = new SqlParameter("IDChiTietGDVs", idCTs);
+                return db.Database.SqlQuery<BH_NhanVienThucHienDTO>("EXEC PhieuXuatKho_GetNVThucHien_byIDChiTietGDV @IDChiTietGDVs", param).ToList();
+            }
+            return new List<BH_NhanVienThucHienDTO>();
+        }
+
+        public int DemSoLanDoiTra_byID(Guid idHoaDon)
+        {
+            int count = 0;
+            try
+            {
+                var sql = string.Concat("SELECT dbo.fnDemSoLanDoiTra('", idHoaDon, "')");
+                count = db.Database.SqlQuery<int>(sql).First();
+            }
+            catch (Exception ex)
+            {
+                CookieStore.WriteLog("DemSoLanDoiTra_byID " + ex.InnerException + ex.Message);
+            }
+            return count;
+        }
         public List<BH_NhanVienThucHienDTO> CTHD_GetAllNhanVienThucHien(List<Guid?> lstIDCTHD)
         {
             if (lstIDCTHD != null && lstIDCTHD.Count > 0)

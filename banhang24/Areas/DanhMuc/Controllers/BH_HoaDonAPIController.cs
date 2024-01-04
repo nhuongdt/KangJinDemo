@@ -2137,6 +2137,51 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpPost]
+        public IHttpActionResult PhieuXuatKho_GetNVThucHien_byIDChiTietGDV(List<Guid?> arrID_CTGDV)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<BH_NhanVienThucHienDTO> lst = classhoadon.PhieuXuatKho_GetNVThucHien_byIDChiTietGDV(arrID_CTGDV);
+                    return ActionTrueData(lst);
+                }
+                catch (Exception e)
+                {
+                    return ActionFalseNotData(e.ToString());
+                }
+            }
+        }
+        [HttpGet]
+        public IHttpActionResult CTHD_GetAllNhanVienThucHien(List<Guid?> lstIDCTHD)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<BH_NhanVienThucHienDTO> lst = classhoadon.CTHD_GetAllNhanVienThucHien(lstIDCTHD);
+                    return ActionTrueData(lst);
+                }
+                catch (Exception e)
+                {
+                    return ActionFalseNotData(e.ToString());
+                }
+            }
+        }
+
+        [HttpGet]
+        public int DemSoLanDoiTra_byID(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                return classhoadon.DemSoLanDoiTra_byID(idHoaDon);
+            }
+        }
+
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult GetChietKhauNV_byIDHoaDon(Guid idHoaDon, Guid? idPhieuThu = null)
         {
