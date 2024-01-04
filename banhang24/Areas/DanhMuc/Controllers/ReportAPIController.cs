@@ -2434,29 +2434,29 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     var dtGr = data.GroupBy(x => new
                     {
+                        x.GDVDoi_ID,
+                        x.GDVTra_ID,
                         x.MaDoiTuong,
                         x.TenDoiTuong,
-                        x.GDVDoi_ID,
-                        x.GDVMua_ID,
-                        x.GDVMua_LoaiHoaDon,
-                        x.GDVMua_MaHoaDon,
-                        x.GDVMua_NgayLapHoaDon,
+                        x.GDVTra_MaHoaDon,
                         x.GDVDoi_MaHoaDon,
+                        x.GDVTra_NgayLapHoaDon,
+                        x.GDVDoi_NgayLapHoaDon,
                         x.GiaTriChenhLech
                     })
                         .Select(x => new
                         {
-                            x.Key.GDVMua_ID,
+                            x.Key.GDVTra_ID,
                             x.Key.GDVDoi_ID,
-                            x.Key.GDVMua_LoaiHoaDon,
-                            x.Key.GDVMua_MaHoaDon,
-                            x.Key.GDVDoi_MaHoaDon,
-                            x.Key.GDVMua_NgayLapHoaDon,
                             x.Key.MaDoiTuong,
                             x.Key.TenDoiTuong,
+                            x.Key.GDVTra_MaHoaDon,
+                            x.Key.GDVDoi_MaHoaDon,
+                            x.Key.GDVDoi_NgayLapHoaDon,
+                            x.Key.GDVTra_NgayLapHoaDon,
                             x.Key.GiaTriChenhLech,
                             lstDetail = x
-                        }).OrderByDescending(x=>x.GDVMua_NgayLapHoaDon);
+                        }).OrderByDescending(x => x.GDVTra_NgayLapHoaDon);
                     int lstPages = getNumber_Page(totalRow, 10);
                     return Json(new { LstData = dtGr, Rowcount = totalRow, numberPage = lstPages });
                 }
@@ -2473,9 +2473,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassReportGoiDichVu reportGoiDichVu = new ClassReportGoiDichVu(db);
                 List<BaoCaoGoiDichVu_BanDoiTra> data = reportGoiDichVu.BaoCaoGoiDichVu_BanDoiTra(param);
                 DataTable excel = classOffice.ToDataTable<BaoCaoGoiDichVu_BanDoiTra>(data);
-                excel.Columns.Remove("GDVMua_ID");
+                excel.Columns.Remove("GDVTra_ID");
                 excel.Columns.Remove("GDVDoi_ID");
-                excel.Columns.Remove("GDVMua_LoaiHoaDon");
                 excel.Columns.Remove("TotalRow");
 
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoGoiDichVu/Teamplate_BCGoiDichVu_BanDoiTra.xlsx");

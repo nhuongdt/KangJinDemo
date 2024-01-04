@@ -1279,21 +1279,21 @@ namespace libReport
     }
     public class BaoCaoGoiDichVu_BanDoiTra
     {
-        public Guid GDVMua_ID { get; set; }
+        public Guid? GDVTra_ID { get; set; }
         public Guid? GDVDoi_ID { get; set; }
-        public int? GDVMua_LoaiHoaDon { get; set; }// check link to page
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
-        public string GDVMua_MaHoaDon { get; set; }
-        public DateTime? GDVMua_NgayLapHoaDon { get; set; }
+        public string GDVTra_MaHoaDon { get; set; }
+        public DateTime? GDVTra_NgayLapHoaDon { get; set; }
 
         public string MaHangHoa { get; set; }
         public string TenHangHoa { get; set; }
         public string TenDonViTinh { get; set; }
-        public double? SoLuongMua { get; set; }
-        public double? GiaTriMua { get; set; }
+        public double? SoLuongTra { get; set; }
+        public double? GiaTriTra { get; set; }
 
         public string GDVDoi_MaHoaDon { get; set; }
+        public DateTime? GDVDoi_NgayLapHoaDon { get; set; }
         public string GDVDoi_MaHangHoa { get; set; }
         public string GDVDoi_TenHangHoa { get; set; }
         public string GDVDoi_TenDonViTinh { get; set; }
