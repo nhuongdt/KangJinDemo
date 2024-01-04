@@ -307,6 +307,8 @@ var NewModel_BanHangLe = function () {
     // modal TP dinh luong
     self.ListHangHoa_DinhLuong = ko.observableArray();
     self.Grid_TPDinhLuongChosed = ko.observableArray();
+    // nếu trả hàng, và Đổi lần 4 --> ẩn không cho đổi (chỉ dc trả)
+    self.CountDoiTra = ko.observable(0);
 
     // modal infor hd of other user
     self.Modal_HoaDons = ko.observableArray();
@@ -3057,14 +3059,14 @@ var NewModel_BanHangLe = function () {
                     var loaiHD_DoiTra = 1;
                     if (itemHD[0].MaHoaDon.indexOf('DV') > -1) {
                         loaiHD_DoiTra = 19;
-                        let ngayapdung = myData.objHoaDon.NgayApDungGoiDV;
+                        let ngayapdung = itemHD[0].NgayApDungGoiDV;
                         if (ngayapdung === '' || ngayapdung === null) {
                             ngayapdung = null;
                         }
                         else {
                             ngayapdung = moment(ngayapdung, 'DD/MM/YYYY').format('YYYY-MM-DD');
                         }
-                        let handung = myData.objHoaDon.HanSuDungGoiDV;
+                        let handung = itemHD[0].HanSuDungGoiDV;
                         if (handung === '' || handung === null) {
                             handung = null;
                         }
@@ -4209,6 +4211,17 @@ var NewModel_BanHangLe = function () {
         localStorage.setItem('lcIDRandom', idRandom); // used to get at form DisplayCustomer when first load
         vmUpAnhHoaDon.InvoiceChosing.IDRandomHD = idRandom;
         vmUpAnhHoaDon.GetListImgInvoiceLC();
+        DemSoLanDoiTra_byID();
+    }
+
+    function DemSoLanDoiTra_byID() {
+        if (self.HoaDons().LoaiHoaDon() === 6) {
+            ajaxHelper(BHHoaDonUri + 'DemSoLanDoiTra_byID?idHoaDon=' + self.HoaDons().ID_HoaDon()).done(function (data) {
+                self.CountDoiTra(data);
+            })
+        } else {
+            self.CountDoiTra(0);
+        }
     }
 
     function Bind_CTHĐoiTra_afterHideColumn() {
@@ -5958,6 +5971,7 @@ var NewModel_BanHangLe = function () {
         ClearTextSearch();
         Call_6Func();
         SetBorder_LotEnd_CTHD();
+        DemSoLanDoiTra_byID();
     }
     //phan trang: buton prev, next: HangHoa
     self.PageCount = ko.computed(function () {
@@ -11159,7 +11173,11 @@ var NewModel_BanHangLe = function () {
 
     // chiet khau hanghoa 
     self.ShowDiv_ChietKhauHangHoa = function () {
-        var role = GetRoleChangePrice(self.HoaDons().LoaiHoaDon());
+        const obj = {
+            LoaiHoaDon: self.HoaDons().LoaiHoaDon(),
+            MaHoaDon: self.HoaDons().MaHoaDon(),
+        }
+        var role = GetRoleChangeDiscountProduct(obj);
         if (role === false) {
             return false;
         }
@@ -12133,7 +12151,7 @@ var NewModel_BanHangLe = function () {
         }
     })
 
-    self.clickChonTraHang = function (item) {
+    self.clickChonTraHang = async function (item) {
         ClearTextSearch();
 
         // check Thoi gian tra hang sau khi mua hang
@@ -12383,6 +12401,7 @@ var NewModel_BanHangLe = function () {
         Call_6Func();
         ActiveTab_SoDoPhong(false);
         SetBorder_LotEnd_CTHD();
+        DemSoLanDoiTra_byID();
         // nếu HDMua TT= thẻ gtrị, get số tiền còn lại sau khi trả từ thẻ gtrị
         $('#lblTienMat_THKM').text('(Tiền mặt)');
         $('#lblTienMat_TH').text('(Tiền mặt)');
