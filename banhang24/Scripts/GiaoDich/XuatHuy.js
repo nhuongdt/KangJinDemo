@@ -45,7 +45,11 @@ function ViewModel() {
     self.CTHoaDonPrint = ko.observableArray();
     self.ListCheckBox = ko.observableArray();
     self.IsGara = ko.observable(false);
-
+    self.ListTypeMauIn = ko.observableArray();
+    self.ThietLap = ko.observableArray();
+    self.XH_HangHoaChiTiet_Print = ko.observableArray();
+    self.XH_HangHoaChiTiet = ko.observableArray();
+    self.XH_HangHoaChiTiet_Search = ko.observableArray();
     //Phân quyền 
     self.HangHoa_XemDS = ko.observable(false);
     self.XuatHuy_XuatFile = ko.observable(false);
@@ -74,7 +78,6 @@ function ViewModel() {
     }
 
     //load quyền
-    self.ThietLap = ko.observableArray();
     function loadQuyenIndex() {
         var arrQuyen = [];
         ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetHT_NhomNguoiDung?idnguoidung=" + _IDNguoiDung + '&iddonvi=' + _id_DonVi, 'GET').done(function (data) {
@@ -481,9 +484,6 @@ function ViewModel() {
         getAllHoaDon();
     }
 
-    self.XH_HangHoaChiTiet = ko.observableArray();
-    self.XH_HangHoaChiTiet_Search = ko.observableArray();
-
     self.checkTamLuu.subscribe(function () {
         self.currentPage(0);
         getAllHoaDon();
@@ -801,6 +801,25 @@ function ViewModel() {
         return xx;
     }
 
+
+    self.PhieuXuatKho_GetNVThucHien_byIDChiTietGDV = async function () {
+        const arrID_ChiTietGDV = self.XH_HangHoaChiTiet_Search().map((x) => { return x.ID_ChiTietGoiDV });
+        if (arrID_ChiTietGDV !== null && arrID_ChiTietGDV !== undefined && arrID_ChiTietGDV.length > 0) {
+            const xx = ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/PhieuXuatKho_GetNVThucHien_byIDChiTietGDV?arrID_CTGDV', 'POST', arrID_ChiTietGDV)
+                .done(function (data) { })
+                .then(function (result) {
+                    if (result.res) {
+                        return result.dataSoure;
+                    }
+                    return [];
+                })
+            return xx;
+        }
+        else {
+            return [];
+        }
+    }
+
     function SetDataToCache_gotoDetail(hd, loai) {
         if (self.XH_HangHoaChiTiet_Search().length > 0) {
 
@@ -1066,29 +1085,64 @@ function ViewModel() {
         Insert_NhatKyThaoTac_1Param(diary);
     }
 
-    self.XH_HangHoaChiTiet_Print = ko.observableArray();
-    self.InHoaDon = function (item) {
-        self.XH_HangHoaChiTiet_Print($.extend(true, [], self.XH_HangHoaChiTiet_Search()));
-        var cthdFormat = GetCTHDPrint_Format(self.XH_HangHoaChiTiet_Search());
-        self.CTHoaDonPrint(cthdFormat);
-        var itemHDFormat = GetInforHDPrint(item);
-        self.InforHDprintf(itemHDFormat);
-        $.ajax({
-            url: '/api/DanhMuc/ThietLapApi/GetContentFIlePrintTypeChungTu?maChungTu=' + TeamplateXuatHuy + '&idDonVi=' + _id_DonVi,
-            type: 'GET',
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            success: function (result) {
-                var data1 = '<script src="/Scripts/knockout-3.4.2.js"></script>';
-                data1 = data1.concat("<script > var item1=" + JSON.stringify(self.CTHoaDonPrint())
-                    + "; var item4=[], item5=[]; var item2=" + JSON.stringify(self.CTHoaDonPrint())
-                    + " ;var item3=" + JSON.stringify(itemHDFormat) + "; </script>");
-                data1 = data1.concat(" <script type='text/javascript' src='/Scripts/Thietlap/MauInTeamplate.js'></script>");
-                PrintExtraReport(result, data1, self.numberPG());
-            }
-        });
+
+    self.GetFileMauIn = async function (idMauIn, isPrintID = false) {
+        let url = '/api/DanhMuc/ThietLapApi/GetContentFIlePrintTypeChungTu?maChungTu=' + idMauIn + '&idDonVi=' + _id_DonVi;
+        if (isPrintID) {
+            url = '/api/DanhMuc/ThietLapApi/GetContentFIlePrint?idMauIn=' + idMauIn;
+        }
+        let xx = await $.getJSON(url).done(function (data) { })
+            .then(function (data) {
+                return data;
+            })
+        return xx;
     }
-    self.ListTypeMauIn = ko.observableArray();
+
+    self.MauInHoaDon_CheckAndBind = async function (dataMauIn, hd, lstCT = []) {
+        let self = this;
+        let hdPrint = $.extend({}, true, hd);
+        if (dataMauIn.includes('GhiChu_NVThucHien')) {
+            // get NVTH from DB
+            let nvth = '';
+            const lstNV = await self.PhieuXuatKho_GetNVThucHien_byIDChiTietGDV();
+            if (lstNV.length > 0) {
+                nvth = lstNV.map(function (x) {
+                    return x.TenNhanVien;
+                }).toString();
+            }
+            hdPrint.GhiChu_NVThucHien = nvth;
+        }
+
+        dataMauIn = dataMauIn.concat('<script src="/Scripts/knockout-3.4.2.js"></script>');
+        dataMauIn = dataMauIn.concat("<script > var item1=" + JSON.stringify(lstCT)
+            + "; var item2=[]"
+            + "; var item3=" + JSON.stringify(hdPrint)
+            + "; var item4=[]"
+            + "; var item5=[]"
+            + "; </script>");
+        dataMauIn = dataMauIn.concat(" <script type='text/javascript' src='/Scripts/Thietlap/MauInTeamplate.js'></script>");
+        dataMauIn = dataMauIn.replace('{GhiChu_NVThucHien}', "<span data-bind=\"text: InforHDprintf().GhiChu_NVThucHien\"></span>");
+        PrintExtraReport(dataMauIn);
+    }
+
+    self.InHoaDon = async function (item) {
+        self.XH_HangHoaChiTiet_Print($.extend(true, [], self.XH_HangHoaChiTiet_Search()));
+        var cthdFormat = self.GetCTHDPrint_Format(self.XH_HangHoaChiTiet_Search());
+        var itemHDFormat = self.GetInforHDPrint(item);
+
+        let dataMauIn = await self.GetFileMauIn(TeamplateXuatHuy, false);
+        await self.MauInHoaDon_CheckAndBind(dataMauIn, itemHDFormat, cthdFormat);
+    }
+
+    self.PrinXuatHuy = async function (item, key) {
+        self.XH_HangHoaChiTiet_Print($.extend(true, [], self.XH_HangHoaChiTiet_Search()));
+        var cthdFormat = self.GetCTHDPrint_Format($.extend(true, [], self.XH_HangHoaChiTiet_Search()));
+        var itemHDFormat = self.GetInforHDPrint(item);
+
+        let dataMauIn = await self.GetFileMauIn(key, true);
+        await self.MauInHoaDon_CheckAndBind(dataMauIn, itemHDFormat, cthdFormat);
+    }
+
     function loadMauIn() {
         $.ajax({
             url: '/api/DanhMuc/ThietLapApi/GetListMauIn?typeChungTu=' + TeamplateXuatHuy + '&idDonVi=' + _id_DonVi,
@@ -1100,29 +1154,8 @@ function ViewModel() {
             }
         });
     }
-    self.PrinXuatHuy = function (item, key) {
-        self.XH_HangHoaChiTiet_Print($.extend(true, [], self.XH_HangHoaChiTiet_Search()));
-        var cthdFormat = GetCTHDPrint_Format(self.XH_HangHoaChiTiet_Search());
-        self.CTHoaDonPrint(cthdFormat);
 
-        var itemHDFormat = GetInforHDPrint(item);
-        self.InforHDprintf(itemHDFormat);
-        $.ajax({
-            url: '/api/DanhMuc/ThietLapApi/GetContentFIlePrint?idMauIn=' + key,
-            type: 'GET',
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            success: function (result) {
-                var data = result;
-                data = data.concat('<script src="/Scripts/knockout-3.4.2.js"></script>');
-                data = data.concat("<script > var item1=" + JSON.stringify(self.CTHoaDonPrint())
-                    + "; var item2=[], item4=[], item5=[];var item3=" + JSON.stringify(itemHDFormat) + "; </script>");
-                data = data.concat(" <script type='text/javascript' src='/Scripts/Thietlap/MauInTeamplate.js'></script>");
-                PrintExtraReport(data);
-            }
-        });
-    };
-    function GetInforHDPrint(objHD) {
+    self.GetInforHDPrint = function (objHD) {
         var objPrint = $.extend({}, true, objHD)
         objPrint.MaHoaDon = objPrint.MaHoaDon;
         objPrint.NhanVienBanHang = objPrint.TenNhanVien;
@@ -1148,7 +1181,7 @@ function ViewModel() {
         return objPrint;
     }
 
-    function GetCTHDPrint_Format(arrCTHD) {
+    self.GetCTHDPrint_Format = function (arrCTHD) {
         var arr = [];
         arrCTHD = arrCTHD.sort(function (a, b) {
             let x = a.SoThuTu, y = b.SoThuTu;
@@ -1332,7 +1365,7 @@ function ViewModel() {
             }
         })
 
-        self.XH_HangHoaChiTiet_Search(dataX)
+        self.XH_HangHoaChiTiet_Search(dataX);
         self.InHoaDon(item);
     }
 

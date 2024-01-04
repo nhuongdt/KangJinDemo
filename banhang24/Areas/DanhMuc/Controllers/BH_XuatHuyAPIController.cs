@@ -950,6 +950,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("ID_DonViQuiDoi");
                 excel.Columns.Remove("ID_LoHang");
                 excel.Columns.Remove("ID_HangHoa");
+                excel.Columns.Remove("ID_ChiTietGoiDV");
                 excel.Columns.Remove("QuanLyTheoLoHang");
                 excel.Columns.Remove("NgaySanXuat");
                 excel.Columns.Remove("NgayHetHan");
