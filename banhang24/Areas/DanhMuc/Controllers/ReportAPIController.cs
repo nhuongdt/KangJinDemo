@@ -2455,7 +2455,44 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.Key.GDVDoi_NgayLapHoaDon,
                             x.Key.GDVTra_NgayLapHoaDon,
                             x.Key.GiaTriChenhLech,
-                            lstDetail = x
+                            lstDetail = x,
+                            RowSpan = x.Count() // used to gộp dòng at giao diện
+                            //ctTra = x.Where(o => o.GDVTra_ID == x.Key.GDVTra_ID)
+                            //.GroupBy(o => new
+                            //{
+                            //    o.GDVTra_IDChiTietHD,
+                            //    o.MaHangHoa,
+                            //    o.TenHangHoa,
+                            //    o.TenDonViTinh,
+                            //    o.SoLuongTra,
+                            //    o.GiaTriTra,
+                            //})
+                            //.Select(o => new
+                            //{
+                            //    o.Key.GDVTra_IDChiTietHD,
+                            //    o.Key.MaHangHoa,
+                            //    o.Key.TenHangHoa,
+                            //    o.Key.TenDonViTinh,
+                            //    o.Key.SoLuongTra,
+                            //    o.Key.GiaTriTra
+                            //}),
+                            //ctDoi = x.Where(o => o.GDVDoi_ID == x.Key.GDVDoi_ID).GroupBy(o => new
+                            //{
+                            //    o.GDVDoi_IDChiTietHD,
+                            //    o.GDVDoi_MaHangHoa,
+                            //    o.GDVDoi_TenHangHoa,
+                            //    o.GDVDoi_TenDonViTinh,
+                            //    o.SoLuongDoi,
+                            //    o.GiaTriDoi
+                            //}).Select(o => new
+                            //{
+                            //    o.Key.GDVDoi_IDChiTietHD,
+                            //    o.Key.GDVDoi_MaHangHoa,
+                            //    o.Key.GDVDoi_TenHangHoa,
+                            //    o.Key.GDVDoi_TenDonViTinh,
+                            //    o.Key.SoLuongDoi,
+                            //    o.Key.GiaTriDoi
+                            //})
                         }).OrderByDescending(x => x.GDVTra_NgayLapHoaDon);
                     int lstPages = getNumber_Page(totalRow, 10);
                     return Json(new { LstData = dtGr, Rowcount = totalRow, numberPage = lstPages });
@@ -2476,6 +2513,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("GDVTra_ID");
                 excel.Columns.Remove("GDVDoi_ID");
                 excel.Columns.Remove("TotalRow");
+                excel.Columns.Remove("GiaTriChenhLech"); // giá trị chênh lệch: chỉ get 1 dòng đầu tiên của GDV đổi/trả
 
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoGoiDichVu/Teamplate_BCGoiDichVu_BanDoiTra.xlsx");
                 string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/TongHopNhatKySuDungGoiDichVu.xlsx");

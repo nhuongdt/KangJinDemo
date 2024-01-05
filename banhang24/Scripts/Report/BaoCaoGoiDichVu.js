@@ -785,7 +785,6 @@
         $(this).find('a').addClass('box-tab');
         self.check_MoiQuanTam(parseInt($(this).find('a input').val()));
 
-        console.log('chose_kieubang li click')
         switch (self.check_MoiQuanTam()) {
             case 1:// bc sodu
                 if (self.tab_SoDu() === 1) {
@@ -1420,10 +1419,8 @@
         }
     };
     self.BaoCaoGoiDichVu_SoDuTongHop_Page = ko.computed(function (x) {
-        console.log('BaoCaoGoiDichVu_SoDuTongHop_Page ')
         if (self.check_MoiQuanTam() === 1 && self.tab_SoDu() === 1) {
             var first = (self.currentPage() - 1) * self.pageSize();
-            console.log('self.currentPage() ')
             if (self.BaoCaoGoiDichVu_SoDuTongHop() !== null) {
                 if (self.BaoCaoGoiDichVu_SoDuTongHop().length !== 0) {
                     self.RowsStart((self.currentPage() - 1) * self.pageSize() + 1);
