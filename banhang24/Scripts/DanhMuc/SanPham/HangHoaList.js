@@ -218,6 +218,7 @@ var ViewModel = function () {
     self.KiemGanDays = ko.observableArray();
     loaiHoaDon = $('#loaiHoaDon').val();
     self.TheKhos = ko.observableArray();
+    self.RowErrKho = ko.observable();
     self.ListChooseHH = ko.observableArray();
     self.ListChooseHHInTemThuocTinh = ko.observableArray();
     self.error = ko.observable();
@@ -7840,6 +7841,12 @@ var ViewModel = function () {
             self.TheKhos(data.lst);
             self.TotalRecordTK(data.Rowcount);
             self.PageCountTK(data.pageCount);
+            if (data.RowErrKho !== null) {
+                self.RowErrKho(data.RowErrKho);
+            }
+            else {
+                self.RowErrKho();
+            }
             $('.table-js-tk').gridLoader({ show: false });
         });
     };
@@ -8062,9 +8069,9 @@ var ViewModel = function () {
     self.TotalRecordLH = ko.observable();
     self.PageCountLH = ko.observable();
     //phân trang lô hàng hóa
-
     self.ListTheKhoByLoHang = ko.observableArray();
     self.selectIDLoHang = ko.observable();
+
     self.ClickTheKhoByLoHang = function (item) {
         self.selectIDLoHang(item.ID_LoHang);
         self.currentPageLH(0);
@@ -14499,29 +14506,17 @@ var ViewModel = function () {
 
     self.CapNhatTonKho = function (item) {
         let lenTK = self.TheKhos().length;
-        let itemTK = {};
-        // tìm đến dòng đầu tiên bị sai lũy kế
-        for (let i = lenTK - 1; i > -1; i--) {
-            let tk = self.TheKhos()[i];
-            if (tk.LuyKeTonKho !== tk.TonKho) {
-                if (i === lenTK - 1) {
-                    itemTK = tk;
-                }
-                else {
-                    itemTK = self.TheKhos()[i + 1];
-                }
-                break;
-            }
-        }
+        let itemTK = self.RowErrKho();
+        console.log('itemTK ', itemTK)
 
-        if (!$.isEmptyObject(itemTK)) {
-            // check if PhieuKiemKe: update PhieuKiemKe, xong roi moi chay TonLuyKe
-            if (itemTK.LoaiHoaDon === 9) {
-                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/UpdateChiTietKiemKe_WhenEditCTHD?idHoaDonUpdate=' + itemTK.ID_HoaDon
-                    + "&idChiNhanh=" + itemTK.ID_DonVi + "&ngayLapHDMin=" + itemTK.NgayLapHoaDon).done(function (x) {
-                        console.log('UpdateChiTietKiemKe_WhenEditCTHD ', x)
-                    })
-            }
+        if (!$.isEmptyObject(itemTK) && itemTK !== undefined) {
+            //// check if PhieuKiemKe: update PhieuKiemKe, xong roi moi chay TonLuyKe
+            //if (itemTK.LoaiHoaDon === 9) {
+            //    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/UpdateChiTietKiemKe_WhenEditCTHD?idHoaDonUpdate=' + itemTK.ID_HoaDon
+            //        + "&idChiNhanh=" + itemTK.ID_DonVi + "&ngayLapHDMin=" + itemTK.NgayLapHoaDon).done(function (x) {
+            //            console.log('UpdateChiTietKiemKe_WhenEditCTHD ', x)
+            //        })
+            //}
 
             let diary = {
                 ID_DonVi: itemTK.ID_DonVi,
