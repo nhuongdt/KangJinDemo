@@ -74,7 +74,7 @@ namespace libReport
         public double? SumTienThue { get; set; }
         public double TongTienVon { get; set; }
         public double? TongChiPhi { get; set; }
-        public double TongLaiLo { get; set; } 
+        public double TongLaiLo { get; set; }
         public double? TongDoanhThuThuan { get; set; }
     }
 
@@ -606,7 +606,7 @@ namespace libReport
         public string BienSo { get; set; }
         public string NguoiTao { get; set; }
         public string MaDoiTuong { get; set; }
-        public string TenDoiTuong { get; set; }  
+        public string TenDoiTuong { get; set; }
         public string TenNhomHang { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoaFull { get; set; }
@@ -668,7 +668,7 @@ namespace libReport
     {
         public string NhomDoiTac { get; set; }
         public string MaDoiTac { get; set; }
-        public string TenDoiTac { get; set; }  
+        public string TenDoiTac { get; set; }
         public string MaNhanVien { get; set; }// nvPhutrach
         public string TenNhanVien { get; set; }
         public double PhaiThuDauKy { get; set; }
@@ -924,7 +924,7 @@ namespace libReport
     {
         public string TextSearch { get; set; }
         public string HangHoaSearch { get; set; }
-        public string TxtCustomer{ get; set; }
+        public string TxtCustomer { get; set; }
         public string ID_ChiNhanhs { get; set; }
         public string ID_NhomHang { get; set; }
         public string DateFrom { get; set; }
@@ -1026,7 +1026,7 @@ namespace libReport
         public double TongAllAll { get; set; }
         public int TotalRow { get; set; }
         public double TotalPage { get; set; }
-    } 
+    }
     public class HoaDon_ChuaPhanBoHoaHong
     {
         public Guid? ID { get; set; }// idhoadon
@@ -1291,7 +1291,6 @@ namespace libReport
         public string TenDonViTinh { get; set; }
         public double? SoLuongTra { get; set; }
         public double? GiaTriTra { get; set; }
-
         public string GDVDoi_MaHoaDon { get; set; }
         public DateTime? GDVDoi_NgayLapHoaDon { get; set; }
         public string GDVDoi_MaHangHoa { get; set; }
@@ -1300,6 +1299,7 @@ namespace libReport
         public double? SoLuongDoi { get; set; }
         public double? GiaTriDoi { get; set; }
         public double? GiaTriChenhLech { get; set; }
+        public double? GiaTriChenhLechExcel { get; set; }
         public int? TotalRow { get; set; }
 
     }
@@ -1621,7 +1621,7 @@ namespace libReport
         public string FromDate { get; set; }
         public string ToDate { get; set; }
         public string NgayGiaoDichFrom { get; set; }// ngaygiaodich gannhat
-        public string NgayGiaoDichTo{ get; set; } 
+        public string NgayGiaoDichTo { get; set; }
         public string NgayTaoKHFrom { get; set; }// ngaytao khachhang
         public string NgayTaoKHTo { get; set; }
         public double? DoanhThuTu { get; set; }
@@ -1649,13 +1649,13 @@ namespace libReport
         public string CoVanDichVu { get; set; }
         public Guid? IDHoaDon { get; set; }
         public string MaHoaDon { get; set; }
-	    public DateTime? NgayLapHoaDon { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }
         public double TongTienHang { get; set; }
         public double TongChietKhau { get; set; }
         public double TongTienThue { get; set; }
         public double TongChiPhi { get; set; }
-        public double TongGiamGia { get; set; } 
-	    public double DoanhThu { get; set; }
+        public double TongGiamGia { get; set; }
+        public double DoanhThu { get; set; }
         public double TienVon { get; set; }
         public double LoiNhuan { get; set; }
         public string GhiChu { get; set; }
@@ -1663,12 +1663,12 @@ namespace libReport
         public string TenDonVi { get; set; }
         public double STongTienHang { get; set; }
         public double SChietKhau { get; set; }
-	    public double SThue { get; set; }
+        public double SThue { get; set; }
         public double SChiPhi { get; set; }
         public double SGiamGia { get; set; }
         public double SDoanhThu { get; set; }
         public double STongTienVon { get; set; }
-	    public double SLoiNhuan { get; set; }
+        public double SLoiNhuan { get; set; }
     }
 
     public class BaoCaoDoanhThuSuaChuaTongHop_Export
