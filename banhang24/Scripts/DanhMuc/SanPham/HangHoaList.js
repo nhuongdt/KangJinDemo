@@ -14505,10 +14505,7 @@ var ViewModel = function () {
     }
 
     self.CapNhatTonKho = function (item) {
-        let lenTK = self.TheKhos().length;
         let itemTK = self.RowErrKho();
-        console.log('itemTK ', itemTK)
-
         if (!$.isEmptyObject(itemTK) && itemTK !== undefined) {
             //// check if PhieuKiemKe: update PhieuKiemKe, xong roi moi chay TonLuyKe
             //if (itemTK.LoaiHoaDon === 9) {
