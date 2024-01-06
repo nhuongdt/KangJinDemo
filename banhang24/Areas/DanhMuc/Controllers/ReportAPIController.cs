@@ -2442,7 +2442,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         x.GDVDoi_MaHoaDon,
                         x.GDVTra_NgayLapHoaDon,
                         x.GDVDoi_NgayLapHoaDon,
-                        x.GiaTriChenhLech
+                        x.GiaTriChenhLech,
+                        x.NgayLapHoaDon
                     })
                         .Select(x => new
                         {
@@ -2455,6 +2456,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.Key.GDVDoi_NgayLapHoaDon,
                             x.Key.GDVTra_NgayLapHoaDon,
                             x.Key.GiaTriChenhLech,
+                            x.Key.NgayLapHoaDon,
                             lstDetail = x,
                             RowSpan = x.Count() // used to gộp dòng at giao diện
                             //ctTra = x.Where(o => o.GDVTra_ID == x.Key.GDVTra_ID)
@@ -2493,7 +2495,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             //    o.Key.SoLuongDoi,
                             //    o.Key.GiaTriDoi
                             //})
-                        }).OrderByDescending(x => x.GDVTra_NgayLapHoaDon);
+                        }).OrderByDescending(x => x.NgayLapHoaDon);
                     int lstPages = getNumber_Page(totalRow, 10);
                     return Json(new { LstData = dtGr, Rowcount = totalRow, numberPage = lstPages });
                 }
@@ -2513,6 +2515,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("GDVTra_ID");
                 excel.Columns.Remove("GDVDoi_ID");
                 excel.Columns.Remove("TotalRow");
+                excel.Columns.Remove("NgayLapHoaDon");
                 excel.Columns.Remove("GiaTriChenhLech"); // giá trị chênh lệch: chỉ get 1 dòng đầu tiên của GDV đổi/trả
 
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoGoiDichVu/Teamplate_BCGoiDichVu_BanDoiTra.xlsx");

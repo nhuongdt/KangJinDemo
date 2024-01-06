@@ -1281,6 +1281,7 @@ namespace libReport
     {
         public Guid? GDVTra_ID { get; set; }
         public Guid? GDVDoi_ID { get; set; }
+        public DateTime? NgayLapHoaDon { get; set; }// used to order by
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
         public string GDVTra_MaHoaDon { get; set; }
