@@ -1561,6 +1561,7 @@ namespace banhang24.Hellper
             MaKhachHang,
             TenKhachHang,
             GDVTra_MaHoaDon,
+            GDVTra_MaChungTuGoc,
             GDVTra_NgayLapHoaDon,
 
             MaHangHoa,
@@ -1607,6 +1608,7 @@ namespace banhang24.Hellper
              { Column_BCGDVBanDoiTra.MaKhachHang.ToString(),"Mã khách hàng" },
              { Column_BCGDVBanDoiTra.TenKhachHang.ToString(),"Tên khách hàng" },
              { Column_BCGDVBanDoiTra.GDVTra_MaHoaDon.ToString(),"Mã chứng từ" },
+             { Column_BCGDVBanDoiTra.GDVTra_MaChungTuGoc.ToString(),"Mã chứng từ gốc" },
              { Column_BCGDVBanDoiTra.GDVTra_NgayLapHoaDon.ToString(),"Ngày lập" },
              { Column_BCGDVBanDoiTra.MaHangHoa.ToString(),"Mã hàng" },
              { Column_BCGDVBanDoiTra.TenHangHoa.ToString(),"Tên hàng" },

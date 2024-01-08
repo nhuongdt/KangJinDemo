@@ -1285,6 +1285,7 @@ namespace libReport
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
         public string GDVTra_MaHoaDon { get; set; }
+        public string GDVTra_MaChungTuGoc { get; set; }
         public DateTime? GDVTra_NgayLapHoaDon { get; set; }
 
         public string MaHangHoa { get; set; }
