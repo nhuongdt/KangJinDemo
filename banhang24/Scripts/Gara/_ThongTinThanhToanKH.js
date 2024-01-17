@@ -1621,7 +1621,7 @@
             }
 
             let thucTinh = self.PhieuThuKhach.ThucThu - self.PhieuThuKhach.TongPhiThanhToan;
-            if (sumCK > thucTinh) {
+            if (sumCK > 0 && sumCK > thucTinh) {
                 commonStatisJs.ShowMessageDanger("Tổng phân bổ không được vượt quá " + formatNumber3Digit(thucTinh));
                 return;
             }
