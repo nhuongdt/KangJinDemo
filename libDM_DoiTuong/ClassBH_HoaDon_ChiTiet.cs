@@ -835,6 +835,54 @@ namespace libDM_DoiTuong
         public bool? ChietKhauMD_NVTheoPT { get; set; }
     }
 
+    public class HoaDon_ChiTietHoaDonTraHang : BH_HoaDon_ChiTietDTO
+    {
+        public Guid? ID_CheckIn { get; set; }
+        public Guid? ID_NhanVien { get; set; }
+        public Guid? ID_BangGia { get; set; }
+        public Guid? ID_DoiTuong { get; set; }
+        public DateTime NgayLapHoaDon { get; set; }
+        public DateTime? NgayApDungGoiDV { get; set; }
+        public DateTime? HanSuDungGoiDV { get; set; }
+        public int LoaiHoaDon { get; set; }
+        public string MaHoaDonGoc { get; set; }
+        public string TenNhanVien { get; set; }
+        public string NguoiTao { get; set; }
+        public string DienGiai { get; set; }
+        public double? TongTienHang { get; set; }
+        public double? TongChiPhi { get; set; }
+        public string ChiPhi_GhiChu { get; set; }
+        public double? TongGiamGia { get; set; }
+        public double? TongChietKhau { get; set; }
+        public double? PhaiThanhToan { get; set; }
+        public double? TongTienThue { get; set; }
+        public double? KhachDaTra { get; set; }
+        public bool? ChoThanhToan { get; set; }
+        public int? LoaiHoaDonGoc { get; set; }
+        public string KhuyenMai_GhiChu { get; set; }
+        public double? KhuyeMai_GiamGia { get; set; }
+        public double? DiemGiaoDich { get; set; }
+        public double? TongThanhToan { get; set; }
+        public double? PhaiThanhToanBaoHiem { get; set; }
+        public double? ConNo { get; set; }
+        public double? DaThanhToan { get; set; } // = khach + baohiem da tra
+        public double? BaoHiemDaTra { get; set; }
+        public double? PTThueHoaDon { get; set; }
+        public double? PTThueBaoHiem { get; set; }
+        public double? TongTienThueBaoHiem { get; set; }
+        public int? SoVuBaoHiem { get; set; }
+        public double? KhauTruTheoVu { get; set; }
+        public double? PTGiamTruBoiThuong { get; set; }
+        public double? GiamTruBoiThuong { get; set; }
+        public double? BHThanhToanTruocThue { get; set; }
+        public double? TongTienBHDuyet { get; set; }
+        public double? TongThueKhachHang { get; set; }
+        public int? LoaiDoiTuong { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public int? TotalRow { get; set; }
+    }
+
     public class ChiPhiDichVuDTO
     {
         public Guid? ID { get; set; }
