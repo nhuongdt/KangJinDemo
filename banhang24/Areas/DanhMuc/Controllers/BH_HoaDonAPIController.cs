@@ -3100,6 +3100,51 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost, HttpGet]
+        public IHttpActionResult GetAllChiTietHoaDon_afterTraHang(Params_GetListHoaDon param)
+        {
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    List<HoaDon_ChiTietHoaDonTraHang> top10CT = classhoadon.GetAllChiTietHoaDon_afterTraHang(param);
+
+                    foreach (HoaDon_ChiTietHoaDonTraHang ct in top10CT)
+                    {
+                        ct.DonViTinh = db.DonViQuiDois.Where(x => x.ID_HangHoa == ct.ID_HangHoa && x.Xoa != true)
+                            .Select(x => new DonViTinh
+                            {
+                                ID_HangHoa = ct.ID_HangHoa,
+                                TenDonViTinh = x.TenDonViTinh,
+                                ID_DonViQuiDoi = x.ID,
+                                QuanLyTheoLoHang = ct.QuanLyTheoLoHang,
+                                Xoa = false,
+                                TyLeChuyenDoi = x.TyLeChuyenDoi
+                            }).ToList();
+                    }
+
+                    int count = top10CT.FirstOrDefault().TotalRow ?? 0;
+                    int page = 0;
+                    var listpage = GetListPage(count, param.PageSize, param.CurrentPage, ref page);
+                    return ActionTrueData(new
+                    {
+                        data = top10CT,
+                        listpage,
+                        pagenow = param.CurrentPage,
+                        pageview = "Hiển thị " + (param.CurrentPage * param.PageSize + 1) + " - " + (param.CurrentPage * param.PageSize + count) + " trên tổng số " + count + " bản ghi",
+                        isprev = param.CurrentPage > 3 && page > 5,
+                        isnext = param.CurrentPage < page - 2 && page > 5,
+                        countpage = page
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return ActionFalseNotData(ex.InnerException + ex.Message);
+            }
+        }
+
+        [HttpPost, HttpGet]
         public IHttpActionResult GetListHDTraHang_afterUseAndTra(Params_GetListHoaDon param)
         {
             try
