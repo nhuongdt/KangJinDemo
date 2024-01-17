@@ -1,4 +1,5 @@
-﻿using libDonViQuiDoi;
+﻿using libDM_DoiTuong;
+using libDonViQuiDoi;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace libDM_DoiTuong
             paramlist.Add(new SqlParameter("IDDoiTuong", iddoituong));
             db1.Database.ExecuteSqlCommand("exec UpdateLaiSoDuTheNap @NgayLapHoaDonInput, @IDDoiTuong", paramlist.ToArray());
             return "";
-        } 
+        }
         public string UpdateChiTietKiemKe_WhenEditCTHD(Guid idHoaDonUpdate, Guid idChiNhanh, DateTime ngayLapHDMin)
         {
             try
@@ -841,7 +842,7 @@ namespace libDM_DoiTuong
                             break;
                         case 41: // HD datcoc
                             dto.strLoaiHoaDon = "Phiếu trích hao hồng";
-                            break;  
+                            break;
                         case 42: // HD datcoc
                             dto.strLoaiHoaDon = "Tất toán công nợ thẻ";
                             break;
@@ -2294,103 +2295,6 @@ namespace libDM_DoiTuong
             return listTon.Count > 0 ? listTon.FirstOrDefault().TonKho : 0;
         }
 
-        public List<BH_HoaDon_ChiTietDTO> GetChiTietHD_byIDHoaDonLoadChiTiet(Guid idHoaDon, int currentpage, int pageSize)
-        {
-            List<BH_HoaDon_ChiTietDTO> lstReturns = new List<BH_HoaDon_ChiTietDTO>();
-            if (db == null)
-            {
-                return null;
-            }
-            else
-            {
-                var data = from hd in db.BH_HoaDon
-                           join dv in db.DM_DonVi on hd.ID_DonVi equals dv.ID into HD_DV
-                           from hd_dv in HD_DV.DefaultIfEmpty()
-                           join cthd in db.BH_HoaDon_ChiTiet on hd.ID equals cthd.ID_HoaDon
-                           join dvqd in db.DonViQuiDois on cthd.ID_DonViQuiDoi equals dvqd.ID
-                           join hh in db.DM_HangHoa on dvqd.ID_HangHoa equals hh.ID
-                           join dmlo in db.DM_LoHang on cthd.ID_LoHang equals dmlo.ID into DMLO
-                           from lohang in DMLO.DefaultIfEmpty()
-                           where cthd.ID_HoaDon == idHoaDon
-                           orderby hd.NgayLapHoaDon descending
-                           select new BH_HoaDon_ChiTietDTO
-                           {
-                               TenDonVi = hd_dv.TenDonVi,
-                               ID_DonVi = hd_dv.ID,
-                               ID = cthd.ID,
-                               ID_HoaDon = hd.ID,
-                               YeuCau = hd.YeuCau,
-                               DonGia = cthd.DonGia,
-                               GiaVon = cthd.GiaVon,
-                               SoLuong = cthd.SoLuong,
-                               ThanhTien = cthd.ThanhTien,
-                               ID_DonViQuiDoi = cthd.ID_DonViQuiDoi,
-                               ID_HangHoa = hh.ID,
-                               TenDonViTinh = dvqd.TenDonViTinh,
-                               MaHangHoa = dvqd.MaHangHoa,
-                               TenHangHoa = hh.TenHangHoa,
-                               GiamGia = cthd.TienChietKhau,
-                               PTChietKhau = cthd.PTChietKhau,
-                               TienChietKhau = cthd.TienChietKhau,
-                               ThoiGian = cthd.ThoiGian,
-                               GhiChu = cthd.GhiChu,
-                               ThanhToan = cthd.ThanhToan,
-                               TyLeChuyenDoi = dvqd.TyLeChuyenDoi,
-                               LaHangHoa = hh.LaHangHoa,
-                               ID_KhuyenMai = cthd.ID_KhuyenMai,
-                               SoThuTu = cthd.SoThuTu,// load at MauIn
-                               MaLoHang = (lohang == null ? "" : lohang.MaLoHang),
-                               ID_LoHang = (lohang == null ? (Guid?)null : lohang.ID),
-                           };
-
-                var classhoadon = new ClassBH_HoaDon(db);
-                foreach (var item in data.OrderByDescending(p => p.SoThuTu).Skip(currentpage * pageSize).Take(pageSize))
-                {
-                    BH_HoaDon_ChiTietDTO dto = new BH_HoaDon_ChiTietDTO();
-                    dto.ID = item.ID;
-                    dto.TenDonVi = item.TenDonVi;
-                    dto.ID_HoaDon = item.ID_HoaDon;
-                    dto.YeuCau = item.YeuCau;
-                    dto.DonGia = Math.Round(item.DonGia, MidpointRounding.ToEven);
-                    dto.GiaVon = item.GiaVon;
-                    dto.SoLuong = item.SoLuong;
-                    dto.SoThuTu = item.SoThuTu;
-                    dto.ThanhTien = item.ThanhTien;
-                    dto.TienChietKhau = item.GiamGia;
-                    dto.ThanhToan = item.ThanhToan;
-                    dto.ID_DonViQuiDoi = item.ID_DonViQuiDoi;
-                    dto.ID_HangHoa = item.ID_HangHoa;
-                    dto.TenDonViTinh = item.TenDonViTinh;
-                    dto.MaHangHoa = item.MaHangHoa;
-                    dto.GiamGia = item.GiamGia;
-                    dto.PTChietKhau = item.PTChietKhau;
-                    dto.GiaBan = item.DonGia - item.TienChietKhau;
-                    dto.ThoiGian = item.ThoiGian;
-                    dto.GhiChu = item.GhiChu;
-                    dto.TenHangHoa = item.TenHangHoa;
-                    dto.LaHangHoa = item.LaHangHoa;
-                    dto.MaLoHang = item.MaLoHang;
-                    dto.ID_LoHang = item.ID_LoHang;
-                    dto.SoThuTu = item.SoThuTu;
-                    dto.ID_KhuyenMai = item.ID_KhuyenMai; // use show/hide icon KMai in lstCTHD
-                    dto.TonKho = Math.Round(classhoadon.TinhSLTonHH(item.ID_HangHoa, item.ID_DonVi.Value).Value / item.TyLeChuyenDoi, 3, MidpointRounding.ToEven);
-                    dto.HangHoa_ThuocTinh = SelectHangHoa_ThuocTinh(item.ID_HangHoa).Select(x => new HangHoa_ThuocTinh
-                    {
-                        GiaTri = x.GiaTri,
-                        ThuTuNhap = x.ThuTuNhap
-                    }).OrderBy(p => p.ThuTuNhap).ToList();
-                    lstReturns.Add(dto);
-                }
-                if (lstReturns.Count > 0)
-                {
-                    return lstReturns.ToList();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
 
         public List<BH_HoaDon_ChiTietDTO> GetChiTietHD_byIDHoaDonPageCount(Guid idHoaDon)
         {
@@ -4475,6 +4379,25 @@ namespace libDM_DoiTuong
                      " @LoaiHoaDons, @TrangThais, @TextSearch, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
         }
 
+        public List<HoaDon_ChiTietHoaDonTraHang> GetAllChiTietHoaDon_afterTraHang(Params_GetListHoaDon param)
+        {
+            List<SqlParameter> lstParam = new List<SqlParameter>();
+            var idChiNhanhs = string.Empty;
+            if (param.ID_ChiNhanhs != null && param.ID_ChiNhanhs.Count > 0)
+            {
+                idChiNhanhs = string.Join(",", param.ID_ChiNhanhs);
+            }
+            lstParam.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("LoaiHoaDon", param.LoaiHoaDon));
+            lstParam.Add(new SqlParameter("DateFrom", param.NgayTaoHD_TuNgay ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("DateTo", param.NgayTaoHD_DenNgay ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("TextSearch", param.MaHoaDon ?? (object)DBNull.Value));
+            lstParam.Add(new SqlParameter("CurrentPage", param.CurrentPage));
+            lstParam.Add(new SqlParameter("PageSize", param.PageSize));
+
+            return db.Database.SqlQuery<HoaDon_ChiTietHoaDonTraHang>(" EXEC GetAllChiTietHoaDon_afterTraHang @IDChiNhanhs," +
+                     " @LoaiHoaDon, @DateFrom, @DateTo, @TextSearch, @CurrentPage, @PageSize", lstParam.ToArray()).ToList();
+        }
         public List<BH_HoaDonDTO> GetListHDTraHang_afterUseAndTra(Params_GetListHoaDon param)
         {
             List<SqlParameter> lstParam = new List<SqlParameter>();
@@ -6095,8 +6018,8 @@ namespace libDM_DoiTuong
         public double TienATM { get; set; }
         public double TienGui { get; set; }
         public double KhachDaTra { get; set; } //PhaiThanhToan
-        public double? GiaTriTatToan { get; set; } 
-        public double? ConNo { get; set; } 
+        public double? GiaTriTatToan { get; set; }
+        public double? ConNo { get; set; }
         public string MaNhanVienThucHien { get; set; }
         public string GhiChu { get; set; }
         public string TrangThai { get; set; }
@@ -6772,6 +6695,5 @@ public class NhatKyTichDiem
     public double DiemGiaoDich { get; set; }
     public double DiemSauGD { get; set; }
 }
-
 
 
