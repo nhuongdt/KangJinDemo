@@ -31,7 +31,7 @@
                         </div>
                     </div>
                     <div class=" col-xs-12 col-md-4 col-lg-6 flex flex-end nopadding">
-                        <input type="text" class="form-control " style="width:275px" placeholder="Mã hóa đơn, tên khách hàng"
+                        <input type="text" class="form-control " style="width:350px" placeholder="Tìm kiếm hóa đơn, khách hàng, dịch vụ"
                                v-model="filter.TextSearch"
                                v-on:keyup.enter="IconSearch_Click" />
                     </div>
@@ -40,49 +40,49 @@
                     <div class="table-reponsive" style="width:100%;">
                         <table class='table'>
                             <tr>
-                                <th>Mã hóa đơn</th>
                                 <th>Ngày lập hóa đơn</th>
-                                <th>Nhân viên</th>
+                                <th>Mã hóa đơn</th>
                                 <th>Khách hàng</th>
-                                <th v-if="LoaiNganhNghe===1">Biển số xe</th>
-                                <th>Tổng cộng</th>
-                                <th>Còn nợ</th>
-                                <th>&nbsp;</th>
+                                <th>Mã dịch vụ</th>
+                                <th>Tên dịch vụ</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                                <th>
+                                    <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                           v-on:change="ChangeCheckAll">
+                                </th>
                             </tr>
                             <tbody>
                                 <tr v-for="(item, index) in ListData">
-                                    <td><a>{{item.MaHoaDon}}</a></td>
                                     <td>
                                         <div>
                                             {{moment(item.NgayLapHoaDon).format('DD/MM/YYYY HH:mm:ss')}}
                                         </div>
                                     </td>
+                                    <td><a>{{item.MaHoaDon}}</a></td>
                                     <td>
                                         <div style="min-width:200px">
-                                            {{item.TenNhanVien}}
+                                            {{item.TenDoiTuong}}
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="limited-250-text">
-                                            {{item.TenDoiTuong}}
-                                        </span>
-                                    </td>
-                                    <td v-if="LoaiNganhNghe===1">
                                         <a class="bold">
-                                            {{item.BienSo}}
+                                            {{item.MaHangHoa}}
                                         </a>
                                     </td>
                                     <td>
-                                        {{formatNumber3Digit(item.PhaiThanhToan)}}
-                                    </td>  
-                                    <td>
-                                        {{formatNumber3Digit(item.ConNo)}}
+                                        {{item.TenHangHoa}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{formatNumber3Digit(item.SoLuongConLai)}}
                                     </td>
                                     <td>
-                                        <button class="choose-order"
-                                                v-on:click="clickChonTraHang(item)">
-                                            <i class="fa fa-check"></i> Chọn
-                                        </button>
+                                        {{formatNumber3Digit(item.ThanhTien)}}
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" title="Chọn tất cả" type="checkbox"
+                                               v-bind:checked="$.inArray(item.ID_ChiTietGoiDV,$root.ListIDChosed) > -1"
+                                               v-on:change="ChangeCheckItem(item)">
                                     </td>
                                 </tr>
                             </tbody>
@@ -98,9 +98,8 @@
             </div>
             <div class="modal-footer ">
                 <button type="button" class="btn btn-main"
-                        v-if="LoaiHoaDon == 1 || LoaiHoaDon == 25"
-                        v-on:click="TraNhanh">
-                    <i class="fa fa-reply-all"></i> Trả nhanh
+                        v-on:click="clickChonTraHang">
+                    <i class="fa fa-check"></i>  Đồng ý
                 </button>
             </div>
         </div>
@@ -115,6 +114,7 @@
         },
         created: function () {
             this.TypeFormat = 'DD/MM/YYYY';
+            console.log('vmTraHang')
         },
         data: {
             saveOK: true,
@@ -125,8 +125,11 @@
             invoiceChosing: {},
             ListData: [],
 
+            ListItemChosed: [],
+            ListIDChosed: [],
+
             filter: {
-                DateFrom: moment(new Date()).add(-2, 'months').format('YYYY-MM-DD'),
+                DateFrom: null,
                 DateTo: null,
                 TextSearch: '',
                 CurrentPage: 0,
@@ -138,12 +141,20 @@
             },
         },
         methods: {
-            showModal: function () {
+            showModal: function (txtSearch = '') {
                 let self = this;
                 self.saveOK = false;
                 self.isTraNhanh = false;
-                self.filter.DateFrom = moment(new Date()).add(-2, 'months').format('YYYY-MM-DD');
+                self.ListItemChosed = [];
+                self.ListIDChosed = [];
                 self.filter.CurrentPage = 0;
+                if (!commonStatisJs.CheckNull(txtSearch)) {
+                    self.filter.TextSearch = txtSearch;
+                }
+                else{
+                    self.filter.TextSearch='';
+                }
+                self.filter.DateFrom = moment(new Date()).add(-3, 'months').format('YYYY-MM-DD');
                 $('#vmTraHang').modal('show');
                 self.GetListHoaDon();
             },
@@ -151,6 +162,78 @@
                 let self = this;
                 self.filter.CurrentPage = 0;
                 self.GetListHoaDon();
+            },
+
+            ChangeCheckAll: async function () {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+
+                if (isCheck) {
+                    for (let i = 0; i < self.ListData.length; i++) {
+                        let itFor = self.ListData[i];
+                        if (self.ListIDChosed.length === 0) {
+                            self.ListIDChosed.push(itFor.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(itFor);
+                            self.invoiceChosing = {
+                                ID: itFor.ID,
+                                MaHoaDon: itFor.MaHoaDon
+                            };
+                        }
+                        else {
+                            if (itFor.ID !== self.invoiceChosing.ID) {
+                                ShowMessage_Danger('Vui lòng không chọn trả dịch vụ ở các hóa đơn khác nhau');
+                                return;
+                            }
+                            self.ListIDChosed.push(itFor.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(itFor);
+                        }
+                    }
+                }
+                else {
+                    let arrPage = self.ListData.map(function (x) {
+                        return x.ID_ChiTietGoiDV;
+                    });
+                    self.ListItemChosed = $.grep(self.ListItemChosed, function (x) {
+                        return $.inArray(x.ID_ChiTietGoiDV, arrPage) === -1;
+                    })
+                    self.ListIDChosed = $.grep(self.ListIDChosed, function (x) {
+                        return $.inArray(x, arrPage) === -1;
+                    })
+                }
+            },
+
+            ChangeCheckItem: function (item) {
+                let self = this;
+                let $this = $(event.currentTarget);
+                let isCheck = $this.is(':checked');
+                if (isCheck) {
+                    if ($.inArray(item.ID_ChiTietGoiDV, self.ListIDChosed) === -1) {
+                        if (self.ListIDChosed.length === 0) {
+                            self.ListIDChosed.push(item.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(item);
+
+                            self.invoiceChosing = item;
+                        }
+                        else {
+                            if (item.ID !== self.invoiceChosing.ID) {
+                                ShowMessage_Danger('Vui lòng không chọn trả dịch vụ ở các hóa đơn khác nhau');
+                                return;
+                            }
+                            self.ListIDChosed.push(item.ID_ChiTietGoiDV);
+                            self.ListItemChosed.push(item);
+                        }
+                    }
+                }
+                else {
+                    self.ListIDChosed = self.ListIDChosed.filter(x => x !== item.ID_ChiTietGoiDV);
+                    for (let i = 0; i < self.ListItemChosed.length; i++) {
+                        if (self.ListItemChosed[i].ID_ChiTietGoiDV === item.ID_ChiTietGoiDV) {
+                            self.ListItemChosed.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
             },
 
             GetListHoaDon: function () {
@@ -162,12 +245,11 @@
                     MaHoaDon: self.filter.TextSearch,
                     NgayTaoHD_TuNgay: self.filter.DateFrom,
                     NgayTaoHD_DenNgay: self.filter.DateTo,
-                     CurrentPage: self.filter.CurrentPage,
+                    CurrentPage: self.filter.CurrentPage,
                     PageSize: self.filter.PageSize,
                 }
                 if (navigator.onLine) {
-                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListHDTraHang_afterUseAndTra', 'POST', param).done(function (x) {
-                        console.log('trahang ',x.dataSoure)
+                    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetAllChiTietHoaDon_afterTraHang', 'POST', param).done(function (x) {
                         if (x.res) {
                             self.ListData = x.dataSoure.data;
                             self.filter.PageView = x.dataSoure.pageview;
@@ -201,11 +283,15 @@
                     self.GetListHoaDon();
                 }
             },
-            clickChonTraHang: function (item) {
+            clickChonTraHang: function () {
                 let self = this;
+                if (self.ListIDChosed.length === 0) {
+                    ShowMessage_Danger('Vui lòng chọn dịch vụ để trả');
+                    return;
+
+                }
                 self.saveOK = true;
                 self.isTraNhanh = false;
-                self.invoiceChosing = item;
                 $('#vmTraHang').modal('hide');
             },
             TraNhanh: function () {
