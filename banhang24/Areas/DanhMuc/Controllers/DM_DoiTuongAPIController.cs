@@ -360,6 +360,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("SumTongChiKhachHang");
                     excel.Columns.Remove("SumGiaTriDVSuDung");
                     excel.Columns.Remove("SumGiaTriDVHoanTra"); 
+                    excel.Columns.Remove("Email"); 
+                    excel.Columns.Remove("MaSoThue"); 
+                    excel.Columns.Remove("TaiKhoanNganHang"); 
+                    excel.Columns.Remove("TongBan"); 
+                    excel.Columns.Remove("TongTichDiem"); 
+                    excel.Columns.Remove("NgayGiaoDichGanNhat"); 
+                    excel.Columns.Remove("TrangThaiKhachHang"); 
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
                     fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachKhachHang.xlsx");
