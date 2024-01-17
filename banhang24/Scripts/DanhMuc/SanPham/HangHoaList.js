@@ -331,6 +331,7 @@ var ViewModel = function () {
     self.role_DeleteProduct = ko.observable(false);
     self.role_UpdateProduct = ko.observable(false);// = role chuyen nhomhang, role ngungkinhdoanh
     self.role_UpdateMoTaProduct = ko.observable(false);// = sửa đổi thông tin: qunr lý DVT, thuộc tính, mô tả chi tiết
+    self.LaAdmin = ko.observable(VHeader.LaAdmin === 'Admin');
     self.role_CaiDatDinhLuong = ko.observable(false);
     self.KiemKho_Insert = ko.observable(false);
     self.KiemKho_Update = ko.observable(false);
