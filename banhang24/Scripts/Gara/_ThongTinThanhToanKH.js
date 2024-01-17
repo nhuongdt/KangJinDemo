@@ -59,6 +59,7 @@
             ID_NhanVien: null,
             NgayLapHoaDon: null,
             ID_PhieuTiepNhan: null,
+            IsTraGDV: false,
         },
         GridNVienBanGoi_Chosed: [],
         PhieuThuKhach: {
