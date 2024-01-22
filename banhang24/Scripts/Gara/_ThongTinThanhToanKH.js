@@ -94,6 +94,7 @@
                     TenNganHangPos: '',
                     ChiPhiThanhToan: 0,
                     TheoPhanTram: false,
+                    ThuPhiTienGui: true,
                 }
             }
             else {
@@ -105,6 +106,7 @@
                     TenNganHangCK: '',
                     ChiPhiThanhToan: 0,
                     TheoPhanTram: false,
+                    ThuPhiTienGui: true,
                 }
             }
         },
@@ -317,11 +319,13 @@
             self.PhieuThuKhach.TTBangDiem = formatNumber3Digit(tiendiem, 2);
             self.PhieuThuKhach.DiemQuyDoi = formatNumber3Digit(diemquydoi);
 
+            self.PhieuThuKhach.DaThanhToan = datt;
             self.PhieuThuKhach.PhaiThanhToan = cantt;
             self.PhieuThuKhach.HoanTraTamUng = hoantra;
             self.PhieuThuKhach.ThucThu = self.inforHoaDon.ThucThu;
             self.PhieuThuKhach.ID_TaiKhoanPos = idPOS;
             self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan = idCK;
+            self.PhieuThuKhach.TienThua = datt - self.inforHoaDon.KhachDaTra - self.inforHoaDon.PhaiThanhToan;
 
             if (!commonStatisJs.CheckNull(lstPos)) {
                 //for (let i = 0; i < lstPos.length; i++) {
@@ -471,14 +475,21 @@
         GetChiPhi_Visa: function () {
             let self = this;
             let tongChiPhi = 0, gtriPTram = 0;
-            let laPhanTram = true;
+            let laPhanTram = true, countTKPos = 0;
+            let sumTienPos = 0;
             for (let i = 0; i < self.PhieuThuKhach.ListTKPos.length; i++) {
                 let itFor = self.PhieuThuKhach.ListTKPos[i];
-                if (itFor.ChiPhiThanhToan > 0) {
+                // chỉ tính chi phí pos nếu giá trị tiền > 0
+                const tienPos = formatNumberToFloat(itFor.TienPOS);
+                if (itFor.ChiPhiThanhToan > 0 && tienPos  > 0) {
                     laPhanTram = itFor.TheoPhanTram;
                     gtriPTram = itFor.ChiPhiThanhToan;
+
+                    countTKPos += 1;
+                    sumTienPos += tienPos;
+
                     if (itFor.TheoPhanTram) {
-                        tongChiPhi += formatNumberToFloat(itFor.TienPOS) * itFor.ChiPhiThanhToan / 100;
+                        tongChiPhi += tienPos * itFor.ChiPhiThanhToan / 100;
                     }
                     else {
                         tongChiPhi += itFor.ChiPhiThanhToan;
@@ -486,8 +497,10 @@
                 }
             }
             self.PhieuThuKhach.TongPhiThanhToan = tongChiPhi;
-            self.PhieuThuKhach.PhiThanhToan_PTGiaTri = gtriPTram;
-            self.PhieuThuKhach.PhiThanhToan_LaPhanTram = laPhanTram;
+            // nếu chỉ có 1 tkPos: lấy chiphi (từ chính TK này)
+            // ngược lại: tính tổng và chia % (laPhanTram always = true)
+            self.PhieuThuKhach.PhiThanhToan_PTGiaTri = countTKPos === 1 ? gtriPTram : tongChiPhi / sumTienPos * 100;
+            self.PhieuThuKhach.PhiThanhToan_LaPhanTram = countTKPos === 1? laPhanTram: true;
             return tongChiPhi;
         },
         CaculatorDaThanhToan: function () {
@@ -1341,6 +1354,7 @@
                 $(inputNext).focus().select();
             });
         },
+        // hoa hồng thực tế được nhận (sau khi trừ chi phí POS)
         CaculatorAgain_TienDuocNhan: function (gtriCK, heso, tinhCKTheo) {
             let self = this;
             let chiphiNganHang = self.GetChiPhi_Visa();
@@ -1562,14 +1576,16 @@
                     case 3:
                         thucthu += tienthu;
                         break;
-                    case 2:
-                        thucthu += tienthu;
-                        if (qct[i].LaPTChiPhiNganHang) {
-                            chiphi = tienthu * qct[i].ChiPhiNganHang / 100;
-                        }
-                        else {
-                            chiphi = qct[i].ChiPhiNganHang;
-                        }
+                    case 2:// quẹt thẻ nhiều lần: tính phí nhiều lần
+                        {
+                            thucthu += tienthu;                         
+                            if (qct[i].LaPTChiPhiNganHang) {
+                                chiphi += tienthu * qct[i].ChiPhiNganHang / 100;
+                            }
+                            else {
+                                chiphi += qct[i].ChiPhiNganHang;
+                            }
+                        }                       
                         break;
                 }
             }
@@ -2187,10 +2203,6 @@
             return ktc;
         },
 
-        SavePhieuThu_BuTruDoiTra: function (nvthHoaDon = []) {
-
-        },
-
         SavePhieuThu: function (nvthHoaDon = []) {
             var self = this;
             var hd = self.inforHoaDon;
@@ -2332,6 +2344,7 @@
                                     });
                                     qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
                                     qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    qct.ThuPhiTienGui = true; // hientai: chi ap dung cho POS
                                     lstQuyCT.push(qct);
                                     ghichu += ' / ' + qct.GhiChu;
                                 }
@@ -2349,6 +2362,7 @@
                                     });
                                     qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
                                     qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    qct.ThuPhiTienGui = true;
                                     lstQuyCT.push(qct);
                                     tienpos = 0;
                                     ghichu += ' / ' + qct.GhiChu;
@@ -2398,6 +2412,7 @@
                                     });
                                     qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
                                     qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    qct.ThuPhiTienGui = false;
                                     lstQuyCT.push(qct);
                                     ghichu += ' / ' + qct.GhiChu;
                                     khach_idCK = qct.ID_TaiKhoanNganHang;
@@ -2416,6 +2431,7 @@
                                     });
                                     qct.ChiPhiNganHang = itFor.ChiPhiThanhToan;
                                     qct.LaPTChiPhiNganHang = itFor.TheoPhanTram;
+                                    qct.ThuPhiTienGui = false;
                                     lstQuyCT.push(qct);
                                     tienGui = 0;
                                     ghichu += ' / ' + qct.GhiChu;

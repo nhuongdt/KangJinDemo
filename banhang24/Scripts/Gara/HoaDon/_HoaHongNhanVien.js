@@ -583,7 +583,7 @@
                 sumCK += formatNumberToFloat(itFor.TienChietKhau);
             }
             let thucTinh = self.inforHoaDon.ThucThu - formatNumberToFloat(self.inforHoaDon.TongPhiNganHang);
-            if (sumCK > thucTinh) {
+            if (RoundDecimal(sumCK) > RoundDecimal(thucTinh)) {
                 commonStatisJs.ShowMessageDanger("Tổng phân bổ không được vượt quá " + formatNumber3Digit(thucTinh));
                 return;
             }

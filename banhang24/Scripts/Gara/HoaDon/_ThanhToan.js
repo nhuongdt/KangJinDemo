@@ -713,31 +713,33 @@
         },
         GetChiPhi_Visa: function () {
             let self = this;
-            let tongChiPhi = 0, gtriPTram = 0, tongPOS = 0;
-            let laPhanTram = true;
+            let tongChiPhi = 0, gtriPTram = 0;
+            let laPhanTram = true, countTKPos = 0;
+            let sumTienPos = 0;
             for (let i = 0; i < self.newPhieuThu.ListTKPos.length; i++) {
                 let itFor = self.newPhieuThu.ListTKPos[i];
-                if (itFor.ChiPhiThanhToan > 0) {
+                // chỉ tính chi phí pos nếu giá trị tiền > 0
+                const tienPos = formatNumberToFloat(itFor.TienPOS);
+                if (itFor.ChiPhiThanhToan > 0 && tienPos > 0) {
                     laPhanTram = itFor.TheoPhanTram;
                     gtriPTram = itFor.ChiPhiThanhToan;
+
+                    countTKPos += 1;
+                    sumTienPos += tienPos;
+
                     if (itFor.TheoPhanTram) {
-                        tongChiPhi += formatNumberToFloat(itFor.TienPOS) * itFor.ChiPhiThanhToan / 100;
+                        tongChiPhi += tienPos * itFor.ChiPhiThanhToan / 100;
                     }
                     else {
                         tongChiPhi += itFor.ChiPhiThanhToan;
                     }
-                    tongPOS += formatNumberToFloat(itFor.TienPOS);
                 }
             }
             self.newPhieuThu.TongPhiThanhToan = tongChiPhi;
-            self.newPhieuThu.PhiThanhToan_PTGiaTri = gtriPTram;
-            self.newPhieuThu.PhiThanhToan_LaPhanTram = laPhanTram;
-            if (laPhanTram) {
-                self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon = gtriPTram;
-            }
-            else {
-                self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon = tongChiPhi / tongPOS * 100;
-            }
+            // nếu chỉ có 1 tkPos: lấy chiphi (từ chính TK này)
+            // ngược lại: tính tổng và chia % (laPhanTram always = true)
+            self.newPhieuThu.PhiThanhToan_PTGiaTri = countTKPos === 1 ? gtriPTram : tongChiPhi / sumTienPos * 100;
+            self.newPhieuThu.PhiThanhToan_LaPhanTram = countTKPos === 1 ? laPhanTram : true;
             return tongChiPhi;
         },
         CaculatorDaThanhToan: function (isChangeTienThu = false) {
@@ -996,7 +998,7 @@
                         if (parseInt(nv.TinhChietKhauTheo) === 1) {
                             let chiphiNganHang = formatNumberToFloat(hd.TongPhiNganHang);
                             self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau = formatNumber3Digit((thucthu - chiphiNganHang) * (nv.PT_ChietKhau / 100) * nv.HeSo);
-                            self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(thucthu  * nv.PT_ChietKhau / 100 * nv.HeSo);
+                            self.listData.HoaDons[j].BH_NhanVienThucHiens[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(thucthu * nv.PT_ChietKhau / 100 * nv.HeSo);
                         }
                     }
                     break;
@@ -2282,7 +2284,6 @@
 
         UpdateThucThu_EachHoaDonDebit: function () {
             var self = this;
-
             // get thucthu each invoice
             var ptKhach = self.newPhieuThu;
             var tongno = ptKhach.TongNoHD;
@@ -2302,7 +2303,7 @@
             var tienck = money.TienChuyenKhoan;
             var tienthe = money.TienTheGiaTri;
             var tiendiem = money.TTBangDiem;
-            let ptPhiNganHang = self.newPhieuThu.PhiThanhToan_PTGiaTriTheoHoaDon;
+            let ptPhiNganHang = self.newPhieuThu.PhiThanhToan_PTGiaTri;
             if (commonStatisJs.CheckNull(ptPhiNganHang)) {
                 ptPhiNganHang = 0;
             }
@@ -2352,6 +2353,7 @@
             self.UpdateThucThu_EachHoaDonDebit();
 
             if (self.typeUpdate === 1) {
+                // update hoahong
                 let tongCP = 0;
                 for (let i = 0; i < self.listData.HoaDons.length; i++) {
                     let itFor = self.listData.HoaDons[i];
@@ -2535,38 +2537,51 @@
                                     case 1:
                                         sumMat += itFor.TienThu;
                                         break;
-                                    case 2:
+                                    case 2:// không sum (vì liên quan đến phí cà thẻ), 
+                                        {
+                                            arrPOS.push({
+                                                TienPOS: formatNumber3Digit(itFor.TienThu),
+                                                ID_TaiKhoanPos: itFor.ID_TaiKhoanNganHang,
+                                                TenTaiKhoanPos: itFor.TenTaiKhoanPOS,
+                                                SoTaiKhoanPos: '',
+                                                TenNganHangPos: itFor.TenNganHang,
+                                                ChiPhiThanhToan: itFor.ChiPhiThanhToan,
+                                                TheoPhanTram: itFor.TheoPhanTram,
+                                                ThuPhiThanhToan: itFor.ThuPhiThanhToan,
+                                                MacDinh: itFor.MacDinh,
+                                            });
+                                        }
                                         sumPOS += itFor.TienThu;
                                         idPos = itFor.ID_TaiKhoanNganHang;
 
-                                        if (!commonStatisJs.CheckNull(idPos)) {
-                                            if ($.inArray(idPos, arrIDPOS) === -1) {
-                                                arrIDPOS.push(idPos);
-                                                tenTKPos = itFor.TenTaiKhoanPOS;
-                                                tenNganHangPOS = itFor.TenNganHang;
+                                        //if (!commonStatisJs.CheckNull(idPos)) {
+                                        //    if ($.inArray(idPos, arrIDPOS) === -1) {
+                                        //        arrIDPOS.push(idPos);
+                                        //        tenTKPos = itFor.TenTaiKhoanPOS;
+                                        //        tenNganHangPOS = itFor.TenNganHang;
 
-                                                arrPOS.push({
-                                                    TienPOS: formatNumber3Digit(itFor.TienThu),
-                                                    ID_TaiKhoanPos: itFor.ID_TaiKhoanNganHang,
-                                                    TenTaiKhoanPos: itFor.TenTaiKhoanPOS,
-                                                    SoTaiKhoanPos: '',
-                                                    TenNganHangPos: itFor.TenNganHang,
-                                                    ChiPhiThanhToan: itFor.ChiPhiThanhToan,
-                                                    TheoPhanTram: itFor.TheoPhanTram,
-                                                    ThuPhiThanhToan: itFor.ThuPhiThanhToan,
-                                                    MacDinh: itFor.MacDinh,
-                                                });
-                                            }
-                                            else {
-                                                // sum TienThu if exists
-                                                for (let k = 0; k < arrPOS.length; k++) {
-                                                    if (arrPOS[k].ID_TaiKhoanPos === idPos) {
-                                                        arrPOS[k].TienPOS = formatNumber3Digit(formatNumberToFloat(arrPOS[k].TienPOS) + itFor.TienThu);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        //        arrPOS.push({
+                                        //            TienPOS: formatNumber3Digit(itFor.TienThu),
+                                        //            ID_TaiKhoanPos: itFor.ID_TaiKhoanNganHang,
+                                        //            TenTaiKhoanPos: itFor.TenTaiKhoanPOS,
+                                        //            SoTaiKhoanPos: '',
+                                        //            TenNganHangPos: itFor.TenNganHang,
+                                        //            ChiPhiThanhToan: itFor.ChiPhiThanhToan,
+                                        //            TheoPhanTram: itFor.TheoPhanTram,
+                                        //            ThuPhiThanhToan: itFor.ThuPhiThanhToan,
+                                        //            MacDinh: itFor.MacDinh,
+                                        //        });
+                                        //    }
+                                        //    else {
+                                        //        // sum TienThu if exists
+                                        //        for (let k = 0; k < arrPOS.length; k++) {
+                                        //            if (arrPOS[k].ID_TaiKhoanPos === idPos) {
+                                        //                arrPOS[k].TienPOS = formatNumber3Digit(formatNumberToFloat(arrPOS[k].TienPOS) + itFor.TienThu);
+                                        //                break;
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //}
                                         break;
                                     case 3:
                                         sumCK += itFor.TienThu;
