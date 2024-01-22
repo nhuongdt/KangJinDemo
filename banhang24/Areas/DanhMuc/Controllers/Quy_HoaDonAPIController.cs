@@ -14,6 +14,7 @@ using System.Web;
 using libNS_NhanVien;
 using System.Data.SqlClient;
 using System.Data.Entity;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -1523,6 +1524,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ID_TaiKhoanNganHang = objCTQuyHoaDon.ID_TaiKhoanNganHang,
                                 ChiPhiNganHang = objCTQuyHoaDon.ChiPhiNganHang,
                                 LaPTChiPhiNganHang = objCTQuyHoaDon.LaPTChiPhiNganHang,
+                                ThuPhiTienGui = objCTQuyHoaDon.ThuPhiTienGui,// = true: tính chi phí cà thẻ
                                 ID_NganHang = objCTQuyHoaDon.ID_TaiKhoanNganHang != null ? db.DM_TaiKhoanNganHang.Find(objCTQuyHoaDon.ID_TaiKhoanNganHang).ID_NganHang : (Guid?)null,
                             };
                             strIns = _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
@@ -1823,6 +1825,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 ChiPhiNganHang = item.ChiPhiNganHang,
                                 LaPTChiPhiNganHang = item.LaPTChiPhiNganHang,
                                 ID_TaiKhoanNganHang = item.ID_TaiKhoanNganHang,
+                                ThuPhiTienGui = item.ThuPhiTienGui,// = true: tính chi phí cà thẻ
                                 ID_NganHang = item.ID_TaiKhoanNganHang != null ? db.DM_TaiKhoanNganHang.Find(item.ID_TaiKhoanNganHang).ID_NganHang : (Guid?)null,
                             };
                             strIns = _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
@@ -2036,6 +2039,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 GhiChu = item.GhiChu,
                                 ChiPhiNganHang = item.ChiPhiNganHang,
                                 LaPTChiPhiNganHang = item.LaPTChiPhiNganHang,
+                                ThuPhiTienGui = item.ThuPhiTienGui,//= true: tính chi phí cà thẻ
                             };
                             _classQHDCT.Add_ChiTietQuyHoaDon(ctQuyHoaDon);
                         }
