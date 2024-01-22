@@ -314,8 +314,8 @@ namespace libQuy_HoaDon
     public class KangJin_QuyChiTietDTO: Quy_HoaDon_ChiTietDTO
     {
         public string TenNganHang { get; set; }
-        public double? ChiPhiThanhToan { get; set; }
-        public bool? MacDinh { get; set; }
+        public double? ChiPhiThanhToan { get; set; }// chi phí cà thẻ POS
+        public bool? MacDinh { get; set; }// hiện tại không dùng làm gì cả
         public bool? TheoPhanTram { get; set; }
         public bool? ThuPhiThanhToan { get; set; }
     }
