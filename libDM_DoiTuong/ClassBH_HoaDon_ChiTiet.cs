@@ -1033,6 +1033,7 @@ namespace libDM_DoiTuong
 
     public class SP_NhatKySuDung_GoiDV : GoiDichVu_KhachHang
     {
+        public string MaChungTuGoc { get; set; }
         public string TenDoiTuong { get; set; }
         public string DienThoai { get; set; }
         public string TenHangHoa_KhongDau { get; set; }
