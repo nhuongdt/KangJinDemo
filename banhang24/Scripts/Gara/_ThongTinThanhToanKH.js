@@ -247,7 +247,7 @@
                 };
             }
         },
-        showModalUpdate: function (hd, formType = 2) {// use at banle
+        showModalUpdate: function (hd, formType = 2) {// 2.banle, 3.napTGT
             var self = this;
             self.isCheckTraLaiCoc = false;
             self.saveOK = false;
@@ -263,7 +263,9 @@
             var hoantra = hd.HoanTraTamUng;
             var soduDatCoc = hd.SoDuDatCoc;
 
-            var lstHD = localStorage.getItem('lstHDLe');
+            let cacheName = formType ===2? 'lstHDLe':'TGT_PhieuThu';
+
+            var lstHD = localStorage.getItem(cacheName);
             if (lstHD !== null) {
                 lstHD = JSON.parse(lstHD);
             }
@@ -359,7 +361,7 @@
             }
             $('#ThongTinThanhToanKHNCC').modal('show');
         },
-        showModalThanhToan: function (hd, formType = 1) { // 1.gara, 2.lapphieuthu banle, 3.thegiatri, 4. hoantrathe
+        showModalThanhToan: function (hd, formType = 1) { // 1.gara, 2.lapphieuthu banle, 4. hoantrathe
             var self = this;
             self.isCheckTraLaiCoc = false;
             self.saveOK = false;
