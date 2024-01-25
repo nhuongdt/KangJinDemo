@@ -1506,6 +1506,7 @@
     self.GoToPageHD = function (page) {
         if (page.pageNumber !== '.') {
             self.currentPage(page.pageNumber - 1);
+            SearchHoaDon();
         }
     };
 
@@ -1535,11 +1536,13 @@
 
     self.StartPage = function () {
         self.currentPage(0);
+         SearchHoaDon();
     }
 
     self.BackPage = function () {
         if (self.currentPage() > 1) {
             self.currentPage(self.currentPage() - 1);
+             SearchHoaDon();
         }
     }
 
@@ -1552,6 +1555,7 @@
     self.EndPage = function () {
         if (self.currentPage() < self.PageCount() - 1) {
             self.currentPage(self.PageCount() - 1);
+             SearchHoaDon();
         }
     }
 
