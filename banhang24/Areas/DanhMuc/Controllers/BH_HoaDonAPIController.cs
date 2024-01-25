@@ -13047,6 +13047,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                    join ctsd in db.BH_HoaDon_ChiTiet on ct.ID equals ctsd.ID_ChiTietGoiDV
                                    join hdsu in db.BH_HoaDon on ctsd.ID_HoaDon equals hdsu.ID
                                    where hd.ID == idHoaDon && hdsu.ChoThanhToan == false
+                                   && hd.LoaiHoaDon == 1
                                    select ct.ID;
                         if (data != null && data.Count() > 0)
                         {
