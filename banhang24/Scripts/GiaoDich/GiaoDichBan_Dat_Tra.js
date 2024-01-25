@@ -461,106 +461,102 @@
         })
         $('#lblTitleNCC').html("Thêm nhà cung cấp")
     };
-    self.HuyHoaDon_updateChoThanhToan = function (item) {
+
+    self.CheckExistsHoaDonLienQuan = async function (id, url) {
+        if (!commonStatisJs.CheckNull(id)) {
+            const xx = await ajaxHelper(url + "GetDSHoaDon_chuaHuy_byIDDatHang/" + id, 'GET').done(function () { })
+                .then(function (x) {
+                    return x;
+                })
+            return xx;
+        }
+        return false;
+    }
+
+    self.HuyHoaDon_updateChoThanhToan = async function (item) {
         var msgBottom = '';
         var msgDialog = '';
         var idHoaDon = item.ID;
         var urlCheck = BH_HoaDonUri + 'GetDSHoaDon_chuaHuy_byIDDatHang/' + idHoaDon;
-        switch (item.LoaiHoaDon) {
-            case 1:
-            case 0:
-                msgBottom = "Hóa đơn đã có trả hàng, không thể hủy";
-                break;
-            case 3:
-                msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
-                break;
-            case 6:
-                msgBottom = "Phiếu trả hàng đã có hóa đơn, không thể hủy";
-                break;
-            case 25:
-                urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
-                msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
-                break;
-            case 36:
-                msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
-                break;
-        }
-        // huy hoadon : neu dang co tra hang --> khong duoc huy 
-        // huy dat hang: neu dang co HD tao tu HD dat hang --> khong duoc huy
-        ajaxHelper(urlCheck, 'GET').done(function (x) {
-            if (x === true) {
+
+        if (item.LoaiHoaDon !== 6) {
+            switch (item.LoaiHoaDon) {
+                case 1:
+                case 0:
+                    msgBottom = "Hóa đơn đã có trả hàng, không thể hủy";
+                    break;
+                case 3:
+                    msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
+                    break;
+                case 25:
+                    urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
+                    msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
+                    break;
+                case 36:
+                    msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
+                    break;
+            }
+
+            const dataCheck = await self.CheckExistsHoaDonLienQuan(idHoaDon, urlCheck);
+            if (dataCheck) {
                 ShowMessage_Danger(msgBottom);
                 return;
+             }
+        }
+
+        if (item.LoaiHoaDon !== 3) {
+            msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng những phiếu liên quan không?'
+        }
+        else {
+            if (item.KhachDaTra > 0) {
+                msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng tiền đặt cọc không?'
             }
             else {
+                msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng những phiếu liên quan không?'
+            }
+        }
+
+        dialogConfirm('Thông báo xóa', msgDialog, function () {
+            ajaxHelper(BH_HoaDonUri + "Huy_HoaDon?id=" + idHoaDon + '&nguoiSua=' + userLogin + '&iddonvi=' + id_donvi, 'GET').done(function (x) {
+                ShowMessage_Success("Cập nhật " + sLoai + " thành công");
+                SearchHoaDon();
+                var objDiary = {
+                    ID_NhanVien: _id_NhanVien,
+                    ID_DonVi: id_donvi,
+                    ChucNang: 'Danh mục ' + sLoai,
+                    NoiDung: "Xóa " + sLoai + ": " + item.MaHoaDon,
+                    NoiDungChiTiet: "Xóa ".concat(sLoai, ": ", item.MaHoaDon, ', Người xóa: ', userLogin),
+                    LoaiNhatKy: 3
+                };
                 if (item.LoaiHoaDon !== 3) {
-                    msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng những phiếu liên quan không?'
+                    // HuyHD : tru diem (cong diem am)
+                    // Huy TraHang: cong diem
+                    // HuyDatHang: khong thuc hien gi ca
+                    var diemGiaoDich = item.DiemGiaoDich;
+                    if (diemGiaoDich > 0 && item.ID_DoiTuong !== null) {
+                        if (item.LoaiHoaDon === 1 || item.LoaiHoaDon === 25) {
+                            diemGiaoDich = -diemGiaoDich;
+                        }
+                        ajaxHelper(DMDoiTuongUri + 'HuyHD_UpdateDiem?idDoiTuong=' + item.ID_DoiTuong + '&diemGiaoDich=' + diemGiaoDich, 'POST').done(function (data) {
+                        });
+                    }
+                    objDiary.ID_HoaDon = idHoaDon;
+                    objDiary.LoaiHoaDon = item.LoaiHoaDon;
+                    objDiary.ThoiGianUpdateGV = item.NgayLapHoaDon;
+                    Post_NhatKySuDung_UpdateGiaVon(objDiary);
+                    vmThanhToan.NangNhomKhachHang(item.ID_DoiTuong);
+
+                    switch (item.LoaiHoaDon) {
+                        case 25:
+                            HuyHoaDon_UpdateLichBaoDuong(idHoaDon);
+                            break;
+                    }
                 }
                 else {
-                    if (item.KhachDaTra > 0) {
-                        msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng tiền đặt cọc không?'
-                    }
-                    else {
-                        msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng những phiếu liên quan không?'
-                    }
+                    Insert_NhatKyThaoTac_1Param(objDiary);
                 }
-                // move dialogConfirm() in this
-                dialogConfirm('Thông báo xóa', msgDialog, function () {
-                    $.ajax({
-                        type: "POST",
-                        url: BH_HoaDonUri + "Huy_HoaDon?id=" + idHoaDon + '&nguoiSua=' + userLogin + '&iddonvi=' + id_donvi,
-                        dataType: 'json',
-                        contentType: 'application/json',
-                        success: function (result) {
-                            ShowMessage_Success("Cập nhật " + sLoai + " thành công");
-                            SearchHoaDon();
-                            var objDiary = {
-                                ID_NhanVien: _id_NhanVien,
-                                ID_DonVi: id_donvi,
-                                ChucNang: 'Danh mục ' + sLoai,
-                                NoiDung: "Xóa " + sLoai + ": " + item.MaHoaDon,
-                                NoiDungChiTiet: "Xóa ".concat(sLoai, ": ", item.MaHoaDon, ', Người xóa: ', userLogin),
-                                LoaiNhatKy: 3
-                            };
-                            if (item.LoaiHoaDon !== 3) {
-                                // HuyHD : tru diem (cong diem am)
-                                // Huy TraHang: cong diem
-                                // HuyDatHang: khong thuc hien gi ca
-                                var diemGiaoDich = item.DiemGiaoDich;
-                                if (diemGiaoDich > 0 && item.ID_DoiTuong !== null) {
-                                    if (item.LoaiHoaDon === 1 || item.LoaiHoaDon === 25) {
-                                        diemGiaoDich = -diemGiaoDich;
-                                    }
-                                    ajaxHelper(DMDoiTuongUri + 'HuyHD_UpdateDiem?idDoiTuong=' + item.ID_DoiTuong + '&diemGiaoDich=' + diemGiaoDich, 'POST').done(function (data) {
-                                    });
-                                }
-                                objDiary.ID_HoaDon = idHoaDon;
-                                objDiary.LoaiHoaDon = item.LoaiHoaDon;
-                                objDiary.ThoiGianUpdateGV = item.NgayLapHoaDon;
-                                Post_NhatKySuDung_UpdateGiaVon(objDiary);
-                                vmThanhToan.NangNhomKhachHang(item.ID_DoiTuong);
-
-                                switch (item.LoaiHoaDon) {
-                                    case 25:
-                                        HuyHoaDon_UpdateLichBaoDuong(idHoaDon);
-                                        break;
-                                }
-                            }
-                            else {
-                                Insert_NhatKyThaoTac_1Param(objDiary);
-                            }
-                        },
-                        error: function (error) {
-                            ShowMessage_Danger('Cập nhật trạng thái thất bại');
-                        },
-                        complete: function () {
-                            $('#wait').remove();
-                            $('#modalPopuplgDelete').modal('hide');
-                        }
-                    });
-                })
-            }
-        });
+            })
+        })
     }
 
     function HuyHoaDon_UpdateLichBaoDuong(idHoaDon) {
@@ -1346,12 +1342,12 @@
                         self.TongNoKhach(first.SumConNo);// trahang
 
 
-                          // sum in page (1 page)
+                        // sum in page (1 page)
                         let phaiTTSauTrahang = x.dataSoure.reduce(function (x, item) {
                             return x + item.TongTienHDTra;
                         }, 0);
-                        if(loaiHoaDon===6){
-                              self.KhachCanTra(phaiTTSauTrahang);
+                        if (loaiHoaDon === 6) {
+                            self.KhachCanTra(phaiTTSauTrahang);
                         }
                     }
                     else {
@@ -6358,7 +6354,7 @@
         else {
             vmApDungNhomHoTro.CreatePhieuXuat_FromHoaDon(idHoaDon, item.LoaiHoaDon);
         }
-       
+
         ShowMessage_Success('Xuất kho thành công');
 
         let diary = {
