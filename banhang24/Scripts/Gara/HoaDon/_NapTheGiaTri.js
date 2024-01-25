@@ -225,6 +225,7 @@
             self.newHoaDon = {
                 ID: '00000000-0000-0000-0000-000000000000',
                 MaHoaDon: '',
+                IDRandom: CreateIDRandom('TGT_'),// used to save to cache (when ThanhToanThe)
                 LoaiHoaDon: 22,
                 ChoThanhToan: false,
                 NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm'),
@@ -479,6 +480,8 @@
                     vmThanhToanGara.inforHoaDon.MaDoiTuong = self.cusChosing.MaDoiTuong;
                     vmThanhToanGara.SavePhieuThu();
 
+                    self.RemoveCache_PhieuThuTGT();
+
                     if (print) {
                         self.InPhieuThu();
                     }
@@ -550,6 +553,7 @@
             vmThanhToanGara.GridNVienBanGoi_Chosed = [];
             var obj = {
                 MaHoaDon: '',
+                IDRandom: self.newHoaDon.IDRandom,
                 LoaiDoiTuong: 1,// 1.kh, 2.ncc, 3.bh
                 LoaiHoaDon: 22,
                 SoDuDatCoc: 0,
@@ -575,7 +579,7 @@
                 DaThanhToan: formatNumber(self.newHoaDon.DaThanhToan),
                 KhachDaTra: 0, // used when update hd
             }
-            vmThanhToanGara.showModalThanhToan(obj, 3);
+            vmThanhToanGara.showModalUpdate(obj, 3);
         },
 
         GetInforPhieuThu_whenHideModal: function () {
@@ -601,8 +605,43 @@
             self.newHoaDon.BH_NhanVienThucHiens = vmThanhToanGara.GridNVienBanGoi_Chosed;
 
             /// save to cache if was agree and chose again  (todo)
-        }
-        ,
+            let lstPhieuThu = localStorage.getItem('TGT_PhieuThu');
+            if (lstPhieuThu !== null) {
+                lstPhieuThu = JSON.parse(lstPhieuThu);
+            }
+            else {
+                lstPhieuThu = [];
+            }
+            // remove && add again
+            lstPhieuThu = $.grep(lstPhieuThu, function (x) {
+                return x.IDRandom !== self.newHoaDon.IDRandom;
+            });
+            let newPT = $.extend({}, vmThanhToanGara.PhieuThuKhach);
+            newPT.IDRandom = self.newHoaDon.IDRandom;
+            newPT.TienATM = formatNumberToFloat(newPT.TienPOS);
+            newPT.TienGui = formatNumberToFloat(newPT.TienCK);
+            newPT.TienMat = formatNumberToFloat(newPT.TienMat);
+            newPT.TTBangDiem = formatNumberToFloat(newPT.TTBangDiem);
+            newPT.TienTheGiaTri = formatNumberToFloat(newPT.TienTheGiaTri);
+            newPT.BH_NhanVienThucHiens = vmThanhToanGara.GridNVienBanGoi_Chosed;
+            lstPhieuThu.push(newPT);
+            localStorage.setItem('TGT_PhieuThu', JSON.stringify(lstPhieuThu));
+        },
+        RemoveCache_PhieuThuTGT: function () {
+            let self = this;
+            let lstPhieuThu = localStorage.getItem('TGT_PhieuThu');
+            if (lstPhieuThu !== null) {
+                lstPhieuThu = JSON.parse(lstPhieuThu);
+            }
+            else {
+                lstPhieuThu = [];
+            }
+            // remove && add again
+            lstPhieuThu = $.grep(lstPhieuThu, function (x) {
+                return x.IDRandom !== self.newHoaDon.IDRandom;
+            });
+            localStorage.setItem('TGT_PhieuThu', JSON.stringify(lstPhieuThu));
+        },
         showModalCustomer: function () {
             var self = this;
             vmThemMoiKhach.showModalAdd();
@@ -640,8 +679,10 @@ shortcut.add('F9', function () {
 
 $(function () {
     $('#ThongTinThanhToanKHNCC').on('hidden.bs.modal', function () {
-        if (vmThanhToanGara.saveOK && vmThanhToanGara.formType === 3) {
-            vmThemMoiTheNap.GetInforPhieuThu_whenHideModal();
+        if (vmThanhToanGara.formType === 3) {// napthe
+            if (vmThanhToanGara.saveOK) {
+                vmThemMoiTheNap.GetInforPhieuThu_whenHideModal();
+            }
         }
     });
 
