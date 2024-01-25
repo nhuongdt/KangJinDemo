@@ -824,6 +824,7 @@
                 }
             }).always(function () {
                 $('.content-table').gridLoader({ show: false });
+                localStorage.removeItem('TGT_PhieuThu');
             })
         }
         else {
