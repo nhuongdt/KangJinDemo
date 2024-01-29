@@ -367,6 +367,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TongTichDiem"); 
                     excel.Columns.Remove("NgayGiaoDichGanNhat"); 
                     excel.Columns.Remove("TrangThaiKhachHang"); 
+                    excel.Columns.Remove("SumSoTienChuaSD"); 
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
                     fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachKhachHang.xlsx");

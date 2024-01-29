@@ -1878,7 +1878,8 @@ namespace banhang24.Hellper
             tongthuKhach,
             tongChiKhach,
             gtriDVSuDung,
-            gtriDVKhachTra
+            gtriDVKhachTra,
+            tienChuaSD
         }
 
         public static Dictionary<string, string> ListKhachHang = new Dictionary<string, string>()
@@ -1907,6 +1908,7 @@ namespace banhang24.Hellper
             {ColumnKhachHang.tongChiKhach.ToString(),"Tổng hoàn cọc" },
             {ColumnKhachHang.gtriDVSuDung.ToString(),"Tổng gtrị sử dụng" },
             {ColumnKhachHang.gtriDVKhachTra.ToString(),"Tổng hoàn dịch vụ" },
+            {ColumnKhachHang.tienChuaSD.ToString(),"Số tiền chưa sử dụng" },
              //{ ColumnKhachHang. tongtichdiem.ToString(),"Tổng tích điểm" },
              //{ ColumnKhachHang. ngaygiaodichgannhat.ToString(),"Ngày giao dịch gần nhất" },
              //{ColumnKhachHang.trangthaikhachhang.ToString(),"Trạng thái khách hàng" },
