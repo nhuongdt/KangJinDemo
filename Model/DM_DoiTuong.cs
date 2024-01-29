@@ -414,6 +414,7 @@ namespace Model
         public double? TongChiKhachHang { get; set; }// hoan tu the, hoac hoadon/gdv chua sudung
         public double? GiaTriDVSuDung { get; set; }
         public double? GiaTriDVHoanTra { get; set; }
+        public double? SoTienChuaSD { get; set; }
         public double? NapCoc { get; set; }
         public double? SuDungCoc { get; set; }
         public double? SoDuCoc { get; set; }
@@ -457,6 +458,7 @@ namespace Model
         public double? SumTongChiKhachHang { get; set; }
         public double? SumGiaTriDVSuDung { get; set; }
         public double? SumGiaTriDVHoanTra { get; set; }
+        public double? SumSoTienChuaSD { get; set; }
     }
 
     public class DoiTuongSMSDTO
