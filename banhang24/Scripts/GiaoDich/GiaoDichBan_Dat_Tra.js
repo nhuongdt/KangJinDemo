@@ -462,15 +462,12 @@
         $('#lblTitleNCC').html("Thêm nhà cung cấp")
     };
 
-    self.CheckExistsHoaDonLienQuan = async function (id, url) {
-        if (!commonStatisJs.CheckNull(id)) {
-            const xx = await ajaxHelper(url + "GetDSHoaDon_chuaHuy_byIDDatHang/" + id, 'GET').done(function () { })
-                .then(function (x) {
-                    return x;
-                })
-            return xx;
-        }
-        return false;
+    self.CheckExistsHoaDonLienQuan = async function (url) {
+        const xx = await ajaxHelper(url, 'GET').done(function () { })
+            .then(function (x) {
+                return x;
+            })
+        return xx;
     }
 
     self.HuyHoaDon_updateChoThanhToan = async function (item) {
@@ -497,11 +494,11 @@
                     break;
             }
 
-            const dataCheck = await self.CheckExistsHoaDonLienQuan(idHoaDon, urlCheck);
+            const dataCheck = await self.CheckExistsHoaDonLienQuan(urlCheck);
             if (dataCheck) {
                 ShowMessage_Danger(msgBottom);
                 return;
-             }
+            }
         }
 
         if (item.LoaiHoaDon !== 3) {
