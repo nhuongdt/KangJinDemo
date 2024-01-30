@@ -1643,6 +1643,10 @@
                 commonStatisJs.ShowMessageDanger("Tổng phân bổ không được vượt quá " + formatNumber3Digit(thucTinh));
                 return;
             }
+            if (self.PhieuThuKhach.TienThua > 0) {
+                ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                return;
+            }
 
             self.saveOK = true;
             switch (self.formType) {

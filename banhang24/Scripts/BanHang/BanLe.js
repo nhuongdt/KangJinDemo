@@ -3005,6 +3005,20 @@ var NewModel_BanHangLe = function () {
 
                 //  HD Tra
                 if (itemHD[0].LoaiHoaDon === 6) {
+                    if (itemHD[0].HoanTraTamUng > 0) {
+                        if (itemHD[0].DaTraKhach > itemHD[0].PhaiThanhToanDB) {
+                            ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                            SaveHD_RemoveDisable();
+                            return;
+                        }
+                    }
+                    else {
+                        if (itemHD[0].TienThua > 0) {
+                            ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                            SaveHD_RemoveDisable();
+                            return;
+                        }
+                    }
                     var idDonVi = itemHD[0].ID_DonVi;
                     if (idDonVi === undefined || idDonVi.indexOf('0000') > -1 || idDonVi === null) {
                         idDonVi = id_DonVi; // get from cookie
@@ -11671,6 +11685,12 @@ var NewModel_BanHangLe = function () {
                     else {
                         cantra = formatNumberToFloat(hd[i].PhaiThanhToan);
                     }
+                    if (gtri > cantra) {
+                        ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                        $this.val(formatNumber(cantra));
+                        gtri = cantra;
+                    }
+
                     hd[i].DaThanhToan = gtri;
                     hd[i].TienMat = gtri;
                     hd[i].TienGui = 0;
@@ -13369,6 +13389,11 @@ var NewModel_BanHangLe = function () {
             lstHD = JSON.parse(lstHD);
             for (let i = 0; i < lstHD.length; i++) {
                 if (lstHD[i].MaHoaDon === _maHoaDon && (lstHD[i].NguoiTao === userLogin || lstHD[i].TrangThaiHD === 3)) {
+                    if (datra > lstHD[i].PhaiThanhToanDB) {
+                        ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                        $this.val(formatNumber(lstHD[i].PhaiThanhToanDB));
+                        datra = lstHD[i].PhaiThanhToanDB;
+                    }
                     lstHD[i].DaTraKhach = datra;
                     lstHD[i].TienMat = datra;
                     idRandomHD = lstHD[i].IDRandom;
@@ -17119,6 +17144,11 @@ var NewModel_BanHangLe = function () {
                 ShowMessage_Danger('Vui lòng chọn khách hàng khi tạo hóa đơn');
                 SaveHD_RemoveDisable();
                 return false;
+            }
+            if (objAdd[0].TienThua > 0) {
+                ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                SaveHD_RemoveDisable();
+                return;
             }
 
             // Start: assign ID_NhanVien if objAdd[0].ID_NhanVien === null
