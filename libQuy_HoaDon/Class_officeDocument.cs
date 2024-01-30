@@ -778,7 +778,7 @@ namespace libQuy_HoaDon
                     wSheet.Cells.DeleteColumn(columH[i]);
                 }
             }
-            Style style = wbook.Styles[wbook.Styles.Add()];
+            Style style = wbook.CreateStyle();
             style.Font.IsBold = true;
             style.Font.IsItalic = false;
             StyleFlag flag = new StyleFlag();
