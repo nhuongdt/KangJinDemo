@@ -69,6 +69,7 @@
     self.SumTongChiKhachHang = ko.observable();
     self.SumGiaTriDVSuDung = ko.observable();
     self.SumGiaTriDVHoanTra = ko.observable();
+    self.SumTienChuaSD = ko.observable();
     self.TongPhiDichVu = ko.observable(0);
     self.TongTichDiemAll = ko.observable();
     self.ContinueImport = ko.observable(false);
@@ -1457,6 +1458,7 @@
                                 self.SumTongChiKhachHang(data[0].SumTongChiKhachHang);
                                 self.SumGiaTriDVSuDung(data[0].SumGiaTriDVSuDung);
                                 self.SumGiaTriDVHoanTra(data[0].SumGiaTriDVHoanTra);
+                                self.SumTienChuaSD(data[0].SumSoTienChuaSD);
                             }
                             else {
                                 self.PageCount(0);
