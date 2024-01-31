@@ -7,6 +7,7 @@
     },
     created: function () {
         this.GuidEmpty = '00000000-0000-0000-0000-000000000000';
+        console.log('vmThanhToanKH ')
     },
     data: {
         saveOK: false,
@@ -327,7 +328,7 @@
             self.PhieuThuKhach.ThucThu = self.inforHoaDon.ThucThu;
             self.PhieuThuKhach.ID_TaiKhoanPos = idPOS;
             self.PhieuThuKhach.ID_TaiKhoanChuyenKhoan = idCK;
-            self.PhieuThuKhach.TienThua = datt - self.inforHoaDon.KhachDaTra - self.inforHoaDon.PhaiThanhToan;
+            self.PhieuThuKhach.TienThua = datt - self.inforHoaDon.KhachDaTra - self.PhieuThuKhach.PhaiThanhToan;
 
             if (!commonStatisJs.CheckNull(lstPos)) {
                 //for (let i = 0; i < lstPos.length; i++) {
