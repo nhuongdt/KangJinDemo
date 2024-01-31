@@ -12877,28 +12877,18 @@ var ViewModel = function () {
                 });
 
                 hdct[i].ID_HangHoa = hdct[i].ID;
+                hdct[i].ID_Random = CreateIDRandom('CTKK_');
+                hdct[i].TienChietKhau = 0;
+                hdct[i].GiaVon = 0;
                 hdct[i].SoLuong = 0;
+                 // 2 cột: SoLuong, TienChietKhau lưu ngược so với DB
+                // (do code ban đầu thế rồi, nên không muốn sửa lại nữa, vì phải check lại nhiều chỗ)
                 if (dataDB.length > 0) {
-                    hdct[i].SoLuong = dataDB[0].TonKho;// soluongDB
+                    hdct[i].SoLuong = dataDB[0].TonKho;// tonkhoDB
+                    hdct[i].GiaVon = dataDB[0].GiaVon;
                 }
-                hdct[i].TienChietKhau = hdct[i].ThanhTien - hdct[i].SoLuong;// soluong thucte - soluongDB
+                hdct[i].TienChietKhau = hdct[i].ThanhTien - hdct[i].SoLuong;// soluonglech = soluong thucte - tonkhoDB
                 hdct[i].ThanhToan = hdct[i].TienChietKhau * hdct[i].GiaVon;//gtri lech
-                //hdct[i].QuanLyTheoLoHang = hdct[i].QuanLyTheoLoHang;
-                //hdct[i].ThuocTinh_GiaTri = hdct[i].ThuocTinh_GiaTri;
-                //hdct[i].DonViTinh = hdct[i].DonViTinh;
-                var idLoHang = hdct[i].ID_LoHang;
-                var itemLot = [];
-                if (idLoHang !== null) {
-                    itemLot = $.grep(self.ListLoHang(), function (x) {
-                        return x.ID === idLoHang;
-                    });
-                }
-                var rd = Math.floor(Math.random() * 1000000 + 1);
-                hdct[i].ID_Random = 'IDRandom' + rd + '_';
-                hdct[i].ID_LoHang = idLoHang;
-                hdct[i].MaLoHang = hdct[i].MaLoHang === '' ? null : hdct[i].MaLoHang;
-                hdct[i].NgaySanXuat = hdct[i].QuanLyTheoLoHang ? (itemLot.length > 0 ? itemLot[0].NgaySanXuat : '') : '';
-                hdct[i].NgayHetHan = hdct[i].QuanLyTheoLoHang ? (itemLot.length > 0 ? itemLot[0].NgayHetHan : '') : '';
             }
 
             self.newKiemKho().BH_KiemKho_ChiTiet(hdct);
@@ -14508,14 +14498,6 @@ var ViewModel = function () {
     self.CapNhatTonKho = function (item) {
         let itemTK = self.RowErrKho();
         if (!$.isEmptyObject(itemTK) && itemTK !== undefined) {
-            //// check if PhieuKiemKe: update PhieuKiemKe, xong roi moi chay TonLuyKe
-            //if (itemTK.LoaiHoaDon === 9) {
-            //    ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/UpdateChiTietKiemKe_WhenEditCTHD?idHoaDonUpdate=' + itemTK.ID_HoaDon
-            //        + "&idChiNhanh=" + itemTK.ID_DonVi + "&ngayLapHDMin=" + itemTK.NgayLapHoaDon).done(function (x) {
-            //            console.log('UpdateChiTietKiemKe_WhenEditCTHD ', x)
-            //        })
-            //}
-
             let diary = {
                 ID_DonVi: itemTK.ID_DonVi,
                 ID_NhanVien: VHeader.IdNhanVien,
@@ -14534,6 +14516,30 @@ var ViewModel = function () {
             Post_NhatKySuDung_UpdateGiaVon(diary);
             ShowMessage_Success('Cập nhật thành công');
             SearchHangHoa();
+        }
+        else {
+            // lũy kế tồn kho đúng, nhưng tồn kho hiện tại # lũy kế cuối cùng
+            // get thekho cuối cùng
+            if (self.TheKhos().length > 0) {
+                const hdLast = self.TheKhos()[0];
+                let diary = {
+                    ID_DonVi: hdLast.ID_DonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    LoaiNhatKy: 2,
+                    ChucNang: 'Cập nhật tồn lũy kế',
+                    NoiDung: 'Cập nhật tồn lũy kế cho hàng hóa '.concat(item.TenHangHoa, ' (', item.MaHangHoa, ')'),
+                    NoiDungChiTiet: 'Cập nhật tồn lũy kế '.concat(item.TenHangHoa, ' (', item.MaHangHoa,
+                        ') <br /> Mã phiếu: ', hdLast.MaHoaDon,
+                        ') <br /> Ngày lập phiếu: ', hdLast.NgayLapHoaDon,
+                        ' <br /> Người cập nhật: ', VHeader.UserLogin
+                    ),
+                    ID_HoaDon: hdLast.ID_HoaDon,
+                    LoaiHoaDon: hdLast.LoaiHoaDon,
+                    ThoiGianUpdateGV: hdLast.NgayLapHoaDon,
+                }
+                Post_NhatKySuDung_UpdateGiaVon(diary);
+                ShowMessage_Success('Cập nhật thành công');
+            }
         }
     }
 };
