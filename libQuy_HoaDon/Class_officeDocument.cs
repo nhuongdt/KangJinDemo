@@ -3535,40 +3535,40 @@ namespace libQuy_HoaDon
                 }
                 if (dk == "")
                 {
+                    var maHangHoa = dt.Rows[i][1].ToString().Trim();
+                    var soluongThucTe = dt.Rows[i][2].ToString().Trim();
                     List<SqlParameter> sqlPRM = new List<SqlParameter>();
                     sqlPRM.Add(new SqlParameter("MaLoHangIP", dt.Rows[i][0].ToString().Trim()));
-                    sqlPRM.Add(new SqlParameter("MaHangHoaIP", dt.Rows[i][1].ToString().Trim()));
+                    sqlPRM.Add(new SqlParameter("MaHangHoaIP", maHangHoa));
                     sqlPRM.Add(new SqlParameter("ID_DonViIP", iddonvi));
                     sqlPRM.Add(new SqlParameter("TimeIP", timeKK));
-                    List<DM_HangHoaDTO> lst1 = db.Database.SqlQuery<DM_HangHoaDTO>("exec getListDanhSachHHImportKiemKe @MaLoHangIP, @MaHangHoaIP, @ID_DonViIP, @TimeIP", sqlPRM.ToArray()).ToList();
-                    Report_HangHoa_Chuyenhang_Import DM1 = new Report_HangHoa_Chuyenhang_Import();
-                    DM1.MaHangHoa = dt.Rows[i][1].ToString().Trim();
-                    DM1.TenHangHoa = lst1.FirstOrDefault().TenHangHoa;
-                    DM1.ThanhTien = Math.Round(double.Parse(dt.Rows[i][2].ToString().Trim()), 3, MidpointRounding.ToEven);
-                    DM1.ID = lst1.FirstOrDefault().ID;
-                    DM1.ID_DonViQuiDoi = lst1.FirstOrDefault().ID_DonViQuiDoi;
-                    DM1.TenDonViTinh = lst1.FirstOrDefault().TenDonViTinh;
-
-                    DM1.QuanLyTheoLoHang = lst1.FirstOrDefault().QuanLyTheoLoHang;
-                    DM1.TyLeChuyenDoi = lst1.FirstOrDefault().TyLeChuyenDoi;
-                    DM1.MaLoHang = lst1.FirstOrDefault().MaLoHang;
-                    DM1.ID_LoHang = lst1.FirstOrDefault().ID_LoHang;
-                    DM1.GiaVon = lst1.FirstOrDefault().GiaVon;
-                    DM1.TonKho = lst1.FirstOrDefault().TonKho;
-                    DM1.ThuocTinh_GiaTri = lst1.FirstOrDefault().ThuocTinh_GiaTri;
-                    DM1.SoLuong = DM1.TonKho.Value;
-                    DM1.TienChietKhau = DM1.ThanhTien.Value - DM1.SoLuong;
-                    DM1.ThanhToan = Math.Round(DM1.TienChietKhau * DM1.GiaVon.Value, MidpointRounding.ToEven);
-                    DM1.DonViTinh = _classDVQD.Gets(ct => ct.ID_HangHoa == DM1.ID && ct.Xoa != true).Select(x => new DonViTinh
+                    List<Report_HangHoa_Chuyenhang_Import> lst1 = db.Database.SqlQuery<Report_HangHoa_Chuyenhang_Import>("exec getListDanhSachHHImportKiemKe @MaLoHangIP, @MaHangHoaIP, @ID_DonViIP, @TimeIP", sqlPRM.ToArray()).ToList();
+                    if (lst1.Count > 0)
                     {
-                        ID_HangHoa = DM1.ID,
-                        TenDonViTinh = x.TenDonViTinh,
-                        ID_DonViQuiDoi = x.ID,
-                        QuanLyTheoLoHang = DM1.QuanLyTheoLoHang,
-                        Xoa = true,
-                        TyLeChuyenDoi = x.TyLeChuyenDoi
-                    }).ToList();
-                    lst.Add(DM1);
+                        var itFirst = lst1.FirstOrDefault();
+                        Report_HangHoa_Chuyenhang_Import DM1 = new Report_HangHoa_Chuyenhang_Import();
+                        DM1.MaHangHoa = itFirst.MaHangHoa;
+                        DM1.TenHangHoa = itFirst.TenHangHoa;
+                        DM1.ThanhTien = Math.Round(double.Parse(soluongThucTe), 3, MidpointRounding.ToEven);
+                        DM1.ID = itFirst.ID;
+                        DM1.ID_DonViQuiDoi = itFirst.ID_DonViQuiDoi;
+                        DM1.TenDonViTinh = itFirst.TenDonViTinh;
+                        DM1.QuanLyTheoLoHang = itFirst.QuanLyTheoLoHang;
+                        DM1.TyLeChuyenDoi = itFirst.TyLeChuyenDoi;
+                        DM1.MaLoHang = itFirst.MaLoHang;
+                        DM1.ID_LoHang = itFirst.ID_LoHang;
+                        DM1.ThuocTinh_GiaTri = itFirst.ThuocTinh_GiaTri;
+                        DM1.DonViTinh = _classDVQD.Gets(ct => ct.ID_HangHoa == DM1.ID && ct.Xoa != true).Select(x => new DonViTinh
+                        {
+                            ID_HangHoa = DM1.ID,
+                            TenDonViTinh = x.TenDonViTinh,
+                            ID_DonViQuiDoi = x.ID,
+                            QuanLyTheoLoHang = DM1.QuanLyTheoLoHang,
+                            Xoa = true,
+                            TyLeChuyenDoi = x.TyLeChuyenDoi
+                        }).ToList();
+                        lst.Add(DM1);
+                    }
                 }
             }
             return lst;
@@ -13741,22 +13741,17 @@ namespace libQuy_HoaDon
     {
         public Guid ID { get; set; }
         public Guid ID_DonViQuiDoi { get; set; }
-        public double? GiaVon { get; set; }
-        public double SoLuong { get; set; }
+        public Guid? ID_LoHang { get; set; }
         public string TenHangHoa { get; set; }
         public string ThuocTinh_GiaTri { get; set; }
         public string TenDonViTinh { get; set; }
-        public double? TonKho { get; set; }
-        public double DonGia { get; set; }
-        public double TienChietKhau { get; set; }
         public double? ThanhTien { get; set; }
-        public double? ThanhToan { get; set; }
         public string MaHangHoa { get; set; }
         public bool? QuanLyTheoLoHang { get; set; }
         public double TyLeChuyenDoi { get; set; }
         public string MaLoHang { get; set; }
-        public Guid? ID_LoHang { get; set; }
-        public List<HangHoa_ThuocTinh> HangHoa_ThuocTinh { get; set; }
+        public DateTime? NgaySanXuat { get; set; }
+        public DateTime? NgayHetHan { get; set; }
         public List<DonViTinh> DonViTinh { get; set; }
     }
 }
