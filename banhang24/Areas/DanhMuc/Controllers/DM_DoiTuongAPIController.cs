@@ -1340,6 +1340,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.tongChiKhach },
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriDVSuDung },
                    new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.gtriDVKhachTra },
+                   new ColumSearch{Key=(int)commonEnum.ColumnKhachHang.tienChuaSD },
                 };
             return Json(new { keycolumn = ListComlumnSearchKhachHang.ToList(), compareFile = commonEnumHellper.ListCompare.ToList() });
         }
@@ -1519,6 +1520,29 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                                 break;
                                             case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
                                                 where = string.Concat(" ISNULL(GiaTriDVHoanTra,0) <= ", gtriHoanDV);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case (int)commonEnum.ColumnKhachHang.tienChuaSD:
+                                        var tienChuaSD = double.Parse(value.ToString().Replace(",", ""));
+                                        switch (item.type)
+                                        {
+                                            case (int)commonEnumHellper.KeyCompare.bang:
+                                                where = string.Concat(" ISNULL(SoTienChuaSD,0) = ", tienChuaSD);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhon:
+                                                where = string.Concat(" ISNULL(SoTienChuaSD,0) > ", tienChuaSD);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.lonhonhoacbang:
+                                                where = string.Concat(" ISNULL(SoTienChuaSD,0) >= ", tienChuaSD);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohon:
+                                                where = string.Concat(" ISNULL(SoTienChuaSD,0) < ", tienChuaSD);
+                                                break;
+                                            case (int)commonEnumHellper.KeyCompare.nhohonhoacbang:
+                                                where = string.Concat(" ISNULL(SoTienChuaSD,0) <= ", tienChuaSD);
                                                 break;
                                             default:
                                                 break;
