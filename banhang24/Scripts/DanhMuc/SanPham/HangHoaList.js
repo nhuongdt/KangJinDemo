@@ -4616,7 +4616,7 @@ var ViewModel = function () {
                 }
 
                 data.GiaBan = formatNumber3Digit(data.GiaBan);
-                data.TonKho = formatNumber3Digit(data.TonKho);
+                data.TonKho = formatNumber3Digit(data.TonKho,3);
                 data.SoPhutThucHien = data.SoPhutThucHien !== null ? formatNumber3Digit(data.SoPhutThucHien) : data.SoPhutThucHien;
                 data.ChiPhiThucHien = formatNumber3Digit(data.ChiPhiThucHien);
                 for (var j = 0; j < data.DonViTinh.length; j++) {
@@ -6343,7 +6343,7 @@ var ViewModel = function () {
 
                 var _tonKho = self.newHangHoa().TonKho();
                 if (_tonKho !== 0 && _tonKho.indexOf(',') > -1) {
-                    _tonKho = formatNumberToInt(_tonKho);
+                    _tonKho = formatNumberToFloat(_tonKho);
                 }
                 var _donvitinhchuan = self.newHangHoa().DonViTinhChuan();
                 var _quanlytheolohang = self.newHangHoa().QuanLyTheoLoHang();
@@ -6807,7 +6807,7 @@ var ViewModel = function () {
             //self.files(data.DM_HangHoa_Anh);
             data.GiaBan = formatNumber3Digit(data.GiaBan);
             data.GiaVon = formatNumber3Digit(data.GiaVon);
-            data.TonKho = formatNumber3Digit(data.TonKho);
+            data.TonKho = formatNumber3Digit(data.TonKho,3);
             //self.selectIDNHHAdd(data.ID_NhomHangHoa);
             self.selectIDNhomHHAddHH(data.ID_NhomHangHoa);
             for (var j = 0; j < data.DonViTinh.length; j++) {
