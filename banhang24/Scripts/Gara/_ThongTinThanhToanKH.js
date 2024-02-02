@@ -331,33 +331,9 @@
             self.PhieuThuKhach.TienThua = datt - self.inforHoaDon.KhachDaTra - self.PhieuThuKhach.PhaiThanhToan;
 
             if (!commonStatisJs.CheckNull(lstPos)) {
-                //for (let i = 0; i < lstPos.length; i++) {
-                //    let tkPos = $.grep(self.listData.AccountBanks, function (x) {
-                //        return x.ID === lstPos[i].ID_TaiKhoanPos;
-                //    });
-                //    if (tkPos.length > 0) {
-                //        self.ChangeAccountPOS(tkPos[0]);
-                //    }
-                //    else {
-                //        self.Pos_indexChosing = i;
-                //        self.ResetAccountPOS();
-                //    }
-                //}
                 self.PhieuThuKhach.ListTKPos = lstPos;
             }
             if (!commonStatisJs.CheckNull(lstCK)) {
-                //for (let i = 0; i < lstCK.length; i++) {
-                //    let tkCK = $.grep(self.listData.AccountBanks, function (x) {
-                //        return x.ID === lstPos[i].ID_TaiKhoanChuyenKhoan;
-                //    });
-                //    if (tkCK.length > 0) {
-                //        self.ChangeAccountCK(tkCK[0]);
-                //    }
-                //    else {
-                //        self.CK_indexChosing = i;
-                //        self.ResetAccountCK();
-                //    }
-                //}
                 self.PhieuThuKhach.ListTKChuyenKhoan = lstCK;
             }
             $('#ThongTinThanhToanKHNCC').modal('show');
@@ -1647,6 +1623,12 @@
             if (self.PhieuThuKhach.TienThua > 0) {
                 ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
                 return;
+            }
+            if (self.inforHoaDon.HoanTraTamUng > 0) {
+                if (self.PhieuThuKhach.TienThua < 0) {
+                    ShowMessage_Danger('Vui lòng trả đủ tiền cho khách');
+                    return;
+                }
             }
 
             self.saveOK = true;
