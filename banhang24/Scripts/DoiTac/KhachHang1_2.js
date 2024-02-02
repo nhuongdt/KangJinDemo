@@ -5535,6 +5535,7 @@
             obj.ID_NhomDoiTuong = obj.IDNhomKhachs;
             if (isNew) {
                 obj.NoHienTai = 0;
+                obj.NapCoc = 0;
                 obj.TongBan = 0;
                 obj.TongBanTruTraHang = 0;
                 obj.TongTichDiem = 0;
@@ -5542,15 +5543,22 @@
                 obj.TongChiKhachHang = 0;
                 obj.GiaTriDVSuDung = 0;
                 obj.GiaTriDVHoanTra = 0;
+                obj.SoTienChuaSD = 0;
                 self.DoiTuongs.unshift(obj);
                 self.TotalRecord(self.TotalRecord() + 1);
                 HideShowColumn();
             }
             else {
+                obj.NapCoc = objOld.NapCoc;
                 obj.NoHienTai = objOld.NoHienTai;
                 obj.TongBan = objOld.TongBan;
                 obj.TongBanTruTraHang = objOld.TongBanTruTraHang;
                 obj.TongTichDiem = objOld.TongTichDiem;
+                obj.TongThuKhachHang = objOld.TongThuKhachHang;
+                obj.TongChiKhachHang = objOld.TongChiKhachHang;
+                obj.GiaTriDVSuDung = objOld.GiaTriDVSuDung;
+                obj.GiaTriDVHoanTra = objOld.GiaTriDVHoanTra;
+                obj.SoTienChuaSD = objOld.SoTienChuaSD;
                 for (let i = 0; i < self.DoiTuongs().length; i++) {
                     if (self.DoiTuongs()[i].ID === obj.ID) {
                         self.DoiTuongs.remove(self.DoiTuongs()[i]);
@@ -5581,6 +5589,9 @@
             obj.TrangThaiKhachHang = obj.TenTrangThai;
             obj.TenNhomDT = obj.TenNhomKhachs;
             if (isNew) {
+                obj.NapCoc = 0;
+                obj.SuDungCoc = 0;
+                obj.SoDuCoc = 0;
                 obj.NoHienTai = 0;
                 obj.TongBan = 0;
                 obj.TongBanTruTraHang = 0;
@@ -5591,6 +5602,9 @@
                 HideShowColumn();
             }
             else {
+                obj.NapCoc = objOld.NapCoc;
+                obj.SuDungCoc = objOld.SuDungCoc;
+                obj.SoDuCoc = objOld.SoDuCoc;
                 obj.NoHienTai = objOld.NoHienTai;
                 obj.TongBan = objOld.TongBan;
                 obj.TongBanTruTraHang = objOld.TongBanTruTraHang;
