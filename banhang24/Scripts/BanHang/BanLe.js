@@ -3011,6 +3011,11 @@ var NewModel_BanHangLe = function () {
                             SaveHD_RemoveDisable();
                             return;
                         }
+                        if (itemHD[0].DaTraKhach < itemHD[0].PhaiThanhToanDB) {
+                            ShowMessage_Danger('Vui lòng trả đủ tiền cho khách');
+                            SaveHD_RemoveDisable();
+                            return;
+                        }
                     }
                     else {
                         if (itemHD[0].TienThua > 0) {
@@ -13375,6 +13380,8 @@ var NewModel_BanHangLe = function () {
         $this.next(".callprice").toggle();
         $this.next(".callprice").find('input').focus();
     }
+    // bắt buộc phải trả đúng số tiền cần trả (không thừa - không thiếu)
+    // disable: editDaTraKhach
     self.editDaTraKhach = function () {
         var $this = $(event.currentTarget);
         formatNumberObj($this);
@@ -13389,11 +13396,18 @@ var NewModel_BanHangLe = function () {
             lstHD = JSON.parse(lstHD);
             for (let i = 0; i < lstHD.length; i++) {
                 if (lstHD[i].MaHoaDon === _maHoaDon && (lstHD[i].NguoiTao === userLogin || lstHD[i].TrangThaiHD === 3)) {
-                    if (datra > lstHD[i].PhaiThanhToanDB) {
-                        ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
-                        $this.val(formatNumber(lstHD[i].PhaiThanhToanDB));
-                        datra = lstHD[i].PhaiThanhToanDB;
-                    }
+                    //if (datra > lstHD[i].PhaiThanhToanDB) {
+                    //    ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
+                    //    $this.val(formatNumber(lstHD[i].PhaiThanhToanDB));
+                    //    datra = lstHD[i].PhaiThanhToanDB;
+                    //}
+                    //else {
+                    //    if (datra < lstHD[i].PhaiThanhToanDB) {
+                    //        ShowMessage_Danger('Vui lòng trả đủ tiền cho khách');
+                    //        $this.val(formatNumber(lstHD[i].PhaiThanhToanDB));
+                    //        datra = lstHD[i].PhaiThanhToanDB;
+                    //    }
+                    //}
                     lstHD[i].DaTraKhach = datra;
                     lstHD[i].TienMat = datra;
                     idRandomHD = lstHD[i].IDRandom;
