@@ -811,7 +811,6 @@ namespace libDM_DoiTuong
                         case 6: // Tra Hang KH
                         case 7: // Tra Hang NCC
                             dto.strLoaiHoaDon = "Trả hàng";
-                            dto.NgayLapHoaDon = item.NgayLapHoaDon.AddSeconds(1);// HD tra phai sau HD mua --> show in list His ThanhToan right
                             break;
                         case 12: // PhieuChi
                             dto.strLoaiHoaDon = "Phiếu chi";
