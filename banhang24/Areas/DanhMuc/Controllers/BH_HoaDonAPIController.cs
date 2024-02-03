@@ -10332,7 +10332,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
                         bool isSetGiaVonTB = data["IsSetGiaVonTrungBinh"].ToObject<bool>();
-                        var ngaylapHD = objHoaDon.NgayLapHoaDon.AddSeconds(DateTime.Now.Second).AddMilliseconds(DateTime.Now.Millisecond);
+                        var ngaylapHD = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
                         var ngaylapHDOld = ngaylapHD;
                         ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                         ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
@@ -11402,7 +11402,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     ClassDM_HangHoa _classDMHH = new ClassDM_HangHoa(db);
                     ClassBH_NhanVienThucHien nhanvienThucHien = new ClassBH_NhanVienThucHien(db);
                     ClassQuy_HoaDon_ChiTiet classQuyCT = new ClassQuy_HoaDon_ChiTiet(db);
-                    DateTime ngaylapHD = objHoaDon.NgayLapHoaDon.AddMilliseconds(DateTime.Now.Millisecond);
+                    DateTime ngaylapHD = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
                     BH_HoaDon hdOld = db.BH_HoaDon.Find(objHoaDon.ID);
                     string err = string.Empty;
 
