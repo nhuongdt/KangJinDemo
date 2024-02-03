@@ -3119,7 +3119,7 @@ var NewModel_BanHangLe = function () {
                         NguoiTao: userLogin,
                         MaDoiTuong: cusCode,
                         TenDoiTuong: cusName,
-                        NgayLapHoaDon: moment(ngaylapHD, 'YYYY-MM-DD HH:mm').add(1, 'minutes').format('YYYY-MM-DD HH:mm'),
+                        NgayLapHoaDon: ngaylapHD,
                         TongTienHang: itemHD[0].TongTienHang,
                         PhaiThanhToan: phaiTTMuaMoi,
                         TongThanhToan: phaiTTMuaMoi,
@@ -3337,6 +3337,7 @@ var NewModel_BanHangLe = function () {
                             $('.bgwhite').hide();
                             objTraHang.ID = itemDB.ID;
                             objTraHang.MaHoaDon = itemDB.MaHoaDon;
+                            objTraHang.NgayLapHoaDon = itemDB.NgayLapHoaDon;
 
                             HDTraHang_InsertTPDinhLuong(itemDB.ID);
 
@@ -3375,6 +3376,7 @@ var NewModel_BanHangLe = function () {
                                         var itemMH = objDB2.data;
                                         objMuaHang.ID = itemMH.ID;
                                         objMuaHang.MaHoaDon = itemMH.MaHoaDon;
+                                        objMuaHang.NgayLapHoaDon = itemMH.NgayLapHoaDon;
 
                                         if (formatNumberToFloat(objAdd.HoanTraTamUng) <= 0 && formatNumberToFloat(objAdd.DaThanhToan) > 0) {
                                             SavePhieuThuChi_DoiTra(itemHD[0], objTraHang, objMuaHang);
@@ -5101,6 +5103,7 @@ var NewModel_BanHangLe = function () {
                                             var itemDB = x.data;
                                             objTraHang.ID = itemDB.ID;
                                             objTraHang.MaHoaDon = itemDB.MaHoaDon;
+                                            objTraHang.NgayLapHoaDon = itemDB.NgayLapHoaDon;
 
                                             // insert quy if Tong Tra > Khach Mua Moi
                                             if (formatNumberToFloat(myData.objTHO.DaTraKhach) > 0) {
@@ -5449,6 +5452,7 @@ var NewModel_BanHangLe = function () {
                                             var itemDB = x.data;
                                             objTraHang.ID = itemDB.ID;
                                             objTraHang.MaHoaDon = itemDB.MaHoaDon;
+                                            objTraHang.NgayLapHoaDon = itemDB.NgayLapHoaDon;
 
                                             // insert quy if Tong Tra > Khach Mua Moi
                                             if (formatNumberToFloat(myData.objTHO.DaTraKhach) > 0) {
@@ -5548,6 +5552,7 @@ var NewModel_BanHangLe = function () {
                                                         var itemMH = x2.data;
                                                         objMuaHang.ID = itemMH.ID;
                                                         objMuaHang.MaHoaDon = itemMH.MaHoaDon;
+                                                        objMuaHang.NgayLapHoaDon = itemMH.NgayLapHoaDon;
 
                                                         // insert quy if Khach Mua Moi > Tong Tra
                                                         if (formatNumberToFloat(myData.objTHO.DaThanhToan) > 0) {
@@ -9196,6 +9201,7 @@ var NewModel_BanHangLe = function () {
                 $('.bgwhite').hide();
                 objHDAdd.MaHoaDon = itemDB.MaHoaDon;
                 objHDAdd.ID = itemDB.ID;
+                objHDAdd.NgayLapHoaDon = itemDB.NgayLapHoaDon;
                 myData.objHoaDon.MaHoaDon = itemDB.MaHoaDon;
 
                 let diary = {
@@ -21710,7 +21716,7 @@ var NewModel_BanHangLe = function () {
             LoaiHoaDon: 11,
             TongTienThu: tongthu,
             MaHoaDon: '',
-            NgayLapHoaDon: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+            NgayLapHoaDon: objMuaHang.NgayLapHoaDon,
             NguoiNopTien: tenDoiTuong,
             NguoiTao: userLogin,
             NoiDungThu: hd.DienGiai,
@@ -22069,7 +22075,7 @@ var NewModel_BanHangLe = function () {
                 LoaiHoaDon: loaiThuChi,
                 TongTienThu: tongThu,
                 MaHoaDon: maPhieuThuChi,
-                NgayLapHoaDon: moment(itemHD.NgayLapHoaDon).add(nowSeconds, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
+                NgayLapHoaDon: itemHD.NgayLapHoaDon,
                 NguoiNopTien: tenDoiTuong,
                 NguoiTao: userLogin,
                 NoiDungThu: itemHD.DienGiai,
