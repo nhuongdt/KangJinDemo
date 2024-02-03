@@ -14,6 +14,19 @@ namespace Model
     {
         public const string CONNECT_ERROR = "Kết nối databse lỗi";
 
+        public static DateTime AddTimeNow_forDate(DateTime dt)
+        {
+            //var dtParam = dt;
+            // 2022-11-24 11:02:37.787 --> 37.787 --> 37 and 787
+            string dtNow = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
+            var stSplit = dtNow.Split(':');
+            var last = stSplit[stSplit.Length - 1].Split('.');
+            var senconds = Convert.ToDouble(last[0]);
+            var milisenconds = Convert.ToDouble(last[1]);
+            dt = dt.AddSeconds(senconds).AddMilliseconds(milisenconds);
+            return dt;
+        }
+
         public static string GetCharsStart(string stInput)
         {
             string sReturn = string.Empty;
