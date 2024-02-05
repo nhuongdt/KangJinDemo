@@ -3006,12 +3006,12 @@ var NewModel_BanHangLe = function () {
                 //  HD Tra
                 if (itemHD[0].LoaiHoaDon === 6) {
                     if (itemHD[0].HoanTraTamUng > 0) {
-                        if (itemHD[0].DaTraKhach > itemHD[0].PhaiThanhToanDB) {
+                        if (itemHD[0].DaTraKhach > itemHD[0].HoanTraTamUng) {
                             ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
                             SaveHD_RemoveDisable();
                             return;
                         }
-                        if (itemHD[0].DaTraKhach < itemHD[0].PhaiThanhToanDB) {
+                        if (itemHD[0].DaTraKhach < itemHD[0].HoanTraTamUng) {
                             ShowMessage_Danger('Vui lòng trả đủ tiền cho khách');
                             SaveHD_RemoveDisable();
                             return;
@@ -21703,10 +21703,12 @@ var NewModel_BanHangLe = function () {
         else {
             ghichu = ghichu.concat('/ ', tenDoiTuong, ' (', maDoiTuong, ')');
         }
+        let ngaylapHD = hd.NgayLapHoaDon;
         if (hd.TongTienMua > 0 && objMuaHang !== null) {
             let obj = shareMoney_QuyHD(tongno - phaiTTHDCu_afterTra, tiendiem, tienmat, tienpos, tienck, tienthe);
             obj.ID_HoaDonLienQuan = objMuaHang.ID;
             obj.MaHoaDon = objMuaHang.MaHoaDon;
+            ngaylapHD = objMuaHang.NgayLapHoaDon;
             lst.push(obj);
         }
 
@@ -21716,7 +21718,7 @@ var NewModel_BanHangLe = function () {
             LoaiHoaDon: 11,
             TongTienThu: tongthu,
             MaHoaDon: '',
-            NgayLapHoaDon: objMuaHang.NgayLapHoaDon,
+            NgayLapHoaDon: ngaylapHD,
             NguoiNopTien: tenDoiTuong,
             NguoiTao: userLogin,
             NoiDungThu: hd.DienGiai,
@@ -21973,6 +21975,7 @@ var NewModel_BanHangLe = function () {
                 if (objTraHang !== null) {
                     hd.MaDoiTuong = objTraHang.MaDoiTuong;
                     hd.TenDoiTuong = objTraHang.TenDoiTuong;
+                    hd.NgayLapHoaDon = objTraHang.NgayLapHoaDon;
                 }
                 ShareTienThu_HDDoiTra(hd, objMuaHang);
             }
