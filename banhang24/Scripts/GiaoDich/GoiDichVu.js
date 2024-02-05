@@ -884,8 +884,7 @@
         ResetColumnSort();
 
         self.currentPage(0);
-        var lenData = self.HoaDons().length;
-        self.PageCount(Math.ceil(lenData / self.pageSize()));
+        SearchHoaDon();
     };
 
     function getAllPhongBan() {
