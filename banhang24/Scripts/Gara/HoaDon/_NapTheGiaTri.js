@@ -414,6 +414,10 @@
             if (hd.ID_DoiTuong === null) {
                 commonStatisJs.ShowMessageDanger('Vui lòng chọn người nộp tiền');
                 return;
+            } 
+            if (hd.TienThua > 0) {
+                commonStatisJs.ShowMessageDanger('Vui lòng không nhập quá số tiền cần thanh toán');
+                return;
             }
 
             let khoaSo = VHeader.CheckKhoaSo(moment(hd.NgayLapHoaDon).format('YYYY-MM-DD'));
