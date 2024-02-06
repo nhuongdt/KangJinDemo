@@ -474,34 +474,55 @@
         var msgBottom = '';
         var msgDialog = '';
         var idHoaDon = item.ID;
+        let loaiHD = item.LoaiHoaDon;
         var urlCheck = BH_HoaDonUri + 'GetDSHoaDon_chuaHuy_byIDDatHang/' + idHoaDon;
 
-        if (item.LoaiHoaDon !== 6) {
-            switch (item.LoaiHoaDon) {
-                case 1:
-                case 0:
-                    msgBottom = "Hóa đơn đã có trả hàng, không thể hủy";
-                    break;
-                case 3:
-                    msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
-                    break;
-                case 25:
-                    urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
-                    msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
-                    break;
-                case 36:
-                    msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
-                    break;
-            }
+        switch (loaiHD) {
+            case 1:
+            case 0:
+                msgBottom = "Hóa đơn đã có trả hàng, không thể hủy";
+                break;
+            case 3:
+                msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
+                break;
+            case 6:
+                {
+                    urlCheck = '';
+                    if (self.HoaDonDoiTra() != null && self.HoaDonDoiTra().length > 0) {
+                        let hdDoi = self.HoaDonDoiTra()[0];
+                        if (hdDoi.LoaiHoaDon == 19) {
+                            urlCheck = BH_HoaDonUri + 'CheckGoiDV_isUsed?idHoaDon=' + hdDoi.ID;
+                            msgBottom = 'Hóa đơn trả có Gói dịch vụ đã được sử dụng';
+                        }
+                    }
+                }
+                break;
+            case 25:
+                urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
+                msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
+                break;
+            case 36:
+                msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
+                break;
+        }
 
+        if (urlCheck !== '') {
             const dataCheck = await self.CheckExistsHoaDonLienQuan(urlCheck);
-            if (dataCheck) {
-                ShowMessage_Danger(msgBottom);
-                return;
+            if (loaiHD !== 6) {
+                if (dataCheck) {
+                    ShowMessage_Danger(msgBottom);
+                    return;
+                }
+            }
+            else {
+                if (dataCheck.res) {
+                    ShowMessage_Danger(msgBottom);
+                    return;
+                }
             }
         }
 
-        if (item.LoaiHoaDon !== 3) {
+        if (loaiHD !== 3) {
             msgDialog = 'Có muốn hủy hóa đơn <b>' + item.MaHoaDon + '</b> cùng những phiếu liên quan không?'
         }
         else {
@@ -2114,7 +2135,7 @@
     self.RdoKhauTru = ko.observable(0);
     self.RdoCheTai = ko.observable(0);
     self.InVoiceChosing = ko.observable();
-    self.LoadChiTietHD = function (item, e) {
+    self.LoadChiTietHD = async function (item, e) {
         self.InVoiceChosing(item);
         self.Enable_NgayLapHD(item.ChoThanhToan === null || !VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
 
@@ -2363,6 +2384,16 @@
         GetInfor_PhieuTiepNhan(item.ID_PhieuTiepNhan);
         GetInforKhachHangFromDB_ByID(item.ID_DoiTuong, 1);
         GetInforKhachHangFromDB_ByID(item.ID_BaoHiem, 3);
+
+        if (item.LoaiHoaDon == 6) {
+            let hdDoi = await self.GetInfor_ofHDDoiTra(item);
+            if (!$.isEmptyObject(hdDoi)) {
+                self.HoaDonDoiTra([hdDoi])
+            }
+            else {
+                self.HoaDonDoiTra([])
+            }
+        }
     }
 
     function CheckQuyen_HoaDonMua() {
@@ -2431,26 +2462,26 @@
             self.LichSuThanhToanDH(data);
         });
     }
-    function GetInfor_ofHDDoiTra(item) {
-        // reset HoaDonDoiTra: if data null
-        self.HoaDonDoiTra([]);
-        ajaxHelper(BH_HoaDonUri + 'GetHoaDon_ByID?id=' + item.ID, 'GET').done(function (data) {
-            // show hdDoiTra if chua huy
-            if (data !== null && data.ChoThanhToan !== null) {
-                var cthd = data.BH_HoaDon_ChiTiet;
-                // remove tp dinh luong in CTHD
-                data.BH_HoaDon_ChiTiet = $.grep(cthd, function (x) {
-                    return x.ID_ChiTietDinhLuong === x.ID || x.ID_ChiTietDinhLuong === null;
-                })
-                self.HoaDonDoiTra(data);
 
-                vmThanhPhanCombo.GetAllCombo_byIDHoaDon(data.ID);
-            }
-            else {
-                self.HoaDonDoiTra([]);
-            }
-        });
+    self.GetInfor_ofHDDoiTra = async function (item) {
+        let xx = await ajaxHelper(BH_HoaDonUri + 'GetHoaDon_ByID?id=' + item.ID, 'GET').done()
+            .then(function (data) {
+                // show hdDoiTra if chua huy
+                if (data !== null && data.ChoThanhToan !== null) {
+                    const cthd = data.BH_HoaDon_ChiTiet;
+                    // remove tp dinh luong in CTHD
+                    data.BH_HoaDon_ChiTiet = $.grep(cthd, function (x) {
+                        return x.ID_ChiTietDinhLuong === x.ID || x.ID_ChiTietDinhLuong === null;
+                    })
+                    return data;
+                }
+                else {
+                    return {};
+                }
+            });
+        return xx;
     }
+
     self.VisibleHisTraHang = ko.computed(function () {
         if (self.LichSuTraHang() === null) {
             return false;
@@ -2978,8 +3009,10 @@
     self.Change_LoaiMauIn = function (maChungTu, item) {
         dathangTeamplate = maChungTu;
         loadMauIn();
-        if (maChungTu === 'DTH') {
-            GetInfor_ofHDDoiTra(item);
+        console.log(33, self.HoaDonDoiTra())
+
+        if (self.HoaDonDoiTra() != null && self.HoaDonDoiTra().length > 0) {
+            vmThanhPhanCombo.GetAllCombo_byIDHoaDon(self.HoaDonDoiTra()[0].ID);
         }
     }
     self.InHoaDon = function (item) {
