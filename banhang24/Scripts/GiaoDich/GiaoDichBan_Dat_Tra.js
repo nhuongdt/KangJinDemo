@@ -470,6 +470,14 @@
         return xx;
     }
 
+    self.GetArrIDHoaDon_fromIDGoc = async function (idHoaDon) {
+        const xx = await ajaxHelper(BH_HoaDonUri + 'GetArrIDHoaDon_fromIDGoc?idGoc=' + idHoaDon, 'GET').done(function () { })
+            .then(function (x) {
+                return x;
+            })
+        return xx;
+    }
+
     self.HuyHoaDon_updateChoThanhToan = async function (item) {
         var msgBottom = '';
         var msgDialog = '';
@@ -477,48 +485,63 @@
         let loaiHD = item.LoaiHoaDon;
         var urlCheck = BH_HoaDonUri + 'GetDSHoaDon_chuaHuy_byIDDatHang/' + idHoaDon;
 
-        switch (loaiHD) {
-            case 1:
-            case 0:
-                msgBottom = "Hóa đơn đã có trả hàng, không thể hủy";
-                break;
-            case 3:
-                msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
-                break;
-            case 6:
-                {
-                    urlCheck = '';
-                    if (self.HoaDonDoiTra() != null && self.HoaDonDoiTra().length > 0) {
-                        let hdDoi = self.HoaDonDoiTra()[0];
-                        if (hdDoi.LoaiHoaDon == 19) {
-                            urlCheck = BH_HoaDonUri + 'CheckGoiDV_isUsed?idHoaDon=' + hdDoi.ID;
-                            msgBottom = 'Hóa đơn trả có Gói dịch vụ đã được sử dụng';
+        if (loaiHD !== 6) {
+            switch (loaiHD) {
+                case 1:
+                case 0:
+                    msgBottom = "Hóa đơn đã có trả hàng, không thể hủy";
+                    break;
+                case 3:
+                    msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
+                    break;
+                case 6:
+                    {
+                        urlCheck = BH_HoaDonUri + 'GetArrIDHoaDon_fromIDGoc?idGoc=' + idHoaDon;
+                        msgBottom = 'Hóa đơn trả có Gói dịch vụ đã được sử dụng';
+                    }
+                    break;
+                case 25:
+                    urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
+                    msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
+                    break;
+                case 36:
+                    msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
+                    break;
+            }
+            const dataCheck = await self.CheckExistsHoaDonLienQuan(urlCheck);
+            if (dataCheck) {
+                ShowMessage_Danger(msgBottom);
+                return;
+            }
+        }
+        else{
+            const data = await self.GetArrIDHoaDon_fromIDGoc(idHoaDon);
+            if (data.res) {
+                const arrHD = data.data;
+                const gdv = $.grep(arrHD, function (x) {
+                    return x.LoaiHoaDon === 19;
+                })
+                if (gdv.length > 0) {
+                    const gdvUsed = await self.CheckExistsHoaDonLienQuan(BH_HoaDonUri + 'CheckGoiDV_isUsed?idHoaDon=' + gdv[0].ID);
+                    if (gdvUsed.res) {
+                        msgBottom = 'Hóa đơn trả có Gói dịch vụ đã được sử dụng';
+                    }
+                    else {
+                        const gdvIsTra = await self.GetArrIDHoaDon_fromIDGoc(gdv[0].ID);
+                        if (gdvIsTra.res) {
+                            const arrHDTra = $.grep(gdvIsTra.data, function (x) {
+                                return x.LoaiHoaDon === 6;
+                            });
+                            if (arrHDTra.length>0) {
+                                msgBottom = 'Gói dịch vụ đã được đổi trả lần nữa';
+                            }
                         }
                     }
                 }
-                break;
-            case 25:
-                urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
-                msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
-                break;
-            case 36:
-                msgBottom = "Hóa đơn đã tạo phiếu xuất kho, không thể hủy";
-                break;
-        }
-
-        if (urlCheck !== '') {
-            const dataCheck = await self.CheckExistsHoaDonLienQuan(urlCheck);
-            if (loaiHD !== 6) {
-                if (dataCheck) {
-                    ShowMessage_Danger(msgBottom);
-                    return;
-                }
             }
-            else {
-                if (dataCheck.res) {
-                    ShowMessage_Danger(msgBottom);
-                    return;
-                }
+            if (!commonStatisJs.CheckNull(msgBottom)) {
+                ShowMessage_Danger(msgBottom);
+                return;
             }
         }
 
@@ -2135,7 +2158,7 @@
     self.RdoKhauTru = ko.observable(0);
     self.RdoCheTai = ko.observable(0);
     self.InVoiceChosing = ko.observable();
-    self.LoadChiTietHD = async function (item, e) {
+    self.LoadChiTietHD = function (item, e) {
         self.InVoiceChosing(item);
         self.Enable_NgayLapHD(item.ChoThanhToan === null || !VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
 
@@ -2384,16 +2407,6 @@
         GetInfor_PhieuTiepNhan(item.ID_PhieuTiepNhan);
         GetInforKhachHangFromDB_ByID(item.ID_DoiTuong, 1);
         GetInforKhachHangFromDB_ByID(item.ID_BaoHiem, 3);
-
-        if (item.LoaiHoaDon == 6) {
-            let hdDoi = await self.GetInfor_ofHDDoiTra(item);
-            if (!$.isEmptyObject(hdDoi)) {
-                self.HoaDonDoiTra([hdDoi])
-            }
-            else {
-                self.HoaDonDoiTra([])
-            }
-        }
     }
 
     function CheckQuyen_HoaDonMua() {
@@ -3006,11 +3019,17 @@
             frame1.remove();
         }, 500);
     }
-    self.Change_LoaiMauIn = function (maChungTu, item) {
+    self.Change_LoaiMauIn = async function (maChungTu, item) {
         dathangTeamplate = maChungTu;
         loadMauIn();
-        console.log(33, self.HoaDonDoiTra())
 
+        let hdDoi = await self.GetInfor_ofHDDoiTra(item);
+        if (!$.isEmptyObject(hdDoi)) {
+            self.HoaDonDoiTra([hdDoi])
+        }
+        else {
+            self.HoaDonDoiTra([])
+        }
         if (self.HoaDonDoiTra() != null && self.HoaDonDoiTra().length > 0) {
             vmThanhPhanCombo.GetAllCombo_byIDHoaDon(self.HoaDonDoiTra()[0].ID);
         }

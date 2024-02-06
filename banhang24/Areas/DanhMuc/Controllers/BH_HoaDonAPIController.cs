@@ -3775,6 +3775,21 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        public IHttpActionResult GetArrIDHoaDon_fromIDGoc(Guid idGoc)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                var data = (from hd in db.BH_HoaDon
+                           where hd.ID_HoaDon == idGoc && hd.ChoThanhToan == false
+                           select new { hd.ID, hd.MaHoaDon, hd.LoaiHoaDon }).ToList();
+                return Json(new
+                {
+                    res = true,
+                    data
+                });
+            }
+        }
+
         public bool GetDSHoaDon_chuaHuy_byIDDatHang(Guid id)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -13047,7 +13062,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                    join ctsd in db.BH_HoaDon_ChiTiet on ct.ID equals ctsd.ID_ChiTietGoiDV
                                    join hdsu in db.BH_HoaDon on ctsd.ID_HoaDon equals hdsu.ID
                                    where hd.ID == idHoaDon && hdsu.ChoThanhToan == false
-                                   && hd.LoaiHoaDon == 1
+                                   && hdsu.LoaiHoaDon == 1
                                    select ct.ID;
                         if (data != null && data.Count() > 0)
                         {
