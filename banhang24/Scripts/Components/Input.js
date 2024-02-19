@@ -49,9 +49,9 @@
                     //    self.$emit('change-date', e);
                     //},
                     onChangeDateTime: function (dp, $input) {
-                        if (!commonStatisJs.CheckNull(dp)) {
+                        //if (!commonStatisJs.CheckNull(dp)) {
                             self.$emit('change-date', dp);
-                        }
+                        //}
                     }
                 })
         },
