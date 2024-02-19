@@ -494,12 +494,6 @@
                 case 3:
                     msgBottom = "Phiếu đặt hàng đã có hóa đơn, không thể hủy";
                     break;
-                case 6:
-                    {
-                        urlCheck = BH_HoaDonUri + 'GetArrIDHoaDon_fromIDGoc?idGoc=' + idHoaDon;
-                        msgBottom = 'Hóa đơn trả có Gói dịch vụ đã được sử dụng';
-                    }
-                    break;
                 case 25:
                     urlCheck = '/api/DanhMuc/GaraAPI/CheckHoaDon_DaXuLy?idHoaDon=' + idHoaDon + '&loaiHoaDon=8';
                     msgBottom = "Hóa đơn đã có phiếu xuất kho, không thể hủy";
