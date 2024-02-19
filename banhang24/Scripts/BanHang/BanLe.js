@@ -54,7 +54,7 @@ var FormModel_NewHoaDon = function () {
     self.KhuyenMai_GhiChu = ko.observable('');
     self.TongGiamGiaKM_HD = ko.observable(0);
     self.NgayApDungGoiDV = ko.observable(moment().format('DD/MM/YYY'));
-    self.HanSuDungGoiDV = ko.observable(moment().add(1, 'years').format('DD/MM/YYY'));
+    self.HanSuDungGoiDV = ko.observable(null);
     self.TienMat = ko.observable(0);
     self.TienATM = ko.observable(0);
     self.TienGui = ko.observable(0);
@@ -5080,8 +5080,11 @@ var NewModel_BanHangLe = function () {
                                     if (!commonStatisJs.CheckNull(itFor.NgayApDungGoiDV)) {
                                         loaiHD_DoiTra = 19;
                                         objMuaHang.NgayApDungGoiDV = moment(itFor.NgayApDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                                    }
+                                    if (!commonStatisJs.CheckNull(itFor.HanSuDungGoiDV)) {
                                         objMuaHang.HanSuDungGoiDV = moment(itFor.HanSuDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
                                     }
+
                                     objMuaHang.LoaiHoaDon = loaiHD_DoiTra;
 
                                     // check and assign TienTheGiTri for objHoaDon --> save Quy_HoaDon
@@ -5468,6 +5471,8 @@ var NewModel_BanHangLe = function () {
                                                 if (!commonStatisJs.CheckNull(lstTHO[i].NgayApDungGoiDV)) {
                                                     loaiHD_DoiTra = 19;
                                                     objMuaHang.NgayApDungGoiDV = moment(lstTHO[i].NgayApDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                                                }
+                                                if (!commonStatisJs.CheckNull(lstTHO[i].HanSuDungGoiDV)) {
                                                     objMuaHang.HanSuDungGoiDV = moment(lstTHO[i].HanSuDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
                                                 }
 
@@ -8565,8 +8570,17 @@ var NewModel_BanHangLe = function () {
             case 19:
                 myData.objHoaDon.ChiPhi = objHDAdd.TongChiPhi;
                 myData.objHoaDon.TongChiPhi = 0;
-                myData.objHoaDon.NgayApDungGoiDV = moment(myData.objHoaDon.NgayApDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
-                myData.objHoaDon.HanSuDungGoiDV = moment(myData.objHoaDon.HanSuDungGoiDV, 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+                let ngayapdung = myData.objHoaDon.NgayApDungGoiDV;
+                let handung = myData.objHoaDon.HanSuDungGoiDV;
+                if (!commonStatisJs.CheckNull(ngayapdung)) {
+                    if (handung !== '' && handung !== null) {
+                        handung = moment(handung, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                    }
+                    ngayapdung = moment(ngayapdung, 'DD/MM/YYYY').format('YYYY-MM-DD');
+                }
+                myData.objHoaDon.NgayApDungGoiDV = ngayapdung;
+                myData.objHoaDon.HanSuDungGoiDV = handung;
                 break;
         }
         $.ajax({
@@ -9506,7 +9520,7 @@ var NewModel_BanHangLe = function () {
             ngaysudungGoiDV = moment(new Date()).format('DD/MM/YYYY');
             var nextYear = now.getFullYear() + 1;
             // default: het han sau 1 nam
-            ngayhethanGoiDV = moment(new Date()).format('DD/MM') + '/' + nextYear;
+            ngayhethanGoiDV = null;
         }
         var idRandom = CreateIDRandom('HD_');
         return obj = {
@@ -9708,7 +9722,7 @@ var NewModel_BanHangLe = function () {
                 sNameMaHD = ' Trả ';
                 ngaysudungGoiDV = moment(new Date()).format('DD/MM/YYYY');
                 var nextYear = now.getFullYear() + 1;
-                ngayhethanGoiDV = moment(new Date()).format('DD/MM') + '/' + nextYear;
+                ngayhethanGoiDV = null;
             }
             // use tinh PTThue HD
             var phaiTT = item.TongTienHang - item.TongGiamGia - item.KhuyeMai_GiamGia;
@@ -13847,7 +13861,7 @@ var NewModel_BanHangLe = function () {
                     let nextYear = now.getFullYear() + 1;
                     let ngayhethanGoiDV = moment(new Date()).format('DD/MM') + '/' + nextYear;
                     hd[i].NgayApDungGoiDV = ngaysudungGoiDV;
-                    hd[i].HanSuDungGoiDV = ngayhethanGoiDV;
+                    hd[i].HanSuDungGoiDV = null;
                 }
                 else {
                     hd[i].NgayApDungGoiDV = null;
@@ -14104,7 +14118,7 @@ var NewModel_BanHangLe = function () {
                                 let nextYear = now.getFullYear() + 1;
                                 let ngayhethanGoiDV = moment(new Date()).format('DD/MM') + '/' + nextYear;
                                 hd[i].NgayApDungGoiDV = ngaysudungGoiDV;
-                                hd[i].HanSuDungGoiDV = ngayhethanGoiDV;
+                                hd[i].HanSuDungGoiDV = null;
                             }
                             else {
                                 hd[i].NgayApDungGoiDV = null;
