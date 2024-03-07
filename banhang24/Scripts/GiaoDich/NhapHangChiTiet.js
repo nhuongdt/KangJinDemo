@@ -744,47 +744,45 @@ var NhapHangChiTiet = function () {
     }
 
     function GetHT_Quyen_ByNguoiDung() {
-        if (navigator.onLine) {
-            ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetListQuyen_OfNguoiDung", 'GET').done(function (data) {
-                if (data !== "" && data.length > 0) {
-                    self.Quyen_NguoiDung(data);
-                    self.HangHoa_GiaBan(CheckQuyenExist('HangHoa_GiaBan'));
-                    self.HangHoa_GiaNhap(CheckQuyenExist('HangHoa_GiaNhap'));
-                    self.HangHoa_ThemMoi(CheckQuyenExist('HangHoa_ThemMoi'));
+        ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetListQuyen_OfNguoiDung", 'GET').done(function (data) {
+            if (data !== "" && data.length > 0) {
+                self.Quyen_NguoiDung(data);
+                self.HangHoa_GiaBan(CheckQuyenExist('HangHoa_GiaBan'));
+                self.HangHoa_GiaNhap(CheckQuyenExist('HangHoa_GiaNhap'));
+                self.HangHoa_ThemMoi(CheckQuyenExist('HangHoa_ThemMoi'));
 
-                    switch (self.LoaiHoaDonMenu()) {
-                        case 4:
-                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
-                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
-                            break;
-                        case 14:
-                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
-                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
-                            break;
-                        case 31:
-                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
-                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('DatHangNCC_ThayDoiNhanVien'));
-                            break;
-                        case 13:
-                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapNoiBo_ThayDoiThoiGian'));
-                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapNoiBo_ThayDoiNhanVien'));
-                            break;
-                    }
+                switch (self.LoaiHoaDonMenu()) {
+                    case 4:
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                        break;
+                    case 14:
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                        break;
+                    case 31:
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('DatHangNCC_ThayDoiNhanVien'));
+                        break;
+                    case 13:
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapNoiBo_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapNoiBo_ThayDoiNhanVien'));
+                        break;
+                }
 
-                    var insertNCC = CheckQuyenExist('NhaCungCap_ThemMoi');
-                    if (insertNCC) {
-                        $('#hiddenShowaddNCC,#btnLuuNhomDoiTuong').show();
+                var insertNCC = CheckQuyenExist('NhaCungCap_ThemMoi');
+                if (insertNCC) {
+                    $('#hiddenShowaddNCC,#btnLuuNhomDoiTuong').show();
 
-                    }
-                    else {
-                        $('#hiddenShowaddNCC,#btnLuuNhomDoiTuong').hide();
-                    }
                 }
                 else {
-                    ShowMessage_Danger('Không có quyền');
+                    $('#hiddenShowaddNCC,#btnLuuNhomDoiTuong').hide();
                 }
-            });
-        }
+            }
+            else {
+                ShowMessage_Danger('Không có quyền');
+            }
+        });
     }
 
     function Check_QuyenXemGiaVon() {
@@ -3743,13 +3741,11 @@ var NhapHangChiTiet = function () {
     }
 
     function getChiTietNCCByID(id, firstLoad = true) {
-        if (navigator.onLine) {
-            ajaxHelper(DMDoiTuongUri + "GetDM_DoiTuong/" + id, 'GET').done(function (data) {
-                self.ChiTietDoiTuong(data);
-                SetIDDoiTuong_toCacheHD(data.ID);
-                GetTienDatCoc(id, firstLoad);
-            });
-        }
+        ajaxHelper(DMDoiTuongUri + "GetDM_DoiTuong/" + id, 'GET').done(function (data) {
+            self.ChiTietDoiTuong(data);
+            SetIDDoiTuong_toCacheHD(data.ID);
+            GetTienDatCoc(id, firstLoad);
+        });
     }
 
     function GetTienDatCoc(idDoiTuong, firstLoad) {
@@ -4045,7 +4041,7 @@ var NhapHangChiTiet = function () {
         vmThemMoiNCC.showModalAdd();
     };
 
-     self.showPopupKH = function () {
+    self.showPopupKH = function () {
     };
 
     self.showPopupEditNCC = function (item) {
