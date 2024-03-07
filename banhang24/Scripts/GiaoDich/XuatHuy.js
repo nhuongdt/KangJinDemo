@@ -57,6 +57,7 @@ function ViewModel() {
     self.XuatHuy_CapNhat = ko.observable(false);
     self.XuatHuy_SaoChep = ko.observable(false);
     self.XuatHuy_MoPhieu = ko.observable(false);
+    self.XuatKho_XacNhanXuat = ko.observable(false);
     self.XuatHuy_Xoa = ko.observable(false);
     self.XuatHuy_XemDS_PhongBan = ko.observable(false);
     self.XuatHuy_XemDS_HeThong = ko.observable(false);
@@ -139,6 +140,7 @@ function ViewModel() {
         self.XuatHuy_SuaDoi(CheckRole('XuatHuy_SuaDoi'));
         self.XuatHuy_SaoChep(CheckRole('XuatHuy_SaoChep'));
         self.XuatHuy_MoPhieu(CheckRole('XuatHuy_MoPhieu'));
+        self.XuatKho_XacNhanXuat(CheckRole('XuatHuy_XacNhanXuat'));
         self.XuatHuy_Xoa(CheckRole('XuatHuy_Xoa'));
         self.XuatHuy_ThayDoiThoiGian(CheckRole('XuatHuy_ThayDoiThoiGian'));
         self.HangHoa_XemDS(CheckRole('HangHoa_XemDS'));
