@@ -1274,7 +1274,7 @@
             });
         }
         else {
-            ShowMessage_Danger(data);
+            ShowMessage_Danger(check);
         }
     };
 
