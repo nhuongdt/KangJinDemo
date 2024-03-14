@@ -13057,14 +13057,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     try
                     {
-                        var data = from ct in db.BH_HoaDon_ChiTiet
-                                   join hd in db.BH_HoaDon on ct.ID_HoaDon equals hd.ID
-                                   join ctsd in db.BH_HoaDon_ChiTiet on ct.ID equals ctsd.ID_ChiTietGoiDV
-                                   join hdsu in db.BH_HoaDon on ctsd.ID_HoaDon equals hdsu.ID
-                                   where hd.ID == idHoaDon && hdsu.ChoThanhToan == false
-                                   && hdsu.LoaiHoaDon == 1
-                                   select ct.ID;
-                        if (data != null && data.Count() > 0)
+                        var xx = from o1 in (from ct in db.BH_HoaDon_ChiTiet
+                                             where ct.ID_HoaDon == idHoaDon
+                                             select new { ct.ID })
+                                 join ctsd in db.BH_HoaDon_ChiTiet on o1.ID equals ctsd.ID_ChiTietGoiDV
+                                 join hdsd in db.BH_HoaDon on ctsd.ID_HoaDon equals hdsd.ID
+                                 where hdsd.LoaiHoaDon == 1 && hdsd.ChoThanhToan == false
+                                 select ctsd.ID;
+
+                        if (xx != null && xx.Count() > 0)
                         {
                             return Json(new { res = true });
                         }
