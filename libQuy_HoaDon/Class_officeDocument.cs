@@ -3516,9 +3516,8 @@ namespace libQuy_HoaDon
             Workbook objWorkbook = new Workbook(fileInput);
             Worksheet worksheet = objWorkbook.Worksheets[0];
             int trows = worksheet.Cells.MaxDataRow;
-            int tcool = worksheet.Cells.MaxColumn + 1;
-            DataTable dt = worksheet.Cells.ExportDataTable(1, 0, trows, tcool);
-            dt.Rows[0].Delete();
+            int tcool = worksheet.Cells.MaxDisplayRange.ColumnCount;
+            DataTable dt = worksheet.Cells.ExportDataTable(2, 0, trows, tcool);
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 string dk = "";
