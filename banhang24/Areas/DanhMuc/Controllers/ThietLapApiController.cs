@@ -2289,7 +2289,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                               {
                                   ID = nv.ID,
                                   TenNhanVien = nv.TenNhanVien,
-                                  DiaChi = nv.DiaChiCoQuan,
+                                  DiaChi = nv.DiaChiTT,
                                   NgaySinh = nv.NgaySinh,
                                   DienThoai = nv.DienThoaiDiDong,
                                   Email = nv.Email,
