@@ -328,6 +328,7 @@ var ViewModel = function () {
     self.HangHoa_GiaBan = ko.observable(false);
     self.HangHoa_GiaVon = ko.observable(false);
     self.role_InsertProduct = ko.observable(false);
+    self.role_InsertDichVu = ko.observable(false);// tách riêng quyền: thêm hàng hóa/dịch vụ
     self.role_DeleteProduct = ko.observable(false);
     self.role_UpdateProduct = ko.observable(false);// = role chuyen nhomhang, role ngungkinhdoanh
     self.role_UpdateMoTaProduct = ko.observable(false);// = sửa đổi thông tin: thuộc tính, mô tả chi tiết
@@ -360,6 +361,7 @@ var ViewModel = function () {
             }
 
             self.role_InsertProduct(CheckQuyenExist('HangHoa_ThemMoi'));
+            self.role_InsertDichVu(CheckQuyenExist('ThemMoi_DichVu'));
             self.role_DeleteProduct(CheckQuyenExist('HangHoa_Xoa'));
             self.role_UpdateProduct(CheckQuyenExist('HangHoa_CapNhat'));
             self.role_UpdateMoTaProduct(CheckQuyenExist('HangHoa_SuaDoiThongTinMoTaHangHoa'));
