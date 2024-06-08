@@ -20663,6 +20663,7 @@ var NewModel_BanHangLe = function () {
         vmThanhToanGara.RoleChange_ChietKhauNV = vmHoaHongDV.role.ThayDoiChietKhau;
         vmUpAnhHoaDon.roleUpdateImg = self.roleUpdateImg();
         vmNKGoiBaoDuong.roleUpdateImg = self.roleUpdateImg();
+        vmNKGoiBaoDuong.roleGoiDichVu_KhongChoPhepSuDung =  CheckQuyenExist('GoiDichVu_KhongChoPhepSuDung');
         vmApDungNhomHoTro.roleChangeNgayLapHD = CheckQuyenExist('HoaDon_ThayDoiThoiGian');
 
         self.roleCustomer_Insert(CheckQuyenExist('KhachHang_ThemMoi'));

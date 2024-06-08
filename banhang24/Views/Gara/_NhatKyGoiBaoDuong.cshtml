@@ -52,8 +52,8 @@
             <div class="modal-body">
                 <div class="col-md-12 nhat-ky-dv">
                     <div class="row tab-news-modal" id="tab-diary-service">
-                        <div class="flex flex-row">
-                            <ul class="nav nav-tabs" style="width:78%;">
+                        <div class="flex flex-row" style="justify-content: end; align-items:center">
+                            <ul class="nav nav-tabs">
                                 <li class="active">
                                     <a data-toggle="tab" href="#goidichvu">
                                         {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}
@@ -66,9 +66,9 @@
                                 <li><a data-toggle="tab" href="#nhatkythegiatri">Nhật ký thẻ giá trị</a></li>
                                 <li v-if="LoaiNganhNghe!==1 && $root.roleUpdateImg"><a data-toggle="tab" href="#anhLieuTrinh">Ảnh liệu trình</a></li>
                             </ul>
-                            <div style="border:none">
+                            <div style="border:none" class="flex flex-row">
                                 <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
-                                <button type="button" class="btn btn-main" v-on:click="Agree">
+                                <button type="button" class="btn btn-main" v-if="$root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false" v-on:click="Agree">
                                     <i class="fa fa-check-square"></i>Xác nhận
                                 </button>
                             </div>
@@ -502,7 +502,7 @@
             <div class="modal-footer">
 
                 <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
-                <button type="button" class="btn btn-main" v-on:click="Agree">
+                <button type="button" class="btn btn-main" v-if="$root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false" v-on:click="Agree">
                     <i class="fa fa-check-square"></i>Xác nhận
                 </button>
 
@@ -550,6 +550,7 @@
         created: function () {
             let self = this;
             self.Today = moment(new Date()).format('YYYY-MM-DD');
+            self.isAdmin = $('#txtUserLogin').val().toLowerCase() == 'admin'
         },
         data: {
             ID_DonVi: $('#txtDonVi').val(),
@@ -562,7 +563,9 @@
 
             roleUpdateImg: false,
             roleXemHoaHong: false,
+            roleGoiDichVu_KhongChoPhepSuDung: false,
             soduTheGiaTri: false,
+            isAdmin: false,
 
             filterGDV: {
                 Status: 1,
