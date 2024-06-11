@@ -5015,7 +5015,7 @@
                 if (loaiDoiTuong === 1) {
                     vmThemMoiKhach.listData.NhanViens = lstNV_byDonVi;
                     vmThanhToan.listData.NhanViens = lstNV_byDonVi;
-                    vmHoaHongDV.listData.NhanViens = lstNV_byDonVi;
+                    vmHoaHongDV.listData.NhanViens = lstNV_byDonVi;                  
                 }
                 else {
                     vmThanhToanNCC.listData.NhanViens = lstNV_byDonVi;
@@ -5516,6 +5516,15 @@
             ShowMessage_Danger("Thêm mới " + sLoai + " thất bại");
         })
     }
+
+    self.ShowPopListDiary_ofCustomer = function (item) {
+        let id = item.ID;
+        vmNKGoiBaoDuong.ID_DonVi = VHeader.IdDonVi;
+        vmNKGoiBaoDuong.GetGoiDichVu_ofKhachHang(id);
+        vmThanhToanGara.GetSoDuTheGiaTri(id);
+        vmNKGoiBaoDuong.showModal(id, null, 0, 1);
+    }
+
     $('#modalMoveGroup').on('hidden.bs.modal', function () {
         SearchKhachHang(false, false);
     })

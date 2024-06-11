@@ -66,9 +66,9 @@
                                 <li><a data-toggle="tab" href="#nhatkythegiatri">Nhật ký thẻ giá trị</a></li>
                                 <li v-if="LoaiNganhNghe!==1 && $root.roleUpdateImg"><a data-toggle="tab" href="#anhLieuTrinh">Ảnh liệu trình</a></li>
                             </ul>
-                            <div style="border:none" class="flex flex-row">
+                            <div style="border:none" class="flex flex-row"  v-if="$root.CallFrom == 0 && ($root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false)">
                                 <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
-                                <button type="button" class="btn btn-main" v-if="$root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false" v-on:click="Agree">
+                                <button type="button" class="btn btn-main" v-on:click="Agree">
                                     <i class="fa fa-check-square"></i>Xác nhận
                                 </button>
                             </div>
@@ -499,10 +499,10 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer"  v-if="$root.CallFrom == 0 && ($root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false)">
 
                 <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
-                <button type="button" class="btn btn-main" v-if="$root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false" v-on:click="Agree">
+                <button type="button" class="btn btn-main" v-on:click="Agree">
                     <i class="fa fa-check-square"></i>Xác nhận
                 </button>
 
@@ -566,6 +566,7 @@
             roleGoiDichVu_KhongChoPhepSuDung: false,
             soduTheGiaTri: false,
             isAdmin: false,
+            CallFrom: 0, //0 - thungan, 1 - Khác
 
             filterGDV: {
                 Status: 1,
@@ -839,7 +840,9 @@
 
                     if (commonStatisJs.CheckNull(self.ID_Customer)) {
                         self.listData.GoiDichVu = [];
-                        newModelBanLe.TongGoiDV(0);
+                        if (self.CallFrom === 0) {
+                            newModelBanLe.TongGoiDV(0);
+                        }
                         return;
                     }
                 }
@@ -847,7 +850,9 @@
                     if (x.res) {
                         let data = x.dataSoure;
                         self.listData.GoiDichVu = data;
-                        newModelBanLe.TongGoiDV(data.length);
+                         if (self.CallFrom === 0) {
+                            newModelBanLe.TongGoiDV(data.length);
+                        }
                         self.GetTPDinhLuong_ofHoaDon();
                     }
                 });
@@ -1081,12 +1086,13 @@
                 }
             },
 
-            showModal: function (idCus, idCar = null, nganhnghe = 0) {
+            showModal: function (idCus, idCar = null, nganhnghe = 0, from = 0) {
                 let self = this;
                 self.saveOK = false;
                 self.LoaiNganhNghe = nganhnghe;
                 self.ID_Customer = idCus;
                 self.ID_Car = idCar;
+                self.CallFrom = from;
                 self.ListDichVuChosed = [];
                 self.ListIDCarChosed = [];
                 self.GetNhatKySuDung_GDV();
