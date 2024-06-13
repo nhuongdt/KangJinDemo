@@ -355,19 +355,19 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("SoDuCoc");
                     excel.Columns.Remove("NapCocAll");
                     excel.Columns.Remove("SuDungCocAll");
-                    excel.Columns.Remove("SoDuCocAll");  
+                    excel.Columns.Remove("SoDuCocAll");
                     excel.Columns.Remove("SumTongThuKhachHang");
                     excel.Columns.Remove("SumTongChiKhachHang");
                     excel.Columns.Remove("SumGiaTriDVSuDung");
-                    excel.Columns.Remove("SumGiaTriDVHoanTra"); 
-                    excel.Columns.Remove("Email"); 
-                    excel.Columns.Remove("MaSoThue"); 
-                    excel.Columns.Remove("TaiKhoanNganHang"); 
-                    excel.Columns.Remove("TongBan"); 
-                    excel.Columns.Remove("TongTichDiem"); 
-                    excel.Columns.Remove("NgayGiaoDichGanNhat"); 
-                    excel.Columns.Remove("TrangThaiKhachHang"); 
-                    excel.Columns.Remove("SumSoTienChuaSD"); 
+                    excel.Columns.Remove("SumGiaTriDVHoanTra");
+                    excel.Columns.Remove("Email");
+                    excel.Columns.Remove("MaSoThue");
+                    excel.Columns.Remove("TaiKhoanNganHang");
+                    excel.Columns.Remove("TongBan");
+                    excel.Columns.Remove("TongTichDiem");
+                    excel.Columns.Remove("NgayGiaoDichGanNhat");
+                    excel.Columns.Remove("TrangThaiKhachHang");
+                    excel.Columns.Remove("SumSoTienChuaSD");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
                     fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachKhachHang.xlsx");
@@ -2946,6 +2946,19 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassBH_HoaDon_ChiTiet classBHChiTiet = new ClassBH_HoaDon_ChiTiet(db);
                     List<GoiDichVu_KhachHang> lst = classBHChiTiet.GetDSGoiDichVu_ofKhachHang(param);
+                    // Mượn trường: LoaiHoaDon (1.Còn buổi sử dụng, 0. hết buổi sử dụng)
+                    if (!string.IsNullOrEmpty(param.LoaiHoaDons))
+                    {
+                        switch (param.LoaiHoaDons)
+                        {
+                            case "0":
+                                lst = lst.Where(x => x.SoLuongConLai == 0).ToList();
+                                break;
+                            case "1":
+                                lst = lst.Where(x => x.SoLuongConLai > 0).ToList();
+                                break;
+                        }
+                    }
                     var data = lst.GroupBy(x => new
                     {
                         x.ID_GoiDV,
@@ -3359,6 +3372,61 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 result = string.Concat(ex.Message, ex.InnerException);
                 CookieStore.WriteLog("Creater_NangNhomDoiTuong_ChiNhanh " + ex.InnerException + ex.Message);
                 return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+            }
+        }
+        [HttpGet]
+        public IHttpActionResult GetNVPhuTrach_ofCustomer(Guid customerId)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                var data = (from nvpt in (from nvpt in db.KH_NVPhuTrach
+                                          where nvpt.ID_KhachHang == customerId
+                                          select new
+                                          {
+                                              nvpt.ID_NhanVienPhuTrach
+                                          })
+                            join nv in db.NS_NhanVien on nvpt.ID_NhanVienPhuTrach equals nv.ID
+                            select new
+                            {
+                                nv.ID,
+                                nv.MaNhanVien,
+                                nv.TenNhanVien
+                            }).ToList();
+                return ActionTrueData(data);
+            }
+        }
+
+        [HttpPost]
+        public IHttpActionResult PostKH_NhanVienPhuTrach(List<Guid> arrIDNV, Guid idKhachHang)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        if (idKhachHang != Guid.Empty && arrIDNV.Count > 0)
+                        {
+                            var lstNVold = db.KH_NVPhuTrach.Where(x => x.ID_KhachHang == idKhachHang);
+                            db.KH_NVPhuTrach.RemoveRange(lstNVold);
+
+                            foreach (var item in arrIDNV)
+                            {
+                                KH_NVPhuTrach objNew = new KH_NVPhuTrach { ID = Guid.NewGuid(), ID_KhachHang = idKhachHang, ID_NhanVienPhuTrach = item };
+                                db.KH_NVPhuTrach.Add(objNew);
+                            }
+                            db.SaveChanges();
+                            trans.Commit();
+                            return ActionTrueNotData(string.Empty);
+                        }
+                        return ActionFalseNotData(string.Empty);
+                    }
+                    catch (Exception)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(string.Empty);
+                    }
+                }
             }
         }
 
