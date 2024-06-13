@@ -6,9 +6,10 @@
         'nhomkhachs': cmpNhomKhach,
         'customers': cmpChoseCustomer,
         'nhanviens': ComponentChoseStaff,
-        'ngaysinh': cmpNgaySinh
+        'ngaysinh': cmpNgaySinh,
+        'dropdown-multiple': cmpDropdownMultipleItem
     },
-    created: function () {
+    created: async function () {
         var self = this;
         self.SubDomain = $('#subDomain').val();
         self.inforLogin.ID_DonVi = $('#txtDonVi').val();
@@ -18,7 +19,6 @@
         if (commonStatisJs.CheckNull(self.SubDomain)) {
             self.SubDomain = VHeader.SubDomain;
         }
-        console.log('vmThemMoiKH ')
         $.getJSON(self.UrlDoiTuongAPI + 'GetListTinhThanh').done(function (x) {
             if (x.res === true) {
                 let data = x.data;
@@ -33,7 +33,17 @@
                 vmThemMoiNhomKhach.listData.TinhThanhs = province;
                 vmThemMoiNhomKhach.listData.ListTinhThanhSearch = province;
             }
-        })
+        });
+
+        const listNV = await self.GetListNhanVienphuTrach();
+        self.listData.NhanVienPhuTrachs = listNV.map(function (x) {
+            return {
+                ID: x.ID,
+                Text1: x.TenNhanVien,
+                Text2: x.MaNhanVien
+            }
+        });
+        console.log('vmThemMoiKH ')
 
         if (commonStatisJs.CheckNull(self.inforLogin.ID_DonVi)) {
             self.inforLogin = {
@@ -88,6 +98,11 @@
         customerDoing: {},
         customerOld: {},
         NhomKhachChosed: [],
+        arrNVPhuTrachChosed: [],
+        nvPhuTrachChosing: {
+            ID:'',
+            index:0,
+        },
         inforLogin: {
             ID_NhanVien: null,
             ID_User: null,
@@ -144,6 +159,17 @@
         ImgHost: ""
     },
     methods: {
+        GetListNhanVienphuTrach: async function () {
+            let self = this;
+            const xx = ajaxHelper("/api/DanhMuc/NS_NhanVienAPI/" + 'GetNhanVien_NguoiDung', 'GET').done()
+                .then(function (x) {
+                    if (x.res) {
+                        return x.data;
+                    }
+                    return [];
+                });
+            return xx;
+        },
         showModalAdd: function (loaiDT = 1) {
             var self = this;
             self.isNew = true;
@@ -152,8 +178,8 @@
             self.HaveImage = false;
             self.FileSelects = [];
             self.NhomKhachChosed = [];
+            self.arrNVPhuTrachChosed = [{ ID: self.inforLogin.ID_NhanVien,  TenNhanVien: '' }];
 
-            console.log('41')
             self.newCustomer = {
                 ID: null,
                 LoaiDoiTuong: loaiDT,
@@ -204,6 +230,7 @@
             });
             if (nv.length > 0) {
                 self.newCustomer.TenNhanVienPhuTrach = nv[0].TenNhanVien;
+                self.arrNVPhuTrachChosed[0].TenNhanVien = nv[0].TenNhanVien;
             }
             if (self.QuanLyKhachHangTheoDonVi) {
                 // getlistnhom by chinhanh
@@ -329,6 +356,15 @@
                 self.newCustomer.TenNhanVienPhuTrach = nvPT[0].TenNhanVien;
             }
 
+            // get lst NVPhuTrach
+            const lstNVPT = await self.GetNVPhuTrach_ofCustomer(item.ID);
+            if(lstNVPT.length > 0){
+               self.arrNVPhuTrachChosed = lstNVPT;
+            }
+            else{
+                self.arrNVPhuTrachChosed = [{ ID: '',  TenNhanVien: '' }];
+            }
+
             self.newCustomer.TenNguonKhach = tennguon;
             self.newCustomer.TenTrangThai = trangthai;
             self.newCustomer.TenNhanVienPhuTrach = nvphutrach;
@@ -381,8 +417,24 @@
         },
         ChoseNVPhuTrach: function (item) {
             var self = this;
+            for(let i=0;i <  self.arrNVPhuTrachChosed.length;i++){
+                if(i===self.nvPhuTrachChosing.index){
+                     self.arrNVPhuTrachChosed[i].ID = item.ID;
+                     self.arrNVPhuTrachChosed[i].TenNhanVien = item.TenNhanVien;
+                    break;
+                }
+            }
             self.newCustomer.ID_NhanVienPhuTrach = item.ID;
             self.newCustomer.TenNhanVienPhuTrach = item.TenNhanVien;
+        },
+        ChangeNVPhuTrach: function (nv, index) {
+            let self = this;
+            self.nvPhuTrachChosing.ID = nv.ID;
+            self.nvPhuTrachChosing.index = index;
+        },
+        ThemNVPhuTrach: function () {
+            let self = this;
+            self.arrNVPhuTrachChosed.push({TenNhanVien:'', ID:''})
         },
         ChoseNguonKhach: function (item) {
             var self = this;
@@ -770,6 +822,28 @@
                 self.UpdateCustomer(myData, sNgayDinh);
             }
         },
+        GetNVPhuTrach_ofCustomer: async function (idKhachHang){
+            let self = this;
+            const xx = await ajaxHelper (self.UrlDoiTuongAPI + 'GetNVPhuTrach_ofCustomer?customerId='+ idKhachHang, 'GET').done()
+            .then(function (x) {
+                 if(x.res){
+                     return x.dataSoure;
+                 }
+                 return [];
+            });
+            return xx;
+        },
+        PostKH_NhanVienPhuTrach: async function (idKhachHang){
+            let self = this;
+            const arrNV=  $.unique(self.arrNVPhuTrachChosed.filter((x)=> !commonStatisJs.CheckNull(x.ID)).map(function(x){
+                return x.ID
+            }));
+            console.log('PostKH_NhanVienPhuTrach ',arrNV)
+            const xx = await ajaxHelper (self.UrlDoiTuongAPI + 'PostKH_NhanVienPhuTrach?idKhachHang='+ idKhachHang, 'POST',arrNV).done()
+            .then(function (x) {
+                 
+            })
+        },
 
         AddCustomer: function (DM_DoiTuong, sNgayDinh) {
             var self = this;
@@ -795,6 +869,7 @@
                     });
                     self.UpdateNhomKhachHang(lstNhom);
                     self.InsertImage();
+                    self.PostKH_NhanVienPhuTrach(item.ID);
 
                     // remind birthday KH if NgaySinh_NgayTLap is today
                     var mmdd = moment(self.ToDay).format('MM-DD');
@@ -866,6 +941,7 @@
                         self.UpdateNhomKhachHang(lstNhom);
                     }
                     self.InsertImage();
+                    self.PostKH_NhanVienPhuTrach(item.ID);
 
                     // remind birthday KH if NgaySinh_NgayTLap is today
                     var mmdd = moment(self.ToDay).format('MM-DD');
