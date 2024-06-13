@@ -31,6 +31,7 @@ namespace Model
         public virtual DbSet<DinhLuongDichVu> DinhLuongDichVus { get; set; }
         public virtual DbSet<DM_ChucVu> DM_ChucVu { get; set; }
         public virtual DbSet<DM_DoiTuong> DM_DoiTuong { get; set; }
+        public virtual DbSet<KH_NVPhuTrach> KH_NVPhuTrach { get; set; }
         public virtual DbSet<DM_DonVi> DM_DonVi { get; set; }
         public virtual DbSet<DM_GiaBan> DM_GiaBan { get; set; }
         public virtual DbSet<DM_GiaBan_ChiTiet> DM_GiaBan_ChiTiet { get; set; }
@@ -384,8 +385,8 @@ namespace Model
             modelBuilder.Entity<DM_DoiTuong>()
                 .HasMany(e => e.Gara_Xe_NhatKyHoatDong)
                 .WithOptional(e => e.DM_DoiTuong)
-                .HasForeignKey(e => e.IdKhachHang);
-
+                .HasForeignKey(e => e.IdKhachHang); 
+            
             modelBuilder.Entity<DM_DonVi>()
                 .HasMany(e => e.BH_HoaDon)
                 .WithRequired(e => e.DM_DonVi)
