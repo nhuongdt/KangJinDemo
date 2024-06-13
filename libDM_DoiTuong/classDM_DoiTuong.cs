@@ -988,8 +988,7 @@ namespace libDM_DoiTuong
                 {
                     var nguoiTao = listParams.NguoiTao;
                     string idManagers = string.Join(",", lstReturnIDManager);
-                    //where1 = string.Concat(" (exists (select Name from splitstring('", idManagers, "') tblMng where ID_NhanVienPhuTrach = tblMng.Name ) OR ID_NhanVienPhuTrach is null OR NguoiTao like '%", nguoiTao, "%' )");
-                    where1 = string.Concat(" (exists (select Name from splitstring('", idManagers, "') tblMng where ID_NhanVienPhuTrach = tblMng.Name ))");
+                    where1 = string.Concat(" (exists (select Name from splitstring('", idManagers, "') tblMng join KH_NVPhuTrach nvpt on tblMng.Name = nvpt.ID_NhanVienPhuTrach where tbl.ID = nvpt.ID_KhachHang ))");
                     whereSql = GetStringWhere(whereSql, where1);
                 }
             }
