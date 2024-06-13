@@ -66,7 +66,7 @@
                                 <li><a data-toggle="tab" href="#nhatkythegiatri">Nhật ký thẻ giá trị</a></li>
                                 <li v-if="LoaiNganhNghe!==1 && $root.roleUpdateImg"><a data-toggle="tab" href="#anhLieuTrinh">Ảnh liệu trình</a></li>
                             </ul>
-                            <div style="border:none" class="flex flex-row"  v-if="$root.CallFrom == 0 && ($root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false)">
+                            <div style="border:none" class="flex flex-row" v-if="$root.CallFrom == 0 && ($root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false)">
                                 <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
                                 <button type="button" class="btn btn-main" v-on:click="Agree">
                                     <i class="fa fa-check-square"></i>Xác nhận
@@ -78,25 +78,25 @@
                             <div class="tab-pane active" id="goidichvu">
                                 <div class="container-fluid  header-dv">
                                     <div class="form-check form-check-inline"
-                                         v-on:click="GDV_ChangeStatus(1)">
-                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                               value="1"
-                                               v-model="filterGDV.Status">
-                                        <label class="form-check-label" for="goidichvu1">Còn hạn</label>
-                                    </div>
-                                    <div class="form-check form-check-inline"
-                                         v-on:click="GDV_ChangeStatus(2)">
-                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                               value="2"
-                                               v-model="filterGDV.Status">
-                                        <label class="form-check-label" for="goidichvu2">Hết hạn</label>
-                                    </div>
-                                    <div class="form-check form-check-inline"
                                          v-on:click="GDV_ChangeStatus(0)">
                                         <input class="form-check-input" type="radio" name="inlineRadioOptions"
                                                value="0"
                                                v-model="filterGDV.Status">
                                         <label class="form-check-label" for="goidichvu3">Tất cả</label>
+                                    </div>
+                                    <div class="form-check form-check-inline"
+                                         v-on:click="GDV_ChangeStatus(3)">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                               value="3"
+                                               v-model="filterGDV.Status">
+                                        <label class="form-check-label" for="goidichvu3">Còn buổi</label>
+                                    </div>
+                                    <div class="form-check form-check-inline"
+                                         v-on:click="GDV_ChangeStatus(4)">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions"
+                                               value="4"
+                                               v-model="filterGDV.Status">
+                                        <label class="form-check-label" for="goidichvu3">Hết buổi</label>
                                     </div>
                                 </div>
                                 <div class="container-fluid tab-col-12 ">
@@ -225,7 +225,6 @@
                                                     <td>Mã dịch vụ </td>
                                                     <td>Tên dịch vụ </td>
                                                     <td>Số lượng </td>
-                                                    <td>Hoa hồng</td>
                                                     <td>Nhân viên tư vấn, thực hiện</td>
                                                 </tr>
                                             </thead>
@@ -236,7 +235,6 @@
                                                     <td>{{item.MaHangHoa}}</td>
                                                     <td style="text-align:left">{{item.TenHangHoa}}</td>
                                                     <td class="text-right">{{item.SoLuongMua}}</td>
-                                                    <td style="text-align:right">{{formatNumber3Digit(item.TongChietKhau)}}</td>
                                                     <td style="text-align:left">{{Remove_LastComma(item.NhanVienThucHien)}}</td>
                                                 </tr>
                                             </tbody>
@@ -245,7 +243,6 @@
                                                     <td>Tổng:</td>
                                                     <td colspan="3"></td>
                                                     <td class="text-right">{{filterNKy.ListFilter[0].TongSoLuong}}</td>
-                                                    <td></td>
                                                     <td></td>
                                                 </tr>
                                             </tfoot>
@@ -499,7 +496,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer"  v-if="$root.CallFrom == 0 && ($root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false)">
+            <div class="modal-footer" v-if="$root.CallFrom == 0 && ($root.isAdmin || $root.roleGoiDichVu_KhongChoPhepSuDung == false)">
 
                 <button type="button" class="btn btn-cancel" data-dismiss="modal"><i class="fa fa-ban"></i>&nbsp;Hủy bỏ</button>
                 <button type="button" class="btn btn-main" v-on:click="Agree">
@@ -569,7 +566,7 @@
             CallFrom: 0, //0 - thungan, 1 - Khác
 
             filterGDV: {
-                Status: 1,
+                Status: 0,
                 timmer: null,
                 txtSearch: '',
                 ListFilter: [],
@@ -819,6 +816,7 @@
                 let filter = self.filterGDV.txtSearch;
                 let status = parseInt(self.filterGDV.Status);
                 let from = null, to = null;
+                let loaiHD = "";// mượn trường LoaiHoaDon (1.Còn buổi sử dụng, 0. hết buổi sử dụng)
                 switch (status) {
                     case 1:
                         from = self.Today;
@@ -826,12 +824,19 @@
                     case 2:
                         to = self.Today;
                         break;
+                        case 3:
+                        loaiHD = "1";
+                        break;
+                        case 4:
+                        loaiHD = "0";
+                        break;
                 }
                 let param = {
                     IDCars: [self.ID_Car],
                     DateFrom: from,
                     DateTo: to,
                     TextSearch: filter,
+                    LoaiHoaDons: loaiHD,
                 }
                 // neu chua chon xe--> lay nky theo khachhang
                 if (commonStatisJs.CheckNull(self.ID_Car)) {
