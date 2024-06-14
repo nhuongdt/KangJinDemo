@@ -195,10 +195,11 @@ namespace libDM_HangHoa
                 }
                 List<SqlParameter> prm = new List<SqlParameter>();
                 prm.Add(new SqlParameter("ID_ChiNhanh", param.ID_ChiNhanh));
+                prm.Add(new SqlParameter("IdHoaDonUpdate",param.IdHoaDonUpdate?? (object)DBNull.Value));
                 prm.Add(new SqlParameter("ToDate", param.ToDate));
                 prm.Add(new SqlParameter("IDDonViQuyDois", idQuyDois));
                 prm.Add(new SqlParameter("IDLoHangs", idLoHangs));
-                return db.Database.SqlQuery<KiemKho_HangHoaTonKho>("exec GetTonKho_byIDQuyDois @ID_ChiNhanh, @ToDate, @IDDonViQuyDois, @IDLoHangs", prm.ToArray()).ToList();
+                return db.Database.SqlQuery<KiemKho_HangHoaTonKho>("exec GetTonKho_byIDQuyDois @ID_ChiNhanh, @IdHoaDonUpdate, @ToDate, @IDDonViQuyDois, @IDLoHangs", prm.ToArray()).ToList();
             }
             else
             {
@@ -3767,6 +3768,7 @@ namespace libDM_HangHoa
     public class KiemKhoParamSearch
     {
         public Guid ID_ChiNhanh { get; set; }
+        public Guid? IdHoaDonUpdate { get; set; }
         public string ToDate { get; set; }
         public List<string> ListIDQuyDoi { get; set; }
         public List<string> ListIDLoHang { get; set; }
