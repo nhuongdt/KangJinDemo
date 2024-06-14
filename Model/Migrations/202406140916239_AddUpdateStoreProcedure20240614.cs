@@ -7,6 +7,166 @@
     {
         public override void Up()
         {
+			Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetMaDoiTuongMax_byTemp]");
+			Sql(@"CREATE PROCEDURE [dbo].[GetMaDoiTuongMax_byTemp]
+	@LoaiHoaDon int,
+	@ID_DonVi uniqueidentifier
+AS
+BEGIN	
+	SET NOCOUNT ON;
+
+	declare @LoaiDoiTuong int
+	if @LoaiHoaDon = 33 set @LoaiDoiTuong = 1
+	if @LoaiHoaDon = 34 set @LoaiDoiTuong = 2
+
+
+	DECLARE @Return float = 1
+	declare @lenMaMax int = 0
+	DECLARE @isDefault bit = (select top 1 SuDungMaChungTu from HT_CauHinhPhanMem where ID_DonVi= @ID_DonVi)-- co/khong thiet lap su dung Ma MacDinh
+	DECLARE @isSetup int = (select top 1 ID_LoaiChungTu from HT_MaChungTu where ID_LoaiChungTu = @LoaiHoaDon)-- da ton tai trong bang thiet lap chua
+
+	if @isDefault='1' and @isSetup is not null
+		begin
+			DECLARE @machinhanh varchar(15) = (select MaDonVi from DM_DonVi where ID= @ID_DonVi)
+			DECLARE @lenMaCN int = Len(@machinhanh)
+
+			DECLARE @isUseMaChiNhanh varchar(15), @kituphancach1 varchar(1),  @kituphancach2 varchar(1),  @kituphancach3 varchar(1),
+			 @dinhdangngay varchar(8), @dodaiSTT INT, @kihieuchungtu varchar(10)
+
+			 select @isUseMaChiNhanh = SuDungMaDonVi, 
+				@kituphancach1= KiTuNganCach1,
+				@kituphancach2 = KiTuNganCach2,
+				@kituphancach3= KiTuNganCach3,
+				@dinhdangngay = NgayThangNam,
+				@dodaiSTT = CAST(DoDaiSTT AS INT),
+				@kihieuchungtu = MaLoaiChungTu
+			 from HT_MaChungTu where ID_LoaiChungTu=@LoaiHoaDon 
+
+		
+			DECLARE @lenMaKiHieu int = Len(@kihieuchungtu);
+			DECLARE @namthangngay varchar(10) = convert(varchar(10), getDate(), 112) ---- get ngayhientai
+			DECLARE @year varchar(4) = Left(@namthangngay,4)
+			DECLARE @date varchar(4) = right(@namthangngay,2)
+			DECLARE @month varchar(4) = substring(@namthangngay,5,2)
+			DECLARE @datecompare varchar(10)='';
+			
+			if	@isUseMaChiNhanh='0'
+				begin 
+					set @machinhanh=''
+					set @lenMaCN=0
+				end
+
+			if @dinhdangngay='ddMMyyyy'
+				set @datecompare = CONCAT(@date,@month,@year)
+			else	
+				if @dinhdangngay='ddMMyy'
+					set @datecompare = CONCAT(@date,@month,right(@year,2))
+				else 
+					if @dinhdangngay='MMyyyy'
+						set @datecompare = CONCAT(@month,@year)
+					else	
+						if @dinhdangngay='MMyy'
+							set @datecompare = CONCAT(@month,right(@year,2))
+						else
+							if @dinhdangngay='yyyyMMdd'
+								set @datecompare = CONCAT(@year,@month,@date)
+							else 
+								if @dinhdangngay='yyMMdd'
+									set @datecompare = CONCAT(right(@year,2),@month,@date)
+								else	
+									if @dinhdangngay='yyyyMM'
+										set @datecompare = CONCAT(@year,@month)
+									else	
+										if @dinhdangngay='yyMM'
+											set @datecompare = CONCAT(right(@year,2),@month)
+										else 
+											if @dinhdangngay='yyyy'
+												set @datecompare = @year	
+												
+			if @LoaiDoiTuong= 1 set @kihieuchungtu ='' --- không lấy kí tự theo mã khách (chỉ lấy mã chi nhánh) !!important with kangjjin
+
+			DECLARE @sMaFull varchar(50) = concat(@machinhanh,@kituphancach1,@kihieuchungtu,@kituphancach2, @datecompare, @kituphancach3)	
+
+			declare @sCompare varchar(30) = @sMaFull
+			if @sMaFull= concat(@kihieuchungtu,'_') set @sCompare = concat(@kihieuchungtu,'[_]') -- like %_% không nhận kí tự _ nên phải [_] theo quy tắc của sql				
+
+
+			SELECT @Return = MAX(CAST (dbo.udf_GetNumeric(MaDoiTuong) AS float))
+    		FROM DM_DoiTuong 
+			WHERE LoaiDoiTuong = @LoaiDoiTuong 
+			and MaDoiTuong like @sCompare +'%'  AND MaDoiTuong not like  @sCompare +'00%' -- not like 'KH00%'
+
+
+			-- lay chuoi 000
+			declare @stt int =0;
+			declare @strstt varchar (10) ='0'
+			while @stt < @dodaiSTT- 1
+				begin
+					set @strstt= CONCAT('0',@strstt)
+					SET @stt = @stt +1;
+				end 
+			declare @lenSst int = len(@strstt)
+			if	@Return is null 
+					select CONCAT(@sMaFull,left(@strstt,@lenSst-1),1) as MaxCode-- left(@strstt,@lenSst-1): bỏ bớt 1 số 0			
+			else 
+				begin
+					set @Return =  @Return + 1
+					set @lenMaMax =  len(@Return)
+
+					-- neu @Return là 1 số quá lớn --> mã bị chuyển về dạng e+10
+					declare @madai nvarchar(max)= CONCAT(@sMaFull, CONVERT(numeric(22,0), @Return))
+					select 
+						case @lenMaMax							
+							when 1 then CONCAT(@sMaFull,left(@strstt,@lenSst-1),@Return)
+							when 2 then case when @lenSst - 2 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-2), @Return) else @madai end
+							when 3 then case when @lenSst - 3 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-3), @Return) else @madai end
+							when 4 then case when @lenSst - 4 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-4), @Return) else @madai end
+							when 5 then case when @lenSst - 5 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-5), @Return) else @madai end
+							when 6 then case when @lenSst - 6 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-6), @Return) else @madai end
+							when 7 then case when @lenSst - 7 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-7), @Return) else @madai end
+							when 8 then case when @lenSst - 8 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-8), @Return) else @madai end
+							when 9 then case when @lenSst - 9 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-9), @Return) else @madai end
+							when 10 then case when @lenSst - 10 > -1 then CONCAT(@sMaFull, left(@strstt,@lenSst-10), @Return) else @madai end
+						else 
+							case when  @lenMaMax > 10
+								 then iif(@lenSst - 10 > -1, CONCAT(@sMaFull, left(@strstt,@lenSst-10), @Return),  @madai)
+								 else '' end
+						end as MaxCode					
+				end 
+		end
+	else
+		begin
+			declare @machungtu varchar(10) = (select top 1 MaLoaiChungTu from DM_LoaiChungTu where ID= @LoaiHoaDon)			
+			declare @lenMaChungTu int= LEN(@machungtu)
+			
+			
+				declare @maOffline nvarchar(max) =''
+				if @LoaiDoiTuong= 1 set @maOffline='KHO'
+				if @LoaiDoiTuong= 2 set @maOffline='NCCO'				
+				
+				SELECT @Return = MAX(CAST (dbo.udf_GetNumeric(MaDoiTuong) AS float))
+    			FROM DM_DoiTuong 
+				WHERE LoaiDoiTuong = @LoaiDoiTuong 
+				and MaDoiTuong like @machungtu +'%'  AND MaDoiTuong not like @maOffline + '%'	
+
+				
+			-- do dai STT (toida = 9)
+			if	@Return is null set @Return = 1				
+			else set @Return = @Return + 1
+																							
+				set @lenMaMax = len(@Return)
+				declare @max int =0
+				declare @str0 nvarchar(10) =''
+				while @max < 9 - (@lenMaMax + @lenMaChungTu)
+					begin
+						set @str0+='0'
+						set @max+=1
+					end					
+				select CONCAT(@machungtu,@str0, CAST(@Return  as decimal(22,0)))  as MaxCode
+		end
+		
+END");
+
             Sql(@"ALTER PROCEDURE [dbo].[GetNhatKySuDung_GDV] 
 	@IDChiNhanhs [nvarchar](max) = '',
     @IDCustomers [nvarchar](max) = null,  
@@ -1437,6 +1597,7 @@ END");
         
         public override void Down()
         {
+            Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetMaDoiTuongMax_byTemp]");
         }
     }
 }
