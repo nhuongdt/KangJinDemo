@@ -5759,19 +5759,35 @@ namespace libDM_DoiTuong
         }
 
         #region Function Other
+
+        public double GetMaxMaHoaDon(int? loaiHoaDon)
+        {
+            List<SqlParameter> paramlist = new List<SqlParameter>();
+            paramlist.Add(new SqlParameter("LoaiHoaDon", loaiHoaDon));
+            List<MaxCodeMaHoaDon> lst = db.Database.SqlQuery<MaxCodeMaHoaDon>("EXEC GetMaHoaDon_AuTo @LoaiHoaDon", paramlist.ToArray()).ToList();
+            double tempstt = lst.FirstOrDefault().MaxCode + 1;
+            return tempstt;
+        }
+
+        public string GetKiHieuMaChungTu_byLoaiHoaDon(int? loaiHoaDon)
+        {
+            string machungtu = string.Empty;
+            if (loaiHoaDon.HasValue)
+            {
+                machungtu = db.DM_LoaiChungTu.Where(p => p.ID == loaiHoaDon).Select(p => p.MaLoaiChungTu).FirstOrDefault();
+            }
+            else
+            {
+                machungtu = "HDBL";
+            }
+            return machungtu;
+        }
         public string GetAutoCode(int? loaiHoaDon)
         {
             string format = string.Empty;
 
-            string mahoadon = string.Empty;
-            if (loaiHoaDon.HasValue)
-            {
-                mahoadon = db.DM_LoaiChungTu.Where(p => p.ID == loaiHoaDon).Select(p => p.MaLoaiChungTu).FirstOrDefault();
-            }
-            else
-            {
-                mahoadon = "HDBL";
-            }
+            string mahoadon = GetKiHieuMaChungTu_byLoaiHoaDon(loaiHoaDon);
+
             var lenMaChungTu = mahoadon.Length;
             switch (lenMaChungTu)
             {
@@ -5794,10 +5810,7 @@ namespace libDM_DoiTuong
                 .Where(p => p.MaHoaDon.Length == 9 && p.LoaiHoaDon == loaiHoaDon && p.MaHoaDon.Contains("O") == false);
             if (objTop != null && objTop.Count() > 0)
             {
-                List<SqlParameter> paramlist = new List<SqlParameter>();
-                paramlist.Add(new SqlParameter("LoaiHoaDon", loaiHoaDon));
-                List<MaxCodeMaHoaDon> lst = db.Database.SqlQuery<MaxCodeMaHoaDon>("EXEC GetMaHoaDon_AuTo @LoaiHoaDon", paramlist.ToArray()).ToList();
-                double tempstt = lst.FirstOrDefault().MaxCode + 1;
+                double tempstt = GetMaxMaHoaDon(loaiHoaDon);
                 mahoadon = mahoadon + string.Format(format, tempstt);
             }
             else
@@ -6658,6 +6671,12 @@ public class TonGoiDichVus
     public Guid ID_DoiTuong { get; set; }
     public string MaDoiTuong { get; set; }
     public List<GoiDV> GoiDVs { get; set; } = new List<GoiDV>();
+}
+public class ImportDto_TonDauTGT
+{
+    public Guid ID_DoiTuong { get; set; }
+    public string MaDoiTuong { get; set; }
+    public double GiaTri { get; set; }
 }
 
 public class GoiDV
