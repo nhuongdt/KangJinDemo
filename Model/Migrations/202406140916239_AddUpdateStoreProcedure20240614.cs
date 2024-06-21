@@ -2,13 +2,14 @@
 {
     using System;
     using System.Data.Entity.Migrations;
-    
+
     public partial class AddUpdateStoreProcedure20240614 : DbMigration
     {
         public override void Up()
         {
-			Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetMaDoiTuongMax_byTemp]");
-			Sql(@"CREATE PROCEDURE [dbo].[GetMaDoiTuongMax_byTemp]
+            Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetMaDoiTuongMax_byTemp]");
+            Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetGiaTriHoTro_ofCustomer]");
+            Sql(@"CREATE PROCEDURE [dbo].[GetMaDoiTuongMax_byTemp]
 	@LoaiHoaDon int,
 	@ID_DonVi uniqueidentifier
 AS
@@ -165,6 +166,190 @@ BEGIN
 				select CONCAT(@machungtu,@str0, CAST(@Return  as decimal(22,0)))  as MaxCode
 		end
 		
+END");
+            Sql(@"Create PROCEDURE [dbo].[GetGiaTriHoTro_ofCustomer] 
+	@IDDoiTuong uniqueidentifier,
+	@IDChiNhanhs nvarchar(max)
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+
+    ------ get giatri ho tro of customer -----
+    	declare @tblChiNhanh table (ID uniqueidentifier)
+    	insert into @tblChiNhanh
+    	select Name from dbo.splitstring(@IDChiNhanhs) where Name!=''
+
+declare @countHD int =0;
+
+			select @countHD = count(ID)			
+    				
+    			from BH_HoaDon hd
+    			
+    			where hd.ID_DoiTuong= @IDDoiTuong
+    			and hd.LoaiHoaDon in (1,2,6,19,22,23,36)    			
+    			and exists (select ID from @tblChiNhanh cn where hd.ID_DonVi = cn.ID)	
+
+				if @countHD > 0
+					begin
+
+
+					----- get giatri sudung of cus (all time) ----
+					select cthd.*,
+						spht.Id_NhomHang as ID_NhomHoTro
+					into #tblSuDung
+					from
+					(
+    			select 
+    				
+    				hd.ID_DoiTuong,
+    				hd.ID_DonVi,
+    			
+    				ct.ID_DonViQuiDoi,
+    				ct.SoLuong * (ct.DonGia - ct.TienChietKhau) as  GiaTriSuDung				
+    			
+    			from BH_HoaDon hd
+    			join BH_HoaDon_ChiTiet ct on hd.ID = ct.ID_HoaDon
+    			
+    			where hd.ID_DoiTuong = @IDDoiTuong
+    			and hd.LoaiHoaDon = 1
+    			and exists (select * from @tblChiNhanh cn where hd.ID_DonVi= cn.ID)
+				and exists (select id from NhomHang_ChiTietSanPhamHoTro spht 
+				         where spht.Id_DonViQuiDoi = ct.ID_DonViQuiDoi and spht.LaSanPhamNgayThuoc = 2)
+						 ) cthd
+						 join NhomHang_ChiTietSanPhamHoTro spht on cthd.ID_DonViQuiDoi = spht.Id_DonViQuiDoi
+
+					  ----- giavon tieuchuan cua dichvu/sanpham da caidat ----
+    		declare @tblGVTC table(ID_DonVi uniqueidentifier, ID_DonViQuiDoi uniqueidentifier, ID_LoHang uniqueidentifier,
+    		GiaVonTieuChuan float, NgayLapHoaDon datetime)
+    
+    		insert into @tblGVTC		
+    		select hd.ID_DonVi,
+    			ct.ID_DonViQuiDoi, 
+    			ct.ID_LoHang, 
+    		ct.ThanhTien as GiaVonTieuChuan,    	
+    		hd.NgayLapHoaDon
+    		from BH_HoaDon_ChiTiet ct 
+    		join BH_HoaDon hd on ct.ID_HoaDon= hd.ID
+    		where hd.ChoThanhToan=0
+    		and  hd.ID_DonVi in (select ID from @tblChiNhanh)
+    		and hd.LoaiHoaDon= 16
+    		
+    
+    	
+    
+    			----- get khoang apdung hotro ----
+    		select 
+    			nhom.ID,
+    			nhomdv.ID_DonVi,
+    			khoangAD.GiaTriSuDungTu,
+    			khoangAD.GiaTriSuDungDen,
+    			khoangAD.GiaTriHoTro,
+    			khoangAD.KieuHoTro
+    		into #tblApDung
+    		from DM_NhomHangHoa nhom
+    		join NhomHangHoa_DonVi nhomdv on nhom.ID = nhomdv.ID_NhomHangHoa
+    		join NhomHang_KhoangApDung khoangAD on nhom.ID= khoangAD.Id_NhomHang
+    		where exists (select * from @tblChiNhanh cn where nhomdv.ID_DonVi = cn.ID)
+    		and (nhom.TrangThai is null or nhom.TrangThai='0') ---- trangthainhom (0.đang dùng, 1.đã xóa)
+
+
+			------ get GVTC of hoa don ------
+    		select 
+    			gvTC.*
+    		into #tblHoTro
+    		from
+    		(
+    				------ get gvtc theo khoang thoigian ----
+    				select 
+    					
+    					hd.ID_DoiTuong,
+    					hd.ID_DonVi,
+    					hd.ID_CheckIn as ID_NhomHoTro,		
+    					hd.MaHoaDon,
+    					hd.NgayLapHoaDon,
+    					gv.NgayLapHoaDon as NgayDieuChinh,
+    					isnull(gv.GiaVonTieuChuan,0) as GiaVonTieuChuan,
+    					ISNULL(ct.SoLuong,0) * isnull(gv.GiaVonTieuChuan,0) as GiaTriDichVu,						
+    				ISNULL(ct.SoLuong,0) AS SoLuongXuat,		
+    					----- nếu có nhiều khoảng GVTC: ưu tiên lấy NgayDieuChinhGV gần nhất ----
+    					ROW_NUMBER() over (partition by ct.ID order by gv.NgayLapHoaDon desc) as RN
+    	
+    			from BH_HoaDon hd 		
+    			left join BH_HoaDon_ChiTiet ct on ct.ID_HoaDon= hd.ID		
+    			left join @tblGVTC gv on hd.ID_DonVi= gv.ID_DonVi and ct.ID_DonViQuiDoi= gv.ID_DonViQuiDoi 
+    				and (ct.ID_LoHang = gv.ID_LoHang or (ct.ID_LoHang is null and gv.ID_LoHang is null))
+    			where hd.ChoThanhToan=0	
+    			and hd.LoaiHoaDon = 36			
+				and hd.ID_DoiTuong = @IDDoiTuong
+    			and (ct.ID_ChiTietDinhLuong is null or ct.ID_ChiTietDinhLuong = ct.ID)
+    			and (hd.NgayLapHoaDon > gv.NgayLapHoaDon or gv.NgayLapHoaDon is null)		
+    		
+    			and exists (select * from @tblChiNhanh cn where hd.ID_DonVi= cn.ID)
+    			) gvTC
+    			where gvTC.RN= 1 
+    					
+    			
+    
+    		
+
+			
+   select *,
+						case 
+    							when tView.GtriHoTroVND = 0 then tView.DaHoTro
+    						else tView.DaHoTro/tView.GiaTriSuDung *100
+    						end as PTramHoTro
+   from
+   (
+    					select 
+    						cusHT.*, 
+    						
+    					
+    						kAD.GiaTriHoTro,
+							kAD.KieuHoTro,
+    						case kAD.KieuHoTro
+    							when 1 then isnull(kAD.GiaTriHoTro,0) * cusHT.GiaTriSuDung/100
+    							when 0 then isnull(kAD.GiaTriHoTro,0)
+    						else 0 
+    						end as GtriHoTroVND
+    					from
+    					(
+    						select sd.ID_DoiTuong,
+    							sd.ID_DonVi,		
+    							sd.ID_NhomHoTro,			
+    							sd.GiaTriSuDung,
+    							isnull(ht.DaHoTro,0) as DaHoTro
+    						from (
+    							select ID_DoiTuong,
+    								ID_DonVi,			
+    								ID_NhomHoTro,
+    								sum(GiaTriSuDung) as GiaTriSuDung
+    							from #tblSuDung
+    							group by ID_DoiTuong, ID_DonVi,ID_NhomHoTro
+    						)  sd
+    						left join  (
+    							select ID_DoiTuong,		
+    									ID_DonVi,				
+    									ID_NhomHoTro,
+    								sum(GiaTriDichVu) as DaHoTro
+    							from #tblHoTro
+    							group by ID_DoiTuong,ID_NhomHoTro,ID_DonVi	 
+    						)ht on sd.ID_DoiTuong= ht.ID_DoiTuong and sd.ID_NhomHoTro = ht.ID_NhomHoTro and sd.ID_DonVi = ht.ID_DonVi
+    					) cusHT
+    					left join #tblApDung kAD on cusHT.ID_NhomHoTro = kAD.ID 
+    						and cusHT.ID_DonVi = kAD.ID_DonVi 
+    						and cusHT.GiaTriSuDung between kAD.GiaTriSuDungTu and kAD.GiaTriSuDungDen --- !!important: get khoang hotro
+    					
+		
+					) tView
+    	
+    			
+				drop table #tblApDung
+				drop table #tblHoTro
+				drop table #tblSuDung
+
+					end
+
 END");
 
             Sql(@"ALTER PROCEDURE [dbo].[GetNhatKySuDung_GDV] 
@@ -1471,7 +1656,7 @@ BEGIN
 					order by NgayLapHoaDon desc
 	
 END");
-			Sql(@"ALTER PROCEDURE [dbo].[GetTonKho_byIDQuyDois]
+            Sql(@"ALTER PROCEDURE [dbo].[GetTonKho_byIDQuyDois]
 	@ID_ChiNhanh [uniqueidentifier] ='8f01a137-e8ae-4239-ad96-4de67b2fec25',
 	@IdHoaDonUpdate uniqueidentifier = null,
     @ToDate [datetime] ='2024-05-18 09:30',
@@ -1594,7 +1779,7 @@ BEGIN
 		
 END");
 
-			Sql(@"ALTER PROCEDURE [dbo].[UpdateChiTietKiemKe_WhenEditCTHD]
+            Sql(@"ALTER PROCEDURE [dbo].[UpdateChiTietKiemKe_WhenEditCTHD]
     @IDHoaDonInput [uniqueidentifier],
     @IDChiNhanhInput [uniqueidentifier],
     @NgayLapHDMin [datetime]
@@ -1750,11 +1935,446 @@ BEGIN
 
 
 END");
+
+            Sql(@"ALTER PROCEDURE [dbo].[BaoCaoNhomHoTro]
+    @IDChiNhanhs [nvarchar](max),
+    @DateFrom [datetime],
+    @DateTo [datetime],
+    @IDNhomHoTros [nvarchar](max),
+    @TextSearch [nvarchar](max),
+	@IsVuotMuc tinyint, --1.all, 10. khong vuot, 11.vuot
+    @CurrentPage [int],
+    @PageSize [int]
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    		declare @tblChiNhanh table (ID uniqueidentifier)
+    	insert into @tblChiNhanh
+    	select Name from dbo.splitstring(@IDChiNhanhs) where Name!=''
+    
+    		declare @tblNhomHoTro table (ID uniqueidentifier)
+    		if ISNULL(@IDNhomHoTros,'')!=''
+    			insert into @tblNhomHoTro
+    		select Name from dbo.splitstring(@IDNhomHoTros) where Name!=''
+    		else
+    			set @IDNhomHoTros =''
+    
+    	DECLARE @tblSearch TABLE (Name [nvarchar](max));
+    		DECLARE @count int;
+    		if isnull(@TextSearch,'')!=''
+    			INSERT INTO @tblSearch(Name) select  Name from [dbo].[splitstringByChar](@TextSearch, ' ') where Name!='';
+    			Select @count =  (Select count(*) from @tblSearch);
+    
+    		----- giavon tieuchuan cua dichvu/sanpham da caidat ----
+    		declare @tblGVTC table(ID_DonVi uniqueidentifier, ID_DonViQuiDoi uniqueidentifier, ID_LoHang uniqueidentifier,
+    		GiaVonTieuChuan float, NgayLapHoaDon datetime)
+    
+    		insert into @tblGVTC		
+    		select hd.ID_DonVi,
+    			ct.ID_DonViQuiDoi, 
+    			ct.ID_LoHang, 
+    		ct.ThanhTien as GiaVonTieuChuan,    	
+    		hd.NgayLapHoaDon
+    		from BH_HoaDon_ChiTiet ct 
+    		join BH_HoaDon hd on ct.ID_HoaDon= hd.ID
+    		where hd.ChoThanhToan=0
+    		and  hd.ID_DonVi in (select ID from @tblChiNhanh)
+    		and hd.LoaiHoaDon= 16
+    		and hd.NgayLapHoaDon < @DateTo	
+    
+    	
+    
+    			----- get khoang apdung hotro ----
+    		select 
+    			nhom.ID,
+    			nhomdv.ID_DonVi,
+    			khoangAD.GiaTriSuDungTu,
+    			khoangAD.GiaTriSuDungDen,
+    			khoangAD.GiaTriHoTro,
+    			khoangAD.KieuHoTro
+    		into #tblApDung
+    		from DM_NhomHangHoa nhom
+    		join NhomHangHoa_DonVi nhomdv on nhom.ID = nhomdv.ID_NhomHangHoa
+    		join NhomHang_KhoangApDung khoangAD on nhom.ID= khoangAD.Id_NhomHang
+    		where exists (select * from @tblChiNhanh cn where nhomdv.ID_DonVi = cn.ID)
+    		and (nhom.TrangThai is null or nhom.TrangThai='0') ---- trangthainhom (0.đang dùng, 1.đã xóa)
+    
+    			------- get all sp thuocnhom hotro
+    			select distinct
+    				spht.Id_DonViQuiDoi,
+    				spht.Id_LoHang,
+    				spht.Id_NhomHang
+    			into #tmpSPhamHT
+    			from NhomHang_ChiTietSanPhamHoTro spht			
+    			join NhomHangHoa_DonVi nhomCN on spht.Id_NhomHang = nhomCN.ID_NhomHangHoa
+    			where spht.LaSanPhamNgayThuoc = 2
+    			and exists (select ID from @tblChiNhanh cn where nhomCN.ID_DonVi = cn.ID)
+    			and (@IDNhomHoTros='' or exists (select ID from @tblNhomHoTro nhomHT where nhomHT.ID = spht.Id_NhomHang))
+    
+    			
+    			------ get all khachhang co phat sinh giao dịch from - to ----
+    			select 	distinct		
+    				hd.ID_DoiTuong,
+    				hd.ID_DonVi,				
+    				dt.ID_NhanVienPhuTrach,
+    				dt.MaDoiTuong,
+    				dt.TenDoiTuong
+    			into #tblHDCus
+    			from BH_HoaDon hd
+    			join DM_DoiTuong dt on hd.ID_DoiTuong= dt.ID
+    			where hd.ChoThanhToan= 0
+    			and hd.LoaiHoaDon in (1,2,6,19,22,23,36)
+    			and hd.NgayLapHoaDon between @DateFrom and @DateTo
+    			and exists (select ID from @tblChiNhanh cn where hd.ID_DonVi = cn.ID)	
+    			and (@TextSearch ='' 
+    				or
+    					(select count(Name) from @tblSearch b where 
+    						dt.MaDoiTuong like '%'+b.Name+'%' 
+    					or dt.TenDoiTuong like '%'+b.Name+'%' 
+    					or dt.TenDoiTuong_KhongDau like '%'+b.Name+'%' 
+    						or dt.DienThoai like '%'+b.Name+'%' 
+    					)=@count
+    					or @count=0)
+    		
+    
+    			----- get giatri sudung of cus (all time) ----
+    			select 
+    				hd.ID,
+    				hd.MaHoaDon,
+    				hd.NgayLapHoaDon,
+    				hd.ID_DoiTuong,
+    				hd.ID_DonVi,
+    				ct.ID_DonViQuiDoi,
+    				spht.Id_NhomHang as ID_NhomHoTro,
+    				ct.SoLuong * (ct.DonGia - ct.TienChietKhau) as  GiaTriSuDung				
+    			into #tblSuDung
+    			from BH_HoaDon hd
+    			join BH_HoaDon_ChiTiet ct on hd.ID = ct.ID_HoaDon
+    			join #tmpSPhamHT spht on ct.ID_DonViQuiDoi = spht.Id_DonViQuiDoi  ----- chi get sp thuoc nhom hotro
+    				and (ct.ID_LoHang = spht.Id_LoHang or ct.ID_LoHang is null and spht.Id_LoHang is null)
+    			where exists (select ID_DoiTuong from #tblHDCus cus where hd.ID_DoiTuong = cus.ID_DoiTuong)
+    			and hd.LoaiHoaDon in (1)
+    			and exists (select * from @tblChiNhanh cn where hd.ID_DonVi= cn.ID)
+    
+    		
+    		 
+    
+    		------ get GVTC of hoa don ------
+    		select 
+    			gvTC.*
+    		into #tblHoTro
+    		from
+    		(
+    				------ get gvtc theo khoang thoigian ----
+    				select 
+    					hd.ID as ID_HoaDon,
+    					hd.ID_DoiTuong,
+    					hd.ID_DonVi,
+    					hd.ID_CheckIn as ID_NhomHoTro,		
+    					hd.MaHoaDon,
+    					hd.NgayLapHoaDon,
+    					gv.NgayLapHoaDon as NgayDieuChinh,
+    					isnull(gv.GiaVonTieuChuan,0) as GiaVonTieuChuan,
+    					ISNULL(ct.SoLuong,0) * isnull(gv.GiaVonTieuChuan,0) as GiaTriDichVu,						
+    				ISNULL(ct.SoLuong,0) AS SoLuongXuat,		
+    					----- nếu có nhiều khoảng GVTC: ưu tiên lấy NgayDieuChinhGV gần nhất ----
+    					ROW_NUMBER() over (partition by ct.ID order by gv.NgayLapHoaDon desc) as RN
+    	
+    			from BH_HoaDon hd 		
+    			left join BH_HoaDon_ChiTiet ct on ct.ID_HoaDon= hd.ID		
+    			left join @tblGVTC gv on hd.ID_DonVi= gv.ID_DonVi and ct.ID_DonViQuiDoi= gv.ID_DonViQuiDoi 
+    				and (ct.ID_LoHang = gv.ID_LoHang or (ct.ID_LoHang is null and gv.ID_LoHang is null))
+    			where hd.ChoThanhToan=0	
+    			and hd.LoaiHoaDon = 36			
+    			and (ct.ID_ChiTietDinhLuong is null or ct.ID_ChiTietDinhLuong = ct.ID)
+    			and (hd.NgayLapHoaDon > gv.NgayLapHoaDon or gv.NgayLapHoaDon is null)		
+    			and exists (select ID_DoiTuong from #tblHDCus cus where hd.ID_DoiTuong = cus.ID_DoiTuong)
+    			and exists (select * from @tblChiNhanh cn where hd.ID_DonVi= cn.ID)
+    			) gvTC
+    			where gvTC.RN= 1 
+    			and	(@IDNhomHoTros='' or exists (select ID from @tblNhomHoTro nhom where gvTC.ID_NhomHoTro = nhom.ID))			
+    			order by gvTC.NgayLapHoaDon desc
+    
+    	
+    
+    		;with data_cte
+    		as 
+    		(
+				select *
+				from
+				(
+					select *,					
+						iif(PTramHoTro > GtriHoTro_theoQuyDinh,'11','10') as IsVuotMuc
+					from
+					(
+    					select    			
+    						cus.MaDoiTuong,
+    						cus.TenDoiTuong,
+    						dv.TenDonVi,
+    						nvpt.TenNhanVien,
+    						tView.*,
+							case 
+    							when tView.GtriHoTroVND = 0 then tView.DaHoTro
+    						else tView.DaHoTro/tView.GiaTriSuDung *100
+    						end as PTramHoTro,
+    						tView.GiaTriHoTro as GtriHoTro_theoQuyDinh
+    					from #tblHDCus cus
+    					join (
+    					select 
+    						cusHT.*, 
+    						nhom.TenNhomHangHoa as TenNhomHoTro,
+    						kAD.GiaTriSuDungTu, 
+    						kAD.GiaTriSuDungDen, 
+    						kAD.GiaTriHoTro,
+							kAD.KieuHoTro,
+    						case kAD.KieuHoTro
+    							when 1 then isnull(kAD.GiaTriHoTro,0) * cusHT.GiaTriSuDung/100
+    							when 0 then isnull(kAD.GiaTriHoTro,0)
+    						else 0 
+    						end as GtriHoTroVND
+    					from
+    					(
+    						select sd.ID_DoiTuong,
+    							sd.ID_DonVi,		
+    							sd.ID_NhomHoTro,			
+    							sd.GiaTriSuDung,
+    							isnull(ht.DaHoTro,0) as DaHoTro
+    						from (
+    							select ID_DoiTuong,
+    								ID_DonVi,			
+    								ID_NhomHoTro,
+    								sum(GiaTriSuDung) as GiaTriSuDung
+    							from #tblSuDung
+    							group by ID_DoiTuong, ID_DonVi, ID_NhomHoTro
+    						)  sd
+    						left join  (
+    							select ID_DoiTuong,		
+    									ID_DonVi,				
+    									ID_NhomHoTro,
+    								sum(GiaTriDichVu) as DaHoTro
+    							from #tblHoTro
+    							group by ID_DoiTuong,ID_NhomHoTro,ID_DonVi	 
+    						)ht on sd.ID_DoiTuong= ht.ID_DoiTuong and sd.ID_NhomHoTro = ht.ID_NhomHoTro and sd.ID_DonVi = ht.ID_DonVi
+    					) cusHT
+    					left join #tblApDung kAD on cusHT.ID_NhomHoTro = kAD.ID 
+    						and cusHT.ID_DonVi = kAD.ID_DonVi 
+    						and cusHT.GiaTriSuDung between kAD.GiaTriSuDungTu and kAD.GiaTriSuDungDen --- !!important: get khoang hotro
+    					join DM_NhomHangHoa nhom on cusHT.ID_NhomHoTro = nhom.ID
+    					) tView on cus.ID_DoiTuong = tView.ID_DoiTuong and cus.ID_DonVi= tView.ID_DonVi
+    					left join DM_DonVi dv on tView.ID_DonVi = dv.ID
+    					left join NS_NhanVien nvpt on cus.ID_NhanVienPhuTrach = nvpt.ID
+						where tView.DaHoTro > 0 ---- chi lay khach  hotro
+					) tblVuotMuc
+				)tbLast where IsVuotMuc like concat('%' , @IsVuotMuc ,'%')
+    		),
+    		count_cte
+    		as
+    		(
+    			select count(*) as TotalRow,
+    				ceiling(count(*)/ CAST(@PageSize as float)) as TotalPage,
+    				sum(GiaTriSuDung) as SumGiaTriSuDung,
+    				sum(DaHoTro) as SumGiaTriHoTro
+    			from data_cte
+    		)
+    		select *
+    		from data_cte dt
+    		cross join count_cte
+    		order by dt.MaDoiTuong desc
+    		OFFSET (@CurrentPage* @PageSize) ROWS
+    		FETCH NEXT @PageSize ROWS ONLY
+    			
+    
+    			drop table #tblSuDung
+    			drop table #tmpSPhamHT
+    			drop table #tblHoTro
+    			drop table #tblApDung
+    			drop table #tblHDCus
+END");
+
+            Sql(@"ALTER PROCEDURE [dbo].[XoaDuLieuHeThong]
+    @CheckHH [int],
+    @CheckKH [int]
+AS
+BEGIN
+SET NOCOUNT ON;
+
+				delete from chotso
+				delete from BH_HoaDon_ChiPhi
+				delete from DM_MauIn
+				delete from NS_CongViec
+				delete from NS_CongViec_PhanLoai
+    			delete from chotso_hanghoa
+    			delete from chotso_khachHang
+				delete from BH_NhanVienThucHien
+    			delete from Quy_HoaDon_ChiTiet
+    			delete from Quy_KhoanThuChi
+    			delete from Quy_HoaDon
+				delete from DM_TaiKhoanNganHang    			
+    			delete from BH_HoaDon_ChiTiet
+    			delete from BH_HoaDon
+    			delete from DM_GiaBan_ApDung
+    			delete from DM_GiaBan_ChiTiet
+    			delete from DM_GiaBan
+    			delete from ChamSocKhachHangs
+				delete from HeThong_SMS
+				delete from HeThong_SMS_TaiKhoan
+				delete from HeThong_SMS_TinMau
+				delete from ChietKhauMacDinh_NhanVien
+				delete from ChietKhauMacDinh_HoaDon_ChiTiet
+				delete from ChietKhauMacDinh_HoaDon
+				delete from ChietKhauDoanhThu_NhanVien
+				delete from ChietKhauDoanhThu_ChiTiet
+				delete from ChietKhauDoanhThu
+				delete from NhomDoiTuong_DonVi
+				delete from NhomHangHoa_DonVi 
+				delete from DM_KhuyenMai_ChiTiet
+    			delete from DM_KhuyenMai_ApDung
+    			delete from DM_KhuyenMai
+    			delete from ChietKhauMacDinh_NhanVien   
+				 
+				delete from Gara_HangMucSuaChua
+				delete from Gara_GiayToKemTheo
+    			delete from DM_KhuyenMai_ApDung
+    			delete from DM_KhuyenMai
+    			delete from ChietKhauMacDinh_NhanVien   
+				delete from Gara_PhieuTiepNhan
+				delete from Gara_DanhMucXe
+    			delete from Gara_MauXe where id not like '%00000000-0000-0000-0000-000000000000%'
+    			delete from Gara_HangXe where id not like '%00000000-0000-0000-0000-000000000000%'
+    			delete from Gara_LoaiXe where id not like '%00000000-0000-0000-0000-000000000000%'
+				
+
+    			if(@CheckKH =0)
+    			BEGIN
+					delete from DM_LienHe_Anh
+    				delete from DM_LienHe
+					delete from DM_DoiTuong_Anh
+					delete from DM_DoiTuong_Nhom
+    				delete from DM_DoiTuong WHERE ID != '00000000-0000-0000-0000-000000000002' AND ID != '00000000-0000-0000-0000-000000000000'
+					delete from DM_NguonKhachHang
+					delete from DM_DoiTuong_TrangThai
+    				delete from DM_NhomDoiTuong	  
+    									
+    			END
+    			ELSE 
+    			BEGIN
+    				UPDATE DM_DoiTuong SET ID_DonVi = 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE', ID_NhanVienPhuTrach = null, TongTichDiem = 0 
+    			END
+    		 			
+    			if(@CheckHH = 0)
+    			BEGIN
+						
+						delete from DM_GiaVon
+						delete from DM_HangHoa_TonKho
+    				   	delete from DinhLuongDichVu
+    					delete from DonViQuiDoi
+    					delete from HangHoa_ThuocTinh
+						delete from DM_HangHoa_ViTri  
+    					delete from DM_HangHoa_Anh
+    					delete from DM_HangHoa  				
+    					delete from DM_ThuocTinh				  				  				
+    					delete from DM_NhomHangHoa where ID != '00000000-0000-0000-0000-000000000000' and ID != '00000000-0000-0000-0000-000000000001'
+    			END
+				ELSE
+				BEGIN
+					DELETE DM_GiaVon WHERE ID_LoHang is not null
+					DELETE DM_GiaVon WHERE ID_DonVi != 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'
+					DELETE DM_HangHoa_TonKho WHERE ID_LoHang is not null
+					DELETE DM_HangHoa_TonKho WHERE ID_DonVi != 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'
+					UPDATE DM_GiaVon SET GiaVon = 0
+					UPDATE DM_HangHoa_TonKho SET TonKho = 0
+				END
+				
+				delete from NhomHang_KhoangApDung
+				delete from NhomHang_ChiTietSanPhamHoTro
+    			delete from DM_LoHang
+    			delete from DM_ViTri
+    			delete from DM_KhuVuc
+    			
+    			delete from HT_NhatKySuDung where LoaiNhatKy != 20 and LoaiNhatKy != 21
+    					
+    			delete from CongDoan_DichVu
+    			delete from CongNoDauKi
+    			delete from DanhSachThi_ChiTiet	
+    			delete from DanhSachThi
+    			delete from DM_ChucVu
+    			delete from DM_HinhThucThanhToan
+    			delete from DM_HinhThucVanChuyen
+    			delete from DM_KhoanPhuCap
+    			delete from DM_LoaiGiaPhong
+    			delete from DM_LoaiNhapXuat
+    			delete from DM_LoaiPhieuThanhToan
+    			delete from DM_LoaiPhong
+    			delete from DM_LoaiTuVanLichHen
+    			delete from DM_LopHoc
+    			delete from DM_LyDoHuyLichHen
+    			delete from DM_MaVach
+    			delete from DM_MayChamCong
+    			delete from DM_NoiDungQuanTam
+    			delete from DM_PhanLoaiHangHoaDichVu
+    			delete from DM_ThueSuat
+    			
+    			delete from HT_CauHinh_TichDiemApDung
+    			delete from HT_CauHinh_TichDiemChiTiet		
+    			delete from DM_TichDiem	  			
+    		
+    			delete from NS_LuongDoanhThu_ChiTiet 
+    			delete from NS_LuongDoanhThu
+    			delete from NS_HoSoLuong 
+    			delete from The_NhomThe
+    			delete from The_TheKhachHang_ChiTiet
+    			delete from The_TheKhachHang
+    
+    			delete from HT_ThongBao
+    			delete from HT_ThongBao_CaiDat where ID_NguoiDung != '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77' 
+    			delete from HT_Quyen_Nhom where ID_NhomNguoiDung IN (select ID From HT_NhomNguoiDung where ID NOT IN (select IDNhomNguoiDung from HT_NguoiDung_Nhom where IDNguoiDung = '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77' AND ID_DonVi = 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'))
+    			--delete from HT_NguoiDung_Nhom where IDNhomNguoiDung IN (select ID From HT_NhomNguoiDung where ID NOT IN (select IDNhomNguoiDung from HT_NguoiDung_Nhom where IDNguoiDung = '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77' AND ID_DonVi = 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'))
+				delete from HT_NguoiDung_Nhom where IDNguoiDung != '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77' 
+    			delete from HT_NhomNguoiDung where ID NOT IN (select IDNhomNguoiDung from HT_NguoiDung_Nhom where IDNguoiDung = '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77' AND ID_DonVi = 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE')
+    				
+    			delete from HT_NguoiDung where ID != '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77' 
+				
+				delete from NS_PhieuPhanCa_CaLamViec
+				delete from NS_PhieuPhanCa_NhanVien
+				delete from NS_CaLamViec_DonVi
+				delete from NS_ThietLapLuongChiTiet
+				delete from NS_CongNoTamUngLuong
+
+				delete from NS_CongBoSung
+				delete from NS_BangLuong_ChiTiet
+				delete from NS_CaLamViec
+				delete from NS_BangLuong			
+				delete from NS_KyHieuCong
+				delete from NS_NgayNghiLe
+				delete from NS_PhieuPhanCa
+
+				delete from NS_MienGiamThue
+				delete from NS_KhenThuong
+				delete from NS_HopDong
+				delete from NS_BaoHiem
+				delete from NS_Luong_PhuCap
+				delete from NS_LoaiLuong
+				delete from NS_NhanVien_CongTac
+				delete from NS_NhanVien_DaoTao
+				delete from NS_NhanVien_GiaDinh
+				delete from NS_NhanVien_SucKhoe
+				delete from NS_NhanVien_Anh	
+    			delete from NS_QuaTrinhCongTac where ID_NhanVien NOT IN (select ID_NhanVien from HT_NguoiDung where ID = '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77') or ID_DonVi != 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'
+				update NS_NhanVien SET ID_NSPhongBan = null
+    			delete from NS_NhanVien where ID NOT IN (select ID_NhanVien from HT_NguoiDung where ID = '28FEF5A1-F0F2-4B94-A4AD-081B227F3B77')
+    			delete from NS_PhongBan	 where ID_DonVi is not null and ID_DonVi != 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'
+    			delete from Kho_DonVi where ID_DonVi != 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE'
+    			delete from DM_Kho where ID NOT IN (select ID_Kho from Kho_DonVi where ID_DonVi = 'D93B17EA-89B9-4ECF-B242-D03B8CDE71DE')
+    			delete from DM_DonVi where ID !='D93B17EA-89B9-4ECF-B242-D03B8CDE71DE';
+	
+END");
         }
-        
+
         public override void Down()
         {
             Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetMaDoiTuongMax_byTemp]");
+            Sql(@"DROP PROCEDURE IF EXISTS [dbo].[GetGiaTriHoTro_ofCustomer]");
         }
     }
 }
