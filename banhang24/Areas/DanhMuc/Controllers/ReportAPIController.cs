@@ -5010,6 +5010,42 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
             }
         }
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetGiaTriHoTro_ofCustomer(Guid idCus, List<Guid> arrIDChiNhanh)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassReportKho reportKho = new ClassReportKho(db);
+                    List<BaoCaoHoTroDTO> lst = reportKho.GetGiaTriHoTro_ofCustomer(idCus, arrIDChiNhanh);
+
+                    if (lst != null)
+                    {
+                        return Json(new
+                        {
+                            res = true,
+                            LstData = lst,
+                        });
+                    }
+                    else
+                    {
+                        return Json(new
+                        {
+                            res = false,
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(new
+                    {
+                        res = false,
+                        mes = ex.InnerException + ex.Message
+                    });
+                }
+            }
+        }
 
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult BaoCaoTaiChinh_CongNo(array_BaoCaoTaiChinh array_BaoCaoTaiChinh)
