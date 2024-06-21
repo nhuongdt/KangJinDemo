@@ -199,6 +199,11 @@
                                 <i class="fa fa-plus"></i>     <font>Hoàn trả cọc</font>
                             </button>
                         }
+                        <!--ko if: $root.RoleDieuChinhSoDuThe()-->
+                        <button class=" btn btn-main mr-5px" data-bind="click:$root.showModalImportTonDauTGT">
+                            <i class="fa fa-download"></i> @banhang24.Resources.ResourceTexts.ImportFile
+                        </button>
+                        <!--/ko-->
                         <button class="btn-link shownhapxuat pull-right" id="shownhapxuat" title="Chức năng nhập xuất" style="width:30px;">
                             <i class="material-icons"> more_vert</i>
                         </button>
@@ -922,6 +927,89 @@
 </script>
 <script src="~/Scripts/Components/Input.js"></script>
 <script src="~/Scripts/Components/NhanVien_KhachHang.js"></script>
+
+<div id="vmImportTonDauTGT" class="modal fade">
+    <import-dinhluong :title="title"
+                      :is-chosing-file="isChosingFile"
+                      :list-chose="ListChose"
+                      :list-error="ListErr"
+                      v-on:import-file="ImportFile"
+                      v-on:download-file="DownloadFile"
+                      v-on:change-type-update="ChangeTypeUpdate">
+
+    </import-dinhluong>
+</div>
+<script src="~/Scripts/Components/importExcel.js"></script>
+<script>
+    var vmImportTonDauTGT = new Vue({
+        el: "#vmImportTonDauTGT",
+        components: {
+            'import-dinhluong': cpmImportExcel,
+        },
+        data: {
+            title: 'Nhập file tồn đầu Thẻ giá trị',
+            isChosingFile: false,
+            typeUpdate: 1,
+            ListChose: [
+                //{ ID: 1, Text: 'Cập nhật lại tồn đầu cũ', Value: true },
+                //{ ID: 0, Text: 'Giữ thành phần cũ, bổ sung thành phần mới', Value: false },
+            ],
+            ListErr: [],
+        },
+        created: function () {
+            let self = this;
+        },
+        methods:
+        {
+            showModal: function () {
+                let self = this;
+                self.isChosingFile = false;
+                self.ListErr = [];
+                $('#vmImportTonDauTGT').modal('show');
+            },
+            DownloadFile: function (type) {
+                let self = this;
+                let url = '/api/DanhMuc/DM_HangHoaAPI/' + "Download_TeamplateImport?fileSave=FileImport_TonDauTGT.xlsx";
+                window.location.href = url;
+            },
+            ChangeTypeUpdate: function (item) {
+                var self = this;
+                self.typeUpdate = item.ID;
+            },
+            ImportFile: function (fileChosed) {
+                var self = this;
+                var err = self.ListErr.map(function (x) { return x.rowError }).filter(x => x !== -1);
+                var formData = new FormData();
+                if (!commonStatisJs.CheckNull(fileChosed.file)) {
+                    formData.append("file", fileChosed.file);
+                    formData.append("ListErr", err.toString());
+                }
+                $('#vmImportTonDauTGT').gridLoader();
+                $.ajax({
+                    type: "POST",
+                    url: '/api/DanhMuc/BH_HoaDonAPI/' + "ImportExcel_TonDauTGT?idDonVi="
+                        + VHeader.IdDonVi + "&idNhanVien=" + VHeader.IdNhanVien + "&nguoitao=" + VHeader.UserLogin,
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                }).done(function (x) {
+                    if (x.res) {
+                        ShowMessage_Success("Import file thành công");
+                        self.ListErr = [];
+                        $('#vmImportTonDauTGT').modal('hide');
+                    }
+                    else {
+                        ShowMessage_Danger("Import file thất bại");
+                        self.ListErr = x.data;
+                    }
+                }).always(function (x) {
+                    $('#vmImportTonDauTGT').gridLoader({ show: false });
+                });
+            },
+        }
+    });
+</script>
 @Html.Partial("~/Views/Gara/HoaDon/_ThuTienHoaDon.cshtml")
 @Html.Partial("~/Views/GiaoDich/_HoaDonNapThePartial.cshtml")
 @Html.Partial("~/Views/Gara/HoaDon/_EditHoaHongHD.cshtml")

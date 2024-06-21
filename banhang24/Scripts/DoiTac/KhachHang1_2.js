@@ -5015,7 +5015,7 @@
                 if (loaiDoiTuong === 1) {
                     vmThemMoiKhach.listData.NhanViens = lstNV_byDonVi;
                     vmThanhToan.listData.NhanViens = lstNV_byDonVi;
-                    vmHoaHongDV.listData.NhanViens = lstNV_byDonVi;                  
+                    vmHoaHongDV.listData.NhanViens = lstNV_byDonVi;
                 }
                 else {
                     vmThanhToanNCC.listData.NhanViens = lstNV_byDonVi;
@@ -5522,7 +5522,7 @@
         vmNKGoiBaoDuong.ID_DonVi = VHeader.IdDonVi;
         vmNKGoiBaoDuong.GetGoiDichVu_ofKhachHang(id);
         vmThanhToanGara.GetSoDuTheGiaTri(id);
-        vmNKGoiBaoDuong.showModal(id, null, 0, 1);
+        vmNKGoiBaoDuong.showModal(id, null, 0, 1, { ID: item.ID, MaDoiTuong: item.MaDoiTuong, TenDoiTuong: item.TenDoiTuong });
     }
 
     $('#modalMoveGroup').on('hidden.bs.modal', function () {
