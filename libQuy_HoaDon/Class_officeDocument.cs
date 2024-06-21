@@ -17,6 +17,7 @@ using libDM_HangHoa;
 using System.Data.SqlClient;
 using System.Drawing.Printing;
 using static libQuy_HoaDon.Class_Report;
+using System.Diagnostics.Eventing.Reader;
 
 namespace libQuy_HoaDon
 {
@@ -13691,6 +13692,236 @@ namespace libQuy_HoaDon
                         ChucNang = "Gói dịch vụ - Import",
                         LoaiNhatKy = 5,
                         NoiDung = "Import tồn đầu kỳ gói dịch vụ",
+                        NoiDungChiTiet = noidungCT,
+                        ThoiGian = DateTime.Now,
+                    };
+                    SaveDiary.add_Diary(nky);
+                    #endregion
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                {
+                    TenTruongDuLieu = "Exception",
+                    ThuocTinh = "Exception",
+                    DienGiai = ex.InnerException + ex.Message
+                };
+                lstError.Add(itemErr);
+            }
+            return lstError;
+        }
+        #endregion 
+        #region Import TonDau TheGiaTri
+        public List<ErrorDMHangHoa> CheckFile_TonDauTGT(Stream fileInput, Guid idDonVi, Guid idNhanVien, string nguoitao, string indexErrs)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            List<ImportDto_TonDauTGT> lstData = new List<ImportDto_TonDauTGT>();
+
+            try
+            {
+                classDonViQuiDoi classDonViQuiDoi = new classDonViQuiDoi(db);
+                classDM_DoiTuong classDoiTuong = new classDM_DoiTuong(db);
+                ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
+
+                Workbook objWorkbook = new Workbook(fileInput);
+                Worksheet worksheet = objWorkbook.Worksheets[0];
+                var f = objWorkbook.Worksheets;
+                int trows = worksheet.Cells.MaxDataRow;
+                int tcool = worksheet.Cells.MaxDataColumn + 1; // ?? khong hieu tai sao no khong lay dc cot cuoi dung, nen phai + 1 
+                string sheet = worksheet.Name.ToString();
+                DataTable dt = worksheet.Cells.ExportDataTable(1, 0, trows, tcool, true);// export bao gom header -> bat dau tu dong 1
+
+                // bo qua dong loi
+                string[] mang = indexErrs.Split(',');
+                for (int i = mang.Length - 1; i >= 0; i--)
+                {
+                    if (!string.IsNullOrEmpty(mang[i]))
+                    {
+                        int j = int.Parse(mang[i].ToString());
+                        dt.Rows[j].Delete();
+                    }
+                }
+                dt.Columns[0].ColumnName = "MaKhachHang";
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var dr = dt.Rows[i];
+                    string rowIndex = "Dòng số: " + (i + 3).ToString();
+                    var tondauTGT = dr[1].ToString().Trim();
+                    if (tondauTGT != string.Empty)
+                    {
+                        if (IsNumber(tondauTGT))
+                        {
+                            ImportDto_TonDauTGT itemGDV = new ImportDto_TonDauTGT();
+                            var maKH = dr[0].ToString().Trim();
+                            if (maKH != string.Empty)
+                            {
+                                var itemKH = db.DM_DoiTuong.Where(x => x.MaDoiTuong == maKH).Select(x => new { x.ID });
+                                if (itemKH.Count() == 0)
+                                {
+                                    ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                    {
+                                        TenTruongDuLieu = "Mã khách hàng",
+                                        ViTri = rowIndex,
+                                        ThuocTinh = maKH,
+                                        DienGiai = "Khách hàng chưa tồn tại trong hệ thống",
+                                        rowError = i,
+                                    };
+                                    lstError.Add(itemErr);
+                                }
+                                else
+                                {
+                                    bool trungma = GroupData(dt, "MaKhachHang = '" + maKH + "'");
+                                    if (trungma == false)
+                                    {
+                                        ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                                        DM.TenTruongDuLieu = "Mã khách hàng";
+                                        DM.ViTri = rowIndex;
+                                        DM.ThuocTinh = maKH;
+                                        DM.DienGiai = "Mã khách hàng " + maKH + " bị trùng lặp";
+                                        DM.rowError = i;
+                                        lstError.Add(DM);
+                                    }
+                                    else
+                                    {
+                                        //add to list
+                                        itemGDV.ID_DoiTuong = itemKH.FirstOrDefault().ID;
+                                        itemGDV.MaDoiTuong = maKH;
+                                        itemGDV.GiaTri = Convert.ToDouble(tondauTGT);
+                                        lstData.Add(itemGDV);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = "Mã khách hàng",
+                                    ViTri = rowIndex,
+                                    ThuocTinh = "",
+                                    DienGiai = "Vui lòng nhập mã khách hàng",
+                                    rowError = i,
+                                };
+                                lstError.Add(itemErr);
+                            }
+                        }
+                        else
+                        {
+                            ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                            {
+                                TenTruongDuLieu = "Tồn đầu thẻ",
+                                ViTri = rowIndex,
+                                ThuocTinh = tondauTGT,
+                                DienGiai = "Tồn đầu thẻ không phải dang số",
+                                rowError = i,
+                            };
+                            lstError.Add(itemErr);
+                        }
+                    }
+                    else
+                    {
+                        ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                        {
+                            TenTruongDuLieu = "Tồn đầu thẻ",
+                            ViTri = rowIndex,
+                            ThuocTinh = tondauTGT,
+                            DienGiai = "Tồn đầu thẻ không được để trống",
+                            rowError = i,
+                        };
+                        lstError.Add(itemErr);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                {
+                    TenTruongDuLieu = "Exception",
+                    ThuocTinh = "Exception",
+                    DienGiai = e.InnerException + e.Message
+                };
+                lstError.Add(itemErr);
+            }
+            if (lstError.Count > 0)
+            {
+                return lstError;
+            }
+            else
+            {
+                lstError = Import_TonDauTGT(lstData, idDonVi, idNhanVien, nguoitao);
+                return lstError;
+            }
+        }
+
+        public List<ErrorDMHangHoa> Import_TonDauTGT(List<ImportDto_TonDauTGT> lstData, Guid idDonVi, Guid idNhanVien, string nguoitao)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            try
+            {
+                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                {
+                    List<BH_HoaDon> lstHD = new List<BH_HoaDon>();
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    string noidungCT = string.Empty;
+
+                    double maxMaHD = classhoadon.GetMaxMaHoaDon(23);
+                    string kihieuChungTu = classhoadon.GetKiHieuMaChungTu_byLoaiHoaDon(23);
+
+                    string maHoaDon = string.Empty;
+
+                    foreach (var kh in lstData)
+                    {
+                        if (maxMaHD < 10)
+                        {
+                            maHoaDon = string.Concat(kihieuChungTu, "00", maxMaHD);
+                        }
+                        else
+                        {
+                            if (maxMaHD < 100)
+                            {
+                                maHoaDon = string.Concat(kihieuChungTu, "0", maxMaHD);
+                            }
+                            else
+                            {
+                                maHoaDon = string.Concat(kihieuChungTu, maxMaHD);
+                            }
+                        }
+                        BH_HoaDon hd = new BH_HoaDon();
+                        hd.ID = Guid.NewGuid();
+                        hd.LoaiHoaDon = 23;
+                        hd.ID_DonVi = idDonVi;
+                        hd.ID_DoiTuong = kh.ID_DoiTuong;
+                        hd.ID_NhanVien = idNhanVien;
+                        hd.MaHoaDon = maHoaDon;
+                        hd.NgayLapHoaDon = DateTime.Now;
+                        hd.ChoThanhToan = false;
+                        hd.TongTienHang = kh.GiaTri;
+                        hd.TongChiPhi = kh.GiaTri;
+                        hd.TongTienThue = kh.GiaTri;
+                        hd.PhaiThanhToan = 0;
+                        hd.TongChietKhau = 0;
+                        hd.TongGiamGia = 0;
+                        hd.DienGiai = "Import tồn đầu thẻ giá trị";
+                        hd.NguoiTao = nguoitao;
+                        lstHD.Add(hd);
+                        noidungCT += string.Concat(" <br /> ", kh.MaDoiTuong, ", Tồn đầu: ", kh.GiaTri, " (", hd.MaHoaDon, ")");
+                        maxMaHD += 1;
+                    }
+
+                    db.BH_HoaDon.AddRange(lstHD);
+                    db.SaveChanges();
+
+                    #region NhatKySuDung
+                    HT_NhatKySuDung nky = new HT_NhatKySuDung()
+                    {
+                        ID = Guid.NewGuid(),
+                        ID_DonVi = idDonVi,
+                        LoaiHoaDon = 23,
+                        ID_NhanVien = idNhanVien,
+                        ChucNang = "Thẻ giá trị",
+                        LoaiNhatKy = 5,
+                        NoiDung = "Import tồn đầu thẻ giá trị",
                         NoiDungChiTiet = noidungCT,
                         ThoiGian = DateTime.Now,
                     };

@@ -6315,6 +6315,72 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpPost]
+        public IHttpActionResult ImportExcel_TonDauTGT(Guid idDonVi, Guid idNhanVien, string nguoitao)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+                try
+                {
+                    var classdoituong = new classDM_DoiTuong(db);
+                    Class_officeDocument classOffice = new Class_officeDocument(db);
+                    string indexErrs = HttpContext.Current.Request.Form["ListErr"];
+                    if (HttpContext.Current.Request.Files.Count != 0)
+                    {
+                        List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
+                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        {
+                            var file = HttpContext.Current.Request.Files[i];
+                            System.IO.Stream excelstream = file.InputStream;
+
+                            lstErr = classOffice.CheckFile_TonDauTGT(excelstream, idDonVi, idNhanVien, nguoitao, indexErrs);
+
+                            if (lstErr.Count == 0)
+                            {
+                                return Json(new { res = true });
+                            }
+                            else
+                            {
+                                return Json(new { res = false, mes = "", data = lstErr });
+                            }
+                        }
+                        return Json(new { res = true });
+                    }
+                    else
+                    {
+                        ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                        {
+                            TenTruongDuLieu = "Exception",
+                            ViTri = string.Empty,
+                            ThuocTinh = "Exception",
+                            DienGiai = "Không có dữ liệu",
+                            rowError = -1,
+                        };
+                        lstError.Add(itemErr);
+                        return Json(new
+                        {
+                            res = false,
+                            data = lstError
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                    {
+                        TenTruongDuLieu = "Exception",
+                        ViTri = string.Empty,
+                        ThuocTinh = "Exception",
+                        DienGiai = ex.InnerException + ex.Message,
+                        rowError = -1,
+                    };
+                    lstError.Add(itemErr);
+                    return Json(new { res = false, data = lstError });
+                }
+            }
+        }
+
         #region insert
         // POST: api/BH_HoaDonAPI
         [System.Web.Http.AcceptVerbs("GET", "POST")]
