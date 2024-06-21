@@ -45,8 +45,12 @@
         <div class="modal-content ">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+                
                 <h4 class="modal-title">
                     {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}
+                    <span v-if="objCus.ID != null && objCus.PTramHoTro > 0" style="color: brown; font-weight:200; font-size:14px">
+                        ({{objCus.TenDoiTuong}} - Đã hỗ trợ: {{formatNumber3Digit(objCus.PTramHoTro)}} %)
+                    </span>
                 </h4>
             </div>
             <div class="modal-body">
@@ -547,7 +551,8 @@
         created: function () {
             let self = this;
             self.Today = moment(new Date()).format('YYYY-MM-DD');
-            self.isAdmin = $('#txtUserLogin').val().toLowerCase() == 'admin'
+            self.isAdmin = $('#txtUserLogin').val().toLowerCase() == 'admin';
+            self.objCus = {ID: null, MaDoiTuong:'', TenDoiTuong:'', PTramHoTro: 0};
         },
         data: {
             ID_DonVi: $('#txtDonVi').val(),
@@ -555,6 +560,7 @@
             LoaiNganhNghe: 0,// 0.spa, 1.gara, 2.nhahang
             ID_Customer: null,
             ID_Car: null,
+           
             ListDichVuChosed: [],
             ListIDCarChosed: [],
 
@@ -630,6 +636,17 @@
             }
         },
         methods: {
+            GetGiaTriHoTro: async function (cusID){
+                let self = this;
+                const xx = await ajaxHelper('/api/DanhMuc/ReportAPI/' + 'GetGiaTriHoTro_ofCustomer?idCus='+ cusID, 'POST', [self.ID_DonVi]).done()
+                .then(function (x) {
+                       if (x.res && x.LstData.length > 0) {
+                           return x.LstData[0].PTramHoTro;
+                       }
+                      return 0;
+                 })
+                 return xx;
+            },
             GetGoiDichVu_ofKhachHang: function (idCus, idCar = null) {
                 let self = this;
                 self.ID_Customer = idCus;
@@ -1091,7 +1108,7 @@
                 }
             },
 
-            showModal: function (idCus, idCar = null, nganhnghe = 0, from = 0) {
+            showModal: async function (idCus, idCar = null, nganhnghe = 0, from = 0, objCus = {ID: null, MaDoiTuong:'', TenDoiTuong:''}) {
                 let self = this;
                 self.saveOK = false;
                 self.LoaiNganhNghe = nganhnghe;
@@ -1100,10 +1117,17 @@
                 self.CallFrom = from;
                 self.ListDichVuChosed = [];
                 self.ListIDCarChosed = [];
+                if(objCus){
+                    self.objCus = objCus;
+                }
                 self.GetNhatKySuDung_GDV();
                 self.GetNhatKyGiaoDich_ofCus();
                 self.GetLichSuNapTien_ofCus();
                 self.GetNKy_SuDungTheGiaTri();
+                const gtriHoTro = await self.GetGiaTriHoTro(idCus);
+                console.log('gtriHoTro_02   ',objCus);
+
+                self.objCus.PTramHoTro = gtriHoTro;
                 self.GetListImgInvoice_byCus();
                 $('#vmNKGoiBaoDuong').modal('show');
             },
