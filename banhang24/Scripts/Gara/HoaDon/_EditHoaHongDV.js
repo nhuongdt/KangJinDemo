@@ -54,7 +54,7 @@
         showModal_formatTienChietKhau: function () {
             let self = this;
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
-                self.GridNV_TVTH[i].TienChietKhau = formatNumber(self.GridNV_TVTH[i].TienChietKhau);
+                self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(self.GridNV_TVTH[i].TienChietKhau);
             }
         },
 
@@ -149,7 +149,7 @@
                 else {
                     tienCK = itemFor.ChietKhauMacDinh * self.DichVu_isDoing.SoLuong * itemFor.HeSo;
                 }
-                self.GridNV_TVTH[i].TienChietKhau = formatNumber(tienCK);
+                self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(tienCK);
                 self.GridNV_TVTH[i].TinhHoaHongTruocCK = self.TinhHoaHongTruocCK ? 1 : 0;
             }
         },
@@ -252,7 +252,7 @@
                     // check in gridview
                     TacVu: tacVu,
                     // save in DB
-                    TienChietKhau: formatNumber(tienCK_NV),
+                    TienChietKhau: formatNumber3Digit(tienCK_NV),
                     PT_ChietKhau: ptramCK,
                     TheoYeuCau: (tacVu === 3),
                     ChietKhauMacDinh: valChietKhau,
@@ -306,10 +306,10 @@
                                 default:
                             }
                             if (itFor.PT_ChietKhau > 0) {
-                                self.GridNV_TVTH[i].TienChietKhau = formatNumber(itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo);
+                                self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo);
                             }
                             else {
-                                self.GridNV_TVTH[i].TienChietKhau = formatNumber(itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong);
+                                self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong);
                             }
                         }
                     }
@@ -334,10 +334,10 @@
                                     default:
                                 }
                                 if (itFor.PT_ChietKhau > 0) {
-                                    self.GridNV_TVTH[i].TienChietKhau = formatNumber(itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo);
+                                    self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(itFor.PT_ChietKhau * self.DichVu_isDoing.GiaTriTinhCK / 100 * self.GridNV_TVTH[i].HeSo);
                                 }
                                 else {
-                                    self.GridNV_TVTH[i].TienChietKhau = formatNumber(itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong);
+                                    self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(itFor.ChietKhauMacDinh * self.GridNV_TVTH[i].HeSo * self.DichVu_isDoing.SoLuong);
                                 }
                             }
                         }
@@ -443,7 +443,7 @@
                     self.GridNV_TVTH[i].TacVu = tacVu;
                     self.GridNV_TVTH[i].TheoYeuCau = isCheck;
                     self.GridNV_TVTH[i].PT_ChietKhau = ptramCK;
-                    self.GridNV_TVTH[i].TienChietKhau = formatNumber(tienCK_NV);
+                    self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(tienCK_NV);
                     self.GridNV_TVTH[i].ChietKhauMacDinh = ckMacDinh;
                     break;
                 }
@@ -476,7 +476,7 @@
             }
             else {
                 self.LaPhanTram = false;
-                gtriCK = formatNumber(formatNumberToFloat(item.TienChietKhau) / item.HeSo);
+                gtriCK = formatNumber3Digit(formatNumberToFloat(item.TienChietKhau) / item.HeSo);
             }
             $(function () {
                 let inputNext = $('.jsDiscount').children('div').eq(0).find('input');
@@ -507,7 +507,7 @@
 
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 if (i === index) {
-                    self.GridNV_TVTH[i].TienChietKhau = formatNumber(tienCK);
+                    self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(tienCK);
                     break;
                 }
             }
@@ -545,7 +545,7 @@
             // update infor %CK, tienCK into grid
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 if (i === item.Index) {
-                    self.GridNV_TVTH[i].TienChietKhau = formatNumber(tienCK);
+                    self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(tienCK);
                     self.GridNV_TVTH[i].PT_ChietKhau = ptramCK;
                     self.GridNV_TVTH[i].ChietKhauMacDinh = ckMacDinh;
                     break;
@@ -599,7 +599,7 @@
             for (let i = 0; i < self.GridNV_TVTH.length; i++) {
                 if (i === index) {
                     self.GridNV_TVTH[i].HeSo = heso;
-                    self.GridNV_TVTH[i].TienChietKhau = formatNumber(thisVal);
+                    self.GridNV_TVTH[i].TienChietKhau = formatNumber3Digit(thisVal);
                     break;
                 }
             }
@@ -750,6 +750,9 @@
             }
 
             var lstNV = self.GridNV_TVTH;
+            for(let i=0; i< lstNV.length;i++){
+                lstNV[i].TienChietKhau = formatNumberToFloat(lstNV[i].TienChietKhau);
+            }
             var myData = {
                 NhanViens: lstNV,
                 IDChiTiets: [self.DichVu_isDoing.ID],
