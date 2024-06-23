@@ -378,12 +378,6 @@ BEGIN
     	if isnull(@PageSize,'') =''
     		set @PageSize = 20
 
-		--if isnull(@LoaiHoaDons,'') !=''
-		--	begin
-		--		if @LoaiHoaDons = 19 ---- hoadon dudung GDV
-  --  				set @where = CONCAT(@where, N' and ct.ChatLieu = ''4''')
-		--	end
-
     	if isnull(@IDChiNhanhs,'') !=''
     		begin
     			set @where = CONCAT(@where , ' and exists (select ID from @tblChiNhanh cn where ID_DonVi = cn.ID)')
@@ -407,8 +401,7 @@ BEGIN
 
     	if isnull(@TextSearch,'') !=''
     		begin
-    			set @where = CONCAT(@where , N' and (hd.MaHoaDon like N''%'' + @TextSearch_In + ''%''  
-							--or hdgoc.MaHoaDon like N''%'' + @TextSearch_In + ''%''  
+    			set @where = CONCAT(@where , N' and (hd.MaHoaDon like N''%'' + @TextSearch_In + ''%''  							
 							or dt.MaDoiTuong like N''%'' + @TextSearch_In + ''%'' or  dt.TenDoiTuong like N''%'' + @TextSearch_In + ''%'' 
 							or dt.TenDoiTuong_KhongDau like N''%'' + @TextSearch_In + ''%'' or dt.DienThoai like N''%'' + @TextSearch_In + ''%''
 							or hh.TenHangHoa like N''%'' + @TextSearch_In + ''%'' or  hh.TenHangHoa_KhongDau like N''%'' + @TextSearch_In + ''%''
@@ -449,14 +442,12 @@ BEGIN
     		ct.SoLuong as SoLuongMua,
 			ct.ID_DonViQuiDoi,
 			ct.ID_LoHang,
-			ct.DonGia - ct.TienChietKhau as GiaBan,	 ---- lay sau CK
+			iif(hd.LoaiHoaDon = 36,0,ct.DonGia - ct.TienChietKhau) as GiaBan,  ---- lay sau CK
 			ct.TienChietKhau,
 			ct.ThoiGianBaoHanh,
 			ct.LoaiThoiGianBH,
 			ct.GhiChu,
 			ct.SoThuTu,
-			--isnull(gv.GiaVon,0) as GiaVon,
-			--isnull(tk.TonKho,0) as TonKho,
 			iif(hh.LoaiHangHoa is null, iif(hh.LaHangHoa=1,1,2), hh.LoaiHangHoa) as LoaiHangHoa,
 			nhomhh.TenNhomHangHoa,
 			ct.ID_ChiTietGoiDV as ID_ChiTietGoiDVGoc
@@ -467,8 +458,6 @@ BEGIN
 		left join DM_DoiTuong dt on hd.ID_DoiTuong = dt.ID
 		left join DM_NhomHangHoa nhomhh on hh.ID_NhomHang = nhomhh.ID
 		left join DM_LoHang lo on ct.ID_LoHang = lo.ID
-		--left join DM_GiaVon gv on ct.ID_DonViQuiDoi = gv.ID_DonViQuiDoi and gv.ID_DonVi = hd.ID_DonVi
-		--left join DM_HangHoa_TonKho tk on ct.ID_DonViQuiDoi = tk.ID_DonViQuyDoi and tk.ID_DonVi = hd.ID_DonVi
     	      
     	', @where, 
     		'),
