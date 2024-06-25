@@ -50,14 +50,6 @@
                 opacity: 1;
             }
 
-        /*.op-hoadon-ghichu input[type=text]:valid + i {
-            opacity: 1;
-        }
-
-        .op-hoadon-ghichu input[type=text]:valid {
-            opacity: 1;
-        }*/
-
         .op-hoadon-text {
             padding-bottom: 5px;
             position: relative;
@@ -92,7 +84,8 @@
             }
 
         .input-sl-quy-cach input {
-            max-width: 100%
+            min-width: 55px;
+            max-width: 55px;
         }
 
         #floatpayment {
@@ -789,7 +782,7 @@
                                     <div class="hoadon-stt" data-bind="visible: showHeader_STT">
                                     </div>
                                     <div class="op-hoadon-id" data-bind="visible: showHeader_ProductCode">
-                                        Mã sản phẩm
+                                        Mã SP
                                         <span id="onlineUsers"></span>
                                     </div>
                                     <div class="op-hoadon-name" data-bind="visible: showHeader_ProductName">
@@ -804,11 +797,14 @@
                                     </div>
                                     <div class="warning" style="width:9px">
                                     </div>
-                                    <div class=" list-price text-right" data-bind="visible: showHeader_ProductPrice" style="text-align:right; padding-right:25px">
+                                    <div class=" list-price text-right" data-bind="visible: showHeader_ProductPrice">
                                         Đơn giá
                                     </div>
                                     <div class="list-price text-right " data-bind="visible: showHeader_ProductSale">
                                         Chiết khấu
+                                    </div> 
+                                    <div class="list-price text-right ">
+                                        CK tổng
                                     </div>
                                     <div class="list-totle-price text-right" data-bind="visible: showHeader_SumPrice">
                                         Thành tiền
@@ -842,8 +838,7 @@
                                                 <div class="op-hoadon-name">
                                                     <div class="">
                                                         <div class="op-hoadon-productname" data-bind="style: { width: ( TenDonViTinh=='' || TenDonViTinh ==null)? '100%' : 'calc(100% - 75px)' }">
-                                                            <label data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,90), attr:{title: TenHangHoa}" class="hdhh-name"></label>
-                                                            <span style="color: #ff6a00;vertical-align:top;" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                            <label data-bind="text: TenHangHoa, attr:{title: TenHangHoa}" class="hdhh-name"></label>
                                                         </div>
                                                         <div class="dropdown "
                                                              data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
@@ -903,7 +898,7 @@
                                                             <i class="fal fa-angle-down"></i>
                                                         </a>
                                                         <div class="input-sl-quy-cach">
-                                                            <input type="text" class=" input-simple" maxlength="9" autocomplete="off"
+                                                            <input type="text" class=" input-simple" maxlength="9" autocomplete="off" 
                                                                    data-bind="value: formatNumber3Digit(SoLuong), attr:{id:'munber_' + IDRandom},
                                                    event:{keyup: $parent.editSoluong }, enable: $root.HoaDons().StatusOffline() == false"
                                                                    onkeypress="keypressNumber_limitNumber(event, this)" onclick="this.select()">
@@ -973,6 +968,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="list-price" data-bind="click: function (){ $root.showPopChietKhauTong_CTHD($data, false)}">
+                                                    <label class="text-right" 
+                                                           data-bind="text: formatNumber3Digit(SoLuong * TienChietKhau),
+                                                           attr:{id: 'lblckTong_'+ IDRandom},
+                                                           "></label>
+                                                </div>
                                                 <div class="list-totle-price">
                                                     <!--ko if: $root.roleChangePriceProduct() -->
                                                     <input type="text" class="text-right effect-1"
@@ -988,12 +989,6 @@
                                                 </div>
                                             </div>
                                             <div class="op-hoadon-function">
-                                                <!--ko if: LoaiHoaDon !== 6 && LoaiHoaDon !== 2 && ChatLieu != 2-->
-                                                <a href="javascript:void(0)"
-                                                   data-bind="click: $parent.showPopChietKhauTong_CTHD" class="btn-gray" title="Chiết khấu tổng">
-                                                    <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                                </a>
-                                                <!--/ko-->
                                                 <!--ko if: LoaiHoaDon !== 6 -->
                                                 <a href="javascript:void(0)" data-bind="click: $parent.addLot, visible: LoaiHangHoa !==3" class="btn-gray" title="Thêm hàng cùng loại">
                                                     <i class="material-icons md-24 ">add</i>
@@ -1288,7 +1283,7 @@
 
                                             </div>
                                             <div class="op-hoadon-number">
-                                                <div class="list-price input-sl">
+                                                <div class="list-price input-sl" >
                                                     <div class="list-price input-sl">
                                                         <a href="javascript:void(0)" class="quy-cach-edit-left nopadding btn-gray pull-left">
                                                             <i class="fa fa-pencil-square-o" aria-hidden="true"
@@ -1371,6 +1366,10 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="list-price" data-bind="click: function (){ $root.showPopChietKhauTong_CTHD($data, false)}">
+                                                    <label data-bind="text: formatNumber3Digit(SoLuong * TienChietKhau),
+                                                           attr:{id: 'lblckTong_' + IDRandom}"></label>
+                                                </div>
                                                 <div class="list-totle-price">
                                                     <!-- ko if: $root.roleChangePriceProduct() -->
                                                     <input type="text" class="text-right effect-1"
@@ -1385,12 +1384,6 @@
                                                 </div>
                                             </div>
                                             <div class="op-hoadon-function">
-                                                <!--ko if: $root.HoaDons().LoaiHoaDon() !== 6 -->
-                                                <a href="javascript:void(0)"
-                                                   data-bind="click: $root.showPopChietKhauTong_CTHD" class="btn-gray" title="Chiết khấu tổng">
-                                                    <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                                </a>
-                                                <!-- /ko-->
                                                 <button data-bind="click: $root.addLot, visible: LoaiHangHoa !==3" title="Thêm hàng cùng loại">
                                                     <i class="material-icons ">add</i>
                                                 </button>
@@ -1432,8 +1425,7 @@
                                                 <div class="op-hoadon-name">
                                                     <div class="">
                                                         <div class="op-hoadon-productname" data-bind="style: { width: ( TenDonViTinh=='' || TenDonViTinh ==null)? '100%' : 'calc(100% - 75px)' }">
-                                                            <label data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,90),  attr:{title: TenHangHoa}" class="hdhh-name"></label>
-                                                            <span style="color: #ff6a00;vertical-align:top" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                            <label data-bind="text: TenHangHoa,  attr:{title: TenHangHoa}" class="hdhh-name"></label>
                                                         </div>
                                                         <div class="dropdown " data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
                                                             <button class=" btn btn-link" type="button" data-toggle="dropdown" aria-expanded="true">
@@ -1482,7 +1474,7 @@
                                                             <i class="fal fa-angle-down"></i>
                                                         </a>
                                                         <div class="input-sl-quy-cach">
-                                                            <input type="text" class=" input-simple" maxlength="9" autocomplete="off"
+                                                            <input type="text" class=" input-simple" maxlength="9" autocomplete="off" 
                                                                    data-bind="value: formatNumber3Digit(SoLuong), attr:{id:'munber_' + IDRandom},
                                                    event:{keyup: $root.editSoluong }"
                                                                    onkeypress="keypressNumber_limitNumber(event, this)" onclick="this.select()">
@@ -1550,6 +1542,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="list-price" data-bind="click: function (){ $root.showPopChietKhauTong_CTHD($data, false)}">
+                                                    <label class="text-right"
+                                                           data-bind="text: formatNumber3Digit(SoLuong * TienChietKhau),
+                                                           attr:{id: 'lblckTong_'+ IDRandom}"></label>
+                                                </div>
                                                 <div class="list-totle-price">
                                                     <!--ko if: $root.roleChangePriceProduct()-->
                                                     <input type="text" class="text-right effect-1"
@@ -1565,12 +1562,6 @@
                                                 </div>
                                             </div>
                                             <div class="op-hoadon-function">
-                                                <!--ko if: $root.HoaDons().LoaiHoaDon() !==6 -->
-                                                <a href="javascript:void(0)"
-                                                   data-bind="click: $root.showPopChietKhauTong_CTHD" class="btn-gray" title="Chiết khấu tổng">
-                                                    <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                                </a>
-                                                <!-- /ko-->
                                                 <button data-bind="click: $root.addLot, visible: LoaiHangHoa !==3" class="btn-gray" title="Thêm hàng cùng loại">
                                                     <i class="material-icons ">add</i>
                                                 </button>
@@ -1649,8 +1640,7 @@
                                                 <div class="op-hoadon-name">
                                                     <div class="">
                                                         <div class="op-hoadon-productname" data-bind="style: { width: ( TenDonViTinh=='' || TenDonViTinh ==null)? '100%' : 'calc(100% - 75px)' }">
-                                                            <label data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,90),  attr:{title: TenHangHoa}" class="hdhh-name"></label>
-                                                            <span style="color: #ff6a00;vertical-align:top" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                            <label data-bind="text: TenHangHoa,  attr:{title: TenHangHoa}" class="hdhh-name"></label>
                                                         </div>
                                                         <div class="dropdown " data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
                                                             <button class=" btn btn-link" type="button" data-toggle="dropdown" aria-expanded="true">
@@ -1685,7 +1675,7 @@
                                                             <i class="fal fa-angle-down"></i>
                                                         </a>
                                                         <div class="input-sl-quy-cach">
-                                                            <input type="text" class=" input-simple" maxlength="9" autocomplete="off"
+                                                            <input type="text" class=" input-simple" maxlength="9" autocomplete="off" 
                                                                    data-bind="value: formatNumber3Digit(SoLuong),
                                                                    attr:{id:'munber_' + IDRandom},
                                                                      event:{keyup: function(){$root.Combo_editSoluong($data,$parent,false)}}"
@@ -1751,6 +1741,10 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div class="list-price">
+                                                    <label class="text-right" data-bind="text: formatNumber3Digit(SoLuong * TienChietKhau),
+                                                           attr:{id: 'lblckTong_'+ IDRandom}"></label>
                                                 </div>
                                                 <div class="list-totle-price">
                                                     <!--ko if: $root.roleChangePriceProduct()-->
@@ -1843,7 +1837,7 @@
                                                     <div class="list-nameproduct">
                                                         <div class="floatleft ">
                                                             <div class="op-hoadon-productname">
-                                                                <span data-bind="text:commonStatisJs.SubStringContent(TenHangHoa,90)" class="hdhh-name"></span>
+                                                                <span data-bind="text:TenHangHoa" class="hdhh-name"></span>
                                                                 <span style="color: #ff6a00;vertical-align:top;" data-bind="text: ThuocTinh_GiaTri"></span>
                                                             </div>
                                                             <em style="display: none;">
@@ -2036,8 +2030,7 @@
                                                         <div class="op-hoadon-name">
                                                             <div class="">
                                                                 <div class="op-hoadon-productname" data-bind="style: { width: ( TenDonViTinh=='' || TenDonViTinh ==null)? '100%' : 'calc(100% - 75px)' }">
-                                                                    <label data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,90)" class="hdhh-name"></label>
-                                                                    <span style="color: #ff6a00;vertical-align:top;" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                                    <label data-bind="text: TenHangHoa" class="hdhh-name"></label>
                                                                 </div>
                                                                 <div class="dropdown proDropdown blue notshow don-vi-tinh" style="float:right"
                                                                      data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
@@ -2068,7 +2061,7 @@
 
                                                     </div>
                                                     <div class="op-hoadon-number">
-                                                        <div class="list-price input-sl">
+                                                        <div class="list-price input-sl" >
                                                             <div class="list-price input-sl">
                                                                 <a href="javascript:void(0)" title="Số lượng quy cách" class="quy-cach-edit-left btn-gray">
                                                                     <i class="fa fa-pencil-square-o" aria-hidden="true"
@@ -2090,7 +2083,7 @@
                                                                     <i class="fal fa-angle-down"></i>
                                                                 </a>
                                                                 <div class="input-sl-quy-cach">
-                                                                    <input type="text" class=" input-simple" maxlength="9" title="Số lượng"
+                                                                    <input type="text" class=" input-simple" maxlength="9" title="Số lượng" 
                                                                            data-bind="value: formatNumber3Digit(SoLuong),
                                                    attr:{id:'numberTH_'+ IDRandom},
                                                    event:{keyup: $parent.editSoLuong_DoiTra}"
@@ -2153,6 +2146,11 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <div class="list-price" data-bind="click: function (){ $root.showPopChietKhauTong_CTHD($data, true)}">
+                                                            <label data-bind="text:formatNumber3Digit(SoLuong * TienChietKhau), 
+                                                                   attr:{id: 'lblckTong_' + IDRandom}
+                                                                   "></label>
+                                                        </div>
                                                         <div class="list-totle-price">
                                                             <!--ko if: $root.roleChangePriceProduct()-->
                                                             <input type="text" class="text-right effect-1"
@@ -2168,10 +2166,6 @@
                                                     </div>
 
                                                     <div class="op-hoadon-function">
-                                                        <a href="javascript:void(0)"
-                                                           data-bind="click: $parent.showPopChietKhauTong_CTHD" class="btn-gray" title="Chiết khấu tổng">
-                                                            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                                        </a>
                                                         <a href="javascript:void(0)"
                                                            data-bind="click: $parent.addLot_DoiTra, visible: LoaiHangHoa !==3" class="btn-gray" title="Thêm hàng cùng loại">
                                                             <i class="material-icons ">add</i>
@@ -2442,6 +2436,10 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <div class="list-price" data-bind="click: function (){ $root.showPopChietKhauTong_CTHD($data, true)}">
+                                                            <label data-bind="text: formatNumber3Digit(SoLuong * TienChietKhau), 
+                                                                   attr:{id: 'lblckTong_' + IDRandom}"></label>
+                                                        </div>
                                                         <div class="list-totle-price">
                                                             <!-- ko if: $root.roleChangePriceProduct()-->
                                                             <input type="text" class="text-right effect-1"
@@ -2456,10 +2454,6 @@
                                                         </div>
                                                     </div>
                                                     <div class="op-hoadon-function">
-                                                        <a href="javascript:void(0)"
-                                                           data-bind="click: $root.showPopChietKhauTong_CTHD" class="btn-gray" title="Chiết khấu tổng">
-                                                            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                                        </a>
                                                         <a href="javascript:void(0)" class="btn-gray" data-bind="click: $root.addLot_DoiTra, visible: LoaiHangHoa !==3" title="Thêm hàng cùng loại">
                                                             <i class="material-icons ">add</i>
                                                         </a>
@@ -2499,8 +2493,7 @@
                                                         <div class="op-hoadon-name">
                                                             <div class="">
                                                                 <div class="op-hoadon-productname" data-bind="style: { width: ( TenDonViTinh=='' || TenDonViTinh ==null)? '100%' : 'calc(100% - 75px)' }">
-                                                                    <span data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,90)" class="hdhh-name"></span>
-                                                                    <span style="color: #ff6a00;vertical-align:top;" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                                    <span data-bind="text: TenHangHoa" class="hdhh-name"></span>
                                                                 </div>
                                                                 <div class="dropdown proDropdown blue notshow don-vi-tinh" style="float:right"
                                                                      data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
@@ -2615,6 +2608,10 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <div class="list-price" data-bind="click: function (){ $root.showPopChietKhauTong_CTHD($data, true)}">
+                                                            <label data-bind="text:formatNumber3Digit(SoLuong * TienChietKhau), 
+                                                                   attr:{id: 'lblckTong_' + IDRandom}"></label>
+                                                        </div>
                                                         <div class="list-totle-price">
                                                             <!--ko if: $root.roleChangePriceProduct()-->
                                                             <input type="text" class="text-right effect-1"
@@ -2629,10 +2626,6 @@
                                                         </div>
                                                     </div>
                                                     <div class="op-hoadon-function">
-                                                        <a href="javascript:void(0)"
-                                                           data-bind="click: $root.showPopChietKhauTong_CTHD" class="btn-gray" title="Chiết khấu tổng">
-                                                            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                                        </a>
                                                         @*<a href="javascript:void(0)" title="Chi tiết chiết khấu nhân viên"
                                                            data-bind="click: function(){$root.showPopupUserDiscount($data, true)}, visible: LoaiHoaDon !== 3 " class="btn-gray">
                                                             <i class="fa fa-user" aria-hidden="true"></i>
@@ -2665,8 +2658,7 @@
                                                         <div class="op-hoadon-name">
                                                             <div class="">
                                                                 <div class="op-hoadon-productname" data-bind="style: { width: ( TenDonViTinh=='' || TenDonViTinh ==null)? '100%' : 'calc(100% - 75px)' }">
-                                                                    <span data-bind="text: commonStatisJs.SubStringContent(TenHangHoa,90)" class="hdhh-name"></span>
-                                                                    <span style="color: #ff6a00;vertical-align:top;" data-bind="text: ThuocTinh_GiaTri"></span>
+                                                                    <span data-bind="text: TenHangHoa" class="hdhh-name"></span>
                                                                 </div>
                                                                 <div class="dropdown proDropdown blue notshow don-vi-tinh" style="float:right"
                                                                      data-bind="visible: TenDonViTinh!=='' && TenDonViTinh !==null">
@@ -2696,7 +2688,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="op-hoadon-number">
-                                                        <div class="list-price input-sl">
+                                                        <div class="list-price input-sl" >
                                                             <div class="list-price input-sl">
                                                                 <a href="javascript:void(0)" class="quy-cach-edit-left btn-gray">
                                                                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
@@ -2714,7 +2706,7 @@
                                                                     <i class="fal fa-angle-down"></i>
                                                                 </a>
                                                                 <div class="input-sl-quy-cach">
-                                                                    <input type="text" class=" input-simple" maxlength="9"
+                                                                    <input type="text" class=" input-simple" maxlength="9" 
                                                                            data-bind="value: formatNumber3Digit(SoLuong),
                                                                            attr:{id:'numberTH_'+ IDRandom},
                                                                            event:{keyup: function(){$root.Combo_editSoluong($data,$parent,true)}}"
@@ -2775,6 +2767,10 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                        <div class="list-price">
+                                                            <label data-bind="text:formatNumber3Digit(SoLuong * TienChietKhau), 
+                                                                   attr:{id: 'lblckTong_' + IDRandom}"></label>
                                                         </div>
                                                         <div class="list-totle-price">
                                                             <!--ko if: $root.roleChangePriceProduct()-->

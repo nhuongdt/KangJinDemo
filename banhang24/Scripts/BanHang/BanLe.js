@@ -10030,6 +10030,7 @@ var NewModel_BanHangLe = function () {
             if (item.ChatLieu !== '4' || loaiHD === 6) {
                 objThanhTien.val(formatNumber3Digit(thanhtien));
                 objThanhTien.text(formatNumber3Digit(thanhtien)); // use for lable
+                $('#lblckTong_' + idRandom).text(formatNumber3Digit(ctDoing.SoLuong * ctDoing.TienChietKhau));
             }
             // update ds cache cthoadon
             var cthd = localStorage.getItem(lcListCTHD);
@@ -10176,6 +10177,7 @@ var NewModel_BanHangLe = function () {
 
             $('#sum-f_' + idRandom).val(formatNumber3Digit(sumTemp));
             $('button[id ^=btn_sale_' + idRandom).text(formatNumber3Digit(tienGiam)); // button bind giam gia
+            $('#lblckTong_' + idRandom).text(formatNumber3Digit(ctDoing.SoLuong * ctDoing.TienChietKhau));
             var cthd = localStorage.getItem(lcListCTHD);
             if (cthd === null) {
                 cthd = [];
@@ -11153,15 +11155,21 @@ var NewModel_BanHangLe = function () {
     }
 
     self.CTHD_Chosing = ko.observable();
-    self.showPopChietKhauTong_CTHD = function (item) {
+    self.IsCTHD_DoiTra = ko.observable(false);
+    self.showPopChietKhauTong_CTHD = function (item, isDoiTra = false) {
         const elm = $(event.currentTarget);
         self.CTHD_Chosing(item);
-        let ctDoing = FindCTHD_isDoing(item, self.HoaDons().LoaiHoaDon() === 6);
+        self.IsCTHD_DoiTra(isDoiTra);
+        ctDoing = FindCTHD_isDoing(item, isDoiTra);
         if (ctDoing !== null) {
             $('#ckTongCTHD').find('input').val(formatNumber3Digit(ctDoing.SoLuong * ctDoing.TienChietKhau));
+            $(document).ready(function () {
+                $('#ckTongCTHD').find('input').focus().select();
+            })
         }
         $('#ckTongCTHD').show();
         $('#ckTongCTHD').css('top', (elm.offset().top + 22) + 'px');
+        $('#ckTongCTHD').css('left', (elm.offset().left - 220) + 'px');
     }
 
     self.editChietKhauTong_CTHD = function () {
@@ -11169,7 +11177,7 @@ var NewModel_BanHangLe = function () {
         let thisVal = elm.val();
         const idRandomHD = self.HoaDons().IDRandom();
         const loaiHD = self.HoaDons().LoaiHoaDon();
-        const isDoiTra = loaiHD === 6;
+        const isDoiTra = self.IsCTHD_DoiTra();
         const cacheName = isDoiTra ? lcListCTHD_DoiTra : lcListCTHD;
 
         let ctDoing = FindCTHD_isDoing(self.CTHD_Chosing(), isDoiTra);
@@ -11188,21 +11196,30 @@ var NewModel_BanHangLe = function () {
             cthd = updateCTHDLe(cthd, ctDoing);
             localStorage.setItem(cacheName, JSON.stringify(cthd));
 
-            UpdateChietKhauNV_inCTHD(idRandom, isDoiTra, ctDoing);
-            ResetKM_HangHoa_ByIDQuiDoi_orNhomHang(self.CTHD_Chosing().ID_DonViQuiDoi, self.CTHD_Chosing().ID_NhomHangHoa, idRandomHD);
-            ResetKM_HoaDon(idRandomHD);
-            UpdateCacheHDLe(idRandomHD, isDoiTra, 3);
-            UpdateDiemGiaoDich_andResetDiemQuyDoi_forHoaDon();
-            self.KM_KMApDung([]);
-            UpdateKhuyenMai_CTHD(self.CTHD_Chosing().ID_DonViQuiDoi, idRandomHD);
-            // update status change = true for HDDatHang dang XuLy
-            if (loaiHD === 3) {
-                Update_StatusXuLy_ofHDDatHang(idRandomHD);
+            if (loaiHD == 6) {
+                UpdateHD_TraHang(idRandomHD);
+                if (isDoiTra) {
+                    UpdateCacheHDLe(idRandomHD, isDoiTra, 3);
+                }
+            }
+            else {
+                UpdateChietKhauNV_inCTHD(idRandom, isDoiTra, ctDoing);
+                ResetKM_HangHoa_ByIDQuiDoi_orNhomHang(self.CTHD_Chosing().ID_DonViQuiDoi, self.CTHD_Chosing().ID_NhomHangHoa, idRandomHD);
+                ResetKM_HoaDon(idRandomHD);
+                UpdateCacheHDLe(idRandomHD, isDoiTra, 3);
+                UpdateDiemGiaoDich_andResetDiemQuyDoi_forHoaDon();
+                self.KM_KMApDung([]);
+                UpdateKhuyenMai_CTHD(self.CTHD_Chosing().ID_DonViQuiDoi, idRandomHD);
+                // update status change = true for HDDatHang dang XuLy
+                if (loaiHD === 3) {
+                    Update_StatusXuLy_ofHDDatHang(idRandomHD);
+                }
             }
 
             BindHD_byIDRandom(idRandomHD);
 
             elm.val(formatNumber3Digit(thisVal));
+            $('#lblckTong_' + idRandom).text(formatNumber3Digit(thisVal));
             if (isDoiTra) {
                 $('button[id ^=btn_saleDT_' + idRandom).text(formatNumber3Digit(ctDoing.TienChietKhau));
                 $('#sumTH_' + idRandom).val(formatNumber3Digit(ctDoing.ThanhToan));
@@ -13137,6 +13154,7 @@ var NewModel_BanHangLe = function () {
 
             objThanhTien.val(formatNumber3Digit(thanhtien));
             objThanhTien.text(formatNumber3Digit(thanhtien)); // use for lable
+            $('#lblckTong_' + idRandom).text(formatNumber3Digit(ctDoing.SoLuong * ctDoing.TienChietKhau));
 
             var cthd = localStorage.getItem(lcListCTHD_DoiTra);
             if (cthd !== null) {
@@ -13350,6 +13368,7 @@ var NewModel_BanHangLe = function () {
                 ctDoing.TienThue = tienThue;
                 ctDoing.ThanhTien = priceNew * ctDoing.SoLuong;
                 ctDoing.ThanhToan = sumTemp;
+                $('#lblckTong_' + idRandom).text(formatNumber3Digit(ctDoing.SoLuong * ctDoing.TienChietKhau));
             }
             // set value new GiamGia, ThanhTien
             $('button[id=btn_saleDT_' + idRandom + ']').text(formatNumber3Digit(tienGiam));
