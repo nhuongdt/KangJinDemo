@@ -18,6 +18,7 @@ using System.Data.SqlClient;
 using System.Drawing.Printing;
 using static libQuy_HoaDon.Class_Report;
 using System.Diagnostics.Eventing.Reader;
+using libNS_NhanVien;
 
 namespace libQuy_HoaDon
 {
@@ -10900,6 +10901,8 @@ namespace libQuy_HoaDon
         // import Nhân viên
         public void importThongTinNhanVien(DataTable dataTable, Guid ID_ChiNhanh)
         {
+            ClassNS_NhanVien classNhanVien = new ClassNS_NhanVien(db);
+
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
                 string dk = "";
@@ -10921,9 +10924,7 @@ namespace libQuy_HoaDon
                         sMaNhanVien = dataTable.Rows[i][0].ToString().ToUpper();
                     else
                     {
-                        //sMaNhanVien = classdoituong.GetMaNhanVien();
-                        SqlParameter sql = new SqlParameter("MaNhanVien", "NV00001");
-                        sMaNhanVien = db.Database.SqlQuery<string>("exec get_MaNhanVien @MaNhanVien", sql).FirstOrDefault().Trim();
+                        sMaNhanVien = classNhanVien.GetMaNhanVien_TheoSubDomain();
                     }
                     string TenNhanVien_KhongDau = CommonStatic.ConvertToUnSign(dataTable.Rows[i][1].ToString()).ToLower();
                     string TenNhanVien_KyTuDau = CommonStatic.GetCharsStart(dataTable.Rows[i][1].ToString()).ToLower();
