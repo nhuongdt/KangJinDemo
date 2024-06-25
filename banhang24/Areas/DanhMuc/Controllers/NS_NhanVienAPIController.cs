@@ -1887,10 +1887,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 string sMaNhanVien = string.Empty;
                 string chitiet_km = "Họ tên: " + objNhanVien.TenNhanVien;
                 string noidung_km = ". Họ tên: " + objNhanVien.TenNhanVien;
-                if (objNhanVien.MaNhanVien == null)
+                if (string.IsNullOrEmpty( objNhanVien.MaNhanVien))
                 {
-                    SqlParameter sql = new SqlParameter("MaNhanVien", "NV00001");
-                    sMaNhanVien = db.Database.SqlQuery<string>("exec get_MaNhanVien @MaNhanVien", sql).FirstOrDefault();
+                    sMaNhanVien = _ClassNS_NhanVien.GetMaNhanVien_TheoSubDomain();
                 }
                 else
                 {
@@ -3275,17 +3274,16 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     using (SsoftvnContext db = SystemDBContext.GetDBContext())
                     {
+                        ClassNS_NhanVien classNhanVien = new ClassNS_NhanVien(db);
                         string sMaNhanVien = string.Empty;
                         string sOld = string.Empty;
                         if (objNhanVien.ID == null || objNhanVien.ID == new Guid()) //Insert
                         {
 
                             objNhanVien.NgayTao = DateTime.Now;
-                            if (string.IsNullOrWhiteSpace(objNhanVien.MaNhanVien))
+                            if (string.IsNullOrEmpty(objNhanVien.MaNhanVien))
                             {
-                                //objNhanVien.MaNhanVien = GetMaNhanVien();
-                                SqlParameter sql = new SqlParameter("MaNhanVien", "NV00001");
-                                objNhanVien.MaNhanVien = db.Database.SqlQuery<string>("exec get_MaNhanVien @MaNhanVien", sql).FirstOrDefault().Trim();
+                                objNhanVien.MaNhanVien = classNhanVien.GetMaNhanVien_TheoSubDomain();
                             }
                             else
                             {
@@ -3319,7 +3317,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         else // Update
                         {
                             IsNew = false;
-                            if (!string.IsNullOrWhiteSpace(objNhanVien.MaNhanVien))
+                            if (string.IsNullOrEmpty(objNhanVien.MaNhanVien))
+                            {
+                                objNhanVien.MaNhanVien = classNhanVien.GetMaNhanVien_TheoSubDomain();
+                            }
+                            else
                             {
                                 if (db.NS_NhanVien.Any(o => o.ID != objNhanVien.ID && o.MaNhanVien.Equals(objNhanVien.MaNhanVien) && (o.TrangThai != (int)commonEnumHellper.TypeIsDelete.daxoa || o.TrangThai == null)))
                                 {

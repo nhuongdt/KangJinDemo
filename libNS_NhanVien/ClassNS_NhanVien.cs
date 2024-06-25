@@ -1769,6 +1769,68 @@ namespace libNS_NhanVien
         }
         #endregion
 
+        public double GetMaxMaNhanVien()
+        {
+            try
+            {
+                var max = db.Database.SqlQuery<double>(@" SELECT MAX(CAST (dbo.udf_GetNumeric(MaNhanVien) AS float))
+                FROM NS_NhanVien").First();
+                return max + 1;
+            }
+            catch (Exception)
+            {
+                return 1;
+            }
+        }
+
+        public string GetKiHieu_MaNhanVien()
+        {
+            string kihieuma = "NV";
+            string subDomain = CookieStore.GetCookieAes("SubDomain").ToLower();
+            switch (subDomain)
+            {
+                case "dongbang":
+                    {
+                        kihieuma = "DB";
+                    }
+                    break;                        ;
+                case "manwell":
+                    {
+                        kihieuma = "M";
+                    }
+                    break;
+                case "kangjindemo":
+                    {
+                        kihieuma = "K";
+                    }
+                    break;
+            }
+            return kihieuma;
+        }
+
+        public string GetMaNhanVien_TheoSubDomain()
+        {
+            double max = GetMaxMaNhanVien();
+            string kihieuma = GetKiHieu_MaNhanVien();
+            string manhanvien;
+            if (max < 10)
+            {
+                manhanvien = string.Concat(kihieuma, "00", max);
+            }
+            else
+            {
+                if (max < 100)
+                {
+                    manhanvien = string.Concat(kihieuma, "0", max);
+                }
+                else
+                {
+                    manhanvien = string.Concat(kihieuma, max);
+                }
+            }
+            return manhanvien;
+        }
+
         public string GetMaNhanVien()
         {
             string format = "{0:0000}";
@@ -1825,9 +1887,9 @@ namespace libNS_NhanVien
                     #region NS_NhanVien
                     NS_NhanVien objUpd = db.NS_NhanVien.Find(obj.ID);
                     string sMaNhanVien = string.Empty;
-                    if (obj.MaNhanVien == null)
+                    if (string.IsNullOrEmpty( obj.MaNhanVien))
                     {
-                        sMaNhanVien = GetMaNhanVien();
+                        sMaNhanVien = GetMaNhanVien_TheoSubDomain();
                     }
                     else
                     {
