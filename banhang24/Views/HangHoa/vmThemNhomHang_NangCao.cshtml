@@ -26,6 +26,7 @@
     #vmThemNhomHang_NangCao .css-form-detail {
         width: 100%;
     }
+
     #vmThemNhomHang_NangCao .a-font-18 {
         font-size: 18px;
     }
@@ -53,7 +54,8 @@
                     <div class="col-sm-6 col-lg-6 col-sm-6 col-xs-12">
                         <input type="text" class="form-control" v-model="newNhomHang.TenNhomHangHoa" autofocus autocomplete="off" />
                     </div>
-                    <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-13" v-if="typeUpdate===2 && newNhomHang.ThietLapNangCao">
+                    <div class="col-sm-3 col-lg-3 col-sm-3 col-xs-13"
+                         v-if="typeUpdate===2 && newNhomHang.ThietLapNangCao && $root.role_NhomHangHoa_ThietLapNangCao">
                         <a style="text-decoration:underline"
                            v-on:click="showListSanPham_thuocNhomHoTro">Dịch vụ sản phẩm khách mua</a>
                     </div>
@@ -68,7 +70,7 @@
                     </div>
                 </div>
 
-                <div class="form-group margin-top-10">
+                <div class="form-group margin-top-10" v-if="$root.role_NhomHangHoa_ThietLapNangCao">
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12 nopadding-left">
                         <div class="gara-detail-sections" style="color: var(--color-main)"
                              v-on:click="OnOff_ThietLapNangCao">
@@ -355,6 +357,7 @@
         created: function () {
             let self = this;
             self.ID_DonVi = VHeader.IdDonVi;
+            self.role_NhomHangHoa_ThietLapNangCao = VHeader.Quyen.indexOf('NhomHangHoa_ThietLapNangCao')> -1;
             let arr = $.extend(true, [], VHeader.ListChiNhanh);
             arr.map(function (x) {
                 x['Text1'] = x.TenDonVi
@@ -759,6 +762,10 @@
             },
             CheckSave: function () {
                 let self = this;
+                if(self.typeUpdate!== 1 && !self.role_NhomHangHoa_ThietLapNangCao){
+                    ShowMessage_Danger('Không có quyền thiết lập nâng cao');
+                    return false;
+                }
                 if (self.ChiNhanhChosed.length === 0) {
                     ShowMessage_Danger('Vui lòng chọn chi nhánh áp dụng');
                     return false;
@@ -897,7 +904,7 @@
                     }).fail(function () {
                         self.saveOK = false;
                         ShowMessage_Danger('Xóa nhóm ' + self.sLoai + ' thất bại');
-                       
+
                     }).always(function () {
                         $('#vmThemNhomHang_NangCao').modal('hide');
                     })

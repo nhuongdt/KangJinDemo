@@ -327,6 +327,7 @@ var ViewModel = function () {
     self.HangHoa_XemGiaVon = ko.observable(false);
     self.HangHoa_GiaBan = ko.observable(false);
     self.HangHoa_GiaVon = ko.observable(false);
+    self.role_NhomHangHoa_ThietLapNangCao = ko.observable(false);
     self.role_InsertProduct = ko.observable(false);
     self.role_InsertDichVu = ko.observable(false);// tách riêng quyền: thêm hàng hóa/dịch vụ
     self.role_DeleteProduct = ko.observable(false);
@@ -360,6 +361,7 @@ var ViewModel = function () {
                 self.HangHoa_GiaBan('');
             }
 
+            self.role_NhomHangHoa_ThietLapNangCao(CheckQuyenExist('NhomHangHoa_ThietLapNangCao'));
             self.role_InsertProduct(CheckQuyenExist('HangHoa_ThemMoi'));
             self.role_InsertDichVu(CheckQuyenExist('ThemMoi_DichVu'));
             self.role_DeleteProduct(CheckQuyenExist('HangHoa_Xoa'));
@@ -4618,7 +4620,7 @@ var ViewModel = function () {
                 }
 
                 data.GiaBan = formatNumber3Digit(data.GiaBan);
-                data.TonKho = formatNumber3Digit(data.TonKho,3);
+                data.TonKho = formatNumber3Digit(data.TonKho, 3);
                 data.SoPhutThucHien = data.SoPhutThucHien !== null ? formatNumber3Digit(data.SoPhutThucHien) : data.SoPhutThucHien;
                 data.ChiPhiThucHien = formatNumber3Digit(data.ChiPhiThucHien);
                 for (var j = 0; j < data.DonViTinh.length; j++) {
@@ -6809,7 +6811,7 @@ var ViewModel = function () {
             //self.files(data.DM_HangHoa_Anh);
             data.GiaBan = formatNumber3Digit(data.GiaBan);
             data.GiaVon = formatNumber3Digit(data.GiaVon);
-            data.TonKho = formatNumber3Digit(data.TonKho,3);
+            data.TonKho = formatNumber3Digit(data.TonKho, 3);
             //self.selectIDNHHAdd(data.ID_NhomHangHoa);
             self.selectIDNhomHHAddHH(data.ID_NhomHangHoa);
             for (var j = 0; j < data.DonViTinh.length; j++) {
@@ -12883,7 +12885,7 @@ var ViewModel = function () {
                 hdct[i].TienChietKhau = 0;
                 hdct[i].GiaVon = 0;
                 hdct[i].SoLuong = 0;
-                 // 2 cột: SoLuong, TienChietKhau lưu ngược so với DB
+                // 2 cột: SoLuong, TienChietKhau lưu ngược so với DB
                 // (do code ban đầu thế rồi, nên không muốn sửa lại nữa, vì phải check lại nhiều chỗ)
                 if (dataDB.length > 0) {
                     hdct[i].SoLuong = dataDB[0].TonKho;// tonkhoDB
