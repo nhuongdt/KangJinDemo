@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 using Aspose.Cells;
+using Microsoft.Office.Interop.Excel;
 using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -56,7 +57,7 @@ namespace libQuy_HoaDon
             }
         }
 
-        private void SetValueToCells(ISheet sheet, List<ClassExcel_CellData> lstDataCell = null)
+        private void SetValueToHeaderCells(ISheet sheet, List<ClassExcel_CellData> lstDataCell = null)
         {
             if (lstDataCell != null)
             {
@@ -73,44 +74,46 @@ namespace libQuy_HoaDon
                 }
             }
         }
-        private void RemoveColumns(ISheet sheet, string[] columnsToRemove, int startRow)
+        private void RemoveHideColumns(ISheet sheet, string columnsToRemove, int startRow)
         {
             int[] arrColumn = null;
-            if (columnsToRemove != null)
+            if (!string.IsNullOrEmpty(columnsToRemove) && columnsToRemove != "null")
             {
-                columnsToRemove = columnsToRemove.Where(x => !string.IsNullOrEmpty(x) && x != "null" && x != "1").Distinct().ToArray();
-                // Sắp xếp mảng chỉ số cột theo thứ tự giảm dần để tránh xung đột khi xóa cột
-                arrColumn = Array.ConvertAll(columnsToRemove, int.Parse).OrderByDescending(x => x).ToArray();
+                string[] coloumHide = columnsToRemove.Split('_');
+                coloumHide = coloumHide.Where(x => !string.IsNullOrEmpty(x) && x != "null").Distinct().ToArray(); columnsToRemove.Split('_');
+                arrColumn = Array.ConvertAll(coloumHide, int.Parse).OrderByDescending(x => x).ToArray();
             }
-
-            foreach (int columnIndex in arrColumn)
+            if (arrColumn != null)
             {
-                // Dịch chuyển các ô phía bên phải của columnIndex sang trái để lấp đầy ô bị xóa
-                int lastColumnIndex = sheet.GetRow(startRow).LastCellNum - 1;
-                foreach (IRow row in sheet)
+                foreach (int columnIndex in arrColumn)
                 {
-                    for (int i = columnIndex; i < lastColumnIndex; i++)
+                    // Dịch chuyển các ô phía bên phải của columnIndex sang trái để lấp đầy ô bị xóa
+                    int lastColumnIndex = sheet.GetRow(startRow).LastCellNum - 1;
+                    foreach (IRow row in sheet)
                     {
-                        ICell oldCell = row.GetCell(i + 1);
-                        ICell newCell = row.GetCell(i);
-
-                        if (oldCell != null)
+                        for (int i = columnIndex; i < lastColumnIndex; i++)
                         {
-                            if (newCell == null)
+                            ICell oldCell = row.GetCell(i + 1);
+                            ICell newCell = row.GetCell(i);
+
+                            if (oldCell != null)
                             {
-                                newCell = row.CreateCell(i, oldCell.CellType);
+                                if (newCell == null)
+                                {
+                                    newCell = row.CreateCell(i, oldCell.CellType);
+                                }
+
+                                CopyCell(oldCell, newCell);
+                                row.RemoveCell(oldCell);
                             }
-
-                            CopyCell(oldCell, newCell);
-                            row.RemoveCell(oldCell);
                         }
-                    }
 
-                    // Xóa ô cuối cùng
-                    ICell lastCell = row.GetCell(lastColumnIndex);
-                    if (lastCell != null)
-                    {
-                        row.RemoveCell(lastCell);
+                        // Xóa ô cuối cùng
+                        ICell lastCell = row.GetCell(lastColumnIndex);
+                        if (lastCell != null)
+                        {
+                            row.RemoveCell(lastCell);
+                        }
                     }
                 }
             }
@@ -150,8 +153,8 @@ namespace libQuy_HoaDon
             }
         }
 
-        public void ExportDataToExcel(string templatePath, System.Data.DataTable dt, int startRow, string[] arrCloumnHide,
-            List<ClassExcel_CellData> lstDataCell = null)
+        public void ExportDataToExcel(string templatePath, System.Data.DataTable dt, int startRow, string columnsHide,
+            List<ClassExcel_CellData> lstDataCell = null, int indexTotalRow = 0)
         {
             // Bước 2: Mở file mẫu bằng NPOI
             IWorkbook workbook;
@@ -166,9 +169,9 @@ namespace libQuy_HoaDon
             //// Điền dữ liệu từ DataTable vào các hàng tiếp theo
             ImportDataTableToSheet(dt, sheet, startRow);
 
-            RemoveColumns(sheet, arrCloumnHide, startRow);
+            RemoveHideColumns(sheet, columnsHide, startRow);
 
-            SetValueToCells(sheet, lstDataCell);
+            SetValueToHeaderCells(sheet, lstDataCell);
 
             // Bước 5: Lưu workbook vào MemoryStream, và trả về Http cho client để download
             using (var stream = new MemoryStream())
