@@ -10,6 +10,7 @@ using Aspose.Cells;
 using Microsoft.Office.Interop.Excel;
 using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 
 namespace libQuy_HoaDon
@@ -17,6 +18,20 @@ namespace libQuy_HoaDon
     public class NPOIExporExcel
     {
         // các hàng, cột trong NPOI bắt đầu từ vị trí = 0
+
+        /// <summary>
+        /// chỉ áp dụng cho mẫu có dòng bảng dữ liệu bắt đầu từ 4
+        /// </summary>
+        /// <param name="tenChiNhanh"></param>
+        /// <param name="thoigian"></param>
+        /// <returns></returns>
+        public List<ClassExcel_CellData> GetValue_forCell(string tenChiNhanh, string thoigian)
+        {
+            List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>();
+            lstCell.Add(new ClassExcel_CellData { RowIndex = 1, ColumnIndex = 0, CellValue = "Thời gian: " + thoigian });
+            lstCell.Add(new ClassExcel_CellData { RowIndex = 2, ColumnIndex = 0, CellValue = "Chi nhánh: " + tenChiNhanh });
+            return lstCell;
+        }
         private void ImportDataTableToSheet(System.Data.DataTable dataTable, ISheet sheet, int startRow)
         {
             // Tạo danh sách các CellStyle (same style + format of start row)
@@ -153,6 +168,77 @@ namespace libQuy_HoaDon
             }
         }
 
+        private static ICellStyle CreateBoldStyle(IWorkbook workbook)
+        {
+            ICellStyle boldStyle = workbook.CreateCellStyle();
+            NPOI.SS.UserModel.IFont boldFont = workbook.CreateFont();
+            boldFont.IsBold = true;
+            boldStyle.SetFont(boldFont);
+            return boldStyle;
+        }
+
+        private static void ApplySumFormula(IWorkbook workbook, ISheet sheet, int startRow, int endRow)
+        {
+            if (startRow > endRow || startRow < 0 || endRow >= sheet.LastRowNum)
+            {
+                throw new ArgumentException("Invalid row range specified.");
+            }
+
+            // Tạo style với font in đậm
+            ICellStyle cellStyle = CreateBoldStyle(workbook);
+
+            // Tạo dòng mới để chứa công thức tổng
+            IRow sumRow = sheet.CreateRow(endRow + 1);
+            sumRow.CreateCell(0).SetCellValue("Tổng cộng");
+            sumRow.GetCell(0).CellStyle = cellStyle;
+
+            // Duyệt qua từng cột
+            var lastCell = sheet.GetRow(startRow).LastCellNum;
+            for (int colIndex = 1; colIndex < lastCell; colIndex++)
+            {
+                bool isNumericColumn = true;
+
+                // Kiểm tra kiểu dữ liệu của cột
+                for (int rowIndex = startRow; rowIndex <= endRow; rowIndex++)
+                {
+                    ICell cell = sheet.GetRow(rowIndex).GetCell(colIndex);
+                    if (cell == null || (cell.CellType != CellType.Numeric && cell.CellType != CellType.Formula))
+                    {
+                        isNumericColumn = false;
+                        break;
+                    }
+
+                    // Kiểm tra xem ô có chứa kiểu datetime không
+                    if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
+                    {
+                        isNumericColumn = false;
+                        break;
+                    }
+                }
+
+                // Nếu tất cả các ô trong cột là kiểu số, áp dụng công thức tổng
+                if (isNumericColumn)
+                {
+                    ICell sumCell = sumRow.CreateCell(colIndex, CellType.Formula);
+                    string columnLetter = CellReference.ConvertNumToColString(colIndex);
+                    sumCell.CellFormula = $"SUM({columnLetter}${startRow + 1}:{columnLetter}${endRow + 1})";
+                    sumCell.CellStyle = cellStyle;
+
+                    // Sao chép style từ ô tương ứng trong startRow
+                    ICell sourceCell = sheet.GetRow(startRow).GetCell(colIndex);
+                    ICellStyle newCellStyle = workbook.CreateCellStyle();
+                    newCellStyle.CloneStyleFrom(sourceCell.CellStyle);
+
+                    // Kết hợp với style in đậm
+                    NPOI.SS.UserModel.IFont boldFont = workbook.CreateFont();
+                    boldFont.IsBold = true;
+                    newCellStyle.SetFont(boldFont);
+
+                    sumCell.CellStyle = newCellStyle;
+                }
+            }
+        }
+
         public void ExportDataToExcel(string templatePath, System.Data.DataTable dt, int startRow, string columnsHide,
             List<ClassExcel_CellData> lstDataCell = null, int indexTotalRow = 0)
         {
@@ -166,12 +252,19 @@ namespace libQuy_HoaDon
             // Bước 4: Ghi dữ liệu vào sheet đầu tiên của file mẫu
             ISheet sheet = workbook.GetSheetAt(0);
 
-            //// Điền dữ liệu từ DataTable vào các hàng tiếp theo
+            // Điền dữ liệu từ DataTable vào các hàng tiếp theo
             ImportDataTableToSheet(dt, sheet, startRow);
 
             RemoveHideColumns(sheet, columnsHide, startRow);
 
             SetValueToHeaderCells(sheet, lstDataCell);
+
+            if (indexTotalRow != -1)
+            {
+                ApplySumFormula(workbook, sheet, startRow, dt.Rows.Count + startRow - 1);
+                // Tính toán lại công thức trong workbook
+                XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
+            }
 
             // Bước 5: Lưu workbook vào MemoryStream, và trả về Http cho client để download
             using (var stream = new MemoryStream())
