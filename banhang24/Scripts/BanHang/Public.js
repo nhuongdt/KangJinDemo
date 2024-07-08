@@ -11,6 +11,31 @@
         }
     });
 }
+
+async function NPOI_ExportData(url, method, data, fileName) {
+   const dataStream =  await $.ajax({
+        url: url,
+        type: method,
+        data: data ? JSON.stringify(data) : null, 
+        contentType: 'application/json',
+        xhrFields: {
+            responseType: 'blob'
+        }
+    }).done().then(function (blob) {
+        return blob;
+    });   
+    if (dataStream) {
+        let link = document.createElement('a');
+        link.href = window.URL.createObjectURL(dataStream);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return true;
+    }
+    return false;
+}
+
 function ExpireCookie(minutes) {
     var date = new Date();
     var m = minutes;
