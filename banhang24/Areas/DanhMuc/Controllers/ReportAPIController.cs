@@ -3003,8 +3003,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 db.Database.CommandTimeout = 60 * 60;
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 List<BaoCaoBanHang_TongHopPRC> lst = report.GetBaoCaoBanHang_TongHopPRC(param);
-
 
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHang_TongHopPRC>(lst);
                 excel.Columns.Remove("TenHangHoa");
@@ -3020,13 +3020,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("SumTienThue");
                 excel.Columns.Remove("TongDoanhThuThuan");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangTongHop.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTongHop.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTongHop.xlsx");
-                return fileSave;
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                return string.Empty;
             }
         }
 
@@ -3082,6 +3079,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
 
                 ClassReportBanHang report = new ClassReportBanHang(db);
@@ -3102,12 +3100,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("DoanhThuThuan");
                 excel.Columns.Remove("LoaiHoaDon");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangChiTiet.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangChiTiet.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangChiTiet.xlsx");
-                return fileSave;
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                return string.Empty;
             }
         }
 
@@ -3139,6 +3134,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
 
                 ClassReportBanHang report = new ClassReportBanHang(db);
@@ -3149,13 +3145,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("LoaiHoaDon");
                 excel.Columns.Remove("TotalRow");
                 excel.Columns.Remove("TotalPage");
+                excel.Columns.Remove("MaDinhDanh");
+                excel.Columns.Remove("TenDonViTinh");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHang_DinhDanhDichVu.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHang_DinhDanhDichVu.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHang_DinhDanhDichVu.xlsx");
-                return fileSave;
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell, -1);
+                return string.Empty;
             }
         }
 
@@ -3224,6 +3219,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassReportBanHang report = new ClassReportBanHang(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    NPOIExporExcel classNPOI = new NPOIExporExcel();
 
                     List<BaoCaoBanHang_TheoKhachHangTanSuat> lst = report.BaoCaoKhachHang_TanSuat(lstParam);
                     DataTable excel = classOffice.ToDataTable(lst);
@@ -3236,14 +3232,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TongDoanhThu");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoKhachHangTanSuat.xlsx");
-                    var fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCaoKhachHangTanSuat.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, lstParam.columnsHide, lstParam.Export_Time, lstParam.Export_ChiNhanh);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return fileSave;
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.Export_ChiNhanh, lstParam.Export_Time);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, lstParam.columnsHide, lstCell);
+                    //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, lstParam.columnsHide, lstParam.Export_Time, lstParam.Export_ChiNhanh);
+                    return string.Empty;
                 }
                 catch (Exception ex)
                 {
@@ -3335,6 +3327,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassReportBanHang report = new ClassReportBanHang(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    NPOIExporExcel classNPOI = new NPOIExporExcel();
 
                     List<BCTanSuat_NhatKyGiaoDich> lst = report.GetNhatKyGiaoDich_ofKhachHang(lstParam);
                     DataTable excel = classOffice.ToDataTable(lst);
@@ -3360,14 +3353,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("SumDaThanhToan");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoKhachHang_NhatKyGiaoDich.xlsx");
-                    var fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCaoKhachHang_NhatKyGiaoDich.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, null, lstParam.Export_Time, lstParam.Export_ChiNhanh);
+                    //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, null, lstParam.Export_Time, lstParam.Export_ChiNhanh);
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.Export_ChiNhanh, lstParam.Export_Time);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, lstParam.columnsHide, lstCell);
 
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return fileSave;
+                    return "";
                 }
                 catch (Exception ex)
                 {
@@ -3383,18 +3373,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_NhomHangPRC> lst = report.GetBaoCaoBanHang_NhomHangPRC(param);
 
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHang_NhomHangPRC>(lst);
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangTheoNhomHang.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoNhomHang.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoNhomHang.xlsx");
-                return fileSave;
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                return string.Empty;
             }
         }
 
@@ -3458,6 +3447,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_TheoKhachHangPRC> lst = report.GetBaoCaoBanHang_TheoKhachHangPRC(param);
@@ -3465,12 +3455,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHang_TheoKhachHangPRC>(lst);
                 excel.Columns.Remove("ID_KhachHang");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangTheoKhachHang.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoKhachHang.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoKhachHang.xlsx");
-                return fileSave;
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                return string.Empty;
             }
         }
 
@@ -3510,6 +3498,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHangChiTiet_TheoKhachHangPRC> lst = report.GetBaoCaoBanHangChiTiet_TheoKhachHangPRC(param);
@@ -3518,13 +3507,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("TenHangHoa");
                 excel.Columns.Remove("ThuocTinh_GiaTri");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangChiTietTheoKhachHang.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangChiTietTheoKhachHang.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcelChiTiet_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true,
-                    param.columnsHide, param.TodayBC, param.TenChiNhanh, param.chitietBC, 4);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangChiTietTheoKhachHang.xlsx");
-                return fileSave;
+                //classOffice.listToOfficeExcelChiTiet_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true,
+                //    param.columnsHide, param.TodayBC, param.TenChiNhanh, param.chitietBC, 4);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                return string.Empty;
             }
         }
 
@@ -3575,6 +3562,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_TheoNhanVienPRC> lst = report.GetBaoCaoBanHang_TheoNhanVienPRC(param);
@@ -3582,12 +3570,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHang_TheoNhanVienPRC>(lst);
                 excel.Columns.Remove("ID_NhanVien");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangTheoNhanVien.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoNhanVien.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoNhanVien.xlsx");
-                return fileSave;
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                return string.Empty;
             }
         }
         [HttpGet, HttpPost]
@@ -3620,6 +3606,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 List<BaoCaoBanHangChiTiet_TheoNhanVienPRC> lst = report.GetBaoCaoBanHangChiTiet_TheoNhanVienPRC(param);
 
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHangChiTiet_TheoNhanVienPRC>(lst);
@@ -3629,13 +3616,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("TienThue");
 
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangChiTietTheoNhanVien.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangChiTietTheoNhanVien.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcelChiTiet_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true,
-                    param.columnsHide, param.TodayBC, param.TenChiNhanh, param.chitietBC, 6);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangChiTietTheoNhanVien.xlsx");
-                return fileSave;
+                //classOffice.listToOfficeExcelChiTiet_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true,
+                //    param.columnsHide, param.TodayBC, param.TenChiNhanh, param.chitietBC, 6);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                return string.Empty;
             }
         }
         [AcceptVerbs("GET", "POST")]
@@ -3673,6 +3658,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_HangTraLaiPRC> lst = report.GetBaoCaoBanHang_HangTraLaiPRC(param);
@@ -3682,12 +3668,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("LoaiHoaDon");
                 excel.Columns.Remove("ThuocTinh_GiaTri");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHang_HangTraLai.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHang_HangTraLai.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
                 HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHang_HangTraLai.xlsx");
-                return fileSave;
+                return string.Empty;
             }
         }
         [AcceptVerbs("GET", "POST")]
@@ -3723,18 +3708,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoHangKhuyenMai> lst = report.SP_BaoCaoHangKhuyenMai(param);
 
                 DataTable excel = classOffice.ToDataTable<BaoCaoHangKhuyenMai>(lst);
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoHangKhuyenMai.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoHangKhuyenMai.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoHangKhuyenMai.xlsx");
-                return fileSave;
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                return string.Empty;
             }
         }
         [AcceptVerbs("GET", "POST")]
@@ -3786,6 +3770,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                NPOIExporExcel classNPOI = new NPOIExporExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_LoiNhuanPRC> lst = report.GetBaoCaoBanHang_LoiNhuanPRC(param);
@@ -3794,12 +3779,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("TenHangHoa");
                 excel.Columns.Remove("ThuocTinh_GiaTri");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHangTheoLoiNhuan.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoLoiNhuan.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/Report/BaoCaoBanHang/BaoCaoBanHangTheoLoiNhuan.xlsx");
-                return fileSave;
+                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell);
+                return string.Empty;
             }
         }
         [AcceptVerbs("GET", "POST")]
