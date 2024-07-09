@@ -954,8 +954,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("QuanLyTheoLoHang");
                 excel.Columns.Remove("NgaySanXuat");
                 excel.Columns.Remove("NgayHetHan");
-                excel.Columns.Remove("MaHoaDon");
-                excel.Columns.Remove("TenNhanVien");
+                //excel.Columns.Remove("MaHoaDon");
+                //excel.Columns.Remove("TenNhanVien");
                 excel.Columns.Remove("TenHangHoa");
                 excel.Columns.Remove("ThuocTinh_GiaTri");
                 excel.Columns.Remove("TonKho");
@@ -963,8 +963,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("SoLuongXuatHuy");
                 excel.Columns.Remove("DonGia");
                 excel.Columns.Remove("GiamGia");
-                excel.Columns.Remove("NgayLapHoaDon");
-                excel.Columns.Remove("ID_NhanVien");
+                //excel.Columns.Remove("NgayLapHoaDon");
+                //excel.Columns.Remove("ID_NhanVien");
                 excel.Columns.Remove("SoThuTu");
                 excel.Columns.Remove("ChatLieu");
                 // get tendonvi by ID
