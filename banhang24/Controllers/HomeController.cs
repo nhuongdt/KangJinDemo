@@ -21,52 +21,7 @@ namespace banhang24.Controllers
 
     public class HomeController : Controller
     {
-        //
-        // GET: /Home/
-        //public ActionResult Createconnection()
-        //{
-        //    string databaseName = "SSOFT_M";
-        //    string strconn = "data source=103.28.37.146 ;initial catalog=" + databaseName + ";persist security info=True;user id=sa;password=Ssoftvn2015;MultipleActiveResultSets=True;App=EntityFramework";
-        //    string strproviderName = "System.Data.SqlClient";
-        //    //
-        //    try
-        //    {
-        //        System.Web.HttpContext.Current.Session.Clear();
-        //        string strCnn = ConnectionStringSystem.CreateConnectionString("M", strconn, strproviderName);
-        //        CookieStore.SetCookie("SubDomain", "M", new TimeSpan(1, 0, 0, 0, 0), "M");
-        //        //string strAddNewSubdomain = apirpc_Subdomain.AddNewSubdomain("M");
-        //        //return Redirect("http://" + "M" + ".localhost:8657");
-        //        return View("Index");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ViewBag.Message = ex.Message;
-        //        return View("Index");
-        //    }
-        //}
-        //public ActionResult Index()
-        //{
-        //    if (Session["user"] != null)
-        //    {
-        //        return View();
-        //    }
-        //    else
-        //    {
-        //        return RedirectToAction("Login", "Home");
-        //    }
-        //}
-
-        //public ActionResult Index()
-        //{
-        //    if (Session["user"] != null)
-        //    {
-        //        return View();
-        //    }
-        //    else
-        //    {
-        //        return RedirectToAction("Login", "Home");
-        //    }
-        //}
+   
 
         public ActionResult CreateShortcut(string subdomain)
         {
@@ -172,14 +127,7 @@ namespace banhang24.Controllers
 
         public ActionResult Active(string subdomain)
         {
-            //if (M_DangKySuDung.Get(p => p.SubDomain == subdomain).TrangThai == false)
-            //{
-            //    return View();
-            //}
-            //else
-            //{
-            //    return RedirectToAction("Index");
-            //}
+            
             return View();
         }
         public ActionResult SendActive(string subdomain, string id)
@@ -188,7 +136,6 @@ namespace banhang24.Controllers
             {
                 try
                 {
-                    //
 
                     string strCnn = ConnectionStringSystem.CreateConnectionString(subdomain);
                     //banhang24.App_Start.App_API.VMGsms.SendMsg(M_DangKySuDung.Get(p => p.SubDomain == subdomain).SoDienThoai, id);
@@ -730,103 +677,6 @@ namespace banhang24.Controllers
 
         #endregion
 
-        #region Đăng ký sử dụng
-        //public ActionResult DangKySuDung()
-        //{
-        //    List<NganhNgheKinhDoanh> lstNganhNghes = M_NganhNgheKinhDoanh.SelectAll();
-        //    ViewBag.ID_NganhKinhDoanh = new SelectList(lstNganhNghes, "ID", "TenNganhNghe");
-
-        //    return View();
-        //}
-
-        //[System.Web.Http.HttpPost]
-        //public ActionResult DangKySuDung1(CuaHangDangKy objDangKy)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            string Indetifier = objDangKy.SubDomain.Trim().ToLower();
-        //            if (Indetifier != "")
-        //            {
-        //                CuaHangDangKy objCheck_TenMien = M_DangKySuDung.Get(p => p.SubDomain.Trim().ToLower() == objDangKy.SubDomain.Trim().ToLower());
-        //                if (objCheck_TenMien != null)
-        //                {
-        //                    ViewBag.Message = "Địa chỉ WebSite đã được sử dụng. Hãy nhập địa chỉ Web khác.";
-        //                    List<NganhNgheKinhDoanh> lstNganhNghe1s = M_NganhNgheKinhDoanh.SelectAll();
-        //                    ViewBag.ID_NganhKinhDoanh = new SelectList(lstNganhNghe1s, "ID", "TenNganhNghe");
-        //                    return View();
-        //                }
-        //                //
-        //                objDangKy.NgayTao = DateTime.Now;
-        //                string strIns = M_DangKySuDung.AddNewCuaHangDangKy(objDangKy);
-        //                if (strIns != null && strIns != string.Empty)
-        //                {
-        //                    ViewBag.Message = strIns;
-        //                    List<NganhNgheKinhDoanh> lstNganhNghe2s = M_NganhNgheKinhDoanh.SelectAll();
-        //                    ViewBag.ID_NganhKinhDoanh = new SelectList(lstNganhNghe2s, "ID", "TenNganhNghe");
-        //                    return View();
-        //                }
-        //                //
-
-        //                System.Web.HttpContext.Current.Session.Clear();
-        //                //
-        //                string strAddNewSubdomain = apirpc_Subdomain.AddNewSubdomain(Indetifier);
-        //                if (strAddNewSubdomain != null && strAddNewSubdomain != string.Empty)
-        //                {
-        //                    M_DangKySuDung.Delete_SDT(objDangKy.SoDienThoai);
-        //                    ViewBag.Message = strAddNewSubdomain;
-        //                    List<NganhNgheKinhDoanh> lstNganhNghe3s = M_NganhNgheKinhDoanh.SelectAll();
-        //                    ViewBag.ID_NganhKinhDoanh = new SelectList(lstNganhNghe3s, "ID", "TenNganhNghe");
-        //                    return View();
-        //                }
-        //                try
-        //                {
-        //                    //tạo connect string
-        //                    string databaseName = "SSOFT_" + Indetifier.ToUpper();
-        //                    string strconn = "data source=data.ssoft.vn;initial catalog=" + databaseName + ";persist security info=True;user id=lucky;password=Lucky123;MultipleActiveResultSets=True;App=EntityFramework";
-        //                    string strproviderName = "System.Data.SqlClient";
-        //                    //
-        //                    string strCnn = ConnectionStringSystem.CreateConnectionString(Indetifier, strconn, strproviderName);
-        //                    if (strCnn.Trim() != "")
-        //                    {
-        //                        ViewBag.Message = strCnn;
-        //                        List<NganhNgheKinhDoanh> lstNganhNghe4s = M_NganhNgheKinhDoanh.SelectAll();
-        //                        ViewBag.ID_NganhKinhDoanh = new SelectList(lstNganhNghe4s, "ID", "TenNganhNghe");
-        //                        return View();
-        //                    }
-        //                    else
-        //                    {
-        //                        CookieStore.SetCookieAes("SubDomain", Indetifier, new TimeSpan(30, 0, 0, 0, 0), Indetifier);
-        //                    }
-        //                    //
-        //                    return Redirect("http://" + Indetifier + ".open24.vn");
-        //                    //return Redirect("http://" + Indetifier + ".localhost:49807");
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    ViewBag.Message = "Lỗi tạo chuỗi kết nối dữ liệu: " + ex.Message;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                ViewBag.Message = "Địa chỉ Website không hợp lệ";
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            ViewBag.Message = "Lỗi cập nhật:" + ex.Message;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        ViewBag.Message = "Dữ liệu cập nhật chưa hợp lệ";
-        //    }
-        //    List<NganhNgheKinhDoanh> lstNganhNghes = M_NganhNgheKinhDoanh.SelectAll();
-        //    ViewBag.ID_NganhKinhDoanh = new SelectList(lstNganhNghes, "ID", "TenNganhNghe");
-        //    return View();
-        //}
-        #endregion
 
         #region
 
