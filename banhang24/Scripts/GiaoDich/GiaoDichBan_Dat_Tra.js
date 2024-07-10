@@ -508,7 +508,7 @@
                 return;
             }
         }
-        else{
+        else {
             const data = await self.GetArrIDHoaDon_fromIDGoc(idHoaDon);
             if (data.res) {
                 const arrHD = data.data;
@@ -526,7 +526,7 @@
                             const arrHDTra = $.grep(gdvIsTra.data, function (x) {
                                 return x.LoaiHoaDon === 6;
                             });
-                            if (arrHDTra.length>0) {
+                            if (arrHDTra.length > 0) {
                                 msgBottom = 'Gói dịch vụ đã được đổi trả lần nữa';
                             }
                         }
@@ -1064,7 +1064,7 @@
 
     var dayStart_Excel, dayEnd_Excel;// used to export many hoadon
 
-    function SearchHoaDon(isExport = false) {
+    async function SearchHoaDon(isExport = false) {
         var arrDV = [];
         $('.line-right').height(0).css("margin-top", "0px");
         var maHDFind = localStorage.getItem('FindHD');
@@ -1303,21 +1303,25 @@
             Params_GetListHoaDon.currentPage = 0;
             Params_GetListHoaDon.PageSize = self.TotalRecord();
             Params_GetListHoaDon.ColumnsHide = columnHide;
+            $('.content-table').gridLoader({ show: false });
+            //ajaxHelper(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon).done(function (url) {
+            //  $('.content-table').gridLoader({ show: false });
+            //if (url !== "") {
+            //self.DownloadFileTeamplateXLSX(url);
+            //}
+            //})
 
-            ajaxHelper(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon).done(function (url) {
-                $('.content-table').gridLoader({ show: false });
-                if (url !== "") {
-                    self.DownloadFileTeamplateXLSX(url);
-                }
-            })
-            var objDiary = {
-                ID_NhanVien: _id_NhanVien,
-                ID_DonVi: id_donvi,
-                ChucNang: txtLoaiHD,
-                NoiDung: noidungNhatKy,
-                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-            };
-            Insert_NhatKyThaoTac_1Param(objDiary);
+            const exportOK = commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon, "HoaDonBanLe.xlsx")
+            if (exportOK) {
+                var objDiary = {
+                    ID_NhanVien: _id_NhanVien,
+                    ID_DonVi: id_donvi,
+                    ChucNang: txtLoaiHD,
+                    NoiDung: noidungNhatKy,
+                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                };
+                Insert_NhatKyThaoTac_1Param(objDiary);
+            }
         }
         else {
             var hasPermission = false;
