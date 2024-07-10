@@ -31,6 +31,9 @@ using System.Diagnostics;
 using Model_banhang24vn.DAL;
 using System.Web.Http.Results;
 using banhang24.Compress;
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+using NPOI.XSSF.UserModel;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -4221,7 +4224,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhMucHangHoa.xlsx");
                     fileSave = _classOFDCM.createFolder_Download(fileSave);
                     string colHides = string.Empty;
-                    if (param.ColumnHide!=null && param.ColumnHide.Count> 0)
+                    if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                     {
                         colHides = string.Join("_", param.ColumnHide);
                     }
@@ -8599,9 +8602,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
+                            System.IO.Stream inputStream = file.InputStream;
 
-                            lstErr = classOffice.CheckImportFileDinhLuong(excelstream, indexErrs, idDonVi, idNhanVien, typeUpdate);
+                            lstErr = classOffice.CheckImportFileDinhLuong(inputStream, indexErrs, idDonVi, idNhanVien, typeUpdate);
                             if (lstErr.Count == 0)
                             {
                                 return Json(new { res = true });
@@ -8662,11 +8665,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMau_NhapHang(excelstream);
+                            System.IO.Stream inputStream = file.InputStream;
+                            string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
                             if (str == null)
                             {
-                                abc = _classOFDCM.checkExcel_NhapHang(excelstream);
+                                abc = _classOFDCM.checkExcel_NhapHang(inputStream);
                             }
                             else
                             {
@@ -8699,8 +8702,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            abc = _classOFDCM.getList_DanhSachHangnhap(excelstream, iddonvi);
+                            System.IO.Stream inputStream = file.InputStream;
+                            abc = _classOFDCM.getList_DanhSachHangnhap(inputStream, iddonvi);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                     }
@@ -8729,11 +8732,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMau_TraHangNhap(excelstream);
+                            System.IO.Stream inputStream = file.InputStream;
+                            string str = _classOFDCM.CheckFileMau_TraHangNhap(inputStream);
                             if (str == null)
                             {
-                                abc = _classOFDCM.checkExcel_TraHangNhap(excelstream);
+                                abc = _classOFDCM.checkExcel_TraHangNhap(inputStream);
                             }
                             else
                             {
@@ -8766,8 +8769,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            abc = _classOFDCM.getList_DanhSachTraHangNhap(excelstream, iddonvi);
+                            System.IO.Stream inputStream = file.InputStream;
+                            abc = _classOFDCM.getList_DanhSachTraHangNhap(inputStream, iddonvi);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                     }
@@ -8782,27 +8785,38 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [AcceptVerbs("GET", "POST")]
-        public IHttpActionResult ImfortExcelToDanhMucHH(Guid ID_DonVi, Guid ID_NhanVien, int LoaiUpdate)
+        public IHttpActionResult ImfortExcelToDanhMucHH(Guid ID_DonVi, Guid ID_NhanVien, int LoaiUpdate, string RownError = null)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
                 try
                 {
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
-                        string SubDomain = CookieStore.GetCookieAes("SubDomain");
-                        int gioihan = CuaHangDangKyService.GetGioiHanMatHang(SubDomain);
-
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMau(excelstream, gioihan);
-                            if (str == null)
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH MỤC HÀNG HÓA", 3);
+                            if (string.IsNullOrEmpty(str))
                             {
-                                lstErr = _classOFDCM.checkExcel_HangHoa(excelstream, ID_DonVi, ID_NhanVien, LoaiUpdate);
+                                if (!string.IsNullOrEmpty(RownError))
+                                {
+                                    // nếu có lỗi, và vẫn muốn import (bỏ qua dòng lỗi)
+                                    lstErr = classNPOI.ImportDanhMucHangHoa_toDB(sheet, ID_DonVi, ID_NhanVien, LoaiUpdate, RownError);
+                                }
+                                else
+                                {
+                                    lstErr = classNPOI.CheckData_FileImportHangHoa(sheet);
+                                    if (lstErr.Count == 0)
+                                    {
+                                        lstErr = classNPOI.ImportDanhMucHangHoa_toDB(sheet, ID_DonVi, ID_NhanVien, LoaiUpdate);
+                                    }
+                                }
                             }
                             else
                             {
@@ -8870,23 +8884,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMau_LoHang(excelstream, gioihan);
-                            if (str == null)
+                            using (System.IO.Stream inputStream = file.InputStream)
                             {
-                                lstErr = _classOFDCM.checkExcel_HangHoa_LoHang(excelstream, ID_DonVi, ID_NhanVien, LoaiUpdate);
-                            }
-                            else
-                            {
-                                lstErr.Add(new ErrorDMHangHoa()
+                                string str = _classOFDCM.CheckFileMau_LoHang(inputStream, gioihan);
+                                if (str == null)
                                 {
-                                    TenTruongDuLieu = str,
-                                    ViTri = "0",
-                                    rowError = -1,
-                                    loaiError = 1,
-                                    ThuocTinh = str,
-                                    DienGiai = str,
-                                });
+                                    lstErr = _classOFDCM.checkExcel_HangHoa_LoHang(inputStream, ID_DonVi, ID_NhanVien, LoaiUpdate);
+                                }
+                                else
+                                {
+                                    lstErr.Add(new ErrorDMHangHoa()
+                                    {
+                                        TenTruongDuLieu = str,
+                                        ViTri = "0",
+                                        rowError = -1,
+                                        loaiError = 1,
+                                        ThuocTinh = str,
+                                        DienGiai = str,
+                                    });
+                                }
                             }
                         }
                     }
@@ -8959,8 +8975,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         try
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            lst = _classOFDCM.export_HangHoaCapNhat(excelstream, ID_DonVi, RownError, LoaiUpdate);
+                            System.IO.Stream inputStream = file.InputStream;
+                            lst = _classOFDCM.export_HangHoaCapNhat(inputStream, ID_DonVi, RownError, LoaiUpdate);
                         }
                         catch (Exception ex)
                         {
@@ -8992,11 +9008,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMauBangGia(excelstream);
+                            System.IO.Stream inputStream = file.InputStream;
+                            string str = _classOFDCM.CheckFileMauBangGia(inputStream);
                             if (str == null)
                             {
-                                abc = _classOFDCM.checkExcel_BangGia(excelstream, ID_DonVi, ID_BangGia);
+                                abc = _classOFDCM.checkExcel_BangGia(inputStream, ID_DonVi, ID_BangGia);
                             }
                             else
                             {
@@ -9030,8 +9046,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            abc = _classOFDCM.CheckImportExcel_HangHoaHoaDon(excelstream);
+                            System.IO.Stream inputStream = file.InputStream;
+                            abc = _classOFDCM.CheckImportExcel_HangHoaHoaDon(inputStream);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                     }
@@ -9059,8 +9075,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            abc = _classOFDCM.getList_HangHoaHoaDon(excelstream);
+                            System.IO.Stream inputStream = file.InputStream;
+                            abc = _classOFDCM.getList_HangHoaHoaDon(inputStream);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                     }
@@ -9087,8 +9103,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            lstErr = _classOFDCM.CheckImport_withError(excelstream, ID_DonVi, ID_NhanVien, RownError, LoaiUpdate);
+                            System.IO.Stream inputStream = file.InputStream;
+                            lstErr = _classOFDCM.CheckImport_withError(inputStream, ID_DonVi, ID_NhanVien, RownError, LoaiUpdate);
                         }
                     }
                     else
@@ -9141,8 +9157,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            lstErr = _classOFDCM.CheckImport_LoHang_withError(excelstream, ID_DonVi, ID_NhanVien, RownError, LoaiUpdate);
+                            System.IO.Stream inputStream = file.InputStream;
+                            lstErr = _classOFDCM.CheckImport_LoHang_withError(inputStream, ID_DonVi, ID_NhanVien, RownError, LoaiUpdate);
                         }
                     }
                     else
@@ -9196,8 +9212,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            _classOFDCM.CheckImportBG_withError(excelstream, ID_DonVi, RownError, ID_BangGia);
+                            System.IO.Stream inputStream = file.InputStream;
+                            _classOFDCM.CheckImportBG_withError(inputStream, ID_DonVi, RownError, ID_BangGia);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, result));
                     }
@@ -9308,11 +9324,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMau_KiemKho(excelstream);
+                            System.IO.Stream inputStream = file.InputStream;
+                            string str = _classOFDCM.CheckFileMau_KiemKho(inputStream);
                             if (str == null)
                             {
-                                abc = _classOFDCM.checkExcel_KiemKho(excelstream);
+                                abc = _classOFDCM.checkExcel_KiemKho(inputStream);
                             }
                             else
                             {
@@ -9345,8 +9361,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                         {
                             var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            abc = _classOFDCM.getList_DanhSachHangKiemKho(excelstream, iddonvi, timeKK);
+                            System.IO.Stream inputStream = file.InputStream;
+                            abc = _classOFDCM.getList_DanhSachHangKiemKho(inputStream, iddonvi, timeKK);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                     }
