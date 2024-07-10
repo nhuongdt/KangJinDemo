@@ -11,6 +11,7 @@
         }
     });
 }
+
 function ExpireCookie(minutes) {
     var date = new Date();
     var m = minutes;

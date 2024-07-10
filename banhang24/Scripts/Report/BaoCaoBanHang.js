@@ -75,10 +75,15 @@
     self.loadCheckbox = function (type) {
         self.columnCheckType(type);
         $.getJSON("api/DanhMuc/ReportAPI/GetChecked?type=" + type + "&group=" + $('#ID_loaibaocao').val(), function (data) {
-            self.listCheckbox(data);
-            if (type === 2) {
-                loadHtmlGrid();
+            switch (type) {
+                case 2:
+                    loadHtmlGrid();
+                    break;
+                case 10: // bcdinhdanh: c Huyen bảo bỏ 2 cột này (27/06/2024)
+                    data = data.filter((x) => $.inArray(x.Key, ['Detail_maDinhDanhDV', 'Detail_donvitinh']) == -1)
+                    break;
             }
+            self.listCheckbox(data);
         });
         $('.chose_kieubang li').each(function (i) {
             if (type === $(this).data('id')) {
@@ -2122,7 +2127,7 @@
         window.location.href = url;
     }
     // xuất file Excel
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         LoadingForm(true);
         var arrayColumn = [];
         var columnHide = null;
@@ -2140,179 +2145,163 @@
                 columnHide = arrayColumn[i] + "_" + columnHide;
             }
         }
-        var objDiary = {
-            ID_NhanVien: _id_NhanVien,
-            ID_DonVi: _id_DonVi,
-            ChucNang: "Báo cáo bán hàng",
-            NoiDung: "Xuất " + self.MoiQuanTam().toLowerCase(),
-            NoiDungChiTiet: "Xuất " + self.MoiQuanTam().toLowerCase(),
-            LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        };
-        var myData = {};
-        myData.objDiary = objDiary;
-        $.ajax({
-            url: DiaryUri + "post_NhatKySuDung",
-            type: 'POST',
-            async: true,
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: myData,
-            success: function (item) {
-                var array_Seach = {
-                    MaHangHoa: Text_search,
-                    MaKhachHang: _maKhachHang,
-                    NV_GioiThieu: _magioithieu,
-                    NV_QuanLy: _maquanly,
-                    timeStart: _timeStart,
-                    timeEnd: _timeEnd,
-                    ID_ChiNhanh: _idDonViSeach,
-                    LoaiHangHoa: GetLoaiHang(),
-                    TinhTrang: TinhTrangHH,
-                    ID_NhomHang: _ID_NhomHang,
-                    ID_NhomKhachHang: _tenNhomDoiTuongSeach,
-                    LoaiChungTu: _idChungTuSeach,
-                    HanBaoHanh: TinhTrangBH,
-                    ID_NguoiDung: _IDDoiTuong,
-                    pageNumber: 1,
-                    pageSize: 100000,
-                    columnsHide: columnHide,
-                    TodayBC: self.TodayBC(),
-                    TenChiNhanh: self.TenChiNhanh(),
-                    lstIDChiNhanh: self.LstIDDonVi(),
+
+        var array_Seach = {
+            MaHangHoa: Text_search,
+            MaKhachHang: _maKhachHang,
+            NV_GioiThieu: _magioithieu,
+            NV_QuanLy: _maquanly,
+            timeStart: _timeStart,
+            timeEnd: _timeEnd,
+            ID_ChiNhanh: _idDonViSeach,
+            LoaiHangHoa: GetLoaiHang(),
+            TinhTrang: TinhTrangHH,
+            ID_NhomHang: _ID_NhomHang,
+            ID_NhomKhachHang: _tenNhomDoiTuongSeach,
+            LoaiChungTu: _idChungTuSeach,
+            HanBaoHanh: TinhTrangBH,
+            ID_NguoiDung: _IDDoiTuong,
+            pageNumber: 1,
+            pageSize: 100000,
+            columnsHide: columnHide,
+            TodayBC: self.TodayBC(),
+            TenChiNhanh: self.TenChiNhanh(),
+            lstIDChiNhanh: self.LstIDDonVi(),
+        }
+        var func = '';
+        var lenData = 0;
+        let fileNameExport = '';
+
+        if (self.BCBH_XuatFile() != "BCBH_XuatFile") {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này!", "danger");
+            LoadingForm(false);
+            return false;
+        }
+        switch (parseInt(self.check_MoiQuanTam())) {
+            case 1:
+                {
+                    func = 'Export_BCBH_TongHop';
+                    lenData = self.BaoCaoBanHang_TongHop().length;
+                    fileNameExport = "BaoCaoBanHangTongHop.xlsx";
                 }
-                var func = '';
-                var lenData = 0;
-
-                if (self.BCBH_XuatFile() != "BCBH_XuatFile") {
-                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này!", "danger");
-                    LoadingForm(false);
-                    return false;
+                break;
+            case 2:
+                {
+                    func = 'Export_BCBH_ChiTiet';
+                    lenData = self.BaoCaoBanHang_ChiTiet().length;
+                    fileNameExport = "BaoCaoBanHangChiTiet.xlsx";
                 }
-                switch (parseInt(self.check_MoiQuanTam())) {
-                    case 1:
-                        func = 'Export_BCBH_TongHop';
-                        lenData = self.BaoCaoBanHang_TongHop().length;
-                        if (self.BaoCaoBanHang_TongHop().length > 0) {
+                break;
+            case 10:
+                {
+                    func = 'Export_BaoCaoBanHang_DinhDanhDichVu';
+                    lenData = self.BaoCaoBanHang_DinhDanhDichVu().length;
+                    fileNameExport = "BaoCaoDinhDanhDichVu.xlsx";
+                }
+                break;
+            case 3:
+                {
+                    func = 'Export_BCBH_TheoNhomHang';
+                    lenData = self.BaoCaoBanHang_TheoNhomHang().length;
+                    fileNameExport = "BaoCaoBanHang_TheoNhomHang.xlsx";
+                }
+                break;
+            case 4:
+                {
+                    func = 'Export_BCBH_TheoKhachHang';
+                    lenData = self.BaoCaoBanHang_TheoKhachHang().length;
+                    fileNameExport = "BaoCaoBanHang_TheoKhachHang.xlsx";
+                }
+                break;
+            case 52:
+                {
+                    func = 'Export_BaoCaoKhachHangTanSuat';
+                    lenData = self.BaoCaoKhachHang_TanSuat().length;
+                    fileNameExport = "BaoCaoBanHang_TanSuatKhachHang.xlsx";
 
-                        }
-                        break;
+                    array_Seach = BCTanSuat_GetParamSearch(true);
 
-                    case 2:
-                        func = 'Export_BCBH_ChiTiet';
-                        lenData = self.BaoCaoBanHang_ChiTiet().length;
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCBH_ChiTiet",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url)
-                                LoadingForm(false);
-                            }
-                        });
-                        break;
-                    case 10:
-                        func = 'Export_BaoCaoBanHang_DinhDanhDichVu';
-                        lenData = self.BaoCaoBanHang_DinhDanhDichVu().length;
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BaoCaoBanHang_DinhDanhDichVu",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url)
-                                LoadingForm(false);
-                            }
-                        });
-
-                        break;
-                    case 3:
-                        func = 'Export_BCBH_TheoNhomHang';
-                        lenData = self.BaoCaoBanHang_TheoNhomHang().length;
-                        break;
-                    case 4:
-                        func = 'Export_BCBH_TheoKhachHang';
-                        lenData = self.BaoCaoBanHang_TheoKhachHang().length;
-                        break;
-                    case 52:
-                        func = 'Export_BaoCaoKhachHangTanSuat';
-                        lenData = self.BaoCaoKhachHang_TanSuat().length;
-                        array_Seach = BCTanSuat_GetParamSearch(true);
-
-                        let arr = [];
-                        let clHide = localStorage.getItem(Key_Form + self.columnCheckType());
-                        if (clHide !== null) {
-                            clHide = JSON.parse(clHide);
-                            for (let i = 0; i < clHide.length; i++) {
-                                for (let j = 0; j < self.listCheckbox().length; j++) {
-                                    if (clHide[i].NameClass === self.listCheckbox()[j].Key) {
-                                        arr.push(j);
-                                    }
+                    let arr = [];
+                    let clHide = localStorage.getItem(Key_Form + self.columnCheckType());
+                    if (clHide !== null) {
+                        clHide = JSON.parse(clHide);
+                        for (let i = 0; i < clHide.length; i++) {
+                            for (let j = 0; j < self.listCheckbox().length; j++) {
+                                if (clHide[i].NameClass === self.listCheckbox()[j].Key) {
+                                    arr.push(j);
                                 }
                             }
                         }
+                    }
 
-                        let sClHide = '';
-                        for (let i = 0; i < arr.length; i++) {
-                            sClHide += arr[i] + '_';
-                        }
-                        array_Seach.columnsHide = sClHide;
-                        break;
-                    case 5:// khong co
-                        func = 'Export_BCBH_ChiTiet';
-                        lenData = self.BaoCaoBanHang_ChiTiet().length;
-                        break;
-                    case 6:
-                        func = 'Export_BCBH_TheoNhanVien';
-                        lenData = self.BaoCaoBanHang_TheoNhanVien().length;
-                        array_Seach.LoaiChungTu += ',6';
-                        break;
-                    case 7:
-                        func = 'Export_BCBH_HangTraLai';
-                        lenData = self.BaoCaoBanHang_HangTraLai().length;
-                        break;
-                    case 8:
-                        func = 'Export_BCBH_LoiNhuan';
-                        lenData = self.BaoCaoBanHang_LoiNhuan().length;
-                        break;
-                    case 9:
-                        func = 'Export_BaoCaoHangKhuyenMai';
-                        lenData = self.BaoCaoHangKhuyenMai().length;
-                        break;
-                }
-                if (lenData === 0) {
-                    ShowMessage_Danger('Báo cáo không có dữ liệu');
-                }
-                else {
-                    if (parseInt(self.check_MoiQuanTam()) === 52) {
-                        ajaxHelper(ReportUri + func, "POST", array_Seach).done(function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        });
+                    let sClHide = '';
+                    for (let i = 0; i < arr.length; i++) {
+                        sClHide += arr[i] + '_';
                     }
-                    else {
-                        ajaxHelper(ReportUri + func, "POST", { objExcel: array_Seach }).done(function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        });
-                    }
+                    array_Seach.columnsHide = sClHide;
                 }
-            },
-            statusCode: {
-                404: function () {
-                    LoadingForm(false);
-                },
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại!", "danger");
-                LoadingForm(false);
-            },
-            complete: function () {
-                LoadingForm(false);
+                break;
+            case 5:// khong co
+                func = 'Export_BCBH_ChiTiet';
+                lenData = self.BaoCaoBanHang_ChiTiet().length;
+                break;
+            case 6:
+                {
+                    func = 'Export_BCBH_TheoNhanVien';
+                    lenData = self.BaoCaoBanHang_TheoNhanVien().length;
+                    array_Seach.LoaiChungTu += ',6';
+                    fileNameExport = "BaoCaoBanHangTheoNhanVien.xlsx";
+                }
+                break;
+            case 7:
+                {
+                    func = 'Export_BCBH_HangTraLai';
+                    lenData = self.BaoCaoBanHang_HangTraLai().length;
+                    fileNameExport = "BaoCaoHangTraLai.xlsx";
+                }
+                break;
+            case 8:
+                {
+                    func = 'Export_BCBH_LoiNhuan';
+                    lenData = self.BaoCaoBanHang_LoiNhuan().length;
+                    fileNameExport = "BaoCaoLoiNhuanTheoHangHoa.xlsx";
+                }
+                break;
+            case 9:
+                {
+                    func = 'Export_BaoCaoHangKhuyenMai';
+                    lenData = self.BaoCaoHangKhuyenMai().length;
+                    fileNameExport = "BaoCaoBanHang_KhuyenMai.xlsx";
+                }
+                break;
+        }
+        if (lenData === 0) {
+            ShowMessage_Danger('Báo cáo không có dữ liệu');
+        }
+        else {
+            let exportOK = false;
+            LoadingForm(false);
+            if (parseInt(self.check_MoiQuanTam()) === 52) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + func, 'POST', array_Seach, fileNameExport);
             }
-        })
+            else {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + func, 'POST', { objExcel: array_Seach }, fileNameExport);
+            }
+            if (exportOK) {
+                var objDiary = {
+                    ID_NhanVien: _id_NhanVien,
+                    ID_DonVi: _id_DonVi,
+                    ChucNang: "Báo cáo bán hàng",
+                    NoiDung: "Xuất " + self.MoiQuanTam().toLowerCase(),
+                    NoiDungChiTiet: "Xuất " + self.MoiQuanTam().toLowerCase(),
+                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                };
+                Insert_NhatKyThaoTac_1Param(objDiary)
+            }
+
+        }
     }
-    self.ExportChiTietNhanVien = function (item) {
+    self.ExportChiTietNhanVien = async function (item) {
         var objDiary = {
             ID_NhanVien: _id_NhanVien,
             ID_DonVi: _id_DonVi,
@@ -2326,13 +2315,12 @@
         obj.NV_GioiThieu = item.ID_NhanVien;// muon tamtruong
         obj.chitietBC = _tenNhanVienBanHang;
 
-        ajaxHelper(ReportUri + 'Export_BCBHCT_TheoNhanVien', "POST", { objExcel: obj }).done(function (url) {
-            self.DownloadFileTeamplateXLSX(url);
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCBHCT_TheoNhanVien', 'POST', { objExcel: obj }, "BaoCaoBanHang_ChiTietTheoNhanVien");
+        if (exportOK) {
             Insert_NhatKyThaoTac_1Param(objDiary);
-        });
-
+        }
     }
-    self.ExportChiTietKhachHang = function (item) {
+    self.ExportChiTietKhachHang = async function (item) {
         var objDiary = {
             ID_NhanVien: _id_NhanVien,
             ID_DonVi: _id_DonVi,
@@ -2348,11 +2336,11 @@
         var myData = {
             objExcel: obj,
         }
-        ajaxHelper(ReportUri + 'Export_BCBHCT_TheoKhachHang', "POST", myData).done(function (url) {
-            self.DownloadFileTeamplateXLSX(url);
-
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCBHCT_TheoKhachHang', 'POST', myData, "BaoCaoBanHang_ChiTietTheoKhachHang");
+        if (exportOK) {
             Insert_NhatKyThaoTac_1Param(objDiary);
-        });
+        }
+
     }
     self.currentPage = ko.observable(1);
     self.GetClass = function (page) {

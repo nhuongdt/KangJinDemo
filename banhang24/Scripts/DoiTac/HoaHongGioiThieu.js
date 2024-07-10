@@ -587,14 +587,14 @@
             let obj = {
                 id: item.ID,
                 lstCell: [
-                    { Row: 1, Column: 0, Text: 'Mã phiếu: '.concat(item.MaHoaDon, ' - Ngày lập:', moment(ngay).format('DD/MM/YYYY HH:mm')) },
-                    { Row: 2, Column: 1, Text: item.MaNguoiGioiThieu },
-                    { Row: 3, Column: 1, Text: item.TenNguoiGioiThieu },
-                    { Row: 4, Column: 1, Text: item.DienGiai },
+                    { RowIndex: 1, ColumnIndex: 0,CellValue: 'Mã phiếu: '.concat(item.MaHoaDon, ' - Ngày lập:', moment(ngay).format('DD/MM/YYYY HH:mm')) },
+                    { RowIndex: 2, ColumnIndex: 1,CellValue: item.MaNguoiGioiThieu },
+                    { RowIndex: 3, ColumnIndex: 1,CellValue: item.TenNguoiGioiThieu },
+                    { RowIndex: 4, ColumnIndex: 1,CellValue: item.DienGiai },
 
-                    { Row: 2, Column: 7, Text: item.TongTienHang },
-                    { Row: 3, Column: 7, Text: item.KhachDaTra },
-                    { Row: 4, Column: 7, Text: item.ConNo },
+                    { RowIndex: 2, ColumnIndex: 7,CellValue: item.TongTienHang },
+                    { RowIndex: 3, ColumnIndex: 7,CellValue: item.KhachDaTra },
+                    { RowIndex: 4, ColumnIndex: 7,CellValue: item.ConNo },
                 ],
             }
             ajaxHelper(self.UrlAPI.HoaDon + 'Export_PhieuTrichHoaHong_byID', 'post', obj).done(function (pathFile) {

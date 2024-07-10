@@ -85,7 +85,6 @@ namespace Model
             return str;
 
         }
-
         public static string convertchartstart(string input)
         {
             if (string.IsNullOrWhiteSpace(input)) return string.Empty;
@@ -290,7 +289,11 @@ namespace Model
             CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
             return number.ToString("#,###", cul.NumberFormat);
         }
-
+        /// <summary>
+        /// kiểm tra số nguyên
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static bool IsNumber(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
@@ -298,6 +301,75 @@ namespace Model
                 return false;
             }
             return Regex.IsMatch(input, @"^\d+$");
+        }
+        /// <summary>
+        /// kiểm tra số thực
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static bool IsDouble(string input)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(input))
+                {
+                    double price = Convert.ToDouble(input);
+                    return true;
+                }
+                else
+                    return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+        /// <summary>
+        /// tách chuỗi x_x_x thành mảng kiểu int, và sắp xếp giảm dần
+        /// </summary>
+        /// <param name="strInput"></param>
+        /// <param name="splitChar"></param>
+        /// <returns></returns>
+        public static int[] GetArrIntDesc_fromString(string strInput, char splitChar = '_')
+        {
+            int[] arrInt = Array.Empty<int>();
+            if (!string.IsNullOrEmpty(strInput) && strInput != "null")
+            {
+                string[] arrStr = strInput.Split(splitChar);
+                arrStr = arrStr.Where(x => !string.IsNullOrEmpty(x) && x != "null").Distinct().ToArray();
+                arrInt = Array.ConvertAll(arrStr, int.Parse).OrderByDescending(x => x).ToArray();
+            }
+            return arrInt;
+        }
+        public static bool CheckCharSpecial(string chuoiCanKiemTra)
+        {
+            chuoiCanKiemTra = CommonStatic.ConvertToUnSign(chuoiCanKiemTra);
+            string chuoidung = "1234567890_-()[]*QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopas dfghjklzxcvbnm,.";
+            bool dung = false;
+            if (chuoiCanKiemTra != "")
+            {
+                foreach (char kiTu in chuoiCanKiemTra)
+                {
+                    dung = false;
+                    foreach (char kitu2 in chuoidung)
+                    {
+                        if (kiTu == kitu2)
+                        {
+                            dung = true;
+                            break;
+                        }
+                    }
+                    if (dung == false)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                dung = true;
+            }
+            return dung;
         }
 
         public enum HinhThucKM

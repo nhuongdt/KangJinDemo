@@ -226,10 +226,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 string fileSave = string.Empty;
                 try
                 {
-                    List<CellDTO> lstCell = new List<CellDTO>();
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>();
                     Guid idPhieuTrich = Guid.Empty;
                     if (data["id"] != null)
                     {
@@ -237,7 +238,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     if (data["lstCell"] != null)
                     {
-                        lstCell = data["lstCell"].ToObject<List<CellDTO>>();
+                        lstCell = data["lstCell"].ToObject<List<ClassExcel_CellData>>();
                     }
                     List<HoaHongGioiThieu_ChiTiet_DTO> lst = classhoadon.GetChiTietHoaHongGioiThieu_byID(idPhieuTrich);
                     DataTable excel = _classOFDCM.ToDataTable<HoaHongGioiThieu_ChiTiet_DTO>(lst);
@@ -252,13 +253,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("ConLai");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuTrichHoaHongbyID.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuTrichHoaHongbyID.xlsx");
-                    fileSave = _classOFDCM.createFolder_Download(fileSave);
-
-                    _classOFDCM.DataToExcel_WithText(fileTeamplate, fileSave, excel, 9, 17, 6, true, lstCell);
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel,9, string.Empty, lstCell);
+                    //_classOFDCM.DataToExcel_WithText(fileTeamplate, fileSave, excel, 9, 17, 6, true, lstCell);
                 }
                 catch (Exception ex)
                 {
@@ -1310,13 +1306,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return fileSave;
             }
         }
-        [System.Web.Http.AcceptVerbs("GET", "POST")]
-        public string ExportExcel_HoaDonBanLe(Params_GetListHoaDon listParams)
+
+        [HttpPost]
+        public void ExportExcel_HoaDonBanLe(Params_GetListHoaDon listParams)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOIExcel = new ClassNPOIExcel();
                 string fileSave = string.Empty;
                 try
                 {
@@ -1357,8 +1355,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DataTable excel = _classOFDCM.ToDataTable<HoaDonBanExcel>(lst);
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_GiaoDichHoaDon.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachHoaDonBanLe.xlsx");
-                    fileSave = _classOFDCM.createFolder_Download(fileSave);
                     var valExcel1 = string.Empty;
                     if (listParams.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
                     {
@@ -1368,16 +1364,38 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = listParams.NgayTaoHD_TuNgay + " - " + listParams.NgayTaoHD_DenNgay;
                     }
-                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
+                    {
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 2,
+                            ColumnIndex = 1,
+                            CellValue = valExcel1
+                        },
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 3,
+                            ColumnIndex = 1,
+                            CellValue = listParams.ValueText
+                        }
+                    };
+
+                    classNPOIExcel.ExportDataToExcel(fileTeamplate, excel, 6, listParams.ColumnsHide, lstCell,30);
+                    //_classOFDCM.downloadFile(fileSave);
+                    //string virtualPath = fileSave.Replace(HttpContext.Current.Server.MapPath("~/"), "~/").Replace("\\", "/");
+                    //return Download(stream, "DanhSachHoaDonBanLe.xlsx");
+                    //_classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
+                    //var index = fileSave.IndexOf(@"\Template");
+                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    //fileSave = fileSave.Replace(@"\", "/");
                 }
                 catch (Exception ex)
                 {
                     CookieStore.WriteLog("ExportExcel_HoaDonBanLe " + ex.InnerException + ex.Message);
                 }
-                return fileSave;
+                //return new HttpResponseMessage(HttpStatusCode.OK);
+                //return fileSave;
             }
         }
 
@@ -3780,8 +3798,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 var data = (from hd in db.BH_HoaDon
-                           where hd.ID_HoaDon == idGoc && hd.ChoThanhToan == false
-                           select new { hd.ID, hd.MaHoaDon, hd.LoaiHoaDon }).ToList();
+                            where hd.ID_HoaDon == idGoc && hd.ChoThanhToan == false
+                            select new { hd.ID, hd.MaHoaDon, hd.LoaiHoaDon }).ToList();
                 return Json(new
                 {
                     res = true,
@@ -4080,6 +4098,43 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     if (param != null)
                     {
                         List<SP_NhatKySuDung_GoiDV> lst = classhoadon.GetNhatKySuDung_GDV(param);
+                        int count = 0, page = 0;
+                        int currentPage = param.CurrentPage ?? 0, pageSize = param.PageSize ?? 20;
+                        if (lst != null && lst.Count > 0)
+                        {
+                            count = lst[0].TotalRow ?? 0;
+                        }
+                        var listpage = GetListPage(count, pageSize, currentPage + 1, ref page);
+                        return ActionTrueData(new
+                        {
+                            data = lst,
+                            listpage,
+                            pagenow = currentPage,
+                            pageview = "Hiển thị " + (currentPage * pageSize + 1) + " - " + (currentPage * pageSize + lst.Count) + " trên tổng số " + count + " bản ghi",
+                            isprev = currentPage > 3 && page > 5,
+                            isnext = currentPage < page - 2 && page > 5,
+                            countpage = page
+                        });
+                    }
+                    return ActionFalseNotData("Không có tham số");
+                }
+                catch (Exception ex)
+                {
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+        [HttpGet, HttpPost]
+        public IHttpActionResult GetChiTiet_NhatKyGiaoDich_UsedBaoHanh(ParamNKyGDV param)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                    if (param != null)
+                    {
+                        List<SP_NhatKySuDung_GoiDV> lst = classhoadon.GetChiTiet_NhatKyGiaoDich_UsedBaoHanh(param);
                         int count = 0, page = 0;
                         int currentPage = param.CurrentPage ?? 0, pageSize = param.PageSize ?? 20;
                         if (lst != null && lst.Count > 0)

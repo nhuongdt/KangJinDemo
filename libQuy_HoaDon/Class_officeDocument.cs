@@ -79,7 +79,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -120,7 +122,15 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+
+
+            // Tạo một đối tượng ImportTableOptions và thiết lập các tùy chọn
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+
+            // Nhập DataTable vào worksheet, bắt đầu từ hàng 0 và cột 0
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex,0, importTableOptions);
+
+            //wSheet.Cells.ImportDataTable(tblDuLieu,  sourceRowIndex, 0,0);
 
             if (param.ColumnHide != null && param.ColumnHide.Count > 0)
             {
@@ -135,6 +145,7 @@ namespace libQuy_HoaDon
 
             wbook.Save(exportPath, Aspose.Cells.SaveFormat.Xlsx);
         }
+
         public void DataToExcel_WithText(string strFileTemplatePath, string exportPath, System.Data.DataTable tblDuLieu,
             int sourceRowIndex, int destinationRowIndex, int rowNumber, bool checkSum, List<CellDTO> lstCell)
         {
@@ -162,7 +173,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
 
             foreach (var cell in lstCell)
             {
@@ -197,7 +210,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -237,7 +252,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
 
             for (int i = columnsHide.Count - 1; i >= 0; i--)
             {
@@ -275,7 +292,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
 
             for (int i = columnsHide.Count - 1; i >= 0; i--)
             {
@@ -310,7 +329,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -362,7 +383,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -426,7 +449,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -511,7 +536,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -572,7 +599,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -624,7 +653,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -677,7 +708,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -723,7 +756,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -769,7 +804,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -830,7 +867,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -937,7 +976,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -980,7 +1021,9 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
@@ -1020,7 +1063,12 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            // Tạo một đối tượng ImportTableOptions và thiết lập các tùy chọn
+            // Nhập DataTable vào worksheet, bắt đầu từ hàng 0 và cột 0
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
+
             if (columnsHide != null & columnsHide != "null" & columnsHide != "")
             {
                 string[] coloumHide = columnsHide.Split('_');
