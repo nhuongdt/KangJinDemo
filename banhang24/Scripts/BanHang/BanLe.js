@@ -3374,6 +3374,8 @@ var NewModel_BanHangLe = function () {
                                 myDataMH.objHoaDon = objMuaHang;
                                 myDataMH.objCTHoaDon = arrCTHD_MuaHang_LoHang;
                                 myDataMH.IsSetGiaVonTrungBinh = self.ThietLap().GiaVonTrungBinh;
+                                // gán lại ngaylapHD 
+                                myDataMH.NgayLapHoaDon = moment(new Date(itemDB.NgayLapHoaDon)).add('miliseconds', 3);
 
                                 ajaxHelper(BHHoaDonUri + "PostBH_HoaDon_SoQuy_Spa_NKySuDung", 'POST', myDataMH).done(function (objDB2) {
                                     if (objDB2.res === true) {
