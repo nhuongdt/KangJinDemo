@@ -2121,6 +2121,35 @@ namespace libDM_DoiTuong
             return db.Database.SqlQuery<SP_NhatKySuDung_GoiDV>("exec GetNhatKySuDung_GDV @IDChiNhanhs, @IDCustomers, @TextSearch," +
                 "@DateFrom, @DateTo, @LoaiHoaDons, @CurrentPage, @PageSize", sql.ToArray()).ToList();
         }
+        /// <summary>
+        /// get cthd sử dụng, cthdhỗ trợ ---> used to bảo hành
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public List<SP_NhatKySuDung_GoiDV> GetChiTiet_NhatKyGiaoDich_UsedBaoHanh(ParamNKyGDV param)
+        {
+            var idChiNhanhs = string.Empty;
+            if (param.IDChiNhanhs != null && param.IDChiNhanhs.Count > 0)
+            {
+                idChiNhanhs = string.Join(",", param.IDChiNhanhs);
+            }
+            var idCus = string.Empty;
+            if (param.IDCustomers != null && param.IDCustomers.Count > 0)
+            {
+                idCus = string.Join(",", param.IDCustomers);
+            }
+            List<SqlParameter> sql = new List<SqlParameter>();
+            sql.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("IDCustomers", idCus ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("TextSearch", param.TextSearch ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("DateFrom", param.DateFrom ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("DateTo", param.DateTo ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("LoaiHoaDons", param.LoaiHoaDons ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("CurrentPage", param.CurrentPage ?? (object)DBNull.Value));
+            sql.Add(new SqlParameter("PageSize", param.PageSize ?? (object)DBNull.Value));
+            return db.Database.SqlQuery<SP_NhatKySuDung_GoiDV>("exec GetChiTiet_NhatKyGiaoDich_UsedBaoHanh @IDChiNhanhs, @IDCustomers, @TextSearch," +
+                "@DateFrom, @DateTo, @LoaiHoaDons, @CurrentPage, @PageSize", sql.ToArray()).ToList();
+        }
 
         public List<SP_InforServicePackage> GetNhatKyGiaoDich_ofCus(ParamNKyGDV param)
         {
