@@ -12474,7 +12474,7 @@ var ViewModel = function () {
             }
             $.ajax({
                 type: "POST",
-                url: DMHangHoaUri + "ImfortHangHoa_WithError?ID_DonVi=" + _IDchinhanh + "&ID_NhanVien=" + _IDNhanVien + "&RownError=" + rownError + "&LoaiUpdate=" + self.check_kieuImport(),
+                url: DMHangHoaUri + "ImfortExcelToDanhMucHH?ID_DonVi=" + _IDchinhanh + "&ID_NhanVien=" + _IDNhanVien + "&LoaiUpdate=" + self.check_kieuImport() + "&RownError=" + rownError,
                 data: formData,
                 dataType: 'json',
                 contentType: false,
