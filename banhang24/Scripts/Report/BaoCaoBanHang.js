@@ -2282,10 +2282,10 @@
             let exportOK = false;
             LoadingForm(false);
             if (parseInt(self.check_MoiQuanTam()) === 52) {
-                exportOK = await NPOI_ExportData(ReportUri + func, 'POST', array_Seach, fileNameExport);
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + func, 'POST', array_Seach, fileNameExport);
             }
             else {
-                exportOK = await NPOI_ExportData(ReportUri + func, 'POST', { objExcel: array_Seach }, fileNameExport);
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + func, 'POST', { objExcel: array_Seach }, fileNameExport);
             }
             if (exportOK) {
                 var objDiary = {
@@ -2315,7 +2315,7 @@
         obj.NV_GioiThieu = item.ID_NhanVien;// muon tamtruong
         obj.chitietBC = _tenNhanVienBanHang;
 
-        const exportOK = await NPOI_ExportData(ReportUri + 'Export_BCBHCT_TheoNhanVien', 'POST', { objExcel: obj }, "BaoCaoBanHang_ChiTietTheoNhanVien");
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCBHCT_TheoNhanVien', 'POST', { objExcel: obj }, "BaoCaoBanHang_ChiTietTheoNhanVien");
         if (exportOK) {
             Insert_NhatKyThaoTac_1Param(objDiary);
         }
@@ -2336,7 +2336,7 @@
         var myData = {
             objExcel: obj,
         }
-        const exportOK = await NPOI_ExportData(ReportUri + 'Export_BCBHCT_TheoKhachHang', 'POST', myData, "BaoCaoBanHang_ChiTietTheoKhachHang");
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCBHCT_TheoKhachHang', 'POST', myData, "BaoCaoBanHang_ChiTietTheoKhachHang");
         if (exportOK) {
             Insert_NhatKyThaoTac_1Param(objDiary);
         }
