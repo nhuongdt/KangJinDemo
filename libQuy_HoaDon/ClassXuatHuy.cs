@@ -17,6 +17,7 @@ using libHT_NguoiDung;
 using static libQuy_HoaDon.Class_Report;
 using libDM_DoiTuong;
 using libDM_HangHoa;
+using Aspose.Cells;
 
 namespace libQuy_HoaDon
 {
@@ -1230,7 +1231,10 @@ namespace libQuy_HoaDon
             {
                 wSheet.Cells.CopyRows(wSheet.Cells, sourceRowIndex, (dkrange * rowNumber) + sourceRowIndex, tblDuLieu.Rows.Count - dkrange * rowNumber);
             }
-            wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            //wSheet.Cells.ImportDataTable(tblDuLieu, false, sourceRowIndex, 0, false);
+            ImportTableOptions importTableOptions = new ImportTableOptions();
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
+
             wbook.Save(exportPath, Aspose.Cells.SaveFormat.Xlsx);
         }
 
