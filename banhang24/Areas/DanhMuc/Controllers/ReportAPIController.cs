@@ -3003,7 +3003,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 db.Database.CommandTimeout = 60 * 60;
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<BaoCaoBanHang_TongHopPRC> lst = report.GetBaoCaoBanHang_TongHopPRC(param);
 
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHang_TongHopPRC>(lst);
@@ -3079,7 +3079,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
 
                 ClassReportBanHang report = new ClassReportBanHang(db);
@@ -3134,7 +3134,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
 
                 ClassReportBanHang report = new ClassReportBanHang(db);
@@ -3219,7 +3219,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassReportBanHang report = new ClassReportBanHang(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
-                    NPOIExporExcel classNPOI = new NPOIExporExcel();
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
 
                     List<BaoCaoBanHang_TheoKhachHangTanSuat> lst = report.BaoCaoKhachHang_TanSuat(lstParam);
                     DataTable excel = classOffice.ToDataTable(lst);
@@ -3327,7 +3327,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassReportBanHang report = new ClassReportBanHang(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
-                    NPOIExporExcel classNPOI = new NPOIExporExcel();
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
 
                     List<BCTanSuat_NhatKyGiaoDich> lst = report.GetNhatKyGiaoDich_ofKhachHang(lstParam);
                     DataTable excel = classOffice.ToDataTable(lst);
@@ -3373,7 +3373,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_NhomHangPRC> lst = report.GetBaoCaoBanHang_NhomHangPRC(param);
@@ -3447,7 +3447,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_TheoKhachHangPRC> lst = report.GetBaoCaoBanHang_TheoKhachHangPRC(param);
@@ -3498,7 +3498,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHangChiTiet_TheoKhachHangPRC> lst = report.GetBaoCaoBanHangChiTiet_TheoKhachHangPRC(param);
@@ -3562,7 +3562,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_TheoNhanVienPRC> lst = report.GetBaoCaoBanHang_TheoNhanVienPRC(param);
@@ -3606,7 +3606,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<BaoCaoBanHangChiTiet_TheoNhanVienPRC> lst = report.GetBaoCaoBanHangChiTiet_TheoNhanVienPRC(param);
 
                 DataTable excel = classOffice.ToDataTable<BaoCaoBanHangChiTiet_TheoNhanVienPRC>(lst);
@@ -3658,7 +3658,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_HangTraLaiPRC> lst = report.GetBaoCaoBanHang_HangTraLaiPRC(param);
@@ -3708,7 +3708,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoHangKhuyenMai> lst = report.SP_BaoCaoHangKhuyenMai(param);
@@ -3770,7 +3770,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 db.Database.CommandTimeout = 60 * 60;
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-                NPOIExporExcel classNPOI = new NPOIExporExcel();
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 ClassReportBanHang report = new ClassReportBanHang(db);
                 libReport.array_BaoCaoBanHang param = data["objExcel"].ToObject<libReport.array_BaoCaoBanHang>();
                 List<BaoCaoBanHang_LoiNhuanPRC> lst = report.GetBaoCaoBanHang_LoiNhuanPRC(param);
