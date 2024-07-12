@@ -998,7 +998,7 @@
     //    return false;
     //});
 
-    function SearchReport(isExport, valueHideColum, itemDetail) {
+    async function SearchReport(isExport, valueHideColum, itemDetail) {
         isExport = isExport || false;
         valueHideColum = '' || valueHideColum;
         itemDetail = itemDetail || null;// BC doanhthu chitiet
@@ -1270,7 +1270,7 @@
             var funcExcel = '';
             var txtFunc = '';
             var detail = '';
-
+            let fileNameExport = '';
             var lenData = 0;
             switch (typeReport) {
                 case 1:
@@ -1278,10 +1278,12 @@
                     if (self.IsReportDetail()) {
                         array_Seach.TypeReport = 2;
                         txtFunc = 'chi tiết theo hàng hóa';
+                        fileNameExport = 'BaoCaoChiTietHoaHongNhanVien.xlsx';
                     }
                     else {
                         array_Seach.TypeReport = 1;//
                         txtFunc = 'tổng hợp theo hàng hóa';
+                        fileNameExport = 'BaoCaoTongHopHoaHongNhanVien.xlsx';
                     }
                     break;
                 case 2:
@@ -1289,10 +1291,12 @@
                     if (self.IsReportDetail()) {
                         array_Seach.TypeReport = 4;
                         txtFunc = 'chi tiết theo hóa đơn';
+                        fileNameExport = 'BaoCaoHoaHongHoaDon_ChiTiet.xlsx';
                     }
                     else {
                         array_Seach.TypeReport = 3;
                         txtFunc = 'tổng hợp theo hóa đơn';
+                        fileNameExport = 'BaoCaoHoaHongHoaDon.xlsx';
                     }
                     break;
                 case 3:
@@ -1300,46 +1304,67 @@
                     if (itemDetail == null) {
                         array_Seach.TypeReport = 5;
                         txtFunc = 'tổng hợp theo doanh thu';
+                        fileNameExport = 'BaoCaoHoaHongDoanhThu.xlsx';
                     }
                     else {
                         array_Seach.TextSearch = itemDetail.ID_NhanVien;// mượn trường
                         array_Seach.TextReport += ' (Nhân viên: '.concat(itemDetail.MaNhanVien, ' - ', itemDetail.TenNhanVien, ')');
                         array_Seach.TypeReport = 6;
                         txtFunc = 'chi tiết theo doanh thu';
+                        fileNameExport = 'BaoCaoHoaHongDoanhThu_ChiTiet.xlsx';
                     }
                     break;
                 case 4:
                     funcExcel = 'ExportExcel_ReportDiscountAll';
                     array_Seach.TypeReport = 7;
                     txtFunc = 'tổng hợp';
+                    fileNameExport = 'TongHopBaoCaoHoaHongNhanVien.xlsx';
                     break;
                 case 5:
                     funcExcel = 'ExportExcel_DSHoaDonChuaPhanBoCK';
                     array_Seach.TypeReport = 8;
                     array_Seach.IsExport = true;
                     txtFunc = 'tổng hợp';
+                    fileNameExport = 'DanhSachHoaDon_ChuaPhanBoHoaHong.xlsx';
                     break;
 
             }
 
             array_Seach.PageSize = self.TotalRow();// export all row
-            ajaxHelper(ReportUri + funcExcel, 'POST', array_Seach).done(function (obj) {
-                $('.table-reponsive').gridLoader({ show: false });
-                if (obj.res === true) {
-                    self.DownloadFileTeamplateXLSX(obj.data);
+            //INS 10.07.2024
+            $('.table-reponsive').gridLoader({ show: false });
+            console.log("array_Seach:", array_Seach);
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + funcExcel, 'POST', array_Seach , fileNameExport);
 
-                    detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
-                    var objDiary = {
-                        ID_NhanVien: _idNhanVien,
-                        ID_DonVi: _idDonVi,
-                        ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
-                        NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
-                        NoiDungChiTiet: detail,
-                        LoaiNhatKy: 6
-                    };
-                    Insert_NhatKyThaoTac_1Param(objDiary);
-                }
-            })
+            if (exportOK) {
+                detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
+                        var objDiary = {
+                            ID_NhanVien: _idNhanVien,
+                            ID_DonVi: _idDonVi,
+                            ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
+                            NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
+                            NoiDungChiTiet: detail,
+                            LoaiNhatKy: 6
+                        };
+                        Insert_NhatKyThaoTac_1Param(objDiary);
+            }
+            //ajaxHelper(ReportUri + funcExcel, 'POST', array_Seach).done(function (obj) {
+            //    $('.table-reponsive').gridLoader({ show: false });
+            //    if (obj.res === true) {
+            //        self.DownloadFileTeamplateXLSX(obj.data);
+
+            //        detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
+            //        var objDiary = {
+            //            ID_NhanVien: _idNhanVien,
+            //            ID_DonVi: _idDonVi,
+            //            ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
+            //            NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
+            //            NoiDungChiTiet: detail,
+            //            LoaiNhatKy: 6
+            //        };
+            //        Insert_NhatKyThaoTac_1Param(objDiary);
+            //    }
+            //})
         }
         else {
             $('#select-column').show();
