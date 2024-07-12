@@ -4192,7 +4192,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpPost]
-        public IHttpActionResult ExportExcel_DanhMucHangHoa(ParamSearch_DMHangHoa param)
+        public string ExportExcel_DanhMucHangHoa(ParamSearch_DMHangHoa param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -4200,7 +4200,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
                     Class_officeDocument _classOFDCM = new Class_officeDocument(db);
-
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     var whereColumn = classDMHangHoa.SearchColumn(param.ListSearchColumn, string.Empty, ref param);
                     param.WhereSql = whereColumn;
 
@@ -4221,22 +4221,20 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     DataTable excel = _classOFDCM.ToDataTable<DM_HangHoa_Excel>(lst);
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucHangHoa.xlsx");
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhMucHangHoa.xlsx");
-                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    
                     string colHides = string.Empty;
                     if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                     {
                         colHides = string.Join("_", param.ColumnHide);
                     }
-                    _classOFDCM.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, colHides);
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return ActionTrueData(fileSave);
+                   
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, colHides, null, -1);
+                    return string.Empty; 
                 }
                 catch (Exception ex)
                 {
-                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                    CookieStore.WriteLog(string.Concat("Export_DanhMucHangHoa ", ex));
+                    return "";
                 }
             }
         }

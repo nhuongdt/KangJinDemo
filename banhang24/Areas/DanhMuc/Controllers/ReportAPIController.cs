@@ -3072,6 +3072,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 });
             }
         }
+
+
+      
         [AcceptVerbs("GET", "POST")]
         public string Export_BCBH_ChiTiet([FromBody] JObject data)
         {
@@ -9208,7 +9211,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
 
         [HttpGet, HttpPost]
-        public IHttpActionResult ExportExcel_ReportDiscountProduct(ParamReportDiscount lstParam)
+        public string ExportExcel_ReportDiscountProduct(ParamReportDiscount lstParam)
         {
             try
             {
@@ -9217,8 +9220,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
-                    string fileTeamplate = string.Empty;
-                    string fileSave = string.Empty;
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                    string fileTeamplate = string.Empty;            
                     DataTable excel = null;
                     switch (lstParam.TypeReport)
                     {
@@ -9233,7 +9236,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Teamplate_BaoCaoTongHopHoaHongNhanVien.xlsx");
-                            fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoTongHopHoaHongNhanVien.xlsx");
+                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoTongHopHoaHongNhanVien.xlsx");
+                         
                             break;
                         case 2:
                             List<BaoCaoChietKhau_ChiTietPRC> lstCT = reportHoaHong.SP_ReportDiscountProduct_Detail(lstParam);
@@ -9285,26 +9289,26 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("ID_DonViQuiDoi");
                             excel.Columns.Remove("ID_ChiTietHoaDon");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHangHoa_ChiTiet.xlsx");
-                            fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoChiTietHoaHongNhanVien.xlsx");
-                            break;
+                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoChiTietHoaHongNhanVien.xlsx");
+                            
+                            break; 
                     }
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.ExportExcel_RemoveColumn(fileTeamplate, fileSave, excel, 5, 29, 24, true, lstParam.ColumnsHide, lstParam.TodayBC, lstParam.TextReport);
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, lstParam.ColumnsHide, lstCell, -1);
 
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return Json(new { res = true, data = fileSave });
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { res = false, mes = ex.InnerException + ex.Message });
+
+                CookieStore.WriteLog(string.Concat("Export_BaoCaoChietKhau ", ex));
+                return "";
             }
         }
 
         [HttpGet, HttpPost]
-        public IHttpActionResult ExportExcel_ReportDiscountInvoice(ParamReportDiscount lstParam)
+        public string ExportExcel_ReportDiscountInvoice(ParamReportDiscount lstParam)
         {
             List<BaoCaoChietKhau_TongHopPRC> lst = new List<BaoCaoChietKhau_TongHopPRC>();
             try
@@ -9314,8 +9318,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
-                    string fileTeamplate = string.Empty;
-                    string fileSave = string.Empty;
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                    string fileTeamplate = string.Empty;                   
                     DataTable excel = null;
 
                     switch (lstParam.TypeReport)
@@ -9330,7 +9334,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHoaDon.xlsx");
-                            fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongHoaDon.xlsx");
+                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongHoaDon.xlsx");
                             break;
                         case 4:
                             List<SP_ReportDiscountInvoice_Detail> data2 = reportHoaHong.SP_ReportDiscountInvoice_Detail(lstParam);
@@ -9350,26 +9354,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("HoaHongDoanhThu");
                             excel.Columns.Remove("HeSo");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
-                            fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
+                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongHoaDon_ChiTiet.xlsx");
                             break;
                     }
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.ExportExcel_RemoveColumn(fileTeamplate, fileSave, excel, 5, 29, 24, true, lstParam.ColumnsHide, lstParam.TodayBC, lstParam.TextReport);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return Json(new { res = true, data = fileSave });
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, lstParam.ColumnsHide, lstCell);
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { res = false, mes = ex.InnerException + ex.Message });
+
+                CookieStore.WriteLog(string.Concat("Export_BaoCaoChietKhau ", ex));
+                return "";
             }
         }
 
         [HttpGet, HttpPost]
-        public IHttpActionResult ExportExcel_ReportDiscountSales(ParamReportDiscount lstParam)
+        public string ExportExcel_ReportDiscountSales(ParamReportDiscount lstParam)
         {
             try
             {
@@ -9378,8 +9380,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     string fileTeamplate = string.Empty;
-                    string fileSave = string.Empty;
                     DataTable excel = null;
 
                     switch (lstParam.TypeReport)
@@ -9396,7 +9398,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu.xlsx");
-                            fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu.xlsx");
+                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu.xlsx");
                             break;
                         case 6:// bc chitiet: not hide column
                             lstParam.ColumnsHide = null;
@@ -9410,26 +9412,24 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu_ChiTiet.xlsx");
-                            fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu_ChiTiet.xlsx");
+                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu_ChiTiet.xlsx");
                             break;
                     }
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.ExportExcel_RemoveColumn(fileTeamplate, fileSave, excel, 4, 28, 24, true, lstParam.ColumnsHide, lstParam.TodayBC, lstParam.TextReport);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return Json(new { res = true, data = fileSave });
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, lstParam.ColumnsHide, lstCell);
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { res = false, mes = ex.InnerException + ex.Message });
+
+                CookieStore.WriteLog(string.Concat("Export_TongHopBaoCaoHoaHongNhanVien ", ex));
+                return "";
             }
         }
 
         [HttpGet, HttpPost]
-        public IHttpActionResult ExportExcel_ReportDiscountAll(ParamReportDiscount lstParam)
+        public string ExportExcel_ReportDiscountAll(ParamReportDiscount lstParam)
         {
             try
             {
@@ -9437,6 +9437,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     db.Database.CommandTimeout = 60 * 60;
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
                     List<SP_ReportDiscountAll> data = reportHoaHong.SP_ReportDiscountAll(lstParam);
                     DataTable excel = classOffice.ToDataTable<SP_ReportDiscountAll>(data);
@@ -9463,25 +9465,21 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TotalPage");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongNhanVien_All.xlsx");
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/TongHopBaoCaoHoaHongNhanVien.xlsx");
-
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.ExportExcel_RemoveColumn(fileTeamplate, fileSave, excel, 5, 29, 24, true, lstParam.ColumnsHide, lstParam.TodayBC, lstParam.TextReport);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return Json(new { res = true, data = fileSave });
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, lstParam.ColumnsHide, lstCell);
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { res = false, mes = ex.InnerException + ex.Message });
+
+                CookieStore.WriteLog(string.Concat("Export_TongHopBaoCaoHoaHongNhanVien ", ex));
+                return "";
             }
         }
 
         [HttpGet, HttpPost]
-        public IHttpActionResult ExportExcel_DSHoaDonChuaPhanBoCK(ParamReportDiscount lstParam)
+        public string ExportExcel_DSHoaDonChuaPhanBoCK(ParamReportDiscount lstParam)
         {
             try
             {
@@ -9490,6 +9488,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     Class_officeDocument classOffice = new Class_officeDocument(db);
                     ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     List<HoaDon_ChuaPhanBoHoaHong> data = reportHoaHong.GetListHoaDon_ChuaPhanBoCK(lstParam);
                     DataTable excel = classOffice.ToDataTable<HoaDon_ChuaPhanBoHoaHong>(data);
 
@@ -9501,20 +9500,18 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TotalPage");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_DanhSachHoaDon_ChuaPhanBoHoaHong.xlsx");
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/DanhSachHoaDon_ChuaPhanBoHoaHong.xlsx");
+                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/DanhSachHoaDon_ChuaPhanBoHoaHong.xlsx");
 
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.ExportExcel_RemoveColumn(fileTeamplate, fileSave, excel, 5, 29, 24, true, lstParam.ColumnsHide, lstParam.TodayBC, lstParam.TextReport);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return Json(new { res = true, data = fileSave });
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, lstParam.ColumnsHide, lstCell); ;
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { res = false, mes = ex.InnerException + ex.Message });
+
+                CookieStore.WriteLog(string.Concat("Export_TongHopBaoCaoHoaHongNhanVien ", ex));
+                return "";
             }
         }
         #endregion
