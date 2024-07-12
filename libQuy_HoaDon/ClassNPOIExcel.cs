@@ -357,6 +357,9 @@ namespace libQuy_HoaDon
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
+                //classDM_DoiTuong classDMHang = new classDM_DoiTuong(db);
+                //var check = classDMHang.SP_CheckMaNhanVien_Exist("KH0000001");
+                //var check1 = classDMHang.SP_CheckSoDienThoai_Exist("0989861122");
 
                 // duyệt bắt đầu từ dòng số 3
                 var lastRow = sheet.PhysicalNumberOfRows;
@@ -1041,6 +1044,101 @@ namespace libQuy_HoaDon
             }
 
             return lstErr;
+        }
+        #endregion
+        #region Import Customer
+        public List<ErrorDMHangHoa> ImportCustomer_toDB(ISheet sheet, Guid idDonvi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            Dictionary<string, List<int>> maKHTracker = new Dictionary<string, List<int>>();
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                classDM_DoiTuong classDMDoiTuong = new classDM_DoiTuong(db);
+                var lastRow = sheet.PhysicalNumberOfRows;
+                for (int rowIndex = 3; rowIndex < lastRow; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+                    if (row != null)
+                    {
+                        string tenNhomKhachHang = row.GetCell(1)?.ToString();
+                        string nguonKhach = row.GetCell(2)?.ToString();
+                        string statusKhach = row.GetCell(3)?.ToString();
+                        string maKH = row.GetCell(4)?.ToString();
+                        string tenKhachHang = row.GetCell(5)?.ToString();
+                        string gender = row.GetCell(6)?.ToString().Trim();
+                        string loaiKhach = row.GetCell(7)?.ToString().Trim();
+                        string ngaySinh = row.GetCell(8)?.ToString().Trim();
+                        string diachi = row.GetCell(9)?.ToString().Trim();
+                        string email = row.GetCell(10)?.ToString().Trim();
+                        string soDienThoai = row.GetCell(11)?.ToString().Trim();
+                        string note = row.GetCell(12)?.ToString().Trim();
+                        string maSoThue = row.GetCell(13)?.ToString().Trim();
+                        string noCanThu = row.GetCell(14)?.ToString().Trim();
+                        string noCanTra = row.GetCell(15)?.ToString().Trim();
+                        string sumTichDiem = row.GetCell(16)?.ToString().Trim();
+                        string soDu = row.GetCell(17)?.ToString().Trim();
+                        // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
+                        if (string.IsNullOrEmpty(tenNhomKhachHang) && string.IsNullOrEmpty(nguonKhach) &&
+                            string.IsNullOrEmpty(statusKhach) && string.IsNullOrEmpty(maKH) &&
+                            string.IsNullOrEmpty(tenKhachHang) && string.IsNullOrEmpty(gender) &&
+                            string.IsNullOrEmpty(soDienThoai))
+                        {
+                            continue;
+                        }
+                        if (!string.IsNullOrEmpty(maKH))
+                        {
+                            if (maKHTracker.ContainsKey(maKH))
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng/dịch vụ",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = maKH,
+                                    DienGiai = "Mã hàng: " + maKH + " bị trùng lặp",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+                            }
+
+                            else
+                            {
+                                maKHTracker[maKH] = new List<int> { rowIndex + 1 };
+                            }
+                            // var checkExist = classDM_DoiTuong.DM_DoiTuongExists(idnhanvien);
+                            bool checkExist = true;
+                            if (checkExist)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng/dịch vụ",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = maKH,
+                                    DienGiai = "Mã hàng: " + maKH + " đã tồn tại",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+                            }
+                            //if (string.IsNullOrEmpty(tenHangHoa))
+                            //{
+                            //    ErrorDMHangHoa DM = new ErrorDMHangHoa
+                            //    {
+                            //        TenTruongDuLieu = "Tên hàng hóa",
+                            //        ViTri = (rowIndex + 1).ToString(),
+                            //        ThuocTinh = maHangHoa,
+                            //        DienGiai = "Tên hàng hóa không được để trống",
+                            //        rowError = rowIndex,
+                            //        loaiError = 1
+                            //    };
+                            //    lstError.Add(DM);
+                            //}
+                        }
+                    }
+                }
+            }
+
+            return lstError;
         }
         #endregion
     }
