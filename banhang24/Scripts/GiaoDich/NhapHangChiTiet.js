@@ -256,6 +256,7 @@ var NhapHangChiTiet = function () {
     self.TraHangNhap_ThayDoiThoiGian = ko.observable();
     self.NhapHang_ThayDoiNhanVien = ko.observable();
     self.TraHangNhap_ThayDoiNhanVien = ko.observable();
+    self.role_XacNhan_NhapHangKhachThua = ko.observable(true);
     self.HangHoa_GiaBan = ko.observable();
     self.HangHoa_GiaNhap = ko.observable();
     self.HangHoa_ThemMoi = ko.observable();
@@ -757,8 +758,9 @@ var NhapHangChiTiet = function () {
                         self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
                         break;
                     case 14:
-                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
-                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
+                        self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHangKhachThua_ThayDoiThoiGian'));
+                        self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHangKhachThua_ThayDoiNhanVien'));
+                        self.role_XacNhan_NhapHangKhachThua(CheckQuyenExist('NhapHangKhachThua_XacNhanNhapKho'));
                         break;
                     case 31:
                         self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('DatHangNCC_ThayDoiThoiGian'));
