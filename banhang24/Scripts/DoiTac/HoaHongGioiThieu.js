@@ -157,6 +157,7 @@
             ajaxHelper(self.UrlAPI.QuyHoaDon + 'GetQuy_KhoanThuChi', 'GET').done(function (x) {
                 if (x.res === true) {
                     vmThanhToanNCC.listData.KhoanThuChis = x.data;
+                    vmThanhToan.listData.KhoanThuChis = x.data;// used at vmHoaHong (savePhieuThu)
                 }
             });
         },
