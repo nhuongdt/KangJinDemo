@@ -11,6 +11,8 @@ function ViewModel() {
     var _id_NhanVien = VHeader.IdNhanVien;
     var _IDNguoiDung = VHeader.IdNguoiDung;
     var Key_Form = 'Key_DamageItems';
+    var _now = new Date();
+    var _nowFormat = moment(_now).format('YYYY-MM-DD');
     //loaiHoaDon = 8; //  1.xuat sudung gdv, 2.xuat banle, 3. xuat suachua, 8.xuatkho
 
     self.TenChiNhanh = ko.observable();
@@ -64,6 +66,7 @@ function ViewModel() {
     self.XuatHuy_ThayDoiThoiGian = ko.observable(false);
     self.HangHoa_XemGiaVon = ko.observable();
     self.XuatHuy_SuaDoi = ko.observable(false);
+    self.Role_XoaPhieuXuatKho_ifOtherDate = ko.observable(CheckRole('XuatHuy_Xoa_NeuKhacNgay'));
 
     $('#txtSelectHT').attr('disabled', 'false');
     $('.modal-backdrop').remove();// used to when go to back this page at xuatkhochitiet
@@ -312,7 +315,6 @@ function ViewModel() {
 
     function GetParamSearch() {
         var txtSeach = self.MaHangHoa_Search();
-        var _now = new Date();
         var FindHD = localStorage.getItem('FindHD');
         if (FindHD !== null) {
             txtSeach = FindHD;
@@ -749,9 +751,28 @@ function ViewModel() {
 
     self.isXuatKhoGDV = ko.observable(false);
 
-    self.LoadHangHoaChiTiet = function (item) {
-        var chotso = VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi);
+    async function LoadChiTietHD(idHoaDon) {
+        let xx = await $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + idHoaDon + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) { })
+            .then(function (data) {
+                return data.LstDataPrint
+            })
+        return xx;
+    }
+    // muốn sử dụng async ở LoadHangHoaChiTiet, phải thêm 1 func và gọi kiểu này
+    self.LoadChiTietHD = async function (idHoaDon) {
+        return await LoadChiTietHD(idHoaDon)
+    }
+
+    self.LoadHangHoaChiTiet = async function (item) {
+        let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
+        var chotso = VHeader.CheckKhoaSo(ngaylapFormat, item.ID_DonVi);
         self.Enable_NgayLapHD(!chotso);
+
+        let role = self.Role_XoaPhieuXuatKho_ifOtherDate();
+        if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
+            role = self.XuatHuy_Xoa();
+        }
+        self.Role_XoaPhieuXuatKho_ifOtherDate(role);
 
         var $this = $(event.currentTarget);
         $this.next().find('.datetimepicker_maskedit').datetimepicker({
@@ -767,42 +788,32 @@ function ViewModel() {
 
         self.HDGoc_hasChange(false);
 
-        $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + item.ID + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) {
-            let arr = data.LstDataPrint;
-            let xkSuDung = $.grep(data.LstDataPrint, function (x) {
-                return x.ChatLieu === '4';
-            })
-            self.isXuatKhoGDV(xkSuDung.length > 0)
+        var cthd = await self.LoadChiTietHD(item.ID);
 
-            self.XH_HangHoaChiTiet(arr);
-            self.XH_HangHoaChiTiet_Search(data.LstDataPrint);
-
-            let sumSL = arr.reduce(function (_this, val) {
-                return _this + val.SoLuong;
-            }, 0);
-            let sumGT = arr.reduce(function (_this, val) {
-                return _this + val.GiaTriHuy;
-            }, 0);
-            self.sum_SoLuongXuat(RoundDecimal(sumSL, 3));
-            self.sum_GiaTriXuat(RoundDecimal(sumGT, 3));
-            SetHeightShowDetail($this);
-
-            let trangThaiPhieu = 0;
-            if (data.LstDataPrint.length > 0) {
-                trangThaiPhieu = parseInt(data.LstDataPrint[0].TrangThaiMoPhieu);
-            }
-            self.HDGoc_hasChange(trangThaiPhieu === 1 || trangThaiPhieu === 2);
+        let xkSuDung = $.grep(cthd, function (x) {
+            return x.ChatLieu === '4';
         })
-    }
+        self.isXuatKhoGDV(xkSuDung.length > 0)
 
-    async function LoadChiTietHD(idHoaDon) {
-        let xx = await $.getJSON(BH_XuatHuyUri + "getList_HangHoaXuatHuybyID?ID_HoaDon=" + idHoaDon + "&ID_ChiNhanh=" + _id_DonVi).done(function (data) { })
-            .then(function (data) {
-                return data.LstDataPrint
-            })
-        return xx;
-    }
+        self.XH_HangHoaChiTiet(cthd);
+        self.XH_HangHoaChiTiet_Search(cthd);
 
+        let sumSL = cthd.reduce(function (_this, val) {
+            return _this + val.SoLuong;
+        }, 0);
+        let sumGT = cthd.reduce(function (_this, val) {
+            return _this + val.GiaTriHuy;
+        }, 0);
+        self.sum_SoLuongXuat(RoundDecimal(sumSL, 3));
+        self.sum_GiaTriXuat(RoundDecimal(sumGT, 3));
+        SetHeightShowDetail($this);
+
+        let trangThaiPhieu = 0;
+        if (cthd.length > 0) {
+            trangThaiPhieu = parseInt(cthd[0].TrangThaiMoPhieu);
+        }
+        self.HDGoc_hasChange(trangThaiPhieu === 1 || trangThaiPhieu === 2);
+    }
 
     self.PhieuXuatKho_GetNVThucHien_byIDChiTietGDV = async function () {
         const arrID_ChiTietGDV = self.XH_HangHoaChiTiet_Search().map((x) => { return x.ID_ChiTietGoiDV });
