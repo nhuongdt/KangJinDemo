@@ -264,7 +264,7 @@
             var hoantra = hd.HoanTraTamUng;
             var soduDatCoc = hd.SoDuDatCoc;
 
-            let cacheName = formType ===2? 'lstHDLe':'TGT_PhieuThu';
+            let cacheName = formType === 2 ? 'lstHDLe' : 'TGT_PhieuThu';
 
             var lstHD = localStorage.getItem(cacheName);
             if (lstHD !== null) {
@@ -460,7 +460,7 @@
                 let itFor = self.PhieuThuKhach.ListTKPos[i];
                 // chỉ tính chi phí pos nếu giá trị tiền > 0
                 const tienPos = formatNumberToFloat(itFor.TienPOS);
-                if (itFor.ChiPhiThanhToan > 0 && tienPos  > 0) {
+                if (itFor.ChiPhiThanhToan > 0 && tienPos > 0) {
                     laPhanTram = itFor.TheoPhanTram;
                     gtriPTram = itFor.ChiPhiThanhToan;
 
@@ -479,7 +479,7 @@
             // nếu chỉ có 1 tkPos: lấy chiphi (từ chính TK này)
             // ngược lại: tính tổng và chia % (laPhanTram always = true)
             self.PhieuThuKhach.PhiThanhToan_PTGiaTri = countTKPos === 1 ? gtriPTram : tongChiPhi / sumTienPos * 100;
-            self.PhieuThuKhach.PhiThanhToan_LaPhanTram = countTKPos === 1? laPhanTram: true;
+            self.PhieuThuKhach.PhiThanhToan_LaPhanTram = countTKPos === 1 ? laPhanTram : true;
             return tongChiPhi;
         },
         CaculatorDaThanhToan: function () {
@@ -1557,14 +1557,14 @@
                         break;
                     case 2:// quẹt thẻ nhiều lần: tính phí nhiều lần
                         {
-                            thucthu += tienthu;                         
+                            thucthu += tienthu;
                             if (qct[i].LaPTChiPhiNganHang) {
                                 chiphi += tienthu * qct[i].ChiPhiNganHang / 100;
                             }
                             else {
                                 chiphi += qct[i].ChiPhiNganHang;
                             }
-                        }                       
+                        }
                         break;
                 }
             }
@@ -2187,7 +2187,8 @@
                 loaiHD = 1;
             }
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu.indexOf(loaiHD) > -1 && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu != null && $.inArray(loaiHD.toString(), x.LoaiChungTu.split(',')) > -1
+                    && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },
