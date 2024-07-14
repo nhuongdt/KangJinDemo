@@ -1943,8 +1943,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 prm.Add(new SqlParameter("ID_HoaDon", ID_HoaDon));
                 prm.Add(new SqlParameter("ID_ChiNhanh", ID_ChiNhanh));
                 List<XH_HoaDon_ChiTietPRC> lst = db.Database.SqlQuery<XH_HoaDon_ChiTietPRC>("exec getList_HangHoaXuatHuybyID @ID_HoaDon, @ID_ChiNhanh", prm.ToArray()).ToList();
-                double soluong = (double?)lst.Sum(x => x.SoLuong) ?? 0;
-                double giatri = (double?)lst.Sum(x => x.SoLuong * x.GiaVon) ?? 0;
 
                 ClassBH_HoaDon_ChiTiet classHDCT = new ClassBH_HoaDon_ChiTiet(db);
                 var _ClassDVQD = new classDonViQuiDoi(db);
@@ -1961,14 +1959,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         TyLeChuyenDoi = x.TyLeChuyenDoi
                     }).ToList();
                 }
-
-                JsonResultExample<XH_HoaDon_ChiTietPRC> jsonobj = new JsonResultExample<XH_HoaDon_ChiTietPRC>
-                {
-                    LstDataPrint = lst,
-                    _tienvon = Math.Round(soluong, 3, MidpointRounding.ToEven),
-                    _thanhtien = Math.Round(giatri, 0, MidpointRounding.ToEven),
-                };
-                return Json(jsonobj);
+                return Json(new { LstDataPrint = lst } );
             }
         }
 
