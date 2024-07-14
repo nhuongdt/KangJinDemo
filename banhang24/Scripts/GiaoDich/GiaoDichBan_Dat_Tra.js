@@ -6386,7 +6386,7 @@
         let toDate = moment(item.NgayLapHoaDon).add(2, 'seconds',).format('YYYY-MM-DD HH:mm');
         vmApDungNhomHoTro.GetTongGiaTriSuDung_ofKhachHang(item.ID_DoiTuong, toDate);
 
-        vmApDungNhomHoTro.showModalUpdate(item.ID, self.BH_HoaDonChiTiets(),);
+        vmApDungNhomHoTro.showModalUpdate(item.ID, self.BH_HoaDonChiTiets());
     }
 
     self.XuatKho_withHD_chuaXuat = function (item) {

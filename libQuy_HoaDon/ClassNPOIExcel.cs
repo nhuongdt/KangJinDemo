@@ -188,6 +188,8 @@ namespace libQuy_HoaDon
             IRow sumRow = sheet.CreateRow(endRow + 1);
             sumRow.CreateCell(0).SetCellValue("Tổng cộng");
             sumRow.GetCell(0).CellStyle = cellStyle;
+            //  Đặt chiều cao cho hàng (đơn vị là điểm, 1/20 của một point, 20 = 1 point)
+            sumRow.Height = 20 * 18;// 18 điểm
 
             // Duyệt qua từng cột
             var lastCell = sheet.GetRow(startRow).LastCellNum;
