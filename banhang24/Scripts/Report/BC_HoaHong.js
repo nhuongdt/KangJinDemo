@@ -1334,19 +1334,19 @@
             //INS 10.07.2024
             $('.table-reponsive').gridLoader({ show: false });
             console.log("array_Seach:", array_Seach);
-            const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + funcExcel, 'POST', array_Seach , fileNameExport);
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + funcExcel, 'POST', array_Seach, fileNameExport);
 
             if (exportOK) {
                 detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
-                        var objDiary = {
-                            ID_NhanVien: _idNhanVien,
-                            ID_DonVi: _idDonVi,
-                            ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
-                            NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
-                            NoiDungChiTiet: detail,
-                            LoaiNhatKy: 6
-                        };
-                        Insert_NhatKyThaoTac_1Param(objDiary);
+                var objDiary = {
+                    ID_NhanVien: _idNhanVien,
+                    ID_DonVi: _idDonVi,
+                    ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
+                    NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
+                    NoiDungChiTiet: detail,
+                    LoaiNhatKy: 6
+                };
+                Insert_NhatKyThaoTac_1Param(objDiary);
             }
             //ajaxHelper(ReportUri + funcExcel, 'POST', array_Seach).done(function (obj) {
             //    $('.table-reponsive').gridLoader({ show: false });
@@ -1566,7 +1566,7 @@
 
         switch (thisVal) {
             case 1:
-            //case 5:
+                //case 5:
                 $('a[href = "#theohanghoa"]').addClass('box-tab');
                 $('a[href = "#hoahongchitiet"]').addClass('box-tab');
                 $('#theohanghoa').addClass('active');
