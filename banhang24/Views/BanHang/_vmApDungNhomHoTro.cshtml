@@ -208,7 +208,12 @@
                                             </span><br />
                                             <input type="text" placeholder="Ghi chú" class="ghichubr"
                                                    v-on:keyup.13="Enter_FocusNext(0)"
+                                                   v-model="item.GhiChu"
                                                    v-on:keyup="PublicProducts_EditGhiChu(index)" />
+                                            <span v-if="item.BH_NhanVienThucHien.length > 0">
+                                                <span>NVTH:</span>
+                                                <span> {{item.BH_NhanVienThucHien.map(function(x){return x.TenNhanVien}).toString(',')}}</span>
+                                            </span>
                                         </td>
                                         <td class="td-input-bottom">
                                             <input type="text"
@@ -868,6 +873,7 @@
                     GhiChu: '',
                     BH_NhanVienThucHien: [],
                     ThanhPhan_DinhLuong: [],
+                    QuanLyTheoLoHang: false,
                 };
                 self.PublicProducts.unshift(obj);
                 self.Caculator_TongSLXuat(0);
@@ -894,6 +900,7 @@
                     GhiChu: '',
                     BH_NhanVienThucHien: [],
                     ThanhPhan_DinhLuong: [],
+                    QuanLyTheoLoHang: false,
                 };
                 self.DayProducts.unshift(obj);
                 self.Caculator_TongSLXuat(1);
@@ -1111,15 +1118,56 @@
                     }
                 }
             },
-            showModalTPDL: function (item) {
+            showModalTPDL: async function (item) {
+                let self = this;
                 if (formatNumberToFloat(item.SoLuong) === 0) {
                     ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập nguyên vật liệu');
                     return;
                 }
+                if (item.ThanhPhan_DinhLuong !== null && item.ThanhPhan_DinhLuong.length > 0) {
+                    vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed = item.ThanhPhan_DinhLuong;
+                }
+                else {
+                    const dataTPDL = await self.GetDinhLuongDV_FromIDQuyDoi(item.Id_DonViQuiDoi);
+                    let arrTPDinhLuong = [];
+                    for (let i = 0; i < dataTPDL.length; i++) {
+                        dataTPDL[i].STT = i + 1;
+                        dataTPDL[i].GhiChu = '';
+                        dataTPDL[i].isDefault = false;
+                        dataTPDL[i].IDRandom = 'TPDL_' + Math.floor(Math.random() * 10000000 + 1);
+                        dataTPDL[i].SoLuongMacDinh = 1 / item.SoLuong;;
+                        dataTPDL[i].SoLuong = formatNumber3Digit(item.SoLuong * dataTPDL[i].SoLuong);
+                        dataTPDL[i].SoLuongQuyCach = dataTPDL[i].SoLuong * dataTPDL[i].QuyCach;
+                        dataTPDL[i].GiaVonAfter = dataTPDL[i].SoLuong * dataTPDL[i].GiaVon;// = GiaVon(co ban) * SoLuong
+                        arrTPDinhLuong.push(dataTPDL[i]);
+                    }
+                    vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed = arrTPDinhLuong;
+                }
 
                 vmThanhPhanDinhLuong.DichVu_isDoing = item;
-                vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed = item.ThanhPhan_DinhLuong;
+
                 vmThanhPhanDinhLuong.showModal(false, false, 1);
+            },
+            GetTonKho_byIDQuyDoi: async function (param) {
+                let xx = await ajaxHelper('/api/DanhMuc/DM_HangHoaAPI/' + 'GetTonKho_byIDQuyDois', 'POST', param).done(function (x) { })
+                    .then(function (x) {
+                        if (x.res) return x.data;
+                        return [];
+                    }).fail(function () {
+                        return [];
+                    });
+                return xx;
+            },
+            GetDinhLuongDV_FromIDQuyDoi: async function (idQuiDoi) {
+                let self = this;
+                let xx = await ajaxHelper('/api/DanhMuc/DM_HangHoaAPI/' + 'GetDinhLuongDV_FromIDQuyDoi?idQuiDoi=' + idQuiDoi + '&idDonVi=' + self.inforLogin.ID_DonVi, 'GET').done(function (x) { })
+                    .then(function (x) {
+                        if (x.res) return x.dataSoure;
+                        return [];
+                    }).fail(function () {
+                        return [];
+                    });
+                return xx;
             },
             Agree_TPDL: function () {
                 let self = this;
@@ -1298,10 +1346,119 @@
                 }
                 return true;
             },
-            Agree: function () {
+            CheckTonKho: async function () {
+                let self = this;
+
+                let lstCTHD = [];
+                for (var i = 0; i < self.PublicProducts.length; i++) {
+                    let itFor = self.PublicProducts[i];
+                    switch (itFor.LoaiHangHoa) {
+                        case 1:
+                            {
+                                itFor.ID_DonViQuiDoi = itFor.Id_DonViQuiDoi;
+                                lstCTHD.push(itFor);
+                            }
+                            break;
+                        case 2:
+                            {
+                                if (itFor.ThanhPhan_DinhLuong !== null && itFor.ThanhPhan_DinhLuong !== undefined) {
+                                    for (var j = 0; j < itFor.ThanhPhan_DinhLuong.length; j++) {
+                                        let itForIn = itFor.ThanhPhan_DinhLuong[j];
+                                        lstCTHD.push(itForIn);
+                                    }
+                                }
+                                else {
+                                    // get tpdl default (fromDB)
+                                    const dataTPDL = await self.GetDinhLuongDV_FromIDQuyDoi(itFor.Id_DonViQuiDoi);
+                                    for (var j = 0; j < dataTPDL.length; j++) {
+                                        let itForIn = dataTPDL[j];
+                                        lstCTHD.push(itForIn);
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                for (var i = 0; i < self.DayProducts.length; i++) {
+                    let itFor = self.DayProducts[i];
+                    switch (itFor.LoaiHangHoa) {
+                        case 1:
+                            {
+                                itFor.ID_DonViQuiDoi = itFor.Id_DonViQuiDoi;
+                                lstCTHD.push(itFor);
+                            }
+                            break;
+                        case 2:
+                            {
+                                if (itFor.ThanhPhan_DinhLuong !== null && itFor.ThanhPhan_DinhLuong !== undefined) {
+                                    for (var j = 0; j < itFor.ThanhPhan_DinhLuong.length; j++) {
+                                        let itForIn = itFor.ThanhPhan_DinhLuong[j];
+                                        lstCTHD.push(itForIn);
+                                    }
+                                }
+                                else {
+                                    // get tpdl default (fromDB)
+                                    const dataTPDL = await self.GetDinhLuongDV_FromIDQuyDoi(itFor.Id_DonViQuiDoi);
+                                    for (var j = 0; j < dataTPDL.length; j++) {
+                                        let itForIn = dataTPDL[j];
+                                        lstCTHD.push(itForIn);
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                let arrCTNew = GroupCTHD_byIDQuyDoi(lstCTHD);// this func at Public.js
+
+                let arrIDQuyDoi = $.unique(arrCTNew.map(function (x) {
+                    return x.ID_DonViQuiDoi;
+                }));
+                let arrIDLoHang = arrCTNew.map(function (x) {
+                    return x.ID_LoHang;
+                }).filter(x => x !== null);
+
+                let param = {
+                    ID_ChiNhanh: self.inforLogin.ID_DonVi,
+                    IdHoaDonUpdate: self.typeUpdate === 2 ? self.InvoiceChosing.ID : const_GuidEmpty,
+                    ToDate: moment(new Date()).format('YYYY-MM-DD HH:mm'),
+                    ListIDQuyDoi: arrIDQuyDoi,
+                    ListIDLoHang: arrIDLoHang,
+                }
+
+                let msgErr = '';
+                let dataCheck = await self.GetTonKho_byIDQuyDoi(param);
+                if (arrIDQuyDoi.length > 0 && (commonStatisJs.CheckNull(dataCheck) || dataCheck.length === 0)) {
+                    ShowMessage_Danger('Lỗi lấy dữ liệu tồn kho');
+                    return false;
+                }
+                if (commonStatisJs.CheckNull(dataCheck)) return true;
+                for (let i = 0; i < arrCTNew.length; i++) {
+                    let forOut = arrCTNew[i];
+                    let dataDB = $.grep(dataCheck, function (o) {
+                        return o.ID_DonViQuiDoi === forOut.ID_DonViQuiDoi
+                            && (!forOut.QuanLyTheoLoHang || (o.ID_LoHang === forOut.ID_LoHang))
+                    });
+                    if (dataDB.length > 0 && RoundDecimal(dataDB[0].TonKho) < RoundDecimal(formatNumberToFloat(forOut.SoLuong))) {
+                        msgErr += forOut.TenHangHoa.concat(' ', forOut.QuanLyTheoLoHang ? ' (' + forOut.MaLoHang + ') ' : '', ', ');
+                    }
+                }
+                if (!commonStatisJs.CheckNull(msgErr)) {
+                    ShowMessage_Danger('Không đủ tồn kho cho hàng hóa ' + Remove_LastComma(msgErr));
+                    return false;
+                }
+                return true;
+            },
+            Agree: async function () {
                 let self = this;
                 let check = self.CheckSave();
                 if (!check) {
+                    return;
+                }
+
+                let checkTonKho = await self.CheckTonKho();
+                if (!checkTonKho) {
                     return;
                 }
 
@@ -1453,7 +1610,6 @@
 
                     sType = 'Cập nhật';
                     user = ' <br /> Người sửa: ' + VHeader.UserLogin;
-                    console.log('self.inforOld.NhomHang ', self.inforOld)
 
                     sOld = '<br /> <b> Thông tin cũ: </b>';
                     sOld = sOld.concat('<br> Mã hóa đơn: ', self.InvoiceChosing.MaHoaDon);
@@ -1580,7 +1736,6 @@
                             self.CreatePhieuXuat_FromHoaDon(data.ID, 36, true);
 
                             if (self.typeUpdate === 2) {
-                                console.log('ngaylap ', self.inforOld.HoaDon.NgayLapHoaDon, self.InvoiceChosing.NgayLapHoaDon)
                                 if (moment(self.inforOld.HoaDon.NgayLapHoaDon).format('YYYY-MM-DD') !==
                                     moment(self.InvoiceChosing.NgayLapHoaDon, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD')) {
                                     self.ChangeNgayLapHD_UpdatePhieuXuatKho(self.InvoiceChosing.ID);
