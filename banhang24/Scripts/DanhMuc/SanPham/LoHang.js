@@ -444,7 +444,7 @@ var LoHangViewModel = function () {
         SearchHangHoa();
     });
 
-    self.ExportDMHHtoExcel = function () {
+    self.ExportDMHHtoExcel = async function () {
         var objDiary = {
             ID_NhanVien: _id_NhanVien,
             ID_DonVi: _IDchinhanh,
@@ -462,7 +462,7 @@ var LoHangViewModel = function () {
             dataType: 'json',
             contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             data: myData,
-            success: function (item) {
+            success: async function (item) {
                 var columnHide = null;
                 for (var i = 0; i < self.ColumnsExcel().length; i++) {
                     if (i == 0) {
@@ -472,9 +472,12 @@ var LoHangViewModel = function () {
                         columnHide = self.ColumnsExcel()[i] + "_" + columnHide;
                     }
                 }
+
                 var url = DMHangHoaUri + 'ExportExel_DMLoHang?idnhomhang=' + self.arrIDNhomHang() +
                     '&maHoaDon=' + txtmMaHDon_Excel + '&tonkho=' + txtTonKho_Excel + '&columnsHide=' + columnHide + '&iddonvi=' + _IDchinhanh + '&listthuoctinh=' + self.ListThuocTinh() + '&dayStart=' + dayStart_Excel + '&dayEnd=' + dayEnd_Excel + '&time=' + self.TodayBC();
-                window.location.href = url;
+                             
+                const exportOK = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, 'DanhMucLoHang.xlsx');
+              
             },
             statusCode: {
                 404: function () {

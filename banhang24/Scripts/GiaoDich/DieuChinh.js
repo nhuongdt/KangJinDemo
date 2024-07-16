@@ -2871,7 +2871,7 @@
             }
         }
     }
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         if (self.HoaDons().length != 0) {
             var objDiary = {
                 ID_NhanVien: _id_NhanVien,
@@ -2883,6 +2883,8 @@
             };
             var myData = {};
             myData.objDiary = objDiary;
+
+            
             $.ajax({
                 url: DiaryUri + "post_NhatKySuDung",
                 type: 'POST',
@@ -2890,7 +2892,7 @@
                 dataType: 'json',
                 contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                 data: myData,
-                success: function (item) {
+                success: async function (item) {
                     var columnHide = null;
                     for (var i = 0; i < self.ColumnsExcel().length; i++) {
                         if (i == 0) {
@@ -2900,9 +2902,11 @@
                             columnHide = self.ColumnsExcel()[i] + "_" + columnHide;
                         }
                     }
-                    console.log(self.TodayBC(), self.TenChiNhanh());
+                    console.log(self.TodayBC(), self.TenChiNhanh());               
+                   
                     var url = DieuChinhUri + "Export_HoaDonDieuChinh?MaHoaDon=" + _maDC_seach + "&dayStart=" + timeStart + "&dayEnd=" + timeEnd + "&trangthai1=" + _trangthai1 + "&trangthai2=" + _trangthai2 + "&trangthai3=" + _trangthai3 + "&ID_ChiNhanh=" + _tenDonViSeach + "&ColumnsHide=" + columnHide + "&time=" + self.TodayBC() + "&ChiNhanh=" + self.TenChiNhanh();
-                    window.location.href = url;
+                    const ok = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "PhieuDieuChinhGiaVon.xlsx");
+                   
                 },
                 statusCode: {
                     404: function () {
@@ -2920,7 +2924,7 @@
             bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Không có dữ liệu để xuất file excel!", "danger");
         }
     };
-    self.ExportExcel_ChiTiet = function (item) {
+    self.ExportExcel_ChiTiet = async function (item) {
         var objDiary = {
             ID_NhanVien: _id_NhanVien,
             ID_DonVi: _id_DonVi,
@@ -2947,10 +2951,10 @@
             error: function (jqXHR, textStatus, errorThrown) {
                 bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại!", "danger");
             },
-            complete: function () {
+            complete: async function () {
                 var columnHide = null;
                 var url = DieuChinhUri + "Export_HoaDonDieuChinh_ChiTiet?ID_HoaDon=" + item.ID_HoaDon + "&ColumnsHide=" + columnHide + "&time=" + self.TodayBC() + "&ChiNhanh=" + self.TenChiNhanh();
-                window.location.href = url;
+                const ok = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "ChiTietPhieuDieuChinhGiaVon.xlsx");
             }
         })
     }
