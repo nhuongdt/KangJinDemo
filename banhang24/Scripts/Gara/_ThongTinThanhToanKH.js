@@ -707,7 +707,8 @@
                     self.GridNVienBanGoi_Chosed[i].PT_ChietKhau = ptramCK;
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau = formatNumber3Digit(tienCK, 2);
                     self.GridNVienBanGoi_Chosed[i].TienChietKhau_ChuaTruCP = formatNumber3Digit(tienCK_chuatruCP);
-                    self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(gtriCK_After);
+                    // không format ChietKhauMacDinh --> fix lỗi nhập dấu phẩy động
+                    //self.GridNVienBanGoi_Chosed[i].ChietKhauMacDinh = formatNumber3Digit(gtriCK_After);
                     break;
                 }
             }
