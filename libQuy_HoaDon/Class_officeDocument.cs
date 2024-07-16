@@ -5649,7 +5649,7 @@ namespace libQuy_HoaDon
             return dung;
         }
         // kiểm tra trùng dữ liệu
-        private bool GroupData(DataTable pData, string filterExpression)
+        public bool GroupData(DataTable pData, string filterExpression)
         {
             // for (int i )
             bool dung = true;
