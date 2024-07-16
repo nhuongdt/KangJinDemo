@@ -198,10 +198,11 @@
             }
             return true;
         },
-        ExportExcel: function () {
+        ExportExcel: async function () {
             let self = this;
             let sChiNhanh = self.listData.ChiNhanhs.filter(p => p.CNChecked === true).map(p => p.TenDonVi).toString();
             let param = self.GetParamSearch();
+            let fileNameExport = '';
             switch (parseInt(self.LoaiBaoCao)) {
                 case 1:
                     param.PageSize = self.BaoCaoTongHop.TotalRow;
@@ -216,27 +217,27 @@
                     param.ReportTime = self.BaoCaoThoiGianText;
                     param.ReportBranch = sChiNhanh;
                     urlExport = 'Export_GiaVonTieuChuan_ChiTiet';
+                    fileNameExport = 'DanhMucGiaVonTieuChuan.xlsx';
                     break;
-            }
-            ajaxHelper(self.urlApi.BHDieuChinh + urlExport, 'POST', param).done(function (pathFile) {
-                if (pathFile!=='') {
-                    let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
-                    window.location.href = url;
-                    commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+            }                 
 
-                    let diary = {
-                        ID_DonVi: VHeader.IdDonVi,
-                        ID_NhanVien: VHeader.IdNhanVien,
-                        LoaiNhatKy: 6,
-                        ChucNang: 'Danh mục giá vốn tiêu chuẩn',
-                        NoiDung: 'Xuất file danh mục giá vốn tiêu chuẩn',
-                        NoiDungChiTiet: 'Xuất file danh mục giá vốn tiêu chuẩn '.
-                            concat(parseInt(self.LoaiBaoCao) == 1 ? ' - tổng hợp' : ' - chi tiết',
-                                '<br /> Người xuất: ', VHeader.UserLogin),
-                    }
-                    Insert_NhatKyThaoTac_1Param(diary);
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(self.urlApi.BHDieuChinh + urlExport, 'POST', param, fileNameExport);
+
+            if (exportOK) {
+
+                detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
+                let diary = {
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    LoaiNhatKy: 6,
+                    ChucNang: 'Danh mục giá vốn tiêu chuẩn',
+                    NoiDung: 'Xuất file danh mục giá vốn tiêu chuẩn',
+                    NoiDungChiTiet: 'Xuất file danh mục giá vốn tiêu chuẩn '.
+                        concat(parseInt(self.LoaiBaoCao) == 1 ? ' - tổng hợp' : ' - chi tiết',
+                            '<br /> Người xuất: ', VHeader.UserLogin),
                 }
-            })
+                Insert_NhatKyThaoTac_1Param(diary);
+            }
         },
 
         BaoCaoTongHopPageChange: function (value) {

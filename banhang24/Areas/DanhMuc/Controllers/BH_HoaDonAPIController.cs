@@ -776,6 +776,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 string columsort = null;
                 string sort = null;
                 var lstAllHDs = classhoadon.GetListHoaDonsKK_Where(loaiHoaDon, maHoaDon, trangThai, dayStart, dayEnd, iddonvi, arrChiNhanh, columsort, sort);
@@ -795,11 +797,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 DataTable excel = _classOFDCM.ToDataTable<BH_KiemKho_Excel>(lst);
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_KiemKhoHangHoa.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/KiemKhoHangHoa.xlsx");
-                fileSave = _classOFDCM.createFolder_Download(fileSave);
-                _classOFDCM.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, columnsHide, time, TenChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                _classOFDCM.downloadFile(fileSave);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(TenChiNhanh, time);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell, -1);
+              
+               
             }
         }
         [System.Web.Http.AcceptVerbs("GET", "POST")]
@@ -808,17 +809,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<SqlParameter> paramlist = new List<SqlParameter>();
                 paramlist.Add(new SqlParameter("ID_HoaDon", ID_HoaDon));
                 List<BH_KiemKhoChiTiet_Excel> lst = db.Database.SqlQuery<BH_KiemKhoChiTiet_Excel>("EXEC GetListChiTietHoaDonKiemKhoXuatFile @ID_HoaDon", paramlist.ToArray()).ToList();
 
                 DataTable excel = _classOFDCM.ToDataTable<BH_KiemKhoChiTiet_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_KiemKhoHangHoa _ChiTiet.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/KiemKhoHangHoa_ChiTiet.xlsx");
-                fileSave = _classOFDCM.createFolder_Download(fileSave);
-                _classOFDCM.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, false, columnsHide);
-                HttpResponse Response = HttpContext.Current.Response;
-                _classOFDCM.downloadFile(fileSave);
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_KiemKhoHangHoa _ChiTiet.xlsx");              
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, columnsHide, null, -1);
             }
         }
         public List<BH_HoaDonDTO> GetListHoaDonsKiemKho_where(int currentPage, int pageSize, int loaiHoaDon, string maHoaDon,
@@ -1260,7 +1259,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
-                string fileSave = string.Empty;
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();              
                 try
                 {
                     List<BH_HoaDonDTO> lstAllHDs = classhoadon.GetListInvoice_Paging(listParams);
@@ -1283,8 +1283,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     DataTable excel = _classOFDCM.ToDataTable<HoaDonBaoHanhExcel>(lst);
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Temp_HoaDonBaoHanh.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachHoaDonBaoHanh.xlsx");
-                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+               
                     var valExcel1 = string.Empty;
                     if (listParams.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
                     {
@@ -1294,16 +1293,29 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = listParams.NgayTaoHD_TuNgay + " - " + listParams.NgayTaoHD_DenNgay;
                     }
-                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
+                    {
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 2,
+                            ColumnIndex = 1,
+                            CellValue = valExcel1
+                        },
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 3,
+                            ColumnIndex = 1,
+                            CellValue = listParams.ValueText
+                        }
+                    };
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, listParams.ColumnsHide, lstCell, -1);
+                   
                 }
                 catch (Exception ex)
                 {
                     CookieStore.WriteLog("ExportExcel_HoaDonBaoHanh " + ex.InnerException + ex.Message);
                 }
-                return fileSave;
+                return string.Empty;
             }
         }
 
@@ -1380,15 +1392,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             CellValue = listParams.ValueText
                         }
                     };
-
-                    classNPOIExcel.ExportDataToExcel(fileTeamplate, excel, 6, listParams.ColumnsHide, lstCell,30);
-                    //_classOFDCM.downloadFile(fileSave);
-                    //string virtualPath = fileSave.Replace(HttpContext.Current.Server.MapPath("~/"), "~/").Replace("\\", "/");
-                    //return Download(stream, "DanhSachHoaDonBanLe.xlsx");
-                    //_classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, listParams.ColumnsHide, valExcel1, listParams.ValueText);
-                    //var index = fileSave.IndexOf(@"\Template");
-                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    //fileSave = fileSave.Replace(@"\", "/");
+                    
+                    classNPOIExcel.ExportDataToExcel(fileTeamplate, excel, 6, listParams.ColumnsHide, lstCell);
+                    
                 }
                 catch (Exception ex)
                 {

@@ -695,7 +695,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     GiaVon = c.GiaVon,
                 }).ToList();
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
-                string fileSave = string.Empty;
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                
                 try
                 {
                     DataTable excel = _classOFDCM.ToDataTable<Excel_PhieuDieuChinhChiTiet>(lst);
@@ -706,19 +708,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucGiaVonTieuChuan.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhMucGiaVonTieuChuan.xlsx");
-                    fileSave = _classOFDCM.createFolder_Download(fileSave);
-                    _classOFDCM.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 5, 29, 24, true, 0, columnHide, param.ReportTime, param.ReportBranch);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.ReportBranch, param.ReportTime);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, columnHide, lstCell, -1);
+                   
                 }
                 catch (Exception ex)
                 {
                     CookieStore.WriteLog("Export_GiaVonTieuChuan_ChiTiet " + ex.InnerException + ex.Message);
                 }
-                return fileSave;
+                return string.Empty;
             }
         }
 
@@ -821,6 +819,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
 
                 List<HD_DieuChinhPRC> lst = new List<HD_DieuChinhPRC>();
                 string maHD_search = string.Empty;
@@ -848,11 +848,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("NguoiTao");
                 excel.Columns.Remove("NguoiDieuChinh");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_PhieuDieuChinhGiaVon.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/PhieuDieuChinhGiaVon.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, columnsHide, time, ChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                classOffice.downloadFile(fileSave);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(ChiNhanh, time);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell);
+               
             }
         }
         [HttpGet]
@@ -881,6 +879,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<HD_DieuChinhChiTietPRC> lst = new List<HD_DieuChinhChiTietPRC>();
                 List<SqlParameter> paramlist = new List<SqlParameter>();
                 paramlist.Add(new SqlParameter("ID_HoaDon", ID_HoaDon));
@@ -897,14 +897,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("NgayHetHan");
                 excel.Columns.Remove("GiaVonTang");
                 excel.Columns.Remove("GiaVonGiam");
-                excel.Columns.Remove("ChenhLech");
+                //excel.Columns.Remove("ChenhLech");
                 excel.Columns.Remove("SoThuTu");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_ChiTietPhieuDieuChinhGiaVon.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/ChiTietPhieuDieuChinhGiaVon.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, columnsHide, time, ChiNhanh);
-                HttpResponse Response = HttpContext.Current.Response;
-                classOffice.downloadFile(fileSave);
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(ChiNhanh, time);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell);
+             
             }
         }
         #endregion

@@ -1271,11 +1271,13 @@
             var txtLoaiHD = 'Hóa đơn';
             var funcName = 'ExportExcel_HoaDonBanLe'; // loai 1, 19, 2
             var noidungNhatKy = "Xuất excel danh sách hóa đơn";
+            let fileNameExport = '';
 
             switch (loaiHoaDon) {
                 case 1:
                     GetColumHide(1);
                     funcName = 'ExportExcel_HoaDonBanLe';
+                    fileNameExport = 'HoaDonBanLe.xlsx'
                     break;
                 case 25:
                     funcName = 'ExportExcel_HoaDonSuaChua';
@@ -1286,6 +1288,7 @@
                     txtLoaiHD = 'Hóa đơn bảo hành';
                     funcName = 'ExportExcel_HoaDonBaoHanh';
                     noidungNhatKy = "Xuất excel danh sách hóa đơn bảo hành";
+                    fileNameExport = 'DanhSachHoaDonBaoHanh.xlsx';
                     break;
                 case 3:
                     GetColumHide(0);
@@ -1311,7 +1314,7 @@
             //}
             //})
 
-            const exportOK = commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon, "HoaDonBanLe.xlsx")
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon, fileNameExport)
             if (exportOK) {
                 var objDiary = {
                     ID_NhanVien: _id_NhanVien,
