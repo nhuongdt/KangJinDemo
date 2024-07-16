@@ -11989,6 +11989,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         objHoaDon.ID = idHoaDon;
                         objHoaDon.NgayTao = DateTime.Now;
                         objHoaDon.ID_DoiTuong = objHoaDon.ID_DoiTuong == null ? Guid.Empty : objHoaDon.ID_DoiTuong;
+                        objHoaDon.NgayLapHoaDon = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
 
                         if (string.IsNullOrEmpty(objHoaDon.MaHoaDon))
                         {
@@ -11999,12 +12000,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             if (idHoaDonOld != null && idHoaDonOld != Guid.Empty)
                             {
                                 // update hdHoTro: huy phieu cu + phat sinh phieu moi
-                                string[] arrMa = objHoaDon.MaHoaDon.Split('_');
                                 string maGoc = objHoaDon.MaHoaDon;
-                                if (arrMa.Length > 0)
-                                {
-                                    maGoc = arrMa[0];
-                                }
                                 var count = db.BH_HoaDon.Where(x => x.MaHoaDon.Contains(maGoc)).Count();
                                 if (count > 0)
                                 {
