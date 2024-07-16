@@ -1049,20 +1049,377 @@ namespace libQuy_HoaDon
         }
         #endregion
         #region Import Customer
-        public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet, Guid idDonvi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
+        //public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet, Guid idDonvi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
+        //{
+        //    List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+        //    Dictionary<string, List<int>> maKHTracker = new Dictionary<string, List<int>>();
+        //    using (SsoftvnContext db = SystemDBContext.GetDBContext())
+        //    {
+        //        classDM_DoiTuong classDMDoiTuong = new classDM_DoiTuong(db);
+        //        Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
+        //        var lastRow = sheet.PhysicalNumberOfRows;
+        //        System.Data.DataTable dataTable = new System.Data.DataTable();
+        //        for (int col = 0; col < sheet.GetRow(2).LastCellNum; col++)
+        //        {
+        //            dataTable.Columns.Add("Column" + col);
+        //        }
+        //        for (int rowIndex = 3; rowIndex < lastRow; rowIndex++)
+        //        {
+        //            IRow row = sheet.GetRow(rowIndex);
+        //            if (row != null)
+        //            {
+        //                string tenNhomKhachHang = row.GetCell(1)?.ToString();
+        //                string nguonKhach = row.GetCell(2)?.ToString();
+        //                string statusKhach = row.GetCell(3)?.ToString();
+        //                string maKH = row.GetCell(4)?.ToString();
+        //                string tenKhachHang = row.GetCell(5)?.ToString();
+        //                string gender = row.GetCell(6)?.ToString().Trim();
+        //                string loaiKhach = row.GetCell(7)?.ToString().Trim();
+        //                string ngaySinh = row.GetCell(8)?.ToString().Trim();
+        //                string diachi = row.GetCell(9)?.ToString().Trim();
+        //                string email = row.GetCell(10)?.ToString().Trim();
+        //                string soDienThoai = row.GetCell(11)?.ToString().Trim();
+        //                string note = row.GetCell(12)?.ToString().Trim();
+        //                string maSoThue = row.GetCell(13)?.ToString().Trim();
+        //                string noCanThu = row.GetCell(14)?.ToString().Trim();
+        //                string noCanTra = row.GetCell(15)?.ToString().Trim();
+        //                string sumTichDiem = row.GetCell(16)?.ToString().Trim();
+        //                string soDu = row.GetCell(17)?.ToString().Trim();
+
+        //                // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
+        //                if (string.IsNullOrEmpty(tenNhomKhachHang) && string.IsNullOrEmpty(nguonKhach) &&
+        //                    string.IsNullOrEmpty(statusKhach) && string.IsNullOrEmpty(maKH) &&
+        //                    string.IsNullOrEmpty(tenKhachHang) && string.IsNullOrEmpty(gender) &&
+        //                    string.IsNullOrEmpty(soDienThoai))
+        //                {
+        //                    continue;
+        //                }
+
+        //                if (!string.IsNullOrEmpty(maKH))
+        //                {
+        //                    if (maKHTracker.ContainsKey(maKH))
+        //                    {
+        //                        ErrorDMHangHoa DM = new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Mã khách hàng",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = maKH,
+        //                            DienGiai = "Mã khách hàng: " + maKH + " bị trùng lặp",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        };
+        //                        lstError.Add(DM);
+        //                    }
+        //                    else
+        //                    {
+        //                        maKHTracker[maKH] = new List<int> { rowIndex + 1 };
+        //                    }
+
+        //                    // Kiểm tra sự tồn tại của mã khách hàng trong cơ sở dữ liệu
+        //                    var checkExist = classDMDoiTuong.Get(x => x.MaDoiTuong == maKH && x.ID_DonVi == idDonvi) != null;
+        //                    if (checkExist)
+        //                    {
+        //                        ErrorDMHangHoa DM = new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Mã khách hàng",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = maKH,
+        //                            DienGiai = "Mã khách hàng: " + maKH + " đã tồn tại",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        };
+        //                        lstError.Add(DM);
+        //                    }
+        //                }
+
+        //                // Kiểm tra tên khách hàng
+        //                if (string.IsNullOrEmpty(tenKhachHang))
+        //                {
+        //                    lstError.Add(new ErrorDMHangHoa
+        //                    {
+        //                        TenTruongDuLieu = "Tên khách hàng",
+        //                        ViTri = (rowIndex + 1).ToString(),
+        //                        ThuocTinh = tenKhachHang,
+        //                        DienGiai = "Tên khách hàng không được để trống",
+        //                        rowError = rowIndex,
+        //                        loaiError = 1
+        //                    });
+        //                }
+
+        //                // Kiểm tra giới tính
+        //                if (gender != "x" && gender != "")
+        //                {
+        //                    lstError.Add(new ErrorDMHangHoa
+        //                    {
+        //                        TenTruongDuLieu = "Giới tính",
+        //                        ViTri = (rowIndex + 1).ToString(),
+        //                        ThuocTinh = gender,
+        //                        DienGiai = "Giới tính là Nam: bạn cần đánh dấu x",
+        //                        rowError = rowIndex,
+        //                        loaiError = 1
+        //                    });
+        //                }
+
+        //                // Kiểm tra loại khách
+        //                if (loaiKhach != "x" && loaiKhach != "")
+        //                {
+        //                    lstError.Add(new ErrorDMHangHoa
+        //                    {
+        //                        TenTruongDuLieu = "Loại khách",
+        //                        ViTri = (rowIndex + 1).ToString(),
+        //                        ThuocTinh = loaiKhach,
+        //                        DienGiai = "Là công ty: bạn cần đánh dấu x",
+        //                        rowError = rowIndex,
+        //                        loaiError = 1
+        //                    });
+        //                }
+
+        //                // Kiểm tra ngày sinh
+        //                if (!string.IsNullOrEmpty(ngaySinh))
+        //                {
+        //                    bool valiDateNgaySinh = class_OfficeDocument.ValidateDateTime(ngaySinh);
+        //                    if (!valiDateNgaySinh)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Ngày sinh/thành lập",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = ngaySinh,
+        //                            DienGiai = "Ngày sinh/thành lập không hợp lệ",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                    else
+        //                    {
+        //                        try
+        //                        {
+        //                            DateTime dateTime = Convert.ToDateTime(ngaySinh);
+        //                            if (dateTime > DateTime.Now)
+        //                            {
+        //                                lstError.Add(new ErrorDMHangHoa
+        //                                {
+        //                                    TenTruongDuLieu = "Ngày sinh/thành lập",
+        //                                    ViTri = (rowIndex + 1).ToString(),
+        //                                    ThuocTinh = ngaySinh,
+        //                                    DienGiai = "Ngày sinh/thành lập không được lớn hơn ngày hiện tại",
+        //                                    rowError = rowIndex,
+        //                                    loaiError = 1
+        //                                });
+        //                            }
+        //                        }
+        //                        catch
+        //                        {
+        //                            lstError.Add(new ErrorDMHangHoa
+        //                            {
+        //                                TenTruongDuLieu = "Ngày sinh/thành lập",
+        //                                ViTri = (rowIndex + 1).ToString(),
+        //                                ThuocTinh = ngaySinh,
+        //                                DienGiai = "Ngày sinh/thành lập không hợp lệ",
+        //                                rowError = rowIndex,
+        //                                loaiError = 1
+        //                            });
+        //                        }
+        //                    }
+        //                }
+
+        //                // Kiểm tra email
+        //                if (!string.IsNullOrEmpty(email))
+        //                {
+        //                    bool valiDateEmail = class_OfficeDocument.ValidateEmail(email);
+        //                    if (!valiDateEmail)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Email",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = email,
+        //                            DienGiai = "Email không hợp lệ",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                    bool duplicateEmail = class_OfficeDocument.GroupData(dataTable, "Email = '" + email + "'");
+        //                    if (!duplicateEmail)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa 
+        //                        {
+        //                            TenTruongDuLieu = "Email",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = email,
+        //                            DienGiai = "Email bị trùng lặp",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+
+        //                    var existEmail = classDMDoiTuong.Get(x => x.Email.Contains(email));
+        //                    if (existEmail != null)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Email",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = email,
+        //                            DienGiai = "Email đã tồn tại",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                }
+        //                int chophepTrungSDT = 0;
+        //                // Kiểm tra số điện thoại
+        //                if (!string.IsNullOrEmpty(soDienThoai))
+        //                {
+        //                    if (chophepTrungSDT == 0)
+        //                    {
+        //                        bool duplicateSDT = class_OfficeDocument.GroupData(dataTable, "DienThoai = '" + soDienThoai + "'");
+        //                        if (!duplicateSDT)
+        //                        {
+        //                            lstError.Add(new ErrorDMHangHoa
+        //                            {
+        //                                TenTruongDuLieu = "Điện thoại",
+        //                                ViTri = (rowIndex + 1).ToString(),
+        //                                ThuocTinh = soDienThoai,
+        //                                DienGiai = "Số điện thoại: " + soDienThoai + " bị trùng lặp",
+        //                                rowError = rowIndex,
+        //                                loaiError = 1
+        //                            });
+        //                        }
+        //                    }
+
+        //                    bool checkSDT = classDMDoiTuong.SP_CheckSoDienThoai_Exist(soDienThoai);
+        //                    if (checkSDT)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Điện thoại",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = soDienThoai,
+        //                            DienGiai = "Số điện thoại: " + soDienThoai + " đã tồn tại trong cơ sở dữ liệu",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                }
+
+        //                // Kiểm tra nợ cần thu
+        //                if (!string.IsNullOrEmpty(noCanThu))
+        //                {
+        //                    bool isNumber = class_OfficeDocument.IsNumberInt(noCanThu);
+        //                    if (!isNumber)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Nợ cần thu",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = noCanThu,
+        //                            DienGiai = "Nợ cần thu không phải dạng số",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                }
+
+        //                // Kiểm tra nợ cần trả
+        //                if (!string.IsNullOrEmpty(noCanTra))
+        //                {
+        //                    bool isNumber = class_OfficeDocument.IsNumberInt(noCanTra);
+        //                    if (!isNumber)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Nợ cần trả",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = noCanTra,
+        //                            DienGiai = "Nợ cần trả không phải dạng số",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                }
+
+        //                // Kiểm tra tổng tích điểm
+        //                if (!string.IsNullOrEmpty(sumTichDiem))
+        //                {
+        //                    bool isNumber = class_OfficeDocument.IsNumberInt(sumTichDiem);
+        //                    if (!isNumber)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Tổng tích điểm",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = sumTichDiem,
+        //                            DienGiai = "Tổng tích điểm không phải dạng số",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                }
+
+        //                // Kiểm tra số dư thẻ
+        //                if (!string.IsNullOrEmpty(soDu))
+        //                {
+        //                    bool isNumber = class_OfficeDocument.IsNumberInt(soDu);
+        //                    if (!isNumber)
+        //                    {
+        //                        lstError.Add(new ErrorDMHangHoa
+        //                        {
+        //                            TenTruongDuLieu = "Số dư thẻ",
+        //                            ViTri = (rowIndex + 1).ToString(),
+        //                            ThuocTinh = soDu,
+        //                            DienGiai = "Số dư thẻ không phải dạng số",
+        //                            rowError = rowIndex,
+        //                            loaiError = 1
+        //                        });
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return lstError;
+        //}
+        public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet)
         {
             List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
-            Dictionary<string, List<int>> maKHTracker = new Dictionary<string, List<int>>();
+            Dictionary<string, List<int>> maKhachHangTracker = new Dictionary<string, List<int>>();
+            Dictionary<string, List<int>> emailTracker = new Dictionary<string, List<int>>();
+            Dictionary<string, List<int>> soDienThoaiTracker = new Dictionary<string, List<int>>();
+
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                classDM_DoiTuong classDMDoiTuong = new classDM_DoiTuong(db);
-                Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
-                var lastRow = sheet.PhysicalNumberOfRows;
+                classDM_DoiTuong classdoituong = new classDM_DoiTuong(db);
                 System.Data.DataTable dataTable = new System.Data.DataTable();
-                for (int col = 0; col < sheet.GetRow(2).LastCellNum; col++)
+
+                // Create DataTable schema
+                dataTable.Columns.Add("KhachHang");
+                dataTable.Columns.Add("Email");
+                dataTable.Columns.Add("DienThoai");
+
+                int tcool = sheet.GetRow(3).LastCellNum;
+                for (int j = 0; j < tcool; j++)
                 {
-                    dataTable.Columns.Add("Column" + col);
+                    dataTable.Columns.Add();
                 }
+                for (int rowIndex = 3; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+                    if (row != null)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["KhachHang"] = row.GetCell(4)?.ToString(); // Column for MaKhachHang
+                        dataRow["Email"] = row.GetCell(10)?.ToString(); // Column for Email
+                        dataRow["DienThoai"] = row.GetCell(11)?.ToString(); // Column for DienThoai
+                        for (int colIndex = 0; colIndex < tcool; colIndex++)
+                        {
+                            dataRow[colIndex + 3] = row.GetCell(colIndex)?.ToString();
+                        }
+                        dataTable.Rows.Add(dataRow);
+                    }
+                }
+                Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
+                // Duyệt bắt đầu từ dòng số 3
+                var lastRow = sheet.PhysicalNumberOfRows;
                 for (int rowIndex = 3; rowIndex < lastRow; rowIndex++)
                 {
                     IRow row = sheet.GetRow(rowIndex);
@@ -1084,65 +1441,74 @@ namespace libQuy_HoaDon
                         string noCanThu = row.GetCell(14)?.ToString().Trim();
                         string noCanTra = row.GetCell(15)?.ToString().Trim();
                         string sumTichDiem = row.GetCell(16)?.ToString().Trim();
-                        string soDu = row.GetCell(17)?.ToString().Trim();
+                        string soDuThe = row.GetCell(17)?.ToString().Trim();
 
-                        // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
-                        if (string.IsNullOrEmpty(tenNhomKhachHang) && string.IsNullOrEmpty(nguonKhach) &&
-                            string.IsNullOrEmpty(statusKhach) && string.IsNullOrEmpty(maKH) &&
-                            string.IsNullOrEmpty(tenKhachHang) && string.IsNullOrEmpty(gender) &&
-                            string.IsNullOrEmpty(soDienThoai))
+                        // Bỏ qua dòng có dữ liệu trống soDuThe
+                        if (string.IsNullOrEmpty(tenNhomKhachHang) && string.IsNullOrEmpty(nguonKhach) && string.IsNullOrEmpty(statusKhach)
+                            && string.IsNullOrEmpty(maKH) && string.IsNullOrEmpty(tenKhachHang) && string.IsNullOrEmpty(gender)
+                            && string.IsNullOrEmpty(loaiKhach) && string.IsNullOrEmpty(ngaySinh) && string.IsNullOrEmpty(diachi)
+                            && string.IsNullOrEmpty(email) && string.IsNullOrEmpty(soDienThoai) && string.IsNullOrEmpty(note)
+                            && string.IsNullOrEmpty(maSoThue) && string.IsNullOrEmpty(noCanThu) && string.IsNullOrEmpty(noCanTra)
+                            && string.IsNullOrEmpty(sumTichDiem))
                         {
                             continue;
                         }
 
+                        // Kiểm tra mã khách hàng không chứa ký tự đặc biệt
+                        bool isValidMaKH = class_OfficeDocument.kiemtrakitu(maKH);
+                        if (!isValidMaKH)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã khách hàng",
+                                ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
+                                ThuocTinh = maKH,
+                                DienGiai = "Mã khách hàng không được chứa ký tự đặc biệt",
+                                rowError = rowIndex
+                            });
+                        }
+
+                        // Kiểm tra trùng lặp mã khách hàng
+                        
+                        if (!class_OfficeDocument.GroupData(dataTable, $"Column4 = '{maKH}'"))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã khách hàng",
+                                ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
+                                ThuocTinh = maKH,
+                                DienGiai = "Mã khách hàng: " + maKH + " bị trùng lặp",
+                                rowError = rowIndex
+                            });
+                        }
+
+                        // Kiểm tra sự tồn tại của mã khách hàng trong cơ sở dữ liệu
                         if (!string.IsNullOrEmpty(maKH))
                         {
-                            if (maKHTracker.ContainsKey(maKH))
+                            DM_DoiTuong objDT = classdoituong.Get(x => x.MaDoiTuong == maKH);
+                            if (objDT != null)
                             {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã khách hàng",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = maKH,
-                                    DienGiai = "Mã khách hàng: " + maKH + " bị trùng lặp",
-                                    rowError = rowIndex,
-                                    loaiError = 1
-                                };
-                                lstError.Add(DM);
-                            }
-                            else
-                            {
-                                maKHTracker[maKH] = new List<int> { rowIndex + 1 };
-                            }
-
-                            // Kiểm tra sự tồn tại của mã khách hàng trong cơ sở dữ liệu
-                            var checkExist = classDMDoiTuong.Get(x => x.MaDoiTuong == maKH && x.ID_DonVi == idDonvi) != null;
-                            if (checkExist)
-                            {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
-                                {
-                                    TenTruongDuLieu = "Mã khách hàng",
-                                    ViTri = (rowIndex + 1).ToString(),
-                                    ThuocTinh = maKH,
-                                    DienGiai = "Mã khách hàng: " + maKH + " đã tồn tại",
-                                    rowError = rowIndex,
-                                    loaiError = 1
-                                };
-                                lstError.Add(DM);
+                                    DienGiai = "Mã khách hàng: " + maKH + " đã tồn tại trong cơ sở dữ liệu",
+                                    rowError = rowIndex
+                                });
                             }
                         }
 
-                        // Kiểm tra tên khách hàng
+                        // Kiểm tra tên khách hàng không được để trống
                         if (string.IsNullOrEmpty(tenKhachHang))
                         {
                             lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Tên khách hàng",
-                                ViTri = (rowIndex + 1).ToString(),
+                                ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                 ThuocTinh = tenKhachHang,
                                 DienGiai = "Tên khách hàng không được để trống",
-                                rowError = rowIndex,
-                                loaiError = 1
+                                rowError = rowIndex
                             });
                         }
 
@@ -1152,42 +1518,39 @@ namespace libQuy_HoaDon
                             lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Giới tính",
-                                ViTri = (rowIndex + 1).ToString(),
+                                ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                 ThuocTinh = gender,
                                 DienGiai = "Giới tính là Nam: bạn cần đánh dấu x",
-                                rowError = rowIndex,
-                                loaiError = 1
+                                rowError = rowIndex
                             });
                         }
 
-                        // Kiểm tra loại khách
+                        // Kiểm tra loại khách hàng
                         if (loaiKhach != "x" && loaiKhach != "")
                         {
                             lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Loại khách",
-                                ViTri = (rowIndex + 1).ToString(),
+                                ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                 ThuocTinh = loaiKhach,
                                 DienGiai = "Là công ty: bạn cần đánh dấu x",
-                                rowError = rowIndex,
-                                loaiError = 1
+                                rowError = rowIndex
                             });
                         }
 
                         // Kiểm tra ngày sinh
                         if (!string.IsNullOrEmpty(ngaySinh))
                         {
-                            bool valiDateNgaySinh = class_OfficeDocument.ValidateDateTime(ngaySinh);
-                            if (!valiDateNgaySinh)
+                            bool isValidNgaySinh = class_OfficeDocument.ValidateDateTime(ngaySinh);
+                            if (!isValidNgaySinh)
                             {
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Ngày sinh/thành lập",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = ngaySinh,
                                     DienGiai = "Ngày sinh/thành lập không hợp lệ",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                             else
@@ -1200,105 +1563,85 @@ namespace libQuy_HoaDon
                                         lstError.Add(new ErrorDMHangHoa
                                         {
                                             TenTruongDuLieu = "Ngày sinh/thành lập",
-                                            ViTri = (rowIndex + 1).ToString(),
+                                            ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                             ThuocTinh = ngaySinh,
                                             DienGiai = "Ngày sinh/thành lập không được lớn hơn ngày hiện tại",
-                                            rowError = rowIndex,
-                                            loaiError = 1
+                                            rowError = rowIndex
                                         });
                                     }
                                 }
-                                catch
-                                {
-                                    lstError.Add(new ErrorDMHangHoa
-                                    {
-                                        TenTruongDuLieu = "Ngày sinh/thành lập",
-                                        ViTri = (rowIndex + 1).ToString(),
-                                        ThuocTinh = ngaySinh,
-                                        DienGiai = "Ngày sinh/thành lập không hợp lệ",
-                                        rowError = rowIndex,
-                                        loaiError = 1
-                                    });
-                                }
+                                catch { }
                             }
                         }
 
                         // Kiểm tra email
                         if (!string.IsNullOrEmpty(email))
                         {
-                            bool valiDateEmail = class_OfficeDocument.ValidateEmail(email);
-                            if (!valiDateEmail)
+                            bool isValidEmail = class_OfficeDocument.ValidateEmail(email);
+                            if (!isValidEmail)
                             {
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Email",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = email,
                                     DienGiai = "Email không hợp lệ",
-                                    rowError = rowIndex,
-                                    loaiError = 1
-                                });
-                            }
-                            bool duplicateEmail = class_OfficeDocument.GroupData(dataTable, "Email = '" + email + "'");
-                            if (!duplicateEmail)
-                            {
-                                lstError.Add(new ErrorDMHangHoa 
-                                {
-                                    TenTruongDuLieu = "Email",
-                                    ViTri = (rowIndex + 1).ToString(),
-                                    ThuocTinh = email,
-                                    DienGiai = "Email bị trùng lặp",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
 
-                            var existEmail = classDMDoiTuong.Get(x => x.Email.Contains(email));
+                            if (!class_OfficeDocument.GroupData(dataTable, $"Column10 = '{email}'"))
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Email",
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
+                                    ThuocTinh = email,
+                                    DienGiai = "Email bị trùng lặp",
+                                    rowError = rowIndex
+                                });
+                            }
+
+                            var existEmail = classdoituong.Get(x => x.Email.Contains(email));
                             if (existEmail != null)
                             {
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Email",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = email,
                                     DienGiai = "Email đã tồn tại",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                         }
-                        int chophepTrungSDT = 0;
+
                         // Kiểm tra số điện thoại
                         if (!string.IsNullOrEmpty(soDienThoai))
                         {
-                            if (chophepTrungSDT == 0)
+                            // Kiểm tra trùng lặp số điện thoại
+                            if (!class_OfficeDocument.GroupData(dataTable, $"Column11 = '{soDienThoai}'"))
                             {
-                                bool duplicateSDT = class_OfficeDocument.GroupData(dataTable, "DienThoai = '" + soDienThoai + "'");
-                                if (!duplicateSDT)
+                                lstError.Add(new ErrorDMHangHoa
                                 {
-                                    lstError.Add(new ErrorDMHangHoa
-                                    {
-                                        TenTruongDuLieu = "Điện thoại",
-                                        ViTri = (rowIndex + 1).ToString(),
-                                        ThuocTinh = soDienThoai,
-                                        DienGiai = "Số điện thoại: " + soDienThoai + " bị trùng lặp",
-                                        rowError = rowIndex,
-                                        loaiError = 1
-                                    });
-                                }
+                                    TenTruongDuLieu = "Điện thoại",
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
+                                    ThuocTinh = soDienThoai,
+                                    DienGiai = "Số điện thoại: " + soDienThoai + " bị trùng lặp",
+                                    rowError = rowIndex
+                                });
                             }
 
-                            bool checkSDT = classDMDoiTuong.SP_CheckSoDienThoai_Exist(soDienThoai);
+                            bool checkSDT = classdoituong.SP_CheckSoDienThoai_Exist(soDienThoai);
                             if (checkSDT)
                             {
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Điện thoại",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = soDienThoai,
                                     DienGiai = "Số điện thoại: " + soDienThoai + " đã tồn tại trong cơ sở dữ liệu",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                         }
@@ -1312,11 +1655,10 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Nợ cần thu",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = noCanThu,
                                     DienGiai = "Nợ cần thu không phải dạng số",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                         }
@@ -1330,11 +1672,10 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Nợ cần trả",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = noCanTra,
                                     DienGiai = "Nợ cần trả không phải dạng số",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                         }
@@ -1348,60 +1689,116 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Tổng tích điểm",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
                                     ThuocTinh = sumTichDiem,
                                     DienGiai = "Tổng tích điểm không phải dạng số",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                         }
 
                         // Kiểm tra số dư thẻ
-                        if (!string.IsNullOrEmpty(soDu))
+                        if (!string.IsNullOrEmpty(soDuThe))
                         {
-                            bool isNumber = class_OfficeDocument.IsNumberInt(soDu);
+                            bool isNumber = class_OfficeDocument.IsNumberInt(soDuThe);
                             if (!isNumber)
                             {
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Số dư thẻ",
-                                    ViTri = (rowIndex + 1).ToString(),
-                                    ThuocTinh = soDu,
+                                    ViTri = "Dòng số: " + (rowIndex + 1).ToString(),
+                                    ThuocTinh = soDuThe,
                                     DienGiai = "Số dư thẻ không phải dạng số",
-                                    rowError = rowIndex,
-                                    loaiError = 1
+                                    rowError = rowIndex
                                 });
                             }
                         }
                     }
                 }
+
+                if (lstError.Count > 0)
+                {
+                    return lstError;
+                }
+                else
+                {
+                    // Call your import method here
+                    // importKhachHang(dataTable, ID_NhanVien, ID_DonVi);
+                    return null;
+                }
             }
-            return lstError;
         }
-        public List<ErrorDMHangHoa> ImportDangMucKhachHang_toDB(ISheet sheet, Guid idDonVi,
-    Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
+
+        public List<ErrorDMHangHoa> ImportDangMucKhachHang_toDB(ISheet sheet, Guid idDonVi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
         {
             var lstErr = new List<ErrorDMHangHoa>();
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
-                ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
-                classDonViQuiDoi classDonViQD = new classDonViQuiDoi(db);
-                ClassDM_HangHoa classHangHoa = new ClassDM_HangHoa(db);
-                classDM_DoiTuong classDM_DoiTuong = new classDM_DoiTuong(db);
+                classDM_DoiTuong classdoituong = new classDM_DoiTuong(db);
+                Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
                 int[] arrRow = CommonStatic.GetArrIntDesc_fromString(rowsErr);
                 using (var trans = db.Database.BeginTransaction())
                 {
                     try
                     {
-                        List<BH_HoaDon_ChiTiet> lstCTKiemKe = new List<BH_HoaDon_ChiTiet>();
-                        List<BH_HoaDon_ChiTiet> lstCTDCGV = new List<BH_HoaDon_ChiTiet>();
-
-                        List<DM_GiaVon> lstDMGV = new List<DM_GiaVon>();
-                        List<DM_HangHoa_TonKho> lstDMTonKho = new List<DM_HangHoa_TonKho>();
-
                         var dtNow = DateTime.Now;
+                        System.Data.DataTable dataTable = new System.Data.DataTable();
+
+                        // Tạo schema cho DataTable
+                        dataTable.Columns.Add("TenNhomKhachHang", typeof(string));
+                        dataTable.Columns.Add("NguonKhach", typeof(string));
+                        dataTable.Columns.Add("StatusKhach", typeof(string));
+                        dataTable.Columns.Add("MaKhachHang", typeof(string));
+                        dataTable.Columns.Add("TenKhachHang", typeof(string));
+                        dataTable.Columns.Add("Gender", typeof(string));
+                        dataTable.Columns.Add("LoaiKhach", typeof(string));
+                        dataTable.Columns.Add("NgaySinh", typeof(string));
+                        dataTable.Columns.Add("DiaChi", typeof(string));
+                        dataTable.Columns.Add("Email", typeof(string));
+                        dataTable.Columns.Add("SoDienThoai", typeof(string));
+                        dataTable.Columns.Add("Note", typeof(string));
+                        dataTable.Columns.Add("MaSoThue", typeof(string));
+                        dataTable.Columns.Add("NoCanThu", typeof(string));
+                        dataTable.Columns.Add("NoCanTra", typeof(string));
+                        dataTable.Columns.Add("SumTichDiem", typeof(string));
+
+                        // Nhập dữ liệu từ sheet vào DataTable
+                        for (int rowIndex = 3; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
+                        {
+                            if (arrRow.Contains(rowIndex))
+                            {
+                                continue; // nếu thuộc dòng lỗi: bỏ qua và next đến dòng tiếp theo
+                            }
+
+                            IRow row = sheet.GetRow(rowIndex);
+                            if (row != null)
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["TenNhomKhachHang"] = row.GetCell(1)?.ToString();
+                                dataRow["NguonKhach"] = row.GetCell(2)?.ToString();
+                                dataRow["StatusKhach"] = row.GetCell(3)?.ToString();
+                                dataRow["MaKhachHang"] = row.GetCell(4)?.ToString();
+                                dataRow["TenKhachHang"] = row.GetCell(5)?.ToString();
+                                dataRow["Gender"] = row.GetCell(6)?.ToString().Trim();
+                                dataRow["LoaiKhach"] = row.GetCell(7)?.ToString().Trim();
+                                dataRow["NgaySinh"] = row.GetCell(8)?.ToString().Trim();
+                                dataRow["DiaChi"] = row.GetCell(9)?.ToString().Trim();
+                                dataRow["Email"] = row.GetCell(10)?.ToString().Trim();
+                                dataRow["SoDienThoai"] = row.GetCell(11)?.ToString().Trim();
+                                dataRow["Note"] = row.GetCell(12)?.ToString().Trim();
+                                dataRow["MaSoThue"] = row.GetCell(13)?.ToString().Trim();
+                                dataRow["NoCanThu"] = row.GetCell(14)?.ToString().Trim();
+                                dataRow["NoCanTra"] = row.GetCell(15)?.ToString().Trim();
+                                dataRow["SumTichDiem"] = row.GetCell(16)?.ToString().Trim();
+                                dataTable.Rows.Add(dataRow);
+                            }
+                        }
+
+                        // Gọi phương thức importKhachHang để xử lý dữ liệu
+                        class_OfficeDocument.importKhachHang(dataTable, idnhanvien, idDonVi);
+
+                        db.SaveChanges();
+                        trans.Commit();
                     }
                     catch (Exception ex)
                     {
@@ -1419,7 +1816,8 @@ namespace libQuy_HoaDon
                 }
             }
             return lstErr;
-            #endregion
         }
+
+        #endregion
     }
 }

@@ -195,6 +195,7 @@ var loaiHoaDon = '';
 var ViewModel = function () {
     var self = this;
     var NhomHHUri = '/api/DanhMuc/DM_NhomHangHoaAPI/';
+    var DMCustomerUri = '/api/DanhMuc/DM_DoiTuongAPI/';
     var DMHangHoaUri = '/api/DanhMuc/DM_HangHoaAPI/';
     var DonViQuiDoiUri = '/api/DanhMuc/DonViTinhsAPI/';
     var NSNhanVienUri = "/api/DanhMuc/NS_NhanVienAPI/";

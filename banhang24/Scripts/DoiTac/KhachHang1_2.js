@@ -1846,49 +1846,65 @@
         }
         $.ajax({
             type: "POST",
-            url: DMDoiTuongUri + "ImportExcelToKhachHang?ID_NhanVien=" + idNhanVien + "&ID_DonVi=" + idDonVi,
+            url: DMDoiTuongUri + "ImfortExcelToCustomer?ID_DonVi=" + _IDchinhanh + "&ID_NhanVien=" + _IDNhanVien + "&LoaiUpdate=" + self.check_kieuImport(),
             data: formData,
             dataType: 'json',
             contentType: false,
             processData: false,
-            success: function (x) {
-                if (x.res === false) {
-                    if (x.mes == "") {
-                        self.loiExcel(x.data);
-                        self.visibleImport(true);
-                        let arrIndex = x.data.map(function (xx) { return xx.rowError });
-                        arrIndex = arrIndex.filter((x, i, a) => a.indexOf(x) == i);
-                        self.ImportFile_IndexErr(arrIndex);
+            success: function (xx) {
+                if (!xx.res) {
+                    let item = xx.dataSoure;
+                    for (let i = 0; i < item.length; i++) {
+                        if (item[i].loaiError == 1)
+                            self.loiExcel.push(item[i]);
+                        else
+                            self.updateExcel.push(item[i]);
+                    }
+
+                    if (self.loiExcel().length > 0) {
+                        self.sumError(self.loiExcel().length);
                         $(".BangBaoLoi").show();
                         $(".NoteImport").hide();
                         $(".filterFileSelect").hide();
                         $(".btnImportExcel").hide();
+                    } else {
+                        if (self.updateExcel().length > 0) {
+                            $('#myModalinport').modal("hide");
+                            $('#myModalinportUpdate').modal("show");
+                        }
                     }
-                    else {
-                        ShowMessage_Danger(x.mes);
-                    }
-                }
-                else {
-                    Insert_NhatKyThaoTac(null, 1, 5);
-                    document.getElementById('imageUploadFormKH').value = "";
-                    self.visibleImport(true);
+                    $('.btnImportExcel ').gridLoader({ show: false });
+                } else {
+                    self.sumError(0);
+                    ShowMessage_Success("Import khách hàng thành công");
+                    let objDiary = {
+                        ID_NhanVien: _IDNhanVien,
+                        ID_DonVi: _IDchinhanh,
+                        ChucNang: "Danh mục khách hàng",
+                        NoiDung: "Import danh sách khách hàng",
+                        NoiDungChiTiet: "Import danh sách khách hàng",
+                        LoaiNhatKy: 5 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                    };
+                    Insert_NhatKyThaoTac_1Param(objDiary);
+
+                    document.getElementById('imageUploadForm').value = "";
                     $(".NoteImport").show();
                     $(".filterFileSelect").hide();
                     $(".btnImportExcel").hide();
                     $(".BangBaoLoi").hide();
                     $("#myModalinport").modal("hide");
-                    GetNhomDoiTuong_DonVi();
+                    $('.btnImportExcel ').gridLoader({ show: false });
                     SearchKhachHang(false, false);
-                    ShowMessage_Success("Import " + sLoai + " thành công");
+                    GetNhomDoiTuong_DonVi();
                 }
-                $('.BangBaoLoi').gridLoader({ show: false });
-                $('.NoteImport').gridLoader({ show: false });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                $('.BangBaoLoi').gridLoader({ show: false });
-                $('.NoteImport').gridLoader({ show: false });
-            },
+            }
+        }).always(function () {
+            $('.btnImportExcel ').gridLoader({ show: false });
         });
+
+    }
+
+
     }
     self.DoneWithError = function () {
         //hidewait('NoteImport');

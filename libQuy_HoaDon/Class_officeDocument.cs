@@ -10452,6 +10452,7 @@ namespace libQuy_HoaDon
                 }
             }
         }
+
         //check nhóm đối tượng
         public DM_NhomDoiTuong selectNhomDoiTuong(string tennhomdoituong)
         {

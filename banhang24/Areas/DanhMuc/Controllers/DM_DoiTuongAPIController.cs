@@ -23,6 +23,8 @@ using banhang24.Hellper;
 using lib_ChamSocKhachHang;
 using libHT_NguoiDung;
 using banhang24.Compress;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -3869,7 +3871,92 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        #region import khách hàng
+        #region import khách 
+        [AcceptVerbs("GET", "POST")]
+        public IHttpActionResult ImfortExcelToCustomer(Guid ID_DonVi, Guid ID_NhanVien, int LoaiUpdate, string RownError = null)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
+                try
+                {
+                    if (HttpContext.Current.Request.Files.Count != 0)
+                    {
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
+                        {
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH MỤC KHÁCH HÀNG", 3);
+                            if (string.IsNullOrEmpty(str))
+                            {
+                                if (!string.IsNullOrEmpty(RownError))
+                                {
+                                    // nếu có lỗi, và vẫn muốn import (bỏ qua dòng lỗi)
+                                    lstErr = classNPOI.ImportDangMucKhachHang_toDB(sheet, ID_DonVi, ID_NhanVien, LoaiUpdate, RownError);
+                                }
+                                else
+                                {
+                                    lstErr = classNPOI.CheckData_FileImportCustomer(sheet);
+                                    if (lstErr.Count == 0)
+                                    {
+                                        lstErr = classNPOI.ImportDangMucKhachHang_toDB(sheet, ID_DonVi, ID_NhanVien, LoaiUpdate);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                lstErr.Add(new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = str,
+                                    ViTri = "0",
+                                    rowError = -1,
+                                    loaiError = 1,
+                                    ThuocTinh = str,
+                                    DienGiai = str,
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        lstErr.Add(new ErrorDMHangHoa()
+                        {
+                            TenTruongDuLieu = "Không tồn tại file",
+                            ViTri = "0",
+                            rowError = -1,
+                            loaiError = 1,
+                            ThuocTinh = "Không tồn tại file",
+                            DienGiai = "Không tồn tại file",
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lstErr.Add(new ErrorDMHangHoa()
+                    {
+                        TenTruongDuLieu = "Exception",
+                        ViTri = "0",
+                        rowError = -1,
+                        loaiError = 1,
+                        ThuocTinh = "Exception",
+                        DienGiai = ex.InnerException + ex.Message,
+                    });
+                }
+                if (lstErr != null && lstErr.Count() > 0)
+                {
+                    return ActionFalseWithData(lstErr);
+                }
+                else
+                {
+                    return ActionTrueData(lstErr);
+                }
+            }
+        }
+
+
         [HttpPost]
         public IHttpActionResult ImportExcelToKhachHang(Guid ID_NhanVien, Guid ID_DonVi)
         {
