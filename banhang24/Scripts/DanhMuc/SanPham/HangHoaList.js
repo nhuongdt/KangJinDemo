@@ -12037,7 +12037,6 @@ var ViewModel = function () {
             }
         }
         self.MangIDDV(arrDV);
-        Insert_NhatKyThaoTac_1Param(objDiary);
 
         var columnHide = null;
         for (var i = 0; i < self.ColumnsExcelKK().length; i++) {
@@ -12048,11 +12047,11 @@ var ViewModel = function () {
                 columnHide = self.ColumnsExcelKK()[i] + "_" + columnHide;
             }
         }
-        var url = '/api/DanhMuc/BH_HoaDonAPI/' + 'ExportExcel_KiemKho?loaiHoaDon=' + loaiHoaDon +
-            '&maHoaDon=' + txtMaHDonKK_Excel + '&trangThai=' + txtTrangThaiKK_Excel + '&dayStart=' + dayStartKK_Excel + '&dayEnd=' + dayEndKK_Excel + "&columnsHide=" + columnHide + '&iddonvi=' + _IDchinhanh + '&arrChiNhanh=' + self.MangIDDV() + '&time=' + self.TodayBC() + '&TenChiNhanh=' + self.TenChiNhanh();
-        const ok = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, 'PhieuDieuChinhGiaVon.xlsx');
-
-       
+        const ok = await commonStatisJs.NPOI_ExportExcel( '/api/DanhMuc/BH_HoaDonAPI/' + 'ExportExcel_KiemKho?loaiHoaDon=' + loaiHoaDon +
+            '&maHoaDon=' + txtMaHDonKK_Excel + '&trangThai=' + txtTrangThaiKK_Excel + '&dayStart=' + dayStartKK_Excel + '&dayEnd=' + dayEndKK_Excel + "&columnsHide=" + columnHide + '&iddonvi=' + _IDchinhanh + '&arrChiNhanh=' + self.MangIDDV() + '&time=' + self.TodayBC() + '&TenChiNhanh=' + self.TenChiNhanh(), 'GET', null, 'PhieuKiemKeHangHoa.xlsx');
+       if(ok){
+            Insert_NhatKyThaoTac_1Param(objDiary);
+       }
     }
 
     self.addColumKK = function (item) {

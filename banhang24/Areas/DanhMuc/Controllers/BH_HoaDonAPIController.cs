@@ -799,8 +799,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_KiemKhoHangHoa.xlsx");
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(TenChiNhanh, time);
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell, -1);
-              
-               
             }
         }
         [System.Web.Http.AcceptVerbs("GET", "POST")]
