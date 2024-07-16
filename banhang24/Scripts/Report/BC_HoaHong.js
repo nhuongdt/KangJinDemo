@@ -558,8 +558,7 @@
         // valueCheck (1) = class name, valueCheck(2) = value  --> pass to func 
         // add/remove class is hidding in list cache {NameClass, Value}
         LocalCaches.AddColumnHidenGrid(Key_Form, valueCheck, valueCheck);
-        //$('.' + valueCheck).toggle();
-        SearchReport(false, valueCheck);
+        $('.' + valueCheck).toggle();
     });
 
 
@@ -572,8 +571,7 @@
         }
         var valueCheck = $(this).find('input[type = checkbox]').val();
         LocalCaches.AddColumnHidenGrid(Key_Form, valueCheck, valueCheck);
-        //$('.' + valueCheck).toggle();
-        SearchReport(false, valueCheck);
+        $('.' + valueCheck).toggle();
     });
 
     function ResetInforSearch() {
@@ -632,8 +630,6 @@
                 Caculator_FromToPaging(data.LstData);
                 LoadCheckBox(typeCheck);
                 self.role_XemBaoCao(CheckRoleExist('BCCKHangHoa_ChiTiet'));
-
-                $('.' + valueCheck).toggle();
             }
         });
     }
@@ -660,8 +656,6 @@
                 LoadCheckBox(typeCheck);
 
                 self.role_XemBaoCao(CheckRoleExist('BCCKHoaDon_TongHop'));
-
-                $('.' + valueCheck).toggle();
             }
         });
     }
@@ -692,8 +686,6 @@
                 LoadCheckBox(typeCheck);
 
                 self.role_XemBaoCao(CheckRoleExist('BCCKHoaDon_ChiTiet'));
-
-                $('.' + valueCheck).toggle();
             }
         });
     }
@@ -1088,120 +1080,10 @@
 
             switch (typeReport) {
                 case 1:
-                    if ($.inArray('hoahongthuchien', arrcolumn) > -1) {
-                        if ($.inArray('hoahongtuvan', arrcolumn) > -1) {
-                            if ($.inArray('hoahongdichvu', arrcolumn) > -1) {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 1;// tong = 0
-                                }
-                                else {
-                                    status_columhide = 2;// thuchien_theoyc
-                                }
-                            }
-                            else {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 3;// bangoi
-                                }
-                                else {
-                                    status_columhide = 4;// thuchien_theoyc + bangoi
-                                }
-                            }
-                        }
-                        else {
-                            if ($.inArray('hoahongdichvu', arrcolumn) > -1) {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 5;// tuvan
-                                }
-                                else {
-                                    status_columhide = 6;// thuchien_theoyc + tuvan
-                                }
-                            }
-                            else {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 7;// bangoi + tuvan
-                                }
-                                else {
-                                    status_columhide = 8;// bangoi + tuvan + thuchien_theoyc
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if ($.inArray('hoahongtuvan', arrcolumn) > -1) {
-                            if ($.inArray('hoahongdichvu', arrcolumn) > -1) {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 9;// thuchien
-                                }
-                                else {
-                                    status_columhide = 10;// thuchien + thuchien_theoyc
-                                }
-                            }
-                            else {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 11;// thuchien + bangoi
-                                }
-                                else {
-                                    status_columhide = 12;// thuchien + bangoi + thuchien_theoyc
-                                }
-                            }
-                        }
-                        else {
-                            if ($.inArray('hoahongdichvu', arrcolumn) > -1) {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 13;// thuchien + tuvan
-                                }
-                                else {
-                                    status_columhide = 14;// thuchien + tuvan + thuchien_theoyc
-                                }
-                            }
-                            else {
-                                if ($.inArray('hoahongthuchien_theoyc', arrcolumn) > -1) {
-                                    status_columhide = 15;// thuchien + tuvan + bangoi
-                                }
-                                else {
-                                    status_columhide = 16;// all
-                                }
-                            }
-                        }
-                    }
+                    status_columhide = 16;// all
                     break;
                 case 2:
-                    if ($.inArray('hoahongdoanhthu', arrcolumn) > -1) {
-                        if ($.inArray('hoahongthucthu', arrcolumn) > -1) {
-                            if ($.inArray('hoahongvnd', arrcolumn) > -1) {
-                                status_columhide = 1; // tong = 0
-                            }
-                            else {
-                                status_columhide = 2; // vnd
-                            }
-                        }
-                        else {
-                            if ($.inArray('hoahongvnd', arrcolumn) > -1) {
-                                status_columhide = 3;// chi thucthu
-                            }
-                            else {
-                                status_columhide = 4;// thucthu + vnd
-                            }
-                        }
-                    }
-                    else {
-                        if ($.inArray('hoahongthucthu', arrcolumn) > -1) {
-                            if ($.inArray('hoahongvnd', arrcolumn) > -1) {
-                                status_columhide = 5; // doanh thu
-                            }
-                            else {
-                                status_columhide = 6; // doanhthu + vnd
-                            }
-                        }
-                        else {
-                            if ($.inArray('hoahongvnd', arrcolumn) > -1) {
-                                status_columhide = 7; // doanh thu + thuc thu
-                            }
-                            else {
-                                status_columhide = 8; // doanhthu + thucthu +vnd
-                            }
-                        }
-                    }
+                    status_columhide = 8;// all;
                     break;
             }
         }
@@ -1811,28 +1693,35 @@
                 if (self.IsReportDetail()) {
                     lenData = self.ReportProduct_Detail().length;
                     let cloumAdd = '';
-                    // neu an cot hoahongthuchien --> an luon 2 cot % + VND
-                    if (_columnHide.indexOf('16') > -1) {
-                        cloumAdd += '16_17_';
+                    // hoahong bangoi
+                    if (_columnHide.indexOf('20') > -1) {
+                        cloumAdd += '23_24_';
+                        _columnHide = _columnHide.replace('20', '');
                     }
-                    if (_columnHide.indexOf('17') > -1) {
-                        cloumAdd += '18_19_';
-                    }
-                    if (_columnHide.indexOf('18') > -1) {
-                        cloumAdd += '20_21_';
-                    }
+                    // tuvan
                     if (_columnHide.indexOf('19') > -1) {
-                        cloumAdd += '22_23_';
-                    }
-
-                    if (_columnHide.indexOf('17') > -1 && cloumAdd.indexOf('16') == -1) {
-                        _columnHide = _columnHide.replace('17', '');
-                    }
-                    if (_columnHide.indexOf('18') > -1 && cloumAdd.indexOf('19') == -1) {
-                        _columnHide = _columnHide.replace('18', '');
-                    }
-                    if (_columnHide.indexOf('19') > -1 && cloumAdd.indexOf('18') == -1) {
+                        cloumAdd += '21_22_';
                         _columnHide = _columnHide.replace('19', '');
+                    }
+                    // hotro
+                    if (_columnHide.indexOf('18') > -1) {
+                        cloumAdd += '19_20_';
+
+                        if (_columnHide.indexOf('17') == -1) {
+                            _columnHide = _columnHide.replace('18', '');
+                        }
+                    }
+                    // thuchien
+                    if (_columnHide.indexOf('17') > -1) {
+                        cloumAdd += '18_';// không cần add cot 17 nữa
+                    }
+                    // tong
+                    if (_columnHide.indexOf('21') > -1) {
+                        cloumAdd += '25_';
+
+                        if (cloumAdd.indexOf('21') == -1) {
+                            _columnHide = _columnHide.replace('21', '');
+                        }
                     }
 
                     _columnHide = _columnHide + cloumAdd;
@@ -1846,21 +1735,40 @@
                     lenData = self.ReportInvoice_Detail().length;
 
                     let cloumAdd2 = '';
-
-                    if (_columnHide.indexOf('10') > -1) {
-                        cloumAdd2 += '10_11_';
-                    }
+                    // chiphi nganhang
                     if (_columnHide.indexOf('12') > -1) {
-                        cloumAdd2 += '13_14_';
+                        cloumAdd2 += '13_';// không cần add cột 12 nữa
+                    }
+                    // thucthu - thuctinh
+                    if (_columnHide.indexOf('13') > -1) {
+                        cloumAdd2 += '14_';
+
+                        if (_columnHide.indexOf('12') == -1) {
+                            _columnHide = _columnHide.replace('13', '');
+                        }
+                    }
+                    // hoahong thucthu
+                    if (_columnHide.indexOf('14') > -1) {
+                        cloumAdd2 += '15_16_';// không cần add cột 12 nữa
+
+                        if (cloumAdd2.indexOf('14') == -1) {
+                            _columnHide = _columnHide.replace('14', '');
+                        }
+                    }
+                    if (_columnHide.indexOf('15') > -1) {
+                        cloumAdd2 += '17_';
+
+                        if (cloumAdd2.indexOf('15') == -1) {
+                            _columnHide = _columnHide.replace('15', '');
+                        }
                     }
 
-                    if (_columnHide.indexOf('13') > -1 && cloumAdd2.indexOf('14') == -1) {
-                        _columnHide = _columnHide.replace('13', '15');
-                    }
+                    if (_columnHide.indexOf('16') > -1) {
+                        cloumAdd2 += '18_';
 
-
-                    if (_columnHide.indexOf('11') > -1 && cloumAdd2.indexOf('10') == -1) {
-                        _columnHide = _columnHide.replace('11', '12');
+                        if (cloumAdd2.indexOf('16') == -1) {
+                            _columnHide = _columnHide.replace('16', '');
+                        }
                     }
 
                     _columnHide = _columnHide + cloumAdd2;
