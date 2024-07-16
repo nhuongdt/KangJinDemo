@@ -310,6 +310,7 @@ var dataMauIn = function () {
     self.NhanVienBanHang = ko.observable('Nguyễn Hạnh Phúc');
     self.NguoiTaoHD = ko.observable('Phan Bá Nam');
     self.GhiChu = ko.observable('Ghi chú');
+    self.GhiChuNgayThuoc = ko.observable('10 ngày thuốc');
     self.TongTienHang = ko.observable('40,000');
     self.TongTienHDSauGiamGia = ko.observable('30,000');
     self.ThoiGianGiao = ko.observable('05/07/2018 09:40');

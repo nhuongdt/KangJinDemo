@@ -1135,6 +1135,7 @@ function ViewModel() {
             + "; </script>");
         dataMauIn = dataMauIn.concat(" <script type='text/javascript' src='/Scripts/Thietlap/MauInTeamplate.js'></script>");
         dataMauIn = dataMauIn.replace('{GhiChu_NVThucHien}', "<span data-bind=\"text: InforHDprintf().GhiChu_NVThucHien\"></span>");
+        dataMauIn = dataMauIn.replace('{GhiChuNgayThuoc}', "<span data-bind=\"text: InforHDprintf().GhiChuNgayThuoc\"></span>");
         PrintExtraReport(dataMauIn);
     }
 
@@ -1179,6 +1180,7 @@ function ViewModel() {
         objPrint.TenChiNhanh = objPrint.TenChiNhanh;
         objPrint.NguoiTao = objPrint.NguoiTaoHD;
         objPrint.GhiChu = objPrint.DienGiai;
+        objPrint.GhiChuNgayThuoc = objPrint.ChiPhi_GhiChu;// mượn trường
         var cn = self.DonVis().find(x => x.ID == objPrint.ID_DonVi);
         objPrint.DiaChiChiNhanh = cn.DiaChi;
         objPrint.DienThoaiChiNhanh = cn.SoDienThoai;
