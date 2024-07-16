@@ -112,6 +112,8 @@
     self.role_NhapKhoNoiBo = ko.observable(VHeader.Quyen.indexOf('NhapKhoNoiBo') > -1);
     self.role_NhapHangKhachThua = ko.observable(VHeader.Quyen.indexOf('NhapHangKhachThua') > -1);
     self.Role_ChangeInvoice_ifOtherDate = ko.observable(false);
+    self.Role_XoaPhieuNhap_ifOtherDate = ko.observable(false);
+    self.role_XacNhan_NhapHangKhachThua = ko.observable(false);
 
     //phân trang
     self.PageCount = ko.observable();
@@ -269,22 +271,23 @@
                             self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
                             self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
                             self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
+                            self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
                             self.Show_BtnCopy(CheckQuyenExist('NhapHang_SaoChep'));
                             self.Show_BtnEdit(CheckQuyenExist('NhapHang_CapNhat'));
                             self.Show_BtnUpdate(CheckQuyenExist('NhapHang_CapNhat'));
-                            self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
                             self.Show_BtnExcelDetail(CheckQuyenExist('NhapHang_XuatFile'));
                             break;
                         case 14:
-                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHang_ThayDoiThoiGian'));
-                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHang_ThayDoiNhanVien'));
-                            self.roleNhapHang_Insert(CheckQuyenExist('NhapHang_ThemMoi'));
-                            self.roleNhapHang_Export(CheckQuyenExist('NhapHang_XuatFile'));
-                            self.Show_BtnCopy(CheckQuyenExist('NhapHang_SaoChep'));
-                            self.Show_BtnEdit(CheckQuyenExist('NhapHang_CapNhat'));
-                            self.Show_BtnUpdate(CheckQuyenExist('NhapHang_CapNhat'));
-                            self.Show_BtnDelete(CheckQuyenExist('NhapHang_Xoa'));
-                            self.Show_BtnExcelDetail(CheckQuyenExist('NhapHang_XuatFile'));
+                            self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapHangKhachThua_ThayDoiThoiGian'));
+                            self.NhapHang_ThayDoiNhanVien(CheckQuyenExist('NhapHangKhachThua_ThayDoiNhanVien'));
+                            self.roleNhapHang_Insert(CheckQuyenExist('NhapHangKhachThua_ThemMoi'));
+                            self.roleNhapHang_Export(CheckQuyenExist('NhapHangKhachThua_XuatFile'));
+                            self.role_XacNhan_NhapHangKhachThua(CheckQuyenExist('NhapHangKhachThua_XacNhanNhapKho'))
+                            self.Show_BtnDelete(CheckQuyenExist('NhapHangKhachThua_Xoa'));
+                            self.Show_BtnCopy(CheckQuyenExist('NhapHangKhachThua_SaoChep'));
+                            self.Show_BtnEdit(CheckQuyenExist('NhapHangKhachThua_CapNhat'));
+                            self.Show_BtnUpdate(CheckQuyenExist('NhapHangKhachThua_CapNhat'));
+                            self.Show_BtnExcelDetail(CheckQuyenExist('NhapHangKhachThua_XuatFile'));
                             break;
                         case 13:
                             self.NhapHang_ThayDoiThoiGian(CheckQuyenExist('NhapNoiBo_ThayDoiThoiGian'));
@@ -552,7 +555,7 @@
 
     self.Enable_NgayLapHD = ko.observable(true);
 
-    self.LoadChiTietHD = function (item, e) {
+    self.LoadChiTietHD = async function (item, e) {
         self.Enable_NgayLapHD(!VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
 
         let ngaylapFormat = moment(item.NgayLapHoaDon).format('YYYY-MM-DD');
@@ -576,41 +579,62 @@
             self.Show_BtnThanhToanCongNo(false);
         }
 
+        let roleXoa = self.Show_BtnDelete();
+        if (_nowFormat !== ngaylapFormat) {
+            switch (item.LoaiHoaDon) {
+                case 4:
+                    {
+                        roleXoa = CheckQuyenExist('NhapHang_Xoa_NeuKhacNgay');
+                    }
+                    break;
+                case 13:
+                    {
+                        roleXoa = CheckQuyenExist('NhapKhoNoiBo_Xoa_NeuKhacNgay');
+                    }
+                    break;
+                case 14:
+                    {
+                        roleXoa = CheckQuyenExist('NhapHangKhachThua_Xoa_NeuKhacNgay');
+                    }
+                    break;
+            }
+        }
+        self.Role_XoaPhieuNhap_ifOtherDate(roleXoa);
+
         self.currentPageCTNH(0);
         self.BH_HoaDonChiTiets([]);
         var tongsoluong = 0;
         $('.table-detal').gridLoader({
             style: "left: 460px;top: 200px;"
         });
-        ajaxHelper(BH_HoaDonUri + 'GetChiTietHD_byIDHoaDon?idHoaDon=' + item.ID + '&iddonvi=' + _IDchinhanh, 'GET').done(function (data) {
-            $('.table-detal').gridLoader({ show: false });
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].MaHangHoa.indexOf('{DEL}') > -1) {
-                    data[i].MaHangHoa = data[i].MaHangHoa.substr(0, data[i].MaHangHoa.length - 5);
-                    data[i].Del = '{Xóa}';
-                } else {
-                    data[i].Del = "";
-                }
+        const data = await self.GetCTHD_fromDB(item.ID, item.ID_DonVi);
+        $('.table-detal').gridLoader({ show: false });
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].MaHangHoa.indexOf('{DEL}') > -1) {
+                data[i].MaHangHoa = data[i].MaHangHoa.substr(0, data[i].MaHangHoa.length - 5);
+                data[i].Del = '{Xóa}';
+            } else {
+                data[i].Del = "";
             }
-            self.BH_HoaDonChiTietsThaoTac(data);
-            searchCTHN();
+        }
+        self.BH_HoaDonChiTietsThaoTac(data);
+        searchCTHN();
 
-            SetHeightShowDetail($(e.currentTarget));
-            for (let i = 0; i < self.BH_HoaDonChiTietsThaoTac().length; i++) {
-                tongsoluong += self.BH_HoaDonChiTietsThaoTac()[i].SoLuong;
-            }
-            self.TongSLuong(tongsoluong);
+        SetHeightShowDetail($(e.currentTarget));
+        for (let i = 0; i < self.BH_HoaDonChiTietsThaoTac().length; i++) {
+            tongsoluong += self.BH_HoaDonChiTietsThaoTac()[i].SoLuong;
+        }
+        self.TongSLuong(tongsoluong);
 
-            var tongtienchuaCK = data.reduce(function (_this, x) {
-                return _this + (x.SoLuong * x.DonGia)
-            }, 0);
-            self.TongTienHangChuaCK(tongtienchuaCK);
+        var tongtienchuaCK = data.reduce(function (_this, x) {
+            return _this + (x.SoLuong * x.DonGia)
+        }, 0);
+        self.TongTienHangChuaCK(tongtienchuaCK);
 
-            var tonggiamgiaHang = data.reduce(function (_this, x) {
-                return _this + (x.SoLuong * x.TienChietKhau)
-            }, 0);
-            self.TongGiamGiaHang(tonggiamgiaHang);
-        });
+        var tonggiamgiaHang = data.reduce(function (_this, x) {
+            return _this + (x.SoLuong * x.TienChietKhau)
+        }, 0);
+        self.TongGiamGiaHang(tonggiamgiaHang);
         self.GetLichSuThanhToan(item);
 
         $('.txtNgayLapHD').datetimepicker({
@@ -624,6 +648,14 @@
             }
         });
 
+    }
+
+    self.GetCTHD_fromDB = async function (idHoaDon, idChiNhanh) {
+        const xx = await ajaxHelper(BH_HoaDonUri + 'GetChiTietHD_byIDHoaDon?idHoaDon=' + idHoaDon + '&iddonvi=' + idChiNhanh, 'GET').done()
+            .then(function (data) {
+                return data;
+            });
+        return xx;
     }
 
     function newLot(itemCTHD, itemLot) {
@@ -742,7 +774,7 @@
     }
 
     self.modalDelete = function (item) {
-        ajaxHelper(BH_HoaDonUri + 'GetDSHoaDon_chuaHuy_byIDDatHang?id=' + item.ID , 'GET').done(function (x) {
+        ajaxHelper(BH_HoaDonUri + 'GetDSHoaDon_chuaHuy_byIDDatHang?id=' + item.ID, 'GET').done(function (x) {
             if (x === true) {
                 switch (item.LoaiHoaDon) {
                     case 4:
@@ -2748,6 +2780,42 @@
                 mask: true,
                 timepicker: false,
             });
+    }
+
+    self.XacNhan_NhapHangKhachThua = async function (item) {
+       const ngayXacNhan = await ajaxHelper(BH_HoaDonUri + 'XacNhan_NhapHangKhachThua?idHoaDon=' + item.ID).done()
+            .then(function (x) {
+                if (x.res) {
+                    return x.dataSoure;
+                }
+                return null;
+            });
+        if (ngayXacNhan == null) {
+            ShowMessage_Danger('Lỗi xác nhận nhập kho');
+            return;
+        }
+
+        const cthd = await self.GetCTHD_fromDB(item.ID, item.ID_DonVi);
+        self.BH_HoaDonChiTietsThaoTac(cthd);
+        self.InHoaDon(item);
+
+        let diary = {
+            ID_DonVi: item.ID_DonVi,
+            ID_NhanVien: _id_NhanVien,
+            LoaiNhatKy: 1,
+            ID_HoaDon: item.ID,
+            LoaiHoaDon: item.LoaiHoaDon,
+            ThoiGianUpdateGV: ngayXacNhan, // get date at server
+            ChucNang: 'Xác nhận nhập hàng khách thừa',
+            NoiDung: 'Xác nhận nhập hàng khách thừa, Mã phiếu nhập '.concat(item.MaHoaDon),
+            NoiDungChiTiet: 'Thông tin chi tiết '.concat('<br /> Mã phiếu nhập: ', item.MaHoaDon,
+                '<br /> Ngày xác nhận: ', moment(ngayXacNhan).format('DD/MM/YYYY HH:mm'),
+                '<br /> User xác nhận: ', userLogin,
+                '<br /> Ghi chú: ', item.DienGiai
+            ),
+        }
+        Post_NhatKySuDung_UpdateGiaVon(diary);
+        SearchHoaDon();
     }
 };
 

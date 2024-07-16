@@ -5641,6 +5641,32 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult XacNhan_NhapHangKhachThua(Guid idHoaDon)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                try
+                {
+                    var hd = db.BH_HoaDon.Find(idHoaDon);
+                    DateTime dt = DateTime.Now;
+                    if (hd != null)
+                    {
+                        dt = hd.NgayLapHoaDon;// keep ngaylapold & return
+                        hd.ChoThanhToan = false;
+                        hd.NgaySua = DateTime.Now;
+                        db.SaveChanges();
+                    }
+                    return ActionTrueData(dt);
+                }
+                catch (Exception ex)
+                {
+                    CookieStore.WriteLog(string.Concat("XacNhan_NhapHangKhachThua ", idHoaDon, ex.InnerException, ex.Message));
+                    return ActionFalseNotData(ex.InnerException + ex.Message);
+                }
+            }
+        }
+
         [ResponseType(typeof(string))]
         [HttpPost]
         public IHttpActionResult Post_NhapHang([FromBody] JObject data)

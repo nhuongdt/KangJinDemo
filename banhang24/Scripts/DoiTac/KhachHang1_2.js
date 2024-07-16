@@ -2192,25 +2192,6 @@
                 self.Show_BtnThanhToanCongNo(false);
             }
         }
-        // check role insert work, usercontact
-        var itemViewUserContact = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen.indexOf('LienHe_XemDS') > -1;
-        });
-        if (itemViewUserContact.length > 0) {
-            ulTab.children('li').eq(5).show();
-        }
-        else {
-            ulTab.children('li').eq(5).hide();
-        }
-        var itemViewWork = $.grep(self.Quyen_NguoiDung(), function (x) {
-            return x.MaQuyen.indexOf('CongViec_XemDS') > -1;
-        });
-        if (itemViewWork.length > 0) {
-            ulTab.children('li').eq(6).show();
-        }
-        else {
-            ulTab.children('li').eq(6).hide();
-        }
     }
     self.NhanViens_IsNguoiDung = ko.observableArray();
     self.LoadTab_UserContact = function (item) {

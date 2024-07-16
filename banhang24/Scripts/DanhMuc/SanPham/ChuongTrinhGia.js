@@ -2602,6 +2602,9 @@ var CTGiaViewModel = function () {
         localStorage.setItem('danhsachgia', JSON.stringify(current));
     }
 
+
+    
+
     // Trinhpv xuất excel
     self.ExportExcel_GiaBan = function () {
 
@@ -2615,6 +2618,9 @@ var CTGiaViewModel = function () {
         };
         var myData = {};
         myData.objDiary = objDiary;
+      
+
+       
         $.ajax({
             url: DiaryUri + "post_NhatKySuDung",
             type: 'POST',
@@ -2622,7 +2628,7 @@ var CTGiaViewModel = function () {
             dataType: 'json',
             contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             data: myData,
-            success: function (item) {
+            success:function (item) {
                 var columnHide = null;
                 for (var i = 0; i < self.ColumnsExcel().length; i++) {
                     if (i == 0) {
@@ -2632,6 +2638,14 @@ var CTGiaViewModel = function () {
                         columnHide = self.ColumnsExcel()[i] + "_" + columnHide;
                     }
                 }
+                //var params = {
+                //    idnhomhang: self.arrIDNhomHang(),
+                //    maHoaDon: txtMaHDon_Excel,
+                //    _id: self.selectedGiaBan(),
+                //    columnsHide: columnHide,
+                //    iddonvi: _IDchinhanh
+                //};
+                //const exportOK = await commonStatisJs.NPOI_ExportExcel(GiaBanUri + 'ExportExcel_GiaBan', 'GET', params, 'DanhMucGiaBan.xlsx');
                 var url = GiaBanUri + 'ExportExcel_GiaBan?idnhomhang=' + self.arrIDNhomHang() +
                     '&maHoaDon=' + txtMaHDon_Excel + '&_id=' + self.selectedGiaBan() + "&columnsHide=" + columnHide + '&iddonvi=' + _IDchinhanh;
                 window.location.href = url;

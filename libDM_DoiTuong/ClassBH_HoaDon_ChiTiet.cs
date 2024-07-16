@@ -967,7 +967,7 @@ namespace libDM_DoiTuong
         public string ThuocTinh_GiaTri { get; set; }
         public String TenLoHang { get; set; }
         public double TonKho { get; set; }
-        public double TrangThaiMoPhieu { get; set; }
+        public double TrangThaiMoPhieu { get; set; }// phiẽuuatKhoChiTiet ( = 1 hoac 2: 
         public double SoLuong { get; set; }
         public double SoLuongXuatHuy { get; set; }
         public double DonGia { get; set; }
@@ -1103,6 +1103,7 @@ namespace libDM_DoiTuong
         public Guid? ID_ChiTietDinhLuong { get; set; }
         public Guid? ID_LoHang { get; set; }
         public bool? LaHangHoa { get; set; }
+        public int? LoaiHangHoa { get; set; }// used to check TonKho tpdl
         public Guid? IDChiTietDichVu { get; set; } // used to xuất kho định lượng (thêm hàng ngoài --> get idchitiet của dihcj vụ at hdsc)
         public int? LaDinhLuongBoSung { get; set; }
         public string ChatLieu { get; set; } // chatlieu = 4: xuatkho sudung goi baoduong

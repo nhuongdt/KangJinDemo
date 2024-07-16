@@ -460,7 +460,8 @@
                 loaiHD = 1;
             }
             let ktc = $.grep(self.listData.KhoanThuChis, function (x) {
-                return x.LoaiChungTu.indexOf(loaiHD) > -1 && x.LaKhoanThu === lakhoanthu;
+                return x.LoaiChungTu != null && $.inArray(loaiHD.toString(), x.LoaiChungTu.split(',')) > -1
+                    && x.LaKhoanThu === lakhoanthu;
             });
             return ktc;
         },

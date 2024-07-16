@@ -22300,7 +22300,7 @@ var NewModel_BanHangLe = function () {
             let ktc = [];
             if (commonStatisJs.CheckNull(idKhoanThuChi)) {
                 ktc = $.grep(self.KhoanThuChis(), function (x) {
-                    return x.LoaiChungTu.indexOf(itemHD.LoaiHoaDon.toString()) > -1 && x.LaKhoanThu;
+                    return x.LoaiChungTu.indexOf(itemHD.LoaiHoaDon.toString()) > -1 && x.LaKhoanThu == (loaiThuChi != 12); // thu/chi
                 });
             }
             if (ktc.length > 0) {

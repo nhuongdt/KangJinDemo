@@ -958,6 +958,97 @@ var newBH_NhanVienThucHien = function (itemNV, idHoaDon) {
     };
 };
 
+function GroupCTHD_byIDQuyDoi(arrCTHD) {
+        // group by idDonViQuyDoi, id_Lohang
+        let group_arrIDQuyDoi = [], group_arrIDLoHang = [];
+        let arrCTNew = [];
+        for (let i = 0; i < arrCTHD.length; i++) {
+            let itFor = arrCTHD[i];
+            if (itFor.LoaiHangHoa === 1) {
+                if ($.inArray(itFor.ID_DonViQuiDoi, group_arrIDQuyDoi) === -1) {
+                    group_arrIDQuyDoi.push(itFor.ID_DonViQuiDoi);
+
+                    if (itFor.QuanLyTheoLoHang) {
+                        if ($.inArray(itFor.ID_LoHang, group_arrIDLoHang) === -1) {
+                            group_arrIDLoHang.push(itFor.ID_LoHang);
+                            let obj = {
+                                TenHangHoa: itFor.TenHangHoa,
+                                MaHangHoa: itFor.MaHangHoa,
+                                MaLoHang: itFor.MaLoHang,
+                                ID_DonViQuiDoi: itFor.ID_DonViQuiDoi,
+                                ID_LoHang: itFor.ID_LoHang,
+                                SoLuong: formatNumberToFloat(itFor.SoLuong),
+                                QuanLyTheoLoHang: itFor.QuanLyTheoLoHang
+                            }
+                            arrCTNew.push(obj);
+                        }
+                        else {
+                            // find & sum by lo
+                            for (let j = 0; j < arrCTNew.length; j++) {
+                                let forNew = arrCTNew[j];
+                                if (forNew.ID_DonViQuiDoi === itFor.ID_DonViQuiDoi && forNew.ID_LoHang === itFor.ID_LoHang) {
+                                    arrCTNew[j].SoLuong += formatNumberToFloat(itFor.SoLuong);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        let obj = {
+                            TenHangHoa: itFor.TenHangHoa,
+                            MaHangHoa: itFor.MaHangHoa,
+                            MaLoHang: itFor.MaLoHang,
+                            ID_DonViQuiDoi: itFor.ID_DonViQuiDoi,
+                            ID_LoHang: itFor.ID_LoHang,
+                            SoLuong: formatNumberToFloat(itFor.SoLuong),
+                            ID_LoHang: null,
+                            QuanLyTheoLoHang: itFor.QuanLyTheoLoHang
+                        }
+                        arrCTNew.push(obj);
+                    }
+                }
+                else {
+                    if (itFor.QuanLyTheoLoHang) {
+                        if ($.inArray(itFor.ID_LoHang, group_arrIDLoHang) === -1) {
+                            group_arrIDLoHang.push(itFor.ID_LoHang);
+                            let obj = {
+                                TenHangHoa: itFor.TenHangHoa,
+                                MaHangHoa: itFor.MaHangHoa,
+                                MaLoHang: itFor.MaLoHang,
+                                ID_DonViQuiDoi: itFor.ID_DonViQuiDoi,
+                                ID_LoHang: itFor.ID_LoHang,
+                                SoLuong: formatNumberToFloat(itFor.SoLuong),
+                                QuanLyTheoLoHang: itFor.QuanLyTheoLoHang
+                            }
+                            arrCTNew.push(obj);
+                        }
+                        else {
+                            // find & sum by lo
+                            for (let j = 0; j < arrCTNew.length; j++) {
+                                let forNew = arrCTNew[j];
+                                if (forNew.ID_DonViQuiDoi === itFor.ID_DonViQuiDoi && forNew.ID_LoHang === itFor.ID_LoHang) {
+                                    arrCTNew[j].SoLuong += formatNumberToFloat(itFor.SoLuong);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        // find & sum by lo
+                        for (let j = 0; j < arrCTNew.length; j++) {
+                            let forNew = arrCTNew[j];
+                            if (forNew.ID_DonViQuiDoi === itFor.ID_DonViQuiDoi) {
+                                arrCTNew[j].SoLuong += formatNumberToFloat(itFor.SoLuong);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return arrCTNew;
+    }
+
 function GetDate_FromTo(textValue) {
     var now = new Date();
     textValue = textValue.toLowerCase();

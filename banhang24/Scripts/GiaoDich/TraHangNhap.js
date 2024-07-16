@@ -8,6 +8,8 @@
     var _id_NhanVien = VHeader.IdNhanVien;
     var _IDchinhanh = VHeader.IdDonVi;
     var _userLogin = VHeader.UserLogin;
+    var _now = new Date();
+    var _nowFormat = moment(_now).format('YYYY-MM-DD');
     var Key_Form = 'Key_PurchaseReturns';
     $('#txtNgayTao').val('Tháng này');
 
@@ -89,6 +91,7 @@
     self.Show_BtnExport = ko.observable(false);
     self.Role_ChangeNhanVien = ko.observable(false);
     self.Role_ChangeThoiGian = ko.observable(false);
+    self.Role_XoaPhieuTraHang_ifOtherDate= ko.observable(false);
 
     $('.modal-backdrop').remove();
 
@@ -463,7 +466,14 @@
     self.Enable_NgayLapHD = ko.observable(true);
 
     self.LoadChiTietHD = function (item, e) {
-        self.Enable_NgayLapHD(!VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
+        let ngaylapFormat = (moment(item.NgayLapHoaDon).format('YYYY-MM-DD'));
+        self.Enable_NgayLapHD(!VHeader.CheckKhoaSo(ngaylapFormat, item.ID_DonVi));
+
+         let role = CheckQuyenExist('TraHangNhap_Xoa_NeuKhacNgay');// bat buoc chay lai sau khi gan quyen o ben duoi
+        if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
+            role = self.Show_BtnDelete();
+        }
+        self.Role_XoaPhieuTraHang_ifOtherDate(role);
 
         var thisObj = event.currentTarget;
         var ulTab = '';
@@ -690,7 +700,6 @@
         }
 
         // NgayLapHoaDon
-        var _now = new Date();  //current date of week
         var currentWeekDay = _now.getDay();
         var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
         var dayStart = '';

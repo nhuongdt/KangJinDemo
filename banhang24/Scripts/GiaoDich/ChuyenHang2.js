@@ -52,6 +52,8 @@ var ViewModelHD = function () {
     var _id_NhanVien = $('.idnhanvien').text();
     var _IDchinhanh = $('#hd_IDdDonVi').val();
     var _IDNguoiDung = $('.idnguoidung').text();
+    var _now = new Date();
+    var _nowFormat = moment(_now).format('YYYY-MM-DD');
     var Key_Form = 'Key_Tranfer';
     loaiHoaDon = $('#loaiHoaDon').val();
     $('#txtNgayTao').val('Tháng này');
@@ -139,6 +141,7 @@ var ViewModelHD = function () {
     self.Show_BtnOpenNhanHang = ko.observable(false);
     self.Show_BtnUpdateHDTam = ko.observable(false);
     self.Enable_NgayLapHD = ko.observable(true);
+    self.Role_XoaPhieuDieuChuyen_ifOtherDate = ko.observable(true);
 
     this.YeuCau = ko.observableArray([
         { name: "Phiếu tạm", value: "1" },
@@ -394,6 +397,13 @@ var ViewModelHD = function () {
 
     self.LoadChiTietHD = function (item, e) {
         CheckKhoaSo(item);
+
+        let ngaylapFormat = (moment(item.NgayLapHoaDon).format('YYYY-MM-DD'));
+        let role = CheckQuyenExist('ChuyenHang_Xoa_NeuKhacNgay');// bat buoc chay lai sau khi gan quyen o ben duoi
+        if (_nowFormat === ngaylapFormat) {// neu trung ngay: luon co quyen sua
+            role = self.Show_BtnDelete();
+        }
+        self.Role_XoaPhieuDieuChuyen_ifOtherDate(role);
 
         self.currentPageCTNH(0);
         self.BH_HoaDonChiTiets([]);
@@ -655,8 +665,6 @@ var ViewModelHD = function () {
             }
         }
 
-        // NgayLapHoaDon
-        var _now = new Date();  //current date of week
         var currentWeekDay = _now.getDay();
         var lessDays = currentWeekDay === 0 ? 6 : currentWeekDay - 1;
         var dayStart = '';

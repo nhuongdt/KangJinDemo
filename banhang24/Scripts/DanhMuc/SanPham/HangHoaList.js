@@ -11712,31 +11712,59 @@ var ViewModel = function () {
     }
 
     // xuất danh mục hàng hóa
-    self.ExportDMHHtoExcel = function () {
+    //self.ExportDMHHtoExcel =  function () {
+    //    let param = GetParamSearch1();
+    //    let columnHide = [];
+    //    for (let i = 0; i < self.ColumnsExcel().length; i++) {
+    //        columnHide.push(self.ColumnsExcel()[i]);
+    //    }
+    //    param.ColumnHide = columnHide;
+    //    param.PageSize = self.TotalRecord();
+
+    //    ajaxHelper(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param).done(function (x) {
+    //        $('.content-table').gridLoader({ show: false });
+    //        if (x.res) {
+    //            self.DownloadFile_byURL(x.dataSoure);
+
+    //            let objDiary = {
+    //                ID_NhanVien: _IDNhanVien,
+    //                ID_DonVi: _IDchinhanh,
+    //                ChucNang: "Danh mục hàng hóa",
+    //                NoiDung: "Xuất file danh mục hàng hóa",
+    //                NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat(', Người xuất: ', VHeader.UserLogin),
+    //                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+    //            };
+    //            Insert_NhatKyThaoTac_1Param(objDiary);
+    //        }
+    //    })
+    //}
+
+    // xuất danh mục hàng hóa
+    self.ExportDMHHtoExcel = async function () {
         let param = GetParamSearch1();
+        
         let columnHide = [];
         for (let i = 0; i < self.ColumnsExcel().length; i++) {
             columnHide.push(self.ColumnsExcel()[i]);
         }
         param.ColumnHide = columnHide;
         param.PageSize = self.TotalRecord();
+        $('.content-table').gridLoader({ show: false });
+        console.log("param:", param);
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param , "DanhMucHangHoa.xlsx");
+        
+        if (exportOK) {
+            let objDiary = {
+                ID_NhanVien: _IDNhanVien,
+                ID_DonVi: _IDchinhanh,
+                ChucNang: "Danh mục hàng hóa",
+                NoiDung: "Xuất file danh mục hàng hóa",
+                NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat(', Người xuất: ', VHeader.UserLogin),
+                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+            };
+            Insert_NhatKyThaoTac_1Param(objDiary);
+        }
 
-        ajaxHelper(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param).done(function (x) {
-            $('.content-table').gridLoader({ show: false });
-            if (x.res) {
-                self.DownloadFile_byURL(x.dataSoure);
-
-                let objDiary = {
-                    ID_NhanVien: _IDNhanVien,
-                    ID_DonVi: _IDchinhanh,
-                    ChucNang: "Danh mục hàng hóa",
-                    NoiDung: "Xuất file danh mục hàng hóa",
-                    NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat(', Người xuất: ', VHeader.UserLogin),
-                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-                };
-                Insert_NhatKyThaoTac_1Param(objDiary);
-            }
-        })
     }
 
     // xuất thẻ kho danh mục hàng hóa
