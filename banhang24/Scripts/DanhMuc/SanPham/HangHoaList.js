@@ -12495,7 +12495,7 @@ var ViewModel = function () {
             $('.table_h10').gridLoader();
 
             var formData = new FormData();
-            var totalFiles = document.getElementById("imageUploadForm").files.length;
+            var totalFiles = document.getElementById("imageUploadForm").files.length;fn
             for (var i = 0; i < totalFiles; i++) {
                 var file = document.getElementById("imageUploadForm").files[i];
                 formData.append("imageUploadForm", file);
