@@ -4312,6 +4312,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 var roleXemGiaVon = CheckRoleXemGiaVon(db);
                 ClassDM_HangHoa _classDMHH = new ClassDM_HangHoa(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<BCDM_LoHangDTO> lstAllHHs = _classDMHH.XuatFileDMLoHang(maHoaDon, tonkho, idnhomhang, iddonvi, listthuoctinh, dayStart, dayEnd);
                 List<DM_LoHang_Excel> lst = new List<DM_LoHang_Excel>();
                 foreach (var item in lstAllHHs)
@@ -4342,12 +4344,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lst.Add(DM);
                 }
                 DataTable excel = _classOFDCM.ToDataTable<DM_LoHang_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucLoHang.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhMucLoHang.xlsx");
-                fileSave = _classOFDCM.createFolder_Download(fileSave);
-                _classOFDCM.listToOfficeExcelLoHang(fileTeamplate, fileSave, excel, 3, 27, 24, true, columnsHide, time);
-                HttpResponse Response = HttpContext.Current.Response;
-                _classOFDCM.downloadFile(fileSave);
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucLoHang.xlsx");               
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(null, time);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, columnsHide, lstCell, -1);               
             }
         }
 

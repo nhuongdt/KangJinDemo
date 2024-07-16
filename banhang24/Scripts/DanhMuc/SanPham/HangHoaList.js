@@ -11711,34 +11711,8 @@ var ViewModel = function () {
         vmApplyGroupProduct.showModal(typeProp, valUpdate, self.productOld().ID_NhomHangHoa);
     }
 
-    // xuất danh mục hàng hóa
-    //self.ExportDMHHtoExcel =  function () {
-    //    let param = GetParamSearch1();
-    //    let columnHide = [];
-    //    for (let i = 0; i < self.ColumnsExcel().length; i++) {
-    //        columnHide.push(self.ColumnsExcel()[i]);
-    //    }
-    //    param.ColumnHide = columnHide;
-    //    param.PageSize = self.TotalRecord();
-
-    //    ajaxHelper(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param).done(function (x) {
-    //        $('.content-table').gridLoader({ show: false });
-    //        if (x.res) {
-    //            self.DownloadFile_byURL(x.dataSoure);
-
-    //            let objDiary = {
-    //                ID_NhanVien: _IDNhanVien,
-    //                ID_DonVi: _IDchinhanh,
-    //                ChucNang: "Danh mục hàng hóa",
-    //                NoiDung: "Xuất file danh mục hàng hóa",
-    //                NoiDungChiTiet: "Xuất file danh mục hàng hóa".concat(', Người xuất: ', VHeader.UserLogin),
-    //                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-    //            };
-    //            Insert_NhatKyThaoTac_1Param(objDiary);
-    //        }
-    //    })
-    //}
-
+    
+    
     // xuất danh mục hàng hóa
     self.ExportDMHHtoExcel = async function () {
         let param = GetParamSearch1();
@@ -12047,7 +12021,7 @@ var ViewModel = function () {
 
     self.ColumnsExcelKK = ko.observableArray();
     // xuất kiểm kho hàng hóa
-    self.ExportExcel_KiemKho = function () {
+    self.ExportExcel_KiemKho = async function () {
         var objDiary = {
             ID_NhanVien: _IDNhanVien,
             ID_DonVi: _IDchinhanh,
@@ -12076,7 +12050,9 @@ var ViewModel = function () {
         }
         var url = '/api/DanhMuc/BH_HoaDonAPI/' + 'ExportExcel_KiemKho?loaiHoaDon=' + loaiHoaDon +
             '&maHoaDon=' + txtMaHDonKK_Excel + '&trangThai=' + txtTrangThaiKK_Excel + '&dayStart=' + dayStartKK_Excel + '&dayEnd=' + dayEndKK_Excel + "&columnsHide=" + columnHide + '&iddonvi=' + _IDchinhanh + '&arrChiNhanh=' + self.MangIDDV() + '&time=' + self.TodayBC() + '&TenChiNhanh=' + self.TenChiNhanh();
-        window.location.href = url;
+        const ok = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, 'PhieuDieuChinhGiaVon.xlsx');
+
+       
     }
 
     self.addColumKK = function (item) {
@@ -12099,19 +12075,23 @@ var ViewModel = function () {
     }
 
     // xuất kiểm kho chi tiết
-    self.ExportExcel_KiemKhoChiTiet = function (item) {
+    self.ExportExcel_KiemKhoChiTiet = async function (item) {
         var columnHide = null;
+
         var url = '/api/DanhMuc/BH_HoaDonAPI/' + 'ExportExcel_KiemKhoChiTiet?ID_HoaDon=' + item.ID + '&columnsHide=' + columnHide;
-        window.location.href = url;
-        var objDiary = {
-            ID_NhanVien: _IDNhanVien,
-            ID_DonVi: _IDchinhanh,
-            ChucNang: "Kiểm kho hàng hóa",
-            NoiDung: "Xuất báo cáo kiểm kho chi tiết hàng hóa theo mã: " + item.MaHoaDon,
-            NoiDungChiTiet: "Xuất báo cáo kiểm kho chi tiết hàng hóa theo mã: <a onclick=\"FindKiemKho('" + item.MaHoaDon + "')\">" + item.MaHoaDon + " </a>",
-            LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        };
-        Insert_NhatKyThaoTac_1Param(objDiary);
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "KiemKhoHangHoa_ChiTiet.xlsx");
+
+        if (exportOK) {
+            var objDiary = {
+                ID_NhanVien: _IDNhanVien,
+                ID_DonVi: _IDchinhanh,
+                ChucNang: "Kiểm kho hàng hóa",
+                NoiDung: "Xuất báo cáo kiểm kho chi tiết hàng hóa theo mã: " + item.MaHoaDon,
+                NoiDungChiTiet: "Xuất báo cáo kiểm kho chi tiết hàng hóa theo mã: <a onclick=\"FindKiemKho('" + item.MaHoaDon + "')\">" + item.MaHoaDon + " </a>",
+                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+            };
+            Insert_NhatKyThaoTac_1Param(objDiary);
+        }       
     }
     //Download file teamplate excel format (*.xls)
     self.DownloadFileTeamplateXLS = function () {
@@ -12495,7 +12475,7 @@ var ViewModel = function () {
             $('.table_h10').gridLoader();
 
             var formData = new FormData();
-            var totalFiles = document.getElementById("imageUploadForm").files.length;
+            var totalFiles = document.getElementById("imageUploadForm").files.length;fn
             for (var i = 0; i < totalFiles; i++) {
                 var file = document.getElementById("imageUploadForm").files[i];
                 formData.append("imageUploadForm", file);
