@@ -6102,7 +6102,7 @@ namespace libDM_DoiTuong
         public string TrangThai { get; set; }
         public double TongTienHang { get; set; }
         public double TongChiPhi { get; set; }
-        public string ChiPhi_GhiChu { get; set; }
+        public string ChiPhi_GhiChu { get; set; }// mượn trường (sử dụng ở getList_XuatHuy để lấy ghi chú của HD gốc)
         public double TongGiamGia { get; set; }
         public double TongChietKhau { get; set; }
         public double PhaiThanhToan { get; set; }

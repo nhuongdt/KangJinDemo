@@ -2729,9 +2729,17 @@
 
                             let ngayLap = moment(self.phieuThuOld.NgayLapHoaDon).format('YYYY-MM-DD');
                             let dtNow = moment(new Date()).format('YYYY-MM-DD')
-                            let role = VHeader.Quyen.indexOf('SoQuy_Xoa_NeuKhacNgay') > -1;
-                            if (dtNow === ngayLap) {
-                                role = true;
+
+                            let role = true;// trong ngày: auto được hủy
+                            if (dtNow !== ngayLap) {
+                                switch (self.LoaiHoaDon) {
+                                    case 1:
+                                        role = VHeader.Quyen.indexOf('HoaDon_HuyPhieuThanhToan_NeuKhacNgay') > -1;
+                                        break;
+                                    case 19:
+                                        role = VHeader.Quyen.indexOf('GoiDichVu_HuyPhieuThanhToan_NeuKhacNgay') > -1;
+                                        break;
+                                }
                             }
                             self.role.PhieuThu.XoaNeuKhacNgay = role;
                             self.isKhoaSo = self.CheckKhoaSo(ngayLap, self.phieuThuOld.ID_DonVi);

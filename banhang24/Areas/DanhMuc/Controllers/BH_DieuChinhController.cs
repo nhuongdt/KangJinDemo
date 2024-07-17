@@ -697,7 +697,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
                 //INS 10.07.2024
                 ClassNPOIExcel classNPOI = new ClassNPOIExcel();
-                
+
                 try
                 {
                     DataTable excel = _classOFDCM.ToDataTable<Excel_PhieuDieuChinhChiTiet>(lst);
@@ -710,7 +710,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucGiaVonTieuChuan.xlsx");
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.ReportBranch, param.ReportTime);
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, columnHide, lstCell, -1);
-                   
+
                 }
                 catch (Exception ex)
                 {
@@ -735,7 +735,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return Json(jsonResult);
             }
         }
-       
+
         [HttpGet, HttpPost]
         public IHttpActionResult getListHangHoaBy_IDNhomHang(ParamSearchNhomHang param)
         {
@@ -850,7 +850,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_PhieuDieuChinhGiaVon.xlsx");
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(ChiNhanh, time);
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell);
-               
+
             }
         }
         [HttpGet]
@@ -901,8 +901,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("SoThuTu");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_ChiTietPhieuDieuChinhGiaVon.xlsx");
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(ChiNhanh, time);
-                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell);
-             
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide, lstCell, -1);
+
             }
         }
         #endregion
