@@ -1041,7 +1041,7 @@ function ViewModel() {
     };
 
     // xuất excel 
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         if (self.HoaDons().length === 0) {
             ShowMessage_Danger('Không có dữ liệu để xuất file excel');
             return;
@@ -1066,36 +1066,39 @@ function ViewModel() {
         param.ColumnsHide = columnHide;
         console.log('columnHide ', columnHide)
 
-        ajaxHelper(BH_XuatHuyUri + 'ExportExelXH', 'POST', param).done(function (x) {
-            if (x.res) {
-                self.DownloadFileTeamplateXLSX(x.url);
-                let diary = {
-                    ID_NhanVien: _id_NhanVien,
-                    ID_DonVi: _id_DonVi,
-                    ChucNang: "Xuất kho",
-                    NoiDung: "Xuất danh sách phiếu xuất kho",
-                    NoiDungChiTiet: "Xuất danh sách phiếu xuất kho",
-                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-                };
-                Insert_NhatKyThaoTac_1Param(diary);
-            }
-        })
+
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_XuatHuyUri + 'ExportExelXH', 'POST', param, "DanhSachXuatKho.xlsx");
+
+        if (exportOK) {
+            let diary = {
+                ID_NhanVien: _id_NhanVien,
+                ID_DonVi: _id_DonVi,
+                ChucNang: "Xuất kho",
+                NoiDung: "Xuất danh sách phiếu xuất kho",
+                NoiDungChiTiet: "Xuất danh sách phiếu xuất kho",
+                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+            };
+            Insert_NhatKyThaoTac_1Param(diary);
+        }
     };
 
-    self.ExportExcel_ChiTiet = function (item) {
+    self.ExportExcel_ChiTiet =  async function (item) {
         var url = BH_XuatHuyUri + "ExportExcelXH_ChiTiet?ID_HoaDon=" + item.ID + "&ColumnsHide=null&time="
             + self.TodayBC() + "&ChiNhanh=" + _id_DonVi;
-        window.location.href = url;
 
-        var diary = {
-            ID_NhanVien: _id_NhanVien,
-            ID_DonVi: _id_DonVi,
-            ChucNang: "Xuất kho",
-            NoiDung: "Xuất danh sách chi tiết hàng hóa theo phiếu xuất kho: " + item.MaHoaDon,
-            NoiDungChiTiet: "Xuất danh sách chi tiết hàng hóa theo phiếu xuất kho: " + item.MaHoaDon,
-            LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        };
-        Insert_NhatKyThaoTac_1Param(diary);
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "DanhSachXuatKho_ChiTiet.xlsx");
+
+        if (exportOK) {
+            var diary = {
+                ID_NhanVien: _id_NhanVien,
+                ID_DonVi: _id_DonVi,
+                ChucNang: "Xuất kho",
+                NoiDung: "Xuất danh sách chi tiết hàng hóa theo phiếu xuất kho: " + item.MaHoaDon,
+                NoiDungChiTiet: "Xuất danh sách chi tiết hàng hóa theo phiếu xuất kho: " + item.MaHoaDon,
+                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+            };
+            Insert_NhatKyThaoTac_1Param(diary);
+        }
     }
 
 

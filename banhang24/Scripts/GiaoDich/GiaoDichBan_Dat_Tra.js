@@ -1301,6 +1301,7 @@
                     txtLoaiHD = 'Trả hàng';
                     funcName = 'ExportExcel_PhieuTraHang';
                     noidungNhatKy = "Xuất excel danh sách hóa đơn trả hàng";
+                    fileNameExport = "PhieuTraHang.xlsx";
                     break;
             }
             Params_GetListHoaDon.currentPage = 0;
@@ -1315,6 +1316,7 @@
             //})
 
             const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon, fileNameExport)
+            console.log('hoa don', exportOK, fileNameExport)
             if (exportOK) {
                 var objDiary = {
                     ID_NhanVien: _id_NhanVien,
@@ -2042,7 +2044,7 @@
     self.ExportExcel_HoaDon = function () {
         SearchHoaDon(true);
     }
-    self.ExportExcel_ChiTietHoaDon = function (item) {
+    self.ExportExcel_ChiTietHoaDon = async function (item) {
         //let table = $('#home_' + item.ID);
         //    TableToExcel.convert(table[0], { // html code may contain multiple tables so here we are refering to 1st table tag
         //        name: `export.xlsx`, // fileName you could use any name
@@ -2050,42 +2052,56 @@
         //            name: 'Sheet 1' // sheetName
         //        }
         //    });
-        var objDiary = {
-            ID_NhanVien: _id_NhanVien,
-            ID_DonVi: id_donvi,
-            ChucNang: "Hóa đơn",
-            NoiDung: "Xuất báo cáo hóa đơn chi tiết theo mã: " + item.MaHoaDon,
-            LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        };
-        var myData = {};
-        myData.objDiary = objDiary;
-        $.ajax({
-            url: DiaryUri + "post_NhatKySuDung",
-            type: 'POST',
-            async: true,
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: myData,
-            success: function (item) {
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                ShowMessage_Danger("Ghi nhật ký sử dụng thất bại");
-            },
-            complete: function () {
-                var columnHide = '';
-                if (self.ThietLap().LoHang === false) {
-                    columnHide = '3'; // hide: LoHang
-                }
-                var url = BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide;
-                window.location.href = url;
-            }
-        })
+
+        var columnHide = '';
+        if (self.ThietLap().LoHang === false) {
+            columnHide = '3'; // hide: LoHang
+        }
+        var url = BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide;
+
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide, 'GET', null, "GiaoDichHoaDon_ChiTiet.xlsx");
+
+
+
+        if (exportOK) {
+            var objDiary = {
+                ID_NhanVien: _id_NhanVien,
+                ID_DonVi: id_donvi,
+                ChucNang: "Hóa đơn",
+                NoiDung: "Xuất báo cáo hóa đơn chi tiết theo mã: " + item.MaHoaDon,
+                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+            };
+            Insert_NhatKyThaoTac_1Param(objDiary);
+        }
+        //var myData = {};
+        //myData.objDiary = objDiary;
+        //$.ajax({
+        //    url: DiaryUri + "post_NhatKySuDung",
+        //    type: 'POST',
+        //    async: true,
+        //    dataType: 'json',
+        //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        //    data: myData,
+        //    success: function (item) {
+        //    },
+        //    error: function (jqXHR, textStatus, errorThrown) {
+        //        ShowMessage_Danger("Ghi nhật ký sử dụng thất bại");
+        //    },
+        //    complete: function () {
+        //        var columnHide = '';
+        //        if (self.ThietLap().LoHang === false) {
+        //            columnHide = '3'; // hide: LoHang
+        //        }
+        //        var url = BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide;
+        //        window.location.href = url;
+        //    }
+        //})
     }
     // xuất excel phiếu trả hàng
     self.ExportExcel_PhieuTraHang = function () {
         SearchHoaDon(true);
     }
-    self.ExportExcel_ChiTietPhieuTraHang = function (item) {
+    self.ExportExcel_ChiTietPhieuTraHang = async function (item) {
         var objDiary = {
             ID_NhanVien: _id_NhanVien,
             ID_DonVi: id_donvi,
@@ -2111,9 +2127,10 @@
             error: function (jqXHR, textStatus, errorThrown) {
                 bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại", "danger");
             },
-            complete: function () {
+            complete: async function () {
                 var url = BH_HoaDonUri + 'ExportExcel__ChiTietPhieuTraHang?ID_HoaDon=' + item.ID;
-                window.location.href = url;
+                const exportOK = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "PhieuTraHang_ChiTiet.xlsx");
+
             }
         })
     }

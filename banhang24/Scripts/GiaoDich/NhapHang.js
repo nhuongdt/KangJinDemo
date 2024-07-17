@@ -2362,7 +2362,7 @@
         window.location.href = url1;
     }
 
-    self.ExportExcel_PhieuNhapHang = function () {
+    self.ExportExcel_PhieuNhapHang = async function () {
         var param = GetParamSearch();
         param.currentPage = 0;
         param.pageSize = self.TotalRecord();
@@ -2383,12 +2383,14 @@
         param.columnsHide = columnHide;
 
         let url = 'ExportExcel_PhieuNhapHang';
+        let fileNameExport = 'PhieuNhapHang.xlsx'
         if (self.LoaiHoaDon_13() || self.LoaiHoaDon_14()) {
             url = 'ExportExcel_PhieuNhapKhoNoiBo';
+            fileNameExport = 'PhieuNhapHang.xlsx';
         }
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + url, 'POST', { objExcel: param }, fileNameExport);
 
-        ajaxHelper(BH_HoaDonUri + url, 'post', { objExcel: param }).done(function (url) {
-            self.DownloadFileExportXLSX(url);
+        if (exportOK) {
             var objDiary = {
                 ID_NhanVien: _id_NhanVien,
                 ID_DonVi: _IDchinhanh,
@@ -2398,23 +2400,27 @@
                 LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
             };
             Insert_NhatKyThaoTac_1Param(objDiary);
-        });
+        }
+       
     };
 
-    self.ExportExcel_ChiTietPhieuNhapHang = function (item) {
+    self.ExportExcel_ChiTietPhieuNhapHang = async function (item) {
 
         var url = BH_HoaDonUri + 'ExportExcel__ChiTietPhieuNhapHang?ID_HoaDon=' + item.ID;
-        window.location.href = url;
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "PhieuNhapHang_ChiTiet.xlsx");
 
-        var objDiary = {
-            ID_NhanVien: _id_NhanVien,
-            ID_DonVi: _IDchinhanh,
-            ChucNang: "Nhập hàng",
-            NoiDung: "Xuất excel chi tiết phiếu nhập hàng theo mã: " + item.MaHoaDon,
-            NoiDungChiTiet: "Xuất excel chi tiết phiếu nhập hàng theo mã: <a onclick=\"FindMaHD('" + item.MaHoaDon + "')\"> " + item.MaHoaDon + "</a>",
-            LoaiNhatKy: 6
-        };
-        Insert_NhatKyThaoTac_1Param(objDiary);
+        if (exportOK) {
+            var objDiary = {
+                ID_NhanVien: _id_NhanVien,
+                ID_DonVi: _IDchinhanh,
+                ChucNang: "Nhập hàng",
+                NoiDung: "Xuất excel chi tiết phiếu nhập hàng theo mã: " + item.MaHoaDon,
+                NoiDungChiTiet: "Xuất excel chi tiết phiếu nhập hàng theo mã: <a onclick=\"FindMaHD('" + item.MaHoaDon + "')\"> " + item.MaHoaDon + "</a>",
+                LoaiNhatKy: 6
+            };
+            Insert_NhatKyThaoTac_1Param(objDiary);
+        }
+        
     };
 
     function loadMauIn() {
