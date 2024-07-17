@@ -870,12 +870,14 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
         //Xuất báo cáo
         [HttpPost]
-        public IHttpActionResult ExportExelXH(Params_GetListHoaDon param)
+        public string ExportExelXH(Params_GetListHoaDon param)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 try
                 {
                     List<BH_HoaDonDTO> lst = classHoaDon.GetListHDXuatKho(param);
@@ -909,8 +911,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("showTime");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachXuatHuy.xlsx");
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachXuatKho.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
+                
                     var valExcel1 = string.Empty;
                     if (param.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
                     {
@@ -920,18 +921,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = param.NgayTaoHD_TuNgay + " - " + param.NgayTaoHD_DenNgay;
                     }
-                    classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, param.ColumnsHide, valExcel1, param.ValueText);
+               
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.ValueText, valExcel1);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.ColumnsHide, lstCell);                  
 
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-
-                    return Json(new { res = true, url = fileSave });
                 }
+
                 catch (Exception ex)
                 {
-                    return Json(new { res = false, mes = ex.InnerException + ex.Message });
+                     CookieStore.WriteLog("ExportExcel_DanhSachXuatHuy listParams " + ex.InnerException + ex.Message);
                 }
+                return string.Empty;
             }
         }
         [HttpGet]
@@ -940,6 +940,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<SqlParameter> prm = new List<SqlParameter>();
                 prm.Add(new SqlParameter("ID_HoaDon", ID_HoaDon));
                 prm.Add(new SqlParameter("ID_ChiNhanh", new Guid(ChiNhanh)));
@@ -969,11 +971,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("ChatLieu");
                 // get tendonvi by ID
                 string teamplateFile = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachXuatHuy_ChiTiet.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachXuatKho_ChiTiet.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel(teamplateFile, fileSave, excel, 4, 28, 24, true, null);
-                HttpResponse Response = HttpContext.Current.Response;
-                classOffice.downloadFile(fileSave);
+               
+                classNPOI.ExportDataToExcel(teamplateFile, excel, 4, null, null, -1);
+                
             }
         }
 

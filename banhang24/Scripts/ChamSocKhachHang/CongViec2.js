@@ -963,7 +963,7 @@ var ViewModal = function () {
         }
     }
 
-    function SearchCongViec(isExport) {
+    async function SearchCongViec(isExport) {
         isExport = isExport || false;
         var arrHidecolums = LocalCaches.LoadColumnGrid(Key_Form);
         var columnHide = null;
@@ -1028,9 +1028,9 @@ var ViewModal = function () {
         $('#gridTable').gridLoader();
         if (isExport) {
             $('#gridTable').gridLoader({ show: false });
-            ajaxHelper(ChamSocKhachHangs + 'ExportExcel_CongViec', 'POST', model).done(function (url) {
-                self.DownloadFileExportXLSX(url);
-            });
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(ChamSocKhachHangs + 'ExportExcel_CongViec', 'POST', model, "CongViec.xlsx");
+
+            
         }
         else {
             ajaxHelper(ChamSocKhachHangs + 'GetListLichHen_FullCalendar', 'POST', model).done(function (x) {

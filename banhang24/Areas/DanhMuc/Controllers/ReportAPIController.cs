@@ -5,6 +5,7 @@ using libHT;
 using libHT_NguoiDung;
 using libQuy_HoaDon;
 using libReport;
+using Microsoft.SqlServer.Server;
 using Model;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8537,7 +8538,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public string ExportExcel_ValueCard_Balance(ParamReportValueCard lstParam)
         {
-            string fileSave = string.Empty;
+          
             try
             {
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -8545,6 +8546,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportTheGiaTri reportTheGiaTri = new ClassReportTheGiaTri(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     List<SP_ReportValueCard_Balance> lst = reportTheGiaTri.GetReportBalance_ValueCard(lstParam);
                     DataTable excel = classOffice.ToDataTable<SP_ReportValueCard_Balance>(lst);
                     excel.Columns.Remove("ID");
@@ -8556,8 +8559,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TotalPage");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "Teamplate_BaoCaoSoDu_TheGiaTri.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "BaoCaoSoDuTheGiaTri.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
+                    //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "BaoCaoSoDuTheGiaTri.xlsx");
+                    //fileSave = classOffice.createFolder_Download(fileSave);
                     var valExcel1 = string.Empty;
                     if (lstParam.DateFrom == "20160101")
                     {
@@ -8567,24 +8570,26 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
-                    classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, valExcel1);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, lstParam.ColumnsHide, lstCell, -1);
 
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    //classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
+
+                    //var index = fileSave.IndexOf(@"\Template");
+                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    //fileSave = fileSave.Replace(@"\", "/");
                 }
             }
             catch (Exception ex)
             {
                 CookieStore.WriteLog("ExportExcel_ValueCard_Balance " + ex.InnerException + ex.Message);
             }
-            return fileSave;
+            return string.Empty;
         }
 
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public string ExportExcel_ValueCard_HisUsed(ParamReportValueCard lstParam)
         {
-            string fileSave = string.Empty;
             try
             {
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -8592,6 +8597,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportTheGiaTri reportTheGiaTri = new ClassReportTheGiaTri(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     List<SP_ReportValueCard_HisUsed> lst = reportTheGiaTri.GetReportDiary_ValueCard(lstParam);
 
                     DataTable excel = classOffice.ToDataTable<SP_ReportValueCard_HisUsed>(lst);
@@ -8609,8 +8616,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TotalPage");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "Teamplate_NhatKySuDung_TheGiaTri.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "BaoCaoNhatKyTheGiaTri.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
+                    //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "BaoCaoNhatKyTheGiaTri.xlsx");
+                    //fileSave = classOffice.createFolder_Download(fileSave);
                     string valExcel1 = string.Empty;
                     if (lstParam.DateFrom == "20160101")
                     {
@@ -8620,18 +8627,21 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
-                    classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
 
-                    int index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, valExcel1);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, lstParam.ColumnsHide, lstCell);
+                    //classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
+
+                    //int index = fileSave.IndexOf(@"\Template");
+                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    //fileSave = fileSave.Replace(@"\", "/");
                 }
             }
             catch (Exception ex)
             {
                 CookieStore.WriteLog("ExportExcel_ValueCard_HisUsed " + ex.InnerException + ex.Message);
             }
-            return fileSave;
+            return string.Empty;
         }
 
         [System.Web.Http.AcceptVerbs("GET", "POST")]
@@ -8645,14 +8655,16 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportTheGiaTri reportTheGiaTri = new ClassReportTheGiaTri(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     List<SP_ValueCard_ServiceUsed> lst = reportTheGiaTri.SP_ValueCard_ServiceUsed(lstParam);
 
                     DataTable excel = classOffice.ToDataTable<SP_ValueCard_ServiceUsed>(lst);
                     excel.Columns.Remove("ID_HoaDon");
                     excel.Columns.Remove("ID_PhieuThuChi");
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "Teamplate_NhatKySuDungDichVu_TheGiaTri.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "BCNhatKySuDungDichVuTheGiaTri.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
+                    //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/" + "BCNhatKySuDungDichVuTheGiaTri.xlsx");
+                    //fileSave = classOffice.createFolder_Download(fileSave);
                     string valExcel1 = string.Empty;
                     if (lstParam.DateFrom == "20160101")
                     {
@@ -8662,10 +8674,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
-                    classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
-                    int index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, valExcel1);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, lstParam.ColumnsHide, lstCell, -1);
+                    //classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel, 6, 30, 24, true, 0, lstParam.ColumnsHide, valExcel1, lstParam.TextReport);
+                    //int index = fileSave.IndexOf(@"\Template");
+                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    //fileSave = fileSave.Replace(@"\", "/");
                 }
             }
             catch (Exception ex)

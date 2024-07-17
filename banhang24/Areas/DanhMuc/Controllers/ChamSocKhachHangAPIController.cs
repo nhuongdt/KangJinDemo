@@ -1772,6 +1772,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 class_LichHen classLichHen = new class_LichHen(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<SP_Calendar> lstReturn = classLichHen.GetListCalendar(model);
                 List<ChamSocKhachHangXuatFileDTO> lst = new List<ChamSocKhachHangXuatFileDTO>();
                 foreach (var item in lstReturn)
@@ -1798,12 +1800,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 DataTable excel = classOffice.ToDataTable<ChamSocKhachHangXuatFileDTO>(lst);
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_CongViec.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CongViec.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                var time = "Thời gian: " + model.FromDate + " - " + model.ToDate;
-                classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, model.ColumnsHide, time, model.TenChiNhanhs);
-                fileSave = classOffice.createFolder_Export("~/Template/ExportExcel/CongViec.xlsx");
-                return fileSave;
+                var time = model.FromDate + " - " + model.ToDate;
+                List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(model.TenChiNhanhs, time);
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, model.ColumnsHide, lstCell,-1);               
+                return string.Empty;
             }
         }
 

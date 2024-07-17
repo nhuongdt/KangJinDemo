@@ -582,7 +582,7 @@
                     })
             })
         },
-        Export_PhieuTrichHoaHong_byID: function (item) {
+        Export_PhieuTrichHoaHong_byID: async function (item) {
             let self = this;
             let ngay = item.NgayLapHoaDon;
             let obj = {
@@ -598,34 +598,32 @@
                     { RowIndex: 4, ColumnIndex: 7,CellValue: item.ConNo },
                 ],
             }
-            ajaxHelper(self.UrlAPI.HoaDon + 'Export_PhieuTrichHoaHong_byID', 'post', obj).done(function (pathFile) {
-                if (pathFile !== '') {
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(self.UrlAPI.HoaDon + 'Export_PhieuTrichHoaHong_byID', 'POST', obj, "PhieuTrichHoaHong_byID.xlsx");
 
-                    let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
-                    window.location.href = url;
-
-                    let diary = {
-                        ID_NhanVien: VHeader.IdNhanVien,
-                        ID_DonVi: VHeader.IdDonVi,
-                        ChucNang: "Phiếu trích hoa hồng",
-                        NoiDung: "Xuất excel phiếu trích hoa hồng ".concat(item.MaHoaDon),
-                        NoiDungChiTiet: "Xuất excel phiếu trích hoa hồng ".concat(item.MaHoaDon, '<br />- Người xuất: ', VHeader.UserLogin),
-                        LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-                    };
-                    Insert_NhatKyThaoTac_1Param(diary);
-                }
-            });
+            if (exportOK) {
+                let diary = {
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    ID_DonVi: VHeader.IdDonVi,
+                    ChucNang: "Phiếu trích hoa hồng",
+                    NoiDung: "Xuất excel phiếu trích hoa hồng ".concat(item.MaHoaDon),
+                    NoiDungChiTiet: "Xuất excel phiếu trích hoa hồng ".concat(item.MaHoaDon, '<br />- Người xuất: ', VHeader.UserLogin),
+                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                };
+                Insert_NhatKyThaoTac_1Param(diary);
+            }
+            
         },
-        ExportExcel: function () {
+        ExportExcel: async function () {
             let self = this;
             let param = self.GetParam();
             param.PageSize = self.Paging.TotalRow;
 
-            let url = '', txt = '';
+            let url = '', txt = '', fileNameExport = '';
             switch (parseInt(self.LoaiBaoCao)) {
                 case 1:
                     url = 'Export_PhieuTrichHoaHong';
                     txt = 'danh sách';
+                    fileNameExport = 'DanhSachPhieuTrichHoaHong.xlsx';
                     break;
                 case 2:
                     url = 'Export_ChiTietPhieuTrichHoaHong';
@@ -633,24 +631,22 @@
                     break;
             }
 
-            ajaxHelper(self.UrlAPI.HoaDon + url, 'POST', param).done(function (pathFile) {
-                if (pathFile !== '') {
-                    let url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + pathFile;
-                    window.location.href = url;
-                    commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+            const exportOK = await commonStatisJs.NPOI_ExportExcel(self.UrlAPI.HoaDon + url, 'POST', param, fileNameExport);
 
-                    let diary = {
-                        ID_DonVi: VHeader.IdDonVi,
-                        ID_NhanVien: VHeader.IdNhanVien,
-                        LoaiNhatKy: 6,
-                        ChucNang: 'Phiếu trích hoa hồng',
-                        NoiDung: 'Xuất file ' + txt + ' trích hoa hồng',
-                        NoiDungChiTiet: 'Xuất file ' + txt + ' phiếu trích hoa hồng'.
-                            concat('<br /> Người xuất: ', VHeader.UserLogin),
-                    }
-                    Insert_NhatKyThaoTac_1Param(diary);
+            if (exportOK) {
+                commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+                let diary = {
+                    ID_DonVi: VHeader.IdDonVi,
+                    ID_NhanVien: VHeader.IdNhanVien,
+                    LoaiNhatKy: 6,
+                    ChucNang: 'Phiếu trích hoa hồng',
+                    NoiDung: 'Xuất file ' + txt + ' trích hoa hồng',
+                    NoiDungChiTiet: 'Xuất file ' + txt + ' phiếu trích hoa hồng'.
+                        concat('<br /> Người xuất: ', VHeader.UserLogin),
                 }
-            })
+                Insert_NhatKyThaoTac_1Param(diary);
+            } 
+
         },
         updateNguoiGioiThieu: async function (idCus) {
             let cus = await vmThemMoiKhach.GetInforKhachHangFromDB_ByID(idCus);

@@ -307,14 +307,14 @@ namespace banhang24.Areas.DanhMuc.Controllers
         [HttpGet, HttpPost]
         public string ExportExcel_KhachHang(Params_GetListKhachHang lstParam)
         {
-            string fileSave = string.Empty;
             try
             {
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
                     var classdoituong = new classDM_DoiTuong(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
-
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     var whereColumn = SearchColumn(lstParam.SearchColumns, string.Empty, ref lstParam);
                     lstParam.WhereSql = whereColumn;
                     List<SP_DM_DoiTuong> data = classdoituong.LoadDanhMuc_KhachHangNhaCungCap(lstParam);
@@ -368,22 +368,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("NgayGiaoDichGanNhat");
                     excel.Columns.Remove("TrangThaiKhachHang");
                     excel.Columns.Remove("SumSoTienChuaSD");
-
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachKhachHang.xlsx");
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, lstParam.ColumnsHide);
-
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, lstParam.ColumnsHide, null, -1);                 
                 }
             }
             catch (Exception ex)
             {
                 CookieStore.WriteLog("ExportExcel_KhachHang_Params_GetListKhachHang " + ex.InnerException + ex.Message);
             }
-            return fileSave;
+            return string.Empty;
         }
 
         [HttpGet, HttpPost]
@@ -393,7 +386,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 var classdoituong = new classDM_DoiTuong(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
-
+                //INS 10.07.2024
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 var whereColumn = SearchColumn(lstParam.SearchColumns, string.Empty, ref lstParam);
                 lstParam.WhereSql = whereColumn;
                 List<SP_DM_DoiTuong> lstKhachhangs = classdoituong.SP_GetListKhachHang_Where_Paging(lstParam);
@@ -421,14 +415,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 DataTable excel = classOffice.ToDataTable<DM_NhaCungCap_Excel>(lst);
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachNhaCungCap.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachNhaCungCap.xlsx");
-                fileSave = classOffice.createFolder_Download(fileSave);
-                classOffice.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, lstParam.ColumnsHide);
+                //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachNhaCungCap.xlsx");
+                //fileSave = classOffice.createFolder_Download(fileSave);
+                //classOffice.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, lstParam.ColumnsHide);
 
-                var index = fileSave.IndexOf(@"\Template");
-                fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                fileSave = fileSave.Replace(@"\", "/");
-                return fileSave;
+                //var index = fileSave.IndexOf(@"\Template");
+                //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                //fileSave = fileSave.Replace(@"\", "/");
+                
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, lstParam.ColumnsHide, null, -1);
+
+                return string.Empty;
             }
         }
 
@@ -484,15 +481,32 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     var classhoadon = new ClassBH_HoaDon(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
 
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
+                    {
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 2,
+                            ColumnIndex = 1,
+                            CellValue = maDoiTuog
+                        },
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 3,
+                            ColumnIndex = 1,
+                            CellValue = tenDoiTuong
+                        }
+                    };
                     // HD ban/TraHang/DatHang
                     var dataHD = classhoadon.GetHoaDon_FromIDDoiTuong(idDoiTuong, idChiNhanh);
                     IEnumerable<KhachHang_TabHoaDon> dataSell = null;
                     IEnumerable<KhachHang_TabHoaDon> dataReserved = null;
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Temp_LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
-
+                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
+                    
                     if (dataHD != null && dataHD.Count() > 0)
                     {
                         dataSell = dataHD.Where(x => x.LoaiHoaDon != 3).OrderByDescending(HD => HD.NgayLapHoaDon);
@@ -513,7 +527,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         });
 
                         DataTable excel_BH = classOffice.ToDataTable<Excel_HisHoaDon>(ss1.ToList());
-                        classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel_BH, 6, 25, 19, true, 0, null, maDoiTuog, tenDoiTuong);
+
+                        classNPOI.ExportDataToExcel(fileTeamplate, excel_BH, 6, null, lstCell, -1);
+                        //classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel_BH, 6, 25, 19, true, 0, null, maDoiTuog, tenDoiTuong);
 
                         if (dataReserved.Count() > 0)
                         {
@@ -527,7 +543,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             });
 
                             DataTable excel_DT = classOffice.ToDataTable<Excel_HisHoaDon>(ss2.ToList());
-                            classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_DT, 6, 25, 19, true, 1, null, maDoiTuog, tenDoiTuong);
+
+                            classNPOI.ExportDataToExcel(fileTeamplate, excel_DT, 6, null, lstCell, -1);
+                            //classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_DT, 6, 25, 19, true, 1, null, maDoiTuog, tenDoiTuong);
                         }
                     }
 
@@ -548,7 +566,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                         DataTable excel_QuyHD = classOffice.ToDataTable<NhatKyTichDiem>(ss3.ToList());
                         excel_QuyHD.Columns.Remove("DiemSauGD");
-                        classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_QuyHD, 6, 25, 19, true, 2, null, maDoiTuog, tenDoiTuong);
+                        //classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_QuyHD, 6, 25, 19, true, 2, null, maDoiTuog, tenDoiTuong);
+
+                        classNPOI.ExportDataToExcel(fileTeamplate, excel_QuyHD, 6, null, lstCell, -1);
+
+
                     }
 
                     // TichDiem
@@ -566,13 +588,14 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             DiemSauGD = x.DiemSauGD,
                         });
                         DataTable excel_Point = classOffice.ToDataTable<NhatKyTichDiem>(ss4.ToList());
-                        classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_Point, 6, 25, 19, true, 3, null, maDoiTuog, tenDoiTuong);
+                        //classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_Point, 6, 25, 19, true, 3, null, maDoiTuog, tenDoiTuong);
+                        classNPOI.ExportDataToExcel(fileTeamplate, excel_Point, 6, null, lstCell, -1);
                     }
 
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return fileSave;
+                    //var index = fileSave.IndexOf(@"\Template");
+                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    //fileSave = fileSave.Replace(@"\", "/");
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
@@ -591,6 +614,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     var classhoadon = new ClassBH_HoaDon(db);
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    //INS 10.07.2024
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
 
                     // HD Nhap/Tra
                     var dataHD = classhoadon.GetHoaDon_FromIDDoiTuong(idDoiTuong, idChiNhanh);
@@ -634,7 +659,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         DataTable excel_QuyHD = classOffice.ToDataTable<Excel_HisHoaDon>(ss3.ToList());
                         classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_QuyHD, 6, 25, 19, true, 1, null, maDoiTuog, tenDoiTuong);
                     }
-
+               
                     var index = fileSave.IndexOf(@"\Template");
                     fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
                     fileSave = fileSave.Replace(@"\", "/");
