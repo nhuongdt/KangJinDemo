@@ -11742,16 +11742,8 @@ var ViewModel = function () {
     }
 
     // xuất thẻ kho danh mục hàng hóa
-    self.ExportTheKhoHHtoExcel = function () {
-        var objDiary = {
-            ID_NhanVien: _IDNhanVien,
-            ID_DonVi: _IDchinhanh,
-            ChucNang: "Danh Mục Hàng hóa",
-            NoiDung: "Xuất danh sách thẻ kho của hàng hóa",
-            NoiDungChiTiet: "Xuất danh sách thẻ kho của hàng hóa",
-            LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        };
-        Insert_NhatKyThaoTac_1Param(objDiary);
+    self.ExportTheKhoHHtoExcel = async function () {
+        
 
         var columnHide = null;
         for (var i = 0; i < self.ColumnsExcel().length; i++) {
@@ -11762,8 +11754,20 @@ var ViewModel = function () {
                 columnHide = self.ColumnsExcel()[i] + "_" + columnHide;
             }
         }
-        var url = DMHangHoaUri + 'ExportExel_TheKhoHH?id=' + self.selectIDHH() + '&iddonvi=' + _IDchinhanh + '&columnsHide=' + columnHide;
-        window.location.href = url;
+
+        exportOK = await commonStatisJs.NPOI_ExportExcel(DMHangHoaUri + 'ExportExel_TheKhoHH?id=' + self.selectIDHH() + '&iddonvi=' + _IDchinhanh + '&columnsHide=' + columnHide, 'GET', null, "TheKhoDanhMucHangHoa.xlsx");
+        if (exportOK) {
+            var objDiary = {
+                ID_NhanVien: _IDNhanVien,
+                ID_DonVi: _IDchinhanh,
+                ChucNang: "Danh Mục Hàng hóa",
+                NoiDung: "Xuất danh sách thẻ kho của hàng hóa",
+                NoiDungChiTiet: "Xuất danh sách thẻ kho của hàng hóa",
+                LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+            };
+            Insert_NhatKyThaoTac_1Param(objDiary);
+        }
+       
     }
 
     self.ColumnsExcel = ko.observableArray();

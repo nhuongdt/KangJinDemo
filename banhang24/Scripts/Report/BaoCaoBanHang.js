@@ -214,7 +214,7 @@
     var dt1 = new Date();
     var _timeStart = dt1.getFullYear() + "-" + (dt1.getMonth() + 1) + "-" + dt1.getDate();
     var _timeEnd = moment(new Date(dt1.setDate(dt1.getDate() + 1))).format('YYYY-MM-DD');
-    self.TodayBC = ko.observable('Ngày bán: ' + moment(_timeStart).format('DD/MM/YYYY'));
+    self.TodayBC = ko.observable(moment(_timeStart).format('DD/MM/YYYY'));
     self.check_MoiQuanTam = ko.observable(1);
     self.SumNumberPageReport = ko.observableArray();
     self.RowsStart = ko.observable('1');

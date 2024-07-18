@@ -2974,7 +2974,21 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("SoDuSauNap");
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_TheNap.xlsx");
                     //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/PhieuNapThe.xlsx");
-                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(null, model.time);
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
+                    {
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 2,
+                            ColumnIndex = 1,
+                            CellValue = model.time
+                        },
+                        new ClassExcel_CellData
+                        {
+                            RowIndex = 3,
+                            ColumnIndex = 1,
+                            CellValue = ""
+                        }
+                    };
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, model.columnsHide, lstCell);
                     //fileSave = _classOFDCM.createFolder_Download(fileSave);
                     //_classOFDCM.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 28, 24, true, model.columnsHide, model.time, "");

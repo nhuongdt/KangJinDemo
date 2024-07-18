@@ -252,7 +252,7 @@
             else
                 _tenNhomDoiTuongSeach = self.MangNhomDoiTuong()[i].ID + "," + _tenNhomDoiTuongSeach;
         }
-        
+
         // remove check
         $('#selec-all-NhomDoiTuong li').each(function () {
             if ($(this).attr('id') === item.ID) {
@@ -368,7 +368,7 @@
         else {
             _idDonViSeach = null;
             self.ArrDonVi.unshift(item);
-            
+
             if (self.MangChiNhanh().length === 0) {
                 $("#NoteNameDonVi").attr("placeholder", "Chọn chi nhánh...");
                 TenChiNhanh = 'Tất cả chi nhánh.'
@@ -513,20 +513,20 @@
                     for (var j = 0; j < data.length; j++) {
                         if (data[j].ID !== data[i].ID && data[j].ID_Parent === data[i].ID) {
                             var objChild =
-                                {
-                                    ID: data[j].ID,
-                                    TenNhomHangHoa: data[j].TenNhomHang,
-                                    ID_Parent: data[i].ID,
-                                    Child2s: []
-                                };
+                            {
+                                ID: data[j].ID,
+                                TenNhomHangHoa: data[j].TenNhomHang,
+                                ID_Parent: data[i].ID,
+                                Child2s: []
+                            };
                             for (var k = 0; k < data.length; k++) {
                                 if (data[k].ID_Parent !== null && data[k].ID_Parent === data[j].ID) {
                                     var objChild2 =
-                                        {
-                                            ID: data[k].ID,
-                                            TenNhomHangHoa: data[k].TenNhomHang,
-                                            ID_Parent: data[j].ID,
-                                        };
+                                    {
+                                        ID: data[k].ID,
+                                        TenNhomHangHoa: data[k].TenNhomHang,
+                                        ID_Parent: data[j].ID,
+                                    };
                                     objChild.Child2s.push(objChild2);
                                 }
                             }
@@ -567,20 +567,20 @@
                                 for (var j = 0; j < data.length; j++) {
                                     if (data[j].ID !== data[i].ID && data[j].ID_Parent === data[i].ID) {
                                         var objChild =
-                                            {
-                                                ID: data[j].ID,
-                                                TenNhomHangHoa: data[j].TenNhomHang,
-                                                ID_Parent: data[i].ID,
-                                                Child2s: []
-                                            };
+                                        {
+                                            ID: data[j].ID,
+                                            TenNhomHangHoa: data[j].TenNhomHang,
+                                            ID_Parent: data[i].ID,
+                                            Child2s: []
+                                        };
                                         for (var k = 0; k < data.length; k++) {
                                             if (data[k].ID_Parent !== null && data[k].ID_Parent === data[j].ID) {
                                                 var objChild2 =
-                                                    {
-                                                        ID: data[k].ID,
-                                                        TenNhomHangHoa: data[k].TenNhomHang,
-                                                        ID_Parent: data[j].ID,
-                                                    };
+                                                {
+                                                    ID: data[k].ID,
+                                                    TenNhomHangHoa: data[k].TenNhomHang,
+                                                    ID_Parent: data[j].ID,
+                                                };
                                                 objChild.Child2s.push(objChild2);
                                             }
                                         }
@@ -1572,7 +1572,7 @@
         window.location.href = url;
     }
     // xuất file Excel
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         LoadingForm(true);
         var arrayColumn = [];
         var columnHide = null;
@@ -1598,115 +1598,167 @@
             NoiDungChiTiet: "Xuất " + self.MoiQuanTam().toLowerCase(),
             LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
         };
-        var myData = {};
-        myData.objDiary = objDiary;
-        $.ajax({
-            url: DiaryUri + "post_NhatKySuDung",
-            type: 'POST',
-            async: true,
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: myData,
-            success: function (item) {
-                var array_Seach = {
-                    MaHangHoa: Text_search,
-                    MaKhachHang: _maNCC,
-                    timeStart: _timeStart,
-                    timeEnd: _timeEnd,
-                    ID_ChiNhanh: _idDonViSeach,
-                    LaHangHoa: _laHangHoa,
-                    TinhTrang: TinhTrangHH,
-                    ID_NhomHang: _ID_NhomHang,
-                    ID_NhomDoiTuong: _tenNhomDoiTuongSeach,
-                    ID_NguoiDung: _IDDoiTuong,
-                    columnsHide: columnHide,
-                    TodayBC: self.TodayBC(),
-                    TenChiNhanh: self.TenChiNhanh(),
-                    lstIDChiNhanh: self.LstIDDonVi(),
-                }
-                if (self.BCNH_XuatFile() != "BCNH_XuatFile") {
-                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này!", "danger");
-                    LoadingForm(false);
-                    return false;
-                }
-                if (self.check_MoiQuanTam() == 1 && self.BaoCaoNhapHang_TongHop().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCNH_TongHop",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else if (self.check_MoiQuanTam() == 2 && self.BaoCaoNhapHang_ChiTiet().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCNH_ChiTiet",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else if (self.check_MoiQuanTam() == 3 && self.BaoCaoNhapHang_TheoNhomHang().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCNH_TheoNhomHang",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else if (self.check_MoiQuanTam() == 4 && self.BaoCaoNhapHang_TheoNhaCungCap().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCNH_TheoNhaCungCap",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else if (self.check_MoiQuanTam() == 5 && self.BaoCaoNhapHang_TraHangNhap().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCNH_TraHangNhap",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else {
-                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Báo cáo không có dữ liệu", "danger");
-                    LoadingForm(false);
-                }
-            },
-            statusCode: {
-                404: function () {
-                    LoadingForm(false);
-                },
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại!", "danger");
+        var array_Seach = {
+            MaHangHoa: Text_search,
+            MaKhachHang: _maNCC,
+            timeStart: _timeStart,
+            timeEnd: _timeEnd,
+            ID_ChiNhanh: _idDonViSeach,
+            LaHangHoa: _laHangHoa,
+            TinhTrang: TinhTrangHH,
+            ID_NhomHang: _ID_NhomHang,
+            ID_NhomDoiTuong: _tenNhomDoiTuongSeach,
+            ID_NguoiDung: _IDDoiTuong,
+            columnsHide: columnHide,
+            TodayBC: self.TodayBC(),
+            TenChiNhanh: self.TenChiNhanh(),
+            lstIDChiNhanh: self.LstIDDonVi(),
+        }
+        if (self.BCNH_XuatFile() != "BCNH_XuatFile") {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này!", "danger");
+            LoadingForm(false);
+            return false;
+        }
+
+
+        let exportOK;
+        try {
+            if (self.check_MoiQuanTam() == 1 && self.BaoCaoNhapHang_TongHop().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCNH_TongHop", 'POST', { objExcel: array_Seach }, "BaoCaoNhapHangTongHop.xlsx");
+            } else if (self.check_MoiQuanTam() == 2 && self.BaoCaoNhapHang_ChiTiet().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCNH_ChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoNhapHangChiTiet.xlsx");
+            } else if (self.check_MoiQuanTam() == 3 && self.BaoCaoNhapHang_TheoNhomHang().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCNH_TheoNhomHang", 'POST', { objExcel: array_Seach }, "BaoCaoNhapHangTheoNhomHang.xlsx");
+            } else if (self.check_MoiQuanTam() == 4 && self.BaoCaoNhapHang_TheoNhaCungCap().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCNH_TheoNhaCungCap", 'POST', { objExcel: array_Seach }, "BaoCaoNhapHangTheoNhaCungCap.xlsx");
+            } else if (self.check_MoiQuanTam() == 5 && self.BaoCaoNhapHang_TraHangNhap().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCNH_TraHangNhap", 'POST', { objExcel: array_Seach }, "BaoCaoTraHangNhaCungCap.xlsx");
+
+            } else {
+                bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Báo cáo không có dữ liệu', "danger");
                 LoadingForm(false);
-            },
-            complete: function () {
-                LoadingForm(false);
+                return;
             }
-        })
+
+            if (exportOK) {
+                Insert_NhatKyThaoTac_1Param(objDiary);
+            }
+        } catch (error) {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Xuất file thất bại!', "danger");
+        } finally {
+            LoadingForm(false);
+        }
+
+
+        //var myData = {};
+        //myData.objDiary = objDiary;
+        //$.ajax({
+        //    url: DiaryUri + "post_NhatKySuDung",
+        //    type: 'POST',
+        //    async: true,
+        //    dataType: 'json',
+        //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        //    data: myData,
+        //    success: function (item) {
+        //        var array_Seach = {
+        //            MaHangHoa: Text_search,
+        //            MaKhachHang: _maNCC,
+        //            timeStart: _timeStart,
+        //            timeEnd: _timeEnd,
+        //            ID_ChiNhanh: _idDonViSeach,
+        //            LaHangHoa: _laHangHoa,
+        //            TinhTrang: TinhTrangHH,
+        //            ID_NhomHang: _ID_NhomHang,
+        //            ID_NhomDoiTuong: _tenNhomDoiTuongSeach,
+        //            ID_NguoiDung: _IDDoiTuong,
+        //            columnsHide: columnHide,
+        //            TodayBC: self.TodayBC(),
+        //            TenChiNhanh: self.TenChiNhanh(),
+        //            lstIDChiNhanh: self.LstIDDonVi(),
+        //        }
+        //        if (self.BCNH_XuatFile() != "BCNH_XuatFile") {
+        //            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này!", "danger");
+        //            LoadingForm(false);
+        //            return false;
+        //        }
+        //        if (self.check_MoiQuanTam() == 1 && self.BaoCaoNhapHang_TongHop().length != 0) {
+        //            $.ajax({
+        //                type: "POST",
+        //                dataType: "json",
+        //                url: ReportUri + "Export_BCNH_TongHop",
+        //                data: { objExcel: array_Seach },
+        //                success: function (url) {
+        //                    self.DownloadFileTeamplateXLSX(url)
+        //                    LoadingForm(false);
+        //                }
+        //            });
+        //        }
+        //        else if (self.check_MoiQuanTam() == 2 && self.BaoCaoNhapHang_ChiTiet().length != 0) {
+        //            $.ajax({
+        //                type: "POST",
+        //                dataType: "json",
+        //                url: ReportUri + "Export_BCNH_ChiTiet",
+        //                data: { objExcel: array_Seach },
+        //                success: function (url) {
+        //                    self.DownloadFileTeamplateXLSX(url)
+        //                    LoadingForm(false);
+        //                }
+        //            });
+        //        }
+        //        else if (self.check_MoiQuanTam() == 3 && self.BaoCaoNhapHang_TheoNhomHang().length != 0) {
+        //            $.ajax({
+        //                type: "POST",
+        //                dataType: "json",
+        //                url: ReportUri + "Export_BCNH_TheoNhomHang",
+        //                data: { objExcel: array_Seach },
+        //                success: function (url) {
+        //                    self.DownloadFileTeamplateXLSX(url)
+        //                    LoadingForm(false);
+        //                }
+        //            });
+        //        }
+        //        else if (self.check_MoiQuanTam() == 4 && self.BaoCaoNhapHang_TheoNhaCungCap().length != 0) {
+        //            $.ajax({
+        //                type: "POST",
+        //                dataType: "json",
+        //                url: ReportUri + "Export_BCNH_TheoNhaCungCap",
+        //                data: { objExcel: array_Seach },
+        //                success: function (url) {
+        //                    self.DownloadFileTeamplateXLSX(url)
+        //                    LoadingForm(false);
+        //                }
+        //            });
+        //        }
+        //        else if (self.check_MoiQuanTam() == 5 && self.BaoCaoNhapHang_TraHangNhap().length != 0) {
+        //            $.ajax({
+        //                type: "POST",
+        //                dataType: "json",
+        //                url: ReportUri + "Export_BCNH_TraHangNhap",
+        //                data: { objExcel: array_Seach },
+        //                success: function (url) {
+        //                    self.DownloadFileTeamplateXLSX(url)
+        //                    LoadingForm(false);
+        //                }
+        //            });
+        //        }
+        //        else {
+        //            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Báo cáo không có dữ liệu", "danger");
+        //            LoadingForm(false);
+        //        }
+        //    },
+        //    statusCode: {
+        //        404: function () {
+        //            LoadingForm(false);
+        //        },
+        //    },
+        //    error: function (jqXHR, textStatus, errorThrown) {
+        //        bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại!", "danger");
+        //        LoadingForm(false);
+        //    },
+        //    complete: function () {
+        //        LoadingForm(false);
+        //    }
+        //})
     }
 }
 var reportNhapHang = new ViewModal();

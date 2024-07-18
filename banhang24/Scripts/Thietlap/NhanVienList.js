@@ -2984,7 +2984,7 @@ var ViewModel = function () {
         getAllNhanViens(true);
     }
 
-    self.ExportNhanVienExcel = function () {
+    self.ExportNhanVienExcel = async function () {
         $('#table-reponsive').gridLoader();
         var model = {
             DonViId: $('#hd_IDdDonVi').val(),
@@ -3018,22 +3018,24 @@ var ViewModel = function () {
             ColumnHiden: LocalCaches.LoadColumnGrid(Key_Form).map(x => x.Value)
 
         }
-        $.ajax({
-            data: model,
-            url: NhanVienUri + "ExportExcelNhanVien",
-            type: 'POST',
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            success: function (data) {
-                $('#table-reponsive').gridLoader({ show: false });
-                if (data.res === true) {
-                    window.location.href = "/api/DanhMuc/NS_NhanVienAPI/DownloadExecl?fileSave=" + data.dataSoure;
-                }
-                else {
-                    alert(data.mess);
-                }
-            }
-        });
+        $('#table-reponsive').gridLoader({ show: false });
+        exportOK = await commonStatisJs.NPOI_ExportExcel(NhanVienUri + "ExportExcelNhanVien", 'POST', model, "DanhSachNhanVien.xlsx");
+        //$.ajax({
+        //    data: model,
+        //    url: NhanVienUri + "ExportExcelNhanVien",
+        //    type: 'POST',
+        //    dataType: 'json',
+        //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        //    success: function (data) {
+        //        $('#table-reponsive').gridLoader({ show: false });
+        //        if (data.res === true) {
+        //            window.location.href = "/api/DanhMuc/NS_NhanVienAPI/DownloadExecl?fileSave=" + data.dataSoure;
+        //        }
+        //        else {
+        //            alert(data.mess);
+        //        }
+        //    }
+        //});
     }
     self.PrintHsnv = function (item) {
         vmPrintHsnv.print(item.ID, $('.table-reponsive'));
