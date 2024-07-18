@@ -956,7 +956,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuChuyenHang.xlsx");
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(TenChiNhanh, time);
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, ColumnsHide, lstCell, -1);
-                
+
             }
         }
         [System.Web.Http.AcceptVerbs("GET", "POST")]
@@ -997,9 +997,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lst.Add(DM);
                 }
                 DataTable excel = _classOFDCM.ToDataTable<BH_ChiTietPhieuChuyenHang_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuChuyenHang_ChiTiet.xlsx");             
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuChuyenHang_ChiTiet.xlsx");
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, null, null, -1);
-            
+
             }
         }
         public System.Web.Http.Results.JsonResult<JsonResultExampleCH> GetListHoaDonsChuyenHang_Where(int currentPage, int pageSize, int loaiHoaDon, string maHoaDon,
@@ -1606,37 +1606,48 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 //INS 10.07.2024
                 ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 SqlParameter param = new SqlParameter("ID_HoaDon", ID_HoaDon);
+                ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
+                BH_HoaDonDTO hd = classhoadon.Only_GetInforHoaDon(ID_HoaDon);
+
                 List<BH_ChiTietHoaDon_Excel> lst = db.Database.SqlQuery<BH_ChiTietHoaDon_Excel>("EXEC GetChiTietHoaDon_ByIDHoaDon @ID_HoaDon", param).ToList();
                 if (lst != null && lst.Count() > 0)
                 {
                     DataTable excel = _classOFDCM.ToDataTable<BH_ChiTietHoaDon_Excel>(lst);
-                    excel.Columns.Remove("TenHangHoaFull");
-
                     var tempFile = string.Empty;
-                    var tempDown = string.Empty;
                     switch (loaiHoaDon)
                     {
                         case 1:
                         case 25:
+                        case 2:
                             tempFile = "Teamplate_GiaoDichHoaDon_ChiTiet.xlsx";
-                            //tempDown = "GiaoDichHoaDon_ChiTiet.xlsx";
-                            excel.Columns.Remove("ThanhTien");// get value of colum ThanhToan = ThanhTien - Thue
                             break;
                         case 19:
                             tempFile = "Teamplate_GoiDichVu_ChiTiet.xlsx";
-                            //tempDown = "GoiDichVu_ChiTiet.xlsx";
-                            excel.Columns.Remove("ThanhToan");// get value of colum ThanhToan = ThanhTien - Thue
-                            excel.Columns.Remove("TienThue");// get value of colum ThanhToan = ThanhTien - Thue
                             break;
                     }
+                    excel.Columns.Remove("TienThue");
+                    excel.Columns.Remove("ThanhTien");// get value of colum ThanhToan = ThanhTien - Thue
+                    excel.Columns.Remove("TenHangHoaFull");
+                    excel.Columns.Remove("MaLoHang");
                     excel.Columns.Remove("GhiChu");
+
+                    var indexRowSum = 5 + excel.Rows.Count;// vị trí dòng dữ liệu đầu tiên + số dòng data
+                    var indexColumnSum =  excel.Columns.Count - 1;// vị trí cột cuối cùng
+                    List<Excel_ParamExport> prExport = new List<Excel_ParamExport>();
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>();
+                    List<System.Data.DataTable> lstTbl = new List<System.Data.DataTable>();
+                    lstTbl.Add(excel);
+
+                    lstCell.Add(new ClassExcel_CellData { RowIndex = 1, ColumnIndex = 1, CellValue = hd.MaHoaDon });
+                    lstCell.Add(new ClassExcel_CellData { RowIndex = 2, ColumnIndex = 1, CellValue = string.Concat(hd.TenDoiTuong, " (", hd.MaDoiTuong, ")") });
+                    lstCell.Add(new ClassExcel_CellData { RowIndex = indexRowSum, ColumnIndex = indexColumnSum, CellValue = hd.TongThanhToan.ToString(), IsNumber = true });
+                    lstCell.Add(new ClassExcel_CellData { RowIndex = indexRowSum + 1, ColumnIndex = indexColumnSum, CellValue = hd.KhachDaTra.ToString(), IsNumber = true });
+                    lstCell.Add(new ClassExcel_CellData { RowIndex = indexRowSum + 2, ColumnIndex = indexColumnSum, CellValue = (hd.TongThanhToan - hd.KhachDaTra).ToString(), IsNumber = true });
+                    prExport.Add(new Excel_ParamExport { SheetIndex = 0, StartRow = 5, EndRow = 30, CellData = lstCell });
+
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + tempFile);
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, columHides, null, -1);
-                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + tempDown);
-                    //fileSave = _classOFDCM.createFolder_Download(fileSave);
-                    //_classOFDCM.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, columHides);
-                    //HttpResponse Response = HttpContext.Current.Response;
-                    //_classOFDCM.downloadFile(fileSave);
+                    //classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, null, lstCell, -1);
+                    classNPOI.ExportMultipleSheet(fileTeamplate, lstTbl, prExport);
                 }
             }
         }
@@ -1737,7 +1748,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_PhieuTraHang_ChiTiet.xlsx");
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, null, null, -1);
-
                 }
             }
         }

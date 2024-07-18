@@ -7,7 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 using System.Web;
+using Aspose.Cells;
 using libDM_DoiTuong;
 using libDM_HangHoa;
 using libDonViQuiDoi;
@@ -91,7 +93,25 @@ namespace libQuy_HoaDon
                         row = sheet.CreateRow(item.RowIndex); // Nếu dòng chưa tồn tại, tạo mới
                     }
                     ICell cell = row.GetCell(item.ColumnIndex) ?? row.CreateCell(item.ColumnIndex); // Lấy ô tại cột x, nếu ô chưa tồn tại, tạo mới
-                    cell.SetCellValue(item.CellValue);
+
+                    if (item.IsNumber)
+                    {
+                        try
+                        {
+                            if (double.TryParse(item.CellValue, out double numericValue))
+                            {
+                                cell.SetCellValue(numericValue);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            cell.SetCellValue(item.CellValue);
+                        }
+                    }
+                    else
+                    {
+                        cell.SetCellValue(item.CellValue);
+                    }
                 }
             }
         }
@@ -241,14 +261,14 @@ namespace libQuy_HoaDon
         public void ExportDataToExcel(string templatePath, System.Data.DataTable dt, int startRow, string columnsHide,
             List<ClassExcel_CellData> lstDataCell = null, int indexTotalRow = 0)
         {
-            // Bước 2: Mở file mẫu bằng NPOI
+            // Mở file mẫu bằng NPOI
             IWorkbook workbook;
             using (var fileStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read))
             {
                 workbook = new XSSFWorkbook(fileStream);
             }
 
-            // Bước 4: Ghi dữ liệu vào sheet đầu tiên của file mẫu
+            // Ghi dữ liệu vào sheet đầu tiên của file mẫu
             ISheet sheet = workbook.GetSheetAt(0);
 
             // Điền dữ liệu từ DataTable vào các hàng tiếp theo
@@ -265,7 +285,12 @@ namespace libQuy_HoaDon
                 XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
             }
 
-            // Bước 5: Lưu workbook vào MemoryStream, và trả về Http cho client để download
+            // Lưu workbook vào MemoryStream, và trả về Http cho client để download
+            ReturnFileExcel_ToBrower(workbook);
+        }
+
+        private void ReturnFileExcel_ToBrower(IWorkbook workbook)
+        {
             using (var stream = new MemoryStream())
             {
                 workbook.Write(stream);
@@ -277,6 +302,115 @@ namespace libQuy_HoaDon
                 HttpContext.Current.Response.End();
             }
         }
+
+        public void ExportMultipleSheet(string templatePath, List<System.Data.DataTable> lstDataTable, List<Excel_ParamExport> lstPr = null)
+        {
+            // Mở file mẫu bằng NPOI
+            IWorkbook workbook;
+            using (var fileStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read))
+            {
+                workbook = new XSSFWorkbook(fileStream);
+            }
+            foreach (var pr in lstPr)
+            {
+                ExportDetailData_ToExcel(workbook, pr.SheetIndex, lstDataTable[pr.SheetIndex], pr.CellData, pr.StartRow, pr.EndRow ?? 30);
+            }
+        }
+        private void RemoveAndShiftRow(ISheet sheet, int startIndexRowDelete, int endRow)
+        {
+            // Xóa các dòng từ startRow đến endRow
+            for (int rowIndex = startIndexRowDelete; rowIndex < endRow; rowIndex++)
+            {
+                IRow row = sheet.GetRow(rowIndex);
+                if (row != null)
+                {
+                    sheet.RemoveRow(row);
+                }
+            }
+
+            int numRowsToShift = endRow - startIndexRowDelete;
+            int rowCount = sheet.LastRowNum;
+            sheet.ShiftRows(endRow, rowCount, -numRowsToShift);
+        }
+        public void ExportDetailData_ToExcel(IWorkbook workbook, int sheetIndex, System.Data.DataTable dt, List<ClassExcel_CellData> lstDataCell = null, int startRow = 3, int endRow = 30)
+        {
+            // Ghi dữ liệu vào sheet (indexSheet)
+            ISheet sheet = workbook.GetSheetAt(sheetIndex);
+
+            // Điền dữ liệu từ DataTable vào các hàng tiếp theo
+            ImportDataTableToSheet(dt, sheet, startRow);
+
+            // Xóa các dòng từ startRow đến endRow, và thực hiện dịch chuyển lên trên
+            RemoveAndShiftRow(sheet, startRow + dt.Rows.Count, endRow);
+
+            // set giá trị đến 1 số cell mặc định
+            SetValueToHeaderCells(sheet, lstDataCell);
+
+            // Lưu workbook vào MemoryStream, và trả về Http cho client để download
+            ReturnFileExcel_ToBrower(workbook);
+        }
+
+        private void GetCell_HasMerger(ISheet sheet, int startRow, int endRow)
+        {
+            List<CellRangeAddress> mergedRegions = new List<CellRangeAddress>();
+            for (int i = 0; i < sheet.NumMergedRegions; i++)
+            {
+                CellRangeAddress region = sheet.GetMergedRegion(i);
+                if (region.FirstRow >= startRow && region.LastRow <= endRow)
+                {
+                    // Nếu ô gộp nằm hoàn toàn trong khoảng dòng bị xóa, bỏ qua
+                    continue;
+                }
+                mergedRegions.Add(region);
+            }
+        }
+        private void SetAgainFormulas_ToCell(ISheet sheet, int startRow, int endRow)
+        {
+            for (int rowIndex = 0; rowIndex <= sheet.LastRowNum; rowIndex++)
+            {
+                IRow row = sheet.GetRow(rowIndex);
+                if (row != null)
+                {
+                    foreach (ICell cell in row.Cells)
+                    {
+                        if (cell.CellType == CellType.Formula)
+                        {
+                            string formula = cell.CellFormula;
+                            string updatedFormula = UpdateFormula(formula, startRow, endRow);
+                            cell.SetCellFormula(updatedFormula);
+                        }
+                    }
+                }
+            }
+        }
+        private string UpdateFormula(string formula, int startRow, int endRow)
+        {
+            return UpdateFormula_Sum(formula, startRow, endRow);
+        }
+
+        private string UpdateFormula_Sum(string formula, int startRow, int endRow)
+        {
+            // Tạo pattern để bắt các công thức dạng SUM(A$4:A20)
+            string pattern = @"SUM\(([A-Z]+)\$(\d+):([A-Z]+)(\d+)\)";
+            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
+            return regex.Replace(formula, match =>
+            {
+                string columnStart = match.Groups[1].Value;
+                int rowStart = int.Parse(match.Groups[2].Value);
+                string columnEnd = match.Groups[3].Value;
+                int rowEnd = int.Parse(match.Groups[4].Value);
+
+                // Nếu khoảng dòng bị xóa nằm trong khoảng dòng của công thức
+                if (rowStart <= endRow && rowEnd >= startRow)
+                {
+                    rowEnd = startRow - 1;
+                }
+
+                return $"SUM({columnStart}${rowStart}:{columnEnd}${rowEnd})";
+            });
+        }
+
         #endregion
 
         #region Import from Excel
@@ -1242,7 +1376,7 @@ namespace libQuy_HoaDon
                             bool duplicateEmail = class_OfficeDocument.GroupData(dataTable, "Email = '" + email + "'");
                             if (!duplicateEmail)
                             {
-                                lstError.Add(new ErrorDMHangHoa 
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Email",
                                     ViTri = (rowIndex + 1).ToString(),
