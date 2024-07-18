@@ -241,7 +241,7 @@ var vmCaLamViec = new Vue({
             vmEditCaLamViec.Delete(item);
         },
         // export inport
-        ExportCaLamViec: function () {
+        ExportCaLamViec: async function () {
             $('#table-reponsive').gridLoader();
             var self = this;
             let arrDV = self.curentpage.listchinhanh.filter(x => x.Checked).map(x => x.Id);
@@ -261,25 +261,27 @@ var vmCaLamViec = new Vue({
                 IDNhanVien: $('.idnhanvien').text(),
                 ListDonVi: arrDV,
             }
-            $.ajax({
-                data: model,
-                url: "/api/DanhMuc/NS_NhanSuAPI/ExportExcelToCaLamViec",
-                type: 'POST',
-                dataType: 'json',
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                success: function (data) {
-                    $('#table-reponsive').gridLoader({ show: false });
-                    if (data.res === true) {
-                        window.location.href = "/api/DanhMuc/NS_NhanSuAPI/DownloadFileExecl?fileSave=" + data.dataSoure;
-                    }
-                    else {
-                        commonStatisJs.ShowMessageDanger(data.mess);
-                    }
-                }, error: function (result) {
-                    $('#table-reponsive').gridLoader({ show: false });
-                    console.log(result);
-                }
-            });
+            $('#table-reponsive').gridLoader({ show: false });
+            exportOK = await commonStatisJs.NPOI_ExportExcel("/api/DanhMuc/NS_NhanSuAPI/ExportExcelToCaLamViec", 'POST', model, "BaoCaoDanhMucCaLamViec.xlsx");
+            //$.ajax({
+            //    data: model,
+            //    url: "/api/DanhMuc/NS_NhanSuAPI/ExportExcelToCaLamViec",
+            //    type: 'POST',
+            //    dataType: 'json',
+            //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            //    success: function (data) {
+            //        $('#table-reponsive').gridLoader({ show: false });
+            //        if (data.res === true) {
+            //            window.location.href = "/api/DanhMuc/NS_NhanSuAPI/DownloadFileExecl?fileSave=" + data.dataSoure;
+            //        }
+            //        else {
+            //            commonStatisJs.ShowMessageDanger(data.mess);
+            //        }
+            //    }, error: function (result) {
+            //        $('#table-reponsive').gridLoader({ show: false });
+            //        console.log(result);
+            //    }
+            //});
         },
 
         ShowPopupImport: function () {

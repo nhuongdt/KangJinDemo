@@ -2045,7 +2045,7 @@
         window.location.href = url;
     };
     // xuất file Excel
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         LoadingForm(true);
         var keyselected;
         var lisstcolumn = [];
@@ -2128,16 +2128,7 @@
                 columnHideCT = arrayColumnCT[i] + "_" + columnHideCT;
             }
         }
-        var diary = {
-            ID_NhanVien: _id_NhanVien,
-            ID_DonVi: _id_DonVi,
-            ChucNang: "Báo cáo bán hàng",
-            NoiDung: "Xuất " + self.MoiQuanTam().toLowerCase(),
-            NoiDungChiTiet: "Xuất ".concat(self.MoiQuanTam().toLowerCase(), ', Người xuất:', VHeader.UserLogin),
-            LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        };
-
-        Insert_NhatKyThaoTac_1Param(diary);
+       
 
         var array_Seach = {
             MaHangHoa: locdau(Text_search),
@@ -2152,7 +2143,7 @@
             ID_NguoiDung: _IDDoiTuong,
             columnsHide: columnHide,
             columnsHideCT: columnHideCT,
-            TodayBC: 'Thời gian: '.concat(self.TodayBC_TK()),
+            TodayBC: self.TodayBC_TK(),
             TenChiNhanh: self.TenChiNhanh(),
             TrangThai: _trangThai,
             TonKho: _tonKho,
@@ -2166,208 +2157,206 @@
             return false;
         }
 
-        switch (parseInt(self.check_MoiQuanTam())) {
-            case 1:
-                if (self.BaoCaoKho_TonKho().length > 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCK_TonKho",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                break;
-            case 2:
-                if (self.BaoCaoKho_NhapXuatTon().length === 0) {
-                    ShowMessage_Danger('Không có dữ liệu');
-                    return;
-                }
-                $.ajax({
-                    type: "POST",
-                    dataType: "json",
-                    url: ReportUri + "Export_BCK_NhapXuatTon",
-                    data: { objExcel: array_Seach },
-                    success: function (url) {
-                        self.DownloadFileTeamplateXLSX(url);
-                        LoadingForm(false);
+        try {
+            let exportOK;
+            switch (parseInt(self.check_MoiQuanTam())) {
+                case 1:
+                    if (self.BaoCaoKho_TonKho().length > 0) {
+                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_TonKho", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaTonKho.xlsx");
                     }
-                });
-                break;
-            case 3:
-                if (self.BaoCaoKho_NhapXuatTonChiTiet().length === 0) {
-                    ShowMessage_Danger('Không có dữ liệu');
-                    return;
-                }
+                    break;
+                case 2:
+                    if (self.BaoCaoKho_NhapXuatTon().length === 0) {
+                        ShowMessage_Danger('Không có dữ liệu');
+                        return;
+                    }
+                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTon", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTon.xlsx");
+                    break;
+                case 3:
+                    if (self.BaoCaoKho_NhapXuatTonChiTiet().length === 0) {
+                        ShowMessage_Danger('Không có dữ liệu');
+                        return;
+                    }
 
-                if ($.inArray(10, arrayColumn) > -1) {
-                    // hide column Xuat (contains 5 columns)
-                    columnHide += '_13_14_15_16_17';
-                    arrayColumn.push(13);
-                    arrayColumn.push(14);
-                    arrayColumn.push(15);
-                    arrayColumn.push(16);
-                    arrayColumn.push(17);
-                    arrayColumn.filter(x => x !== 10);
-                }
+                    if ($.inArray(10, arrayColumn) > -1) {
+                        // hide column Xuat (contains 5 columns)
+                        columnHide += '_13_14_15_16_17';
+                        arrayColumn.push(13);
+                        arrayColumn.push(14);
+                        arrayColumn.push(15);
+                        arrayColumn.push(16);
+                        arrayColumn.push(17);
+                        arrayColumn.filter(x => x !== 10);
+                    }
 
-                if ($.inArray(9, arrayColumn) > -1) {
-                    // hide column Nhap (contains 4 columns)
-                    arrayColumn.push(10);
-                    arrayColumn.push(11);
-                    arrayColumn.push(12);
-                }
-                let thisC = '';
-                for (let i = 0; i < arrayColumn.length; i++) {
-                    thisC += arrayColumn[i] + '_';
-                }
-                array_Seach.columnsHide = thisC;
-
-                $.ajax({
-                    type: "POST",
-                    dataType: "json",
-                    url: ReportUri + "Export_BCK_NhapXuatTonChiTiet",
-                    data: { objExcel: array_Seach },
-                    success: function (url) {
-                        self.DownloadFileTeamplateXLSX(url);
-                        LoadingForm(false);
+                    if ($.inArray(9, arrayColumn) > -1) {
+                        // hide column Nhap (contains 4 columns)
+                        arrayColumn.push(10);
+                        arrayColumn.push(11);
+                        arrayColumn.push(12);
                     }
-                });
-                break;
-            case 4:
-                if (dk_tab === 1) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCK_XuatChuyenHang",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCK_NhapChuyenHang",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                break;
-            case 5:
-                array_Seach.XuatKho = false;
-                $.ajax({
-                    type: "POST",
-                    dataType: "json",
-                    url: ReportUri + "Export_BCK_TongHopHangNhapKho",
-                    data: { objExcel: array_Seach },
-                    success: function (url) {
-                        self.DownloadFileTeamplateXLSX(url);
-                        LoadingForm(false);
+                    let thisC = '';
+                    for (let i = 0; i < arrayColumn.length; i++) {
+                        thisC += arrayColumn[i] + '_';
                     }
-                });
-                break;
-            case 6:
-                if (dk_tabxk === 3) {
-                    // add index of column (because use Gara)
-                    let lstColumn = [];
-                    if (array_Seach.columnsHide !== null) {
-                        lstColumn = array_Seach.columnsHide.toString().split('_');
-                    }
-                    lstColumn = lstColumn.filter(x => x !== '');
-                    let lstAfter = [];
-                    if (!self.isGara()) {
-                        for (let i = 0; i < lstColumn.length; i++) {
-                            let itFor = parseInt(lstColumn[i]);
-                            if (itFor > 2) {
-                                lstAfter.push(itFor + 2);// cot BienSo (index = 3)
+                    array_Seach.columnsHide = thisC;
+                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTonChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTonChiTiet.xlsx");             
+                    break;
+                case 4:
+                    if (dk_tab === 1) {
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: ReportUri + "Export_BCK_XuatChuyenHang",
+                            data: { objExcel: array_Seach },
+                            success: function (url) {
+                                self.DownloadFileTeamplateXLSX(url);
+                                LoadingForm(false);
                             }
-                            else {
-                                lstAfter.push(itFor);
-                            }
-                        }
+                        });
+                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTonChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTonChiTiet.xlsx");
                     }
                     else {
-                        lstAfter = lstColumn;
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: ReportUri + "Export_BCK_NhapChuyenHang",
+                            data: { objExcel: array_Seach },
+                            success: function (url) {
+                                self.DownloadFileTeamplateXLSX(url);
+                                LoadingForm(false);
+                            }
+                        });
                     }
-                    let columnHideThis = '';
-                    for (let i = 0; i < lstAfter.length; i++) {
-                        columnHideThis += lstAfter[i].toString() + '_';
-                    }
-                    array_Seach.columnsHide = columnHideThis;
+                    break;
+                case 5:
+                    array_Seach.XuatKho = false;
                     $.ajax({
                         type: "POST",
                         dataType: "json",
-                        url: ReportUri + "Export_BCK_XuatDinhLuongDichVu",
+                        url: ReportUri + "Export_BCK_TongHopHangNhapKho",
                         data: { objExcel: array_Seach },
                         success: function (url) {
                             self.DownloadFileTeamplateXLSX(url);
                             LoadingForm(false);
                         }
                     });
-                }
-                else {
-                    array_Seach.XuatKho = true;
-                    if (!self.isGara()) {
-
+                    break;
+                case 6:
+                    if (dk_tabxk === 3) {
+                        // add index of column (because use Gara)
                         let lstColumn = [];
-                        if (array_Seach.columnsHideCT !== null) {
-                            lstColumn = array_Seach.columnsHideCT.toString().split('_');
+                        if (array_Seach.columnsHide !== null) {
+                            lstColumn = array_Seach.columnsHide.toString().split('_');
                         }
                         lstColumn = lstColumn.filter(x => x !== '');
                         let lstAfter = [];
-                        for (let i = 0; i < lstColumn.length; i++) {
-                            if (lstColumn[i] > 2) {
-                                lstAfter.push(parseInt(lstColumn[i]) + 1);
-                            }
-                            else {
-                                lstAfter.push(lstColumn[i]);
+                        if (!self.isGara()) {
+                            for (let i = 0; i < lstColumn.length; i++) {
+                                let itFor = parseInt(lstColumn[i]);
+                                if (itFor > 2) {
+                                    lstAfter.push(itFor + 2);// cot BienSo (index = 3)
+                                }
+                                else {
+                                    lstAfter.push(itFor);
+                                }
                             }
                         }
-                        lstAfter.push(3); //column BienSo
+                        else {
+                            lstAfter = lstColumn;
+                        }
                         let columnHideThis = '';
                         for (let i = 0; i < lstAfter.length; i++) {
                             columnHideThis += lstAfter[i].toString() + '_';
                         }
-                        array_Seach.columnsHideCT = columnHideThis;
+                        array_Seach.columnsHide = columnHideThis;
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: ReportUri + "Export_BCK_XuatDinhLuongDichVu",
+                            data: { objExcel: array_Seach },
+                            success: function (url) {
+                                self.DownloadFileTeamplateXLSX(url);
+                                LoadingForm(false);
+                            }
+                        });
                     }
+                    else {
+                        array_Seach.XuatKho = true;
+                        if (!self.isGara()) {
 
+                            let lstColumn = [];
+                            if (array_Seach.columnsHideCT !== null) {
+                                lstColumn = array_Seach.columnsHideCT.toString().split('_');
+                            }
+                            lstColumn = lstColumn.filter(x => x !== '');
+                            let lstAfter = [];
+                            for (let i = 0; i < lstColumn.length; i++) {
+                                if (lstColumn[i] > 2) {
+                                    lstAfter.push(parseInt(lstColumn[i]) + 1);
+                                }
+                                else {
+                                    lstAfter.push(lstColumn[i]);
+                                }
+                            }
+                            lstAfter.push(3); //column BienSo
+                            let columnHideThis = '';
+                            for (let i = 0; i < lstAfter.length; i++) {
+                                columnHideThis += lstAfter[i].toString() + '_';
+                            }
+                            array_Seach.columnsHideCT = columnHideThis;
+                        }
+
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: ReportUri + "Export_BCK_TongHopHangXuatKho",
+                            data: { objExcel: array_Seach },
+                            success: function (url) {
+                                self.DownloadFileTeamplateXLSX(url);
+                                LoadingForm(false);
+                            }
+                        });
+                    }
+                    break;
+                case 7:
+                    array_Seach.CurrentPage = 0;
+                    array_Seach.PageSize = self.SumRowsHangHoa();
                     $.ajax({
                         type: "POST",
                         dataType: "json",
-                        url: ReportUri + "Export_BCK_TongHopHangXuatKho",
+                        url: ReportUri + "Export_BaoCaoNhomHoTro",
                         data: { objExcel: array_Seach },
                         success: function (url) {
                             self.DownloadFileTeamplateXLSX(url);
                             LoadingForm(false);
                         }
                     });
-                }
-                break;
-            case 7:
-                array_Seach.CurrentPage = 0;
-                array_Seach.PageSize = self.SumRowsHangHoa();
-                $.ajax({
-                    type: "POST",
-                    dataType: "json",
-                    url: ReportUri + "Export_BaoCaoNhomHoTro",
-                    data: { objExcel: array_Seach },
-                    success: function (url) {
-                        self.DownloadFileTeamplateXLSX(url);
-                        LoadingForm(false);
-                    }
-                });
-                break;
+                    break;
+            }
+
+            if (exportOK) {
+                var diary = {
+                    ID_NhanVien: _id_NhanVien,
+                    ID_DonVi: _id_DonVi,
+                    ChucNang: "Báo cáo bán hàng",
+                    NoiDung: "Xuất " + self.MoiQuanTam().toLowerCase(),
+                    NoiDungChiTiet: "Xuất ".concat(self.MoiQuanTam().toLowerCase(), ', Người xuất:', VHeader.UserLogin),
+                    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
+                };
+
+                Insert_NhatKyThaoTac_1Param(diary);
+            }
         }
+        catch (error) {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Xuất file thất bại!', "danger");
+        } finally {
+            LoadingForm(false);
+        }
+        
+
+
+        
     };
     self.ExportChiTietNhanVien = function (item) {
         var objDiary = {

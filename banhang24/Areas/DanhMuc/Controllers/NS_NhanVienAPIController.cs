@@ -3557,16 +3557,19 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     paramlist.Add(new SqlParameter("text", model.Text ?? ""));
                     var lst = db.Database.SqlQuery<ExportNhanVien>("exec SelectDanhSachNhanVien @donviID,@phongban,@dantoc,@HK_TT,@HK_QH,@HK_XP,@TT_TT,@TT_QH,@TT_XP,@GioiTinh,@TrangThai,@ChinhTri,@Start,@End,@LoaiHopDong,@ListBaoHiem,@text", paramlist.ToArray()).ToList();
                     Class_officeDocument _Class_officeDocument = new Class_officeDocument(db);
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     DataTable excel = _Class_officeDocument.ToDataTable<ExportNhanVien>(lst);
                     excel.Columns.Remove("TinhTrangHonNhan");
                     excel.Columns.Remove("DaNghiViec");
                     excel.Columns.Remove("GioiTinh");
                     string fileTeamplate = System.Web.HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_DanhSachNhanVien.xlsx");
-                    string fileSave = System.Web.HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_DanhSachNhanVien.xlsx");
-                    fileSave = _Class_officeDocument.createFolder_Download(fileSave);
-                    _Class_officeDocument.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 5, 29, 24, true, "", DateTime.Now.ToString("dd/MM/yyyy"), db.DM_DonVi.Where(o => o.ID == model.DonViId).Select(o => o.TenDonVi).FirstOrDefault());
-                    System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
-                    return ActionTrueData(fileSave);
+                    //string fileSave = System.Web.HttpContext.Current.Server.MapPath("~/Template/ExportExcel/BaoCao/Teamplate_DanhSachNhanVien.xlsx");
+                    //fileSave = _Class_officeDocument.createFolder_Download(fileSave);
+                    //_Class_officeDocument.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 5, 29, 24, true, "", DateTime.Now.ToString("dd/MM/yyyy"), db.DM_DonVi.Where(o => o.ID == model.DonViId).Select(o => o.TenDonVi).FirstOrDefault());
+                    //System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(db.DM_DonVi.Where(o => o.ID == model.DonViId).Select(o => o.TenDonVi).FirstOrDefault(), DateTime.Now.ToString("dd/MM/yyyy"));
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, "", lstCell, -1);
+                    return ActionTrueData(string.Empty);
                 }
 
             }

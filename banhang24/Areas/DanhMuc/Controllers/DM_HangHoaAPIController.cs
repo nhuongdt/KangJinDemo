@@ -4357,6 +4357,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 ClassDM_HangHoa _classDMHH = new ClassDM_HangHoa(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<DM_TheKhoDTO> lstAllHHTKs = _classDMHH.GetListTheKho(id, iddonvi).ToList();
                 List<DM_TheKhoHangHoa_Excel> lst = new List<DM_TheKhoHangHoa_Excel>();
                 foreach (var item in lstAllHHTKs)
@@ -4371,12 +4372,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lst.Add(DM);
                 }
                 DataTable excel = _classOFDCM.ToDataTable<DM_TheKhoHangHoa_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_TheKhoDanhMucHangHoa.xlsx");
-                string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/TheKhoDanhMucHangHoa.xlsx");
-                fileSave = _classOFDCM.createFolder_Download(fileSave);
-                _classOFDCM.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, columnsHide);
-                HttpResponse Response = HttpContext.Current.Response;
-                _classOFDCM.downloadFile(fileSave);
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_TheKhoDanhMucHangHoa.xlsx"); 
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide);
+                
             }
         }
 
