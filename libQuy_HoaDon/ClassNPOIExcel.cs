@@ -176,7 +176,7 @@ namespace libQuy_HoaDon
 
         private static void ApplySumFormula(IWorkbook workbook, ISheet sheet, int startRow, int endRow)
         {
-            if (startRow > endRow || startRow < 0 || endRow >= sheet.LastRowNum)
+            if (startRow > endRow || startRow < 0 || endRow > sheet.LastRowNum)
             {
                 throw new ArgumentException("Invalid row range specified.");
             }

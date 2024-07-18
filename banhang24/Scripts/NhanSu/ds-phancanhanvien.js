@@ -313,7 +313,7 @@
             vmmodalEditPhieuPhanca.DeletePhanCa(commonStatisJs.CopyObject(item));
         },
 
-        Export: function () {
+        Export: async function () {
             var self = this;
             $('#table-reponsive').gridLoader();
 
@@ -338,27 +338,28 @@
                 NgayTaoDen: self.curentpage.ngaytaoDen,
             }
             console.log('modelExport ', model)
-
-            $.ajax({
-                data: model,
-                url: "/api/DanhMuc/NS_NhanSuAPI/ExportExcelToPhieuPhanCa",
-                type: 'POST',
-                dataType: 'json',
-                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                success: function (data) {
-                    $('#table-reponsive').gridLoader({ show: false });
-                    if (data.res === true) {
-                        window.location.href = "/api/DanhMuc/NS_NhanSuAPI/DownloadFileExecl?fileSave=" + data.dataSoure;
-                    }
-                    else {
-                        commonStatisJs.ShowMessageDanger(data.mess);
-                    }
-                },
-                error: function (result) {
-                    $('#table-reponsive').gridLoader({ show: false });
-                    console.log(result);
-                }
-            });
+            $('#table-reponsive').gridLoader({ show: false });
+            exportOK = await commonStatisJs.NPOI_ExportExcel("/api/DanhMuc/NS_NhanSuAPI/ExportExcelToPhieuPhanCa", 'POST', model, "DanhSachPhieuPhanCa.xlsx");
+            //$.ajax({
+            //    data: model,
+            //    url: "/api/DanhMuc/NS_NhanSuAPI/ExportExcelToPhieuPhanCa",
+            //    type: 'POST',
+            //    dataType: 'json',
+            //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            //    success: function (data) {
+            //        $('#table-reponsive').gridLoader({ show: false });
+            //        if (data.res === true) {
+            //            window.location.href = "/api/DanhMuc/NS_NhanSuAPI/DownloadFileExecl?fileSave=" + data.dataSoure;
+            //        }
+            //        else {
+            //            commonStatisJs.ShowMessageDanger(data.mess);
+            //        }
+            //    },
+            //    error: function (result) {
+            //        $('#table-reponsive').gridLoader({ show: false });
+            //        console.log(result);
+            //    }
+            //});
         }
     },
     computed: {

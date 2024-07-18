@@ -1321,27 +1321,23 @@
         var url = "/api/DanhMuc/DM_HangHoaAPI/Download_fileExcel?fileSave=" + item;
         window.location.href = url;
     }
-    // xuất file Excel
-    self.ExportExcel = function () {
 
+    // xuất file Excel
+    self.ExportExcel = async function () {
         LoadingForm(true);
-        var arrayColumn = [];
-        var columnHide = null;
+        let arrayColumn = [];
+        let columnHide = null;
         $("#select-column .dropdown-list ul li").each(function (i) {
             if (!$(this).find('input').is(':checked')) {
                 arrayColumn.push(i);
             }
         });
         arrayColumn.sort();
-        for (var i = 0; i < arrayColumn.length; i++) {
-            if (i == 0) {
-                columnHide = arrayColumn[i];
-            }
-            else {
-                columnHide = arrayColumn[i] + "_" + columnHide;
-            }
+        for (let i = 0; i < arrayColumn.length; i++) {
+            columnHide = columnHide ? arrayColumn[i] + "_" + columnHide : arrayColumn[i];
         }
-        var objDiary = {
+        
+        const objDiary = {
             ID_NhanVien: _id_NhanVien,
             ID_DonVi: _id_DonVi,
             ChucNang: "Báo cáo bán hàng",
@@ -1349,78 +1345,41 @@
             NoiDungChiTiet: "Xuất " + self.MoiQuanTam().toLowerCase(),
             LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
         };
-        var myData = {};
-        myData.objDiary = objDiary;
-        $.ajax({
-            url: DiaryUri + "post_NhatKySuDung",
-            type: 'POST',
-            async: true,
-            dataType: 'json',
-            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            data: myData,
-            success: function (item) {
-                var array_Seach = GetParamSeach();
-                array_Seach.columnsHide = columnHide;
-                if (self.BCDH_XuatFile() != "BCDH_XuatFile") {
-                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Bạn không có quyền xuất file báo cáo này!", "danger");
-                    LoadingForm(false);
-                    return false;
-                }
-                if (self.check_MoiQuanTam() == 1 && self.BaoCaoDatHang_TongHop().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCDH_TongHop",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else if (self.check_MoiQuanTam() == 2 && self.BaoCaoDatHang_ChiTiet().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCDH_ChiTiet",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else if (self.check_MoiQuanTam() == 3 && self.BaoCaoDatHang_TheoNhomHang().length != 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCDH_TheoNhomHang",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url)
-                            LoadingForm(false);
-                        }
-                    });
-                }
-                else {
-                    bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Báo cáo không có dữ liệu", "danger");
-                    LoadingForm(false);
-                }
-            },
-            statusCode: {
-                404: function () {
-                    LoadingForm(false);
-                },
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại!", "danger");
+
+        const array_Seach = GetParamSeach();
+        array_Seach.columnsHide = columnHide;
+
+        if (self.BCDH_XuatFile() !== "BCDH_XuatFile") {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Bạn không có quyền xuất file báo cáo này!', "danger");
+            LoadingForm(false);
+            return;
+        }
+
+        let exportOK;
+        try {
+            if (self.check_MoiQuanTam() == 1 && self.BaoCaoDatHang_TongHop().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCDH_TongHop", 'POST', { objExcel: array_Seach }, "BaoCaoDatHangTongHop.xlsx");
+            } else if (self.check_MoiQuanTam() == 2 && self.BaoCaoDatHang_ChiTiet().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCDH_ChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoDatHangChiTiet.xlsx");
+            } else if (self.check_MoiQuanTam() == 3 && self.BaoCaoDatHang_TheoNhomHang().length != 0) {
+                exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCDH_TheoNhomHang", 'POST', { objExcel: array_Seach }, "BaoCaoDatHangTheoNhomHang.xlsx");
+            } else {
+                bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Báo cáo không có dữ liệu', "danger");
                 LoadingForm(false);
-            },
-            complete: function () {
-                LoadingForm(false);
+                return;
             }
-        })
-    }
+
+            if (exportOK) {
+                Insert_NhatKyThaoTac_1Param(objDiary);
+            }
+        } catch (error) {
+            bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Xuất file thất bại!', "danger");
+        } finally {
+            LoadingForm(false);
+        }
+    };
+
+   
 }
 var reportOrder = new ViewModal();
 ko.applyBindings(reportOrder);
