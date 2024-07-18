@@ -128,7 +128,7 @@ namespace libQuy_HoaDon
             ImportTableOptions importTableOptions = new ImportTableOptions();
 
             // Nhập DataTable vào worksheet, bắt đầu từ hàng 0 và cột 0
-            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex,0, importTableOptions);
+            wSheet.Cells.ImportData(tblDuLieu, sourceRowIndex, 0, importTableOptions);
 
             //wSheet.Cells.ImportDataTable(tblDuLieu,  sourceRowIndex, 0,0);
 
@@ -12115,7 +12115,7 @@ namespace libQuy_HoaDon
                             sqlparamt.Add(new SqlParameter("web", ""));
                             sqlparamt.Add(new SqlParameter("GhiChu", ghichu));
                             sqlparamt.Add(new SqlParameter("DienThoai", dienthoai));
-                            sqlparamt.Add(new SqlParameter("MaSoThue", masothue));
+                            sqlparamt.Add(new SqlParameter("MaSoThue", masothue ?? string.Empty));
                             sqlparamt.Add(new SqlParameter("STK", ""));
                             sqlparamt.Add(new SqlParameter("MaHoaDonThu", sMaHoaDonThu));
                             sqlparamt.Add(new SqlParameter("MaHoaDonChi", sMaHoaDonChi));

@@ -330,7 +330,10 @@ namespace libQuy_HoaDon
 
             int numRowsToShift = endRow - startIndexRowDelete;
             int rowCount = sheet.LastRowNum;
-            sheet.ShiftRows(endRow, rowCount, -numRowsToShift);
+            if (endRow < rowCount)
+            {
+                sheet.ShiftRows(endRow, rowCount, -numRowsToShift);
+            }
         }
         public void ExportDetailData_ToExcel(IWorkbook workbook, int sheetIndex, System.Data.DataTable dt, List<ClassExcel_CellData> lstDataCell = null, int startRow = 3, int endRow = 30)
         {
@@ -1181,12 +1184,13 @@ namespace libQuy_HoaDon
 
             return lstErr;
         }
-        #endregion
+
         #region Import Customer
         public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet, Guid idDonvi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
         {
             List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
             Dictionary<string, List<int>> maKHTracker = new Dictionary<string, List<int>>();
+            Dictionary<string, List<int>> phoneTracker = new Dictionary<string, List<int>>();
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 classDM_DoiTuong classDMDoiTuong = new classDM_DoiTuong(db);
@@ -1231,7 +1235,8 @@ namespace libQuy_HoaDon
 
                         if (!string.IsNullOrEmpty(maKH))
                         {
-                            if (maKHTracker.ContainsKey(maKH))
+                            bool duplicateMaKH = class_OfficeDocument.GroupData(dataTable, "MaDoiTuong = '" + maKH + "'");
+                            if (duplicateMaKH)
                             {
                                 ErrorDMHangHoa DM = new ErrorDMHangHoa
                                 {
@@ -1244,13 +1249,13 @@ namespace libQuy_HoaDon
                                 };
                                 lstError.Add(DM);
                             }
-                            else
-                            {
-                                maKHTracker[maKH] = new List<int> { rowIndex + 1 };
-                            }
+                            //else
+                            //{
+                            //    maKHTracker[maKH] = new List<int> { rowIndex + 1 };
+                            //}
 
                             // Kiểm tra sự tồn tại của mã khách hàng trong cơ sở dữ liệu
-                            var checkExist = classDMDoiTuong.Get(x => x.MaDoiTuong == maKH && x.ID_DonVi == idDonvi) != null;
+                            var checkExist = classDMDoiTuong.SP_CheckMaDoiTuong_Exist(maKH);
                             if (checkExist)
                             {
                                 ErrorDMHangHoa DM = new ErrorDMHangHoa
@@ -1401,11 +1406,12 @@ namespace libQuy_HoaDon
                                 });
                             }
                         }
-                        int chophepTrungSDT = 0;
+
+                        bool chophepTrungSDT = db.HT_CauHinhPhanMem.Where(x => x.ChoPhepTrungSoDienThoai == 1).Select(x => x.ID).Count() > 0;
                         // Kiểm tra số điện thoại
                         if (!string.IsNullOrEmpty(soDienThoai))
                         {
-                            if (chophepTrungSDT == 0)
+                            if (chophepTrungSDT)
                             {
                                 bool duplicateSDT = class_OfficeDocument.GroupData(dataTable, "DienThoai = '" + soDienThoai + "'");
                                 if (!duplicateSDT)
@@ -1555,5 +1561,6 @@ namespace libQuy_HoaDon
             return lstErr;
             #endregion
         }
+        #endregion
     }
 }
