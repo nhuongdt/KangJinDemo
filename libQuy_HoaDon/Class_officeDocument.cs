@@ -19,6 +19,7 @@ using System.Drawing.Printing;
 using static libQuy_HoaDon.Class_Report;
 using System.Diagnostics.Eventing.Reader;
 using libNS_NhanVien;
+using System.Runtime.Remoting;
 
 namespace libQuy_HoaDon
 {
@@ -5649,6 +5650,12 @@ namespace libQuy_HoaDon
             return dung;
         }
         // kiểm tra trùng dữ liệu
+        /// <summary>
+        /// nếu trùng: trả về false
+        /// </summary>
+        /// <param name="pData"></param>
+        /// <param name="filterExpression"></param>
+        /// <returns></returns>
         public bool GroupData(DataTable pData, string filterExpression)
         {
             // for (int i )
@@ -11990,40 +11997,22 @@ namespace libQuy_HoaDon
         }
 
         // import Khách hàng
-        public void importKhachHang(DataTable dataTable, Guid ID_NhanVien, Guid ID_DonVi)
+        public List<ErrorDMHangHoa> importKhachHang(DataTable dataTable, Guid ID_NhanVien, Guid ID_DonVi, string nguoitao ="admin")
         {
-            try
+            List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                using (var trans = db.Database.BeginTransaction())
                 {
-                    classDM_DoiTuong classdoituong = new classDM_DoiTuong(db);
-                    classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
-                    ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
-
-                    var nguoitao = "admin";
-                    var nd = db.HT_NguoiDung.Where(x => x.ID_NhanVien == ID_NhanVien).Select(x => x.TaiKhoan).ToList();
-                    if (nd != null && nd.Count() > 0)
+                    try
                     {
-                        nguoitao = nd.FirstOrDefault().ToString();
-                    }
+                        classDM_DoiTuong classdoituong = new classDM_DoiTuong(db);
+                        classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
+                        ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
 
-                    for (int i = 0, len = dataTable.Rows.Count; i < len; i++)
-                    {
-                        DataRow dr = dataTable.Rows[i];
-                        string dk = "";
-                        for (int j = 0, len2 = dataTable.Columns.Count; j < len2; j++) // check row empty
+                        for (int i = 0, len = dataTable.Rows.Count; i < len; i++)
                         {
-                            if (dr[j].ToString() != "")
-                            {
-                                break;
-                            }
-                            if (j == dataTable.Columns.Count - 1)
-                            {
-                                dk = "1";
-                            }
-                        }
-                        if (dk == "")
-                        {
+                            DataRow dr = dataTable.Rows[i];
                             var nhomkhach = dr[0].ToString().Trim();
                             var nguonkhach = dr[1].ToString().Trim();
                             var trangthaiKhach = dr[2].ToString().Trim();
@@ -12046,7 +12035,7 @@ namespace libQuy_HoaDon
                             if (!string.IsNullOrEmpty(maDoiTuong))
                                 sMaDoiTuong = maDoiTuong.ToUpper();
                             else
-                                sMaDoiTuong = classdoituong.SP_GetautoCode(1);
+                                sMaDoiTuong = classdoituong.GetMaDoiTuongMax_byTemp(1, ID_DonVi);
                             string sMaNhom = string.Empty;
                             Random rd = new Random();
                             sMaNhom = rd.Next().ToString();
@@ -12136,13 +12125,24 @@ namespace libQuy_HoaDon
                             "@GhiChu, @DienThoai, @MaSoThue, @STK, @MaHoaDonThu, @MaHoaDonChi, @ID_NhanVien, @NguoiTao, @ID_DonVi, @NoCanThu, @NoCanTra, @TongTichDiem, @MaDieuChinhDiem, @SoDuThe, @MaDieuChinhTheGiaTri, " +
                             "@TenNguonKhach, @TenTrangThai", sqlparamt.ToArray());
                         }
+                        trans.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        lstErr.Add(new ErrorDMHangHoa
+                        {
+                            TenTruongDuLieu = "Exception",
+                            ViTri = "0",
+                            rowError = -1,
+                            loaiError = 1,
+                            ThuocTinh = "Exception",
+                            DienGiai = ex.Message,
+                        });
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                CookieStore.WriteLog("importKhachHang " + ex.InnerException + ex.Message);
-            }
+            return lstErr;
         }
         public void IgnoreErrorKhachHang(Stream inputfile, string RowsError, Guid ID_NhanVien, Guid ID_DonVi)
         {
@@ -12153,6 +12153,7 @@ namespace libQuy_HoaDon
             DataTable dataTable = worksheet.Cells.ExportDataTable(2, 0, trows, tcool);
             importKhachHang_WithError(dataTable, RowsError, ID_NhanVien, ID_DonVi);
         }
+
         public void importKhachHang_WithError(DataTable dataTable, string rowsError, Guid ID_NhanVien, Guid ID_DonVi)
         {
             string[] mang = rowsError.Split(',');
@@ -12509,7 +12510,6 @@ namespace libQuy_HoaDon
                 CookieStore.WriteLog("importNhaCungCap " + ex.InnerException + ex.Message);
             }
         }
-
         public void IgnoreErrorNhaCungCap(Stream inputfile, string RowsError, Guid ID_NhanVien, Guid ID_DonVi)
         {
             Workbook workbook = new Workbook(inputfile);
