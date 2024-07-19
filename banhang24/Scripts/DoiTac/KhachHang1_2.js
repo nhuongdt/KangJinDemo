@@ -1839,101 +1839,6 @@
     self.loiExcel = ko.observableArray();
     self.ImportFile_IndexErr = ko.observableArray();
     $(".BangBaoLoi").hide();
-    self.insertArticleNews = function () {
-        //hidewait('NoteImport');
-        $('.NoteImport').gridLoader();
-        var formData = new FormData();
-        var totalFiles = document.getElementById("imageUploadFormKH").files.length;
-        for (var i = 0; i < totalFiles; i++) {
-            var file = document.getElementById("imageUploadFormKH").files[i];
-            formData.append("imageUploadFormKH", file);
-        }
-        $.ajax({
-            type: "POST",
-            url: DMDoiTuongUri + "ImportExcelToKhachHang?ID_NhanVien=" + idNhanVien + "&ID_DonVi=" + idDonVi,
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (x) {
-                if (x.res === false) {
-                    if (x.mes == "") {
-                        self.loiExcel(x.data);
-                        self.visibleImport(true);
-                        let arrIndex = x.data.map(function (xx) { return xx.rowError });
-                        arrIndex = arrIndex.filter((x, i, a) => a.indexOf(x) == i);
-                        self.ImportFile_IndexErr(arrIndex);
-                        $(".BangBaoLoi").show();
-                        $(".NoteImport").hide();
-                        $(".filterFileSelect").hide();
-                        $(".btnImportExcel").hide();
-                    }
-                    else {
-                        ShowMessage_Danger(x.mes);
-                    }
-                }
-                else {
-                    Insert_NhatKyThaoTac(null, 1, 5);
-                    document.getElementById('imageUploadFormKH').value = "";
-                    self.visibleImport(true);
-                    $(".NoteImport").show();
-                    $(".filterFileSelect").hide();
-                    $(".btnImportExcel").hide();
-                    $(".BangBaoLoi").hide();
-                    $("#myModalinport").modal("hide");
-                    GetNhomDoiTuong_DonVi();
-                    SearchKhachHang(false, false);
-                    ShowMessage_Success("Import " + sLoai + " thành công");
-                }
-                $('.BangBaoLoi').gridLoader({ show: false });
-                $('.NoteImport').gridLoader({ show: false });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                $('.BangBaoLoi').gridLoader({ show: false });
-                $('.NoteImport').gridLoader({ show: false });
-            },
-        });
-    }
-    self.DoneWithError = function () {
-        //hidewait('NoteImport');
-        $('.BangBaoLoi').gridLoader();
-        var formData = new FormData();
-        var totalFiles = document.getElementById("imageUploadFormKH").files.length;
-        for (var i = 0; i < totalFiles; i++) {
-            var file = document.getElementById("imageUploadFormKH").files[i];
-            formData.append("imageUploadFormKH", file);
-            formData.append("ListErr", self.ImportFile_IndexErr());
-        }
-        $.ajax({
-            type: "POST",
-            url: DMDoiTuongUri + "ImportKhachHang_WithError?ID_NhanVien=" + idNhanVien + "&ID_DonVi=" + idDonVi,
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (x) {
-                $(".NoteImport").show();
-                if (x.res) {
-                    ShowMessage_Success("Import khách hàng thành công");
-                    Insert_NhatKyThaoTac(null, 1, 5);
-                    document.getElementById('imageUploadFormKH').value = "";
-                    $(".filterFileSelect").hide();
-                    $(".btnImportExcel").hide();
-                    $(".BangBaoLoi").hide();
-                    $("#myModalinport").modal("hide");
-                    GetNhomDoiTuong_DonVi();
-                    SearchKhachHang(false, false);
-                    $('.BangBaoLoi').gridLoader({ show: false });
-                }
-                else {
-                    ShowMessage_Danger("Import khách hàng thất bại");
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                $('.BangBaoLoi').gridLoader({ show: false });
-            },
-        });
-    }
     self.DownloadFileTeamplateXLS = function () {
         var url = DMHangHoaUri + "Download_TeamplateImport?fileSave=" + "FileImport_KhachHang.xls";
         window.open(url)
@@ -5688,6 +5593,20 @@
     $('#vmDieuChinhCongNo').on('hidden.bs.modal', function () {
         if (vmDieuChinhCongNo.saveOK) {
             GetLst_CongNoKH();
+        }
+    })
+
+    self.showModalImportCustomer = function (type) {
+        vmImportCustomer.showModal();
+    }
+
+    $('#vmImportCustomer').on('hidden.bs.modal', function () {
+        vmImportCustomer.isChosingFile = false;
+        vmImportCustomer.ListErr = [];
+        if (vmImportCustomer.importOK) {
+            GetNhomDoiTuong_DonVi();
+            SearchKhachHang(false, false);
+            Insert_NhatKyThaoTac(null, 1, 5);
         }
     })
 
