@@ -415,6 +415,15 @@
             self.newCustomer.ID_NguoiGioiThieu = item.ID;
             self.newCustomer.TenNguoiGioiThieu = item.TenDoiTuong;
         },
+        RemoveNVPhuTrach: function(index){
+             var self = this;
+            for(let i=0;i <  self.arrNVPhuTrachChosed.length;i++){
+                if(i===index){
+                     self.arrNVPhuTrachChosed.splice(i,1);
+                    break;
+                }
+            }
+        },
         ChoseNVPhuTrach: function (item) {
             var self = this;
             for(let i=0;i <  self.arrNVPhuTrachChosed.length;i++){
