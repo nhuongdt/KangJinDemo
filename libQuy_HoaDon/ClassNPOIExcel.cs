@@ -424,7 +424,7 @@ namespace libQuy_HoaDon
         /// <param name="headerTitle">tiêu đề của file</param>
         /// <param name="startRow">vị trí bắt đầu của dòng chứa dữ liệu</param>
         /// <returns></returns>
-        public string CheckFileMau(ISheet sheet, string headerTitle, int startRow)
+        public string CheckFileMau(ISheet sheet, string headerTitle, int startRow = 3)
         {
             try
             {
@@ -455,14 +455,64 @@ namespace libQuy_HoaDon
                 return "Vui lòng import file đúng định dạng";
             }
         }
-        static System.Data.DataTable ConvertExcelToDataTable(Stream inputStream, int startRow)
+        /// <summary>
+        /// Xóa các dòng bị lỗi từ datatable
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="rowsError">chuỗi vị trí các dòng lỗi cần bỏ qua</param>
+        /// <param name="startRow">vị trí bắt đầu của dòng dữ liệu (tính từ 0)</param>
+        /// <returns></returns>
+        public System.Data.DataTable RemoveRowErr(System.Data.DataTable dataTable, string rowsError, int startRow = 3)
         {
-            IWorkbook workbook = new XSSFWorkbook(inputStream);
-            ISheet sheet = workbook.GetSheetAt(0);
+            // vì dữ liệu trong sheets bắt đầu từ dòng thứ startRow
+            // nhưng khi chuyển sang datatable, dữ liệu được ghi lại từ dòng 0
+            // nên vị trí dòng bị lỗi trong table sẽ bị giảm xuống so với vị trí trong sheet
+            int[] arrRow = CommonStatic.GetArrIntDesc_fromString(rowsError, ',');
+            int[] arrNew = Array.ConvertAll(arrRow, x => x - startRow);
+
+            // xóa các dòng theo thứ tự lớn - bé
+            for (int i = 0; i < arrNew.Length; i++)
+            {
+                dataTable.Rows[arrNew[i]].Delete();
+            }
+
+            // xóa dòng có dữ liệu trống
+            // Sử dụng vòng lặp ngược để xử lý việc xóa dòng mà không gây lỗi
+            for (int i = dataTable.Rows.Count - 1; i > -1; i--)
+            {
+                DataRow dtRow = dataTable.Rows[i];
+                bool allColumnsEmpty = true;
+
+                // Kiểm tra từng cột trong dòng
+                foreach (var item in dtRow.ItemArray)
+                {
+                    if (!(item is DBNull) && !string.IsNullOrWhiteSpace(item.ToString()))
+                    {
+                        allColumnsEmpty = false;
+                        break;
+                    }
+                }
+
+                // Nếu tất cả các cột đều null hoặc rỗng, xóa dòng đó
+                if (allColumnsEmpty)
+                {
+                    dataTable.Rows.Remove(dtRow);
+                }
+            }
+            return dataTable;
+        }
+        /// <summary>
+        /// chuyển dữ liệu từ sheet sang dạng bảng
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <param name="startRow">mặc định all file import có dòng dữ liệu bắt đầu từ 3</param>
+        /// <returns></returns>
+        public System.Data.DataTable ConvertExcelToDataTable(ISheet sheet, int startRow = 3)
+        {
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             // Thêm các cột vào DataTable
-            IRow headerRow = sheet.GetRow(0);
+            IRow headerRow = sheet.GetRow(startRow - 1);
             for (int j = 0; j < headerRow.LastCellNum; j++)
             {
                 ICell headerCell = headerRow.GetCell(j);
@@ -471,7 +521,7 @@ namespace libQuy_HoaDon
             }
 
             // Đọc dữ liệu từ các hàng
-            for (int rowIndex = startRow; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
+            for (int rowIndex = startRow; rowIndex <= sheet.LastRowNum; rowIndex++)
             {
                 IRow row = sheet.GetRow(rowIndex);
                 if (row != null)
@@ -496,9 +546,6 @@ namespace libQuy_HoaDon
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
-                //classDM_DoiTuong classDMHang = new classDM_DoiTuong(db);
-                //var check = classDMHang.SP_CheckMaNhanVien_Exist("KH0000001");
-                //var check1 = classDMHang.SP_CheckSoDienThoai_Exist("0989861122");
 
                 // duyệt bắt đầu từ dòng số 3
                 var lastRow = sheet.PhysicalNumberOfRows;
@@ -1186,43 +1233,41 @@ namespace libQuy_HoaDon
         }
 
         #region Import Customer
-        public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet, Guid idDonvi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
+
+        public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet, System.Data.DataTable dataTable)
         {
             List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
-            Dictionary<string, List<int>> maKHTracker = new Dictionary<string, List<int>>();
-            Dictionary<string, List<int>> phoneTracker = new Dictionary<string, List<int>>();
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 classDM_DoiTuong classDMDoiTuong = new classDM_DoiTuong(db);
                 Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
-                var lastRow = sheet.PhysicalNumberOfRows;
-                System.Data.DataTable dataTable = new System.Data.DataTable();
-                for (int col = 0; col < sheet.GetRow(2).LastCellNum; col++)
-                {
-                    dataTable.Columns.Add("Column" + col);
-                }
+                dataTable.Columns[3].ColumnName = "MaKhachHang";
+                dataTable.Columns[10].ColumnName = "DienThoai";
+                dataTable.Columns[9].ColumnName = "Email";
+
+                var lastRow = sheet.LastRowNum + 1;
                 for (int rowIndex = 3; rowIndex < lastRow; rowIndex++)
                 {
                     IRow row = sheet.GetRow(rowIndex);
                     if (row != null)
                     {
-                        string tenNhomKhachHang = row.GetCell(1)?.ToString();
-                        string nguonKhach = row.GetCell(2)?.ToString();
-                        string statusKhach = row.GetCell(3)?.ToString();
-                        string maKH = row.GetCell(4)?.ToString();
-                        string tenKhachHang = row.GetCell(5)?.ToString();
-                        string gender = row.GetCell(6)?.ToString().Trim();
-                        string loaiKhach = row.GetCell(7)?.ToString().Trim();
-                        string ngaySinh = row.GetCell(8)?.ToString().Trim();
-                        string diachi = row.GetCell(9)?.ToString().Trim();
-                        string email = row.GetCell(10)?.ToString().Trim();
-                        string soDienThoai = row.GetCell(11)?.ToString().Trim();
-                        string note = row.GetCell(12)?.ToString().Trim();
-                        string maSoThue = row.GetCell(13)?.ToString().Trim();
-                        string noCanThu = row.GetCell(14)?.ToString().Trim();
-                        string noCanTra = row.GetCell(15)?.ToString().Trim();
-                        string sumTichDiem = row.GetCell(16)?.ToString().Trim();
-                        string soDu = row.GetCell(17)?.ToString().Trim();
+                        string tenNhomKhachHang = row.GetCell(0)?.ToString();
+                        string nguonKhach = row.GetCell(1)?.ToString();
+                        string statusKhach = row.GetCell(2)?.ToString();
+                        string maKH = row.GetCell(3)?.ToString();
+                        string tenKhachHang = row.GetCell(4)?.ToString();
+                        string gender = row.GetCell(5)?.ToString().Trim();
+                        string loaiKhach = row.GetCell(6)?.ToString().Trim();
+                        string ngaySinh = row.GetCell(7)?.ToString().Trim();
+                        string diachi = row.GetCell(8)?.ToString().Trim();
+                        string email = row.GetCell(9)?.ToString().Trim();
+                        string soDienThoai = row.GetCell(10)?.ToString().Trim();
+                        string note = row.GetCell(11)?.ToString().Trim();
+                        string maSoThue = row.GetCell(12)?.ToString().Trim();
+                        string noCanThu = row.GetCell(13)?.ToString().Trim();
+                        string noCanTra = row.GetCell(14)?.ToString().Trim();
+                        string sumTichDiem = row.GetCell(15)?.ToString().Trim();
+                        string soDu = row.GetCell(16)?.ToString().Trim();
 
                         // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
                         if (string.IsNullOrEmpty(tenNhomKhachHang) && string.IsNullOrEmpty(nguonKhach) &&
@@ -1233,15 +1278,17 @@ namespace libQuy_HoaDon
                             continue;
                         }
 
+                        string indexErr = (rowIndex + 1).ToString();
+
                         if (!string.IsNullOrEmpty(maKH))
                         {
-                            bool duplicateMaKH = class_OfficeDocument.GroupData(dataTable, "MaDoiTuong = '" + maKH + "'");
-                            if (duplicateMaKH)
+                            bool duplicateMaKH = class_OfficeDocument.GroupData(dataTable, "MaKhachHang = '" + maKH + "'");
+                            if (!duplicateMaKH)
                             {
                                 ErrorDMHangHoa DM = new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã khách hàng",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = maKH,
                                     DienGiai = "Mã khách hàng: " + maKH + " bị trùng lặp",
                                     rowError = rowIndex,
@@ -1249,10 +1296,6 @@ namespace libQuy_HoaDon
                                 };
                                 lstError.Add(DM);
                             }
-                            //else
-                            //{
-                            //    maKHTracker[maKH] = new List<int> { rowIndex + 1 };
-                            //}
 
                             // Kiểm tra sự tồn tại của mã khách hàng trong cơ sở dữ liệu
                             var checkExist = classDMDoiTuong.SP_CheckMaDoiTuong_Exist(maKH);
@@ -1261,7 +1304,7 @@ namespace libQuy_HoaDon
                                 ErrorDMHangHoa DM = new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã khách hàng",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = maKH,
                                     DienGiai = "Mã khách hàng: " + maKH + " đã tồn tại",
                                     rowError = rowIndex,
@@ -1277,7 +1320,7 @@ namespace libQuy_HoaDon
                             lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Tên khách hàng",
-                                ViTri = (rowIndex + 1).ToString(),
+                                ViTri = indexErr,
                                 ThuocTinh = tenKhachHang,
                                 DienGiai = "Tên khách hàng không được để trống",
                                 rowError = rowIndex,
@@ -1286,12 +1329,12 @@ namespace libQuy_HoaDon
                         }
 
                         // Kiểm tra giới tính
-                        if (gender != "x" && gender != "")
+                        if (!string.IsNullOrEmpty(gender) && gender != "x" && gender != "")
                         {
                             lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Giới tính",
-                                ViTri = (rowIndex + 1).ToString(),
+                                ViTri = indexErr,
                                 ThuocTinh = gender,
                                 DienGiai = "Giới tính là Nam: bạn cần đánh dấu x",
                                 rowError = rowIndex,
@@ -1300,12 +1343,12 @@ namespace libQuy_HoaDon
                         }
 
                         // Kiểm tra loại khách
-                        if (loaiKhach != "x" && loaiKhach != "")
+                        if (!string.IsNullOrEmpty(loaiKhach) && loaiKhach != "x" && loaiKhach != "")
                         {
                             lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Loại khách",
-                                ViTri = (rowIndex + 1).ToString(),
+                                ViTri = indexErr,
                                 ThuocTinh = loaiKhach,
                                 DienGiai = "Là công ty: bạn cần đánh dấu x",
                                 rowError = rowIndex,
@@ -1322,7 +1365,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Ngày sinh/thành lập",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = ngaySinh,
                                     DienGiai = "Ngày sinh/thành lập không hợp lệ",
                                     rowError = rowIndex,
@@ -1339,7 +1382,7 @@ namespace libQuy_HoaDon
                                         lstError.Add(new ErrorDMHangHoa
                                         {
                                             TenTruongDuLieu = "Ngày sinh/thành lập",
-                                            ViTri = (rowIndex + 1).ToString(),
+                                            ViTri = indexErr,
                                             ThuocTinh = ngaySinh,
                                             DienGiai = "Ngày sinh/thành lập không được lớn hơn ngày hiện tại",
                                             rowError = rowIndex,
@@ -1352,7 +1395,7 @@ namespace libQuy_HoaDon
                                     lstError.Add(new ErrorDMHangHoa
                                     {
                                         TenTruongDuLieu = "Ngày sinh/thành lập",
-                                        ViTri = (rowIndex + 1).ToString(),
+                                        ViTri = indexErr,
                                         ThuocTinh = ngaySinh,
                                         DienGiai = "Ngày sinh/thành lập không hợp lệ",
                                         rowError = rowIndex,
@@ -1371,7 +1414,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Email",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = email,
                                     DienGiai = "Email không hợp lệ",
                                     rowError = rowIndex,
@@ -1384,7 +1427,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Email",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = email,
                                     DienGiai = "Email bị trùng lặp",
                                     rowError = rowIndex,
@@ -1398,7 +1441,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Email",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = email,
                                     DienGiai = "Email đã tồn tại",
                                     rowError = rowIndex,
@@ -1419,7 +1462,7 @@ namespace libQuy_HoaDon
                                     lstError.Add(new ErrorDMHangHoa
                                     {
                                         TenTruongDuLieu = "Điện thoại",
-                                        ViTri = (rowIndex + 1).ToString(),
+                                        ViTri = indexErr,
                                         ThuocTinh = soDienThoai,
                                         DienGiai = "Số điện thoại: " + soDienThoai + " bị trùng lặp",
                                         rowError = rowIndex,
@@ -1434,7 +1477,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Điện thoại",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = soDienThoai,
                                     DienGiai = "Số điện thoại: " + soDienThoai + " đã tồn tại trong cơ sở dữ liệu",
                                     rowError = rowIndex,
@@ -1452,7 +1495,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Nợ cần thu",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = noCanThu,
                                     DienGiai = "Nợ cần thu không phải dạng số",
                                     rowError = rowIndex,
@@ -1470,7 +1513,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Nợ cần trả",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = noCanTra,
                                     DienGiai = "Nợ cần trả không phải dạng số",
                                     rowError = rowIndex,
@@ -1488,7 +1531,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Tổng tích điểm",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = sumTichDiem,
                                     DienGiai = "Tổng tích điểm không phải dạng số",
                                     rowError = rowIndex,
@@ -1506,7 +1549,7 @@ namespace libQuy_HoaDon
                                 lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Số dư thẻ",
-                                    ViTri = (rowIndex + 1).ToString(),
+                                    ViTri = indexErr,
                                     ThuocTinh = soDu,
                                     DienGiai = "Số dư thẻ không phải dạng số",
                                     rowError = rowIndex,
@@ -1519,48 +1562,7 @@ namespace libQuy_HoaDon
             }
             return lstError;
         }
-        public List<ErrorDMHangHoa> ImportDangMucKhachHang_toDB(ISheet sheet, Guid idDonVi,
-    Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
-        {
-            var lstErr = new List<ErrorDMHangHoa>();
-            using (SsoftvnContext db = SystemDBContext.GetDBContext())
-            {
-                ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
-                ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
-                classDonViQuiDoi classDonViQD = new classDonViQuiDoi(db);
-                ClassDM_HangHoa classHangHoa = new ClassDM_HangHoa(db);
-                classDM_DoiTuong classDM_DoiTuong = new classDM_DoiTuong(db);
-                int[] arrRow = CommonStatic.GetArrIntDesc_fromString(rowsErr);
-                using (var trans = db.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        List<BH_HoaDon_ChiTiet> lstCTKiemKe = new List<BH_HoaDon_ChiTiet>();
-                        List<BH_HoaDon_ChiTiet> lstCTDCGV = new List<BH_HoaDon_ChiTiet>();
-
-                        List<DM_GiaVon> lstDMGV = new List<DM_GiaVon>();
-                        List<DM_HangHoa_TonKho> lstDMTonKho = new List<DM_HangHoa_TonKho>();
-
-                        var dtNow = DateTime.Now;
-                    }
-                    catch (Exception ex)
-                    {
-                        lstErr.Add(new ErrorDMHangHoa()
-                        {
-                            TenTruongDuLieu = "Exception",
-                            ViTri = "0",
-                            rowError = -1,
-                            loaiError = 1,
-                            ThuocTinh = "Exception",
-                            DienGiai = ex.InnerException + ex.Message,
-                        });
-                        trans.Rollback();
-                    }
-                }
-            }
-            return lstErr;
-            #endregion
-        }
+        #endregion
         #endregion
     }
 }
