@@ -23,6 +23,10 @@ using banhang24.Hellper;
 using lib_ChamSocKhachHang;
 using libHT_NguoiDung;
 using banhang24.Compress;
+using NPOI.SS.UserModel;
+using NPOI.Util;
+using NPOI.XSSF.UserModel;
+using NPOI.SS.Formula.Functions;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -369,7 +373,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TrangThaiKhachHang");
                     excel.Columns.Remove("SumSoTienChuaSD");
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachKhachHang.xlsx");
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, lstParam.ColumnsHide, null, -1);                 
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, lstParam.ColumnsHide, null, -1);
                 }
             }
             catch (Exception ex)
@@ -422,7 +426,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 //var index = fileSave.IndexOf(@"\Template");
                 //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
                 //fileSave = fileSave.Replace(@"\", "/");
-                
+
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, lstParam.ColumnsHide, null, -1);
 
                 return string.Empty;
@@ -506,7 +510,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Temp_LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
                     //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
-                    
+
                     if (dataHD != null && dataHD.Count() > 0)
                     {
                         dataSell = dataHD.Where(x => x.LoaiHoaDon != 3).OrderByDescending(HD => HD.NgayLapHoaDon);
@@ -659,7 +663,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         DataTable excel_QuyHD = classOffice.ToDataTable<Excel_HisHoaDon>(ss3.ToList());
                         classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_QuyHD, 6, 25, 19, true, 1, null, maDoiTuog, tenDoiTuong);
                     }
-               
+
                     var index = fileSave.IndexOf(@"\Template");
                     fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
                     fileSave = fileSave.Replace(@"\", "/");
@@ -3408,15 +3412,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                           where nvpt.ID_KhachHang == customerId
                                           select new
                                           {
-                                              nvpt.ID_NhanVienPhuTrach
+                                              nvpt.ID_NhanVienPhuTrach,
+                                              nvpt.VaiTro
                                           })
                             join nv in db.NS_NhanVien on nvpt.ID_NhanVienPhuTrach equals nv.ID
                             select new
                             {
                                 nv.ID,
                                 nv.MaNhanVien,
-                                nv.TenNhanVien
-                            }).ToList();
+                                nv.TenNhanVien,
+                                nvpt.VaiTro
+                            }).OrderBy(x => x.VaiTro).ToList();
                 return ActionTrueData(data);
             }
         }
@@ -3435,9 +3441,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             var lstNVold = db.KH_NVPhuTrach.Where(x => x.ID_KhachHang == idKhachHang);
                             db.KH_NVPhuTrach.RemoveRange(lstNVold);
 
+                            byte? vaitro = 0;// 1.tuvanchinh, 2.tuvanphu
                             foreach (var item in arrIDNV)
                             {
-                                KH_NVPhuTrach objNew = new KH_NVPhuTrach { ID = Guid.NewGuid(), ID_KhachHang = idKhachHang, ID_NhanVienPhuTrach = item };
+                                vaitro += 1;
+                                KH_NVPhuTrach objNew = new KH_NVPhuTrach { ID = Guid.NewGuid(), ID_KhachHang = idKhachHang, ID_NhanVienPhuTrach = item, VaiTro = vaitro };
                                 db.KH_NVPhuTrach.Add(objNew);
                             }
                             db.SaveChanges();
@@ -3896,48 +3904,91 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
         #region import khách hàng
         [HttpPost]
-        public IHttpActionResult ImportExcelToKhachHang(Guid ID_NhanVien, Guid ID_DonVi)
+        public IHttpActionResult ImportExcelToKhachHang(Guid ID_NhanVien, Guid ID_DonVi, string nguoitao = "admin")
         {
-            try
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                var classdoituong = new classDM_DoiTuong(db);
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
+
+                if (HttpContext.Current.Request.Files.Count > 0)
                 {
-                    var classdoituong = new classDM_DoiTuong(db);
-                    Class_officeDocument classOffice = new Class_officeDocument(db);
-
-                    if (HttpContext.Current.Request.Files.Count != 0)
+                    var file = HttpContext.Current.Request.Files[0];
+                    string ListError = HttpContext.Current.Request.Form["ListErr"];
+                    using (System.IO.Stream excelstream = file.InputStream)
                     {
-                        List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        try
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = classOffice.CheckFileMauKhachHang(excelstream);
+                            XSSFWorkbook workbook = new XSSFWorkbook(excelstream);
+                            ISheet sheet = workbook.GetSheetAt(0);
 
-                            if (str == null)
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT KHÁCH HÀNG");
+                            if (string.IsNullOrEmpty(str))
                             {
-                                lstErr = classOffice.checkfileKhachHang(excelstream, ID_NhanVien, ID_DonVi);
-                                if (lstErr == null)
+                                System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
+                                if (ListError != null && !string.IsNullOrEmpty(ListError))
                                 {
-                                    return Json(new { res = true });
+                                    classNPOI.RemoveRowErr(dataTable, ListError);
+                                    lstErr = classOffice.importKhachHang(dataTable, ID_NhanVien, ID_DonVi, nguoitao);
                                 }
                                 else
                                 {
-                                    return Json(new { res = false, mes = "", data = lstErr });
+                                    lstErr = classNPOI.CheckData_FileImportCustomer(sheet, dataTable);
+                                    if (lstErr.Count == 0)
+                                    {
+                                        lstErr = classOffice.importKhachHang(dataTable, ID_NhanVien, ID_DonVi, nguoitao);
+                                    }
                                 }
                             }
                             else
                             {
-                                return Json(new { res = false, mes = str, data = "null" });
+                                lstErr.Add(new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = str,
+                                    ViTri = "0",
+                                    rowError = -1,
+                                    loaiError = 1,
+                                    ThuocTinh = str,
+                                    DienGiai = str,
+                                });
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            lstErr.Add(new ErrorDMHangHoa()
+                            {
+                                TenTruongDuLieu = "Exception",
+                                ViTri = "0",
+                                rowError = -1,
+                                loaiError = 1,
+                                ThuocTinh = "Exception",
+                                DienGiai = ex.Message,
+                            });
+                        }
                     }
-                    return Json(new { res = false, mes = "Trang tính không có dữ liệu", data = "null" });
                 }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { res = false, mes = ex.Message + ex.InnerException, data = "null" });
+                else
+                {
+                    lstErr.Add(new ErrorDMHangHoa()
+                    {
+                        TenTruongDuLieu = "Không tồn tại file",
+                        ViTri = "0",
+                        rowError = -1,
+                        loaiError = 1,
+                        ThuocTinh = "Không tồn tại file",
+                        DienGiai = "Không tồn tại file",
+                    });
+                }
+                if (lstErr != null && lstErr.Count() > 0)
+                {
+                    return ActionFalseWithData(lstErr);
+                }
+                else
+                {
+                    return ActionTrueData(lstErr);
+                }
             }
         }
         [HttpPost]
