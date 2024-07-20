@@ -504,12 +504,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         }
                     };
                     // HD ban/TraHang/DatHang
-                    var dataHD = classhoadon.GetHoaDon_FromIDDoiTuong(idDoiTuong, idChiNhanh);
+                    List<KhachHang_TabHoaDon> dataHD = classhoadon.GetHoaDon_FromIDDoiTuong(idDoiTuong, idChiNhanh);
                     IEnumerable<KhachHang_TabHoaDon> dataSell = null;
                     IEnumerable<KhachHang_TabHoaDon> dataReserved = null;
+                    List<DataTable> lstTbl = new List<DataTable>();
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Temp_LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
-                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/LichSuMua_ThanhToan_TichLuy_ofKhachHang.xlsx");
 
                     if (dataHD != null && dataHD.Count() > 0)
                     {
@@ -527,13 +527,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             x.LoaiHoaDon == 19 ? "Gói dịch vụ" :
                             x.LoaiHoaDon == 22 ? "Thẻ giá trị" :
                             x.LoaiHoaDon == 25 ? "Hóa đơn sữa chữa" :
+                            x.LoaiHoaDon == 36 ? "Hóa đơn hỗ trợ" :
                             "",
                         });
 
                         DataTable excel_BH = classOffice.ToDataTable<Excel_HisHoaDon>(ss1.ToList());
-
-                        classNPOI.ExportDataToExcel(fileTeamplate, excel_BH, 6, null, lstCell, -1);
-                        //classOffice.listToOfficeExcel_Sheet_KH(fileTeamplate, fileSave, excel_BH, 6, 25, 19, true, 0, null, maDoiTuog, tenDoiTuong);
+                        lstTbl.Add(excel_BH);
 
                         if (dataReserved.Count() > 0)
                         {
@@ -547,9 +546,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             });
 
                             DataTable excel_DT = classOffice.ToDataTable<Excel_HisHoaDon>(ss2.ToList());
-
-                            classNPOI.ExportDataToExcel(fileTeamplate, excel_DT, 6, null, lstCell, -1);
-                            //classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_DT, 6, 25, 19, true, 1, null, maDoiTuog, tenDoiTuong);
+                            lstTbl.Add(excel_DT);
+                        }
+                        else
+                        {
+                            lstTbl.Add(new DataTable());
                         }
                     }
 
@@ -570,11 +571,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                         DataTable excel_QuyHD = classOffice.ToDataTable<NhatKyTichDiem>(ss3.ToList());
                         excel_QuyHD.Columns.Remove("DiemSauGD");
-                        //classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_QuyHD, 6, 25, 19, true, 2, null, maDoiTuog, tenDoiTuong);
 
-                        classNPOI.ExportDataToExcel(fileTeamplate, excel_QuyHD, 6, null, lstCell, -1);
-
-
+                        lstTbl.Add(excel_QuyHD);
+                    }
+                    else
+                    {
+                        lstTbl.Add(new DataTable());
                     }
 
                     // TichDiem
@@ -592,13 +594,22 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             DiemSauGD = x.DiemSauGD,
                         });
                         DataTable excel_Point = classOffice.ToDataTable<NhatKyTichDiem>(ss4.ToList());
-                        //classOffice.listToOfficeExcel_Sheet_KH(fileSave, fileSave, excel_Point, 6, 25, 19, true, 3, null, maDoiTuog, tenDoiTuong);
-                        classNPOI.ExportDataToExcel(fileTeamplate, excel_Point, 6, null, lstCell, -1);
+                        lstTbl.Add(excel_Point);
+                    }
+                    else
+                    {
+                        lstTbl.Add(new DataTable());
                     }
 
-                    //var index = fileSave.IndexOf(@"\Template");
-                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    //fileSave = fileSave.Replace(@"\", "/");
+                    List<Excel_ParamExport> prExcel = new List<Excel_ParamExport>
+                    {
+                        new Excel_ParamExport { SheetIndex = 0, CellData = lstCell, StartRow = 6, EndRow = 30 },
+                        new Excel_ParamExport { SheetIndex = 1, CellData = lstCell, StartRow = 6, EndRow = 25 },
+                        new Excel_ParamExport { SheetIndex = 2, CellData = lstCell, StartRow = 6, EndRow = 25 },
+                        new Excel_ParamExport { SheetIndex = 3, CellData = lstCell, StartRow = 6, EndRow = 30 },
+                    };
+                    classNPOI.ExportMultipleSheet(fileTeamplate, lstTbl, prExcel);
+
                     return string.Empty;
                 }
             }
