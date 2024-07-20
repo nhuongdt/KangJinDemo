@@ -313,8 +313,9 @@ namespace libQuy_HoaDon
             }
             foreach (var pr in lstPr)
             {
-                ExportDetailData_ToExcel(workbook, pr.SheetIndex, lstDataTable[pr.SheetIndex], pr.CellData, pr.StartRow, pr.EndRow ?? 30);
+                ExportDetailData_ToExcel(workbook, pr.SheetIndex, lstDataTable[pr.SheetIndex], pr.CellData, pr.StartRow, pr.EndRow ?? 30, pr.HasRowSum_AtLastIndex ?? false);
             }
+            ReturnFileExcel_ToBrower(workbook);
         }
         private void RemoveAndShiftRow(ISheet sheet, int startIndexRowDelete, int endRow)
         {
@@ -328,6 +329,7 @@ namespace libQuy_HoaDon
                 }
             }
 
+            // dịch chuyển dòng: nếu -numRowsToShift: lên, numRowsToShift: xuống
             int numRowsToShift = endRow - startIndexRowDelete;
             int rowCount = sheet.LastRowNum;
             if (endRow < rowCount)
@@ -335,22 +337,23 @@ namespace libQuy_HoaDon
                 sheet.ShiftRows(endRow, rowCount, -numRowsToShift);
             }
         }
-        public void ExportDetailData_ToExcel(IWorkbook workbook, int sheetIndex, System.Data.DataTable dt, List<ClassExcel_CellData> lstDataCell = null, int startRow = 3, int endRow = 30)
+        public void ExportDetailData_ToExcel(IWorkbook workbook, int sheetIndex, System.Data.DataTable dt,
+            List<ClassExcel_CellData> lstDataCell = null, int startRow = 3, int endRow = 30, bool? hasRowSum = false)
         {
             // Ghi dữ liệu vào sheet (indexSheet)
             ISheet sheet = workbook.GetSheetAt(sheetIndex);
 
+            // Xóa các dòng từ startRow đến endRow, và thực hiện dịch chuyển lên trên
+            if (hasRowSum ?? false)
+            {
+                RemoveAndShiftRow(sheet, startRow + dt.Rows.Count, endRow);
+            }
+
             // Điền dữ liệu từ DataTable vào các hàng tiếp theo
             ImportDataTableToSheet(dt, sheet, startRow);
 
-            // Xóa các dòng từ startRow đến endRow, và thực hiện dịch chuyển lên trên
-            RemoveAndShiftRow(sheet, startRow + dt.Rows.Count, endRow);
-
             // set giá trị đến 1 số cell mặc định
             SetValueToHeaderCells(sheet, lstDataCell);
-
-            // Lưu workbook vào MemoryStream, và trả về Http cho client để download
-            ReturnFileExcel_ToBrower(workbook);
         }
 
         private void GetCell_HasMerger(ISheet sheet, int startRow, int endRow)
@@ -521,16 +524,28 @@ namespace libQuy_HoaDon
             }
 
             // Đọc dữ liệu từ các hàng
+            int totlaColumn = 0;
             for (int rowIndex = startRow; rowIndex <= sheet.LastRowNum; rowIndex++)
             {
                 IRow row = sheet.GetRow(rowIndex);
                 if (row != null)
                 {
                     DataRow dataRow = dataTable.NewRow();
-                    for (int colIndex = 0; colIndex < row.LastCellNum; colIndex++)
+                    totlaColumn = row.LastCellNum;
+                    for (int colIndex = 0; colIndex < totlaColumn; colIndex++)
                     {
                         ICell cell = row.GetCell(colIndex);
                         dataRow[colIndex] = cell != null ? cell.ToString() : null;
+                    }
+                    dataTable.Rows.Add(dataRow);
+                }
+                else
+                {
+                    // đảm bảo số dòng trong table giống sheet (bao gồm cả dòng trống/null)
+                    DataRow dataRow = dataTable.NewRow();
+                    for (int colIndex = 0; colIndex < totlaColumn; colIndex++)
+                    {
+                        dataRow[colIndex] = string.Empty;
                     }
                     dataTable.Rows.Add(dataRow);
                 }
@@ -1323,6 +1338,19 @@ namespace libQuy_HoaDon
                                 ViTri = indexErr,
                                 ThuocTinh = tenKhachHang,
                                 DienGiai = "Tên khách hàng không được để trống",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        // Kangjin: bắt buộc nhập SDT
+                        if (string.IsNullOrEmpty(soDienThoai))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Số điện thoại",
+                                ViTri = indexErr,
+                                ThuocTinh = soDienThoai,
+                                DienGiai = "Số điện thoại không được để trống",
                                 rowError = rowIndex,
                                 loaiError = 1
                             });
