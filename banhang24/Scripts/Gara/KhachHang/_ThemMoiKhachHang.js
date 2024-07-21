@@ -1,4 +1,11 @@
-﻿var vmThemMoiKhach = new Vue({
+﻿const Const_NVPhuTrach_VaiTro = {
+    OTHER: 0,
+    TU_VAN_PHU: 1,
+    TU_VAN_CHINH: 2,
+    TELESALE: 3,
+}
+
+var vmThemMoiKhach = new Vue({
     el: '#ThemMoiKhachHang',
     components: {
         'nguonkhachs': cmpNguonKhach,
@@ -7,7 +14,8 @@
         'customers': cmpChoseCustomer,
         'nhanviens': ComponentChoseStaff,
         'ngaysinh': cmpNgaySinh,
-        'dropdown-multiple': cmpDropdownMultipleItem
+        'dropdown-multiple': cmpDropdownMultipleItem,
+        'nvpt-vaitro': cmpDropdown1Item,
     },
     created: async function () {
         var self = this;
@@ -19,6 +27,12 @@
         if (commonStatisJs.CheckNull(self.SubDomain)) {
             self.SubDomain = VHeader.SubDomain;
         }
+        self.ListVaiTro_ofNVPT = [
+            { ID: Const_NVPhuTrach_VaiTro.TELESALE, Text1: 'Tele', Text2: 'Tele' },
+            { ID: Const_NVPhuTrach_VaiTro.TU_VAN_PHU, Text1: 'Phụ', Text2: 'Phụ' },
+            { ID: Const_NVPhuTrach_VaiTro.TU_VAN_CHINH, Text1: 'Chính', Text2: 'Chính' },
+            { ID: Const_NVPhuTrach_VaiTro.OTHER, Text1: 'Khác', Text2: 'Khác' },
+        ]
         $.getJSON(self.UrlDoiTuongAPI + 'GetListTinhThanh').done(function (x) {
             if (x.res === true) {
                 let data = x.data;
@@ -100,8 +114,8 @@
         NhomKhachChosed: [],
         arrNVPhuTrachChosed: [],
         nvPhuTrachChosing: {
-            ID:'',
-            index:0,
+            ID: '',
+            index: 0,
         },
         inforLogin: {
             ID_NhanVien: null,
@@ -178,7 +192,7 @@
             self.HaveImage = false;
             self.FileSelects = [];
             self.NhomKhachChosed = [];
-            self.arrNVPhuTrachChosed = [{ ID: self.inforLogin.ID_NhanVien,  TenNhanVien: '' }];
+            self.arrNVPhuTrachChosed = [{ ID_NhanVienPhuTrach: self.inforLogin.ID_NhanVien, TenNhanVien: '', VaiTro: Const_NVPhuTrach_VaiTro.TU_VAN_PHU, TenVaiTro: 'Phụ' }];
 
             self.newCustomer = {
                 ID: null,
@@ -358,11 +372,11 @@
 
             // get lst NVPhuTrach
             const lstNVPT = await self.GetNVPhuTrach_ofCustomer(item.ID);
-            if(lstNVPT.length > 0){
-               self.arrNVPhuTrachChosed = lstNVPT;
+            if (lstNVPT.length > 0) {
+                self.arrNVPhuTrachChosed = lstNVPT;
             }
-            else{
-                self.arrNVPhuTrachChosed = [{ ID: '',  TenNhanVien: '' }];
+            else {
+                self.arrNVPhuTrachChosed = [{ ID_NhanVienPhuTrach: '', TenNhanVien: '', VaiTro: Const_NVPhuTrach_VaiTro.TU_VAN_PHU, TenVaiTro: 'Phụ' }];
             }
 
             self.newCustomer.TenNguonKhach = tennguon;
@@ -415,21 +429,21 @@
             self.newCustomer.ID_NguoiGioiThieu = item.ID;
             self.newCustomer.TenNguoiGioiThieu = item.TenDoiTuong;
         },
-        RemoveNVPhuTrach: function(index){
-             var self = this;
-            for(let i=0;i <  self.arrNVPhuTrachChosed.length;i++){
-                if(i===index){
-                     self.arrNVPhuTrachChosed.splice(i,1);
+        RemoveNVPhuTrach: function (index) {
+            var self = this;
+            for (let i = 0; i < self.arrNVPhuTrachChosed.length; i++) {
+                if (i === index) {
+                    self.arrNVPhuTrachChosed.splice(i, 1);
                     break;
                 }
             }
         },
         ChoseNVPhuTrach: function (item) {
             var self = this;
-            for(let i=0;i <  self.arrNVPhuTrachChosed.length;i++){
-                if(i===self.nvPhuTrachChosing.index){
-                     self.arrNVPhuTrachChosed[i].ID = item.ID;
-                     self.arrNVPhuTrachChosed[i].TenNhanVien = item.TenNhanVien;
+            for (let i = 0; i < self.arrNVPhuTrachChosed.length; i++) {
+                if (i === self.nvPhuTrachChosing.index) {
+                    self.arrNVPhuTrachChosed[i].ID_NhanVienPhuTrach = item.ID;
+                    self.arrNVPhuTrachChosed[i].TenNhanVien = item.TenNhanVien;
                     break;
                 }
             }
@@ -441,9 +455,29 @@
             self.nvPhuTrachChosing.ID = nv.ID;
             self.nvPhuTrachChosing.index = index;
         },
+        ChangeVaiTro_ofNVPhuTrach: function (item) {
+            let self = this;
+            for (let i = 0; i < self.arrNVPhuTrachChosed.length; i++) {
+                if (i === self.nvPhuTrachChosing.index) {
+                    self.arrNVPhuTrachChosed[i].VaiTro = item.ID;
+                    self.arrNVPhuTrachChosed[i].TenVaiTro = item.Text1;
+                    break;
+                }
+            }
+        },
+        ResetVaiTro_ofNVPhuTrach: function (index) {
+            let self = this;
+            for (let i = 0; i < self.arrNVPhuTrachChosed.length; i++) {
+                if (i === index) {
+                    self.arrNVPhuTrachChosed[i].VaiTro = Const_NVPhuTrach_VaiTro.NOT;
+                    self.arrNVPhuTrachChosed[i].TenVaiTro = '';
+                    break;
+                }
+            }
+        },
         ThemNVPhuTrach: function () {
             let self = this;
-            self.arrNVPhuTrachChosed.push({TenNhanVien:'', ID:''})
+            self.arrNVPhuTrachChosed.push({ TenNhanVien: '', ID_NhanVienPhuTrach: '', VaiTro: Const_NVPhuTrach_VaiTro.TU_VAN_CHINH, TenVaiTro: 'Chính' });
         },
         ChoseNguonKhach: function (item) {
             var self = this;
@@ -831,33 +865,27 @@
                 self.UpdateCustomer(myData, sNgayDinh);
             }
         },
-        GetNVPhuTrach_ofCustomer: async function (idKhachHang){
+        GetNVPhuTrach_ofCustomer: async function (idKhachHang) {
             let self = this;
-            const xx = await ajaxHelper (self.UrlDoiTuongAPI + 'GetNVPhuTrach_ofCustomer?customerId='+ idKhachHang, 'GET').done()
-            .then(function (x) {
-                 if(x.res){
-                     return x.dataSoure;
-                 }
-                 return [];
-            });
+            const xx = await ajaxHelper(self.UrlDoiTuongAPI + 'GetNVPhuTrach_ofCustomer?customerId=' + idKhachHang, 'GET').done()
+                .then(function (x) {
+                    if (x.res) {
+                        return x.dataSoure;
+                    }
+                    return [];
+                });
             return xx;
         },
-        PostKH_NhanVienPhuTrach: async function (idKhachHang){
+        PostKH_NhanVienPhuTrach: async function (idKhachHang) {
             let self = this;
-            const arrNV=  $.unique(self.arrNVPhuTrachChosed.filter((x)=> !commonStatisJs.CheckNull(x.ID)).map(function(x){
-                return x.ID
-            }));
-            console.log('PostKH_NhanVienPhuTrach ',arrNV)
-            const xx = await ajaxHelper (self.UrlDoiTuongAPI + 'PostKH_NhanVienPhuTrach?idKhachHang='+ idKhachHang, 'POST',arrNV).done()
-            .then(function (x) {
-                 
-            })
+            const arrNV = self.arrNVPhuTrachChosed.filter((x) => !commonStatisJs.CheckNull(x.ID_NhanVienPhuTrach));
+            const xx = await ajaxHelper(self.UrlDoiTuongAPI + 'PostKH_NhanVienPhuTrach?idKhachHang=' + idKhachHang, 'POST', arrNV).done()
+                .then(function (x) {
+                })
         },
-
         AddCustomer: function (DM_DoiTuong, sNgayDinh) {
             var self = this;
             ajaxHelper(self.UrlDoiTuongAPI + 'PostDM_DoiTuong', 'POST', DM_DoiTuong).done(function (x) {
-                console.log('xx ', x);
                 if (x.res === true) {
                     self.saveOK = true;
                     var item = x.data;

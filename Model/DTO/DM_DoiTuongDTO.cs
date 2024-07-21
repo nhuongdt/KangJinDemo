@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Model
 {
+    public class KH_NVPhuTrachDTO
+    {
+        public Guid? ID_KhachHang { get; set; }
+        public Guid ID_NhanVienPhuTrach { get; set; }
+        public byte? VaiTro { get; set; }
+    }
     public class DM_DoiTuongDTO
     {
         public Guid ID { get; set; }
@@ -117,7 +123,10 @@ namespace Model
         public int? LoaiHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
-        public string NVPhuTrach { get; set; }
+        public string MaNVTuVanChinh { get; set; }
+        public string TenNVTuVanChinh { get; set; }
+        public string MaNVTuVanPhu { get; set; }
+        public string TenNVTuVanPhu { get; set; }
         public double? TongThanhToan { get; set; }
         public double? TongTienHDTra { get; set; }
         public string MaHoaDonGoc { get; set; }

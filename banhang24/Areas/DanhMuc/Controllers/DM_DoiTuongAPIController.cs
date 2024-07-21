@@ -326,6 +326,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     excel.Columns.Remove("ID");
                     excel.Columns.Remove("LoaiDoiTuong");
+                    excel.Columns.Remove("DienThoai");// chỉ xuất ra DienThoai_3SoCuoi
                     excel.Columns.Remove("TheoDoi");
                     excel.Columns.Remove("GioiTinhNam");
                     excel.Columns.Remove("ID_NhomDoiTuong");
@@ -3429,17 +3430,20 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             join nv in db.NS_NhanVien on nvpt.ID_NhanVienPhuTrach equals nv.ID
                             select new
                             {
-                                nv.ID,
+                                nvpt.ID_NhanVienPhuTrach,
                                 nv.MaNhanVien,
                                 nv.TenNhanVien,
-                                nvpt.VaiTro
+                                VaiTro = nvpt.VaiTro ?? 0,
+                                // 1.tư vấn phụ, 2.tư vấn chính, 3.telesale
+                                // do ở giao diện thêm mới khách hàng, phần nhập hơi nhỏ, nên viết tắt cho gọn
+                                TenVaiTro = nvpt.VaiTro == 1 ? "Phụ" : nvpt.VaiTro == 2 ? "Chính" : nvpt.VaiTro == 3 ? "Tele" : ""
                             }).OrderBy(x => x.VaiTro).ToList();
                 return ActionTrueData(data);
             }
         }
 
         [HttpPost]
-        public IHttpActionResult PostKH_NhanVienPhuTrach(List<Guid> arrIDNV, Guid idKhachHang)
+        public IHttpActionResult PostKH_NhanVienPhuTrach(Guid idKhachHang, List<KH_NVPhuTrachDTO> lstNV)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
@@ -3447,16 +3451,20 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     try
                     {
-                        if (idKhachHang != Guid.Empty && arrIDNV.Count > 0)
+                        if (idKhachHang != Guid.Empty && lstNV.Count > 0)
                         {
                             var lstNVold = db.KH_NVPhuTrach.Where(x => x.ID_KhachHang == idKhachHang);
                             db.KH_NVPhuTrach.RemoveRange(lstNVold);
 
-                            byte? vaitro = 0;// 1.tuvanchinh, 2.tuvanphu
-                            foreach (var item in arrIDNV)
+                            foreach (var item in lstNV)
                             {
-                                vaitro += 1;
-                                KH_NVPhuTrach objNew = new KH_NVPhuTrach { ID = Guid.NewGuid(), ID_KhachHang = idKhachHang, ID_NhanVienPhuTrach = item, VaiTro = vaitro };
+                                KH_NVPhuTrach objNew = new KH_NVPhuTrach
+                                {
+                                    ID = Guid.NewGuid(),
+                                    ID_KhachHang = idKhachHang,
+                                    ID_NhanVienPhuTrach = item.ID_NhanVienPhuTrach,
+                                    VaiTro = item.VaiTro
+                                };
                                 db.KH_NVPhuTrach.Add(objNew);
                             }
                             db.SaveChanges();
