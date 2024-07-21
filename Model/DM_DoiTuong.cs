@@ -392,6 +392,7 @@ namespace Model
         public string TenDoiTuong { get; set; }
         public int? LoaiDoiTuong { get; set; }
         public string DienThoai { get; set; }
+        public string DienThoai_3SoCuoi { get; set; }
         public string TenNhomDT { get; set; }
         public bool? GioiTinhNam { get; set; }
         public string GioiTinh { get { return (GioiTinhNam ?? false) ? "Nam" : "Nữ"; } }
