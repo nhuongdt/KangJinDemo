@@ -469,7 +469,7 @@ var vmThemMoiKhach = new Vue({
             let self = this;
             for (let i = 0; i < self.arrNVPhuTrachChosed.length; i++) {
                 if (i === index) {
-                    self.arrNVPhuTrachChosed[i].VaiTro = Const_NVPhuTrach_VaiTro.NOT;
+                    self.arrNVPhuTrachChosed[i].VaiTro = Const_NVPhuTrach_VaiTro.OTHER;
                     self.arrNVPhuTrachChosed[i].TenVaiTro = '';
                     break;
                 }
