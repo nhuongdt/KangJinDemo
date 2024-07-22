@@ -77,14 +77,13 @@
                                     <th>Tên trường dữ liệu</th>
                                     <th>Vị trí</th>
                                     <th>Thuộc tính</th>
-                                    <th>Diễn giải<span class="pull-right red ">
-                                    <i class="fa fa-refresh fa-lg" aria-hidden="true" v-on:click="Import"></i></span></th>
+                                    <th>Diễn giải</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(item, index) in ListError">
                                     <td>{{item.TenTruongDuLieu}}</td>
-                                    <td>{{item.ViTri}}</td>
+                                    <td class="text-center">{{item.ViTri}}</td>
                                     <td>{{item.ThuocTinh}}</td>
                                     <td>{{item.DienGiai}}</td>
                                 </tr>

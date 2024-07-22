@@ -1308,15 +1308,8 @@
             Params_GetListHoaDon.PageSize = self.TotalRecord();
             Params_GetListHoaDon.ColumnsHide = columnHide;
             $('.content-table').gridLoader({ show: false });
-            //ajaxHelper(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon).done(function (url) {
-            //  $('.content-table').gridLoader({ show: false });
-            //if (url !== "") {
-            //self.DownloadFileTeamplateXLSX(url);
-            //}
-            //})
 
             const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + funcName, 'POST', Params_GetListHoaDon, fileNameExport)
-            console.log('hoa don', exportOK, fileNameExport)
             if (exportOK) {
                 var objDiary = {
                     ID_NhanVien: _id_NhanVien,
@@ -2058,11 +2051,7 @@
             columnHide = '3'; // hide: LoHang
         }
         var url = BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide;
-
-        const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide, 'GET', null, "GiaoDichHoaDon_ChiTiet.xlsx");
-
-
-
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(url, 'GET', null, "GiaoDichHoaDon_ChiTiet.xlsx");
         if (exportOK) {
             var objDiary = {
                 ID_NhanVien: _id_NhanVien,

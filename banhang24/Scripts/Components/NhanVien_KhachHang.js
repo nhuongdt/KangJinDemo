@@ -42,7 +42,7 @@ var ComponentChoseStaff = {
                  <i class="fa fa-times" style="color:red"></i>
                 </a>
             </div> 
-        <input class="gara-search-HH " placeholder="Chọn nhân viên" style="padding-right: 27px!important"
+        <input class="gara-search-HH " placeholder="Chọn nhân viên"
                :disabled="!roleChangeStaff"
                 onclick= "this.select()"
                 v-model="textSearch" v-on:keyup="searchStaff" v-on:click="showList" />
@@ -430,7 +430,7 @@ var cmpNguoiLienHe = {
                  <i class="material-icons">add</i>
                 </a>
             </div>
-         <input class="gara-search-HH " placeholder="Chọn liên hệ" style="padding-right: 27px!important"
+         <input class="gara-search-HH " placeholder="Chọn liên hệ"
                 onclick= "this.select()"
                 v-model="textSearch" v-on:keyup="search" v-on:click="showList" />
             <div class="gara-search-dropbox drop-search ">
@@ -954,7 +954,7 @@ var cmpChiNhanh = {
                 <i class="fal fa-plus"></i>
             </a>
         </div>
-        <input class="gara-search-HH " placeholder="Chọn chi nhánh" style="padding-right: 27px!important"
+        <input class="gara-search-HH " placeholder="Chọn chi nhánh" 
                         v-model="textSearch" 
                         v-on:click="showList"
                         v-on:keyup="search"
@@ -1038,7 +1038,7 @@ var cmpVaiTro = {
 
 <div class="outselect add-customer">
         <div class="gara-bill-infor-button shortlabel">
-        <input class="gara-search-HH " placeholder="Chọn vai trò" style="padding-right: 27px!important"
+        <input class="gara-search-HH " placeholder="Chọn vai trò" 
                         onclick="this.select()"
                         v-model="textSearch" 
                         v-on:click="showList"
@@ -1128,7 +1128,7 @@ var cmpLoaiChungTu = {
 
 <div class="outselect add-customer">
         <div class="gara-bill-infor-button shortlabel">
-        <input class="gara-search-HH " placeholder="Chọn chứng từ" style="padding-right: 27px!important"
+        <input class="gara-search-HH " placeholder="Chọn chứng từ" 
                         onclick="this.select()"
                         v-model="textSearch" 
                         v-on:click="showList"
@@ -1257,7 +1257,7 @@ var cmpDropdown1Item = {
                 <i class="fal fa-edit"></i>
             </a>
         </div> 
-        <input class="gara-search-HH" style="padding-right: 27px!important"
+        <input class="gara-search-HH"
                         onclick="this.select()"
                         v-bind:placeholder="GetPlaceholder()"
                         v-model="textSearch" 

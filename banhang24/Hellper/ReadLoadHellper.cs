@@ -2459,7 +2459,11 @@ namespace banhang24.Hellper
             theodoanhso,
             tongckall,
             chiphiNganHang,
-            thucthu_thuctinh
+            thucthu_thuctinh,
+            maNVTuVanChinh,
+            tenNVTuVanChinh,
+            maNVTuVanPhu,
+            tenNVTuVanPhu
         }
 
         public static Dictionary<string, string> RpDiscountInvoice = new Dictionary<string, string>()
@@ -2480,8 +2484,10 @@ namespace banhang24.Hellper
              { TypeRpDiscountInvoice.makhachhang.ToString(),"Mã khách hàng" },
              { TypeRpDiscountInvoice.tenkhachhang.ToString(),"Tên khách hàng" },
              { TypeRpDiscountInvoice.dienthoaikh.ToString(),"Điện thoại" },
-             { ColumnKhachHang.manvphutrach.ToString(),"Mã NV phụ trách" },
-             { ColumnKhachHang.nvphutrach.ToString(),"NV phụ trách" },
+             { TypeRpDiscountInvoice.maNVTuVanChinh.ToString(),"Mã TV chính" },
+             { TypeRpDiscountInvoice.tenNVTuVanChinh.ToString(),"Tên TV chính" },  
+             { TypeRpDiscountInvoice.maNVTuVanPhu.ToString(),"Mã TV phụ" },
+             { TypeRpDiscountInvoice.tenNVTuVanPhu.ToString(),"Tên TV phụ" },
              { TypeRpDiscountInvoice.manhanvien.ToString(),"Mã nhân viên" },
              { TypeRpDiscountInvoice.tennhanvien.ToString(),"Tên nhân viên" },
              { TypeRpDiscountInvoice.doanhthu.ToString(),"Doanh thu" },
