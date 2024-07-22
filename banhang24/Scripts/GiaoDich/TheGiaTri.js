@@ -803,12 +803,10 @@
         };
 
         console.log('model ', model)
-        //$('.content-table').gridLoader();
 
         if (isExport) {
             model.pageSize = 1000;
             const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + 'XuatFileThenNap', 'POST', model, "PhieuNapThe.xlsx");
-
             if (exportOK) {
                 var objDiary = {
                     ID_NhanVien: idNhanVien,
@@ -822,49 +820,70 @@
             }
         }
         else {
-            var url = 'GetListTheNap';
+            $('.content-table').gridLoader();
             if (self.LaHD_DieuChinhThe()) {
-                url = 'TGT_GetNhatKyDieuChinh';
+                ajaxHelper(BH_HoaDonUri + 'TGT_GetNhatKyDieuChinh', 'POST', model).done(function (x) {
+                    if (x.res && x.lst.length > 0) {
+                        let itFirst = x.lst[0];
+                        self.DSTheDieuChinh(x.lst);
+                        self.TotalRecord(itFirst.TotalRow);
+                        self.PageCount(itFirst.TotalPage);
+                        self.TongMucNapAll(itFirst.TongTang);
+                        self.TongKhuyenMaiAll(itFirst.TongGiam);
+                    }
+                    else {
+                        self.DSTheDieuChinh([]);
+                        self.TotalRecord(0);
+                        self.PageCount(0);
+                        self.TongMucNapAll(0);
+                        self.TongKhuyenMaiAll(0);
+                    }
+                }).always(function () {
+                    $('.content-table').gridLoader({ show: false });
+                    localStorage.removeItem('TGT_PhieuThu');
+                })
             }
+            else {
+                ajaxHelper(BH_HoaDonUri + 'GetListTheNap', 'POST', model).done(function (obj) {
+                    localStorage.removeItem('FindHD');
+                    $('.content-table').gridLoader({ show: false });
+                    if (obj.res === true && obj.lst.length > 0) {
+                        self.HoaDons(obj.lst);
 
-            ajaxHelper(BH_HoaDonUri + url, 'POST', model).done(function (obj) {
-                localStorage.removeItem('FindHD');
-                if (obj.res === true && obj.lst.length > 0) {
-                    self.HoaDons(obj.lst);
+                        let itFirst = obj.lst[0];
+                        self.TotalRecord(itFirst.TotalRow);
+                        self.PageCount(itFirst.TotalPage);
+                        self.TongMucNapAll(itFirst.TongMucNapAll);
+                        self.TongKhuyenMaiAll(itFirst.TongKhuyenMaiAll);
+                        self.TongTienNapAll(itFirst.TongTienNapAll);
+                        self.TongChietKhauAll(itFirst.TongChietKhauAll);
+                        self.SoDuSauNapAll(itFirst.SoDuSauNapAll);
+                        self.PhaiThanhToanAll(itFirst.PhaiThanhToanAll);
+                        self.TienMatAll(itFirst.TienMatAll);
+                        self.TienATMAll(itFirst.TienATMAll);
+                        self.TienGuiAll(itFirst.TienGuiAll);
+                        self.KhachDaTraAll(itFirst.KhachDaTraAll);
+                        //self.ConNoAll(itFirst.ConNoAll);
 
-                    let itFirst = obj.lst[0];
-                    self.TotalRecord(itFirst.TotalRow);
-                    self.PageCount(itFirst.TotalPage);
-                    self.TongMucNapAll(itFirst.TongMucNapAll);
-                    self.TongKhuyenMaiAll(itFirst.TongKhuyenMaiAll);
-                    self.TongTienNapAll(itFirst.TongTienNapAll);
-                    self.TongChietKhauAll(itFirst.TongChietKhauAll);
-                    self.SoDuSauNapAll(itFirst.SoDuSauNapAll);
-                    self.PhaiThanhToanAll(itFirst.PhaiThanhToanAll);
-                    self.TienMatAll(itFirst.TienMatAll);
-                    self.TienATMAll(itFirst.TienATMAll);
-                    self.TienGuiAll(itFirst.TienGuiAll);
-                    self.KhachDaTraAll(itFirst.KhachDaTraAll);
-                    //self.ConNoAll(itFirst.ConNoAll);
-
-                    LoadHtmlGrid();
-                }
-                else {
-                    self.HoaDons([]);
-                    self.TotalRecord(0);
-                    self.PageCount(0);
-                    self.TongMucNapAll(0);
-                    self.TongKhuyenMaiAll(0);
-                    self.TongTienNapAll(0);
-                    self.TongChietKhauAll(0);
-                    self.SoDuSauNapAll(0);
-                    self.PhaiThanhToanAll(0);
-                    self.TienMatAll(0);
-                    self.TienATMAll(0);
-                    self.TienGuiAll(0);
-                    self.ConNoAll(0);
-                }
-            })
+                        LoadHtmlGrid();
+                    }
+                    else {
+                        self.HoaDons([]);
+                        self.TotalRecord(0);
+                        self.PageCount(0);
+                        self.TongMucNapAll(0);
+                        self.TongKhuyenMaiAll(0);
+                        self.TongTienNapAll(0);
+                        self.TongChietKhauAll(0);
+                        self.SoDuSauNapAll(0);
+                        self.PhaiThanhToanAll(0);
+                        self.TienMatAll(0);
+                        self.TienATMAll(0);
+                        self.TienGuiAll(0);
+                        self.ConNoAll(0);
+                    }
+                })
+            }
         }
     }
 

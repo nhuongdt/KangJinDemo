@@ -16,6 +16,7 @@ namespace libQuy_HoaDon
 
     public class Excel_ParamExport
     {
+        public bool? HasRowSum_AtLastIndex { get; set; } = false;
         public int SheetIndex { get; set; }
         public List<ClassExcel_CellData> CellData { get; set; }
         public int StartRow { get; set; }// vị trí bắt đầu của dòng dữ liệu (trong file mẫu)

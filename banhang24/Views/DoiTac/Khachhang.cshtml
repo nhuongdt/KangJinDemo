@@ -667,7 +667,7 @@
                         </button>
                         <!--/ko-->
                         <!--ko if: $root.RoleImport_Cus()-->
-                        <button class=" btn btn-main mr-5px" type="submit" data-toggle="modal" data-target="#myModalinport">
+                        <button class=" btn btn-main mr-5px" type="submit" data-bind="click: $root.showModalImportCustomer">
                             <i class="fa fa-download"></i> @banhang24.Resources.ResourceTexts.ImportFile
                         </button>
                         <!--/ko-->
@@ -1033,7 +1033,7 @@
                                 </td>
                                 <td class="@commonEnum.ColumnKhachHang.madoituong td-click" data-bind="text: MaDoiTuong, click: $parent.GetLichSuBanTraHang,"></td>
                                 <td class="@commonEnum.ColumnKhachHang.tendoituong td-click" data-bind="text: TenDoiTuong, click: $parent.GetLichSuBanTraHang,"></td>
-                                <td class="@commonEnum.ColumnKhachHang.dienthoai td-click" data-bind="text: DienThoai, click: $parent.GetLichSuBanTraHang,"></td>
+                                <td class="@commonEnum.ColumnKhachHang.dienthoai td-click" data-bind="text: !commonStatisJs.CheckNull(DienThoai) && DienThoai.length > 2? DienThoai.substr(DienThoai.length - 3, 3): DienThoai, click: $parent.GetLichSuBanTraHang,"></td>
                                 <td class="@commonEnum.ColumnKhachHang.nhomkhach td-click" data-bind="html: Remove_LastComma(TenNhomDT), click: $parent.GetLichSuBanTraHang,"></td>
                                 <td class="@commonEnum.ColumnKhachHang.gioitinh td-click" data-bind="text: (GioiTinhNam==true?'Nam':'Nữ')"></td>
                                 <td class="@commonEnum.ColumnKhachHang.ngaysinh td-click">
@@ -2193,86 +2193,7 @@
         </div>
         <!-- Modal -->
     </div>
-    <div id="myModalinport" class="modal fade">
-        <div id="modalContainer_NhomHHDV" class="modal-dialog draggable modal-lg">
-            <div class="modal-content ">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
-                    <h4 class="modal-title">Nhập khách hàng từ File dữ liệu</h4>
-                </div>
-                <div class="modal-body">
-                    <div class=" printinport">
-                        <div class=" excel-file flex flex-column" id="importNhapHang">
-                            <div data-bind="visible: visibleImport ">
-                                <h5 class="no-magrin">Nhập khách hàng từ file Excel - <a href="#" class="link-text" style="float:none;"> Hướng dẫn </a></h5>
-                                <div class="title-inport "> Tải về File mẫu <span class="blue " data-bind="click: DownloadFileTeamplateXLS"> Excel 2003</span>  hoặc<span class="blue" data-bind="click: DownloadFileTeamplateXLSX"> bản cao hơn</span></div>
-                            </div>
-                            <div class="choose-file">
-                                <span class="btn btn-import ClickSelectFile btn-file form-control no-magrin" data-bind="visible: visibleImport ">
-                                    Chọn file dữ liệu
-                                    <input type='file' id="imageUploadFormKH" name="image" data-bind="event:{ change: SelectedFileImport }"
-                                           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
-                                </span>
-                                <div class="list-file flex flex-row" style="margin-bottom:15px">
-                                    <div class="flex flex-row filterFileSelect">
-                                        <span data-bind="text: fileNameExcel"></span>
-                                        <div class="delete-file" data-bind="click: refreshFileSelect">
-                                            <i class="fa fa-close"></i>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-main height-30 imgUploadClick" alt="Upload" data-bind="visible:notvisibleImport">
-                                        <i class="material-icons">folder</i>
-                                    </button>
-                                </div>
-                                <div class="flex flex-center">
-                                    <button class="btn btn-main btnImportExcel" id="saveImageFolder" data-bind="click: insertArticleNews" style="display: none;"><i class="fa fa-floppy-o"></i> Thực hiện</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-warning padding-10 text-center NoteImport">
-                            <h5 class="title-alert"><i class="fa fa-warning"></i> Lưu ý</h5>
-                            <div>Bạn vui lòng nhập đúng định dạng hàng cột theo file Excel mẫu .</div>
-                            <div>Hệ thống cho phép nhập tối đa 6000 khách hàng mỗi lần từ file Excel 2003 hoặc bản cao hơn .</div>
-                            <div>Click vào checkbook "đồng ý..." nếu bạn muốn tiếp tục import dữ liệu bằng cách bỏ qua dữ liệu sai.</div>
-                        </div>
-                    </div>
-                    <div class="BangBaoLoi">
-                        <div class="error-data">
-                            <h2 class="pull-left title">Bảng thông báo lỗi</h2>
-                        </div>
-                        <div class="table-reponsive table_price table_error">
-                            <table class="table table-striped table-hover table-wh table_h3">
-                                <thead>
-                                    <tr>
-                                        <th>Tên trường dữ liệu</th>
-                                        <th>Vị trí</th>
-                                        <th>Thuộc tính</th>
-                                        <th>Diễn giải<span class="pull-right red " data-bind="click: ShowandHide"><i class="fa fa-refresh fa-lg" aria-hidden="true"></i></span></th>
-                                    </tr>
-                                </thead>
-                                <tbody data-bind="foreach: loiExcel">
-                                    <tr>
-                                        <td data-bind="text: TenTruongDuLieu"></td>
-                                        <td data-bind="text: ViTri"></td>
-                                        <td data-bind="text: ThuocTinh"></td>
-                                        <td data-bind="text: DienGiai"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="flex flex-between file-all">
-                            <label class="form-group pull-left continue-hh choseContinue">
-                                <input type="checkbox" data-bind="checked: ContinueImport" value="0" />  Đồng ý bỏ qua lỗi và tiếp tục
-                            </label>
-                            <button type="button" class="btn btn-main pull-right startImport" id="btnLuuHangHoa" data-bind="click: DoneWithError">
-                                <i class="fa fa-save"></i>&nbsp; Tiếp tục
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+   
     @*modal chuyển nhóm *@
     <div class="modal fade" id="modalMoveGroup">
         <div class="modal-dialog draggable modal-md ui-draggable">
@@ -2652,6 +2573,89 @@
         else {
             $remaining.text("");
             $messages.text("");
+        }
+    });
+</script>
+
+<div id="vmImportCustomer" class="modal fade">
+    <import-dinhluong :title="title"
+                      :is-chosing-file="isChosingFile"
+                      :list-chose="ListChose"
+                      :list-error="ListErr"
+                      v-on:import-file="ImportFile"
+                      v-on:download-file="DownloadFile"
+                      v-on:change-type-update="ChangeTypeUpdate">
+
+    </import-dinhluong>
+</div>
+<script src="~/Scripts/Components/importExcel.js"></script>
+<script>
+    var vmImportCustomer = new Vue({
+        el: "#vmImportCustomer",
+        components: {
+            'import-dinhluong': cpmImportExcel,
+        },
+        data: {
+            title: 'Nhập file danh sách khách hàng',
+            isChosingFile: false,
+            typeUpdate: 1,
+            ListChose: [
+                //{ ID: 1, Text: 'Cập nhật lại tồn đầu cũ', Value: true },
+                //{ ID: 0, Text: 'Giữ thành phần cũ, bổ sung thành phần mới', Value: false },
+            ],
+            ListErr: [],
+        },
+        methods:
+        {
+            showModal: function () {
+                let self = this;
+                self.importOK = false;
+                self.isChosingFile = false;
+                self.ListErr = [];
+                $('#vmImportCustomer').modal('show');
+            },
+            DownloadFile: function (type) {
+                let self = this;
+                let url = '/api/DanhMuc/DM_HangHoaAPI/' + "Download_TeamplateImport?fileSave=FileImport_KhachHang.xlsx";
+                window.location.href = url;
+            },
+            ChangeTypeUpdate: function (item) {
+                var self = this;
+                self.typeUpdate = item.ID;
+            },
+            ImportFile: function (fileChosed) {
+                var self = this;
+                var err = self.ListErr.map(function (x) { return x.rowError }).filter(x => x !== -1);
+                var formData = new FormData();
+                if (!commonStatisJs.CheckNull(fileChosed.file)) {
+                    formData.append("file", fileChosed.file);
+                    formData.append("ListErr", err.toString());
+                }
+                $('#vmImportCustomer').gridLoader();
+                $.ajax({
+                    type: "POST",
+                    url: '/api/DanhMuc/DM_DoiTuongAPI/' + "ImportExcelToKhachHang?ID_NhanVien=" + VHeader.IdNhanVien
+                        + "&ID_DonVi="+ VHeader.IdDonVi  + "&nguoitao=" + VHeader.UserLogin,
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                }).done(function (x) {
+                    if (x.res) {
+                        ShowMessage_Success("Import file thành công");
+                        self.ListErr = [];
+                        $('#vmImportCustomer').modal('hide');
+                        self.importOK = true;
+                    }
+                    else {
+                        ShowMessage_Danger("Import file thất bại");
+                        self.ListErr = x.dataSoure;
+                        self.importOK = false;
+                    }
+                }).always(function (x) {
+                    $('#vmImportCustomer').gridLoader({ show: false });
+                });
+            },
         }
     });
 </script>

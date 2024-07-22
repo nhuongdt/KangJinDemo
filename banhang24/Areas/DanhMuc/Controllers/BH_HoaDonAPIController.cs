@@ -1632,21 +1632,23 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("GhiChu");
 
                     var indexRowSum = 5 + excel.Rows.Count;// vị trí dòng dữ liệu đầu tiên + số dòng data
-                    var indexColumnSum =  excel.Columns.Count - 1;// vị trí cột cuối cùng
-                    List<Excel_ParamExport> prExport = new List<Excel_ParamExport>();
-                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>();
-                    List<System.Data.DataTable> lstTbl = new List<System.Data.DataTable>();
-                    lstTbl.Add(excel);
+                    var indexColumnSum = excel.Columns.Count - 1;// vị trí cột cuối cùng
 
-                    lstCell.Add(new ClassExcel_CellData { RowIndex = 1, ColumnIndex = 1, CellValue = hd.MaHoaDon });
-                    lstCell.Add(new ClassExcel_CellData { RowIndex = 2, ColumnIndex = 1, CellValue = string.Concat(hd.TenDoiTuong, " (", hd.MaDoiTuong, ")") });
-                    lstCell.Add(new ClassExcel_CellData { RowIndex = indexRowSum, ColumnIndex = indexColumnSum, CellValue = hd.TongThanhToan.ToString(), IsNumber = true });
-                    lstCell.Add(new ClassExcel_CellData { RowIndex = indexRowSum + 1, ColumnIndex = indexColumnSum, CellValue = hd.KhachDaTra.ToString(), IsNumber = true });
-                    lstCell.Add(new ClassExcel_CellData { RowIndex = indexRowSum + 2, ColumnIndex = indexColumnSum, CellValue = (hd.TongThanhToan - hd.KhachDaTra).ToString(), IsNumber = true });
-                    prExport.Add(new Excel_ParamExport { SheetIndex = 0, StartRow = 5, EndRow = 30, CellData = lstCell });
+                    List<System.Data.DataTable> lstTbl = new List<DataTable> { excel };
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
+                    {
+                        new ClassExcel_CellData { RowIndex = 1, ColumnIndex = 1, CellValue = hd.MaHoaDon },
+                        new ClassExcel_CellData { RowIndex = 2, ColumnIndex = 1, CellValue = string.Concat(hd.TenDoiTuong, " (", hd.MaDoiTuong, ")") },
+                        new ClassExcel_CellData { RowIndex = indexRowSum, ColumnIndex = indexColumnSum, CellValue = hd.TongThanhToan.ToString(), IsNumber = true },
+                        new ClassExcel_CellData { RowIndex = indexRowSum + 1, ColumnIndex = indexColumnSum, CellValue = hd.KhachDaTra.ToString(), IsNumber = true },
+                        new ClassExcel_CellData { RowIndex = indexRowSum + 2, ColumnIndex = indexColumnSum, CellValue = (hd.TongThanhToan - hd.KhachDaTra).ToString(), IsNumber = true }
+                    };
+                    List<Excel_ParamExport> prExport = new List<Excel_ParamExport>
+                    {
+                        new Excel_ParamExport { SheetIndex = 0, StartRow = 5, EndRow = 30, CellData = lstCell, HasRowSum_AtLastIndex= true }
+                    };
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + tempFile);
-                    //classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, null, lstCell, -1);
                     classNPOI.ExportMultipleSheet(fileTeamplate, lstTbl, prExport);
                 }
             }
