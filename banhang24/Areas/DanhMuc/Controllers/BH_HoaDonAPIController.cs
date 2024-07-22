@@ -177,7 +177,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 ClassBH_HoaDon classhoadon = new ClassBH_HoaDon(db);
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
-                string fileSave = string.Empty;
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 try
                 {
                     List<BCHoaHongGioiThieu_ChiTiet> lst = classhoadon.GetAll_ChiTietPhieuTrich(param);
@@ -202,23 +202,25 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("SumTienChietKhau");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_ChiTietPhieuTrichHoaHong.xlsx");
-                    fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/ChiTietPhieuTrichHoaHong.xlsx");
-                    fileSave = _classOFDCM.createFolder_Download(fileSave);
+                    //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/ChiTietPhieuTrichHoaHong.xlsx");
+                    //fileSave = _classOFDCM.createFolder_Download(fileSave);
                     string columHide = string.Empty;
                     if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                     {
                         columHide = string.Join("_", param.ColumnHide);
                     }
-                    _classOFDCM.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 4, 28, 24, true, columHide, 0, param.ReportTime, param.ReportBranch);
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.ReportBranch, param.ReportTime);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columHide, lstCell, -1);
+                    //_classOFDCM.listToOfficeExcel_Sheet(fileTeamplate, fileSave, excel, 4, 28, 24, true, columHide, 0, param.ReportTime, param.ReportBranch);
+                    //var index = fileSave.IndexOf(@"\Template");
+                    //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
+                    //fileSave = fileSave.Replace(@"\", "/");
                 }
                 catch (Exception ex)
                 {
                     CookieStore.WriteLog("Export_PhieuTrichHoaHong " + ex.InnerException + ex.Message);
                 }
-                return fileSave;
+                return string.Empty;
             }
         }
 

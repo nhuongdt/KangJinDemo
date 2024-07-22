@@ -1575,7 +1575,7 @@ var ViewModelQuyHD = function () {
         window.location.href = url;
     }
 
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         var txtLoai = GetText_byLoai();
         var objDiary = {
             ID_NhanVien: _IDNhanVien,
@@ -1615,13 +1615,27 @@ var ViewModelQuyHD = function () {
         obj.ColumnHides = sClHide;
         obj.TonDauKy = self.TonDauKy();
 
-        ajaxHelper(Quy_HoaDonUri + 'ExportExcel_SoQuy', 'POST', obj).done(function (url) {
-            $('#tableSQ').gridLoader({ show: false });
-            if (url !== "") {
-                self.DownloadFileTeamplateXLSX(url);
-            }
+        let fileNameExport;
+        switch (obj.LoaiSoQuy) {
+            case 0: // chuyenkhoan
+                fileNameExport = 'SoQuyNganHang.xlsx';
+                break;
+            case 1: // mat
+                fileNameExport = 'SoQuyTienMat.xlsx';
+                break;
+            default: // all
+                fileNameExport = 'SoQuyTongQuy.xlsx';
+                break;
+        }
+
+        $('#tableSQ').gridLoader({ show: false });
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(Quy_HoaDonUri + 'ExportExcel_SoQuy', 'POST', obj, fileNameExport);
+
+        if (exportOK) {
+
             Insert_NhatKyThaoTac_1Param(objDiary);
-        })
+        }
+       
     }
 
     function getallloaiMauIn() {

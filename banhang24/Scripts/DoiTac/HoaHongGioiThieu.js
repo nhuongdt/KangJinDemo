@@ -628,6 +628,7 @@
                 case 2:
                     url = 'Export_ChiTietPhieuTrichHoaHong';
                     txt = 'chi tiết';
+                    fileNameExport = 'ChiTietPhieuTrichHoaHong.xlsx';
                     break;
             }
 

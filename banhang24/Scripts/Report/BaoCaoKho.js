@@ -2205,35 +2205,14 @@
                 case 4:
                     if (dk_tab === 1) {                    
                         exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_XuatChuyenHang", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaXuatChuyenHang.xlsx");
-                        if (exportOK) {
-                            LoadingForm(false);
-                        }
                     }
                     else {
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCK_NhapChuyenHang",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
+                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapChuyenHang", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapChuyenHang.xlsx");
                     }
                     break;
                 case 5:
                     array_Seach.XuatKho = false;
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCK_TongHopHangNhapKho",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
+                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_TongHopHangNhapKho", 'POST', { objExcel: array_Seach }, "BaoCaoTongHopHangNhapKho.xlsx");                                 
                     break;
                 case 6:
                     if (dk_tabxk === 3) {
@@ -2300,16 +2279,8 @@
                             array_Seach.columnsHideCT = columnHideThis;
                         }
 
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCK_TongHopHangXuatKho",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
+                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_TongHopHangXuatKho", 'POST', { objExcel: array_Seach }, "BaoCaoTongHopHangXuatKho.xlsx");
+                    
                     }
                     break;
                 case 7:

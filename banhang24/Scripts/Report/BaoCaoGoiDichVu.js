@@ -1708,7 +1708,7 @@
         window.location.href = url;
     };
     // xuất file Excel
-    self.ExportExcel = function () {
+    self.ExportExcel = async function () {
         LoadingForm(true);
         var arrayColumn = [];
         var columnHide = null;
@@ -1743,7 +1743,7 @@
             dataType: 'json',
             contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             data: myData,
-            success: function (item) {
+            success: async function (item) {
                 var array_Seach = {
                     MaHangHoa: Text_search.trim(),
                     timeStart: self.check_MoiQuanTam() !== 3 ? _timeStart : _tonkhoStart,
@@ -1812,23 +1812,39 @@
                             ReportBranch: self.TenChiNhanh()
                         };
 
-                        ajaxHelper(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param).done(function (pathFile) {
-                            if (pathFile !== '') {
-                                self.DownloadFileTeamplateXLSX(pathFile);
-                                commonStatisJs.ShowMessageSuccess("Xuất file thành công");
+                        //ajaxHelper(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param).done(function (pathFile) {
+                        //    if (pathFile !== '') {
+                        //        self.DownloadFileTeamplateXLSX(pathFile);
+                        //        commonStatisJs.ShowMessageSuccess("Xuất file thành công");
 
-                                let diary = {
-                                    ID_DonVi: VHeader.IdDonVi,
-                                    ID_NhanVien: VHeader.IdNhanVien,
-                                    LoaiNhatKy: 6,
-                                    ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
-                                    NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
-                                    NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
-                                        concat('<br /> Người xuất: ', VHeader.UserLogin),
-                                }
-                                Insert_NhatKyThaoTac_1Param(diary);
-                            }
-                        })
+                        //        let diary = {
+                        //            ID_DonVi: VHeader.IdDonVi,
+                        //            ID_NhanVien: VHeader.IdNhanVien,
+                        //            LoaiNhatKy: 6,
+                        //            ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
+                        //            NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
+                        //            NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
+                        //                concat('<br /> Người xuất: ', VHeader.UserLogin),
+                        //        }
+                        //        Insert_NhatKyThaoTac_1Param(diary);
+                        //    }
+                        //})
+
+                        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param, "TongHopNhatKySuDungGoiDichVu");
+
+                        if (exportOK) {
+
+                            let diary = {
+                                        ID_DonVi: VHeader.IdDonVi,
+                                        ID_NhanVien: VHeader.IdNhanVien,
+                                        LoaiNhatKy: 6,
+                                        ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
+                                        NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
+                                        NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
+                                            concat('<br /> Người xuất: ', VHeader.UserLogin),
+                                    }
+                                    Insert_NhatKyThaoTac_1Param(diary);
+                        }
                     }
                     else if (self.tab_NhatKySuDung() === 2 && self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().length !== 0) {
                         if (self.LoaiNganhNghe() !== 1) {
