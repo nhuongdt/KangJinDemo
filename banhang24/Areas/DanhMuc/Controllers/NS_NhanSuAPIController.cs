@@ -1009,13 +1009,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TrangThai");
                     excel.Columns.Remove("CachLayGioCong");
                     excel.Columns.Remove("NgayTao");
-                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/Teamplate_BaoCaoDanhMucCaLamViec.xlsx");
-                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/BaoCaoDanhMucCaLamViec.xlsx");
-                    //fileSave = _Class_officeDocument.createFolder_Download(fileSave);
-                    //_Class_officeDocument.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 5, 29, 24, true, "", time, chinhanh);
-                    //System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/Teamplate_BaoCaoDanhMucCaLamViec.xlsx");                  
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(chinhanh, time);
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, "", lstCell, -1);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, "", lstCell, -1);
                     return ActionTrueData(string.Empty);
                 }
             }
