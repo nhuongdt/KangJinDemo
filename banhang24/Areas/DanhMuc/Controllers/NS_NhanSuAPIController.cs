@@ -3108,8 +3108,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             break;
                     }
 
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     Class_officeDocument _Class_officeDocument = new Class_officeDocument(_dbcontext);
                     DataTable excel = _Class_officeDocument.ToDataTable<ChamCongModel>(lst);
+
 
                     excel.Columns.Remove("MaCa");
                     excel.Columns.Remove("ID_CaLamViec");
@@ -3167,6 +3169,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     _Class_officeDocument.ExportExcelToFileChamCong(fileTeamplate, fileSave, excel, 6, 29, 24, true, columhide, time,
                                                                     kyText, chinhanh.Split('-')[0].Trim(),
                                                                     new int[] { 0 }, listRowPan, model.PhonBanId != null ? chinhanh.Split('-')[1].Trim() : string.Empty);
+
                     System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
                     return ActionTrueData(fileSave);
                 }

@@ -339,7 +339,7 @@
             }
             console.log('modelExport ', model)
             $('#table-reponsive').gridLoader({ show: false });
-            exportOK = await commonStatisJs.NPOI_ExportExcel("/api/DanhMuc/NS_NhanSuAPI/ExportExcelToPhieuPhanCa", 'POST', model, "DanhSachPhieuPhanCa.xlsx");
+            await commonStatisJs.NPOI_ExportExcel("/api/DanhMuc/NS_NhanSuAPI/ExportExcelToPhieuPhanCa", 'POST', model, "DanhSachPhieuPhanCa.xlsx");
             //$.ajax({
             //    data: model,
             //    url: "/api/DanhMuc/NS_NhanSuAPI/ExportExcelToPhieuPhanCa",

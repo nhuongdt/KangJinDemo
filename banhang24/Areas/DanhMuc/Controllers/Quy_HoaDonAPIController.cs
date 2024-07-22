@@ -15,6 +15,7 @@ using libNS_NhanVien;
 using System.Data.SqlClient;
 using System.Data.Entity;
 using static iTextSharp.text.pdf.AcroFields;
+using NPOI.HSSF.Record;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -128,10 +129,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 classQuy_HoaDon classQuyHoaDon = new classQuy_HoaDon(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<SP_GetListCashFlow> data = classQuyHoaDon.GetListCashFlow_Paging(lstParam);
                 if (data.Count > 0)
                 {
-                    double tongthu = 0, tongchi = 0, tonquy = 0;
+                    double tongthu = 0, tongchi = 0, tonquy = 0, toncuoiky = 0;
 
                     List<Excel_SoQuy> lstEx = new List<Excel_SoQuy>();
                     foreach (var item in data)
@@ -174,14 +176,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         case 0: // chuyenkhoan
                             teamSave = "Teamplate_SoQuyNganHang.xlsx";
-                            teamdown = "SoQuyNganHang.xlsx";
                             excel.Columns.Remove("PhuongThuc");
                             tongthu = data[0].TongThuCK ?? 0;
                             tongchi = data[0].TongChiCK ?? 0;
                             break;
                         case 1: // mat
                             teamSave = "Teamplate_SoQuyTienMat.xlsx";
-                            teamdown = "SoQuyTienMat.xlsx";
                             excel.Columns.Remove("PhuongThuc");
                             excel.Columns.Remove("TaiKhoanChuyen");
                             excel.Columns.Remove("TaiKhoanPOS");
@@ -190,23 +190,42 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             break;
                         default://all
                             teamSave = "Teamplate_SoQuyTongQuy.xlsx";
-                            teamdown = "SoQuyTongQuy.xlsx";
                             tongthu = (data[0].TongThuMat + data[0].TongThuCK) ?? 0;
                             tongchi = (data[0].TongChiMat + data[0].TongChiCK) ?? 0;
                             break;
                     }
                     tonquy = tongthu - tongchi;
-                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamSave);
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamdown);
-                    fileSave = classOffice.createFolder_Download(fileSave);
-                    classOffice.listToOfficeExcel_StypeSQ(fileTeamplate, fileSave, excel, 10, 34, 24, true,
-                        lstParam.ColumnHides, lstParam.TextTime, lstParam.TextChiNhanhs,
-                        tongthu, tongchi, tonquy, lstParam.TonDauKy);
+                    toncuoiky = (double)(tonquy + lstParam.TonDauKy);
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamSave);     
+                    var indexRowSum = 10 + excel.Rows.Count;// vị trí dòng dữ liệu đầu tiên + số dòng data
+                
 
-                    var index = fileSave.IndexOf(@"\Template");
-                    fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                    fileSave = fileSave.Replace(@"\", "/");
-                    return fileSave;
+                    List<System.Data.DataTable> lstTbl = new List<DataTable> { excel };
+                    List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
+                    {
+                        new ClassExcel_CellData { RowIndex = 1, ColumnIndex = 0, CellValue = "Thời gian: "},
+                        new ClassExcel_CellData { RowIndex = 1, ColumnIndex = 1, CellValue = lstParam.TextTime},
+                        new ClassExcel_CellData { RowIndex = 2, ColumnIndex = 0, CellValue = "Chi nhánh: "},
+                        new ClassExcel_CellData { RowIndex = 2, ColumnIndex = 1, CellValue = lstParam.TextChiNhanhs},
+                        new ClassExcel_CellData { RowIndex = 3, ColumnIndex = 0, CellValue = "Tồn đầu kỳ: "},
+                        new ClassExcel_CellData { RowIndex = 3, ColumnIndex = 1, CellValue = lstParam.TonDauKy.ToString(), IsNumber = true},
+                        new ClassExcel_CellData { RowIndex = 4, ColumnIndex = 0, CellValue = "Thu trong kỳ: "},
+                        new ClassExcel_CellData { RowIndex = 4, ColumnIndex = 1, CellValue =  tongthu.ToString(), IsNumber = true},
+                        new ClassExcel_CellData { RowIndex = 5, ColumnIndex = 0, CellValue = "Chi trong kỳ: "},
+                        new ClassExcel_CellData { RowIndex = 5, ColumnIndex = 1, CellValue = tongchi.ToString(), IsNumber = true},
+                        new ClassExcel_CellData { RowIndex = 6, ColumnIndex = 0, CellValue = "Tồn trong kỳ: : " },
+                        new ClassExcel_CellData { RowIndex = 6, ColumnIndex = 1, CellValue = tonquy.ToString(), IsNumber = true },
+                        new ClassExcel_CellData { RowIndex = 7, ColumnIndex = 0, CellValue = "Tồn cuối kỳ: : " },
+                        new ClassExcel_CellData { RowIndex = 7, ColumnIndex = 1, CellValue = toncuoiky.ToString(), IsNumber = true },
+
+                    };
+                    List<Excel_ParamExport> prExport = new List<Excel_ParamExport>
+                    {
+                        new Excel_ParamExport { SheetIndex = 0, StartRow = 10, EndRow = 34, CellData = lstCell, HasRowSum_AtLastIndex= true }
+                    };
+
+                    classNPOI.ExportMultipleSheet(fileTeamplate, lstTbl, prExport);            
+                   
                 }
                 return string.Empty;
             }
@@ -1306,7 +1325,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     if (quyhd != null)
                     {
                         var qhdct = db.Quy_HoaDon_ChiTiet.Where(p => p.ID_HoaDon == id);
-                        if (qhdct != null && qhdct.Count()> 0)
+                        if (qhdct != null && qhdct.Count() > 0)
                         {
                             var quyctCus = qhdct.Where(x => x.ID_DoiTuong != null).FirstOrDefault();
                             if (quyctCus != null && quyctCus.ID_HoaDonLienQuan != null)
