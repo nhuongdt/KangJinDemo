@@ -262,26 +262,7 @@ var vmCaLamViec = new Vue({
                 ListDonVi: arrDV,
             }
             $('#table-reponsive').gridLoader({ show: false });
-            exportOK = await commonStatisJs.NPOI_ExportExcel("/api/DanhMuc/NS_NhanSuAPI/ExportExcelToCaLamViec", 'POST', model, "BaoCaoDanhMucCaLamViec.xlsx");
-            //$.ajax({
-            //    data: model,
-            //    url: "/api/DanhMuc/NS_NhanSuAPI/ExportExcelToCaLamViec",
-            //    type: 'POST',
-            //    dataType: 'json',
-            //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-            //    success: function (data) {
-            //        $('#table-reponsive').gridLoader({ show: false });
-            //        if (data.res === true) {
-            //            window.location.href = "/api/DanhMuc/NS_NhanSuAPI/DownloadFileExecl?fileSave=" + data.dataSoure;
-            //        }
-            //        else {
-            //            commonStatisJs.ShowMessageDanger(data.mess);
-            //        }
-            //    }, error: function (result) {
-            //        $('#table-reponsive').gridLoader({ show: false });
-            //        console.log(result);
-            //    }
-            //});
+            exportOK = await commonStatisJs.NPOI_ExportExcel("/api/DanhMuc/NS_NhanSuAPI/ExportExcelToCaLamViec", 'POST', model, "BaoCaoDanhMucCaLamViec.xlsx");           
         },
 
         ShowPopupImport: function () {

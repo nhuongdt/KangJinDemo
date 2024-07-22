@@ -2203,18 +2203,11 @@
                     exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTonChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTonChiTiet.xlsx");             
                     break;
                 case 4:
-                    if (dk_tab === 1) {
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCK_XuatChuyenHang",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
-                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTonChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTonChiTiet.xlsx");
+                    if (dk_tab === 1) {                    
+                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_XuatChuyenHang", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaXuatChuyenHang.xlsx");
+                        if (exportOK) {
+                            LoadingForm(false);
+                        }
                     }
                     else {
                         $.ajax({
@@ -2322,16 +2315,18 @@
                 case 7:
                     array_Seach.CurrentPage = 0;
                     array_Seach.PageSize = self.SumRowsHangHoa();
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BaoCaoNhomHoTro",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
+
+                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BaoCaoNhomHoTro", 'POST', { objExcel: array_Seach }, "BaoCaoNhomHoTro.xlsx");
+                    //$.ajax({
+                    //    type: "POST",
+                    //    dataType: "json",
+                    //    url: ReportUri + "Export_BaoCaoNhomHoTro",
+                    //    data: { objExcel: array_Seach },
+                    //    success: function (url) {
+                    //        self.DownloadFileTeamplateXLSX(url);
+                    //        LoadingForm(false);
+                    //    }
+                    //});
                     break;
             }
 
