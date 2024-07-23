@@ -296,6 +296,8 @@ namespace Model
         public bool CheckDinhLuongDV { get; set; }
         public double? QuyCach { get; set; }
         public int? LoaiHangHoa { get; set; }
+        public bool? Xoa { get; set; }
+        public bool? TheoDoi { get; set; }
     }
 
     public class BCDM_LoHangDTO

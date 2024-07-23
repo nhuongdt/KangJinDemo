@@ -161,6 +161,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             MaLoHang = p.MaLoHang,
                             NgaySanXuat = p.NgaySanXuat,
                             NgayHetHan = p.NgayHetHan,
+                            TheoDoi = p.TheoDoi,
+                            Xoa = p.Xoa,
                             DonViTinh = classQuiDoi.Gets(ct => ct.ID_HangHoa == p.ID && ct.Xoa != true).Select(x => new DonViTinh
                             {
                                 ID_HangHoa = p.ID,
