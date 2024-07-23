@@ -26051,6 +26051,18 @@ var NewModel_BanHangLe = function () {
             localStorage.setItem(lcListHD, JSON.stringify(lstHD));
         }
     }
+
+     async function GetInforProduct_ByIDQuidoi(idQuyDoi, idDonVi) {
+        const xx = await ajaxHelper(DMHangHoaUri + 'GetInforProduct_ByIDQuidoi?idQuiDoi=' + idQuyDoi + '&idChiNhanh=' + idDonVi).done()
+            .then(function (x) {
+                if (x.res === true) {
+                    return x.data;
+                }
+                return [];
+            });
+        return xx;
+    }
+
     self.Chose_Service = function (itemChose, soluong, isNhapSoLuong) {
         self.ItemHH_LoChosing(itemChose);
 
@@ -26109,31 +26121,8 @@ var NewModel_BanHangLe = function () {
             }
             // get infor còn thiếu (GiaVon, LaDVChuan) from list HangHoa
             var giaVon = 0, tonkho = 1;
-            var laHangHoa = false;
-            var itemHH = $.grep(self.HangHoaOlds(), function (x) {
-                return x.ID_DonViQuiDoi === idQuiDoi;
-            });
-            if (itemHH.length > 0) {
-                laHangHoa = itemHH[0].LaHangHoa;
-                if (itemHH[0].QuanLyTheoLoHang) {
-                    let lot = $.grep(itemHH, function (x) {
-                        return x.ID_LoHang === itemChose.ID_LoHang;
-                    });
-                    if (lot.length > 0) {
-                        tonkho = lot[0].TonKho;
-                    }
-                }
-                else {
-                    tonkho = itemHH[0].TonKho;
-                }
-                if (laHangHoa === false) {
-                    giaVon = 0;
-                }
-            }
-            else {
-                ShowMessage_Danger('Dịch vụ ' + itemChose.TenHangHoa + ' đã bị xóa, không thể sử dụng');
-                return false;
-            }
+            var laHangHoa = itemChose.LaHangHoa;
+           
             var idRandom = CreateIDRandom('RandomCTHD_');
             var quanLyTheoLo = itemChose.QuanLyTheoLoHang;
             quanLyTheoLo = (quanLyTheoLo === undefined || quanLyTheoLo === null ? false : quanLyTheoLo);
