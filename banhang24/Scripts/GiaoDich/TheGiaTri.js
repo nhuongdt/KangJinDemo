@@ -106,6 +106,7 @@
     self.Role_DeleteInvoice_ifOtherDate = ko.observable(false);
     self.RoleTGT_TatToanCongNo = ko.observable(false);
     self.RoleDieuChinhSoDuThe = ko.observable(false);
+    self.Role_XemDS_TGT = ko.observable(false);
 
     // chon nhieu nhom
     self.NhomDoiTuongDB = ko.observableArray();
@@ -844,8 +845,10 @@
                 })
             }
             else {
-                ajaxHelper(BH_HoaDonUri + 'GetListTheNap', 'POST', model).done(function (obj) {
-                    localStorage.removeItem('FindHD');
+                  localStorage.removeItem('FindHD');
+                if(self.Role_XemDS_TGT())
+                {
+                    ajaxHelper(BH_HoaDonUri + 'GetListTheNap', 'POST', model).done(function (obj) {
                     $('.content-table').gridLoader({ show: false });
                     if (obj.res === true && obj.lst.length > 0) {
                         self.HoaDons(obj.lst);
@@ -863,7 +866,6 @@
                         self.TienATMAll(itFirst.TienATMAll);
                         self.TienGuiAll(itFirst.TienGuiAll);
                         self.KhachDaTraAll(itFirst.KhachDaTraAll);
-                        //self.ConNoAll(itFirst.ConNoAll);
 
                         LoadHtmlGrid();
                     }
@@ -883,11 +885,13 @@
                         self.ConNoAll(0);
                     }
                 })
+                }
+                else{
+                 $('.content-table').gridLoader({ show: false });
+                }
             }
         }
     }
-
-    SearchTheNap();
 
     self.filterNgayLapHD.subscribe(function (newVal) {
         self.currentPage(0);
@@ -1417,10 +1421,14 @@
                 self.Show_BtnThanhToanCongNo(CheckQuyenExist('KhachHang_ThanhToanNo'));
                 self.RoleTGT_TatToanCongNo(CheckQuyenExist('TheGiaTri_TatToanCongNo'));
                 self.RoleDieuChinhSoDuThe(CheckQuyenExist('TheGiaTri_DieuChinhSoDu'));
+                self.Role_XemDS_TGT(CheckQuyenExist('TheGiaTri_XemDS'));
 
                 vmThemMoiKhach.role.KhachHang.CapNhat = CheckQuyenExist('KhachHang_CapNhat');
                 vmThemMoiKhach.role.KhachHang.ThemMoi = CheckQuyenExist('KhachHang_ThemMoi');
                 vmThemMoiKhach.role.NhomKhach.ThemMoi = CheckQuyenExist('NhomKhachHang_ThemMoi');
+
+                
+    SearchTheNap();
             }
             else {
                 ShowMessage_Danger('Không có quyền xem danh sách ' + sLoai);
