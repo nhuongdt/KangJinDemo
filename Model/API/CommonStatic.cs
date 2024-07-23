@@ -432,6 +432,13 @@ namespace Model
 
     public static class commonEnumHellper
     {
+        public enum NVPhuTrach_VaiTro
+        {
+            OTHER = 0,
+            TU_VAN_PHU,
+            TU_VAN_CHINH,
+            TELESALE
+        }
         public enum TypeHoatDong
         {
             insert = 1,
