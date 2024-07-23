@@ -1,6 +1,7 @@
 ﻿using banhang24.Hellper;
 using banhang24.Models;
 using ExcelDataReader;
+using ICSharpCode.SharpZipLib.Checksum;
 using iTextSharp.text.pdf.qrcode;
 using libDM_DoiTuong;
 using libHT_NguoiDung;
@@ -3164,14 +3165,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("DisNgay31");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/NhanSu/Teamplate_ChamCong.xlsx");
-                    string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/NhanSu/" + fileName + ".xlsx");
-                    fileSave = _Class_officeDocument.createFolder_Download(fileSave);
-                    _Class_officeDocument.ExportExcelToFileChamCong(fileTeamplate, fileSave, excel, 6, 29, 24, true, columhide, time,
-                                                                    kyText, chinhanh.Split('-')[0].Trim(),
-                                                                    new int[] { 0 }, listRowPan, model.PhonBanId != null ? chinhanh.Split('-')[1].Trim() : string.Empty);
+                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/NhanSu/" + fileName + ".xlsx");
+                    //fileSave = _Class_officeDocument.createFolder_Download(fileSave);
+                    //_Class_officeDocument.ExportExcelToFileChamCong(fileTeamplate, fileSave, excel, 6, 29, 24, true, columhide, time,
+                    //                                                kyText, chinhanh.Split('-')[0].Trim(),
+                    //                                                new int[] { 0 }, listRowPan, model.PhonBanId != null ? chinhanh.Split('-')[1].Trim() : string.Empty);
 
-                    System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
-                    return ActionTrueData(fileSave);
+                    //System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
+                    List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(chinhanh.Split('-')[0].Trim(), kyText);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, columhide, lstCell);
+                    //classNPOI.ExportExcelToFileChamCong(fileTeamplate, excel, 6, true, columhide, time, kyText, chinhanh.Split('-')[0].Trim(), new int[] { 0 }, listRowPan, model.PhonBanId != null ? chinhanh.Split('-')[1].Trim() : string.Empty);
+                    return ActionTrueData(string.Empty);
                 }
             }
             catch (Exception ex)

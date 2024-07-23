@@ -3233,7 +3233,7 @@ namespace libNS_NhanVien
         public string GetDonViExportChamCong(ChamCongFilter model)
         {
             var donVi = _dbcontext.DM_DonVi.FirstOrDefault(o => model.ListDonVi.Contains(o.ID));
-            var chiNhanh = "Chi nhánh: " + (donVi != null ? donVi.TenDonVi : string.Empty);
+            var chiNhanh = (donVi != null ? donVi.TenDonVi : string.Empty);
             if (model.PhonBanId != null)
             {
                 var phongBan = _dbcontext.NS_PhongBan.FirstOrDefault(o => o.ID == model.PhonBanId);

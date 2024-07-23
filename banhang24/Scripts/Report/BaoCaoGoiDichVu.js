@@ -1766,28 +1766,10 @@
                 }
                 if (self.check_MoiQuanTam() === 1) {
                     if (self.tab_SoDu() === 1 && self.BaoCaoGoiDichVu_SoDuTongHop().length !== 0) {
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCGDV_SoDuTongHop",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
+                        await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_SoDuTongHop', 'POST', { objExcel: array_Seach }, "BaoCaoTongHopSoDuGoiDichVu.xlsx");
                     }
                     else if (self.tab_SoDu() === 2 && self.BaoCaoGoiDichVu_SoDuChiTiet().length !== 0) {
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCGDV_SoDuChiTiet",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
+                        await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_SoDuChiTiet', 'POST', { objExcel: array_Seach }, "BaoCaoChiTietSoDuGoiDichVu.xlsx");
                     }
                     else {
                         bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Báo cáo không có dữ liệu", "danger");
@@ -1812,38 +1794,20 @@
                             ReportBranch: self.TenChiNhanh()
                         };
 
-                        //ajaxHelper(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param).done(function (pathFile) {
-                        //    if (pathFile !== '') {
-                        //        self.DownloadFileTeamplateXLSX(pathFile);
-                        //        commonStatisJs.ShowMessageSuccess("Xuất file thành công");
-
-                        //        let diary = {
-                        //            ID_DonVi: VHeader.IdDonVi,
-                        //            ID_NhanVien: VHeader.IdNhanVien,
-                        //            LoaiNhatKy: 6,
-                        //            ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
-                        //            NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
-                        //            NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
-                        //                concat('<br /> Người xuất: ', VHeader.UserLogin),
-                        //        }
-                        //        Insert_NhatKyThaoTac_1Param(diary);
-                        //    }
-                        //})
-
-                        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param, "TongHopNhatKySuDungGoiDichVu");
+                        const exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_BanDoiTra', 'POST', param, "TongHopNhatKySuDungGoiDichVu.xlsx");
 
                         if (exportOK) {
 
                             let diary = {
-                                        ID_DonVi: VHeader.IdDonVi,
-                                        ID_NhanVien: VHeader.IdNhanVien,
-                                        LoaiNhatKy: 6,
-                                        ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
-                                        NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
-                                        NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
-                                            concat('<br /> Người xuất: ', VHeader.UserLogin),
-                                    }
-                                    Insert_NhatKyThaoTac_1Param(diary);
+                                ID_DonVi: VHeader.IdDonVi,
+                                ID_NhanVien: VHeader.IdNhanVien,
+                                LoaiNhatKy: 6,
+                                ChucNang: 'Báo cáo tổng hợp nhật ký sử dụng',
+                                NoiDung: 'Xuất file báo cáo tổng hợp nhật ký sử dụng',
+                                NoiDungChiTiet: 'Xuất file Xuất file báo cáo tổng hợp nhật ký sử dụng'.
+                                    concat('<br /> Người xuất: ', VHeader.UserLogin),
+                            }
+                            Insert_NhatKyThaoTac_1Param(diary);
                         }
                     }
                     else if (self.tab_NhatKySuDung() === 2 && self.BaoCaoGoiDichVu_NhatKySuDungChiTiet().length !== 0) {
@@ -1855,16 +1819,8 @@
                             }
                             array_Seach.columnsHide = columnAfter;
                         }
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCGDV_NhatKySuDungChiTiet",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
+                        await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_NhatKySuDungChiTiet', 'POST', { objExcel: array_Seach }, "ChiTietNhatKySuDungGoiDichVu.xlsx");
+
                     }
                     else {
                         bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Báo cáo không có dữ liệu", "danger");
@@ -1873,28 +1829,10 @@
                 }
                 else if (self.check_MoiQuanTam() === 3 && self.BaoCaoGoiDichVu_TonChuaSuDung().length !== 0) {
                     array_Seach.TodayBC = self.TodayBC_TK();
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCGDV_TonChuaSuDung",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
+                    await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_TonChuaSuDung', 'POST', { objExcel: array_Seach }, "TonDichVuChuaSuDung.xlsx");
                 }
                 else if (self.check_MoiQuanTam() === 4 && self.BaoCaoGoiDichVu_NhapXuatTon().length !== 0) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: ReportUri + "Export_BCGDV_NhapXuatTon",
-                        data: { objExcel: array_Seach },
-                        success: function (url) {
-                            self.DownloadFileTeamplateXLSX(url);
-                            LoadingForm(false);
-                        }
-                    });
+                    await commonStatisJs.NPOI_ExportExcel(ReportUri + 'Export_BCGDV_NhapXuatTon', 'POST', { objExcel: array_Seach }, "BaoCaoNhapXuatTonDichVu.xlsx");
                 }
                 else {
                     bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Báo cáo không có dữ liệu", "danger");
