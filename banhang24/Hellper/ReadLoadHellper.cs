@@ -2973,6 +2973,7 @@ namespace banhang24.Hellper
               { ColumnKhachHang.ngaytao.ToString(),"Ngày xác nhận" },
               { ColumnDamageItems.mahoadonsuachua.ToString(),"HĐ liên quan" },
               { ColumnDamageItems.ngaylaphoadon.ToString(),"Ngày lập HĐ" },
+              { ColumnInvoices.makhachhang.ToString(),"Mã khách hàng" },
               { ColumnInvoices.tenkhachhang.ToString(),"Tên khách hàng" },
               { ColumnDamageItems.tenchinhanh.ToString(),"Chi nhánh" },
               { ColumnDamageItems.tennhanvien.ToString(),"Người yêu cầu" },

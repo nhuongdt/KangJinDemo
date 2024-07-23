@@ -892,6 +892,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         DM.NgayLapHoaDon = item.NgayLapHoaDon;
                         DM.LoaiPhieu = item.LoaiPhieu;
                         DM.TenChiNhanh = item.TenDonVi;
+                        DM.MaDoiTuong = item.MaDoiTuong;
                         DM.TenDoiTuong = item.TenDoiTuong;
                         DM.TenNhanVien = item.TenNhanVien;
                         DM.TongTienHang = item.TongTienHang;

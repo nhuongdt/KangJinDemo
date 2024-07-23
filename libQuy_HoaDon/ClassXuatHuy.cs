@@ -1771,6 +1771,7 @@ namespace libQuy_HoaDon
         public DateTime? NgaySua { get; set; }
         public string MaHoaDonSuaChua { get; set; }
         public DateTime NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
         public string TenChiNhanh { get; set; }
         public string TenNhanVien { get; set; }
