@@ -2128,7 +2128,7 @@
                 columnHideCT = arrayColumnCT[i] + "_" + columnHideCT;
             }
         }
-       
+
 
         var array_Seach = {
             MaHangHoa: locdau(Text_search),
@@ -2200,10 +2200,10 @@
                         thisC += arrayColumn[i] + '_';
                     }
                     array_Seach.columnsHide = thisC;
-                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTonChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTonChiTiet.xlsx");             
+                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_NhapXuatTonChiTiet", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaNhapXuatTonChiTiet.xlsx");
                     break;
                 case 4:
-                    if (dk_tab === 1) {                    
+                    if (dk_tab === 1) {
                         exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_XuatChuyenHang", 'POST', { objExcel: array_Seach }, "BaoCaoHangHoaXuatChuyenHang.xlsx");
                     }
                     else {
@@ -2212,7 +2212,7 @@
                     break;
                 case 5:
                     array_Seach.XuatKho = false;
-                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_TongHopHangNhapKho", 'POST', { objExcel: array_Seach }, "BaoCaoTongHopHangNhapKho.xlsx");                                 
+                    exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_TongHopHangNhapKho", 'POST', { objExcel: array_Seach }, "BaoCaoTongHopHangNhapKho.xlsx");
                     break;
                 case 6:
                     if (dk_tabxk === 3) {
@@ -2242,16 +2242,7 @@
                             columnHideThis += lstAfter[i].toString() + '_';
                         }
                         array_Seach.columnsHide = columnHideThis;
-                        $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: ReportUri + "Export_BCK_XuatDinhLuongDichVu",
-                            data: { objExcel: array_Seach },
-                            success: function (url) {
-                                self.DownloadFileTeamplateXLSX(url);
-                                LoadingForm(false);
-                            }
-                        });
+                        exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_XuatDinhLuongDichVu", 'POST', { objExcel: array_Seach }, "BaoCaoXuatKho_TheoDinhLuongDichVu.xlsx");
                     }
                     else {
                         array_Seach.XuatKho = true;
@@ -2280,24 +2271,13 @@
                         }
 
                         exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BCK_TongHopHangXuatKho", 'POST', { objExcel: array_Seach }, "BaoCaoTongHopHangXuatKho.xlsx");
-                    
+
                     }
                     break;
                 case 7:
                     array_Seach.CurrentPage = 0;
                     array_Seach.PageSize = self.SumRowsHangHoa();
-
                     exportOK = await commonStatisJs.NPOI_ExportExcel(ReportUri + "Export_BaoCaoNhomHoTro", 'POST', { objExcel: array_Seach }, "BaoCaoNhomHoTro.xlsx");
-                    //$.ajax({
-                    //    type: "POST",
-                    //    dataType: "json",
-                    //    url: ReportUri + "Export_BaoCaoNhomHoTro",
-                    //    data: { objExcel: array_Seach },
-                    //    success: function (url) {
-                    //        self.DownloadFileTeamplateXLSX(url);
-                    //        LoadingForm(false);
-                    //    }
-                    //});
                     break;
             }
 
@@ -2319,10 +2299,6 @@
         } finally {
             LoadingForm(false);
         }
-        
-
-
-        
     };
     self.ExportChiTietNhanVien = function (item) {
         var objDiary = {

@@ -27,6 +27,7 @@ using NPOI.SS.UserModel;
 using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.Formula.Functions;
+using static Model.commonEnumHellper;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -395,7 +396,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 var whereColumn = SearchColumn(lstParam.SearchColumns, string.Empty, ref lstParam);
                 lstParam.WhereSql = whereColumn;
-                List<SP_DM_DoiTuong> lstKhachhangs = classdoituong.SP_GetListKhachHang_Where_Paging(lstParam);
+                List<SP_DM_DoiTuong> lstKhachhangs = classdoituong.LoadDanhMuc_KhachHangNhaCungCap(lstParam);
 
                 List<DM_NhaCungCap_Excel> lst = new List<DM_NhaCungCap_Excel>();
                 foreach (var item in lstKhachhangs)
@@ -420,16 +421,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
                 DataTable excel = classOffice.ToDataTable<DM_NhaCungCap_Excel>(lst);
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachNhaCungCap.xlsx");
-                //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/DanhSachNhaCungCap.xlsx");
-                //fileSave = classOffice.createFolder_Download(fileSave);
                 //classOffice.listToOfficeExcel(fileTeamplate, fileSave, excel, 3, 27, 24, true, lstParam.ColumnsHide);
-
-                //var index = fileSave.IndexOf(@"\Template");
-                //fileSave = "~" + fileSave.Substring(index, fileSave.Length - index);
-                //fileSave = fileSave.Replace(@"\", "/");
-
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, lstParam.ColumnsHide, null, -1);
-
                 return string.Empty;
             }
         }
@@ -3436,7 +3429,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 VaiTro = nvpt.VaiTro ?? 0,
                                 // 1.tư vấn phụ, 2.tư vấn chính, 3.telesale
                                 // do ở giao diện thêm mới khách hàng, phần nhập hơi nhỏ, nên viết tắt cho gọn
-                                TenVaiTro = nvpt.VaiTro == 1 ? "Phụ" : nvpt.VaiTro == 2 ? "Chính" : nvpt.VaiTro == 3 ? "Tele" : ""
+                                TenVaiTro = nvpt.VaiTro ==  (byte)NVPhuTrach_VaiTro.TU_VAN_PHU ? "Phụ" : nvpt.VaiTro == (byte)NVPhuTrach_VaiTro.TU_VAN_CHINH ? "Chính" : nvpt.VaiTro == (byte)NVPhuTrach_VaiTro.TELESALE ? "Tele" : ""
                             }).OrderBy(x => x.VaiTro).ToList();
                 return ActionTrueData(data);
             }
