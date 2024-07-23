@@ -16,6 +16,7 @@ using libDonViQuiDoi;
 using Microsoft.Office.Interop.Excel;
 using Model;
 using NPOI.OpenXmlFormats.Spreadsheet;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
@@ -45,10 +46,13 @@ namespace libQuy_HoaDon
             // Tạo danh sách các CellStyle (same style + format of start row)
             List<ICellStyle> cellStyles = new List<ICellStyle>();
             IRow headerRow = sheet.GetRow(startRow);
-            for (int col = 0; col < dataTable.Columns.Count; col++)
+            if (headerRow != null)
             {
-                ICell templateCell = headerRow.GetCell(col);
-                cellStyles.Add(templateCell?.CellStyle);
+                for (int col = 0; col < dataTable.Columns.Count; col++)
+                {
+                    ICell templateCell = headerRow.GetCell(col);
+                    cellStyles.Add(templateCell?.CellStyle);
+                }
             }
 
             // Điền dữ liệu từ DataTable vào sheet, giữ nguyên định dạng
@@ -58,7 +62,10 @@ namespace libQuy_HoaDon
                 for (int col = 0; col < dataTable.Columns.Count; col++)
                 {
                     ICell cell = excelRow.CreateCell(col);
-                    cell.CellStyle = cellStyles[col];
+                    if (cellStyles.Count > 0)
+                    {
+                        cell.CellStyle = cellStyles[col];
+                    }
 
                     var value = dataTable.Rows[row][col];
                     switch (value)

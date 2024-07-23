@@ -1010,7 +1010,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TrangThai");
                     excel.Columns.Remove("CachLayGioCong");
                     excel.Columns.Remove("NgayTao");
-                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/Teamplate_BaoCaoDanhMucCaLamViec.xlsx");                  
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/Teamplate_BaoCaoDanhMucCaLamViec.xlsx");
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(chinhanh, time);
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, "", lstCell, -1);
                     return ActionTrueData(string.Empty);
@@ -1846,7 +1846,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     isprev = model.pageNow > 3 && page > 5,
                     isnext = model.pageNow < page - 2 && page > 5,
                     countpage = page,
-                    totalRows= count,
+                    totalRows = count,
                 });
             }
             catch (Exception ex)
@@ -2125,10 +2125,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("TotalPage");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/Teamplate_DanhSachPhieuPhanCa.xlsx");
-                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/CaLamViec_ChamCong/DanhSachPhieuPhanCa.xlsx");
-                    //fileSave = _Class_officeDocument.createFolder_Download(fileSave);
                     //_Class_officeDocument.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 8, 8, true, "", time, chinhanh);
-                    //System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(chinhanh, time);
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, "", lstCell, -1);
                     return ActionTrueData(string.Empty);
@@ -2760,7 +2757,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 var _dbcontext = SystemDBContext.GetDBContext();
                 var _NhanSuService = new NhanSuService(_dbcontext);
                 List<ChamCongModel> data = _NhanSuService.GetChamCongFilter(model).ToList();
-                var result = data.GroupBy(o => new { o.Thang, o.Nam}).Select(o => new
+                var result = data.GroupBy(o => new { o.Thang, o.Nam }).Select(o => new
                 {
                     Thang = o.Key.Thang,
                     Nam = o.Key.Nam,
@@ -3165,16 +3162,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("DisNgay31");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/NhanSu/Teamplate_ChamCong.xlsx");
-                    //string fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/NhanSu/" + fileName + ".xlsx");
-                    //fileSave = _Class_officeDocument.createFolder_Download(fileSave);
                     //_Class_officeDocument.ExportExcelToFileChamCong(fileTeamplate, fileSave, excel, 6, 29, 24, true, columhide, time,
                     //                                                kyText, chinhanh.Split('-')[0].Trim(),
                     //                                                new int[] { 0 }, listRowPan, model.PhonBanId != null ? chinhanh.Split('-')[1].Trim() : string.Empty);
 
-                    //System.Web.HttpResponse Response = System.Web.HttpContext.Current.Response;
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(chinhanh.Split('-')[0].Trim(), kyText);
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, columhide, lstCell);
-                    //classNPOI.ExportExcelToFileChamCong(fileTeamplate, excel, 6, true, columhide, time, kyText, chinhanh.Split('-')[0].Trim(), new int[] { 0 }, listRowPan, model.PhonBanId != null ? chinhanh.Split('-')[1].Trim() : string.Empty);
+                    lstCell.Add(new ClassExcel_CellData { ColumnIndex = 6, RowIndex = 4, CellValue = "Tháng " + model.TuNgay.Value.Month + " Năm " + model.TuNgay.Value.Year });
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, columhide, lstCell, -1);
                     return ActionTrueData(string.Empty);
                 }
             }
@@ -3723,7 +3717,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 qct.ID_BangLuongChiTiet = item.ID_BangLuongChiTiet;
                             }
                         }
-                        
+
                         _dbcontext.SaveChanges();
                         trans.Commit();
 
