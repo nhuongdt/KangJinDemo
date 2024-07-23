@@ -1055,7 +1055,6 @@ namespace libReport
         public string MaKhachHang { get; set; }
         public string TenKhachHang { get; set; }
         public string DienThoaiKH { get; set; }
-        public string TenNVPhuTrach { get; set; }
         public string MaNVTuVanChinh { get; set; }
         public string TenNVTuVanChinh { get; set; }
         public string MaNVTuVanPhu { get; set; }
