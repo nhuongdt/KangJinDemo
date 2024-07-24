@@ -34,6 +34,7 @@ using banhang24.Compress;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
+using static libNS_NhanVien.ClassNS_NhanVien;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -4223,15 +4224,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     DataTable excel = _classOFDCM.ToDataTable<DM_HangHoa_Excel>(lst);
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucHangHoa.xlsx");
-                    
+
                     string colHides = string.Empty;
                     if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                     {
                         colHides = string.Join("_", param.ColumnHide);
                     }
-                   
+
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, colHides, null, -1);
-                    return string.Empty; 
+                    return string.Empty;
                 }
                 catch (Exception ex)
                 {
@@ -4346,9 +4347,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lst.Add(DM);
                 }
                 DataTable excel = _classOFDCM.ToDataTable<DM_LoHang_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucLoHang.xlsx");               
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhMucLoHang.xlsx");
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(null, time);
-                classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, columnsHide, lstCell, -1);               
+                classNPOI.ExportDataToExcel(fileTeamplate, excel, 3, columnsHide, lstCell, -1);
             }
         }
 
@@ -4374,9 +4375,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     lst.Add(DM);
                 }
                 DataTable excel = _classOFDCM.ToDataTable<DM_TheKhoHangHoa_Excel>(lst);
-                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_TheKhoDanhMucHangHoa.xlsx"); 
+                string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_TheKhoDanhMucHangHoa.xlsx");
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, columnsHide);
-                
+
             }
         }
 
@@ -9341,6 +9342,76 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     result = ex.ToString();
                     return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
                 }
+            }
+        }
+
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public IHttpActionResult CheckData_FileImportPhieuKiemKe()
+        {
+            ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+            List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
+            try
+            {
+                if (HttpContext.Current.Request.Files.Count != 0)
+                {
+                    var file = HttpContext.Current.Request.Files[0];
+                    using (System.IO.Stream inputStream = file.InputStream)
+                    {
+                        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                        ISheet sheet = workbook.GetSheetAt(0);
+
+                        string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH\n HÀNG HÓA KIỂM KHO");
+                        if (string.IsNullOrEmpty(str))
+                        {
+                            System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet,2);
+                            lstErr = classNPOI.CheckData_FileImportPhieuKiemKe(sheet, dataTable);
+                        }
+                        else
+                        {
+                            lstErr.Add(new ErrorDMHangHoa()
+                            {
+                                TenTruongDuLieu = str,
+                                ViTri = "0",
+                                rowError = -1,
+                                loaiError = 1,
+                                ThuocTinh = str,
+                                DienGiai = str,
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    lstErr.Add(new ErrorDMHangHoa()
+                    {
+                        TenTruongDuLieu = "Không tồn tại file",
+                        ViTri = "0",
+                        rowError = -1,
+                        loaiError = 1,
+                        ThuocTinh = "Không tồn tại file",
+                        DienGiai = "Không tồn tại file",
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                lstErr.Add(new ErrorDMHangHoa()
+                {
+                    TenTruongDuLieu = "Exception",
+                    ViTri = "0",
+                    rowError = -1,
+                    loaiError = 1,
+                    ThuocTinh = "Exceptione",
+                    DienGiai = ex.Message,
+                });
+            }
+            if (lstErr != null && lstErr.Count() > 0)
+            {
+                return ActionFalseWithData(lstErr);
+            }
+            else
+            {
+                return ActionTrueData(lstErr);
             }
         }
         [System.Web.Http.AcceptVerbs("GET", "POST")]

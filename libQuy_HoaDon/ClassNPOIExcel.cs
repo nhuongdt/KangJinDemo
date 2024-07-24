@@ -1598,6 +1598,181 @@ namespace libQuy_HoaDon
             return lstError;
         }
         #endregion
+
+        public List<ErrorDMHangHoa> CheckData_FileImportPhieuKiemKe(ISheet sheet, System.Data.DataTable dataTable)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassDM_HangHoa classHangHoa = new ClassDM_HangHoa(db);
+                Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
+                dataTable.Columns[0].ColumnName = "MaLo";
+                dataTable.Columns[1].ColumnName = "MaHang";
+
+                var lastRow = sheet.LastRowNum + 1;
+                for (int rowIndex = 2; rowIndex < lastRow; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+                    if (row != null)
+                    {
+                        string malohang = row.GetCell(0)?.ToString()?.Trim();
+                        string mahanghoa = row.GetCell(1)?.ToString()?.Trim();
+                        string soluongThucTe = row.GetCell(2)?.ToString();
+
+                        // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
+                        if (string.IsNullOrEmpty(malohang) && string.IsNullOrEmpty(mahanghoa) &&
+                            string.IsNullOrEmpty(soluongThucTe))
+                        {
+                            continue;
+                        }
+
+                        string indexErr = (rowIndex + 1).ToString();
+
+                        // check quan ly theo lo
+                        var qlTheoLo = classHangHoa.SP_CheckHangHoa_QuanLyTheoLo(mahanghoa);
+                        if (qlTheoLo)
+                        {
+                            if (string.IsNullOrEmpty(malohang))
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã lô hàng",
+                                    ViTri = indexErr,
+                                    ThuocTinh = malohang,
+                                    DienGiai = string.Concat("Dòng số ", indexErr, ": Mã hàng '", mahanghoa, " quản ý theo lô, nhưng chưa nhập số lô"),
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                            else
+                            {
+                                bool checklo = classHangHoa.SP_CheckLoHangExist(malohang, mahanghoa);
+                                if (checklo == false)
+                                {
+                                    lstError.Add(new ErrorDMHangHoa
+                                    {
+                                        TenTruongDuLieu = "Mã lô hàng",
+                                        ViTri = indexErr,
+                                        ThuocTinh = malohang,
+                                        DienGiai = string.Concat("Dòng số ", indexErr, ": Mã lô hàng '", malohang, "' không có trên hệ thống"),
+                                        rowError = rowIndex,
+                                        loaiError = 1
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(malohang))
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã lô hàng",
+                                    ViTri = indexErr,
+                                    ThuocTinh = malohang,
+                                    DienGiai = string.Concat("Dòng số ", indexErr, ": Mã hàng '", mahanghoa, "' không quản ý theo lô. Không thể nhập mã lô"),
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(mahanghoa))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã hàng hóa",
+                                ViTri = indexErr,
+                                ThuocTinh = mahanghoa,
+                                DienGiai = string.Concat("Dòng số ", indexErr, ": Mã hàng hóa không được để trống"),
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        else
+                        {
+                            var sFilter = string.Concat("MaHang ='", mahanghoa, "'");
+                            if (!string.IsNullOrEmpty(malohang))
+                            {
+                                sFilter = string.Concat(sFilter, " and MaLo ='", malohang, "'");
+                            }
+                            bool trungma = class_OfficeDocument.GroupData(dataTable, sFilter);
+                            if (trungma == false)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = indexErr,
+                                    ThuocTinh = mahanghoa,
+                                    DienGiai = string.Concat("Dòng số ", indexErr, ": Mã hàng hóa bị trùng lặp"),
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+
+                            bool dangkinhdoanh = classHangHoa.SP_CheckHangDangKinhDoanh(mahanghoa);
+                            if (dangkinhdoanh == false)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = indexErr,
+                                    ThuocTinh = mahanghoa,
+                                    DienGiai = string.Concat("Dòng số ", indexErr, ": Mã hàng hóa không có trên hệ thống hoặc ngừng kinh doanh"),
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+
+                            bool CheckLaDV = class_OfficeDocument.ChekMaHangDatabase_LaDichVu(mahanghoa);
+                            if (CheckLaDV == false)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = indexErr,
+                                    ThuocTinh = mahanghoa,
+                                    DienGiai = string.Concat("Dòng số ", indexErr, ": ", mahanghoa, " không phải là hàng hóa"),
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(soluongThucTe))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Số lượng",
+                                ViTri = indexErr,
+                                ThuocTinh = soluongThucTe,
+                                DienGiai = string.Concat("Dòng số ", indexErr, ": Số lượng không được để trống"),
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        else
+                        {
+                            var isNumber = CommonStatic.IsDouble(soluongThucTe);
+                            if (isNumber == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Số lượng",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = soluongThucTe,
+                                    DienGiai = string.Concat("Dòng số ", indexErr, ": Số lượng không phải dạng số"),
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+                            }
+                        }
+                    }
+                }
+            }
+            return lstError;
+        }
         #endregion
     }
 }
