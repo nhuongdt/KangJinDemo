@@ -393,7 +393,7 @@ namespace Model
         public string ThuocTinh { get; set; }
         public string DienGiai { get; set; }
         public int rowError { get; set; }
-        public int loaiError { get; set; }
+        public int loaiError { get; set; }// 1.mặc định, 2. lỗi trùng lặp mã trong CSDL (dùng khi muốn ghi đè thông tin của mã cũ theo mã mới)
         public string nameHH_excel { get; set; }
         public string nameHH_sql { get; set; }
     }
