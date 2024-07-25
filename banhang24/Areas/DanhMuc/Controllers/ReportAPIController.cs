@@ -3168,7 +3168,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("LoaiHoaDon");
                 excel.Columns.Remove("TotalRow");
                 excel.Columns.Remove("TotalPage");
-                excel.Columns.Remove("MaDinhDanh");
                 excel.Columns.Remove("TenDonViTinh");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoBanHang/Teamplate_BaoCaoBanHang_DinhDanhDichVu.xlsx");
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);

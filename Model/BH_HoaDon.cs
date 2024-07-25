@@ -79,7 +79,7 @@ namespace Model
         public double TongTienThue { get; set; } = 0;// TheGiaTri: so du sau nap
 
         [Column(TypeName = "float")]
-        public double TongGiamGia { get; set; } = 0;// KiemKho: tong SL chenh lech (tang/giam)
+        public double TongGiamGia { get; set; } = 0;// KiemKho: tong SL chenh lech (tang/giam), HD HoTro: số ngày thuốc
 
         [Column(TypeName = "float")]
         public double TongChiPhi { get; set; } = 0;

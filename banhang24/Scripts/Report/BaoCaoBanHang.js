@@ -80,7 +80,7 @@
                     loadHtmlGrid();
                     break;
                 case 10: // bcdinhdanh: c Huyen bảo bỏ 2 cột này (27/06/2024)
-                    data = data.filter((x) => $.inArray(x.Key, ['Detail_maDinhDanhDV', 'Detail_donvitinh']) == -1)
+                    data = data.filter((x) => $.inArray(x.Key, ['Detail_donvitinh']) == -1)
                     break;
             }
             self.listCheckbox(data);
