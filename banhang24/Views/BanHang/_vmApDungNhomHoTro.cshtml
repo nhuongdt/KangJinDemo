@@ -210,7 +210,8 @@
                                                    v-on:keyup.13="Enter_FocusNext(0)"
                                                    v-model="item.GhiChu"
                                                    v-on:keyup="PublicProducts_EditGhiChu(index)" />
-                                            <span v-if="item.BH_NhanVienThucHien.length > 0">
+                                            <br />
+                                            <span v-if="item.BH_NhanVienThucHien!== undefined && item.BH_NhanVienThucHien.length > 0">
                                                 <span>NVTH:</span>
                                                 <span> {{item.BH_NhanVienThucHien.map(function(x){return x.TenNhanVien}).toString(',')}}</span>
                                             </span>
@@ -306,6 +307,7 @@
                                                     </span>
                                                 </span><br />
                                                 <input type="text" placeholder="Ghi chú" class="ghichubr"
+                                                       v-model="item.GhiChu"
                                                        v-on:keyup.13="Enter_FocusNext(0)"
                                                        v-on:keyup="DayProducts_EditGhiChu(index)" />
 
@@ -772,20 +774,9 @@
                             for (let j = 0; j < x.dataSoure.length; j++) {
                                 let forIn = x.dataSoure[j];
                                 if (forOut.ID === forIn.ID_ChiTietHD) {
+                                    forIn.GhiChu = forOut.GhiChu;// vì GetInfor_HDHoTro: chưa lấy cột {GhiChu} nên get lại ở cthd
                                     forIn.BH_NhanVienThucHien = forOut.BH_NhanVienThucHien;
-                                    forIn.ThanhPhan_DinhLuong = [];
-                                    if (!commonStatisJs.CheckNull(forOut.ThanhPhan_DinhLuong)) {
-                                        // assign soluongmacdinh+ soluong quycach
-                                        for (let k = 0; k < forOut.ThanhPhan_DinhLuong.length; k++) {
-                                            let tp = forOut.ThanhPhan_DinhLuong[k];
-                                            forOut.ThanhPhan_DinhLuong[k].STT = k + 1;
-                                            forOut.ThanhPhan_DinhLuong[k].isDefault = false;
-                                            forOut.ThanhPhan_DinhLuong[k].SoLuongMacDinh = tp.SoLuong / forIn.SoLuong;
-                                            forOut.ThanhPhan_DinhLuong[k].SoLuongQuyCach = tp.QuyCach * tp.SoLuong;
-                                            forOut.ThanhPhan_DinhLuong[k].GiaVonAfter = tp.GiaVon * forIn.SoLuong;
-                                        }
-                                        forIn.ThanhPhan_DinhLuong = forOut.ThanhPhan_DinhLuong;
-                                    }
+                                    forIn.ThanhPhan_DinhLuong = forOut.ThanhPhan_DinhLuong;
                                     break;
                                 }
                             }
@@ -1124,7 +1115,7 @@
                     ShowMessage_Danger('Vui lòng nhập số lượng trước khi nhập nguyên vật liệu');
                     return;
                 }
-                if (item.ThanhPhan_DinhLuong !== null && item.ThanhPhan_DinhLuong.length > 0) {
+                if (!commonStatisJs.CheckNull(item.ThanhPhan_DinhLuong) && item.ThanhPhan_DinhLuong.length > 0) {
                     vmThanhPhanDinhLuong.Grid_TPDinhLuongChosed = item.ThanhPhan_DinhLuong;
                 }
                 else {
