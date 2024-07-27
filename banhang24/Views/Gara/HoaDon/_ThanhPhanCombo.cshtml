@@ -292,9 +292,10 @@
             }
         },
         methods: {
-            showModalUpdate: function (ctDoing) {// used at ds hoadon
-                let self = this;
-                let combo = $.grep(self.AllComBo_ofHD, function (x) {
+            showModalUpdate: async function (ctDoing) {// used at ds hoadon
+                 let self = this;
+                let allCombo = await self.GetAllCombo_byIDHoaDon(ctDoing.ID_HoaDon);
+                let combo = $.grep(allCombo, function (x) {
                     return x.ID_ParentCombo === ctDoing.ID_ParentCombo;
                 });
                 if (commonStatisJs.CheckNull(ctDoing.LoaiHoaDon)) {
@@ -304,20 +305,22 @@
                 self.LoaiHoaDon = ctDoing.LoaiHoaDon;
                 self.showModal(ctDoing, 2);
             },
-            GetAllCombo_byIDHoaDon: function (idHoaDon) {
+            GetAllCombo_byIDHoaDon: async function (idHoaDon) {
                 let self = this;
                 if (commonStatisJs.CheckNull(idHoaDon)) {
                     self.AllComBo_ofHD = [];
-                    return;
+                    return [];
                 }
-                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListCombo_ofCTHD?idHoaDon=' + idHoaDon).done(function (x) {
-                    if (x.res) {
-                        self.AllComBo_ofHD = x.dataSoure;
-                    }
-                    else {
-                        self.AllComBo_ofHD = [];
-                    }
-                })
+                const xx = await ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetListCombo_ofCTHD?idHoaDon=' + idHoaDon).done()
+                    .then(function (x) {
+                        if (x.res) {
+                            return x.dataSoure;
+                        }
+                        else {
+                            return [];
+                        }
+                    });
+                return xx;
             },
             SetDefaultProprties: function (itChose) {
                 var self = this;
