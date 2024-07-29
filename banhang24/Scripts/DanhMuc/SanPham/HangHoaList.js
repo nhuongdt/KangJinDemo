@@ -7064,7 +7064,6 @@ var ViewModel = function () {
 
     self.ChietKhauMacDinhNV_ClickPtramVND = function () {
         self.newHangHoa().ChietKhauMD_NVTheoPT(!self.newHangHoa().ChietKhauMD_NVTheoPT());
-        self.newHangHoa().ChietKhauMD_NV(0);
     }
 
     self.HoaHongDV_ClickPtramVND = function () {

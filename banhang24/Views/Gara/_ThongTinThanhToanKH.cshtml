@@ -16,8 +16,9 @@
                 padding-left: 0;
                 padding-right: 0;
             }
+
     #ThongTinThanhToanKHNCC .input-simple {
-        width:100%;
+        width: 100%;
     }
 
     @@media (max-width: 1024px) {
@@ -48,19 +49,19 @@
                         </a>
                     </li>
                     <li class="nav-item"
-                        v-if="inforHoaDon.PhaiThanhToanBaoHiem - inforHoaDon.BaoHiemDaTra> 0"
-                        v-bind:class="{active: inforHoaDon.LoaiDoiTuong == 3}"
-                        v-on:click="changeTab(3)">
-                        <a class="nav-link" data-toggle="pill" href="#BaoHiem" role="tab">
-                            Bảo hiểm
-                        </a>
-                    </li>
-                    <li class="nav-item"
                         v-if="inforHoaDon.LoaiHoaDon !==6 || (inforHoaDon.LoaiHoaDon===6 && inforHoaDon.HoanTraTamUng <=0)"
                         v-bind:class="{active: inforHoaDon.LoaiDoiTuong == 0}"
                         v-on:click="changeTab(0)">
                         <a class="nav-link" data-toggle="pill" href="#HoaHongNhanVien" role="tab">
                             Hoa Hồng nhân viên
+                        </a>
+                    </li>
+                    <li class="nav-item"
+                        v-if="inforHoaDon.LoaiHoaDon == 1 || inforHoaDon.LoaiHoaDon == 6"
+                        v-bind:class="{active: inforHoaDon.LoaiDoiTuong == 2}"
+                        v-on:click="changeTab(2)">
+                        <a class="nav-link" data-toggle="pill" href="#HoaHongDVDacBiet" role="tab">
+                            Hoa Hồng DV đặc biệt
                         </a>
                     </li>
                 </ul>
@@ -209,8 +210,7 @@
                             <!--POS-->
                             <div class="container-fluid row _jsCheck" style="margin-bottom:5px"
                                  v-for="(pos, index1) in PhieuThuKhach.ListTKPos"
-                                 @*v-if="inforHoaDon.HoanTraTamUng <= 0 || formType === 4 || formType === 3"*@
-                                 >
+                                 @*v-if="inforHoaDon.HoanTraTamUng <= 0 || formType === 4 || formType === 3"*@>
                                 <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                                     <label v-if="index1 ==0">Tiền quẹt thẻ POS</label>
                                     <span v-if="index1 > 0" style="float: right;padding: 5px 0px"
@@ -225,7 +225,7 @@
                                     <account-bank :text-search="pos.TenTaiKhoanPos"
                                                   :accounts="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
                                                   :search-list="listData.AccountBanks.filter(x=>x.TaiKhoanPOS)"
-                                                   :form-type="2" 
+                                                  :form-type="2"
                                                   :id-chosing="pos.ID_TaiKhoanPos"
                                                   v-on:change-account-parent="ChangeAccountPOS"
                                                   v-on:reset-account="ResetAccountPOS"
@@ -244,8 +244,7 @@
                             <!--Chuyển khoản-->
                             <div class="container-fluid row _jsCheck" style="margin-bottom:5px"
                                  v-for="(ck, index2) in PhieuThuKhach.ListTKChuyenKhoan"
-                                 @*v-if="formType !==2  || (inforHoaDon.HoanTraTamUng <= 0 && formType === 2)"*@
-                                 >
+                                 @*v-if="formType !==2  || (inforHoaDon.HoanTraTamUng <= 0 && formType === 2)"*@>
                                 <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                                     <label v-if="index2 ==0">Tiền chuyển khoản</label>
                                     <span v-if="index2 > 0"
@@ -514,9 +513,118 @@
                                                            v-on:keyup.13="HoaHongHD_KeyEnter(3)"
                                                            v-on:keyup="HoaHongHD_EditThanhTien(item, index)" />
                                                 </td>
-                                                <td class="text-center">
+                                                <td class="text-center" style="vertical-align: middle">
                                                     <a title="Xóa"
                                                        v-on:click="HoaHongHD_RemoveNhanVien(index)">
+                                                        <i class="fa fa-close text-danger"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="gara-popup-chietkhau" style="width:282px" id="jsDiscountKH">
+                                        <div class="flex flex-column">
+                                            <div class="flex flex-between lineHeight-30" style="width: 100%; align-content:center">
+                                                <span style="width:100px">Chiết khấu bằng</span>
+                                                <input class="search-line" autocomplete="off" onclick="this.select()"
+                                                       style="width:calc(100% - 120px)"
+                                                       onkeypress="keypressNumber_limitNumber(event,this)"
+                                                       v-on:keyup="HoaHongHD_EditChietKhau" />
+                                            </div>
+                                            <div class="options flex flex-between lineHeight-30" style="width: 100%;">
+                                                <label>
+                                                    <input type="radio" class="form-check-input" name="rdoTypeCK" value="2"
+                                                           v-model="LoaiChietKhauHD_NV"
+                                                           v-on:change="HoaHongHD_ChangeLoaiChietKhau(2)">% Doanh thu
+                                                </label>
+                                                <label>
+                                                    <input type="radio" class="form-check-input" name="rdoTypeCK" value="1"
+                                                           v-model="LoaiChietKhauHD_NV"
+                                                           v-on:change="HoaHongHD_ChangeLoaiChietKhau(1)">% Thực thu
+                                                </label>
+                                                <label>
+                                                    <input type="radio" class="form-check-input" name="rdoTypeCK" value="3"
+                                                           v-model="LoaiChietKhauHD_NV"
+                                                           v-on:change="HoaHongHD_ChangeLoaiChietKhau(3)"> VNĐ
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane"
+                         v-bind:class="{active: inforHoaDon.LoaiDoiTuong == 2}"
+                         id="HoaHongDVDacBiet" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        <div class="flex flex-row" style="flex-wrap:wrap">
+                            <div class="op-ck-left">
+                                <nvien-hoadon-search :list-all="listData.NhanViens"
+                                                     :list-search="listData.NhanViens"
+                                                     v-on:select-item="$root.DVDacBiet_AddNhanVien">
+
+                                </nvien-hoadon-search>
+                            </div>
+
+                            <div class="op-ck-right">
+                                <div class="flex flex-row" style="height:24px">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <span>Tiền tính chiết khấu: </span>
+                                        <span class="red">
+                                            {{formatNumber3Digit(HoaHongDVDacBiet.GiaTriTinh)}}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12 ">
+                                        <label>Chia đều chiết khấu</label>
+
+                                        <label style="width:unset; margin-right:15px;">
+                                            <input type="radio" class="form-check-input" name="ckHoaDon"
+                                                   value="1"
+                                                   v-model="HoaHongDVDacBiet.IsShareDiscount"
+                                                   v-on:change="DVDacBiet_ChangeIsShareDiscount(1)">Có
+                                        </label>
+
+                                        <label style="width:unset; margin-right:15px;">
+                                            <input type="radio" class="form-check-input" name="ckHoaDon"
+                                                   value="2"
+                                                   v-model="HoaHongDVDacBiet.IsShareDiscount"
+                                                   v-on:change="DVDacBiet_ChangeIsShareDiscount(1)">Không
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="table-frame position-relative" style="height:400px; overflow:auto; position:relative; width:100%">
+                                    <table class="table position-relative" style="padding-bottom:50px">
+                                        <thead>
+                                            <tr>
+                                                <th>Tên nhân viên</th>
+                                                <th style="width:20%">% Chiết khấu</th>
+                                                <th style="width:25%">Thành tiền</th>
+                                                <th style="width:5%">#</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(item, index) in HoaHongDVDacBiet.NhanVienChosed">
+                                                <td>
+                                                    <div class="ellipsis-text width-200" style="min-width:200px">{{item.TenNhanVien}}</div>
+                                                </td>
+                                                <td>
+                                                    <input class='input-simple text-right'
+                                                           v-model="item.PT_ChietKhau"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(1)"
+                                                           v-on:keyup="DVDacBiet_EditPTChietKhau(item, index)" />
+                                                </td>
+                                                <td>
+                                                    <input class='input-simple text-right'
+                                                           v-model="item.TienChietKhau"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(2)"
+                                                           v-on:keyup="DVDacBiet_EditTienChietKhau(item, index)" />
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle">
+                                                    <a title="Xóa"
+                                                       v-on:click="DVDacBiet_RemoveNhanVien(index)">
                                                         <i class="fa fa-close text-danger"></i>
                                                     </a>
                                                 </td>
