@@ -62,6 +62,7 @@ var XuatKhoChiTiet = function () {
 
     $(".btnImportExcel").hide();
     $(".filterFileSelect").hide();
+    $(".BangBaoLoi").hide();
 
     self.newHoaDon = ko.observable(new FormModel_NewHoaDon());
     self.HangHoaAfterAdd = ko.observableArray();
@@ -2250,10 +2251,12 @@ var XuatKhoChiTiet = function () {
         self.fileNameExcel("Lựa chọn file Excel...");
         $(".filterFileSelect").hide();
         $(".btnImportExcel").hide();
+        $(".BangBaoLoi").hide();
         document.getElementById('imageUploadForm').value = "";
     }
 
     self.refreshFileSelect = function () {
+        $(".BangBaoLoi").hide();
         self.importPhieuXuatKho();
     }
 
@@ -2261,6 +2264,7 @@ var XuatKhoChiTiet = function () {
         self.fileNameExcel(evt.target.files[0].name)
         $(".btnImportExcel").show();
         $(".filterFileSelect").show();
+        $(".BangBaoLoi").hide();
         self.loiExcel([]);
     }
 
@@ -2273,11 +2277,15 @@ var XuatKhoChiTiet = function () {
         var url = DMHangHoaUri + "Download_TeamplateImport?fileSave=" + "FileImport_DanhSachHangXuatKho.xlsx";
         window.location.href = url;
     }
+    //self.ShowandHide = function () {
+    //    self.importPhieuXuatKho();
+    //}
 
     self.importPhieuXuatKho = function () {
         $('.choose-file').gridLoader({
             style: "top: 120px;"
         });
+     
         var formData = new FormData();
         var totalFiles = document.getElementById("imageUploadForm").files.length;
         for (let i = 0; i < totalFiles; i++) {
@@ -2292,6 +2300,8 @@ var XuatKhoChiTiet = function () {
             contentType: false,
             processData: false,
             success: function (item) {
+                console.log(item)
+
                 self.loiExcel(item);
                 if (self.loiExcel().length > 0) {
                     $(".BangBaoLoi").show();
@@ -2311,7 +2321,7 @@ var XuatKhoChiTiet = function () {
                         success: function (item) {
                             self.deleteFileSelect();
                             console.log('import ', item)
-
+                           /* $(".BangBaoLoi").hide();*/
                             var arrCTsort = item;
                             var arrIDQuiDoi = [];
                             var cthdLoHang = [];

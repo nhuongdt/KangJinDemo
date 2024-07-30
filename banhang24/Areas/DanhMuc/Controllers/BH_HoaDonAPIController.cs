@@ -1391,7 +1391,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         }
                     };
 
-                    classNPOIExcel.ExportDataToExcel(fileTeamplate, excel, 6, listParams.ColumnsHide, lstCell, -1);
+                    classNPOIExcel.ExportDataToExcel(fileTeamplate, excel, 6, listParams.ColumnsHide, lstCell);
 
                 }
                 catch (Exception ex)
