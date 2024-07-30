@@ -10699,7 +10699,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                         DonGiaBaoHiem = item.DonGiaBaoHiem,
                                         TenHangHoaThayThe = item.TenHangHoaThayThe,
                                         ID_LichBaoDuong = item.ID_LichBaoDuong,
-                                        ThanhPhanComBo = item.ThanhPhanComBo
+                                        ThanhPhanComBo = item.ThanhPhanComBo,
+                                        SoLuong_YC = item.SoLuong_YC,
+                                        SoLuong_TL = item.SoLuong_TL
                                     };
 
                                     #region DinhLuong_DichVu
@@ -10931,6 +10933,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     ctHoaDon.TenHangHoaThayThe = item.TenHangHoaThayThe;
                                     ctHoaDon.ID_LichBaoDuong = item.ID_LichBaoDuong;
                                     ctHoaDon.ThanhPhanComBo = item.ThanhPhanComBo;
+                                    ctHoaDon.SoLuong_TL = item.SoLuong_TL;
+                                    ctHoaDon.SoLuong_YC = item.SoLuong_YC;
 
                                     #region DinhLuong_DichVu
 
