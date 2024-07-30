@@ -13,6 +13,7 @@ using Aspose.Cells;
 using libDM_DoiTuong;
 using libDM_HangHoa;
 using libDonViQuiDoi;
+using MathNet.Numerics;
 using Microsoft.Office.Interop.Excel;
 using Model;
 using NPOI.OpenXmlFormats.Spreadsheet;
@@ -560,6 +561,187 @@ namespace libQuy_HoaDon
 
             return dataTable;
         }
+
+        public List<ErrorDMHangHoa> checkExcel_XuatHuy(ISheet sheet)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            Dictionary<string, List<int>> maHangHoaTracker = new Dictionary<string, List<int>>();
+
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                // duyệt bắt đầu từ dòng số 3
+                var lastRow = sheet.PhysicalNumberOfRows;
+
+                for (int rowIndex = 2; rowIndex < lastRow; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+
+                    if (row != null)
+                    {
+                        string malohang = row.GetCell(0)?.ToString();
+                        string maHangHoa = row.GetCell(1)?.ToString();
+                        string soluong = row.GetCell(2)?.ToString();
+
+
+                        // bỏ qua dòng có dữ liệu trống
+                        if (string.IsNullOrEmpty(malohang) && string.IsNullOrEmpty(maHangHoa) && string.IsNullOrEmpty(soluong))
+                        {
+                            continue;
+                        }
+
+
+                        if (!string.IsNullOrEmpty(malohang))
+                        {
+                            bool checklo = classOffice.ChekLoHangDatabase(malohang, maHangHoa);
+                            if (checklo == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã lô hàng",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = malohang,
+                                    DienGiai = "Mã hàng: " + maHangHoa + " không có lô hàng '" + malohang + "' trên hệ thống",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(maHangHoa))
+                        {
+                            ErrorDMHangHoa DM = new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã hàng hóa",
+                                ViTri = (rowIndex + 1).ToString(),
+                                ThuocTinh = maHangHoa,
+                                DienGiai = "Mã hàng hóa không được để trống",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            };
+
+                        }
+                        else
+                        {
+                            if (maHangHoaTracker.ContainsKey(maHangHoa))
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = maHangHoa,
+                                    DienGiai = "Mã hàng: " + maHangHoa + " bị trùng lặp",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+                            }
+                            else
+                            {
+                                maHangHoaTracker[maHangHoa] = new List<int> { rowIndex + 1 };
+                            }
+
+
+                            bool kytudacbiet = CommonStatic.CheckCharSpecial(maHangHoa);
+                            if (kytudacbiet == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = maHangHoa,
+                                    DienGiai = "Mã hàng hóa không được chứa ký tự đặc biệt '" + maHangHoa + "'",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+                            }
+
+
+                            bool CheckCSDL = classOffice.ChekMaHangDatabase_DangKinhDoanh(maHangHoa);
+                            if (CheckCSDL == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = maHangHoa,
+                                    DienGiai = "Mã hàng: " + maHangHoa + "' không có trên hệ thống hoặc ngừng kinh doanh",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+
+                            }
+
+                        }
+
+
+                        if (string.IsNullOrEmpty(soluong))
+                        {
+                            ErrorDMHangHoa DM = new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Số lượng",
+                                ViTri = (rowIndex + 1).ToString(),
+                                ThuocTinh = soluong,
+                                DienGiai = "Số lượng không được để trống",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            };
+                            lstError.Add(DM);
+                        }
+                        else
+                        {
+                            bool isNumber7 = CommonStatic.IsNumber(soluong);
+                            if (isNumber7 == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Số lượng",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = soluong,
+                                    DienGiai = "Số lượng '" + soluong + "'  không phải dạng số",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                };
+                                lstError.Add(DM);
+
+                            }
+                            else
+                            {
+                                if (float.Parse(soluong) <= 0)
+                                {
+                                    ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                    {
+                                        TenTruongDuLieu = "Số lượng",
+                                        ViTri = (rowIndex + 1).ToString(),
+                                        ThuocTinh = soluong,
+                                        DienGiai = "Số lượng '" + soluong + "'  Phải lớn hơn 0",
+                                        rowError = rowIndex,
+                                        loaiError = 1
+                                    };
+                                    lstError.Add(DM);
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return lstError;
+        }
+
+
+
+
+
+
+
+
         public List<ErrorDMHangHoa> CheckData_FileImportHangHoa(ISheet sheet)
         {
             List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
@@ -811,6 +993,88 @@ namespace libQuy_HoaDon
             return lstError;
         }
 
+        public List<Report_HangHoa_XuatHuy_Import> getList_DanhSachHangXuatHuy(ISheet sheet, Guid ID_ChiNhanh)
+        {
+           
+            List<Report_HangHoa_XuatHuy_Import> lst= new List<Report_HangHoa_XuatHuy_Import>();
+            List<Report_HangHoa_XuatHuy_Import> lstCT = new List<Report_HangHoa_XuatHuy_Import>();
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // duyệt bắt đầu từ dòng số 2
+                        for (int rowIndex = 2; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
+                        {
+                            IRow row = sheet.GetRow(rowIndex);
+
+                            if (row != null)
+                            {
+                                string maHangHoa = row.GetCell(1)?.ToString().Trim();
+                                string maLoHang = row.GetCell(0)?.ToString().Trim();
+                                string soLuongStr = row.GetCell(2)?.ToString().Trim();
+                                // bỏ qua dòng có dữ liệu trống
+                                if (string.IsNullOrEmpty(maLoHang) && string.IsNullOrEmpty(maHangHoa) && string.IsNullOrEmpty(soLuongStr))
+                                {
+                                    continue;
+                                }
+                                float soLuong;
+                                if (!float.TryParse(soLuongStr, out soLuong))
+                                {
+                                    continue;
+                                }
+                                //Nếu maLoHang null hoặc trống set DbNuLL
+                                maLoHang = string.IsNullOrWhiteSpace(maLoHang) ? DBNull.Value.ToString() : maLoHang;
+                                List<SqlParameter> sqlPRM = new List<SqlParameter>
+                                {
+                                    new SqlParameter("MaHangHoa", maHangHoa),
+                                    new SqlParameter("MaLoHang", maLoHang),
+                                    new SqlParameter("SoLuong", Math.Round(soLuong, 3, MidpointRounding.ToEven)),
+                                    new SqlParameter("ID_ChiNhanh", ID_ChiNhanh)
+                                };
+
+                                lst = db.Database.SqlQuery<Report_HangHoa_XuatHuy_Import>("exec getListXuatKho_Import @MaHangHoa, @MaLoHang, @SoLuong, @ID_ChiNhanh", sqlPRM.ToArray()).ToList();
+                                if (lst != null && lst.Count > 0)
+                                {
+                                    Report_HangHoa_XuatHuy_Import DM1 = new Report_HangHoa_XuatHuy_Import();
+                                    DM1.ID_DonViQuiDoi = lst.FirstOrDefault().ID_DonViQuiDoi;
+                                    DM1.ID_LoHang = string.IsNullOrWhiteSpace(row.GetCell(0)?.ToString()) ? new Guid() : lst.FirstOrDefault().ID_LoHang;
+                                    DM1.MaHangHoa = lst.FirstOrDefault().MaHangHoa;
+                                    DM1.TenHangHoa = lst.FirstOrDefault().TenHangHoa;
+                                    DM1.ThuocTinh_GiaTri = lst.FirstOrDefault().ThuocTinh_GiaTri;
+                                    DM1.TenDonViTinh = lst.FirstOrDefault().TenDonViTinh;
+                                    DM1.QuanLyTheoLoHang = lst.FirstOrDefault().QuanLyTheoLoHang;
+                                    DM1.GiaVon = lst.FirstOrDefault().GiaVon;
+                                    DM1.GiaBan = lst.FirstOrDefault().GiaBan;
+                                    DM1.SoLuong = lst.FirstOrDefault().SoLuong;
+                                    DM1.SoLuongXuatHuy = lst.FirstOrDefault().SoLuongXuatHuy;
+                                    DM1.TonKho = lst.FirstOrDefault().TonKho;
+                                    DM1.GiaTriHuy = lst.FirstOrDefault().GiaTriHuy;
+                                    DM1.TrangThaiMoPhieu = lst.FirstOrDefault().TrangThaiMoPhieu;
+                                    DM1.TenLoHang = lst.FirstOrDefault().TenLoHang;
+                                    DM1.NgaySanXuat = lst.FirstOrDefault().NgaySanXuat;
+                                    DM1.NgayHetHan = lst.FirstOrDefault().NgayHetHan;
+                                    DM1.SoThuTu = rowIndex + 1;
+                                    lstCT.Add(DM1);
+                                }
+                            }
+                        }
+                        
+                        trans.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                    }
+                }
+            }
+
+            return lstCT;
+        }
+
+
         public List<ErrorDMHangHoa> ImportDanhMucHangHoa_toDB(ISheet sheet, Guid idDonVi,
             Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
         {
@@ -891,9 +1155,9 @@ namespace libQuy_HoaDon
                             if (row != null)
                             {
                                 string nhomcha = row.GetCell(0)?.ToString();
-                                string nhomcon = row.GetCell(1)?.ToString();
                                 string mahanghoa = row.GetCell(2)?.ToString();
                                 string tenhanghoa = row.GetCell(3)?.ToString();
+                                string nhomcon = row.GetCell(1)?.ToString();
                                 string loaihang = row.GetCell(4)?.ToString().Trim();
                                 string khongDuocBan = row.GetCell(5)?.ToString().Trim();
                                 string ghichu = row.GetCell(6)?.ToString().Trim();
@@ -1253,6 +1517,9 @@ namespace libQuy_HoaDon
 
             return lstErr;
         }
+
+
+
 
         #region Import Customer
 

@@ -24,6 +24,10 @@ using System.Threading;
 using libDM_HangHoa;
 using libDonViQuiDoi;
 using System.Globalization;
+using NPOI.SS.UserModel;
+using NPOI.Util;
+using NPOI.XSSF.UserModel;
+using NPOI.SS.Formula.Functions;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -912,7 +916,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     excel.Columns.Remove("showTime");
 
                     string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachXuatHuy.xlsx");
-                
+
                     var valExcel1 = string.Empty;
                     if (param.NgayTaoHD_TuNgay == new DateTime(2016, 1, 1))
                     {
@@ -922,15 +926,15 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         valExcel1 = param.NgayTaoHD_TuNgay + " - " + param.NgayTaoHD_DenNgay;
                     }
-               
+
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.ValueText, valExcel1);
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.ColumnsHide, lstCell);                  
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.ColumnsHide, lstCell);
 
                 }
 
                 catch (Exception ex)
                 {
-                     CookieStore.WriteLog("ExportExcel_DanhSachXuatHuy listParams " + ex.InnerException + ex.Message);
+                    CookieStore.WriteLog("ExportExcel_DanhSachXuatHuy listParams " + ex.InnerException + ex.Message);
                 }
                 return string.Empty;
             }
@@ -972,9 +976,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("ChatLieu");
                 // get tendonvi by ID
                 string teamplateFile = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Teamplate_DanhSachXuatHuy_ChiTiet.xlsx");
-               
+
                 classNPOI.ExportDataToExcel(teamplateFile, excel, 4, null, null, -1);
-                
+
             }
         }
 
@@ -1960,7 +1964,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         TyLeChuyenDoi = x.TyLeChuyenDoi
                     }).ToList();
                 }
-                return Json(new { LstDataPrint = lst } );
+                return Json(new { LstDataPrint = lst });
             }
         }
 
@@ -2006,9 +2010,12 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 data = p
             }).ToList();
         }
+
+
+
         //import danh sách hàng hóa
         [HttpPost]
-        public IHttpActionResult ImfortExcelXuatHuy()
+        public IHttpActionResult ImfortExcelXuatHuy(string RownError = null)
         {
             string result = "";
             try
@@ -2016,25 +2023,52 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
 
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
-                        List<ErrorDMHangHoa> abc = new List<ErrorDMHangHoa>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = classOffice.CheckFileMau_XuatHuy(excelstream);
-                            if (str == null)
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG XUẤT KHO", 3);
+
+                            if (string.IsNullOrEmpty(str))
                             {
-                                abc = classOffice.checkExcel_XuatHuy(excelstream);
+                                lstErr = classNPOI.checkExcel_XuatHuy(sheet);
                             }
                             else
                             {
-                                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
+                                lstErr.Add(new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = str,
+                                    ViTri = "0",
+                                    rowError = -1,
+                                    loaiError = 1,
+                                    ThuocTinh = str,
+                                    DienGiai = str,
+                                });
+                                
                             }
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
+                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, lstErr));
+                    }
+                    else
+                    {
+                        lstErr.Add(new ErrorDMHangHoa()
+                        {
+                            TenTruongDuLieu = "Không tồn tại file",
+                            ViTri = "0",
+                            rowError = -1,
+                            loaiError = 1,
+                            ThuocTinh = "Không tồn tại file",
+                            DienGiai = "Không tồn tại file",
+                        });
+
                     }
                     return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
                 }
@@ -2051,17 +2085,20 @@ namespace banhang24.Areas.DanhMuc.Controllers
             string result = "";
             try
             {
+               
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
-                    Class_officeDocument classOffice = new Class_officeDocument(db);
+                    Class_officeDocument classOffice = new Class_officeDocument(db);                   
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
                         List<Report_HangHoa_XuatHuy_Import> lstCT = new List<Report_HangHoa_XuatHuy_Import>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            lstCT = classOffice.getList_DanhSachHangXuatHuy(excelstream, ID_ChiNhanh);
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+                            lstCT = classNPOI.getList_DanhSachHangXuatHuy(sheet, ID_ChiNhanh);
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, lstCT));
                     }
@@ -2074,6 +2111,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
             }
         }
+
+       
 
         //import danh sách hàng hóa điều chuyển
         [HttpPost]
