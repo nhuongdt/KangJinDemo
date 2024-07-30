@@ -1,0 +1,359 @@
+﻿@using banhang24.Hellper
+<style>
+    .tttt-gara > div > div {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 5px 0
+    }
+
+        .tttt-gara > div > div > div {
+            padding-left: 0;
+            padding-right: 15px;
+        }
+
+            .tttt-gara > div > div > div:last-child {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+    #vmHoaHongDVDacBiet .input-simple {
+        width: 100%;
+    }
+
+    @@media (max-width: 1024px) {
+        #vmHoaHongDVDacBiet .table-frame.position-relative {
+            height: initial !important;
+            min-height: 230px;
+            max-height: 310px;
+        }
+    }
+</style>
+<div class="modal fade" id="vmHoaHongDVDacBiet">
+    <div class="modal-dialog draggable modal-lgmax">
+        <div class="modal-content ">
+            <div class="modal-header ">
+                <h5 class="modal-title">
+                    Hoa hồng dịch vụ đặc biệt
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
+
+            </div>
+            <div class="modal-body">
+                <div class="flex flex-row" style="align-items:center">
+                    <ul class="nav nav-tabs" id="gara-detail-tab" role="tablist" style="width:27%">
+                        <li class="nav-item active"
+                            v-if="inforHoaDon.LoaiHoaDon == 1 || inforHoaDon.LoaiHoaDon == 6">
+                            <a class="nav-link" data-toggle="pill" href="#HoaHongDVDacBiet" role="tab">
+                                Hoa Hồng DV đặc biệt
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="flex flex-column" style="padding-left:20px">
+                        <span>
+                            <span>Tiền tính chiết khấu: </span>
+                            <span class="red">
+                                {{formatNumber3Digit(HoaHongDVDacBiet.GiaTriTinh)}}
+                            </span>
+                        </span>
+                        <di>
+                            <label>Chia đều chiết khấu</label>
+
+                            <label style="width:unset; margin-right:15px;">
+                                <input type="radio" class="form-check-input" name="ckHoaDon"
+                                       value="1"
+                                       v-model="HoaHongDVDacBiet.IsShareDiscount"
+                                       v-on:change="DVDacBiet_ChangeIsShareDiscount(1)">Có
+                            </label>
+
+                            <label style="width:unset; margin-right:15px;">
+                                <input type="radio" class="form-check-input" name="ckHoaDon"
+                                       value="2"
+                                       v-model="HoaHongDVDacBiet.IsShareDiscount"
+                                       v-on:change="DVDacBiet_ChangeIsShareDiscount(1)">Không
+                            </label>
+                        </di>
+                    </div>
+
+                </div>
+                <div class="tab-content ">
+                    <div class="tab-pane active"
+                         id="HoaHongDVDacBiet" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        <div class="flex flex-row" style="flex-wrap:wrap">
+                            <div class="op-ck-left">
+                                <nvien-hoadon-search :list-all="listData.NhanViens"
+                                                     :list-search="listData.NhanViens"
+                                                     v-on:select-item="$root.DVDacBiet_AddNhanVien">
+
+                                </nvien-hoadon-search>
+                            </div>
+
+                            <div class="op-ck-right">
+                                <div class="table-frame position-relative" style="height:400px; overflow:auto; position:relative; width:100%">
+                                    <table class="table position-relative" style="padding-bottom:50px">
+                                        <thead>
+                                            <tr>
+                                                <th>Tên nhân viên</th>
+                                                <th style="width:20%">% Chiết khấu</th>
+                                                <th style="width:25%">Thành tiền</th>
+                                                <th style="width:5%">#</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(item, index) in HoaHongDVDacBiet.NhanVienChosed">
+                                                <td>
+                                                    <div class="ellipsis-text width-200" style="min-width:200px">{{item.TenNhanVien}}</div>
+                                                </td>
+                                                <td>
+                                                    <input class='input-simple text-right'
+                                                           v-model="item.PT_ChietKhau"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(1)"
+                                                           v-on:keyup="DVDacBiet_EditPTChietKhau(item, index)" />
+                                                </td>
+                                                <td>
+                                                    <input class='input-simple text-right'
+                                                           v-model="item.TienChietKhau"
+                                                           v-on:keyup.13="HoaHongHD_KeyEnter(2)"
+                                                           v-on:keyup="DVDacBiet_EditTienChietKhau(item, index)" />
+                                                </td>
+                                                <td class="text-center" style="vertical-align: middle">
+                                                    <a title="Xóa"
+                                                       v-on:click="DVDacBiet_RemoveNhanVien(index)">
+                                                        <i class="fa fa-close text-danger"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-save" v-on:click="UpdateHoaHongNV_toDB">
+                    <i class="fa fa-save"></i>
+                    Lưu
+                </button>
+                <button type="button" class="btn btn-save" v-if="isLoading">
+                    <i class="fa fa-save"></i>
+                    Đang lưu
+                </button>
+
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">
+                    <i class="fa fa-ban"></i> Bỏ qua
+                </button>
+            </div>
+
+
+        </div>
+        <script>
+            $('.infor-popup a').click(function () {
+                $(this).siblings().toggle();
+            })
+        </script>
+    </div>
+</div>
+<script src="@Url.ContentVersioned("~/Scripts/BanHang/Public.js")"></script>
+<script>
+    var vmHoaHongDVDacBiet = new Vue({
+        el: '#vmHoaHongDVDacBiet',
+        components: {
+            'nvien-hoadon-search': cmpSearchNVDisscount,
+        },
+        created: function () {
+            let self = this;
+            self.BH_HoaDonUri = '/api/DanhMuc/BH_HoaDonAPI/';;
+        },
+        data: {
+            saveOK: false,
+            isLoading: false,
+            listData: {
+                NhanViens: []
+            },
+            ListCTHD: [],
+            inforHoaDon: {},
+            HoaHongDVDacBiet: {
+                IsShareDiscount: false,
+                GiaTriTinh: 0,
+                PTGiaTriTinh: 0,
+                NhanVienChosed: []
+            },
+        },
+        methods: {
+            GetCTHD_byIDHoaDon: async function (idHoaDon) {
+                let self = this;
+                const xx = await ajaxHelper(self.BH_HoaDonUri + 'SP_GetChiTietHD_byIDHoaDon?idHoaDon=' + idHoaDon, 'GET').done()
+                    .then(function (data) {
+                        if (data != null) return data;
+                        return [];
+                    });
+                return xx;
+            },
+            GetListNV_hasHoaHong: async function (idHoaDon) {
+                let self = this;
+                const xx = await ajaxHelper(self.BH_HoaDonUri + 'GetChietKhauNV_byIDHoaDon?idHoaDon=' + idHoaDon, 'GET').done()
+                    .then(function (x) {
+                        if (x.res === true) {
+                            return x.data;
+                        }
+                        return [];;
+                    });
+                return xx;
+            },
+            showModalUpdate: async function (idHoaDon, hd = { ID: null, MaHoaDon: '', LoaiHoaDon: '', MaDoiTuong: '', TenDoiTuong: '' }) {
+                let self = this;
+                self.isLoading = false;
+                self.saveOK = false;
+                self.inforHoaDon = hd;
+                self.HoaHongDVDacBiet.IsShareDiscount = '2';// khong chia deu chietkhau
+                self.ListCTHD = await self.GetCTHD_byIDHoaDon(idHoaDon);
+                self.HoaHongDVDacBiet.NhanVienChosed = await self.GetListNV_hasHoaHong(idHoaDon);
+                // formatTienChietKhau
+                for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                    let itFor = self.HoaHongDVDacBiet.NhanVienChosed[i];
+                    self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = formatNumber3Digit(itFor.TienChietKhau)
+                }
+                self.DVDacBiet_CaculatorGiaTriChietKhau();
+                $('#vmHoaHongDVDacBiet').modal('show');
+            },
+            DVDacBiet_CreateNewNhanVien: function (itemNV) {
+                return {
+                    ID_NhanVien: itemNV.ID,
+                    MaNhanVien: itemNV.MaNhanVien,
+                    TenNhanVien: itemNV.TenNhanVien,
+                    ThucHien_TuVan: false,
+                    TheoYeuCau: false,
+                    HeSo: 1,
+                    TinhChietKhauTheo: 5,// 1.theo daonhthu,2.theothucthu, 3.VND (HoaDon), 4.LaChietKhau BanGoi (HangHoa), 5.chiết khấu theo DV đặc biệt
+                    TienChietKhau: 0,
+                    TienChietKhau_ChuaTruCP: 0,
+                    PT_ChietKhau: 0,
+                    ChietKhauMacDinh: 0,
+                    TinhHoaHongTruocCK: 0
+                }
+            },
+            DVDacBiet_AddNhanVien: function (item) {
+                var self = this;
+                var idNhanVien = item.ID;
+                // check IDNhanVien exist in grid with same TacVu
+                var itemEx = $.grep(self.HoaHongDVDacBiet.NhanVienChosed, function (x) {
+                    return x.ID_NhanVien === idNhanVien;
+                });
+                if (itemEx.length > 0) {
+                    ShowMessage_Danger('Nhân viên ' + itemEx[0].TenNhanVien + ' đã được chọn');
+                    return;
+                }
+                let newNV = self.DVDacBiet_CreateNewNhanVien(item);
+                self.HoaHongDVDacBiet.NhanVienChosed.push(newNV);
+            },
+            ResetTab_HoaHongDVDacBiet: function () {
+                let self = this;
+                self.HoaHongDVDacBiet.NhanVienChosed = [];
+                self.HoaHongDVDacBiet.IsShareDiscount = '2';// không chia đều
+                self.HoaHongDVDacBiet.GiaTriTinh = 0;
+                self.HoaHongDVDacBiet.PTGiaTriTinh = 0;
+            },
+            DVDacBiet_CaculatorGiaTriChietKhau: function () {
+                let self = this;
+                // find all cthd has ChietKhauMD_NV > 0
+                let sumGtriTinh = 0, sumThanhTien = 0;
+                for (let i = 0; i < self.ListCTHD.length; i++) {
+                    let itFor = self.ListCTHD[i];
+                    let laPtramHoaHong = itFor.ChietKhauMD_NVTheoPT;
+                    let thanhtien = formatNumberToFloat(itFor.SoLuong) * (formatNumberToFloat(itFor.DonGia) - formatNumberToFloat(itFor.TienChietKhau));
+                    sumThanhTien += thanhtien;
+                    if (laPtramHoaHong) {
+                        sumGtriTinh += thanhtien * itFor.ChietKhauMD_NV / 100;
+                    }
+                    else {
+                        sumGtriTinh += itFor.ChietKhauMD_NV;
+                    }
+                    // vì get trực tiếp từ DB: nên không có HangCungLoai, DM_LoHang
+                }
+                self.HoaHongDVDacBiet.GiaTriTinh = sumGtriTinh;
+                self.HoaHongDVDacBiet.PTGiaTriTinh = sumGtriTinh / sumThanhTien;
+            },
+            DVDacBiet_CaculatorHoaHongNV: function () {
+                let self = this;
+                for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed; i++) {
+                    let itFor = self.HoaHongDVDacBiet.NhanVienChosed[i];
+                    self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = self.HoaHongDVDacBiet.GiaTriTinh * formatNumberToFloat(itFor.PT_ChietKhau) * itFor.HeSo;
+                }
+            },
+            DVDacBiet_ChangeIsShareDiscount: function () {
+                let self = this;
+                if (self.HoaHongDVDacBiet.IsShareDiscount == '1') {
+                    let countNV = self.HoaHongDVDacBiet.NhanVienChosed.length;
+                    let ptCK_Share = 100 / countNV;
+                    // update ptramChietKhau, tienCK to NV
+                    for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                        let itFor = self.HoaHongDVDacBiet.NhanVienChosed[i];
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].PT_ChietKhau = ptCK_Share;
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = ptCK_Share * self.HoaHongDVDacBiet.GiaTriTinh / 100;
+                    }
+                }
+            },
+            DVDacBiet_RemoveNhanVien: function (index) {
+                var self = this;
+                for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                    if (i === index) {
+                        self.HoaHongDVDacBiet.NhanVienChosed.splice(i, 1);
+                        break;
+                    }
+                }
+                self.DVDacBiet_ChangeIsShareDiscount();
+            },
+            DVDacBiet_EditPTChietKhau: function (item, index) {
+                let self = this;
+                let thisObj = event.currentTarget;
+                let gtriNhap = formatNumberToFloat($(thisObj).val());
+                if (gtriNhap > 100) {
+                    $(thisObj).val(100);
+                }
+                let ptramCK = formatNumberToFloat($(thisObj).val());
+
+                for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                    if (i === index) {
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].PT_ChietKhau = $(thisObj).val();
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = formatNumber3Digit(ptramCK * self.HoaHongDVDacBiet.GiaTriTinh / 100);
+                        break;
+                    }
+                }
+            },
+            DVDacBiet_EditTienChietKhau: function (item, index) {
+                let self = this;
+                let thisObj = $(event.currentTarget);
+                let gtriNhap = formatNumberToFloat(thisObj.val());
+                formatNumberObj(thisObj);
+
+                for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                    if (i === index) {
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].PT_ChietKhau = gtriNhap / self.HoaHongDVDacBiet.GiaTriTinh * 100;
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = thisObj.val();
+                        break;
+                    }
+                }
+            },
+            UpdateHoaHongNV_toDB: async function () {
+                let self = this;
+                self.isLoading = true;
+                if (self.isLoading) return;
+                const data = await self.Post_BHNhanVienThucHien(self.HoaHongDVDacBiet.NhanVienChosed);
+                if (data) {
+                    self.saveOK = true;
+                    ShowMessage_Success('Cập nhật hoa hồng thành công');
+                }
+                self.isLoading = false;
+                $('#vmHoaHongDVDacBiet').modal('hide');
+            },
+            HoaHongHD_KeyEnter: function (columnEdit) {
+                let thisObj = $(event.currentTarget);
+                let trClosest = $(thisObj).closest('tr');
+                let tdNext = trClosest.next().find('td');
+                $(tdNext).eq(columnEdit).find('input').focus().select();
+            },
+        }
+    })
+</script>
