@@ -4541,6 +4541,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         HoaHongTruocChietKhau = x.HoaHongTruocChietKhau,
                         ID_Xe = x.ID_Xe,
                         BienSo = x.BienSo,
+                        ChietKhauMD_NV = x.ChietKhauMD_NV,
                         ChietKhauMD_NVTheoPT = x.ChietKhauMD_NVTheoPT,
                         TenNhomHoTro = x.TenNhomHoTro,
                         ChiPhiThucHien = x.ChiPhiThucHien,
