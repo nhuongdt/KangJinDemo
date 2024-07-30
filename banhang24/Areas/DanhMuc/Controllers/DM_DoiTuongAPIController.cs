@@ -23,8 +23,8 @@ using banhang24.Hellper;
 using lib_ChamSocKhachHang;
 using libHT_NguoiDung;
 using banhang24.Compress;
-using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using NPOI.SS.UserModel;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -3871,13 +3871,14 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-        #region import khách 
+        #region import khách hàng
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult ImfortExcelToCustomer(Guid ID_DonVi, Guid ID_NhanVien, int LoaiUpdate, string RownError = null)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                Class_officeDocument classOffice = new Class_officeDocument(db);
                 List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
                 try
                 {
@@ -3889,7 +3890,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
                             ISheet sheet = workbook.GetSheetAt(0);
 
-                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH MỤC KHÁCH HÀNG", 3);
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT KHÁCH HÀNG", 3);
+                            //var file = HttpContext.Current.Request.Files[i];
+                            //System.IO.Stream excelstream = file.InputStream;
+                            //string str = classOffice.CheckFileMauKhachHang(excelstream);
                             if (string.IsNullOrEmpty(str))
                             {
                                 if (!string.IsNullOrEmpty(RownError))
@@ -3900,7 +3904,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 else
                                 {
                                     lstErr = classNPOI.CheckData_FileImportCustomer(sheet);
-                                    if (lstErr.Count == 0)
+                                    if (lstErr == null)
                                     {
                                         lstErr = classNPOI.ImportDangMucKhachHang_toDB(sheet, ID_DonVi, ID_NhanVien, LoaiUpdate);
                                     }
@@ -3955,8 +3959,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 }
             }
         }
-
-
         [HttpPost]
         public IHttpActionResult ImportExcelToKhachHang(Guid ID_NhanVien, Guid ID_DonVi)
         {

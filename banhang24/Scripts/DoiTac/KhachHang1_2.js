@@ -6,6 +6,9 @@
     var Quy_HoaDonUri = '/api/DanhMuc/Quy_HoaDonAPI/';
     var CSKHUri = '/api/DanhMuc/ChamSocKhachHangAPI/';
     var ThietLapAPI = '/api/DanhMuc/ThietLapApi/';
+    var _IDNguoiDung = $('.idnguoidung').text();
+    var _IDNhanVien = $('.idnhanvien').text();
+    var _IDchinhanh = $('#hd_IDdDonVi').val();
     $('#lblCode').text('');
     $('#lblPhone').text('');
     var user = $('#txtUserLogin').val(); // get at ViewBag
@@ -1435,7 +1438,7 @@
                 hasPermisson = self.RoleView_Vendor();
             }
             else {
-                hasPermisson = self.RoleView_Cus();
+                hasPermisson = self.RoleView_Cus();f
             }
             if (hasPermisson) {
                 $('.content-table').gridLoader();
@@ -1832,12 +1835,19 @@
     self.ShowandHideNCC = function () {
         self.ImportNhaCungCap();
     }
+    self.check_kieuImport = ko.observable('1');
     self.loiExcel = ko.observableArray();
     self.ImportFile_IndexErr = ko.observableArray();
     $(".BangBaoLoi").hide();
+    self.updateExcel = ko.observableArray([]);
+
+
     self.insertArticleNews = function () {
-        //hidewait('NoteImport');
-        $('.NoteImport').gridLoader();
+        self.loiExcel([]);
+        self.updateExcel([]); // Đảm bảo rằng updateExcel được khai báo là một mảng
+        $('.btnImportExcel ').gridLoader({
+            style: "left: 50px;top: 15px;"
+        });
         var formData = new FormData();
         var totalFiles = document.getElementById("imageUploadFormKH").files.length;
         for (var i = 0; i < totalFiles; i++) {
@@ -1858,23 +1868,25 @@
                         if (item[i].loaiError == 1)
                             self.loiExcel.push(item[i]);
                         else
-                            self.updateExcel.push(item[i]);
+                            self.updateExcel.push(item[i]); // Sử dụng push cho mảng
                     }
-
-                    if (self.loiExcel().length > 0) {
+                    if (self.loiExcel() != null) { 
+                    //if (self.loiExcel().length > 0) {
                         self.sumError(self.loiExcel().length);
                         $(".BangBaoLoi").show();
                         $(".NoteImport").hide();
                         $(".filterFileSelect").hide();
                         $(".btnImportExcel").hide();
-                    } else {
+                    }
+                    else {
                         if (self.updateExcel().length > 0) {
                             $('#myModalinport').modal("hide");
                             $('#myModalinportUpdate').modal("show");
                         }
                     }
                     $('.btnImportExcel ').gridLoader({ show: false });
-                } else {
+                }
+                else {
                     self.sumError(0);
                     ShowMessage_Success("Import khách hàng thành công");
                     let objDiary = {
@@ -1887,25 +1899,26 @@
                     };
                     Insert_NhatKyThaoTac_1Param(objDiary);
 
-                    document.getElementById('imageUploadForm').value = "";
+                    document.getElementById('imageUploadFormKH').value = "";
                     $(".NoteImport").show();
                     $(".filterFileSelect").hide();
                     $(".btnImportExcel").hide();
                     $(".BangBaoLoi").hide();
                     $("#myModalinport").modal("hide");
                     $('.btnImportExcel ').gridLoader({ show: false });
-                    SearchKhachHang(false, false);
                     GetNhomDoiTuong_DonVi();
+                    SearchKhachHang(false, false);
                 }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $('.btnImportExcel ').gridLoader({ show: false });
             }
         }).always(function () {
             $('.btnImportExcel ').gridLoader({ show: false });
         });
-
     }
 
-
-    }
+    self.addRownError = ko.observableArray();
     self.DoneWithError = function () {
         //hidewait('NoteImport');
         $('.BangBaoLoi').gridLoader();
@@ -1946,6 +1959,9 @@
             },
         });
     }
+
+
+    self.addRownError = ko.observableArray();
     self.DownloadFileTeamplateXLS = function () {
         var url = DMHangHoaUri + "Download_TeamplateImport?fileSave=" + "FileImport_KhachHang.xls";
         window.open(url)

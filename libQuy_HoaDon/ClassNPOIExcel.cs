@@ -1047,7 +1047,7 @@ namespace libQuy_HoaDon
 
             return lstErr;
         }
-        #endregion
+        #endregion  
         #region Import Customer
         //public List<ErrorDMHangHoa> CheckData_FileImportCustomer(ISheet sheet, Guid idDonvi, Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
         //{
@@ -1425,23 +1425,23 @@ namespace libQuy_HoaDon
                     IRow row = sheet.GetRow(rowIndex);
                     if (row != null)
                     {
-                        string tenNhomKhachHang = row.GetCell(1)?.ToString();
-                        string nguonKhach = row.GetCell(2)?.ToString();
-                        string statusKhach = row.GetCell(3)?.ToString();
-                        string maKH = row.GetCell(4)?.ToString();
-                        string tenKhachHang = row.GetCell(5)?.ToString();
-                        string gender = row.GetCell(6)?.ToString().Trim();
-                        string loaiKhach = row.GetCell(7)?.ToString().Trim();
-                        string ngaySinh = row.GetCell(8)?.ToString().Trim();
-                        string diachi = row.GetCell(9)?.ToString().Trim();
-                        string email = row.GetCell(10)?.ToString().Trim();
-                        string soDienThoai = row.GetCell(11)?.ToString().Trim();
-                        string note = row.GetCell(12)?.ToString().Trim();
-                        string maSoThue = row.GetCell(13)?.ToString().Trim();
-                        string noCanThu = row.GetCell(14)?.ToString().Trim();
-                        string noCanTra = row.GetCell(15)?.ToString().Trim();
-                        string sumTichDiem = row.GetCell(16)?.ToString().Trim();
-                        string soDuThe = row.GetCell(17)?.ToString().Trim();
+                        string tenNhomKhachHang = row.GetCell(0)?.ToString();
+                        string nguonKhach = row.GetCell(1)?.ToString();
+                        string statusKhach = row.GetCell(2)?.ToString();
+                        string maKH = row.GetCell(3)?.ToString();
+                        string tenKhachHang = row.GetCell(4)?.ToString();
+                        string gender = row.GetCell(5)?.ToString().Trim();
+                        string loaiKhach = row.GetCell(6)?.ToString().Trim();
+                        string ngaySinh = row.GetCell(7)?.ToString().Trim();
+                        string diachi = row.GetCell(8)?.ToString().Trim();
+                        string email = row.GetCell(9)?.ToString().Trim();
+                        string soDienThoai = row.GetCell(10)?.ToString().Trim();
+                        string note = row.GetCell(11)?.ToString().Trim();
+                        string maSoThue = row.GetCell(12)?.ToString().Trim();
+                        string noCanThu = row.GetCell(13)?.ToString().Trim();
+                        string noCanTra = row.GetCell(14)?.ToString().Trim();
+                        string sumTichDiem = row.GetCell(15)?.ToString().Trim();
+                        string soDuThe = row.GetCell(16)?.ToString().Trim();
 
                         // Bỏ qua dòng có dữ liệu trống soDuThe
                         if (string.IsNullOrEmpty(tenNhomKhachHang) && string.IsNullOrEmpty(nguonKhach) && string.IsNullOrEmpty(statusKhach)
@@ -1469,7 +1469,7 @@ namespace libQuy_HoaDon
                         }
 
                         // Kiểm tra trùng lặp mã khách hàng
-                        
+
                         if (!class_OfficeDocument.GroupData(dataTable, $"Column4 = '{maKH}'"))
                         {
                             lstError.Add(new ErrorDMHangHoa
@@ -1734,8 +1734,10 @@ namespace libQuy_HoaDon
             var lstErr = new List<ErrorDMHangHoa>();
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                classDM_DoiTuong classdoituong = new classDM_DoiTuong(db);
                 Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
+                classDM_DoiTuong classdoituong = new classDM_DoiTuong(db);
+                classQuy_HoaDon _classQHD = new classQuy_HoaDon(db);
+                ClassBH_HoaDon classHoaDon = new ClassBH_HoaDon(db);
                 int[] arrRow = CommonStatic.GetArrIntDesc_fromString(rowsErr);
                 using (var trans = db.Database.BeginTransaction())
                 {
@@ -1761,41 +1763,136 @@ namespace libQuy_HoaDon
                         dataTable.Columns.Add("NoCanThu", typeof(string));
                         dataTable.Columns.Add("NoCanTra", typeof(string));
                         dataTable.Columns.Add("SumTichDiem", typeof(string));
-
+                        dataTable.Columns.Add("soDuThe ", typeof(string));
                         // Nhập dữ liệu từ sheet vào DataTable
                         for (int rowIndex = 3; rowIndex < sheet.PhysicalNumberOfRows; rowIndex++)
                         {
                             if (arrRow.Contains(rowIndex))
                             {
-                                continue; // nếu thuộc dòng lỗi: bỏ qua và next đến dòng tiếp theo
+                                continue;// nếu thuộc dòng lỗi: bỏ qua và next đến dòng tiếp theo
                             }
-
                             IRow row = sheet.GetRow(rowIndex);
+
                             if (row != null)
                             {
-                                DataRow dataRow = dataTable.NewRow();
-                                dataRow["TenNhomKhachHang"] = row.GetCell(1)?.ToString();
-                                dataRow["NguonKhach"] = row.GetCell(2)?.ToString();
-                                dataRow["StatusKhach"] = row.GetCell(3)?.ToString();
-                                dataRow["MaKhachHang"] = row.GetCell(4)?.ToString();
-                                dataRow["TenKhachHang"] = row.GetCell(5)?.ToString();
-                                dataRow["Gender"] = row.GetCell(6)?.ToString().Trim();
-                                dataRow["LoaiKhach"] = row.GetCell(7)?.ToString().Trim();
-                                dataRow["NgaySinh"] = row.GetCell(8)?.ToString().Trim();
-                                dataRow["DiaChi"] = row.GetCell(9)?.ToString().Trim();
-                                dataRow["Email"] = row.GetCell(10)?.ToString().Trim();
-                                dataRow["SoDienThoai"] = row.GetCell(11)?.ToString().Trim();
-                                dataRow["Note"] = row.GetCell(12)?.ToString().Trim();
-                                dataRow["MaSoThue"] = row.GetCell(13)?.ToString().Trim();
-                                dataRow["NoCanThu"] = row.GetCell(14)?.ToString().Trim();
-                                dataRow["NoCanTra"] = row.GetCell(15)?.ToString().Trim();
-                                dataRow["SumTichDiem"] = row.GetCell(16)?.ToString().Trim();
-                                dataTable.Rows.Add(dataRow);
+                                var nhomkhach = row.GetCell(0)?.ToString();
+                                var nguonkhach = row.GetCell(1)?.ToString();
+                                var trangthaiKhach = row.GetCell(2)?.ToString();
+                                var maDoiTuong = row.GetCell(3)?.ToString();
+                                var tenDT = row.GetCell(4)?.ToString();
+                                var gtinh = row.GetCell(5)?.ToString().Trim();
+                                var loaikhach = row.GetCell(6)?.ToString().Trim();
+                                var ngaysinh = row.GetCell(7)?.ToString().Trim();
+                                var diachi = row.GetCell(8)?.ToString().Trim();
+                                var email = row.GetCell(9)?.ToString().Trim();
+                                var dienthoai = row.GetCell(10)?.ToString().Trim();
+                                var ghichu = row.GetCell(11)?.ToString().Trim();
+                                var masothue = row.GetCell(12)?.ToString().Trim();
+                                var nocanthu = row.GetCell(13)?.ToString().Trim();
+                                var nocantra = row.GetCell(14)?.ToString().Trim();
+                                var tongdiem = row.GetCell(15)?.ToString().Trim();
+                                var soduthe = row.GetCell(16)?.ToString().Trim();
+
+                                string sMaDoiTuong = string.Empty;
+                                if (!string.IsNullOrEmpty(maDoiTuong))
+                                    sMaDoiTuong = maDoiTuong.ToUpper();
+                                else
+                                    sMaDoiTuong = classdoituong.SP_GetautoCode(1);
+                                string sMaNhom = string.Empty;
+                                Random rd = new Random();
+                                sMaNhom = rd.Next().ToString();
+                                bool GioiTinhNam = gtinh != "";
+                                bool LaCaNhan = loaikhach == "";
+                                string sMaHoaDonThu = _classQHD.SP_GetAutoCode(11);
+                                string sMaHoaDonChi = _classQHD.SP_GetAutoCode(12);
+                                string sMaHD_DieuChinhDiem = _classQHD.SP_GetAutoCode(15);
+                                string sMaHD_DieuChinhThe = classHoaDon.SP_GetMaHoaDon_byTemp(23, idDonVi, DateTime.Now);
+
+                                DateTime NgaySinh_ThanhLap;
+                                string NgaySinhTL = string.Empty;
+                                string DinhDangNS = string.Empty;
+                                try
+                                {
+                                    NgaySinh_ThanhLap = Convert.ToDateTime(ngaysinh);
+                                    NgaySinhTL = NgaySinh_ThanhLap.ToString("dd/MM/yyyy");
+                                }
+                                catch
+                                {
+                                    try
+                                    {
+                                        NgaySinh_ThanhLap = Convert.ToDateTime("01/01/" + ngaysinh);
+                                        NgaySinhTL = NgaySinh_ThanhLap.ToString("dd/MM/yyyy");
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                }
+
+                                if (ngaysinh.Length > 0)
+                                {
+                                    string[] arTime = ngaysinh.Split('/');
+                                    if (arTime.Length == 1)
+                                        DinhDangNS = "yyyy";
+                                    else if (arTime.Length == 2)
+                                    {
+                                        if (arTime[1].Length > 2)
+                                            DinhDangNS = "MM/yyyy";
+                                        else
+                                            DinhDangNS = "dd/MM";
+                                    }
+                                    else
+                                        DinhDangNS = "dd/MM/yyyy";
+                                }
+                                var nguoitao = "admin";
+                                List<SqlParameter> sqlparamt = new List<SqlParameter>();
+                                sqlparamt.Add(new SqlParameter("MaNhomDoiTuong", sMaNhom));
+                                sqlparamt.Add(new SqlParameter("TenNhomDoiTuong", nhomkhach));
+                                sqlparamt.Add(new SqlParameter("TenNhomDoiTuong_KhongDau", ""));
+                                sqlparamt.Add(new SqlParameter("TenNhomDoiTuong_KyTuDau", ""));
+                                sqlparamt.Add(new SqlParameter("MaDoiTuong", sMaDoiTuong));
+                                sqlparamt.Add(new SqlParameter("TenDoiTuong", tenDT));
+                                sqlparamt.Add(new SqlParameter("TenDoiTuong_KhongDau", ""));
+                                sqlparamt.Add(new SqlParameter("TenDoiTuong_ChuCaiDau", ""));
+                                sqlparamt.Add(new SqlParameter("GioiTinhNam", GioiTinhNam));
+                                sqlparamt.Add(new SqlParameter("LoaiDoiTuong", "1"));
+                                sqlparamt.Add(new SqlParameter("LaCaNhan", LaCaNhan));
+                                sqlparamt.Add(new SqlParameter("timeCreate", DateTime.Now));
+                                sqlparamt.Add(new SqlParameter("NgaySinh_NgayTLap", NgaySinhTL));
+                                sqlparamt.Add(new SqlParameter("DinhDangNgaySinh", DinhDangNS));
+                                sqlparamt.Add(new SqlParameter("DiaChi", diachi));
+                                sqlparamt.Add(new SqlParameter("Email", email));
+                                sqlparamt.Add(new SqlParameter("Fax", ""));
+                                sqlparamt.Add(new SqlParameter("web", ""));
+                                sqlparamt.Add(new SqlParameter("GhiChu", (object)ghichu ?? DBNull.Value)); // Ensure ghichu is not null
+                                sqlparamt.Add(new SqlParameter("DienThoai", dienthoai));
+                                sqlparamt.Add(new SqlParameter("MaSoThue", masothue));
+                                sqlparamt.Add(new SqlParameter("STK", ""));
+                                sqlparamt.Add(new SqlParameter("MaHoaDonThu", sMaHoaDonThu));
+                                sqlparamt.Add(new SqlParameter("MaHoaDonChi", sMaHoaDonChi));
+                                sqlparamt.Add(new SqlParameter("ID_NhanVien", idnhanvien));
+                                sqlparamt.Add(new SqlParameter("NguoiTao", nguoitao));
+                                sqlparamt.Add(new SqlParameter("ID_DonVi", idDonVi));
+                                sqlparamt.Add(new SqlParameter("NoCanThu", nocanthu == "" ? 0 : double.Parse(nocanthu)));
+                                sqlparamt.Add(new SqlParameter("NoCanTra", nocantra == "" ? 0 : double.Parse(nocantra)));
+                                sqlparamt.Add(new SqlParameter("TongTichDiem", tongdiem == "" ? 0 : double.Parse(tongdiem)));
+                                sqlparamt.Add(new SqlParameter("MaDieuChinhDiem", sMaHD_DieuChinhDiem));
+                                sqlparamt.Add(new SqlParameter("SoDuThe", soduthe == "" ? 0 : double.Parse(soduthe)));
+                                sqlparamt.Add(new SqlParameter("MaDieuChinhTheGiaTri", sMaHD_DieuChinhThe));
+                                sqlparamt.Add(new SqlParameter("TenNguonKhach", nguonkhach));
+                                sqlparamt.Add(new SqlParameter("TenTrangThai", trangthaiKhach));
+
+                                // Assuming 'db' is your DbContext or Database object
+                                db.Database.ExecuteSqlCommand("Exec import_DoiTuong @MaNhomDoiTuong, @TenNhomDoiTuong, @TenNhomDoiTuong_KhongDau, @TenNhomDoiTuong_KyTuDau, @MaDoiTuong, @TenDoiTuong, @TenDoiTuong_KhongDau," +
+                                    " @TenDoiTuong_ChuCaiDau, @GioiTinhNam, @LoaiDoiTuong, @LaCaNhan, @timeCreate, @NgaySinh_NgayTLap, @DinhDangNgaySinh, @DiaChi, @Email, @Fax, @web," +
+                                    " @GhiChu, @DienThoai, @MaSoThue, @STK, @MaHoaDonThu, @MaHoaDonChi, @ID_NhanVien, @NguoiTao, @ID_DonVi, @NoCanThu, @NoCanTra, @TongTichDiem, @MaDieuChinhDiem, @SoDuThe, @MaDieuChinhTheGiaTri, " +
+                                    " @TenNguonKhach, @TenTrangThai", sqlparamt.ToArray());
+
+
                             }
                         }
 
                         // Gọi phương thức importKhachHang để xử lý dữ liệu
-                        class_OfficeDocument.importKhachHang(dataTable, idnhanvien, idDonVi);
 
                         db.SaveChanges();
                         trans.Commit();
