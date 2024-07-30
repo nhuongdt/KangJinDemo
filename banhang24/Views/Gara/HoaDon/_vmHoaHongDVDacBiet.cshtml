@@ -1,22 +1,5 @@
 ﻿@using banhang24.Hellper
 <style>
-    .tttt-gara > div > div {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        margin: 5px 0
-    }
-
-        .tttt-gara > div > div > div {
-            padding-left: 0;
-            padding-right: 15px;
-        }
-
-            .tttt-gara > div > div > div:last-child {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
     #vmHoaHongDVDacBiet .input-simple {
         width: 100%;
     }
@@ -43,7 +26,7 @@
                 <div class="flex flex-row" style="align-items:center">
                     <ul class="nav nav-tabs" id="gara-detail-tab" role="tablist" style="width:27%">
                         <li class="nav-item active"
-                            v-if="inforHoaDon.LoaiHoaDon == 1 || inforHoaDon.LoaiHoaDon == 6">
+                            v-if="inforHoaDon.LoaiHoaDon == 1">
                             <a class="nav-link" data-toggle="pill" href="#HoaHongDVDacBiet" role="tab">
                                 Hoa Hồng DV đặc biệt
                             </a>
@@ -164,7 +147,7 @@
         },
         created: function () {
             let self = this;
-            self.BH_HoaDonUri = '/api/DanhMuc/BH_HoaDonAPI/';;
+            self.BH_HoaDonUri = '/api/DanhMuc/BH_HoaDonAPI/';
         },
         data: {
             saveOK: false,
@@ -336,14 +319,41 @@
                     }
                 }
             },
+            RemoveHoaHongNV_byIdHoaDon: async function (idHoaDon) {
+                let self = this;
+                const xx = await ajaxHelper(self.BH_HoaDonUri + 'RemoveHoaHongNV_byIdHoaDon?idHoaDon=' + idHoaDon + '&loaiHoaHong=5', 'GET').done()
+                    .then(function (x) {
+                        return x.res;
+                    });
+                return xx;
+            },
+            Post_BHNhanVienThucHien: async function (lstNVTH = []) {
+                let self = this;
+                let myData = {
+                    lstObj: lstNVTH
+                }
+                const xx = await ajaxHelper(self.BH_HoaDonUri + 'Post_BHNhanVienThucHien', 'POST', myData).done()
+                    .then(function (x) {
+                        return x.res;
+                    });
+                return xx;
+            },
             UpdateHoaHongNV_toDB: async function () {
                 let self = this;
-                self.isLoading = true;
                 if (self.isLoading) return;
-                const data = await self.Post_BHNhanVienThucHien(self.HoaHongDVDacBiet.NhanVienChosed);
-                if (data) {
-                    self.saveOK = true;
-                    ShowMessage_Success('Cập nhật hoa hồng thành công');
+                self.isLoading = true;
+
+                // remove & add again
+                const removeOK = await self.RemoveHoaHongNV_byIdHoaDon(self.inforHoaDon.ID);
+                if (removeOK) {
+                    for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                        self.HoaHongDVDacBiet.NhanVienChosed[i].ID_HoaDon = self.inforHoaDon.ID;
+                    }
+                    const postOK = await self.Post_BHNhanVienThucHien(self.HoaHongDVDacBiet.NhanVienChosed);
+                    if (postOK) {
+                        self.saveOK = true;
+                        ShowMessage_Success('Cập nhật hoa hồng thành công');
+                    }
                 }
                 self.isLoading = false;
                 $('#vmHoaHongDVDacBiet').modal('hide');

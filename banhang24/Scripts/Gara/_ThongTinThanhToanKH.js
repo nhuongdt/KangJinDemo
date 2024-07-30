@@ -449,8 +449,8 @@
             if (!commonStatisJs.CheckNull(lstCK)) {
                 self.PhieuThuKhach.ListTKChuyenKhoan = lstCK;
             }
-            // loaiHD = 6: có thể có đổi trả
-            if (self.inforHoaDon.LoaiHoaDon == 1 || self.inforHoaDon.LoaiHoaDon == 6) {
+            // vì chỉ có đổi trả GDV: nên LoaiHD = 6 không cso Hoa hồng DV đặc biệt
+            if (self.inforHoaDon.LoaiHoaDon == 1) {
                 // 3 hàm này gọi lại ở file BanLe.js
                 self.DVDacBiet_GetDataFromCache(self.inforHoaDon.IDRandom);
                 self.DVDacBiet_CaculatorGiaTriChietKhau(self.inforHoaDon.IDRandom, self.inforHoaDon.LoaiHoaDon);
@@ -1862,9 +1862,11 @@
             }
             $('#ThongTinThanhToanKHNCC').modal('hide');
         },
-        SaveHoaHongNV_DVDacBiet: async function (hd, idRandom) {
+        SaveHoaHongNV_DVDacBiet: async function (hd ={ID: null,LoaiHoaDon:0, IDRandom:'' }) {
             let self = this;
-            // vì không muốn xử lý lưu cache mỗi lần thay đổi thông tin CTHD (ở Banle.js)
+            if(hd.LoaiHoaDon === 1){
+                let idRandom = hd.IDRandom;
+                // vì không muốn xử lý lưu cache mỗi lần thay đổi thông tin CTHD (ở Banle.js)
             // nên trước khi lưu vào DB: thực hiện tính toán lại
             self.DVDacBiet_GetDataFromCache(idRandom);
             self.DVDacBiet_CaculatorGiaTriChietKhau(idRandom, hd.LoaiHoaDon);
@@ -1889,6 +1891,7 @@
                 return x.IDRandomHD !== idRandom;
             });
             localStorage.setItem('lcHoaHongDVDacBiet', JSON.stringify(lcHoaHongDVDacBiet));
+            }
         },
 
         SavePhieuThu_HDDoiTra: function () {

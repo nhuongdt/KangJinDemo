@@ -825,6 +825,7 @@
             vmThanhToan.listData.NhanViens = self.NhanViens();
             vmHoaHongHoaDon.listData.NhanViens = self.NhanViens();
             vmHoaHongDV.listData.NhanViens = self.NhanViens();
+            vmHoaHongDVDacBiet.listData.NhanViens = self.NhanViens();
             vmHoaHongDV.inforHoaDon.ID_DonVi = id_donvi;
         });
     }
@@ -2236,6 +2237,7 @@
     self.RdoKhauTru = ko.observable(0);
     self.RdoCheTai = ko.observable(0);
     self.InVoiceChosing = ko.observable();
+    self.IsExistDVDacBiet = ko.observable(false);
     self.LoadChiTietHD = async function (item, e) {
         self.InVoiceChosing(item);
         self.Enable_NgayLapHD(item.ChoThanhToan === null || !VHeader.CheckKhoaSo(moment(item.NgayLapHoaDon).format('YYYY-MM-DD'), item.ID_DonVi));
@@ -2303,6 +2305,12 @@
 
         var data = await self.GetChiTietHD_fromDB(item.ID);
         $thiss.gridLoader({ show: false });
+
+        // Check cthd có chứa DV đặc biệt --> cho phép sửa lại hoa hồng DV đặc biệt
+        let arrDVDacBiet = $.grep(data, function (x) {
+            return x.ChietKhauMD_NV > 0;
+        });
+        self.IsExistDVDacBiet(arrDVDacBiet.length > 0);
 
         let sluong = 0;
         for (let i = 0; i < data.length; i++) {
@@ -6400,6 +6408,9 @@
             }
         }
         HideShowColumn();
+    }
+    self.showModaHoaHongDVDacBiet = function (item) {
+        vmHoaHongDVDacBiet.showModalUpdate(item.ID, item);
     }
 };
 var modelGiaoDich = new ViewModelHD();
