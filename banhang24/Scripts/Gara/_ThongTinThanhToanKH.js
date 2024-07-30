@@ -165,11 +165,12 @@
                 ThucHien_TuVan: false,
                 TheoYeuCau: false,
                 HeSo: 1,
-                TinhChietKhauTheo: 1,
+                TinhChietKhauTheo: 5,// 1.theo daonhthu,2.theothucthu, 3.VND (HoaDon), 4.LaChietKhau BanGoi (HangHoa), 5.chiết khấu theo DV đặc biệt
                 TienChietKhau: 0,
                 TienChietKhau_ChuaTruCP: 0,
                 PT_ChietKhau: 0,
                 ChietKhauMacDinh: 0,
+                TinhHoaHongTruocCK: 0
             }
         },
         newNhanVien_ChietKhauHoaDon: function (itemCK, itemNV, exitChietKhau) {
@@ -281,7 +282,7 @@
             let self = this;
             let lcHoaHongDVDacBiet = localStorage.getItem('lcHoaHongDVDacBiet');
             if (lcHoaHongDVDacBiet !== null) {
-                lstHD = JSON.parse(lcHoaHongDVDacBiet);
+                lcHoaHongDVDacBiet = JSON.parse(lcHoaHongDVDacBiet);
             }
             else {
                 lcHoaHongDVDacBiet = [];
@@ -324,6 +325,31 @@
                 else {
                     sumGtriTinh += itFor.ChietKhauMD_NV;
                 }
+                // cungloai
+                for (let k = 0; k < itFor.HangCungLoais.length; k++) {
+                    let forIn = itFor.HangCungLoais[k];
+                    let cungloai_thanhtien = formatNumberToFloat(forIn.SoLuong) * (formatNumberToFloat(forIn.DonGia) - formatNumberToFloat(forIn.TienChietKhau));
+                    sumThanhTien += cungloai_thanhtien;
+                    if (forIn.ChietKhauMD_NVTheoPT) {
+                        sumGtriTinh += cungloai_thanhtien * forIn.ChietKhauMD_NV / 100;
+                    }
+                    else {
+                        sumGtriTinh += forIn.ChietKhauMD_NV;
+                    }
+                }
+                // lohang
+                for (let k = 0; k < itFor.DM_LoHang.length; k++) {
+                    let forIn = itFor.DM_LoHang[k];
+                    let cungloai_thanhtien = formatNumberToFloat(forIn.SoLuong) * (formatNumberToFloat(forIn.DonGia) - formatNumberToFloat(forIn.TienChietKhau));
+                    sumThanhTien += cungloai_thanhtien;
+                    if (forIn.ChietKhauMD_NVTheoPT) {
+                        sumGtriTinh += cungloai_thanhtien * forIn.ChietKhauMD_NV / 100;
+                    }
+                    else {
+                        sumGtriTinh += forIn.ChietKhauMD_NV;
+                    }
+                }
+
             }
             self.HoaHongDVDacBiet.GiaTriTinh = sumGtriTinh;
             self.HoaHongDVDacBiet.PTGiaTriTinh = sumGtriTinh / sumThanhTien;
@@ -807,7 +833,7 @@
             for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
                 if (i === index) {
                     self.HoaHongDVDacBiet.NhanVienChosed[i].PT_ChietKhau = $(thisObj).val();
-                    self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = formatNumber3Digit(ptramCK * self.HoaHongDVDacBiet.GiaTriTinh);
+                    self.HoaHongDVDacBiet.NhanVienChosed[i].TienChietKhau = formatNumber3Digit(ptramCK * self.HoaHongDVDacBiet.GiaTriTinh / 100);
                     break;
                 }
             }
@@ -1742,7 +1768,18 @@
                 }
             }
         },
-        UpdateIDQuyHoaDon_toBHThucHien: function (idHoaDon, idQuyHD) {
+        Post_BHNhanVienThucHien: async function (lstNVTH = []) {
+            let self = this;
+            let myData = {
+                lstObj: lstNVTH
+            }
+            const xx = await ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'Post_BHNhanVienThucHien', 'POST', myData).done()
+                .then(function (x) {
+                    return x.res;
+                });
+            return xx;
+        },
+        UpdateIDQuyHoaDon_toBHThucHien: async function (idHoaDon, idQuyHD) {
             var self = this;
             if (self.GridNVienBanGoi_Chosed.length > 0 && idHoaDon !== null) {
                 for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
@@ -1750,14 +1787,8 @@
                     self.GridNVienBanGoi_Chosed[i].ID_HoaDon = idHoaDon;
                 }
 
-                let myData = {
-                    lstObj: self.GridNVienBanGoi_Chosed
-                }
-                ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'Post_BHNhanVienThucHien', 'POST', myData).done(function (data) {
-                    if (data.res == false) {
-                        self.GridNVienBanGoi_Chosed = [];
-                    }
-                })
+                await self.Post_BHNhanVienThucHien(self.GridNVienBanGoi_Chosed);
+                self.GridNVienBanGoi_Chosed = [];
             }
             else {
                 if (self.inforHoaDon.LoaiHoaDon === 6) {
@@ -1805,7 +1836,7 @@
                         // save cache HoaHong DV dacbiet
                         let lcHoaHongDVDacBiet = localStorage.getItem('lcHoaHongDVDacBiet');
                         if (lcHoaHongDVDacBiet !== null) {
-                            lstHD = JSON.parse(lcHoaHongDVDacBiet);
+                            lcHoaHongDVDacBiet = JSON.parse(lcHoaHongDVDacBiet);
                         }
                         else {
                             lcHoaHongDVDacBiet = [];
@@ -1821,7 +1852,7 @@
                             NhanVienChosed: self.HoaHongDVDacBiet.NhanVienChosed,
                             IsShareDiscount: self.HoaHongDVDacBiet.IsShareDiscount,
                         });
-                        localStorage.setItem('lcHoaHongDVDacBiet', lcHoaHongDVDacBiet);
+                        localStorage.setItem('lcHoaHongDVDacBiet', JSON.stringify(lcHoaHongDVDacBiet));
                     }
                     break;
                 case 3://thegiatri
@@ -1830,6 +1861,34 @@
                     break;
             }
             $('#ThongTinThanhToanKHNCC').modal('hide');
+        },
+        SaveHoaHongNV_DVDacBiet: async function (hd, idRandom) {
+            let self = this;
+            // vì không muốn xử lý lưu cache mỗi lần thay đổi thông tin CTHD (ở Banle.js)
+            // nên trước khi lưu vào DB: thực hiện tính toán lại
+            self.DVDacBiet_GetDataFromCache(idRandom);
+            self.DVDacBiet_CaculatorGiaTriChietKhau(idRandom, hd.LoaiHoaDon);
+            self.DVDacBiet_CaculatorHoaHongNV(idRandom);
+
+            // gán ID_HoaDon
+            for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                self.HoaHongDVDacBiet.NhanVienChosed[i].ID_HoaDon = hd.ID;
+            }
+            // save to DB
+            await self.Post_BHNhanVienThucHien(self.HoaHongDVDacBiet.NhanVienChosed);
+
+            // clear cache
+            let lcHoaHongDVDacBiet = localStorage.getItem('lcHoaHongDVDacBiet');
+            if (lcHoaHongDVDacBiet !== null) {
+                lcHoaHongDVDacBiet = JSON.parse(lcHoaHongDVDacBiet);
+            }
+            else {
+                lcHoaHongDVDacBiet = [];
+            }
+            lcHoaHongDVDacBiet = $.grep(lcHoaHongDVDacBiet, function (x) {
+                return x.IDRandomHD !== idRandom;
+            });
+            localStorage.setItem('lcHoaHongDVDacBiet', JSON.stringify(lcHoaHongDVDacBiet));
         },
 
         SavePhieuThu_HDDoiTra: function () {
