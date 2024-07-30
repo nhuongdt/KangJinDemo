@@ -12896,6 +12896,30 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult RemoveHoaHongNV_byIdHoaDon(Guid idHoaDon, int? loaiHoaHong = 0)
+        {
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var lst = db.BH_NhanVienThucHien.Where(x => x.ID_HoaDon == idHoaDon && x.TinhChietKhauTheo == loaiHoaHong);
+                        db.BH_NhanVienThucHien.RemoveRange(lst);
+                        db.SaveChanges();
+                        trans.Commit();
+                        return ActionTrueNotData(string.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return ActionFalseNotData(ex.Message);
+                    }
+                }
+            }
+        }
+
         [HttpPost, HttpGet]
         public IHttpActionResult Post_BHNhanVienThucHien([FromBody] JObject data)
         {
