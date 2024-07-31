@@ -8655,34 +8655,43 @@ namespace banhang24.Areas.DanhMuc.Controllers
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
                 Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 string result = "";
-                try
+                var file1 = HttpContext.Current.Request.Files[0];
+                using (System.IO.Stream excelstream = file1.InputStream)
                 {
-                    if (HttpContext.Current.Request.Files.Count != 0)
+                    try
                     {
-                        List<ErrorDMHangHoa> abc = new List<ErrorDMHangHoa>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        XSSFWorkbook workbook = new XSSFWorkbook(excelstream);
+                        ISheet sheet = workbook.GetSheetAt(0);
+                        if (HttpContext.Current.Request.Files.Count != 0)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream inputStream = file.InputStream;
-                            string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
-                            if (str == null)
+                            List<ErrorDMHangHoa> abc = new List<ErrorDMHangHoa>();
+                            for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                             {
-                                abc = _classOFDCM.checkExcel_NhapHang(inputStream);
+                                var file = HttpContext.Current.Request.Files[i];
+                                System.IO.Stream inputStream = file.InputStream;
+                               // string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
+                                string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG NHẬP");
+                                if (string.IsNullOrEmpty(str))
+                                {
+                                    System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
+                                    abc = _classOFDCM.checkDataImport_NhapHangKhachThua(sheet, dataTable);
+                                }
+                                else
+                                {
+                                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
+                                }
                             }
-                            else
-                            {
-                                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
-                            }
+                            return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
+                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
                     }
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
-                }
-                catch (Exception ex)
-                {
-                    result = ex.ToString();
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    catch (Exception ex)
+                    {
+                        result = ex.ToString();
+                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    }
                 }
             }
         }

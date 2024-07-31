@@ -20,6 +20,7 @@ using static libQuy_HoaDon.Class_Report;
 using System.Diagnostics.Eventing.Reader;
 using libNS_NhanVien;
 using System.Runtime.Remoting;
+using NPOI.SS.UserModel;
 
 namespace libQuy_HoaDon
 {
@@ -3236,6 +3237,275 @@ namespace libQuy_HoaDon
                 }
             }
             return lst;
+        }
+        public List<ErrorDMHangHoa> checkDataImport_NhapHangKhachThua(ISheet sheet, System.Data.DataTable dataTable)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                classDM_DoiTuong classDMDoiTuong = new classDM_DoiTuong(db);
+                Class_officeDocument class_OfficeDocument = new Class_officeDocument(db);
+
+                // Chỉnh sửa tên cột cho DataTable
+                dataTable.Columns[3].ColumnName = "MaHang";
+                dataTable.Columns[0].ColumnName = "MaLo";
+
+                var lastRow = sheet.LastRowNum + 1;
+
+                for (int rowIndex = 3; rowIndex < lastRow; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+                    if (row != null)
+                    {
+                        string maLo = row.GetCell(0)?.ToString().Trim();
+                        string ngaySX = row.GetCell(1)?.ToString().Trim();
+                        string hsd = row.GetCell(2)?.ToString().Trim();
+                        string maHang = row.GetCell(3)?.ToString().Trim();
+                        string soLuong = row.GetCell(4)?.ToString().Trim();
+                        string donGia = row.GetCell(5)?.ToString().Trim();
+                        string giaBan = row.GetCell(6)?.ToString().Trim();
+                        string ptThue = row.GetCell(7)?.ToString().Trim();
+                        string tienThue = row.GetCell(8)?.ToString().Trim();
+
+                        string indexErr = (rowIndex + 1).ToString();
+
+                        // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
+                        if (string.IsNullOrEmpty(maHang) && string.IsNullOrEmpty(soLuong) &&
+                            string.IsNullOrEmpty(donGia) && string.IsNullOrEmpty(giaBan) &&
+                            string.IsNullOrEmpty(ptThue) && string.IsNullOrEmpty(tienThue))
+                        {
+                            continue;
+                        }
+
+                        // Kiểm tra mã hàng
+                        if (string.IsNullOrEmpty(maHang))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã hàng hóa",
+                                ViTri = indexErr,
+                                ThuocTinh = maHang,
+                                DienGiai = "Mã hàng hóa không được để trống",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        else
+                        {
+                            bool kytudacbiet = kiemtrakitu(maHang);
+                            if (!kytudacbiet)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = indexErr,
+                                    ThuocTinh = maHang,
+                                    DienGiai = "Mã hàng hóa không được chứa ký tự đặc biệt",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+
+                            bool checkCSDL = ChekMaHangDatabase_DangKinhDoanh(maHang);
+                            if (!checkCSDL)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = indexErr,
+                                    ThuocTinh = maHang,
+                                    DienGiai = $"Mã hàng '{maHang}' không có trên hệ thống hoặc ngừng kinh doanh",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                            else
+                            {
+                                bool checkLaDV = ChekMaHangDatabase_LaDichVu(maHang);
+                                if (!checkLaDV)
+                                {
+                                    lstError.Add(new ErrorDMHangHoa
+                                    {
+                                        TenTruongDuLieu = "Mã hàng hóa",
+                                        ViTri = indexErr,
+                                        ThuocTinh = maHang,
+                                        DienGiai = $"Mã hàng '{maHang}' không phải là hàng hóa",
+                                        rowError = rowIndex,
+                                        loaiError = 1
+                                    });
+                                }
+                            }
+                        }
+
+                        // Kiểm tra ngày sản xuất và ngày hết hạn
+                        if (!string.IsNullOrEmpty(ngaySX) && !string.IsNullOrEmpty(hsd))
+                        {
+                            bool valiDateNgaySX = class_OfficeDocument.ValidateDateTime(ngaySX);
+                            bool valiDateHSD = class_OfficeDocument.ValidateDateTime(hsd);
+
+                            if (!valiDateNgaySX || !valiDateHSD)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Ngày sản xuất / Ngày hết hạn",
+                                    ViTri = indexErr,
+                                    ThuocTinh = ngaySX + " / " + hsd,
+                                    DienGiai = "Ngày sản xuất hoặc ngày hết hạn không hợp lệ",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    DateTime dateNgaySX = Convert.ToDateTime(ngaySX);
+                                    DateTime dateHSD = Convert.ToDateTime(hsd);
+                                    if (dateNgaySX > dateHSD)
+                                    {
+                                        lstError.Add(new ErrorDMHangHoa
+                                        {
+                                            TenTruongDuLieu = "Ngày hết hạn",
+                                            ViTri = indexErr,
+                                            ThuocTinh = hsd,
+                                            DienGiai = "Ngày hết hạn không được nhỏ hơn ngày sản xuất",
+                                            rowError = rowIndex,
+                                            loaiError = 1
+                                        });
+                                    }
+                                }
+                                catch
+                                {
+                                    lstError.Add(new ErrorDMHangHoa
+                                    {
+                                        TenTruongDuLieu = "Ngày sản xuất / Ngày hết hạn",
+                                        ViTri = indexErr,
+                                        ThuocTinh = ngaySX + " / " + hsd,
+                                        DienGiai = "Ngày sản xuất hoặc ngày hết hạn không hợp lệ",
+                                        rowError = rowIndex,
+                                        loaiError = 1
+                                    });
+                                }
+                            }
+                        }
+
+                        // Kiểm tra số lượng
+                        if (string.IsNullOrEmpty(soLuong))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Số lượng",
+                                ViTri = indexErr,
+                                ThuocTinh = soLuong,
+                                DienGiai = "Số lượng không được để trống",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        else
+                        {
+                            bool isNumber = IsNumber(soLuong);
+                            if (!isNumber)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Số lượng",
+                                    ViTri = indexErr,
+                                    ThuocTinh = soLuong,
+                                    DienGiai = "Số lượng không phải dạng số",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+
+                        // Kiểm tra đơn giá
+                        if (string.IsNullOrEmpty(donGia))
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Đơn giá",
+                                ViTri = indexErr,
+                                ThuocTinh = donGia,
+                                DienGiai = "Đơn giá không được để trống",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        else
+                        {
+                            bool isNumber = IsNumber(donGia);
+                            if (!isNumber)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Đơn giá",
+                                    ViTri = indexErr,
+                                    ThuocTinh = donGia,
+                                    DienGiai = "Đơn giá không phải dạng số",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+
+                        // Kiểm tra giá bán
+                        if (!string.IsNullOrEmpty(giaBan))
+                        {
+                            bool isNumber = IsNumber(giaBan);
+                            if (!isNumber)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Giá bán",
+                                    ViTri = indexErr,
+                                    ThuocTinh = giaBan,
+                                    DienGiai = "Giá bán không phải dạng số",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+
+                        // Kiểm tra phần trăm thuế
+                        if (!string.IsNullOrEmpty(ptThue))
+                        {
+                            bool isNumber = IsNumber(ptThue);
+                            if (!isNumber)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Phần trăm thuế",
+                                    ViTri = indexErr,
+                                    ThuocTinh = ptThue,
+                                    DienGiai = "Phần trăm thuế không phải dạng số",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+
+                        // Kiểm tra tiền thuế
+                        if (!string.IsNullOrEmpty(tienThue))
+                        {
+                            bool isNumber = IsNumber(tienThue);
+                            if (!isNumber)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Tiền thuế",
+                                    ViTri = indexErr,
+                                    ThuocTinh = tienThue,
+                                    DienGiai = "Tiền thuế không phải dạng số",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return lstError;
         }
         public List<Report_HangHoa_XuatHuy_Import> getList_DanhSachHangXuatHuy_Khonglo(Stream fileInput)
         {
