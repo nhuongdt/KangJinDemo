@@ -598,7 +598,7 @@ namespace libQuy_HoaDon
                             bool checklo = classOffice.ChekLoHangDatabase(malohang, maHangHoa);
                             if (checklo == false)
                             {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã lô hàng",
                                     ViTri = (rowIndex + 1).ToString(),
@@ -606,15 +606,14 @@ namespace libQuy_HoaDon
                                     DienGiai = "Mã hàng: " + maHangHoa + " không có lô hàng '" + malohang + "' trên hệ thống",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                };
-                                lstError.Add(DM);
+                                });
 
                             }
                         }
 
                         if (string.IsNullOrEmpty(maHangHoa))
                         {
-                            ErrorDMHangHoa DM = new ErrorDMHangHoa
+                            lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Mã hàng hóa",
                                 ViTri = (rowIndex + 1).ToString(),
@@ -622,14 +621,14 @@ namespace libQuy_HoaDon
                                 DienGiai = "Mã hàng hóa không được để trống",
                                 rowError = rowIndex,
                                 loaiError = 1
-                            };
+                            });
 
                         }
                         else
                         {
                             if (maHangHoaTracker.ContainsKey(maHangHoa))
                             {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã hàng hóa",
                                     ViTri = (rowIndex + 1).ToString(),
@@ -637,8 +636,7 @@ namespace libQuy_HoaDon
                                     DienGiai = "Mã hàng: " + maHangHoa + " bị trùng lặp",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                };
-                                lstError.Add(DM);
+                                });                              
                             }
                             else
                             {
@@ -649,7 +647,7 @@ namespace libQuy_HoaDon
                             bool kytudacbiet = CommonStatic.CheckCharSpecial(maHangHoa);
                             if (kytudacbiet == false)
                             {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã hàng hóa",
                                     ViTri = (rowIndex + 1).ToString(),
@@ -657,15 +655,29 @@ namespace libQuy_HoaDon
                                     DienGiai = "Mã hàng hóa không được chứa ký tự đặc biệt '" + maHangHoa + "'",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                };
-                                lstError.Add(DM);
+                                });
+                                
                             }
 
+
+                            bool CheckLaDV = classOffice.ChekMaHangDatabase_LaDichVu(maHangHoa);
+                            if (CheckLaDV == false)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa",
+                                    ViTri = (rowIndex + 1).ToString(),
+                                    ThuocTinh = maHangHoa,
+                                    DienGiai = maHangHoa + " không phải là hàng hóa",
+                                    rowError = rowIndex,
+                                    loaiError = 1
+                                });
+                            }
 
                             bool CheckCSDL = classOffice.ChekMaHangDatabase_DangKinhDoanh(maHangHoa);
                             if (CheckCSDL == false)
                             {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Mã hàng hóa",
                                     ViTri = (rowIndex + 1).ToString(),
@@ -673,8 +685,7 @@ namespace libQuy_HoaDon
                                     DienGiai = "Mã hàng: " + maHangHoa + "' không có trên hệ thống hoặc ngừng kinh doanh",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                };
-                                lstError.Add(DM);
+                                });                               
 
                             }
 
@@ -683,7 +694,7 @@ namespace libQuy_HoaDon
 
                         if (string.IsNullOrEmpty(soluong))
                         {
-                            ErrorDMHangHoa DM = new ErrorDMHangHoa
+                            lstError.Add(new ErrorDMHangHoa
                             {
                                 TenTruongDuLieu = "Số lượng",
                                 ViTri = (rowIndex + 1).ToString(),
@@ -691,15 +702,15 @@ namespace libQuy_HoaDon
                                 DienGiai = "Số lượng không được để trống",
                                 rowError = rowIndex,
                                 loaiError = 1
-                            };
-                            lstError.Add(DM);
+                            });
+                           
                         }
                         else
                         {
-                            bool isNumber7 = CommonStatic.IsNumber(soluong);
+                            bool isNumber7 = CommonStatic.IsDouble(soluong);
                             if (isNumber7 == false)
                             {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                lstError.Add(new ErrorDMHangHoa
                                 {
                                     TenTruongDuLieu = "Số lượng",
                                     ViTri = (rowIndex + 1).ToString(),
@@ -707,15 +718,14 @@ namespace libQuy_HoaDon
                                     DienGiai = "Số lượng '" + soluong + "'  không phải dạng số",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                };
-                                lstError.Add(DM);
+                                });                              
 
                             }
                             else
                             {
                                 if (float.Parse(soluong) <= 0)
                                 {
-                                    ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                    lstError.Add(new ErrorDMHangHoa
                                     {
                                         TenTruongDuLieu = "Số lượng",
                                         ViTri = (rowIndex + 1).ToString(),
@@ -723,8 +733,7 @@ namespace libQuy_HoaDon
                                         DienGiai = "Số lượng '" + soluong + "'  Phải lớn hơn 0",
                                         rowError = rowIndex,
                                         loaiError = 1
-                                    };
-                                    lstError.Add(DM);
+                                    });
 
                                 }
                             }
@@ -734,12 +743,6 @@ namespace libQuy_HoaDon
             }
             return lstError;
         }
-
-
-
-
-
-
 
 
         public List<ErrorDMHangHoa> CheckData_FileImportHangHoa(ISheet sheet)
