@@ -8671,8 +8671,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 var file = HttpContext.Current.Request.Files[i];
                                 System.IO.Stream inputStream = file.InputStream;
-                               // string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
-                                string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG NHẬP");
+                                // string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
+                                string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG NHẬP",4);
                                 if (string.IsNullOrEmpty(str))
                                 {
                                     System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
@@ -8680,7 +8680,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 }
                                 else
                                 {
-                                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
+                                    abc.Add(new ErrorDMHangHoa()
+                                    {
+                                        TenTruongDuLieu = str,
+                                        ViTri = "0",
+                                        rowError = -1,
+                                        loaiError = 1,
+                                        ThuocTinh = str,
+                                        DienGiai = str,
+                                    });
+
+                                    //return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
                                 }
                             }
                             return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
@@ -9373,7 +9383,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH\n HÀNG HÓA KIỂM KHO");
                         if (string.IsNullOrEmpty(str))
                         {
-                            System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet,2);
+                            System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet, 2);
                             lstErr = classNPOI.CheckData_FileImportPhieuKiemKe(sheet, dataTable);
                         }
                         else
