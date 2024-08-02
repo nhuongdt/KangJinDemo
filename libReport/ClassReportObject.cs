@@ -1091,38 +1091,41 @@ namespace libReport
         public Guid ID_NhanVien { get; set; }
         public string MaNhanVien { get; set; }
         public string TenNhanVien { get; set; }
-        public double? DoanhThu { get; set; }
-        public double? ThucThu { get; set; }
         public double? HoaHongDoanhThu { get; set; }
-        public double? HoaHongThucThu { get; set; }
-        public double? TongAll { get; set; }
-
-        public double TongDoanhThu { get; set; }
-        public double TongThucThu { get; set; }
-        public double TongHoaHongDoanhThu { get; set; }
-        public double TongHoaHongThucThu { get; set; }
-        public double TongAllAll { get; set; }
+        public double? TongHoaHongDoanhThu { get; set; }
         public int TotalRow { get; set; }
         public double TotalPage { get; set; }
     }
 
     public class SP_ReportDiscountSales_Detail
     {
-        public string LoaiNVApDung { get; set; }
-        public string HinhThuc { get; set; }
-        public DateTime ApDungTuNgay { get; set; }
-        public DateTime? ApDungDenNgay { get; set; }
-        public double DoanhThu { get; set; }
-        public double ThucThu { get; set; }
-        public double GiaTriChietKhau { get; set; }
-        public double HoaHong { get; set; }
-        public int LaPhanTram { get; set; }
-        public double TongDoanhThu { get; set; }
-        public double TongThucThu { get; set; }
-        public double TongGiaTriChietKhau { get; set; }
-        public double TongAll { get; set; }
-        public int TotalRow { get; set; }
-        public double TotalPage { get; set; }
+        public Guid? ID_HoaDon { get; set; }
+        public Guid? ID_ChiTietHD { get; set; }
+        public string MaHoaDon { get; set; }
+        public DateTime NgayLapHoaDon { get; set; }
+        public string MaDoiTuong { get; set; }
+        public string TenDoiTuong { get; set; }
+        public string DienThoai { get; set; }
+
+        public string MaHangHoa { get; set; }
+        public string TenHangHoa { get; set; }
+        public double? SoLuong { get; set; }
+        public double? ThanhTien { get; set; }
+        public double? GtriChietKhau_MacDinh { get; set; }
+        public double? GiaTriTinh { get; set; }
+        public double? TongGiaTriTinh_TheoHD { get; set; }
+
+        public string MaNhanVien { get; set; }
+        public string TenNhanVien { get; set; }
+        public double? PT_ChietKhau { get; set; }
+        public double? TienChietKhau { get; set; }
+
+        public double? SumSoLuong { get; set; }
+        public double? SumThanhTien { get; set; }
+        public double? SumGiaTriTinh { get; set; }
+        public double? SumTienChietKhau { get; set; }
+        public int? TotalRow { get; set; }
+        public double? TotalPage { get; set; }
     }
 
     public class ListInvoice_DiscountSales

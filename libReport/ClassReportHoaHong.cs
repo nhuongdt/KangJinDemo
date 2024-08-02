@@ -216,7 +216,7 @@ namespace libReport
             paramSql.Add(new SqlParameter("FromDate", lstParam.DateFrom));
             paramSql.Add(new SqlParameter("ToDate", lstParam.DateTo));
             paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
-            paramSql.Add(new SqlParameter("Status_DoanhThu", trangthai));
+            paramSql.Add(new SqlParameter("Status_DoanhThu", trangthai)); // không dùng đến trường này (do SP cũ của open24 có dùng: không muốn sửa lại)
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
             List<SP_ReportDiscountSales> data = _db.Database.SqlQuery<SP_ReportDiscountSales>("EXEC GetAll_DiscountSale @ID_ChiNhanhs, @ID_NhanVienLogin, @DepartmentIDs, " +
@@ -224,16 +224,27 @@ namespace libReport
             return data;
         }
 
-        public List<SP_ReportDiscountSales_Detail> SP_ReportDiscountSales_Detail(ParamReportDiscount lstParam)
+        public List<SP_ReportDiscountSales_Detail> GetBaoCaoHoaHongDVDacBiet_ChiTiet(ParamReportDiscount lstParam)
         {
             string idChiNhanhs = string.Join(",", lstParam.LstIDChiNhanh);
+            string idPhongBans = string.Empty;
+            if (lstParam.DepartmentIDs != null && lstParam.DepartmentIDs.Count > 0)
+            {
+                idPhongBans = string.Join(",", lstParam.DepartmentIDs);
+            }
             List<SqlParameter> paramSql = new List<SqlParameter>();
-            paramSql.Add(new SqlParameter("ID_ChiNhanhs", idChiNhanhs));
-            paramSql.Add(new SqlParameter("ID_NhanVien", lstParam.TextSearch)); // mượn tạm trường để lưu ID_NhanVien
-            paramSql.Add(new SqlParameter("timeStar", lstParam.DateFrom));
-            paramSql.Add(new SqlParameter("timeEnd", lstParam.DateTo));
-            List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC getList_ChietKhauNhanVienTheoDoanhSobyID @ID_ChiNhanhs, @ID_NhanVien, " +
-                " @timeStar, @timeEnd", paramSql.ToArray()).ToList();
+            paramSql.Add(new SqlParameter("IDChiNhanhs", idChiNhanhs));
+            paramSql.Add(new SqlParameter("ID_NhanVienLogin", lstParam.ID_NhanVienLogin));
+            paramSql.Add(new SqlParameter("DepartmentIDs", idPhongBans ?? (object)DBNull.Value));
+            paramSql.Add(new SqlParameter("TrangThaiPhanBoHoaHong", lstParam.TrangThai));
+            paramSql.Add(new SqlParameter("FromDate", lstParam.DateFrom));
+            paramSql.Add(new SqlParameter("ToDate", lstParam.DateTo));
+            paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
+            paramSql.Add(new SqlParameter("TxtSearchNhanVien", lstParam.TxtCustomer));
+            paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
+            paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
+            List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC GetBaoCaoHoaHongDVDacBiet_ChiTiet @IDChiNhanhs, @ID_NhanVienLogin, " +
+                "@DepartmentIDs, @TrangThaiPhanBoHoaHong, @FromDate, @ToDate, @TextSearch, @TxtSearchNhanVien, @CurrentPage, @PageSize", paramSql.ToArray()).ToList();
             return data;
         }
 

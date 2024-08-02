@@ -2519,13 +2519,13 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("GiaTriChenhLech"); // giá trị chênh lệch: chỉ get 1 dòng đầu tiên của GDV đổi/trả
 
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoGoiDichVu/Teamplate_BCGoiDichVu_BanDoiTra.xlsx");
-                
+
                 string columHide = string.Empty;
                 if (param.ColumnHide != null && param.ColumnHide.Count > 0)
                 {
                     columHide = string.Join("_", param.ColumnHide);
                 }
-               
+
                 List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
                     {
                         new ClassExcel_CellData
@@ -2949,7 +2949,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 //excel.Columns.Remove("TenDonViTinh");
                 //excel.Columns.Remove("TenLoHang");
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoGoiDichVu/Teamplate_BaoCaoNhapXuatTonDichVu.xlsx");
-                
+
                 List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
                     {
                         new ClassExcel_CellData
@@ -4826,7 +4826,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 return string.Empty;
             }
         }
-        
+
         [AcceptVerbs("GET", "POST")]
         public string Export_BaoCaoDoanhThuKhachHang([FromBody] JObject data)
         {
@@ -8695,7 +8695,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, valExcel1);
                     classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, lstParam.ColumnsHide, lstCell);
-                
+
                 }
             }
             catch (Exception ex)
@@ -8734,7 +8734,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         valExcel1 = lstParam.DateFrom.ToString() + " - " + lstParam.DateTo.ToString();
                     }
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, valExcel1);
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, lstParam.ColumnsHide, lstCell, -1);                  
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 6, lstParam.ColumnsHide, lstCell, -1);
                 }
             }
             catch (Exception ex)
@@ -9059,11 +9059,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             LstData = data,
 
                             SumHHDoanhThu = firstRow.TongHoaHongDoanhThu,
-                            SumHHThucThu = firstRow.TongHoaHongThucThu,
-                            SumDoanhThu = firstRow.TongDoanhThu,
-                            SumThucThu = firstRow.TongThucThu,
-                            SumAll = firstRow.TongAllAll,
-
                             firstRow.TotalRow,
                             firstRow.TotalPage,
                         });
@@ -9076,11 +9071,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             LstData = new List<SP_ReportDiscountSales>(),
 
                             SumHHDoanhThu = 0,
-                            SumHHThucThu = 0,
-                            SumDoanhThu = 0,
-                            SumThucThu = 0,
-                            SumAll = 0,
-
                             TotalRow = 0,
                             TotalPage = 0,
                         });
@@ -9098,7 +9088,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
         }
 
         [HttpGet, HttpPost]
-        public IHttpActionResult ReportDiscountSales_Detail(ParamReportDiscount lstParam)
+        public IHttpActionResult GetBaoCaoHoaHongDVDacBiet_ChiTiet(ParamReportDiscount lstParam)
         {
             try
             {
@@ -9106,16 +9096,37 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 {
                     db.Database.CommandTimeout = 60 * 60;
                     ClassReportHoaHong reportHoaHong = new ClassReportHoaHong(db);
-                    List<SP_ReportDiscountSales_Detail> data = reportHoaHong.DiscountSale_byIDNhanVien(lstParam);
+                    List<SP_ReportDiscountSales_Detail> data = reportHoaHong.GetBaoCaoHoaHongDVDacBiet_ChiTiet(lstParam);
+                    var lstGr = data.GroupBy(x => new
+                    {
+                        x.ID_HoaDon,
+                        x.MaHoaDon,
+                        x.NgayLapHoaDon,
+                        x.TongGiaTriTinh_TheoHD,
+                        x.MaDoiTuong,
+                        x.TenDoiTuong,
+                        x.DienThoai,
+                    }).Select(x => new
+                    {
+                        x.Key.ID_HoaDon,
+                        x.Key.MaHoaDon,
+                        x.Key.NgayLapHoaDon,
+                        x.Key.TongGiaTriTinh_TheoHD,
+                        x.Key.MaDoiTuong,
+                        x.Key.TenDoiTuong,
+                        x.Key.DienThoai,
+                        RowSpan = x.Count(),
+                        ListDetail = x
+                    });
 
                     int pageSise = lstParam.PageSize;
-                    int totalRow = data.Count();
-                    double totalPage = Math.Ceiling(totalRow * 1.0 / pageSise);
+                    int totalRow = data.FirstOrDefault().TotalRow ?? 0;
+                    double totalPage = data.FirstOrDefault().TotalPage ?? 0;
 
                     return Json(new
                     {
                         res = true,
-                        LstData = data.Skip(lstParam.CurrentPage * pageSise).Take(pageSise).ToList(),
+                        LstData = lstGr,
                         TotalRow = totalRow,
                         TotalPage = totalPage,
                     });
@@ -9471,21 +9482,18 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu.xlsx");
-                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu.xlsx");
                             break;
                         case 6:// bc chitiet: not hide column
                             lstParam.ColumnsHide = null;
                             List<SP_ReportDiscountSales_Detail> data2 = reportHoaHong.DiscountSale_byIDNhanVien(lstParam);
                             excel = classOffice.ToDataTable<SP_ReportDiscountSales_Detail>(data2);
-                            excel.Columns.Remove("LaPhanTram");
-                            excel.Columns.Remove("TongDoanhThu");
-                            excel.Columns.Remove("TongThucThu");
-                            excel.Columns.Remove("TongGiaTriChietKhau");
-                            excel.Columns.Remove("TongAll");
+                            excel.Columns.Remove("SumSoLuong");
+                            excel.Columns.Remove("SumThanhTien");
+                            excel.Columns.Remove("SumGiaTriTinh");
+                            excel.Columns.Remove("SumTienChietKhau");
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu_ChiTiet.xlsx");
-                            //fileSave = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/BaoCaoHoaHongDoanhThu_ChiTiet.xlsx");
                             break;
                     }
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);

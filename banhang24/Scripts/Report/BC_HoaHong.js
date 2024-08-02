@@ -34,6 +34,12 @@
     self.LaCombo = ko.observable(true);
     self.MangChungTuChosed = ko.observableArray();
 
+    const TypeReportDiscount = {
+        HANG_HOA: 1,
+        HOA_DON: 2,
+        DOANH_THU: 3,
+    }
+
     self.MangChungTu = ko.observableArray([
         {
             ID: 0, TenChungTu: 'Tất cả',
@@ -168,7 +174,7 @@
     function LoadCheckBox(typeCheck) {
         // typeReport: 1.hanghoa, 2.hoadon, 3.doanhso, 4.all
         // typeCheck:  hanghoa(7.tonghop, 8.chitiet); hoadon (9.tonghop, 10.chitiet)
-        // doanhso(typecheck = 11); all (typecheck = 12); dshoadon  (typecheck = 13)
+        // doanhso(tonghop = 11, chitiet: 15); all (typecheck = 12); dshoadon  (typecheck = 13)
         if (typeCheck === 13) {
             self.ListCheckBox(arrColumnType5);
             self.NumberColum_Div2(Math.ceil(arrColumnType5.length / 2));
@@ -760,12 +766,7 @@
 
                 self.TotalRow(data.TotalRow);
                 self.TotalPage(data.TotalPage);
-
-                self.ReportSales_SumDoanhThu(data.SumDoanhThu);
-                self.ReportSales_SumThucThu(data.SumThucThu);
                 self.ReportSales_SumHoaHongDT(data.SumHHDoanhThu);
-                self.ReportSales_SumHoaHongTT(data.SumHHThucThu);
-                self.ReportSales_SumAll(data.SumAll);
 
                 GetListNumberPaging();
                 Caculator_FromToPaging(data.LstData);
@@ -787,7 +788,7 @@
             $('.btnExportDetail').hide();
         }
 
-        ajaxHelper(ReportUri + "ReportDiscountSales_Detail", "POST", array_Seach).done(function (data) {
+        ajaxHelper(ReportUri + "GetBaoCaoHoaHongDVDacBiet_ChiTiet", "POST", array_Seach).done(function (data) {
             if (data.res == true) {
                 self.ReportSales_Detail(data.LstData);
 
@@ -1049,24 +1050,6 @@
 
         // tính lại tổng theo trạng thái cột ẩn
         var typeReport = parseInt(self.TypeReport());
-        if (typeReport === 3) {
-            if (self.RpSale_CheckThucThu()) {
-                if (self.RpSale_CheckDoanhThu()) {
-                    status = 0;
-                }
-                else {
-                    status = 1;
-                }
-            }
-            else {
-                if (self.RpSale_CheckDoanhThu()) {
-                    status = 2;
-                }
-                else {
-                    status = 3;
-                }
-            }
-        }
 
         var status_columhide = 0;
         var cacheHideColumn2 = localStorage.getItem(Key_Form);
@@ -1079,10 +1062,10 @@
             }
 
             switch (typeReport) {
-                case 1:
+                case TypeReportDiscount.HANG_HOA:
                     status_columhide = 16;// all
                     break;
-                case 2:
+                case TypeReportDiscount.HOA_DON:
                     status_columhide = 8;// all;
                     break;
             }
@@ -1183,7 +1166,7 @@
                     break;
                 case 3:
                     funcExcel = 'ExportExcel_ReportDiscountSales';
-                    if (itemDetail == null) {
+                    if (self.IsReportDetail()) {
                         array_Seach.TypeReport = 5;
                         txtFunc = 'tổng hợp theo doanh thu';
                         fileNameExport = 'BaoCaoHoaHongDoanhThu.xlsx';
@@ -1230,28 +1213,11 @@
                 };
                 Insert_NhatKyThaoTac_1Param(objDiary);
             }
-            //ajaxHelper(ReportUri + funcExcel, 'POST', array_Seach).done(function (obj) {
-            //    $('.table-reponsive').gridLoader({ show: false });
-            //    if (obj.res === true) {
-            //        self.DownloadFileTeamplateXLSX(obj.data);
-
-            //        detail = 'Xuất báo cáo hoa hồng '.concat(txtFunc, ' .Thời gian: ', self.TodayBC(), ' .Chi nhánh: ', self.TenChiNhanhs(), ' .Người xuất: ', _userLogin);
-            //        var objDiary = {
-            //            ID_NhanVien: _idNhanVien,
-            //            ID_DonVi: _idDonVi,
-            //            ChucNang: "Báo cáo hoa hồng ".concat(txtFunc),
-            //            NoiDung: 'Xuất báo cáo hoa hồng '.concat(txtFunc),
-            //            NoiDungChiTiet: detail,
-            //            LoaiNhatKy: 6
-            //        };
-            //        Insert_NhatKyThaoTac_1Param(objDiary);
-            //    }
-            //})
         }
         else {
             $('#select-column').show();
             switch (typeReport) {
-                case 1:
+                case TypeReportDiscount.HANG_HOA:
                     if (self.IsReportDetail()) {
                         Load_ReprotProduct_Detail(array_Seach, valueHideColum);
                     }
@@ -1259,7 +1225,7 @@
                         Load_ReprotProduct_General(array_Seach, valueHideColum);
                     }
                     break;
-                case 2:
+                case TypeReportDiscount.HOA_DON:
                     if (self.IsReportDetail()) {
                         Load_ReprotInvoice_Detail(array_Seach, valueHideColum);
                     }
@@ -1267,12 +1233,12 @@
                         Load_ReprotInvoice_General(array_Seach, valueHideColum);
                     }
                     break;
-                case 3:
-                    if (itemDetail == null) {
+                case TypeReportDiscount.DOANH_THU:
+                    if (!self.IsReportDetail()) {
                         Load_ReprotSales(array_Seach);
                     }
                     else {
-                        array_Seach.TextSearch = itemDetail.ID_NhanVien;
+                        array_Seach.TrangThai = 1;//todo
                         Load_ReprotSales_Detail(array_Seach);
                     }
                     break;
@@ -1345,7 +1311,7 @@
         $('.trangthaiHD').show();
 
         switch (parseInt(self.TypeReport())) {
-            case 1:
+            case TypeReportDiscount.HANG_HOA:
                 if (val == true) {
                     $('.divSearchHH').show();
                     $('.divSearchNhomHH').show();
@@ -1359,7 +1325,7 @@
                     typeCheck = 7;
                 }
                 break;
-            case 2:
+            case TypeReportDiscount.HOA_DON:
                 if (val == true) {
                     Key_Form = 'Key_RpDiscountInvoice_Detail';
                     typeCheck = 10;
@@ -1369,6 +1335,18 @@
                     Key_Form = 'Key_RpDiscountInvoice';
                     typeCheck = 9;
                     $('.showChungTu').hide();
+                }
+                break;
+            case TypeReportDiscount.DOANH_THU:
+                {
+                    if (val) {
+                        Key_Form = 'Key_RpRpDiscountRevenue_Detail';
+                        typeCheck = 15;
+                    }
+                    else {
+                        Key_Form = 'Key_RpRpDiscountRevenue';
+                        typeCheck = 11;
+                    }
                 }
                 break;
         }
@@ -1447,7 +1425,7 @@
         $('.jsPhongBan').show();
 
         switch (thisVal) {
-            case 1:
+            case TypeReportDiscount.HANG_HOA:
                 //case 5:
                 $('a[href = "#theohanghoa"]').addClass('box-tab');
                 $('a[href = "#hoahongchitiet"]').addClass('box-tab');
@@ -1465,7 +1443,7 @@
                 $('.showChungTu,.jsLoaiHang, .trangthaiHD').hide();
                 loaiBC = 1;
                 break;
-            case 2:
+            case TypeReportDiscount.HOA_DON:
                 if (loaiBC !== thisVal) {
                     $('#hdReport').text('Báo cáo tổng hợp hoa hồng nhân viên theo hóa đơn');
                     Key_Form = 'Key_RpDiscountInvoice';
@@ -1479,8 +1457,9 @@
                     loaiBC = 2;
                 }
                 break;
-            case 3:
+            case TypeReportDiscount.DOANH_THU:
                 if (loaiBC !== thisVal) {
+                    self.IsReportDetail(false);
                     $('#hdReport').text('Báo cáo tổng hợp hoa hồng nhân viên theo doanh số');
                     Key_Form = 'Key_RpDiscountSales';
                     typeCheck = 11;
