@@ -15,6 +15,8 @@ using System.Threading;
 using System.Web;
 using System.Web.Http;
 using System.Globalization;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -911,38 +913,57 @@ namespace banhang24.Areas.DanhMuc.Controllers
         [HttpPost]
         public IHttpActionResult importExcelDieuChinh()
         {
-            string result = "";
-            try
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                using (SsoftvnContext db = SystemDBContext.GetDBContext())
+                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                string result = "";
+                var file1 = HttpContext.Current.Request.Files[0];
+                using (System.IO.Stream excelstream = file1.InputStream)
                 {
-                    Class_officeDocument classOffice = new Class_officeDocument(db);
-                    if (HttpContext.Current.Request.Files.Count != 0)
+                    try
                     {
-                        List<ErrorDMHangHoa> abc = new List<ErrorDMHangHoa>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        XSSFWorkbook workbook = new XSSFWorkbook(excelstream);
+                        ISheet sheet = workbook.GetSheetAt(0);
+                        if (HttpContext.Current.Request.Files.Count != 0)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = classOffice.CheckFileMau_DieuChinh(excelstream);
-                            if (str == null)
+                            List<ErrorDMHangHoa> abc = new List<ErrorDMHangHoa>();
+                            for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
                             {
-                                abc = classOffice.checkExcel_DieuChinh(excelstream);
+                                var file = HttpContext.Current.Request.Files[i];
+                                System.IO.Stream inputStream = file.InputStream;
+                                // string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
+                                string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG ĐIỀU CHỈNH", 3);
+                                if (string.IsNullOrEmpty(str))
+                                {
+                                    System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
+                                    abc = _classOFDCM.checkDataImport_DieuChinh(sheet, dataTable);
+                                }
+                                else
+                                {
+                                    abc.Add(new ErrorDMHangHoa()
+                                    {
+                                        TenTruongDuLieu = str,
+                                        ViTri = "0",
+                                        rowError = -1,
+                                        loaiError = 1,
+                                        ThuocTinh = str,
+                                        DienGiai = str,
+                                    });
+
+                                    //return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
+                                }
                             }
-                            else
-                            {
-                                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
-                            }
+                            return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
+                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
                     }
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    catch (Exception ex)
+                    {
+                        result = ex.ToString();
+                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                result = ex.ToString();
-                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
             }
         }
         [HttpPost]
