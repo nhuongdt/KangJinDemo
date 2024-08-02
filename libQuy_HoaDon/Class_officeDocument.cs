@@ -2754,105 +2754,7 @@ namespace libQuy_HoaDon
             }
             return string.Empty;
         }
-        public List<ErrorDMHangHoa> checkExcel_DieuChinh(Stream fileInput)
-        {
-            List<ErrorDMHangHoa> lst = new List<ErrorDMHangHoa>();
-            Workbook objWorkbook = new Workbook(fileInput);
-            Worksheet worksheet = objWorkbook.Worksheets[0];
-            int trows = worksheet.Cells.MaxDataRow;
-            int tcool = worksheet.Cells.MaxColumn + 1;
-            DataTable dt = worksheet.Cells.ExportDataTable(1, 0, trows, tcool);
-            dt.Rows[0].Delete();
-            dt.Columns[0].ColumnName = "MaLo";
-            dt.Columns[1].ColumnName = "MaHang";
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                string dk = "";
-                for (int j = 0; j < dt.Columns.Count; j++)
-                {
-                    string a = dt.Rows[i][j].ToString();
-                    if (dt.Rows[i][j].ToString() != "")
-                    {
-                        break;
-                    }
-                    if (j == dt.Columns.Count - 1)
-                    {
-                        dk = "1";
-                    }
-                }
-                if (dk == "")
-                {
-                    if (dt.Rows[i][0].ToString().Trim() != "")
-                    {
-                        bool checklo = ChekLoHangDatabase(dt.Rows[i][0].ToString().Trim(), dt.Rows[i][1].ToString().Trim());
-                        if (checklo == false)
-                        {
-                            ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                            DM.DienGiai = "Dòng số " + (i + 3).ToString().Trim() + ": " + dt.Rows[i][1].ToString().Trim() + " không có lô hàng '" + dt.Rows[i][0].ToString().Trim() + "' trên hệ thống";
-                            lst.Add(DM);
-                        }
-                    }
-                    if (dt.Rows[i][1].ToString().Trim() == "")
-                    {
-                        ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                        DM.DienGiai = "Dòng số " + (i + 3).ToString().Trim() + ": Mã hàng hóa không được để trống";
-                        lst.Add(DM);
-                    }
-                    else
-                    {
-                        bool kytudacbiet = kiemtrakitu(dt.Rows[i][1].ToString().Trim());
-                        if (kytudacbiet == false)
-                        {
-                            ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                            DM.DienGiai = "Dòng số " + (i + 3).ToString().Trim() + ": Mã hàng hóa không được chứa ký tự đặc biệt";
-                            lst.Add(DM);
-                        }
-                        else
-                        {
-                            bool trungma = false;
-                            if (dt.Rows[i][0].ToString().Trim() != "")
-                                trungma = GroupData(dt, "MaHang = '" + dt.Rows[i][1].ToString().Trim() + "' and MaLo = '" + dt.Rows[i][0].ToString().Trim() + "'");
-                            else
-                                trungma = GroupData(dt, "MaHang = '" + dt.Rows[i][1].ToString().Trim() + "'");
-                            if (trungma == false)
-                            {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                                string Lo = string.Empty;
-                                if (dt.Rows[i][0].ToString().Trim() != "")
-                                    Lo = " (" + dt.Rows[i][0].ToString().Trim() + ")";
-                                DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": Mã hàng '" + dt.Rows[i][1].ToString().Trim() + Lo + "' bị trùng lặp";
-                                lst.Add(DM);
-                            }
-                            bool CheckCSDL = ChekMaHangDatabase_DangKinhDoanh(dt.Rows[i][1].ToString().Trim());
-                            if (CheckCSDL == false)
-                            {
-                                ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                                DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": Mã hàng '" + dt.Rows[i][1].ToString().Trim() + "' không có trên hệ thống hoặc ngừng kinh doanh";
-                                lst.Add(DM);
-                            }
-                        }
-
-                    }
-                    if (dt.Rows[i][4].ToString().Trim() == "")
-                    {
-                        ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                        DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": giá vốn mới không được để trống";
-                        lst.Add(DM);
-                    }
-                    else
-                    {
-                        bool isNumber7 = IsNumber(dt.Rows[i][4].ToString().Trim());
-                        if (isNumber7 == false)
-                        {
-                            ErrorDMHangHoa DM = new ErrorDMHangHoa();
-                            DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": giá vốn mới '" + dt.Rows[i][4].ToString().Trim() + "'  không phải dạng số";
-                            lst.Add(DM);
-                        }
-                    }
-                }
-            }
-            return lst;
-        }
+        
         public List<ErrorDMHangHoa> checkExcel_KiemKho(Stream fileInput)
         {
             List<ErrorDMHangHoa> lst = new List<ErrorDMHangHoa>();
@@ -3507,6 +3409,217 @@ namespace libQuy_HoaDon
             }
             return lstError;
         }
+        public List<ErrorDMHangHoa> checkExcel_DieuChinh(Stream fileInput)
+        {
+            List<ErrorDMHangHoa> lst = new List<ErrorDMHangHoa>();
+            Workbook objWorkbook = new Workbook(fileInput);
+            Worksheet worksheet = objWorkbook.Worksheets[0];
+            int trows = worksheet.Cells.MaxDataRow;
+            int tcool = worksheet.Cells.MaxColumn + 1;
+            DataTable dt = worksheet.Cells.ExportDataTable(1, 0, trows, tcool);
+            dt.Rows[0].Delete();
+            dt.Columns[0].ColumnName = "MaLo";
+            dt.Columns[1].ColumnName = "MaHang";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string dk = "";
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    string a = dt.Rows[i][j].ToString();
+                    if (dt.Rows[i][j].ToString() != "")
+                    {
+                        break;
+                    }
+                    if (j == dt.Columns.Count - 1)
+                    {
+                        dk = "1";
+                    }
+                }
+                if (dk == "")
+                {
+                    if (dt.Rows[i][0].ToString().Trim() != "")
+                    {
+                        bool checklo = ChekLoHangDatabase(dt.Rows[i][0].ToString().Trim(), dt.Rows[i][1].ToString().Trim());
+                        if (checklo == false)
+                        {
+                            ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                            DM.DienGiai = "Dòng số " + (i + 3).ToString().Trim() + ": " + dt.Rows[i][1].ToString().Trim() + " không có lô hàng '" + dt.Rows[i][0].ToString().Trim() + "' trên hệ thống";
+                            lst.Add(DM);
+                        }
+                    }
+                    if (dt.Rows[i][1].ToString().Trim() == "")
+                    {
+                        ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                        DM.DienGiai = "Dòng số " + (i + 3).ToString().Trim() + ": Mã hàng hóa không được để trống";
+                        lst.Add(DM);
+                    }
+                    else
+                    {
+                        bool kytudacbiet = kiemtrakitu(dt.Rows[i][1].ToString().Trim());
+                        if (kytudacbiet == false)
+                        {
+                            ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                            DM.DienGiai = "Dòng số " + (i + 3).ToString().Trim() + ": Mã hàng hóa không được chứa ký tự đặc biệt";
+                            lst.Add(DM);
+                        }
+                        else
+                        {
+                            bool trungma = false;
+                            if (dt.Rows[i][0].ToString().Trim() != "")
+                                trungma = GroupData(dt, "MaHang = '" + dt.Rows[i][1].ToString().Trim() + "' and MaLo = '" + dt.Rows[i][0].ToString().Trim() + "'");
+                            else
+                                trungma = GroupData(dt, "MaHang = '" + dt.Rows[i][1].ToString().Trim() + "'");
+                            if (trungma == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                                string Lo = string.Empty;
+                                if (dt.Rows[i][0].ToString().Trim() != "")
+                                    Lo = " (" + dt.Rows[i][0].ToString().Trim() + ")";
+                                DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": Mã hàng '" + dt.Rows[i][1].ToString().Trim() + Lo + "' bị trùng lặp";
+                                lst.Add(DM);
+                            }
+                            bool CheckCSDL = ChekMaHangDatabase_DangKinhDoanh(dt.Rows[i][1].ToString().Trim());
+                            if (CheckCSDL == false)
+                            {
+                                ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                                DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": Mã hàng '" + dt.Rows[i][1].ToString().Trim() + "' không có trên hệ thống hoặc ngừng kinh doanh";
+                                lst.Add(DM);
+                            }
+                        }
+
+                    }
+                    if (dt.Rows[i][4].ToString().Trim() == "")
+                    {
+                        ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                        DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": giá vốn mới không được để trống";
+                        lst.Add(DM);
+                    }
+                    else
+                    {
+                        bool isNumber7 = IsNumber(dt.Rows[i][4].ToString().Trim());
+                        if (isNumber7 == false)
+                        {
+                            ErrorDMHangHoa DM = new ErrorDMHangHoa();
+                            DM.DienGiai = "Dòng số " + (i + 3).ToString() + ": giá vốn mới '" + dt.Rows[i][4].ToString().Trim() + "'  không phải dạng số";
+                            lst.Add(DM);
+                        }
+                    }
+                }
+            }
+            return lst;
+        }
+        public List<ErrorDMHangHoa> checkDataImport_DieuChinh(ISheet sheet, System.Data.DataTable dataTable)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+
+            // Chỉnh sửa tên cột cho DataTable
+            dataTable.Columns[0].ColumnName = "MaLo";
+            dataTable.Columns[1].ColumnName = "MaHang";
+            if (dataTable.Columns.Count > 4)
+            {
+                dataTable.Columns[4].ColumnName = "GiaVon"; // Giả sử cột giá vốn mới là "GiaVon"
+            }
+
+            int lastRow = sheet.LastRowNum;
+
+            for (int rowIndex = 2; rowIndex <= lastRow; rowIndex++) // Bỏ qua hàng tiêu đề
+            {
+                IRow row = sheet.GetRow(rowIndex);
+                if (row != null)
+                {
+                    string maLo = row.GetCell(0)?.ToString().Trim();
+                    string maHang = row.GetCell(1)?.ToString().Trim();
+                    string giaVon = row.GetCell(4)?.ToString().Trim(); // Giả sử cột giá vốn mới là cột 4
+
+                    string indexErr = (rowIndex + 1).ToString();
+
+                    // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
+                    if (string.IsNullOrEmpty(maLo) && string.IsNullOrEmpty(maHang) && string.IsNullOrEmpty(giaVon))
+                    {
+                        continue;
+                    }
+
+                    // Kiểm tra mã hàng
+                    if (string.IsNullOrEmpty(maHang))
+                    {
+                        lstError.Add(new ErrorDMHangHoa
+                        {
+                            DienGiai = $"Dòng số {indexErr}: Mã hàng hóa không được để trống",
+                        });
+                    }
+                    else
+                    {
+                        bool kytudacbiet = kiemtrakitu(maHang);
+                        if (!kytudacbiet)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                DienGiai = $"Dòng số {indexErr}: Mã hàng hóa không được chứa ký tự đặc biệt",
+                            });
+                        }
+                        else
+                        {
+                            bool checkCSDL = ChekMaHangDatabase_DangKinhDoanh(maHang);
+                            if (!checkCSDL)
+                            {
+                                lstError.Add(new ErrorDMHangHoa
+                                {
+                                    DienGiai = $"Dòng số {indexErr}: Mã hàng '{maHang}' không có trên hệ thống hoặc ngừng kinh doanh",
+                                });
+                            }
+                            else
+                            {
+                                bool trungma = GroupData(dataTable, $"MaHang = '{maHang}' and MaLo = '{maLo}'");
+                                if (!trungma)
+                                {
+                                    lstError.Add(new ErrorDMHangHoa
+                                    {
+                                        DienGiai = $"Dòng số {indexErr}: Mã hàng '{maHang}' bị trùng lặp",
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // Kiểm tra lô hàng
+                    if (!string.IsNullOrEmpty(maLo))
+                    {
+                        bool checklo = ChekLoHangDatabase(maLo, maHang);
+                        if (!checklo)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                DienGiai = $"Dòng số {indexErr}: Lô hàng '{maLo}' không có trên hệ thống",
+                            });
+                        }
+                    }
+
+                    // Kiểm tra giá vốn mới
+                    if (string.IsNullOrEmpty(giaVon))
+                    {
+                        lstError.Add(new ErrorDMHangHoa
+                        {
+                            DienGiai = $"Dòng số {indexErr}: Giá vốn mới không được để trống",
+                        });
+                    }
+                    else
+                    {
+                        bool isNumber = IsNumber(giaVon);
+                        if (!isNumber)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                DienGiai = $"Dòng số {indexErr}: Giá vốn mới '{giaVon}' không phải dạng số",
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lstError;
+        }
+
+
         public List<Report_HangHoa_XuatHuy_Import> getList_DanhSachHangXuatHuy_Khonglo(Stream fileInput)
         {
             List<Report_HangHoa_XuatHuy_Import> lst = new List<Report_HangHoa_XuatHuy_Import>();
