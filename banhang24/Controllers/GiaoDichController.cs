@@ -84,7 +84,6 @@ namespace banhang24.Controllers
             }
         }
 
-        [RBACAuthorize(RoleKey = RoleKey.NhapHang_XemDs)]
         public ActionResult NhapHang(string id)
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
