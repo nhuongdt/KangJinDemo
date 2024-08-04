@@ -21,6 +21,7 @@ using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
+using static libNS_NhanVien.ClassNS_NhanVien;
 using static libQuy_HoaDon.Class_Report;
 
 namespace libQuy_HoaDon
@@ -636,7 +637,7 @@ namespace libQuy_HoaDon
                                     DienGiai = "Mã hàng: " + maHangHoa + " bị trùng lặp",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                });                              
+                                });
                             }
                             else
                             {
@@ -656,22 +657,7 @@ namespace libQuy_HoaDon
                                     rowError = rowIndex,
                                     loaiError = 1
                                 });
-                                
-                            }
 
-
-                            bool CheckLaDV = classOffice.ChekMaHangDatabase_LaDichVu(maHangHoa);
-                            if (CheckLaDV == false)
-                            {
-                                lstError.Add(new ErrorDMHangHoa
-                                {
-                                    TenTruongDuLieu = "Mã hàng hóa",
-                                    ViTri = (rowIndex + 1).ToString(),
-                                    ThuocTinh = maHangHoa,
-                                    DienGiai = maHangHoa + " không phải là hàng hóa",
-                                    rowError = rowIndex,
-                                    loaiError = 1
-                                });
                             }
 
                             bool CheckCSDL = classOffice.ChekMaHangDatabase_DangKinhDoanh(maHangHoa);
@@ -685,12 +671,25 @@ namespace libQuy_HoaDon
                                     DienGiai = "Mã hàng: " + maHangHoa + "' không có trên hệ thống hoặc ngừng kinh doanh",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                });                               
-
+                                });
                             }
-
+                            else
+                            {
+                                bool CheckLaDV = classOffice.ChekMaHangDatabase_LaDichVu(maHangHoa);
+                                if (CheckLaDV == false)
+                                {
+                                    lstError.Add(new ErrorDMHangHoa
+                                    {
+                                        TenTruongDuLieu = "Mã hàng hóa",
+                                        ViTri = (rowIndex + 1).ToString(),
+                                        ThuocTinh = maHangHoa,
+                                        DienGiai = maHangHoa + " không phải là hàng hóa",
+                                        rowError = rowIndex,
+                                        loaiError = 1
+                                    });
+                                }
+                            }
                         }
-
 
                         if (string.IsNullOrEmpty(soluong))
                         {
@@ -703,7 +702,7 @@ namespace libQuy_HoaDon
                                 rowError = rowIndex,
                                 loaiError = 1
                             });
-                           
+
                         }
                         else
                         {
@@ -718,7 +717,7 @@ namespace libQuy_HoaDon
                                     DienGiai = "Số lượng '" + soluong + "'  không phải dạng số",
                                     rowError = rowIndex,
                                     loaiError = 1
-                                });                              
+                                });
 
                             }
                             else
@@ -998,8 +997,8 @@ namespace libQuy_HoaDon
 
         public List<Report_HangHoa_XuatHuy_Import> getList_DanhSachHangXuatHuy(ISheet sheet, Guid ID_ChiNhanh)
         {
-           
-            List<Report_HangHoa_XuatHuy_Import> lst= new List<Report_HangHoa_XuatHuy_Import>();
+
+            List<Report_HangHoa_XuatHuy_Import> lst = new List<Report_HangHoa_XuatHuy_Import>();
             List<Report_HangHoa_XuatHuy_Import> lstCT = new List<Report_HangHoa_XuatHuy_Import>();
 
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
@@ -1064,7 +1063,7 @@ namespace libQuy_HoaDon
                                 }
                             }
                         }
-                        
+
                         trans.Commit();
                     }
                     catch (Exception ex)
@@ -2042,6 +2041,213 @@ namespace libQuy_HoaDon
                 }
             }
             return lstError;
+        }
+
+        public List<ErrorDMHangHoa> CheckData_FileImportGDV(ISheet sheet, Guid idDonVi, Guid idNhanVien, string nguoitao)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+            List<TonGoiDichVus> lstGoiDV = new List<TonGoiDichVus>();
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                classDM_DoiTuong classDoiTuong = new classDM_DoiTuong(db);
+                ClassDM_HangHoa classDMHangHoa = new ClassDM_HangHoa(db);
+                classDonViQuiDoi classDonViQuiDoi = new classDonViQuiDoi(db);
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                var lastRow = sheet.LastRowNum + 1;
+                for (int rowIndex = 2; rowIndex < lastRow; rowIndex++)
+                {
+                    IRow row = sheet.GetRow(rowIndex);
+                    if (row != null)
+                    {
+                        string maKhachHang = row.GetCell(0)?.ToString()?.Trim();
+                        string maGDV = row.GetCell(1)?.ToString()?.Trim();
+                        string ngayhethan = row.GetCell(2)?.ToString()?.Trim();
+                        string mahanghoa = row.GetCell(3)?.ToString()?.Trim();
+                        string soluong = row.GetCell(4)?.ToString()?.Trim();
+                        string dongia = row.GetCell(5)?.ToString()?.Trim();
+                        string ghichu = row.GetCell(6)?.ToString()?.Trim();
+
+                        // Kiểm tra nếu tất cả các giá trị đều rỗng hoặc null
+                        if (string.IsNullOrEmpty(soluong) && string.IsNullOrEmpty(mahanghoa) &&
+                            string.IsNullOrEmpty(dongia))
+                        {
+                            continue;
+                        }
+
+                        TonGoiDichVus itemGDV = new TonGoiDichVus();
+                        string indexErr = (rowIndex + 1).ToString();
+
+                        var slIsNumber = CommonStatic.IsDouble(soluong);
+                        if (!slIsNumber)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Số lượng",
+                                ViTri = indexErr,
+                                ThuocTinh = soluong,
+                                DienGiai = "Số lượng không phải dạng số",
+                                rowError = rowIndex,
+                                loaiError = 1
+                            });
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(maKhachHang))
+                            {
+                                var itemKH = db.DM_DoiTuong.Where(x => x.MaDoiTuong == maKhachHang).Select(x => new { x.ID });
+                                if (itemKH.Count() == 0)
+                                {
+                                    ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                    {
+                                        TenTruongDuLieu = "Mã khách hàng",
+                                        ViTri = indexErr,
+                                        ThuocTinh = maKhachHang,
+                                        DienGiai = "Khách hàng chưa tồn tại trong hệ thống",
+                                        rowError = rowIndex,
+                                    };
+                                    lstError.Add(itemErr);
+                                }
+                                else
+                                {
+                                    itemGDV.ID_DoiTuong = itemKH.FirstOrDefault().ID;
+                                    itemGDV.MaDoiTuong = maKhachHang;
+                                    lstGoiDV.Add(itemGDV);
+
+                                    if (string.IsNullOrEmpty(maGDV))
+                                    {
+                                        ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                        {
+                                            TenTruongDuLieu = "Số thẻ",
+                                            ViTri = indexErr,
+                                            ThuocTinh = maGDV,
+                                            DienGiai = "Số thẻ không được để trống",
+                                            rowError = rowIndex,
+                                        };
+                                        lstError.Add(itemErr);
+                                    }
+                                    else
+                                    {
+                                        goto AddGDV;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(maGDV))
+                                {
+                                    var exGoi = lstGoiDV.Where(x => x.GoiDVs.Where(o => o.MaHoaDon == maGDV).Count() > 0);
+                                    if (exGoi.Count() > 0)
+                                    {
+                                        ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                        {
+                                            TenTruongDuLieu = "Số thẻ",
+                                            ViTri = indexErr,
+                                            ThuocTinh = maGDV,
+                                            DienGiai = "Số thẻ bị trùng lặp",
+                                            rowError = rowIndex,
+                                        };
+                                        lstError.Add(itemErr);
+                                    }
+                                    else
+                                    {
+                                        goto AddGDV;
+                                    }
+                                }
+                                else
+                                {
+                                    goto Add_ChiTietGDV;
+                                }
+                            }
+                        }
+                    AddGDV:
+                        {
+                            var date3 = DateTime.Now.AddYears(10);
+                            if (!string.IsNullOrEmpty(ngayhethan))
+                            {
+                                if (classOffice.ValidateDateTime(ngayhethan) == false)
+                                {
+                                    ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                    {
+                                        TenTruongDuLieu = "Ngày hết hạn",
+                                        ViTri = indexErr,
+                                        ThuocTinh = ngayhethan,
+                                        DienGiai = "Ngày hết hạn chưa đúng định dang ngày tháng năm ",
+                                        rowError = rowIndex,
+                                    };
+                                    lstError.Add(itemErr);
+                                }
+                                else
+                                {
+                                    date3 = Convert.ToDateTime(ngayhethan);
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(maGDV))
+                            {
+                                lstGoiDV.Last().GoiDVs.Add(new GoiDV() { MaHoaDon = maGDV, NgayHetHan = date3 });
+                            }
+                        }
+                    Add_ChiTietGDV:
+                        {
+                            if (string.IsNullOrEmpty(mahanghoa))
+                            {
+                                ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = "Mã hàng hóa/ dịch vụ",
+                                    ViTri = indexErr,
+                                    ThuocTinh = mahanghoa,
+                                    DienGiai = "Mã hàng hóa/ dịch vụ không được để trống",
+                                    rowError = rowIndex,
+                                };
+                                lstError.Add(itemErr);
+                            }
+                            else
+                            {
+                                var itemQD = classDonViQuiDoi.Select_DonViQuiDoi(mahanghoa);
+                                if (itemQD == null)
+                                {
+                                    ErrorDMHangHoa DM = new ErrorDMHangHoa
+                                    {
+                                        TenTruongDuLieu = "Mã hàng/dịch vụ",
+                                        ViTri = indexErr,
+                                        ThuocTinh = mahanghoa,
+                                        DienGiai = "Mã hàng hóa/ dịch vụ chưa tồn tại trong hệ thống",
+                                        rowError = rowIndex,
+                                        loaiError = 1
+                                    };
+                                    lstError.Add(DM);
+                                }
+                                else
+                                {
+                                    var giabanDB = itemQD.GiaBan;
+                                    if (!string.IsNullOrEmpty(dongia))
+                                    {
+                                        giabanDB = Convert.ToDouble(dongia);
+                                    }
+                                    lstGoiDV.Last().GoiDVs.Last().ListDichVu.Add(new TonGoiDichVu_ChiTiet
+                                    {
+                                        ID_DonViQuiDoi = itemQD.ID,
+                                        MaHangHoa = itemQD.MaHangHoa,
+                                        SoLuong = Convert.ToDouble(soluong),
+                                        DonGia = giabanDB,
+                                        GhiChu = ghichu
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (lstError.Count > 0)
+                {
+                    return lstError;
+                }
+                else
+                {
+                    lstError = classOffice.ImportGoiDV(lstGoiDV, idDonVi, idNhanVien, nguoitao);
+                    return lstError;
+                }
+            }
         }
         #endregion
     }
