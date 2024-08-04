@@ -728,7 +728,7 @@
             self.NgayHetHan_Update(formElement.HanSuDungGoiDV);
         }
 
-        var check = CheckNgayLapHD_format(self.NgayLapHD_Update(), 1 ,formElement.ID_DonVi);
+        var check = CheckNgayLapHD_format(self.NgayLapHD_Update(), 1, formElement.ID_DonVi);
 
         if (!check) {
             return;
@@ -1312,9 +1312,9 @@
 
         if (isExport) {
             $('.table-reponsive').gridLoader();
-          
+
             $('.table-reponsive').gridLoader({ show: false });
-   
+
             const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + 'ExportExcel_GoiDichVu', 'POST', Params_GetListHoaDon, "DanhSachGoiDichVu.xlsx");
 
             if (exportOK) {
@@ -1328,7 +1328,7 @@
                 Insert_NhatKyThaoTac_1Param(objDiary);
             }
 
-            
+
         }
         else {
             if (hasPermission) {
@@ -1537,13 +1537,13 @@
 
     self.StartPage = function () {
         self.currentPage(0);
-         SearchHoaDon();
+        SearchHoaDon();
     }
 
     self.BackPage = function () {
         if (self.currentPage() > 1) {
             self.currentPage(self.currentPage() - 1);
-             SearchHoaDon();
+            SearchHoaDon();
         }
     }
 
@@ -1556,7 +1556,7 @@
     self.EndPage = function () {
         if (self.currentPage() < self.PageCount() - 1) {
             self.currentPage(self.PageCount() - 1);
-             SearchHoaDon();
+            SearchHoaDon();
         }
     }
 
@@ -1755,161 +1755,6 @@
             };
             Insert_NhatKyThaoTac_1Param(objDiary);
         }
-
-        //var objDiary = {
-        //    ID_NhanVien: _id_NhanVien,
-        //    ID_DonVi: id_donvi,
-        //    ChucNang: "Hóa đơn",
-        //    NoiDung: "Xuất báo cáo hóa đơn chi tiết theo mã: " + item.MaHoaDon,
-        //    LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
-        //};
-        //var myData = {};
-        //myData.objDiary = objDiary;
-        //$.ajax({
-        //    url: DiaryUri + "post_NhatKySuDung",
-        //    type: 'POST',
-        //    async: true,
-        //    dataType: 'json',
-        //    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        //    data: myData,
-        //    success: function (item) {
-        //    },
-        //    statusCode: {
-        //        404: function () {
-        //        },
-        //    },
-        //    error: function (jqXHR, textStatus, errorThrown) {
-        //        bottomrightnotify('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' + "Ghi nhật ký sử dụng thất bại", "danger");
-        //    },
-        //    complete: async function () {
-        //        var columnHide = '';
-        //        if (self.ThietLap().LoHang === false) {
-        //            columnHide = '3'; // hide: LoHang
-        //        }
-        //        var url = BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide;
-        //        const exportOK = await commonStatisJs.NPOI_ExportExcel(BH_HoaDonUri + 'ExportExcel__ChiTietHoaDon?ID_HoaDon=' + item.ID + '&loaiHoaDon=' + loaiHoaDon + '&columHides=' + columnHide, 'GET', null, "GoiDichVu_ChiTiet.xlsx");
-        //    }
-        //})
-    }
-
-    // import ton gdv
-    self.visibleImport = ko.observable(true);
-    self.fileNameExcel = ko.observable("Lựa chọn file Excel...");
-    self.loiExcel = ko.observableArray();
-    self.DanhSachGoiDV_Import = ko.observableArray();
-
-    $(".filterFileSelect").hide();
-    $(".btnImportExcel").hide();
-    $(".BangBaoLoi").hide();
-
-    self.DownloadFileTeamplateXLS = function () {
-        var url = DMHangHoaUri + "Download_TeamplateImport?fileSave=" + "FileImport_SoDuDauKyGoiDichVu.xls";
-        window.open(url);
-    }
-
-    self.DownloadFileTeamplateXLSX_TonGoiDV = function () {
-        var url = DMHangHoaUri + "Download_TeamplateImport?fileSave=" + "FileImport_SoDuDauKyGoiDichVu.xlsx";
-        window.open(url)
-    }
-
-    self.notvisibleImport = ko.computed(function () {
-        return !self.visibleImport();
-    });
-
-    self.refreshFileSelect = function () {
-        self.visibleImport(true);
-        self.fileNameExcel("Lựa chọn file Excel...");
-        $(".filterFileSelect").hide();
-        $(".btnImportExcel").hide();
-        document.getElementById('imageUploadForm').value = "";
-    }
-
-    self.SelectedFileImport = function (vm, evt) {
-        if (evt.target.files.length > 0) {
-            self.visibleImport(false);
-            self.fileNameExcel(evt.target.files[0].name)
-            $(".filterFileSelect").show();
-            $(".btnImportExcel").show();
-            $(".NoteImport").show();
-            $(".BangBaoLoi").hide();
-        }
-    }
-
-    self.ShowModalImportTonDV = function () {
-        $('#modalImportTonGDV').modal('show');
-    }
-
-    self.ImportExcel_TonGDV = function (x) {
-        $('.NoteImport').gridLoader();
-
-        var typeExcel = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
-        var sError = '';
-
-        var formData = new FormData();
-        var totalFiles = document.getElementById("imageUploadForm").files.length;
-        if (totalFiles === 0) {
-            ShowMessage_Danger('Vui lòng chọn file để import');
-            return false;
-        }
-        for (var i = 0; i < totalFiles; i++) {
-            var file = document.getElementById("imageUploadForm").files[i];
-            if (file.type !== "" && $.inArray(file.type, typeExcel) === -1) {
-                sError += file.name + ', ';
-            }
-            else {
-                formData.append("imageUploadForm", file);
-            }
-        }
-
-        if (sError !== '') {
-            ShowMessage_Danger('File ' + Remove_LastComma(sError) + ' không đúng định dạng');
-            $('.BangBaoLoi').gridLoader({ show: false });
-            $('.NoteImport').gridLoader({ show: false });
-            self.visibleImport(false);
-            return false;
-        }
-
-        $.ajax({
-            type: "POST",
-            url: BH_HoaDonUri + "ImportExcel_TonGDV?idDonVi=" + id_donvi + '&idNhanVien=' + _id_NhanVien + '&nguoitao=' + userLogin,
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (x) {
-                $('.BangBaoLoi').gridLoader({ show: false });
-                $('.NoteImport').gridLoader({ show: false });
-                if (x.res === false) {
-                    if (x.mes === '') {
-                        self.loiExcel(x.data);
-                        self.visibleImport(true);
-                        $(".BangBaoLoi").show();
-                        $(".NoteImport").hide();
-                        $(".filterFileSelect").hide();
-                        $(".btnImportExcel").hide();
-                    }
-                    else {
-                        ShowMessage_Danger(x.mes);
-                    }
-                }
-                else {
-                    ShowMessage_Success("Import tồn gói dịch vụ thành công");
-                    document.getElementById('imageUploadForm').value = "";
-                    self.visibleImport(true);
-                    $(".NoteImport").show();
-                    $(".filterFileSelect").hide();
-                    $(".btnImportExcel").hide();
-                    $(".BangBaoLoi").hide();
-                    $("#modalImportTonGDV").modal("hide");
-                    SearchHoaDon(false, false);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                ShowMessage_Danger('Import hóa đơn thất bại');
-                $('.BangBaoLoi').gridLoader({ show: false });
-                $('.NoteImport').gridLoader({ show: false });
-            }
-        })
     }
 
     // use enable/disable txtNgayLapHD, dropdown NVien
@@ -3065,7 +2910,7 @@
             item.TongGiamGiaKM_HD = item.TongGiamGia + item.KhuyeMai_GiamGia;
 
             item.DiemHienTai = 0;
-            item.DiemKhuyenMai = 0; 
+            item.DiemKhuyenMai = 0;
             item.DiemCong = 0;
             item.CreateTime = 0;
             item.ID_ViTri = null;
@@ -4251,6 +4096,14 @@
         item.LoaiHoaDon = 19;
         vmThanhPhanCombo.showModalUpdate(item);
     }
+    self.showModalImportTonGDV = function () {
+        vmImportTonDauGDV.showModal();
+    }
+    $('#vmImportTonDauGDV').on('hidden.bs.modal', function () {
+        if (vmImportTonDauGDV.importOK) {
+            SearchHoaDon();
+        }
+    })
 };
 var modelGiaoDich = new ViewModelHD();
 ko.applyBindings(modelGiaoDich, document.getElementById('divPage'));
