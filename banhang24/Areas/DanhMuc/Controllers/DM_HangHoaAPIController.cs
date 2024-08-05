@@ -35,6 +35,8 @@ using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using static libNS_NhanVien.ClassNS_NhanVien;
+using NPOI.SS.Formula.Functions;
+using NPOI.Util;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -8588,62 +8590,75 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
-                try
-                {
-                    var classdoituong = new classDM_DoiTuong(db);
-                    Class_officeDocument classOffice = new Class_officeDocument(db);
-                    string indexErrs = HttpContext.Current.Request.Form["ListErr"];
-                    if (HttpContext.Current.Request.Files.Count != 0)
-                    {
-                        List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
-                        {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream inputStream = file.InputStream;
+                var classdoituong = new classDM_DoiTuong(db);
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
 
-                            lstErr = classOffice.CheckImportFileDinhLuong(inputStream, indexErrs, idDonVi, idNhanVien, typeUpdate);
-                            if (lstErr.Count == 0)
+                if (HttpContext.Current.Request.Files.Count > 0)
+                {
+                    var file = HttpContext.Current.Request.Files[0];
+                    string ListError = HttpContext.Current.Request.Form["ListErr"];
+                    using (System.IO.Stream excelstream = file.InputStream)
+                    {
+                        try
+                        {
+                            XSSFWorkbook workbook = new XSSFWorkbook(excelstream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT THÀNH PHẦN COMBO (DỊCH VỤ)\n(Note: Nếu không nhập Đơn giá, hệ thống sẽ lấy mặc định theo Giá bán lẻ)\n", 4);
+                            if (string.IsNullOrEmpty(str))
                             {
-                                return Json(new { res = true });
+                                System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
+                                // lstErr = classOffice.CheckImportFileDinhLuong(inputStream, indexErrs, idDonVi, idNhanVien, typeUpdate);
+                                lstErr = classOffice.checkDataImport_DieuChinh(sheet,dataTable);
                             }
                             else
                             {
-                                return Json(new { res = false, mes = "", data = lstErr });
+                                lstErr.Add(new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = str,
+                                    ViTri = "0",
+                                    rowError = -1,
+                                    loaiError = 1,
+                                    ThuocTinh = str,
+                                    DienGiai = str,
+                                });
                             }
                         }
-                        return Json(new { res = true });
-                    }
-                    else
-                    {
-                        ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                        catch (Exception ex)
                         {
-                            TenTruongDuLieu = "Exception",
-                            ViTri = string.Empty,
-                            ThuocTinh = "Exception",
-                            DienGiai = "Không có dữ liệu",
-                            rowError = -1,
-                        };
-                        lstError.Add(itemErr);
-                        return Json(new
-                        {
-                            res = false,
-                            data = lstError
-                        });
+                            lstErr.Add(new ErrorDMHangHoa()
+                            {
+                                TenTruongDuLieu = "Exception",
+                                ViTri = "0",
+                                rowError = -1,
+                                loaiError = 1,
+                                ThuocTinh = "Exception",
+                                DienGiai = ex.Message,
+                            });
+                        }
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    ErrorDMHangHoa itemErr = new ErrorDMHangHoa()
+                    lstErr.Add(new ErrorDMHangHoa()
                     {
-                        TenTruongDuLieu = "Exception",
-                        ViTri = string.Empty,
-                        ThuocTinh = "Exception",
-                        DienGiai = ex.InnerException + ex.Message,
+                        TenTruongDuLieu = "Không tồn tại file",
+                        ViTri = "0",
                         rowError = -1,
-                    };
-                    lstError.Add(itemErr);
-                    return Json(new { res = false, data = lstError });
+                        loaiError = 1,
+                        ThuocTinh = "Không tồn tại file",
+                        DienGiai = "Không tồn tại file",
+                    });
+                }
+                if (lstErr != null && lstErr.Count() > 0)
+                {
+                    return ActionFalseWithData(lstErr);
+                }
+                else
+                {
+                    return ActionTrueData(lstErr);
                 }
             }
         }
