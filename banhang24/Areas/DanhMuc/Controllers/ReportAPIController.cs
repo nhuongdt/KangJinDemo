@@ -9106,6 +9106,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         x.MaDoiTuong,
                         x.TenDoiTuong,
                         x.DienThoai,
+                        x.SumGiaTriTinh,
+                        x.SumTienChietKhau,
                     }).Select(x => new
                     {
                         x.Key.ID_HoaDon,
@@ -9115,6 +9117,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         x.Key.MaDoiTuong,
                         x.Key.TenDoiTuong,
                         x.Key.DienThoai,
+                        x.Key.SumGiaTriTinh,
+                        x.Key.SumTienChietKhau,
                         RowSpan = x.Count(),
                         ListDetail = x
                     });
@@ -9474,19 +9478,17 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             List<SP_ReportDiscountSales> data = reportHoaHong.SP_ReportDiscountSales(lstParam);
                             excel = classOffice.ToDataTable<SP_ReportDiscountSales>(data);
                             excel.Columns.Remove("ID_NhanVien");
-                            excel.Columns.Remove("TongDoanhThu");
-                            excel.Columns.Remove("TongThucThu");
                             excel.Columns.Remove("TongHoaHongDoanhThu");
-                            excel.Columns.Remove("TongHoaHongThucThu");
-                            excel.Columns.Remove("TongAllAll");
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu.xlsx");
                             break;
                         case 6:// bc chitiet: not hide column
                             lstParam.ColumnsHide = null;
-                            List<SP_ReportDiscountSales_Detail> data2 = reportHoaHong.DiscountSale_byIDNhanVien(lstParam);
+                            List<SP_ReportDiscountSales_Detail> data2 = reportHoaHong.GetBaoCaoHoaHongDVDacBiet_ChiTiet(lstParam);
                             excel = classOffice.ToDataTable<SP_ReportDiscountSales_Detail>(data2);
+                            excel.Columns.Remove("ID_HoaDon");
+                            excel.Columns.Remove("ID_ChiTietHD");
                             excel.Columns.Remove("SumSoLuong");
                             excel.Columns.Remove("SumThanhTien");
                             excel.Columns.Remove("SumGiaTriTinh");
@@ -9497,7 +9499,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             break;
                     }
                     List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(lstParam.TextReport, lstParam.TodayBC);
-                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 5, lstParam.ColumnsHide, lstCell);
+                    classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, lstParam.ColumnsHide, lstCell, -1);
                     return string.Empty;
                 }
             }

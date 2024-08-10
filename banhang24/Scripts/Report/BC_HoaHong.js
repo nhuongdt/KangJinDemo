@@ -182,6 +182,11 @@
         }
         else {
             $.getJSON("api/DanhMuc/BaseApi/GetCheckedStatic?type=" + typeCheck, function (data) {
+                if(typeCheck == 15){
+                    data = $.grep(data, function(x){
+                        return $.inArray(x.Key,['maNVTuVanChinh','tenNVTuVanChinh'])==-1;
+                    })
+                }
                 self.ListCheckBox(data);
                 self.NumberColum_Div2(Math.ceil(data.length / 2));
                 LoadHtmlGrid();
@@ -795,6 +800,12 @@
                 self.TotalRow(data.TotalRow);
                 self.TotalPage(data.TotalPage);
 
+                if(data.LstData.length > 0){
+                    let firstRow = data.LstData[0];
+                    self.ReportProduct_SumGiatriSauHeSo(firstRow.SumGiaTriTinh);
+                    self.ReportSales_SumHoaHongDT(firstRow.SumTienChietKhau);
+                }
+
                 GetListNumberPaging();
                 Caculator_FromToPaging(data.LstData);
                 LoadCheckBox(typeCheck);
@@ -1166,17 +1177,17 @@
                     break;
                 case 3:
                     funcExcel = 'ExportExcel_ReportDiscountSales';
+                     array_Seach.TrangThai = 1;// hoa don đã phân bổ, 0. chưa phân bổ
+
                     if (self.IsReportDetail()) {
+                         array_Seach.TypeReport = 6;
+                        txtFunc = 'chi tiết theo doanh thu';
+                        fileNameExport = 'BaoCaoHoaHongDoanhThu_ChiTiet.xlsx';
+                    }
+                    else {
                         array_Seach.TypeReport = 5;
                         txtFunc = 'tổng hợp theo doanh thu';
                         fileNameExport = 'BaoCaoHoaHongDoanhThu.xlsx';
-                    }
-                    else {
-                        array_Seach.TextSearch = itemDetail.ID_NhanVien;// mượn trường
-                        array_Seach.TextReport += ' (Nhân viên: '.concat(itemDetail.MaNhanVien, ' - ', itemDetail.TenNhanVien, ')');
-                        array_Seach.TypeReport = 6;
-                        txtFunc = 'chi tiết theo doanh thu';
-                        fileNameExport = 'BaoCaoHoaHongDoanhThu_ChiTiet.xlsx';
                     }
                     break;
                 case 4:
@@ -1460,6 +1471,11 @@
             case TypeReportDiscount.DOANH_THU:
                 if (loaiBC !== thisVal) {
                     self.IsReportDetail(false);
+                    $('#theodoanhso ul li').removeClass('active');
+                    $('#theodoanhso ul li:eq(0)').addClass('active');
+                    $('#table_doanhso_chitiet').removeClass('active');
+                    $('#table_doanhso_tonghop').addClass('active');
+
                     $('#hdReport').text('Báo cáo tổng hợp hoa hồng nhân viên theo doanh số');
                     Key_Form = 'Key_RpDiscountSales';
                     typeCheck = 11;

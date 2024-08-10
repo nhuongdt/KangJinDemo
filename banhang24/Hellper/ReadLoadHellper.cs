@@ -2528,7 +2528,8 @@ namespace banhang24.Hellper
 
              { TypeRpDiscountInvoice.manhanvien.ToString(),"Mã nhân viên" },
              { TypeRpDiscountInvoice.tennhanvien.ToString(),"Tên nhân viên" },
-             { TypeRpDiscountInvoice.hoahongdoanhthu.ToString(),"Hoa hồng" },// 2 cột: %, vnd
+             { TypeRpDiscountInvoice.ptdoanhthu.ToString(),"% Hoa hồng" },
+             { TypeRpDiscountInvoice.hoahongdoanhthu.ToString(),"Tiền được nhận" },
         };
 
         public static Dictionary<string, string> RpDiscountAll = new Dictionary<string, string>()

@@ -239,8 +239,8 @@ namespace libReport
             paramSql.Add(new SqlParameter("TrangThaiPhanBoHoaHong", lstParam.TrangThai));
             paramSql.Add(new SqlParameter("FromDate", lstParam.DateFrom));
             paramSql.Add(new SqlParameter("ToDate", lstParam.DateTo));
-            paramSql.Add(new SqlParameter("TextSearch", lstParam.TextSearch));
-            paramSql.Add(new SqlParameter("TxtSearchNhanVien", lstParam.TxtCustomer));
+            paramSql.Add(new SqlParameter("TextSearch", lstParam.TxtCustomer));
+            paramSql.Add(new SqlParameter("TxtSearchNhanVien", lstParam.TextSearch));
             paramSql.Add(new SqlParameter("CurrentPage", lstParam.CurrentPage));
             paramSql.Add(new SqlParameter("PageSize", lstParam.PageSize));
             List<SP_ReportDiscountSales_Detail> data = _db.Database.SqlQuery<SP_ReportDiscountSales_Detail>("EXEC GetBaoCaoHoaHongDVDacBiet_ChiTiet @IDChiNhanhs, @ID_NhanVienLogin, " +
