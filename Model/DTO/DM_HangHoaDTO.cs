@@ -345,6 +345,8 @@ namespace Model
         public double? GiaBan { get; set; }
         public double? GiaVon { get; set; }
         public double? TonKho { get; set; }
+        public double? TonToiThieu { get; set; }
+        public double? ChenhLechTonToiThieu { get; set; }
         public string GhiChu { get; set; }
         public string TrangThai { get; set; }
     }

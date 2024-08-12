@@ -212,6 +212,7 @@ var ViewModel = function () {
     self.selectedThuocTinh = ko.observable();
     self.selectedIDThuocTinh - ko.observable();
     self.NhanViens = ko.observableArray();
+    self.ListTypeMauIn = ko.observableArray();
     self.selectedNV = ko.observable();
     self.HangHoas = ko.observableArray();
     self.KiemKhos = ko.observableArray();
@@ -305,7 +306,36 @@ var ViewModel = function () {
         { TenLoai: "In 65 tem", value: "65" }
     ]);
 
-    self.ListTypeMauIn = ko.observableArray();
+    self.ListColumn_DSHangHoa = ko.observableArray([
+        { Id: 1, Text: "Mã hàng hóa", ClassName: 'mahang' },
+        { Id: 2, Text: "Tên hàng hóa", ClassName: 'tenhang' },
+        { Id: 3, Text: "ĐVT", ClassName: 'donvitinh' },
+        { Id: 4, Text: "Nhóm hàng", ClassName: 'nhomhang' },
+        { Id: 5, Text: "Loại hàng", ClassName: 'loaihan' },
+        { Id: 6, Text: "Giá bán", ClassName: 'giaban' },
+        { Id: 7, Text: "Giá vốn", ClassName: 'giavon' },
+        { Id: 8, Text: "Tồn kho", ClassName: 'tonkho' },
+        { Id: 9, Text: "Tồn tối thiểu", ClassName: 'tontoithieu' },
+        { Id: 10, Text: "Chênh lệch", ClassName: 'chenhlechtontoithieu' },
+        { Id: 11, Text: "Ghi chú", ClassName: 'ghichu' },
+        { Id: 12, Text: "Trạng thái", ClassName: 'trangthai' },
+    ]);
+
+    $('#ddlCheckBox').on('click', 'ul li', function (i) {
+        if ($(this).find('input[type = checkbox]').is(':checked')) {
+            $(this).find('input[type = checkbox]').prop("checked", false);
+        }
+        else {
+            $(this).find('input[type = checkbox]').prop("checked", true);
+        }
+        let id = $(this).attr('id');
+        let inputElm = $(this).find('input[type = checkbox]');
+        let valueCheck = $(inputElm).val();
+        let idCheckBox = $(inputElm).attr('id');
+        addClassHH(valueCheck, idCheckBox, id);
+        self.addColum(id);
+    });
+
     function loadMauIn() {
         $.ajax({
             url: '/api/DanhMuc/ThietLapApi/GetListMauIn?typeChungTu=' + TeamplateMauIn + '&idDonVi=' + _IDchinhanh,
@@ -11710,22 +11740,21 @@ var ViewModel = function () {
         vmApplyGroupProduct.showModal(typeProp, valUpdate, self.productOld().ID_NhomHangHoa);
     }
 
-    
-    
     // xuất danh mục hàng hóa
     self.ExportDMHHtoExcel = async function () {
         let param = GetParamSearch1();
-        
+
         let columnHide = [];
         for (let i = 0; i < self.ColumnsExcel().length; i++) {
-            columnHide.push(self.ColumnsExcel()[i]);
+            let itFor = parseInt(self.ColumnsExcel()[i]);
+            columnHide.push(itFor - 1);
         }
         param.ColumnHide = columnHide;
         param.PageSize = self.TotalRecord();
         $('.content-table').gridLoader({ show: false });
         console.log("param:", param);
-        const exportOK = await commonStatisJs.NPOI_ExportExcel(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param , "DanhMucHangHoa.xlsx");
-        
+        const exportOK = await commonStatisJs.NPOI_ExportExcel(DMHangHoaUri + 'ExportExcel_DanhMucHangHoa', 'POST', param, "DanhMucHangHoa.xlsx");
+
         if (exportOK) {
             let objDiary = {
                 ID_NhanVien: _IDNhanVien,
@@ -11737,13 +11766,10 @@ var ViewModel = function () {
             };
             Insert_NhatKyThaoTac_1Param(objDiary);
         }
-
     }
 
     // xuất thẻ kho danh mục hàng hóa
     self.ExportTheKhoHHtoExcel = async function () {
-        
-
         var columnHide = null;
         for (var i = 0; i < self.ColumnsExcel().length; i++) {
             if (i == 0) {
@@ -11766,7 +11792,6 @@ var ViewModel = function () {
             };
             Insert_NhatKyThaoTac_1Param(objDiary);
         }
-       
     }
 
     self.ColumnsExcel = ko.observableArray();
@@ -11805,8 +11830,7 @@ var ViewModel = function () {
             } else {
                 current = JSON.parse(current);
                 for (var i = 0; i < current.length; i++) {
-                    $(current[i].NameClass).addClass("operation");
-                    document.getElementById(current[i].NameId).checked = false;
+                    document.getElementById(current[i].NameId).checked = false;// check/uncheck list checkbox of column HangHoa
                     if (loadColumExeHH) {
                         self.addColum(current[i].Value);
                     }
@@ -11928,57 +11952,6 @@ var ViewModel = function () {
         localStorage.setItem('KiemKho', JSON.stringify(current));
     }
 
-    $("#cbmahang").click(function () {
-        //$(".mahang").toggle();
-        addClassHH(".mahang", "cbmahang", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbtenhang").click(function () {
-        //$(".tenhang").toggle();
-        addClassHH(".tenhang", "cbtenhang", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbdvt").click(function () {
-        //$(".tendvt").toggle();
-        addClassHH(".tendvt", "cbdvt", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbnhomhang").click(function () {
-        //$(".nhomhang").toggle();
-        addClassHH(".nhomhang", "cbnhomhang", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbloaihang").click(function () {
-        //$(".loaihang").toggle();
-        addClassHH(".loaihang", "cbloaihang", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbgiaban").click(function () {
-        //$(".giaban").toggle();
-        addClassHH(".giaban", "cbgiaban", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbgiavon").click(function () {
-        //$(".giavon").toggle();
-        addClassHH(".giavon", "cbgiavon", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbtonkho").click(function () {
-        //$(".tonkho").toggle();
-        addClassHH(".tonkho", "cbtonkho", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbghichu").click(function () {
-        //$(".ghichu").toggle();
-        addClassHH(".ghichu", "cbghichu", $(this).val());
-        self.addColum($(this).val())
-    });
-    $("#cbtrangthai").click(function () {
-        //$(".trangthai").toggle();
-        addClassHH(".trangthai", "cbtrangthai", $(this).val());
-        self.addColum($(this).val())
-    });
-
     $("#cbmahangkk").click(function () {
         $(".mahang").toggle();
         addClassKK(".mahang", "cbmahangkk", $(this).val());
@@ -12050,11 +12023,11 @@ var ViewModel = function () {
                 columnHide = self.ColumnsExcelKK()[i] + "_" + columnHide;
             }
         }
-        const ok = await commonStatisJs.NPOI_ExportExcel( '/api/DanhMuc/BH_HoaDonAPI/' + 'ExportExcel_KiemKho?loaiHoaDon=' + loaiHoaDon +
+        const ok = await commonStatisJs.NPOI_ExportExcel('/api/DanhMuc/BH_HoaDonAPI/' + 'ExportExcel_KiemKho?loaiHoaDon=' + loaiHoaDon +
             '&maHoaDon=' + txtMaHDonKK_Excel + '&trangThai=' + txtTrangThaiKK_Excel + '&dayStart=' + dayStartKK_Excel + '&dayEnd=' + dayEndKK_Excel + "&columnsHide=" + columnHide + '&iddonvi=' + _IDchinhanh + '&arrChiNhanh=' + self.MangIDDV() + '&time=' + self.TodayBC() + '&TenChiNhanh=' + self.TenChiNhanh(), 'GET', null, 'PhieuKiemKeHangHoa.xlsx');
-       if(ok){
+        if (ok) {
             Insert_NhatKyThaoTac_1Param(objDiary);
-       }
+        }
     }
 
     self.addColumKK = function (item) {
@@ -12093,7 +12066,7 @@ var ViewModel = function () {
                 LoaiNhatKy: 6 // 1: Thêm mới, 2: Cập nhật, 3: Xóa, 4: Hủy, 5: Import, 6: Export, 7: Đăng nhập
             };
             Insert_NhatKyThaoTac_1Param(objDiary);
-        }       
+        }
     }
     //Download file teamplate excel format (*.xls)
     self.DownloadFileTeamplateXLS = function () {

@@ -4220,6 +4220,8 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         GiaBan = x.GiaBan,
                         GiaVon = x.GiaVon,
                         TonKho = x.TonKho,
+                        TonToiThieu = x.TonToiThieu,
+                        ChenhLechTonToiThieu = x.TonKho - x.TonToiThieu,
                         GhiChu = x.GhiChu,
                         TrangThai = x.TrangThai ?? true ? "Đang kinh doanh" : "Ngừng kinh doanh",
                     }).ToList();
@@ -8612,7 +8614,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
                                 // lstErr = classOffice.CheckImportFileDinhLuong(inputStream, indexErrs, idDonVi, idNhanVien, typeUpdate);
-                                lstErr = classOffice.checkDataImport_DieuChinh(sheet,dataTable);
+                                lstErr = classOffice.checkDataImport_DieuChinh(sheet, dataTable);
                             }
                             else
                             {
@@ -8687,7 +8689,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 var file = HttpContext.Current.Request.Files[i];
                                 System.IO.Stream inputStream = file.InputStream;
                                 // string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
-                                string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG NHẬP",4);
+                                string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG NHẬP", 4);
                                 if (string.IsNullOrEmpty(str))
                                 {
                                     System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
