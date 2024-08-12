@@ -5920,12 +5920,15 @@ var NewModel_BanHangLe = function () {
                         localStorage.setItem('lcCTDatHang', JSON.stringify(lcCTDatHang));
                     }
                 }
+                RemoveCache_HDHoTro(idRandom);
                 Call_6Func();
                 HideShow_HeaderCTHD();
             })
         }
         else {
             vmUpAnhHoaDon.ClearLocalStorage(self.HoaDons().IDRandom());
+            RemoveCache_HDHoTro(self.HoaDons().IDRandom());
+
             self.IsClickCloseHD(false);
             lstHoaDon = RemoveHD_byMaHoaDon(thisMaHD, lstHoaDon);
             localStorage.setItem(lcListHD, JSON.stringify(lstHoaDon));
@@ -5934,6 +5937,22 @@ var NewModel_BanHangLe = function () {
             Call_6Func();
             HideShow_HeaderCTHD();
         }
+    }
+
+    function RemoveCache_HDHoTro(idRandomHD) {
+        // xóa cache hdHoTro (vì mỗi khi show modalHdHoTro luôn lưu cache, 
+        // nên sẽ có trường hợp showModal lên nhưng không làm gì)
+        let hdHoTro = localStorage.getItem('hdHoTro');
+        if (hdHoTro != null) {
+            hdHoTro = JSON.parse(hdHoTro);
+        }
+        else {
+            hdHoTro = [];
+        }
+        hdHoTro = $.grep(hdHoTro, function (x) {
+            return x.IDRandomHD !== idRandomHD;
+        });
+        localStorage.setItem('hdHoTro', JSON.stringify(hdHoTro));
     }
     self.resetInforHD_CTHD = function () {
         self.NewProducts([]);
@@ -12324,9 +12343,9 @@ var NewModel_BanHangLe = function () {
 
             //let isHDChuaXK = true;
             //if (!isTraGoiDV) {
-                // chỉ check nếu hD lẻ (vì GDV auto chưa xuất kho)
-             //   isHDChuaXK = await CheckHD_IsChuaXuatKho(item.ID);
-           // }
+            // chỉ check nếu hD lẻ (vì GDV auto chưa xuất kho)
+            //   isHDChuaXK = await CheckHD_IsChuaXuatKho(item.ID);
+            // }
             // add in cache CTHD
             var lstCTHD = localStorage.getItem(lcListCTHD);
             if (lstCTHD === null || lstCTHD.length === 0) {

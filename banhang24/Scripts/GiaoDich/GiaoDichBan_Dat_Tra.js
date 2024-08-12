@@ -6358,7 +6358,6 @@
 
     self.showModalApDungHoTro = async function (item) {
         let toDate = moment(item.NgayLapHoaDon).add(2, 'seconds',).format('YYYY-MM-DD HH:mm');
-        vmApDungNhomHoTro.GetTongGiaTriSuDung_ofKhachHang(item.ID_DoiTuong, toDate);
 
         let cthd = await GetChiTietHD_fromDB(item.ID);
         const allCombo = await vmThanhPhanCombo.GetAllCombo_byIDHoaDon(item.ID);
