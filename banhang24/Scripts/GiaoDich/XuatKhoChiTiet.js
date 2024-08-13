@@ -629,6 +629,8 @@ var XuatKhoChiTiet = function () {
     }
 
     self.JqAutoSelectItem = function (itemChose) {
+        $(".BangBaoLoi").hide();
+
         ajaxHelper(DMHangHoaUri + 'GetInforProduct_ByIDQuidoi?idQuiDoi=' + itemChose.ID_DonViQuiDoi
             + '&idChiNhanh=' + _idDonVi + '&idLoHang=' + itemChose.ID_LoHang).done(function (x) {
                 if (x.res === true) {
@@ -2277,9 +2279,7 @@ var XuatKhoChiTiet = function () {
         var url = DMHangHoaUri + "Download_TeamplateImport?fileSave=" + "FileImport_DanhSachHangXuatKho.xlsx";
         window.location.href = url;
     }
-    //self.ShowandHide = function () {
-    //    self.importPhieuXuatKho();
-    //}
+    
 
     self.importPhieuXuatKho = function () {
         $('.choose-file').gridLoader({
@@ -2320,8 +2320,7 @@ var XuatKhoChiTiet = function () {
                         processData: false,
                         success: function (item) {
                             self.deleteFileSelect();
-                            console.log('import ', item)
-                           /* $(".BangBaoLoi").hide();*/
+                            console.log('import ', item)                       
                             var arrCTsort = item;
                             var arrIDQuiDoi = [];
                             var cthdLoHang = [];

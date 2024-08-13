@@ -316,8 +316,14 @@ var vmThemMoiKhach = new Vue({
             var arrNhom = $.unique(item.ID_NhomDoiTuong.split(','));
             self.newCustomer.ListIDNhomKhach = arrNhom.map(function (x) { return x.trim() });
 
-            if (!commonStatisJs.CheckNull(item.NgaySinh_NgayTLap)) {
-                self.newCustomer.NgaySinh_NgayTLap = moment(item.NgaySinh_NgayTLap).format('DD/MM/YYYY');
+            let ngaysinh = item.NgaySinh_NgayTLap;
+            if (!commonStatisJs.CheckNull(ngaysinh)) {
+                let ddMMyyyy = ngaysinh.split('/');
+                if (ddMMyyyy.length == 1) {
+                    ngaysinh = moment(ngaysinh).format('DD/MM/YYYY');
+                }
+                // nếu đã đúng định dạng DD/MM/YYYY rồi, thì không cần format nữa
+                self.newCustomer.NgaySinh_NgayTLap = ngaysinh;
             }
 
             // getnhom by id
@@ -969,7 +975,6 @@ var vmThemMoiKhach = new Vue({
                     let idNhomsOld = self.customerOld.ID_NhomDoiTuong;
                     let arrNhomOld = $.unique(idNhomsOld.split(',').filter(x => x !== '')).map(function (x) { return x.trim() });
                     // nhom # --> nhom mac dinh
-                    console.log('arrNhomOld', arrNhomOld, obj.ListIDNhomKhach)
                     if (arrNhomOld.filter(x => x !== const_GuidEmpty).length > 0
                         && (obj.ListIDNhomKhach.length === 0 || obj.ListIDNhomKhach.length === 1 && obj.ListIDNhomKhach[0] === const_GuidEmpty)) {
                         self.Delete_NhomOld_ofCus([obj.ID]);

@@ -2,6 +2,7 @@
     props: {
         title: { default: 'Nhập file excel' },
         isChosingFile: { default: false },
+        isShowCheckboxPassErr:{ default: true },
         ListChose: { default: [] },
         ListError: { default: [] },
     },
@@ -62,11 +63,11 @@
                             <h4 class="title-alert"><i class="fa fa-warning"></i> Lưu ý</h4>
                             <p>Bạn vui lòng không thay đổi định dạng hàng cột theo file Excel mẫu .</p>
                             <p>Hệ thống cho phép nhập tối đa <span> 8000</span> dòng mỗi lần từ file Excel 2003 hoặc bản cao hơn .</p>
-                            <p>Click vào checkbox "đồng ý..." nếu bạn muốn tiếp tục import dữ liệu bằng cách bỏ qua dữ liệu sai.</p>
+                            <p  v-if="isShowCheckboxPassErr">Click vào checkbox "đồng ý..." nếu bạn muốn tiếp tục import dữ liệu bằng cách bỏ qua dữ liệu sai.</p>
                         </div>
                     </div>
                 </div>
-                <div v-if="ListError.length > 0">
+                <div v-if="ListError.length > 0"> 
                     <div class="error-data">
                         <h4 class="bold">Bảng thông báo lỗi</h4>
                     </div>
@@ -93,14 +94,19 @@
                     <div class="modal-footer file-all">
                         <div class="flex flex-between">
                             <div class="form-group pull-left continue-hh ">
-                                <label style="width:unset">
+                                <label style="width:unset" v-if="isShowCheckboxPassErr">
                                     <input type="checkbox" value="true" v-model="passError" />
                                     <span>  Đồng ý bỏ qua <a></a> lỗi và tiếp tục</span>
                                 </label>
                             </div>
-                            <button type="button" class="btn btn-main" v-bind:disabled="!passError" v-on:click="PassErr_Continue">
+                             <div class="flex flex flex-end">
+                            <button type="button" class="btn btn-main" v-if="isShowCheckboxPassErr" v-bind:disabled="!passError" v-on:click="PassErr_Continue">
                                 <i class="fa fa-save"></i> Tiếp tục
                             </button>
+                            <button data-dismiss="modal" class="btn btn-cancel">
+                               <i class="fa fa-ban"></i> Bỏ qua
+                              </button>
+                              </div>
                         </div>
                     </div>
                 </div>

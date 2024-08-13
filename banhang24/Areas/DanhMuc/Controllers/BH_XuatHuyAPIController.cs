@@ -28,6 +28,7 @@ using NPOI.SS.UserModel;
 using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.Formula.Functions;
+using static NPOI.HSSF.Util.HSSFColor;
 
 namespace banhang24.Areas.DanhMuc.Controllers
 {
@@ -49,7 +50,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
 
-                        DateTime timeCreat = objHoaDon.NgayLapHoaDon.AddSeconds(DateTime.Now.Second).AddMilliseconds(DateTime.Now.Millisecond);
+                        DateTime timeCreat = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
                         string csER = _classXH.checkNgayChotSo(objHoaDon.ID_DonVi, Guid.NewGuid(), timeCreat, "tạo");
                         if (!string.IsNullOrEmpty(csER))
                         {
@@ -86,7 +87,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         }
                         BH_HoaDon hd = db.BH_HoaDon.Find(objHoaDon.ID);
                         DateTime ngayLapOld = hd.NgayLapHoaDon;
-                        objHoaDon.NgayLapHoaDon = timeCreat;
+                        objHoaDon.NgayLapHoaDon = CommonStatic.GetDateOld_ifSameHHmm(ngayLapOld, objHoaDon.NgayLapHoaDon);
                         if (string.IsNullOrEmpty(objHoaDon.MaHoaDon))
                         {
                             objHoaDon.MaHoaDon = classHoaDon.SP_GetMaHoaDon_byTemp(objHoaDon.LoaiHoaDon, objHoaDon.ID_DonVi, objHoaDon.NgayLapHoaDon);
@@ -212,21 +213,14 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             });
                         }
 
-
                         ClassBH_HoaDon_ChiTiet classhoadonchitiet = new ClassBH_HoaDon_ChiTiet(db);
-                        DateTime ngaylapHD = objHoaDon.NgayLapHoaDon.AddMilliseconds(DateTime.Now.Millisecond);
                         BH_HoaDon hdOld = db.BH_HoaDon.Find(objHoaDon.ID);
                         var ngayLapOld = hdOld.NgayLapHoaDon;
+                        DateTime ngaylapHD = CommonStatic.GetDateOld_ifSameHHmm(ngayLapOld, objHoaDon.NgayLapHoaDon);
 
                         #region "Get cthd old was delete"
                         var cthdOld = classhoadonchitiet.Gets(x => x.ID_HoaDon == objHoaDon.ID); // get cthd old
                                                                                                  // if date new < date old: date old = date new - milisencond
-                        string sDateOld = hdOld.NgayLapHoaDon.ToString("yyyy-MM-dd HH:mm");
-                        string sDateNew = objHoaDon.NgayLapHoaDon.ToString("yyyy-MM-dd HH:mm");
-                        if (string.Compare(sDateNew, sDateOld) == 0)
-                        {
-                            ngaylapHD = hdOld.NgayLapHoaDon;
-                        }
                         // compare cthd old & new --> get cthd was delete
                         var cthdDelete = (from ctold in cthdOld
                                           join ctnew in objCTHoaDon on
@@ -590,7 +584,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         classHT_NguoiDung _classHTND = new classHT_NguoiDung(db);
                         BH_HoaDon objHoaDon = data["objHoaDon"].ToObject<BH_HoaDon>();
                         List<BH_HoaDon_ChiTiet> objCTHoaDon = data["objCTHoaDon"].ToObject<List<BH_HoaDon_ChiTiet>>();
-                        DateTime timeCreat = objHoaDon.NgayLapHoaDon.AddSeconds(DateTime.Now.Second).AddMilliseconds(DateTime.Now.Millisecond);
+                        DateTime timeCreat = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
                         bool maExist = classHoaDon.Check_MaHoaDonExist(objHoaDon.MaHoaDon);
                         if (maExist)
                         {
@@ -2052,7 +2046,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                     ThuocTinh = str,
                                     DienGiai = str,
                                 });
-                                
+
                             }
                         }
                         return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, lstErr));
@@ -2085,10 +2079,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
             string result = "";
             try
             {
-               
+
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
-                    Class_officeDocument classOffice = new Class_officeDocument(db);                   
+                    Class_officeDocument classOffice = new Class_officeDocument(db);
                     ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
@@ -2112,7 +2106,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
             }
         }
 
-       
+
 
         //import danh sách hàng hóa điều chuyển
         [HttpPost]

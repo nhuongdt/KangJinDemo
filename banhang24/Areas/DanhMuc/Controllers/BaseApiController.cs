@@ -119,8 +119,11 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 case (int)commonEnum.CheckBoxColum.RpDiscountInvoice_Detail:
                     data = commonEnum.RpDiscountInvoice_Detail.ToList();
                     break;
-                case (int)commonEnum.CheckBoxColum.RpDioscountRevenue:
+                case (int)commonEnum.CheckBoxColum.RpDioscountRevenue://11
                     data = commonEnum.RpDiscountRevenue.ToList();
+                    break;
+                case (int)commonEnum.CheckBoxColum.RpDioscountRevenue_Detail://15
+                    data = commonEnum.RpDiscountRevenue_Detail.ToList();
                     break;
                 case (int)commonEnum.CheckBoxColum.RpDioscountAll:
                     data = commonEnum.RpDiscountAll.ToList();
@@ -175,10 +178,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
             {
                 case 1:
                     data = commonEnum.ListColumnInvoices.ToList();
-                    break;  
+                    break;
                 case 2:// hoadon baohanh
                     data = commonEnum.ListColumnInvoicesBaoHanh.ToList();
-                    break;  
+                    break;
                 case 25:
                     data = commonEnum.ListColumnInvoicesSuaChua.ToList();
                     break;
@@ -187,7 +190,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     break;
                 case 4:
                     data = commonEnum.ListColumnPurchaseOrder.ToList();
-                    break;  
+                    break;
                 case 13:
                     data = commonEnum.ListColumnNhapNoiBo.ToList();
                     break;
