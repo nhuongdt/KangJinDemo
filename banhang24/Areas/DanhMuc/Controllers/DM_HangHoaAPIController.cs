@@ -8593,7 +8593,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                var classdoituong = new classDM_DoiTuong(db);
                 Class_officeDocument classOffice = new Class_officeDocument(db);
                 ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                 List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
@@ -8610,23 +8609,26 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             ISheet sheet = workbook.GetSheetAt(0);
 
                             string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT THÀNH PHẦN COMBO (DỊCH VỤ)\n(Note: Nếu không nhập Đơn giá, hệ thống sẽ lấy mặc định theo Giá bán lẻ)\n", 4);
-                            if (string.IsNullOrEmpty(str))
-                            {
-                                System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
-                                // lstErr = classOffice.CheckImportFileDinhLuong(inputStream, indexErrs, idDonVi, idNhanVien, typeUpdate);
-                                lstErr = classOffice.checkDataImport_DieuChinh(sheet, dataTable);
-                            }
-                            else
+                            if (!string.IsNullOrEmpty(str))
                             {
                                 lstErr.Add(new ErrorDMHangHoa()
                                 {
-                                    TenTruongDuLieu = str,
+                                    TenTruongDuLieu = "File import",
                                     ViTri = "0",
                                     rowError = -1,
                                     loaiError = 1,
-                                    ThuocTinh = str,
+                                    ThuocTinh = "File import",
                                     DienGiai = str,
                                 });
+                            }
+                            else
+                            {
+                                System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet);
+                                if (ListError != null && !string.IsNullOrEmpty(ListError))
+                                {
+                                    classNPOI.RemoveRowErr(dataTable, ListError);
+                                }
+                                lstErr = classNPOI.CheckData_FileImportTPDLuong(dataTable, idDonVi, idNhanVien, typeUpdate);
                             }
                         }
                         catch (Exception ex)
