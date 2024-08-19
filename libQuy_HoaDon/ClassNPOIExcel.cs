@@ -461,7 +461,7 @@ namespace libQuy_HoaDon
                         }
                     }
                 }
-                return "File import không có dữ liệu";
+                return "Vui lòng import file đúng định dạng";
             }
             catch (Exception)
             {
@@ -529,19 +529,21 @@ namespace libQuy_HoaDon
             for (int j = 0; j < headerRow.LastCellNum; j++)
             {
                 ICell headerCell = headerRow.GetCell(j);
-                string columnName = headerCell != null ? headerCell.ToString() : $"Column{j + 1}";
-                dataTable.Columns.Add(columnName);
+                if (headerCell != null)
+                {
+                    dataTable.Columns.Add(headerCell.ToString());
+                }
+                //string columnName = headerCell != null ? headerCell.ToString() : $"Column{j + 1}";
             }
 
             // Đọc dữ liệu từ các hàng
-            int totlaColumn = 0;
+            int totlaColumn = dataTable.Columns.Count;
             for (int rowIndex = startRow; rowIndex <= sheet.LastRowNum; rowIndex++)
             {
                 IRow row = sheet.GetRow(rowIndex);
                 if (row != null)
                 {
                     DataRow dataRow = dataTable.NewRow();
-                    totlaColumn = row.LastCellNum;
                     for (int colIndex = 0; colIndex < totlaColumn; colIndex++)
                     {
                         ICell cell = row.GetCell(colIndex);
@@ -1077,7 +1079,6 @@ namespace libQuy_HoaDon
             return lstCT;
         }
 
-
         public List<ErrorDMHangHoa> ImportDanhMucHangHoa_toDB(ISheet sheet, Guid idDonVi,
             Guid idnhanvien, int loaiUpdate = 1, string rowsErr = null)
         {
@@ -1520,9 +1521,6 @@ namespace libQuy_HoaDon
 
             return lstErr;
         }
-
-
-
 
         #region Import Customer
 
@@ -2927,6 +2925,162 @@ namespace libQuy_HoaDon
                     lstError = classOffice.importDinhLuong(lstCombo, idDonVi, idNhanVien, typeUpdate);
                     return lstError;
                 }
+            }
+        }
+        public List<ErrorDMHangHoa> CheckData_FileImportPhieuDieuChuyen(System.Data.DataTable dataTable)
+        {
+            List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+
+                dataTable.Columns[1].ColumnName = "MaHang";
+                dataTable.Columns[0].ColumnName = "MaLo";
+
+                var lastRow = dataTable.Rows.Count;
+                for (int i = 0; i < lastRow; i++)
+                {
+                    DataRow dtRow = dataTable.Rows[i];
+
+                    string rowIndex = "Dòng số: " + (i + 3).ToString();
+                    string malo = dtRow[0]?.ToString()?.Trim();
+                    string mahanghoa = dtRow[1]?.ToString()?.Trim();
+                    string soluong = dtRow[2]?.ToString()?.Trim();
+                    string giachuyen = dtRow[3]?.ToString()?.Trim();
+                    int indexErr = i + 3;
+
+                    if (string.IsNullOrEmpty(mahanghoa) && string.IsNullOrEmpty(soluong))
+                    {
+                        continue;
+                    }
+
+                    if (!string.IsNullOrEmpty(malo))
+                    {
+                        bool checklo = classOffice.ChekLoHangDatabase(malo, mahanghoa);
+                        if (checklo == false)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã lô",
+                                ViTri = rowIndex,
+                                ThuocTinh = malo,
+                                DienGiai = "Lô hàng '" + malo + "' không có trên hệ thống",
+                                rowError = indexErr,
+                                loaiError = 1
+                            });
+                        }
+                    }
+                    if (string.IsNullOrEmpty(mahanghoa))
+                    {
+                        lstError.Add(new ErrorDMHangHoa
+                        {
+                            TenTruongDuLieu = "Mã hàng hóa",
+                            ViTri = rowIndex,
+                            ThuocTinh = mahanghoa,
+                            DienGiai = "Mã hàng hóa không được để trống",
+                            rowError = indexErr,
+                            loaiError = 1
+                        });
+                    }
+                    else
+                    {
+                        string txtMaLo = string.Empty;
+                        string where = string.Concat("MaHang ='", mahanghoa, "' ");
+                        if (!string.IsNullOrEmpty(malo))
+                        {
+                            where = string.Concat(where, " and MaLo = '", malo, "'");
+                            txtMaLo = string.Concat(" (", malo, ")");
+                        }
+
+                        bool trungma = classOffice.GroupData(dataTable, where);
+                        if (trungma == false)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã hàng hóa",
+                                ViTri = rowIndex,
+                                ThuocTinh = mahanghoa,
+                                DienGiai = string.Concat("Mã hàng hóa ", mahanghoa, txtMaLo, " bị trùng lặp"),
+                                rowError = indexErr,
+                                loaiError = 1
+                            });
+                        }
+                        bool CheckCSDL = classOffice.ChekMaHangDatabase_DangKinhDoanh(mahanghoa);
+                        if (CheckCSDL == false)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã hàng hóa",
+                                ViTri = rowIndex,
+                                ThuocTinh = mahanghoa,
+                                DienGiai = string.Concat("Mã hàng hóa ", mahanghoa, " không có trên hệ thống hoặc ngừng kinh doanh"),
+                                rowError = indexErr,
+                                loaiError = 1
+                            });
+                        }
+                        bool CheckLaDV = classOffice.ChekMaHangDatabase_LaDichVu(mahanghoa);
+                        if (CheckLaDV == false)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Mã hàng hóa",
+                                ViTri = rowIndex,
+                                ThuocTinh = mahanghoa,
+                                DienGiai = string.Concat("Mã hàng hóa ", mahanghoa, " không phải là hàng hóa"),
+                                rowError = indexErr,
+                                loaiError = 1
+                            });
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(soluong))
+                    {
+                        lstError.Add(new ErrorDMHangHoa
+                        {
+                            TenTruongDuLieu = "Số lượng",
+                            ViTri = rowIndex,
+                            ThuocTinh = soluong,
+                            DienGiai = "Số lượng không được để trống",
+                            rowError = indexErr,
+                            loaiError = 1
+                        });
+                    }
+                    else
+                    {
+                        bool isNumber7 = CommonStatic.IsDouble(soluong);
+                        if (isNumber7 == false)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Số lượng",
+                                ViTri = rowIndex,
+                                ThuocTinh = soluong,
+                                DienGiai = "Số lượng không phải dạng số",
+                                rowError = indexErr,
+                                loaiError = 1
+                            });
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(giachuyen))
+                    {
+                        bool isNumber = CommonStatic.IsDouble(giachuyen);
+                        if (isNumber == false)
+                        {
+                            lstError.Add(new ErrorDMHangHoa
+                            {
+                                TenTruongDuLieu = "Giá chuyển",
+                                ViTri = rowIndex,
+                                ThuocTinh = giachuyen,
+                                DienGiai = "Giá chuyển không phải dạng số",
+                                rowError = indexErr,
+                                loaiError = 1
+                            });
+                        }
+                    }
+                }
+                return lstError;
             }
         }
         #endregion

@@ -221,7 +221,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         #region "Get cthd old was delete"
                         var cthdOld = classhoadonchitiet.Gets(x => x.ID_HoaDon == objHoaDon.ID); // get cthd old
                                                                                                  // if date new < date old: date old = date new - milisencond
-                        // compare cthd old & new --> get cthd was delete
+                                                                                                 // compare cthd old & new --> get cthd was delete
                         var cthdDelete = (from ctold in cthdOld
                                           join ctnew in objCTHoaDon on
                                           new { ctold.ID_DonViQuiDoi, ctold.ID_LoHang }
@@ -2112,38 +2112,74 @@ namespace banhang24.Areas.DanhMuc.Controllers
         [HttpPost]
         public IHttpActionResult ImfortExcelDieuChuyen()
         {
-            string result = "";
+            List<ErrorDMHangHoa> lstErr = new List<ErrorDMHangHoa>();
             try
             {
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
-                        List<ErrorDMHangHoa> abc = new List<ErrorDMHangHoa>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            string str = classOffice.CheckFileMau_DieuChuyen(excelstream);
-                            if (str == null)
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+                            string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG ĐIỀU CHUYỂN", 3);
+
+                            if (string.IsNullOrEmpty(str))
                             {
-                                abc = classOffice.checkExcel_DieuChuyen(excelstream);
+                                System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet, 2);
+                                lstErr = classNPOI.CheckData_FileImportPhieuDieuChuyen(dataTable);
                             }
                             else
                             {
-                                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
+                                lstErr.Add(new ErrorDMHangHoa()
+                                {
+                                    TenTruongDuLieu = str,
+                                    ViTri = "0",
+                                    rowError = -1,
+                                    loaiError = 1,
+                                    ThuocTinh = str,
+                                    DienGiai = str,
+                                });
                             }
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
                     }
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    else
+                    {
+                        lstErr.Add(new ErrorDMHangHoa()
+                        {
+                            TenTruongDuLieu = "Không tồn tại file",
+                            ViTri = "0",
+                            rowError = -1,
+                            loaiError = 1,
+                            ThuocTinh = "Không tồn tại file",
+                            DienGiai = "Không tồn tại file",
+                        });
+                    }
                 }
             }
             catch (Exception ex)
             {
-                result = ex.ToString();
-                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                lstErr.Add(new ErrorDMHangHoa()
+                {
+                    TenTruongDuLieu = "Exception",
+                    ViTri = "0",
+                    rowError = -1,
+                    loaiError = 1,
+                    ThuocTinh = "Exception",
+                    DienGiai = ex.Message,
+                });
+            }
+            if (lstErr.Count > 0)
+            {
+                return ActionFalseWithData(lstErr);
+            }
+            else
+            {
+                return ActionTrueNotData(string.Empty);
             }
         }
         [HttpPost]
