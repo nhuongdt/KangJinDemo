@@ -765,7 +765,7 @@ var commonStatisJs = commonStatisJs || (function () {
     };
     var FirstChar_UpperCase = function (str) {
         if (str) {
-          return  str.replace(/\w/, c => c.toUpperCase());
+            return str.replace(/\w/, c => c.toUpperCase());
         }
         return '';
     }
@@ -909,28 +909,28 @@ var commonStatisJs = commonStatisJs || (function () {
         }
         return decodeURIComponent(str);
     }
-    var NPOI_ExportExcel = async function (url, method, data, fileName){
-        const dataStream =  await $.ajax({
-        url: url,
-        type: method,
-        data: data ? JSON.stringify(data) : null, 
-        contentType: 'application/json',
-        xhrFields: {
-            responseType: 'blob'
+    var NPOI_ExportExcel = async function (url, method, data, fileName) {
+        const dataStream = await $.ajax({
+            url: url,
+            type: method,
+            data: data ? JSON.stringify(data) : null,
+            contentType: 'application/json',
+            xhrFields: {
+                responseType: 'blob'
+            }
+        }).done().then(function (blob) {
+            return blob;
+        });
+        if (dataStream) {
+            let link = document.createElement('a');
+            link.href = window.URL.createObjectURL(dataStream);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return true;
         }
-    }).done().then(function (blob) {
-        return blob;
-    });   
-    if (dataStream) {
-        let link = document.createElement('a');
-        link.href = window.URL.createObjectURL(dataStream);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        return true;
-    }
-    return false;
+        return false;
     }
 
     return {
