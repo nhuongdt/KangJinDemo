@@ -80,7 +80,6 @@ var ChuyenHangChiTiet = function () {
         GetCauHinhHeThong();
         CheckLocTonKho();
     }
-    console.log(1)
 
     PageLoad();
 
@@ -1490,12 +1489,66 @@ var ChuyenHangChiTiet = function () {
         return ngaylapHD;
     }
 
+    async function GetTonKho_byIDQuyDoi_fromDB(param) {
+        let xx = await ajaxHelper(DMHangHoaUri + 'GetTonKho_byIDQuyDois', 'POST', param).done(function (x) { }).then(function (x) {
+            if (x.res) return x.data;
+            return [];
+        }).fail(function () {
+            return [];
+        });
+        return xx;
+    }
+
+    async function CheckTonKho_CTHD(arrCTHD, ngaylapHD, trangThaiHD = 1, idHoaDonUpdate = const_GuidEmpty) {
+
+        const arrCTNew = GroupCTHD_byIDQuyDoi(arrCTHD);// GroupCTHD_byIDQuyDoi at Public.js
+
+        let arrIDQuyDoi = $.unique(arrCTNew.map(function (x) {
+            return x.ID_DonViQuiDoi;
+        }));
+        let arrIDLoHang = arrCTNew.map(function (x) {
+            return x.ID_LoHang;
+        }).filter(x => x !== null);
+
+        // neu capnhatHD: get ngaylapHD theo hoadon
+        let ngayLapCompare = trangThaiHD === 8 ? moment(ngaylapHD, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm') :
+            moment(ngaylapHD, 'YYYY-MM-DD HH:mm').add(1, 'minutes').format('YYYY-MM-DD HH:mm');
+
+        let paramCheckTon = {
+            ID_ChiNhanh: _idDonVi,
+            IdHoaDonUpdate: trangThaiHD === 8 ? idHoaDonUpdate : const_GuidEmpty,
+            ToDate: ngayLapCompare,
+            ListIDQuyDoi: arrIDQuyDoi,
+            ListIDLoHang: arrIDLoHang,
+        };
+
+        // check tonko hangthuong + hang colo
+        let msgErr = '';
+        let dataCheck = await GetTonKho_byIDQuyDoi_fromDB(paramCheckTon);
+        if (commonStatisJs.CheckNull(dataCheck)) return true;
+        for (let i = 0; i < arrCTNew.length; i++) {
+            let forOut = arrCTNew[i];
+            let dataDB = $.grep(dataCheck, function (o) {
+                return o.ID_DonViQuiDoi === forOut.ID_DonViQuiDoi
+                    && (!forOut.QuanLyTheoLoHang || (o.ID_LoHang === forOut.ID_LoHang))
+            });
+            if (dataDB.length > 0 && RoundDecimal(dataDB[0].TonKho) < RoundDecimal(formatNumberToFloat(forOut.SoLuong))) {
+                msgErr += forOut.TenHangHoa.concat(' ', forOut.QuanLyTheoLoHang ? ' (' + forOut.MaLoHang + ') ' : '', ', ');
+            }
+        }
+        if (!commonStatisJs.CheckNull(msgErr)) {
+            ShowMessage_Danger('Không đủ tồn kho cho hàng hóa ' + Remove_LastComma(msgErr));
+            return false;
+        }
+        return true;
+    }
+
     function Enable_btnSave() {
         document.getElementById("btnaddHDCHHT").disabled = false;
         document.getElementById("btnaddHDCHHT").lastChild.data = "Lưu (F10)";
     }
 
-    self.SaveInvoice = function (status) {
+    self.SaveInvoice = async function (status) {
         var cthd = localStorage.getItem(lcCTChuyenHang);
         if (cthd !== null) {
             cthd = JSON.parse(cthd);
@@ -1520,6 +1573,7 @@ var ChuyenHangChiTiet = function () {
                     }
                 }
 
+                let ngaylapHD =  GetNgayLapHD_withTimeNow(hd[0].NgayLapHoaDon);
                 let checkDate = CheckNgayLapHD_format($('#datetimepicker').val());
                 if (!checkDate) {
                     Enable_btnSave();
@@ -1571,56 +1625,32 @@ var ChuyenHangChiTiet = function () {
                         if (formatNumberToFloat(itOut.SoLuong) === 0) {
                             err += itOut.TenHangHoa + ', ';
                         }
-                        // check soluong > tonkho
-                        if (idHoaDon === const_GuidEmpty) {
-                            if (formatNumberToFloat(itOut.SoLuong) > itOut.TonKho) {
-                                errTonKho += itOut.TenHangHoa + ', ';
-                            }
-                            for (let j = 0; j < itOut.DM_LoHang.length; j++) {
-                                let itFor = itOut.DM_LoHang[j];
-                                if (j !== 0) {
-                                    if (formatNumberToFloat(itFor.SoLuong) === 0) {
-                                        err += itFor.TenHangHoa + ', ';
-                                    }
-                                    if (formatNumberToFloat(itFor.SoLuong) > itFor.TonKho) {
-                                        errTonKho += itFor.TenHangHoa + ' (Lô: ' + itFor.MaLoHang + ') ,';
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            // sua doi hoadonchuyenhang: cộng ngược lại số lượng chuyển trước đó
-                            if (formatNumberToFloat(itOut.SoLuong) > itOut.TonKho + itOut.SoLuongChuyen) {
-                                errTonKho += itOut.TenHangHoa + ', ';
-                            }
 
-                            for (let j = 0; j < itOut.DM_LoHang.length; j++) {
+                         for (let j = 0; j < itOut.DM_LoHang.length; j++) {
                                 let itFor = itOut.DM_LoHang[j];
                                 if (j !== 0) {
                                     if (formatNumberToFloat(itFor.SoLuong) === 0) {
                                         err += itFor.TenHangHoa + ', ';
                                     }
-                                    if (formatNumberToFloat(itFor.SoLuong) > itFor.TonKho + itFor.SoLuongChuyen) {
-                                        errTonKho += itFor.TenHangHoa + ' (Lô: ' + itFor.MaLoHang + ') ,';
-                                    }
                                 }
                             }
-                        }
                     }
                 }
                 err = Remove_LastComma(err);
-                errTonKho = Remove_LastComma(errTonKho);
 
                 if (err !== '') {
                     ShowMessage_Danger('Vui lòng nhập số lượng cho ' + err);
                     Enable_btnSave();
                     return false;
                 }
-                if (self.ThietLap().XuatAm === false) {
-                    if (errTonKho !== '') {
-                        ShowMessage_Danger('Không đủ số lượng tồn kho cho ' + errTonKho);
-                        Enable_btnSave();
-                        return false;
+                 if (self.ThietLap().XuatAm === false) {
+                    // only check soluong if chuyenhang
+                    if (self.IsChuyenHang()) {
+                        const checkTonKho = await CheckTonKho_CTHD(arrCT, ngaylapHD, commonStatisJs.CheckNull(idHoaDon) || idHoaDon == const_GuidEmpty ? 1 : 8, idHoaDon);
+                        if (!checkTonKho) {
+                            Enable_btnSave();
+                            return false;
+                        }
                     }
                 }
 
@@ -1629,7 +1659,7 @@ var ChuyenHangChiTiet = function () {
                 }
 
                 var nhanhang = 0;
-                hd[0].NgayLapHoaDon = GetNgayLapHD_withTimeNow(hd[0].NgayLapHoaDon);
+                hd[0].NgayLapHoaDon = ngaylapHD;
                 hd[0].TongChiPhi = 0;
 
                 if (self.IsChuyenHang()) {
@@ -1951,9 +1981,10 @@ var ChuyenHangChiTiet = function () {
             dataType: 'json',
             contentType: false,
             processData: false,
-            success: function (item) {
-                self.loiExcel(item);
-                if (self.loiExcel().length > 0) {
+            success: function (response) {
+                if (!response.res) {
+                    let item = response.dataSoure;
+                    self.loiExcel(item);
                     $(".BangBaoLoi").show();
                     $(".btnImportExcel").hide();
                     $(".refreshFile").show();
