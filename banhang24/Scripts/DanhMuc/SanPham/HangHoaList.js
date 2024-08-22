@@ -11395,8 +11395,9 @@ var ViewModel = function () {
 
             $('.table-reponsive').gridLoader();
 
-            var model = GetParamSearch1();
+            localStorage.removeItem('DanhSachHangHoa');
 
+            var model = GetParamSearch1();
             ajaxHelper(DMHangHoaUri + 'LoadDanhMuchangHoa',
                 'POST', model).done(function (x) {
                     console.log('LoadDanhMuchangHoa', x)
@@ -11820,7 +11821,6 @@ var ViewModel = function () {
     //===============================
     var loadColumExeHH = true;
     function LoadHtmlGridHH() {
-
         if (window.localStorage) {
             var current = localStorage.getItem('DanhSachHangHoa');
             if (!current) {
@@ -11830,7 +11830,7 @@ var ViewModel = function () {
             } else {
                 current = JSON.parse(current);
                 for (var i = 0; i < current.length; i++) {
-                    document.getElementById(current[i].NameId).checked = false;// check/uncheck list checkbox of column HangHoa
+                    $('#' + current[i].NameId).attr('checked', false);
                     if (loadColumExeHH) {
                         self.addColum(current[i].Value);
                     }
@@ -11838,10 +11838,9 @@ var ViewModel = function () {
                 loadColumExeHH = false;
             }
             $('#myTable tbody .op-js-tr-hide').each(function () {
-                $(this).find('.td-colspan').attr("colspan", 11 - current.length);
+                $(this).find('.td-colspan').attr("colspan", 12 - current.length);
             });
         }
-
     }
     //===============================
     // Load lai form lưu cache bộ lọc 

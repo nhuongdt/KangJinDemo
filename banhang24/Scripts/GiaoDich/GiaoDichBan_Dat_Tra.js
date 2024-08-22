@@ -719,6 +719,7 @@
 
                         switch (formElement.LoaiHoaDon) {
                             case 1:
+                            case 2:
                             case 36:
                                 vmApDungNhomHoTro.ChangeNgayLapHD_UpdatePhieuXuatKho(id);
                                 break;
