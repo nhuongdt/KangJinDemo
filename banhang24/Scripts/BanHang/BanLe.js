@@ -7107,11 +7107,11 @@ var NewModel_BanHangLe = function () {
         }
     }
 
-    
+
 
     self.Cus_ThongTinNhomHoTro_PTramHoTro = ko.observable(0);
     self.Cus_ThongTinNhomHoTro_GtriHoTro_theoQuyDinh = ko.observable(0);
-    self.Cus_ThongTinNhomHoTro_KieuHoTro= ko.observable(0); //0/vnd, 1.%
+    self.Cus_ThongTinNhomHoTro_KieuHoTro = ko.observable(0); //0/vnd, 1.%
 
     self.ChangeCus = function (item) {
         self.Change_KhachHang(item);
@@ -7292,7 +7292,7 @@ var NewModel_BanHangLe = function () {
         }
         else {
             ResetInfor_KhachHang();
-             self.Cus_ThongTinNhomHoTro_PTramHoTro(0);
+            self.Cus_ThongTinNhomHoTro_PTramHoTro(0);
             self.Cus_ThongTinNhomHoTro_GtriHoTro_theoQuyDinh(0);
             self.Cus_ThongTinNhomHoTro_KieuHoTro(0);
         }
