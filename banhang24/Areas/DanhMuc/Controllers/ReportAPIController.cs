@@ -4818,9 +4818,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 excel.Columns.Remove("Totalpage");
                 excel.Columns.Remove("SumGiaTriSuDung");
                 excel.Columns.Remove("SumGiaTriHoTro");
+                excel.Columns.Remove("KieuHoTro");
 
                 string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoKho/Teamplate_BaoCaoNhomHoTro.xlsx");
-                //classOffice.listToOfficeExcel_Stype(fileTeamplate, fileSave, excel, 4, 29, 25, true, param.columnsHide, param.TodayBC, param.TenChiNhanh);
                 List<ClassExcel_CellData> lstCell = classNPOI.GetValue_forCell(param.TenChiNhanh, param.TodayBC);
                 classNPOI.ExportDataToExcel(fileTeamplate, excel, 4, param.columnsHide, lstCell, -1);
                 return string.Empty;

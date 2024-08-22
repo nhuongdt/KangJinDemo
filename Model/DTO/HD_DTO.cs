@@ -353,6 +353,7 @@ namespace Model
         public double? GtriHoTro_theoQuyDinh { get; set; }
         public double? DaHoTro { get; set; }
         public double? PTramHoTro { get; set; }
+        public int? KieuHoTro { get; set; }//1.%, 0.vnd
         public string TenDonVi { get; set; }
         public int? TotalRow { get; set; }
         public double? TotalPage { get; set; }

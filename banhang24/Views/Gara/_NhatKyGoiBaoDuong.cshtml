@@ -45,11 +45,15 @@
         <div class="modal-content ">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="material-icons">close</i></button>
-                
+
                 <h4 class="modal-title">
                     {{LoaiNganhNghe==1?'Gói bảo dưỡng':'Gói dịch vụ'}}
                     <span v-if="objCus.ID != null && objCus.PTramHoTro > 0" style="color: brown; font-weight:200; font-size:14px">
-                        ({{objCus.TenDoiTuong}} - Đã hỗ trợ: {{formatNumber3Digit(objCus.PTramHoTro)}} %)
+                        KH: {{objCus.TenDoiTuong}} - Đã hỗ trợ: {{formatNumber3Digit(objCus.PTramHoTro)}}
+                        <span v-if="objCus.KieuHoTro == 1">
+                            <span>%</span>
+                            - Hỗ trợ theo quy định {{objCus.GtriHoTro_theoQuyDinh}} %
+                        </span>
                     </span>
                 </h4>
             </div>
@@ -558,7 +562,7 @@
             let self = this;
             self.Today = moment(new Date()).format('YYYY-MM-DD');
             self.isAdmin = $('#txtUserLogin').val().toLowerCase() == 'admin';
-            self.objCus = {ID: null, MaDoiTuong:'', TenDoiTuong:'', PTramHoTro: 0};
+            self.objCus = {ID: null, MaDoiTuong:'', TenDoiTuong:'', PTramHoTro: 0, GtriHoTro_theoQuyDinh: 0, KieuHoTro: 0};
         },
         data: {
             ID_DonVi: $('#txtDonVi').val(),
@@ -566,7 +570,7 @@
             LoaiNganhNghe: 0,// 0.spa, 1.gara, 2.nhahang
             ID_Customer: null,
             ID_Car: null,
-           
+
             ListDichVuChosed: [],
             ListIDCarChosed: [],
 
@@ -647,9 +651,13 @@
                 const xx = await ajaxHelper('/api/DanhMuc/ReportAPI/' + 'GetGiaTriHoTro_ofCustomer?idCus='+ cusID, 'POST', [self.ID_DonVi]).done()
                 .then(function (x) {
                        if (x.res && x.LstData.length > 0) {
-                           return x.LstData[0].PTramHoTro;
+                           return x.LstData[0]
                        }
-                      return 0;
+                      return {
+                          PTramHoTro:0,
+                          KieuHoTro: 0,
+                          GtriHoTro_theoQuyDinh:0
+                      };
                  })
                  return xx;
             },
@@ -1130,10 +1138,10 @@
                 self.GetNhatKyGiaoDich_ofCus();
                 self.GetLichSuNapTien_ofCus();
                 self.GetNKy_SuDungTheGiaTri();
-                const gtriHoTro = await self.GetGiaTriHoTro(idCus);
-                console.log('gtriHoTro_02   ',objCus);
-
-                self.objCus.PTramHoTro = gtriHoTro;
+                const hotro = await self.GetGiaTriHoTro(idCus);
+                self.objCus.PTramHoTro = hotro.PTramHoTro;
+                self.objCus.GtriHoTro_theoQuyDinh = hotro.GtriHoTro_theoQuyDinh;
+                self.objCus.KieuHoTro = hotro.KieuHoTro;
                 self.GetListImgInvoice_byCus();
                 $('#vmNKGoiBaoDuong').modal('show');
             },
