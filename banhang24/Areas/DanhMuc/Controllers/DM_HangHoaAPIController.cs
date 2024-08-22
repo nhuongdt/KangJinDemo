@@ -8690,7 +8690,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             {
                                 var file = HttpContext.Current.Request.Files[i];
                                 System.IO.Stream inputStream = file.InputStream;
-                                // string str = _classOFDCM.CheckFileMau_NhapHang(inputStream);
                                 string str = classNPOI.CheckFileMau(sheet, "MẪU FILE IMPORT DANH SÁCH HÀNG NHẬP", 4);
                                 if (string.IsNullOrEmpty(str))
                                 {
@@ -8708,8 +8707,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                         ThuocTinh = str,
                                         DienGiai = str,
                                     });
-
-                                    //return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, str));
                                 }
                             }
                             return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
@@ -8729,27 +8726,32 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
-                string result = "";
                 try
                 {
+                    List<DM_HangHoaDTO> lstReturn = new List<DM_HangHoaDTO>();
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
-                        List<DM_HangHoaDTO> abc = new List<DM_HangHoaDTO>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream inputStream = file.InputStream;
-                            abc = _classOFDCM.getList_DanhSachHangnhap(inputStream, iddonvi);
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet, 3);
+                            lstReturn = classNPOI.GetData_FileImportPhieuNhapHang(dataTable, iddonvi);
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
+                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, lstReturn));
                     }
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    else
+                    {
+                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Không có dữ liệu"));
+                    }
                 }
                 catch (Exception ex)
                 {
-                    result = ex.ToString();
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.ToString()));
                 }
             }
         }
@@ -9458,27 +9460,32 @@ namespace banhang24.Areas.DanhMuc.Controllers
         {
             using (SsoftvnContext db = SystemDBContext.GetDBContext())
             {
-                Class_officeDocument _classOFDCM = new Class_officeDocument(db);
-                string result = "";
+                ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+                List<Report_HangHoa_Chuyenhang_Import> lstReturn = new List<Report_HangHoa_Chuyenhang_Import>();
+
                 try
                 {
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
-                        List<Report_HangHoa_Chuyenhang_Import> abc = new List<Report_HangHoa_Chuyenhang_Import>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream inputStream = file.InputStream;
-                            abc = _classOFDCM.getList_DanhSachHangKiemKho(inputStream, iddonvi, timeKK);
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet, 2);
+                            lstReturn = classNPOI.GetData_FileImportPhieuKiemKe(dataTable, iddonvi);
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
+                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, lstReturn));
                     }
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    else
+                    {
+                        return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Không có dữ liệu"));
+                    }
                 }
                 catch (Exception ex)
                 {
-                    result = ex.ToString();
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.ToString()));
                 }
             }
         }

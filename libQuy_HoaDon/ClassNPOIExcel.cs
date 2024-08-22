@@ -745,8 +745,6 @@ namespace libQuy_HoaDon
             }
             return lstError;
         }
-
-
         public List<ErrorDMHangHoa> CheckData_FileImportHangHoa(ISheet sheet)
         {
             List<ErrorDMHangHoa> lstError = new List<ErrorDMHangHoa>();
@@ -997,7 +995,6 @@ namespace libQuy_HoaDon
             }
             return lstError;
         }
-
         public List<Report_HangHoa_XuatHuy_Import> getList_DanhSachHangXuatHuy(ISheet sheet, Guid ID_ChiNhanh)
         {
 
@@ -2041,6 +2038,142 @@ namespace libQuy_HoaDon
             }
             return lstError;
         }
+        public List<Report_HangHoa_Chuyenhang_Import> GetData_FileImportPhieuKiemKe(System.Data.DataTable dataTable, Guid idDonVi)
+        {
+            List<Report_HangHoa_Chuyenhang_Import> lst = new List<Report_HangHoa_Chuyenhang_Import>();
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                classDonViQuiDoi classQuyDoi = new classDonViQuiDoi(db);
+
+                var lastRow = dataTable.Rows.Count;
+                for (int i = 0; i < lastRow; i++)
+                {
+                    DataRow dtRow = dataTable.Rows[i];
+                    string malohang = dtRow[0]?.ToString()?.Trim();
+                    string mahanghoa = dtRow[1]?.ToString()?.Trim();
+                    string soluongThucTe = dtRow[2]?.ToString()?.Trim();
+
+                    if (string.IsNullOrEmpty(mahanghoa) && string.IsNullOrEmpty(soluongThucTe))
+                    {
+                        continue;
+                    }
+
+                    List<SqlParameter> sqlPRM = new List<SqlParameter>
+                    {
+                        new SqlParameter("MaLoHangIP", malohang),
+                        new SqlParameter("MaHangHoaIP", mahanghoa),
+                        new SqlParameter("ID_DonViIP", idDonVi),
+                        new SqlParameter("TimeIP", DateTime.Now)// trong SP không sử dụng tham số này (do SP cũ dùng để get tồnkho - SP mới get tonkho at js)
+                    };
+                    List<Report_HangHoa_Chuyenhang_Import> lst1 = db.Database.SqlQuery<Report_HangHoa_Chuyenhang_Import>("exec getListDanhSachHHImportKiemKe @MaLoHangIP, @MaHangHoaIP, @ID_DonViIP, @TimeIP", sqlPRM.ToArray()).ToList();
+                    if (lst1.Count > 0)
+                    {
+                        var itFirst = lst1.FirstOrDefault();
+                        Report_HangHoa_Chuyenhang_Import DM1 = new Report_HangHoa_Chuyenhang_Import();
+                        DM1.MaHangHoa = itFirst.MaHangHoa;
+                        DM1.TenHangHoa = itFirst.TenHangHoa;
+                        DM1.ThanhTien = Math.Round(double.Parse(soluongThucTe), 3, MidpointRounding.ToEven);
+                        DM1.ID = itFirst.ID;
+                        DM1.ID_DonViQuiDoi = itFirst.ID_DonViQuiDoi;
+                        DM1.TenDonViTinh = itFirst.TenDonViTinh;
+                        DM1.QuanLyTheoLoHang = itFirst.QuanLyTheoLoHang;
+                        DM1.TyLeChuyenDoi = itFirst.TyLeChuyenDoi;
+                        DM1.MaLoHang = itFirst.MaLoHang;
+                        DM1.ID_LoHang = itFirst.ID_LoHang;
+                        DM1.ThuocTinh_GiaTri = itFirst.ThuocTinh_GiaTri;
+                        DM1.DonViTinh = classQuyDoi.Gets(ct => ct.ID_HangHoa == DM1.ID && ct.Xoa != true).Select(x => new DonViTinh
+                        {
+                            ID_HangHoa = DM1.ID,
+                            TenDonViTinh = x.TenDonViTinh,
+                            ID_DonViQuiDoi = x.ID,
+                            QuanLyTheoLoHang = DM1.QuanLyTheoLoHang,
+                            Xoa = true,
+                            TyLeChuyenDoi = x.TyLeChuyenDoi
+                        }).ToList();
+                        lst.Add(DM1);
+                    }
+                }
+            }
+            return lst;
+        }
+
+        public List<DM_HangHoaDTO> GetData_FileImportPhieuNhapHang(System.Data.DataTable dataTable, Guid idDonVi)
+        {
+            List<DM_HangHoaDTO> lst = new List<DM_HangHoaDTO>();
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                classDonViQuiDoi classQuyDoi = new classDonViQuiDoi(db);
+
+                var lastRow = dataTable.Rows.Count;
+                for (int i = 0; i < lastRow; i++)
+                {
+                    DataRow dtRow = dataTable.Rows[i];
+                    string malohang = dtRow[0]?.ToString()?.Trim();
+                    string ngaySX = dtRow[1]?.ToString()?.Trim();
+                    string hanSD = dtRow[2]?.ToString()?.Trim();
+                    string mahanghoa = dtRow[3]?.ToString()?.Trim();
+                    string soluong = dtRow[4]?.ToString()?.Trim();
+                    string dongia = dtRow[5]?.ToString()?.Trim();
+                    string tienchietkhau = dtRow[6]?.ToString()?.Trim();
+                    string ptThue = dtRow[7]?.ToString()?.Trim();
+                    string tienThue = dtRow[8]?.ToString()?.Trim();
+                    string giaban = dtRow[9]?.ToString()?.Trim();
+
+                    if (string.IsNullOrEmpty(mahanghoa) && string.IsNullOrEmpty(soluong) && string.IsNullOrEmpty(dongia))
+                    {
+                        continue;
+                    }
+
+                    List<DM_HangHoaDTO> lst1 = classQuyDoi.GetInforProduct_Importing(malohang, mahanghoa, idDonVi);
+                    if (lst1 != null && lst1.Count() > 0)
+                    {
+                        var itemFirst = lst1.FirstOrDefault();
+                        DM_HangHoaDTO DM1 = new DM_HangHoaDTO();
+                        DM1.MaHangHoa = mahanghoa;
+                        DM1.TenHangHoa = itemFirst.TenHangHoa;
+                        DM1.SoLuong = double.Parse(soluong);
+                        DM1.GiaBan = string.IsNullOrEmpty(giaban) ? itemFirst.GiaBan : double.Parse(giaban);
+                        DM1.ChangeGiaBan = string.IsNullOrEmpty(giaban) ? 0 : 1;//0. khong thaydoi bgchung/else. thaydoi
+                        DM1.DonGia = double.Parse(dongia);
+                        DM1.ID = itemFirst.ID;
+                        DM1.ID_DonViQuiDoi = itemFirst.ID_DonViQuiDoi;
+                        DM1.GiaNhap = itemFirst.GiaNhap;
+                        DM1.TienChietKhau = string.IsNullOrEmpty(tienchietkhau) ? 0 : double.Parse(tienchietkhau);
+                        DM1.PTThue = string.IsNullOrEmpty(ptThue) ? 0 : double.Parse(ptThue);
+                        DM1.TienThue = string.IsNullOrEmpty(tienThue) ? 0 : double.Parse(tienThue);
+                        DM1.TenDonViTinh = itemFirst.TenDonViTinh;
+                        DM1.ThanhTien = DM1.SoLuong * (DM1.DonGia - DM1.TienChietKhau);
+                        DM1.ThanhToan = DM1.ThanhTien;
+                        DM1.TyLeChuyenDoi = itemFirst.TyLeChuyenDoi;
+                        DM1.QuanLyTheoLoHang = itemFirst.QuanLyTheoLoHang;
+                        DM1.ID_LoHang = itemFirst.ID_LoHang;
+                        DM1.GiaVon = itemFirst.GiaVon;
+                        DM1.MaLoHang = itemFirst.ID_LoHang == null ? malohang : itemFirst.MaLoHang;
+                        DM1.NgaySanXuat = itemFirst.ID_LoHang == null ? (!string.IsNullOrEmpty(ngaySX) ? DateTime.Parse(ngaySX) : (DateTime?)null) : itemFirst.NgaySanXuat;
+                        DM1.NgayHetHan = itemFirst.ID_LoHang == null ? (!string.IsNullOrEmpty(hanSD) ? DateTime.Parse(hanSD) : (DateTime?)null) : itemFirst.NgayHetHan;
+                        DM1.TonKho = itemFirst.TonKho;
+                        DM1.ThuocTinh_GiaTri = itemFirst.ThuocTinh_GiaTri;
+                        DM1.DonViTinh = classQuyDoi.Gets(ct => ct.ID_HangHoa == DM1.ID && ct.Xoa != true).Select(x => new DonViTinh
+                        {
+                            ID_HangHoa = DM1.ID,
+                            TenDonViTinh = x.TenDonViTinh,
+                            ID_DonViQuiDoi = x.ID,
+                            QuanLyTheoLoHang = DM1.QuanLyTheoLoHang,
+                            Xoa = true,
+                            TyLeChuyenDoi = x.TyLeChuyenDoi
+                        }).ToList();
+                        lst.Add(DM1);
+                    }
+                }
+            }
+            return lst;
+        }
+
+
 
         public List<ErrorDMHangHoa> CheckData_FileImportGDV(ISheet sheet, Guid idDonVi, Guid idNhanVien, string nguoitao)
         {
@@ -3082,6 +3215,68 @@ namespace libQuy_HoaDon
                 }
                 return lstError;
             }
+        }
+        public List<DM_HangHoaDTO> GetData_FileImportPhieuDieuChuyen(System.Data.DataTable dataTable, Guid idDonVi)
+        {
+            List<DM_HangHoaDTO> lst = new List<DM_HangHoaDTO>();
+
+            using (SsoftvnContext db = SystemDBContext.GetDBContext())
+            {
+                Class_officeDocument classOffice = new Class_officeDocument(db);
+                classDonViQuiDoi classQuyDoi = new classDonViQuiDoi(db);
+
+                var lastRow = dataTable.Rows.Count;
+                for (int i = 0; i < lastRow; i++)
+                {
+                    DataRow dtRow = dataTable.Rows[i];
+                    string malohang = dtRow[0]?.ToString()?.Trim();
+                    string mahanghoa = dtRow[1]?.ToString()?.Trim();
+                    string soluong = dtRow[2]?.ToString()?.Trim();
+                    string giachuyen = dtRow[3]?.ToString()?.Trim();
+
+                    if (string.IsNullOrEmpty(mahanghoa) && string.IsNullOrEmpty(soluong) && string.IsNullOrEmpty(giachuyen))
+                    {
+                        continue;
+                    }
+
+                    List<DM_HangHoaDTO> lst1 = classQuyDoi.GetInforProduct_Importing(malohang, mahanghoa, idDonVi);
+                    if(lst1!=null && lst1.Count > 0)
+                    {
+                        var hhFirst = lst1.FirstOrDefault();
+                        DM_HangHoaDTO DM1 = new DM_HangHoaDTO();
+                        DM1.MaHangHoa = dtRow[1].ToString().Trim();
+                        DM1.TenHangHoa = hhFirst.TenHangHoa;
+                        DM1.SoLuong = double.Parse(dtRow[2].ToString().Trim());
+                        DM1.ID = hhFirst.ID;
+                        DM1.ID_DonViQuiDoi = hhFirst.ID_DonViQuiDoi;
+                        DM1.DonGia = giachuyen != "" ? double.Parse(giachuyen) : 0;
+                        DM1.TenDonViTinh = hhFirst.TenDonViTinh;
+                        DM1.ThanhToan = 0;
+                        DM1.QuanLyTheoLoHang = hhFirst.QuanLyTheoLoHang;
+                        DM1.TyLeChuyenDoi = hhFirst.TyLeChuyenDoi;
+                        DM1.MaLoHang = hhFirst.MaLoHang;
+                        DM1.ID_LoHang = hhFirst.ID_LoHang;
+                        DM1.GiaVon = giachuyen != "" ? double.Parse(giachuyen) : hhFirst.GiaVon.Value;
+                        DM1.ThanhTien = DM1.GiaVon * DM1.SoLuong;
+                        DM1.TonKho = hhFirst.TonKho;
+                        DM1.ThuocTinh_GiaTri = hhFirst.ThuocTinh_GiaTri;
+                        DM1.NgaySanXuat = hhFirst.NgaySanXuat;
+                        DM1.NgayHetHan = hhFirst.NgayHetHan;
+                        DM1.ThuocTinh_GiaTri = hhFirst.ThuocTinh_GiaTri;
+                        DM1.DonViTinh = classQuyDoi.Gets(ct => ct.ID_HangHoa == DM1.ID && ct.Xoa != true).Select(x => new DonViTinh
+                        {
+                            ID_HangHoa = DM1.ID,
+                            TenDonViTinh = x.TenDonViTinh,
+                            ID_DonViQuiDoi = x.ID,
+                            QuanLyTheoLoHang = DM1.QuanLyTheoLoHang,
+                            Xoa = true,
+                            TyLeChuyenDoi = x.TyLeChuyenDoi
+                        }).ToList();
+                        lst.Add(DM1);
+                    }
+                }
+            }
+            return lst;
         }
         #endregion
     }

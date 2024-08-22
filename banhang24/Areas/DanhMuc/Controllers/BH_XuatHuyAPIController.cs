@@ -2185,43 +2185,38 @@ namespace banhang24.Areas.DanhMuc.Controllers
         [HttpPost]
         public IHttpActionResult getList_DanhSachHangDieuChuyen(Guid iddonvi)
         {
-            string result = "";
             try
             {
+                List<DM_HangHoaDTO> lstReturn = new List<DM_HangHoaDTO>();
+
                 using (SsoftvnContext db = SystemDBContext.GetDBContext())
                 {
                     Class_officeDocument classOffice = new Class_officeDocument(db);
+                    ClassNPOIExcel classNPOI = new ClassNPOIExcel();
+
                     if (HttpContext.Current.Request.Files.Count != 0)
                     {
-                        List<DM_HangHoaDTO> abc = new List<DM_HangHoaDTO>();
-                        for (int i = 0; i < HttpContext.Current.Request.Files.Count; i++)
+                        var file = HttpContext.Current.Request.Files[0];
+                        using (System.IO.Stream inputStream = file.InputStream)
                         {
-                            var file = HttpContext.Current.Request.Files[i];
-                            System.IO.Stream excelstream = file.InputStream;
-                            abc = classOffice.getList_DanhSachHangDieuChuyen(excelstream, iddonvi);
+                            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+                            ISheet sheet = workbook.GetSheetAt(0);
+
+                            System.Data.DataTable dataTable = classNPOI.ConvertExcelToDataTable(sheet, 2);
+                            lstReturn = classNPOI.GetData_FileImportPhieuDieuChuyen(dataTable, iddonvi);
                         }
-                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, abc));
+                        return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK, lstReturn));
                     }
-                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                    return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Không có dữ liệu"));
                 }
             }
             catch (Exception ex)
             {
-                result = ex.ToString();
-                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, result));
+                return ResponseMessage(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.ToString()));
             }
         }
-        // danh sách lô hàng
+
         [HttpGet]
-        //public IHttpActionResult getListDM_LoHang(Guid ID_DonViQuiDoi)
-        //{
-        //    List<ListDM_LoHang> lst = ClassXuatHuy.getList_DMLoHang(ID_DonViQuiDoi);
-        //    JsonResultExample<ListDM_LoHang> json = new JsonResultExample<ListDM_LoHang>
-        //    {
-        //        LstData = lst
-        //    };
-        //    return Json(json);
-        //}
         public IHttpActionResult getListDMLoHang_byID(Guid ID_DonViQuiDoi, Guid ID_ChiNhanh, Guid ID_LoHang)
         {
             SsoftvnContext db = SystemDBContext.GetDBContext();
