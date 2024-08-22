@@ -4455,7 +4455,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         return Json(new { res = false, mes = ModelState.ToString() });
                     }
                     string strUpd = classhoadon.Update_HoaDon(oldBH_HD);
-                    // update ID_NhanVien in Quy_HoaDon if same datetime
+
                     if (strUpd != null && strUpd != string.Empty)
                         return Json(new
                         {
@@ -4464,16 +4464,21 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         });
                     else
                     {
-                        var dataQuy = from qct in db.Quy_HoaDon_ChiTiet
-                                      join qhd in db.Quy_HoaDon on qct.ID_HoaDon equals qhd.ID
-                                      where qct.ID_HoaDonLienQuan == id
-                                      select qhd;
+                        // update ngaylap in Quy_HoaDon if same datetime
+                        var dataQuy = (from qct in db.Quy_HoaDon_ChiTiet
+                                       join qhd in db.Quy_HoaDon on qct.ID_HoaDon equals qhd.ID
+                                       where qct.ID_HoaDonLienQuan == id
+                                       select new
+                                       {
+                                           qhd.ID,
+                                           qhd.NgayLapHoaDon
+                                       }).ToList().OrderBy(x => x.NgayLapHoaDon);
                         if (dataQuy != null && dataQuy.Count() > 0)
                         {
-                            if (dataQuy.FirstOrDefault().NgayLapHoaDon.ToString("yyyy-MM-dd HH:mm tt") == ngayLapHDOld.ToString("yyyy-MM-dd HH:mm tt"))
+                            var quyHDFirst = dataQuy.FirstOrDefault();
+                            if (quyHDFirst.NgayLapHoaDon.ToString("yyyy-MM-dd HH:mm tt") == ngayLapHDOld.ToString("yyyy-MM-dd HH:mm tt"))
                             {
-                                Quy_HoaDon qhd = db.Quy_HoaDon.Find(dataQuy.FirstOrDefault().ID);
-                                qhd.ID_NhanVien = oldBH_HD.ID_NhanVien;
+                                Quy_HoaDon qhd = db.Quy_HoaDon.Find(quyHDFirst.ID);
                                 qhd.NgayLapHoaDon = BH_HoaDon.NgayLapHoaDon;
                                 qhd.NgaySua = DateTime.Now;
                                 qhd.NguoiSua = BH_HoaDon.NguoiSua;
@@ -4505,7 +4510,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     if (hd != null)
                     {
                         var ngaylap = hd.NgayLapHoaDon.AddMilliseconds(4);
-                        var lstXK = db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon).Select(x => new { x.ID, x.NgayLapHoaDon })
+                        var lstXK = db.BH_HoaDon.Where(x => x.ID_HoaDon == idHoaDon && x.LoaiHoaDon != 3).Select(x => new { x.ID, x.NgayLapHoaDon })
                             .OrderBy(x => x.NgayLapHoaDon).ToList();
                         foreach (var item in lstXK)
                         {
