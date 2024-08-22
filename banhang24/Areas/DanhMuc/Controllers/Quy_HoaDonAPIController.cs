@@ -196,9 +196,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
                     tonquy = tongthu - tongchi;
                     toncuoiky = (double)(tonquy + lstParam.TonDauKy);
-                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamSave);     
+                    string fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/" + teamSave);
                     var indexRowSum = 10 + excel.Rows.Count;// vị trí dòng dữ liệu đầu tiên + số dòng data
-                
+
 
                     List<System.Data.DataTable> lstTbl = new List<DataTable> { excel };
                     List<ClassExcel_CellData> lstCell = new List<ClassExcel_CellData>
@@ -223,9 +223,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     {
                         new Excel_ParamExport { SheetIndex = 0, StartRow = 10, EndRow = 34, CellData = lstCell, HasRowSum_AtLastIndex= true }
                     };
-
-                    classNPOI.ExportMultipleSheet(fileTeamplate, lstTbl, prExport);            
-                   
+                    classNPOI.ExportMultipleSheet(fileTeamplate, lstTbl, prExport);
                 }
                 return string.Empty;
             }
@@ -1505,7 +1503,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         itemQuy_HoaDon.MaHoaDon = sMaHoaDon;
                         itemQuy_HoaDon.ID_NhanVien = objHoaDon.ID_NhanVien;
                         itemQuy_HoaDon.NguoiTao = _ClassNS_NhanVien.Get(p => p.ID == objHoaDon.ID_NhanVien).TenNhanVien;
-                        itemQuy_HoaDon.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
+                        itemQuy_HoaDon.NgayLapHoaDon = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
                         itemQuy_HoaDon.NgayTao = DateTime.Now;
                         itemQuy_HoaDon.ID_DonVi = objHoaDon.ID_DonVi;
                         itemQuy_HoaDon.NguoiNopTien = objHoaDon.NguoiNopTien;
@@ -1716,7 +1714,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             qhd.ID_NhanVien = objHoaDon.ID_NhanVien;
                             qhd.MaHoaDon = sMaHoaDon;
                             qhd.LoaiHoaDon = objHoaDon.LoaiHoaDon;
-                            qhd.NgayLapHoaDon = objHoaDon.NgayLapHoaDon;
+                            qhd.NgayLapHoaDon = CommonStatic.AddTimeNow_forDate(objHoaDon.NgayLapHoaDon);
                             qhd.NoiDungThu = objHoaDon.NoiDungThu;
                             qhd.TongTienThu = objHoaDon.TongTienThu;
                             qhd.NguoiNopTien = objHoaDon.NguoiNopTien;
@@ -1786,7 +1784,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                 ClassQuy_HoaDon_ChiTiet _classQHDCT = new ClassQuy_HoaDon_ChiTiet(db);
                 Quy_HoaDon objQuyHD = data["objQuyHoaDon"].ToObject<Quy_HoaDon>();
                 List<Quy_HoaDon_ChiTiet> lstCTQuyHoaDon = data["lstCTQuyHoaDon"].ToObject<List<Quy_HoaDon_ChiTiet>>();
-                var ngaylapHD = objQuyHD.NgayLapHoaDon.AddMilliseconds(DateTime.Now.Millisecond);
+                var ngaylapHD = CommonStatic.AddTimeNow_forDate(objQuyHD.NgayLapHoaDon);
 
                 #region Quy_HoaDon
                 Quy_HoaDon itemQuy_HoaDon = new Quy_HoaDon();
@@ -1917,7 +1915,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                                 qhd.ID_DonVi = quyHD.ID_DonVi;
                                 qhd.ID_NhanVien = quyHD.ID_NhanVien;
                                 qhd.MaHoaDon = sMaHoaDon;
-                                qhd.NgayLapHoaDon = quyHD.NgayLapHoaDon;
+                                qhd.NgayLapHoaDon = CommonStatic.AddTimeNow_forDate(quyHD.NgayLapHoaDon);
                                 qhd.NoiDungThu = quyHD.NoiDungThu;
                                 qhd.TongTienThu = quyHD.TongTienThu;
                                 qhd.NguoiNopTien = quyHD.NguoiNopTien;
@@ -1995,7 +1993,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                     }
 
                     #region Quy_HoaDon
-                    DateTime ngaylapHD = objQuyHD.NgayLapHoaDon.AddMilliseconds(3);
+                    DateTime ngaylapHD = CommonStatic.AddTimeNow_forDate(objQuyHD.NgayLapHoaDon);
                     Quy_HoaDon itemQuy_HoaDon = new Quy_HoaDon();
                     itemQuy_HoaDon.ID = Guid.NewGuid();
                     itemQuy_HoaDon.ID_NhanVien = objQuyHD.ID_NhanVien;
@@ -2121,7 +2119,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         newQuyHD.ID = Guid.NewGuid();
                         newQuyHD.ID_NhanVien = objQuyHD.ID_NhanVien;
                         newQuyHD.NguoiTao = objQuyHD.NguoiTao;
-                        newQuyHD.NgayLapHoaDon = objQuyHD.NgayLapHoaDon.AddMilliseconds(1);
+                        newQuyHD.NgayLapHoaDon = CommonStatic.AddTimeNow_forDate(objQuyHD.NgayLapHoaDon);
                         newQuyHD.NgayTao = DateTime.Now;
                         newQuyHD.ID_DonVi = objQuyHD.ID_DonVi;
                         newQuyHD.NguoiNopTien = objQuyHD.NguoiNopTien;
