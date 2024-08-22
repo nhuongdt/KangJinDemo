@@ -129,6 +129,27 @@ namespace libDonViQuiDoi
             }
         }
 
+        public List<DM_HangHoaDTO> GetInforProduct_Importing(string malohang, string mahanghoa, Guid idDonVi)
+        {
+            try
+            {
+                List<SqlParameter> sqlPRM = new List<SqlParameter>
+                    {
+                        new SqlParameter("MaLoHangIP", malohang),
+                        new SqlParameter("MaHangHoaIP", mahanghoa),
+                        new SqlParameter("ID_DonViIP", idDonVi),
+                        new SqlParameter("TimeIP", DateTime.Now) // trong SP không sử dụng tham số này (do SP cũ dùng để get tồnkho - SP mới get tonkho at js)
+                    };
+                List<DM_HangHoaDTO> lst = db.Database.SqlQuery<DM_HangHoaDTO>("exec getListDanhSachHHImport @MaLoHangIP, @MaHangHoaIP," +
+                    " @ID_DonViIP, @TimeIP", sqlPRM.ToArray()).ToList();
+                return lst;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public string GetMaHangHoa()
         {
             string format = "{0:0000}";
