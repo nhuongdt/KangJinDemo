@@ -1466,6 +1466,10 @@ var cmpDropdownMultipleItem = {
         showList: function () {
             var self = this;
             $(event.currentTarget).next().show();
+            // khi request data sẵn từ DB, nhưng ở created chưa lấy dc data: gán lại data
+            if(self.haveCondition && self.listAfter.length == 0){
+                self.listAfter = self.listAll;
+            }
         },
         search: function () {
             var self = this;
