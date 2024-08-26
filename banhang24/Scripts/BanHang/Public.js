@@ -1,4 +1,22 @@
-﻿function ajaxHelper(uri, method, data) {
+﻿const LoaiKhuyenMai = {
+   HOA_DON:1,
+   HANG_HOA:2,
+}
+const HinhThucKhuyenMai = {
+   HD_GIAM_GIAHD:11,
+   HD_TANG_HANG:12,
+   HD_GIAM_GIA_HANG:13,
+   HD_TANG_DIEM:14,
+
+    HH_GIAM_GIA_HANG:21,
+   HH_TANG_HANG:22,
+   HH_TANG_DIEM:23,
+   HH_GIA_BAN_THEO_SO_LUONG:24,
+}
+
+
+
+function ajaxHelper(uri, method, data) {
     return $.ajax({
         type: method,
         url: uri,
