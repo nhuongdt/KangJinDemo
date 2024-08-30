@@ -3017,19 +3017,27 @@ var NewModel_BanHangLe = function () {
                 //  HD Tra
                 if (itemHD[0].LoaiHoaDon === 6) {
                     if (itemHD[0].HoanTraTamUng > 0) {
-                        if (itemHD[0].DaTraKhach > itemHD[0].HoanTraTamUng) {
+                        // nếu lẻ tiền --> chênh lệch mấy phẩy nên phải làm tròn rồi mới so sánh
+                        let datrakhach = RoundDecimal(itemHD[0].DaTraKhach);
+                        let hoantra = RoundDecimal(itemHD[0].DaTraKhach);
+                        let tienthua = RoundDecimal(itemHD[0].TienThua);
+
+                        if (datrakhach > hoantra) {
                             ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
                             SaveHD_RemoveDisable();
                             return;
                         }
-                        if (itemHD[0].DaTraKhach < itemHD[0].HoanTraTamUng) {
-                            ShowMessage_Danger('Vui lòng trả đủ tiền cho khách');
-                            SaveHD_RemoveDisable();
-                            return;
+                        else {
+                            if (datrakhach < hoantra) {
+                                ShowMessage_Danger('Vui lòng trả đủ tiền cho khách');
+                                SaveHD_RemoveDisable();
+                                return;
+                            }
                         }
+
                     }
                     else {
-                        if (itemHD[0].TienThua > 0) {
+                        if (tienthua > 0) {
                             ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
                             SaveHD_RemoveDisable();
                             return;
