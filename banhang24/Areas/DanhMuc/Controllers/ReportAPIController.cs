@@ -9051,16 +9051,10 @@ namespace banhang24.Areas.DanhMuc.Controllers
 
                     if (data.Count() > 0)
                     {
-                        var firstRow = data[0];
-
                         return Json(new
                         {
                             res = true,
                             LstData = data,
-
-                            SumHHDoanhThu = firstRow.TongHoaHongDoanhThu,
-                            firstRow.TotalRow,
-                            firstRow.TotalPage,
                         });
                     }
                     else
@@ -9069,10 +9063,6 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         {
                             res = true,
                             LstData = new List<SP_ReportDiscountSales>(),
-
-                            SumHHDoanhThu = 0,
-                            TotalRow = 0,
-                            TotalPage = 0,
                         });
                     }
                 }
@@ -9103,9 +9093,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         x.MaHoaDon,
                         x.NgayLapHoaDon,
                         x.TongGiaTriTinh_TheoHD,
+                        x.DoanhThu,
                         x.MaDoiTuong,
                         x.TenDoiTuong,
-                        x.DienThoai,
                         x.SumGiaTriTinh,
                         x.SumTienChietKhau,
                     }).Select(x => new
@@ -9114,9 +9104,9 @@ namespace banhang24.Areas.DanhMuc.Controllers
                         x.Key.MaHoaDon,
                         x.Key.NgayLapHoaDon,
                         x.Key.TongGiaTriTinh_TheoHD,
+                        x.Key.DoanhThu,
                         x.Key.MaDoiTuong,
                         x.Key.TenDoiTuong,
-                        x.Key.DienThoai,
                         x.Key.SumGiaTriTinh,
                         x.Key.SumTienChietKhau,
                         RowSpan = x.Count(),
@@ -9479,6 +9469,7 @@ namespace banhang24.Areas.DanhMuc.Controllers
                             excel = classOffice.ToDataTable<SP_ReportDiscountSales>(data);
                             excel.Columns.Remove("ID_NhanVien");
                             excel.Columns.Remove("TongHoaHongDoanhThu");
+                            excel.Columns.Remove("TongDoanhThu_DuocHuong");
                             excel.Columns.Remove("TotalRow");
                             excel.Columns.Remove("TotalPage");
                             fileTeamplate = HttpContext.Current.Server.MapPath("~/Template/ExportExcel/Report/BaoCaoChietKhau/Temp_BaoCaoHoaHongDoanhThu.xlsx");

@@ -182,9 +182,9 @@
         }
         else {
             $.getJSON("api/DanhMuc/BaseApi/GetCheckedStatic?type=" + typeCheck, function (data) {
-                if(typeCheck == 15){
-                    data = $.grep(data, function(x){
-                        return $.inArray(x.Key,['maNVTuVanChinh','tenNVTuVanChinh'])==-1;
+                if (typeCheck == 15) {
+                    data = $.grep(data, function (x) {
+                        return $.inArray(x.Key, ['maNVTuVanChinh', 'tenNVTuVanChinh']) == -1;
                     })
                 }
                 self.ListCheckBox(data);
@@ -769,9 +769,19 @@
             if (data.res == true) {
                 self.ReportSales_General(data.LstData);
 
-                self.TotalRow(data.TotalRow);
-                self.TotalPage(data.TotalPage);
-                self.ReportSales_SumHoaHongDT(data.SumHHDoanhThu);
+                if (data.LstData.length > 0) {
+                    let firstRow = data.LstData[0];
+
+                    self.TotalRow(firstRow.TotalRow);
+                    self.TotalPage(firstRow.TotalPage);
+                    self.ReportSales_SumHoaHongDT(firstRow.SumHHDoanhThu);
+                }
+                else {
+                    self.TotalRow(0);
+                    self.TotalPage(0);
+                    self.ReportSales_SumHoaHongDT(0);
+                }
+
 
                 GetListNumberPaging();
                 Caculator_FromToPaging(data.LstData);
@@ -800,7 +810,7 @@
                 self.TotalRow(data.TotalRow);
                 self.TotalPage(data.TotalPage);
 
-                if(data.LstData.length > 0){
+                if (data.LstData.length > 0) {
                     let firstRow = data.LstData[0];
                     self.ReportProduct_SumGiatriSauHeSo(firstRow.SumGiaTriTinh);
                     self.ReportSales_SumHoaHongDT(firstRow.SumTienChietKhau);
@@ -1177,10 +1187,10 @@
                     break;
                 case 3:
                     funcExcel = 'ExportExcel_ReportDiscountSales';
-                     array_Seach.TrangThai = 1;// hoa don đã phân bổ, 0. chưa phân bổ
+                    array_Seach.TrangThai = 1;// hoa don đã phân bổ, 0. chưa phân bổ
 
                     if (self.IsReportDetail()) {
-                         array_Seach.TypeReport = 6;
+                        array_Seach.TypeReport = 6;
                         txtFunc = 'chi tiết theo doanh thu';
                         fileNameExport = 'BaoCaoHoaHongDoanhThu_ChiTiet.xlsx';
                     }

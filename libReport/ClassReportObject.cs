@@ -1091,7 +1091,9 @@ namespace libReport
         public Guid ID_NhanVien { get; set; }
         public string MaNhanVien { get; set; }
         public string TenNhanVien { get; set; }
+        public double? DoanhThu_DuocHuong { get; set; }
         public double? HoaHongDoanhThu { get; set; }
+        public double? TongDoanhThu_DuocHuong { get; set; }
         public double? TongHoaHongDoanhThu { get; set; }
         public int TotalRow { get; set; }
         public double TotalPage { get; set; }
@@ -1105,19 +1107,21 @@ namespace libReport
         public DateTime NgayLapHoaDon { get; set; }
         public string MaDoiTuong { get; set; }
         public string TenDoiTuong { get; set; }
-        public string DienThoai { get; set; }
 
+        public string TenNhomHangHoa { get; set; }
         public string MaHangHoa { get; set; }
         public string TenHangHoa { get; set; }
         public double? SoLuong { get; set; }
         public double? ThanhTien { get; set; }
         public double? GtriChietKhau_MacDinh { get; set; }
         public double? GiaTriTinh { get; set; }
-        public double? TongGiaTriTinh_TheoHD { get; set; }
 
         public string MaNhanVien { get; set; }
         public string TenNhanVien { get; set; }
+        public double? DoanhThu { get; set; }
+        public double? TongGiaTriTinh_TheoHD { get; set; }
         public double? PT_ChietKhau { get; set; }
+        public double? DoanhThu_DuocHuong { get; set; }
         public double? TienChietKhau { get; set; }
 
         public double? SumSoLuong { get; set; }

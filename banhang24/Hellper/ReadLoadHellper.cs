@@ -2464,7 +2464,8 @@ namespace banhang24.Hellper
             maNVTuVanChinh,
             tenNVTuVanChinh,
             maNVTuVanPhu,
-            tenNVTuVanPhu
+            tenNVTuVanPhu,
+            doanhsohuong
         }
 
         public static Dictionary<string, string> RpDiscountInvoice = new Dictionary<string, string>()
@@ -2504,7 +2505,8 @@ namespace banhang24.Hellper
         {
              { TypeRpDiscountInvoice.manhanvien.ToString(),"Mã nhân viên" },
              { TypeRpDiscountInvoice.tennhanvien.ToString(),"Tên nhân viên" },
-             { TypeRpDiscountInvoice.tong.ToString(),"Hoa hồng DV đặc biệt" },
+             { TypeRpDiscountInvoice.doanhsohuong.ToString(),"Doanh số hưởng" },
+             { TypeRpDiscountInvoice.tong.ToString(),"Hoa hồng" },
         };
 
          public static Dictionary<string, string> RpDiscountRevenue_Detail = new Dictionary<string, string>()
@@ -2513,10 +2515,8 @@ namespace banhang24.Hellper
              { TypeRpDiscountInvoice.ngaylap.ToString(),"Ngày lập hóa đơn" },
              { TypeRpDiscountInvoice.makhachhang.ToString(),"Mã khách hàng" },
              { TypeRpDiscountInvoice.tenkhachhang.ToString(),"Tên khách hàng" },
-             { TypeRpDiscountInvoice.dienthoaikh.ToString(),"Điện thoại" },
-             { TypeRpDiscountInvoice.maNVTuVanChinh.ToString(),"Mã TV chính" },
-             { TypeRpDiscountInvoice.tenNVTuVanChinh.ToString(),"Tên TV chính" },
 
+             { TypeRChietKhau.tennhomhang.ToString(),"Tên nhóm hàng" },
              { TypeRChietKhau.mahang.ToString(),"Mã hàng/dịch vụ" },
              { TypeRChietKhau.tenhang.ToString(),"Tên hàng/dịch vụ" },
              { TypeRChietKhau.soluong.ToString(),"Số lượng" },
@@ -2524,12 +2524,16 @@ namespace banhang24.Hellper
 
              { TypeRpDiscountInvoice.chiphiNganHang.ToString(),"% cài đặt" },
              { TypeRpDiscountInvoice.thucthu_thuctinh.ToString(),"Giá trị tính" },
-             { TypeRpDiscountInvoice.tong.ToString(),"Tổng thực tính" },
 
              { TypeRpDiscountInvoice.manhanvien.ToString(),"Mã nhân viên" },
              { TypeRpDiscountInvoice.tennhanvien.ToString(),"Tên nhân viên" },
-             { TypeRpDiscountInvoice.ptdoanhthu.ToString(),"% Hoa hồng" },
-             { TypeRpDiscountInvoice.hoahongdoanhthu.ToString(),"Tiền được nhận" },
+             { TypeRpDiscountInvoice.doanhthu.ToString(),"Doanh số bán" },
+             { TypeRpDiscountInvoice.tong.ToString(),"Tổng thực tính" },
+
+
+             { TypeRpDiscountInvoice.ptdoanhthu.ToString(),"Hệ số" },
+             { TypeRpDiscountInvoice.doanhsohuong.ToString(),"Doanh số hưởng" }, // % chietkhau * doanhso (# tienduocnhan)
+             { TypeRpDiscountInvoice.hoahongdoanhthu.ToString(),"Hoa hồng" },
         };
 
         public static Dictionary<string, string> RpDiscountAll = new Dictionary<string, string>()
