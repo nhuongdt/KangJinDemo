@@ -323,7 +323,7 @@
                     sumGtriTinh += thanhtien * itFor.ChietKhauMD_NV / 100;
                 }
                 else {
-                    sumGtriTinh += itFor.ChietKhauMD_NV;
+                    sumGtriTinh += formatNumberToFloat(itFor.ChietKhauMD_NV);
                 }
                 // cungloai
                 for (let k = 0; k < itFor.HangCungLoais.length; k++) {
@@ -334,7 +334,7 @@
                         sumGtriTinh += cungloai_thanhtien * forIn.ChietKhauMD_NV / 100;
                     }
                     else {
-                        sumGtriTinh += forIn.ChietKhauMD_NV;
+                        sumGtriTinh += formatNumberToFloat(forIn.ChietKhauMD_NV);
                     }
                 }
                 // lohang
@@ -346,7 +346,7 @@
                         sumGtriTinh += cungloai_thanhtien * forIn.ChietKhauMD_NV / 100;
                     }
                     else {
-                        sumGtriTinh += forIn.ChietKhauMD_NV;
+                        sumGtriTinh += formatNumberToFloat(forIn.ChietKhauMD_NV);
                     }
                 }
 
@@ -1800,6 +1800,19 @@
                 }
             }
         },
+        CheckAgree_HoaHongDVDacBiet: function () {
+            let self = this;
+            let sumPTram = 0;
+            for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                let itFor = self.HoaHongDVDacBiet.NhanVienChosed[i];
+                sumPTram += formatNumberToFloat(itFor.PT_ChietKhau);
+            }
+            if (sumPTram > 100) {
+                ShowMessage_Danger('Hoa hồng DV đặc biệt: Tổng phân bổ không được vượt quá 1');
+                return false;
+            }
+            return true;
+        },
 
         AgreeThanhToan: function () {
             var self = this;
@@ -1814,7 +1827,7 @@
                 commonStatisJs.ShowMessageDanger("Tổng phân bổ không được vượt quá " + formatNumber3Digit(thucTinh));
                 return;
             }
-            if (self.PhieuThuKhach.TienThua > 0) {
+            if (RoundDecimal(self.PhieuThuKhach.TienThua) > 0) {
                 ShowMessage_Danger('Vui lòng không nhập quá số tiền cần thanh toán');
                 return;
             }
@@ -1824,6 +1837,9 @@
                     return;
                 }
             }
+
+            let checkDVdacBiet = self.CheckAgree_HoaHongDVDacBiet();
+            if (!checkDVdacBiet) return;
 
             self.saveOK = true;
             switch (self.formType) {
@@ -1862,35 +1878,35 @@
             }
             $('#ThongTinThanhToanKHNCC').modal('hide');
         },
-        SaveHoaHongNV_DVDacBiet: async function (hd ={ID: null,LoaiHoaDon:0, IDRandom:'' }) {
+        SaveHoaHongNV_DVDacBiet: async function (hd = { ID: null, LoaiHoaDon: 0, IDRandom: '' }) {
             let self = this;
-            if(hd.LoaiHoaDon === 1){
+            if (hd.LoaiHoaDon === 1) {
                 let idRandom = hd.IDRandom;
                 // vì không muốn xử lý lưu cache mỗi lần thay đổi thông tin CTHD (ở Banle.js)
-            // nên trước khi lưu vào DB: thực hiện tính toán lại
-            self.DVDacBiet_GetDataFromCache(idRandom);
-            self.DVDacBiet_CaculatorGiaTriChietKhau(idRandom, hd.LoaiHoaDon);
-            self.DVDacBiet_CaculatorHoaHongNV(idRandom);
+                // nên trước khi lưu vào DB: thực hiện tính toán lại
+                self.DVDacBiet_GetDataFromCache(idRandom);
+                self.DVDacBiet_CaculatorGiaTriChietKhau(idRandom, hd.LoaiHoaDon);
+                self.DVDacBiet_CaculatorHoaHongNV(idRandom);
 
-            // gán ID_HoaDon
-            for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
-                self.HoaHongDVDacBiet.NhanVienChosed[i].ID_HoaDon = hd.ID;
-            }
-            // save to DB
-            await self.Post_BHNhanVienThucHien(self.HoaHongDVDacBiet.NhanVienChosed);
+                // gán ID_HoaDon
+                for (let i = 0; i < self.HoaHongDVDacBiet.NhanVienChosed.length; i++) {
+                    self.HoaHongDVDacBiet.NhanVienChosed[i].ID_HoaDon = hd.ID;
+                }
+                // save to DB
+                await self.Post_BHNhanVienThucHien(self.HoaHongDVDacBiet.NhanVienChosed);
 
-            // clear cache
-            let lcHoaHongDVDacBiet = localStorage.getItem('lcHoaHongDVDacBiet');
-            if (lcHoaHongDVDacBiet !== null) {
-                lcHoaHongDVDacBiet = JSON.parse(lcHoaHongDVDacBiet);
-            }
-            else {
-                lcHoaHongDVDacBiet = [];
-            }
-            lcHoaHongDVDacBiet = $.grep(lcHoaHongDVDacBiet, function (x) {
-                return x.IDRandomHD !== idRandom;
-            });
-            localStorage.setItem('lcHoaHongDVDacBiet', JSON.stringify(lcHoaHongDVDacBiet));
+                // clear cache
+                let lcHoaHongDVDacBiet = localStorage.getItem('lcHoaHongDVDacBiet');
+                if (lcHoaHongDVDacBiet !== null) {
+                    lcHoaHongDVDacBiet = JSON.parse(lcHoaHongDVDacBiet);
+                }
+                else {
+                    lcHoaHongDVDacBiet = [];
+                }
+                lcHoaHongDVDacBiet = $.grep(lcHoaHongDVDacBiet, function (x) {
+                    return x.IDRandomHD !== idRandom;
+                });
+                localStorage.setItem('lcHoaHongDVDacBiet', JSON.stringify(lcHoaHongDVDacBiet));
             }
         },
 
