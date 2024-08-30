@@ -695,14 +695,27 @@
                         self.newHDHoaTro.SPChung = itFor.SPChung;
                         self.newHDHoaTro.SPNgayThuoc = itFor.SPNgayThuoc;
                         self.newHDHoaTro.TenNhomHangHoa = itFor.TenNhomHangHoaa;
-                        self.newHDHoaTro.MaDoiTuong = itFor.MaDoiTuong;
-                        self.newHDHoaTro.TenDoiTuong = itFor.TenDoiTuong;
 
-                        // vì có thể hd at banle: chưa chọn khách hàng, nên 
-                        // hdHoTro: click là lưu luôn --> nên không liên quan đến hd ở BanLe 
-                        // hdChosing.IDRandom: chỉ là 1 cái Id mà thôi
-                        self.InvoiceChosing.TenDoiTuong = itFor.TenDoiTuong;
-                        self.InvoiceChosing.MaDoiTuong = itFor.MaDoiTuong;
+
+                        // nếu same IdRandomHD, và bị thay đổi khách hàng at BanLe.js
+                        // ---> phải update lại cache
+                        if (!commonStatisJs.CheckNull(hdChosing.ID_DoiTuong)
+                            && hdChosing.ID_DoiTuong !== itFor.ID_DoiTuong) {
+                            self.newHDHoaTro.MaDoiTuong = hdChosing.MaDoiTuong;
+                            self.newHDHoaTro.TenDoiTuong = hdChosing.TenDoiTuong;
+                            self.InvoiceChosing.TenDoiTuong = hdChosing.TenDoiTuong;
+                            self.InvoiceChosing.MaDoiTuong = hdChosing.MaDoiTuong;
+
+                            hdHoTro[i].ID_DoiTuong = hdChosing.ID_DoiTuong;
+                            hdHoTro[i].MaDoiTuong = hdChosing.MaDoiTuong;
+                            hdHoTro[i].TenDoiTuong = hdChosing.TenDoiTuong;
+                        }
+                        else {
+                            self.newHDHoaTro.MaDoiTuong = itFor.MaDoiTuong;
+                            self.newHDHoaTro.TenDoiTuong = itFor.TenDoiTuong;
+                            self.InvoiceChosing.TenDoiTuong = itFor.TenDoiTuong;
+                            self.InvoiceChosing.MaDoiTuong = itFor.MaDoiTuong;
+                        }
 
                         self.NhomHangApply.IsChuyenPhatNhanh = itFor.IsChuyenPhatNhanh;
                         self.NhomHangApply.GhiChu = itFor.GhiChu;
@@ -749,7 +762,7 @@
                         ID_NhomHang: null,
                         ID_DonVi: self.InvoiceChosing.ID_DonVi,
                         ID_DoiTuong: self.InvoiceChosing.ID_DoiTuong,
-                        SoNgayThuoc:'',
+                        SoNgayThuoc: '',
                         IsXuatNgayThuoc: false,
                         IsChuyenPhatNhanh: false,
                         DienGiai: '',
