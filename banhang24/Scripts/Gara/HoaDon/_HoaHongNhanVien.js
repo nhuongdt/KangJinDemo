@@ -53,7 +53,7 @@
             ajaxHelper('/api/DanhMuc/BH_HoaDonAPI/' + 'GetChietKhauNV_byIDHoaDon?idHoaDon=' + objHoaDon.ID
                 + '&idPhieuThu=' + idPhieuThu, 'GET').done(function (x) {
                     if (x.res === true) {
-                        self.GridNVienBanGoi_Chosed = x.data;
+                        self.GridNVienBanGoi_Chosed = x.data.filter(x => x.TinhChietKhauTheo !== 5);// 5.hoahong DV dacbiet
                         for (let i = 0; i < self.GridNVienBanGoi_Chosed.length; i++) {
                             let itFor = self.GridNVienBanGoi_Chosed[i];
                             itFor.ChietKhauMacDinh = formatNumber3Digit(itFor.PT_ChietKhau);

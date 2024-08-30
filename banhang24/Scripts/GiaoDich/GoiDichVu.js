@@ -2046,8 +2046,9 @@
 
         ajaxHelper(BH_HoaDonUri + 'GetChietKhauNV_byIDHoaDon?idHoaDon=' + item.ID, 'GET').done(function (x) {
             if (x.res === true) {
-                self.AllNhanVien_CKHoaDon(x.data);
-                item.BH_NhanVienThucHiens = x.data;
+                let nvHoaHong = x.data.filter(x => x.TinhChietKhauTheo !== 5);
+                self.AllNhanVien_CKHoaDon(nvHoaHong);
+                item.BH_NhanVienThucHiens = nvHoaHong;
             }
         });
     }

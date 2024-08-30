@@ -2345,7 +2345,7 @@
                 if (navigator.onLine) {
                     ajaxHelper(BH_HoaDonUri + 'GetChietKhauNV_byIDHoaDon?idHoaDon=' + item.ID, 'GET').done(function (x) {
                         if (x.res === true) {
-                            item.BH_NhanVienThucHiens = x.data;
+                            item.BH_NhanVienThucHiens = x.data.filter(x => x.TinhChietKhauTheo !== 5);
                         }
                     });
                 }
