@@ -750,7 +750,7 @@
             }
 
             var lstNV = self.GridNV_TVTH;
-            for(let i=0; i< lstNV.length;i++){
+            for (let i = 0; i < lstNV.length; i++) {
                 lstNV[i].TienChietKhau = formatNumberToFloat(lstNV[i].TienChietKhau);
             }
             var myData = {
