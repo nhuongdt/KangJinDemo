@@ -518,7 +518,8 @@ var cmpChoseProduct = {
                     placeholder="Tìm kiếm" aria-label="Tìm kiếm">
 
                 <ul class="gara-search-dropbox" style="width:100%;top:100%" v-on:scroll.passive="scrollList">
-                    <li v-for="(item, index) of searchList" v-on:click="ChoseProduct(item)"   class="flex"
+                    <li v-for="(item, index) of searchList" v-on:click="ChoseProduct(item)"  class="flex" 
+                        style="border-bottom: 1px solid #ccc"
                         v-bind:style="[$parent.IndexFocus === index ? {'background':'red'} : {'background':'none'}]">
                             <img v-bind:src="item.SrcImage" v-if="showImage" alt="Ảnh tìm kiếm" />
                             <div class="op-hh-detail">
@@ -844,6 +845,7 @@ var cmpChoseKhoanThu = {
     props: {
         textSearch: { default: '' },
         idChosing: { default: null },
+        roleChange: {default: true},
         showbuttonAdd: { default: false },
         showbuttonUpdate: { default: false },
         LaKhoanThu: { default: true },
@@ -864,7 +866,8 @@ var cmpChoseKhoanThu = {
                  <i class="far fa-edit"></i>
                 </a>
             </div> 
-        <input class="gara-search-HH" :placeholder="placeholderValue" v-model="textSearch" v-on:keyup="search"
+        <input class="gara-search-HH form-control" :placeholder="placeholderValue" v-model="textSearch" v-on:keyup="search"
+        :disabled="!roleChange"
         v-on:click="showList"/>
         <div class="gara-search-dropbox drop-search">
             <ul>
@@ -891,8 +894,8 @@ var cmpChoseKhoanThu = {
     methods: {
         showList: function () {
             var self = this;
-            self.search();// clear txtSearch old
-            $(event.currentTarget).next().show();
+             self.search();// clear txtSearch old
+             $(event.currentTarget).next().show();
         },
         search: function () {
             var self = this;
