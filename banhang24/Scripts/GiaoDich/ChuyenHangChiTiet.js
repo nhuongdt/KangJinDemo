@@ -243,6 +243,7 @@ var ChuyenHangChiTiet = function () {
             ListIDLoHang: arrIDLoHang
         }
 
+        // không cập nhật GiaVon: vì đang lấy GiaVon = DonGia chuyển hàng để lưu vào DB
         if (arrIDQuiDoi.length > 0) {
             ajaxHelper(DMHangHoaUri + 'GetTonKho_byIDQuyDois', 'POST', obj).done(function (x) {
                 if (x.res) {
@@ -254,11 +255,6 @@ var ChuyenHangChiTiet = function () {
                             if (forIn.ID_DonViQuiDoi === forOut.ID_DonViQuiDoi) {
                                 if (forOut.QuanLyTheoLoHang === false) {
                                     cthd[i].TonKho = forIn.TonKho;
-                                    // neu nhanhang: lay giavon at chinhanh chuyen ~ giachuyen
-                                    if (self.IsChuyenHang()) {
-                                        cthd[i].GiaVon = forIn.GiaVon;
-                                        cthd[i].ThanhTien = cthd[i].SoLuong * forIn.GiaVon;
-                                    }
                                     break;
                                 }
                                 else {
@@ -266,18 +262,10 @@ var ChuyenHangChiTiet = function () {
                                         let itLot = forOut.DM_LoHang[k];
                                         if (forIn.ID_LoHang === itLot.ID_LoHang) {
                                             cthd[i].DM_LoHang[k].TonKho = forIn.TonKho;
-                                            if (self.IsChuyenHang()) {
-                                                cthd[i].DM_LoHang[k].GiaVon = forIn.GiaVon;
-                                                cthd[i].DM_LoHang[k].ThanhTien = itLot.SoLuong * forIn.GiaVon;
-                                            }
 
                                             //update for parent
                                             if (forOut.LotParent && forOut.ID_LoHang === forIn.ID_LoHang) {
                                                 cthd[i].TonKho = forIn.TonKho;
-                                                if (self.IsChuyenHang()) {
-                                                    cthd[i].GiaVon = forIn.GiaVon;
-                                                    cthd[i].ThanhTien = cthd[i].SoLuong * forIn.GiaVon;
-                                                }
                                             }
                                             break;
                                         }
@@ -1573,7 +1561,7 @@ var ChuyenHangChiTiet = function () {
                     }
                 }
 
-                let ngaylapHD =  GetNgayLapHD_withTimeNow(hd[0].NgayLapHoaDon);
+                let ngaylapHD = GetNgayLapHD_withTimeNow(hd[0].NgayLapHoaDon);
                 let checkDate = CheckNgayLapHD_format($('#datetimepicker').val());
                 if (!checkDate) {
                     Enable_btnSave();
@@ -1626,14 +1614,14 @@ var ChuyenHangChiTiet = function () {
                             err += itOut.TenHangHoa + ', ';
                         }
 
-                         for (let j = 0; j < itOut.DM_LoHang.length; j++) {
-                                let itFor = itOut.DM_LoHang[j];
-                                if (j !== 0) {
-                                    if (formatNumberToFloat(itFor.SoLuong) === 0) {
-                                        err += itFor.TenHangHoa + ', ';
-                                    }
+                        for (let j = 0; j < itOut.DM_LoHang.length; j++) {
+                            let itFor = itOut.DM_LoHang[j];
+                            if (j !== 0) {
+                                if (formatNumberToFloat(itFor.SoLuong) === 0) {
+                                    err += itFor.TenHangHoa + ', ';
                                 }
                             }
+                        }
                     }
                 }
                 err = Remove_LastComma(err);
@@ -1643,7 +1631,7 @@ var ChuyenHangChiTiet = function () {
                     Enable_btnSave();
                     return false;
                 }
-                 if (self.ThietLap().XuatAm === false) {
+                if (self.ThietLap().XuatAm === false) {
                     // only check soluong if chuyenhang
                     if (self.IsChuyenHang()) {
                         const checkTonKho = await CheckTonKho_CTHD(arrCT, ngaylapHD, commonStatisJs.CheckNull(idHoaDon) || idHoaDon == const_GuidEmpty ? 1 : 8, idHoaDon);
