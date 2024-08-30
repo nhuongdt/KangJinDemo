@@ -11,6 +11,14 @@
     #vmThemMoiKhuyenMai .border-bottom {
         border-bottom: 1px solid #ccc
     }
+
+    #vmThemMoiKhuyenMai .lbl-product {
+        padding-top: 12px;
+    }
+
+        #vmThemMoiKhuyenMai .lbl-product .fontweight600 {
+            font-weight: 600
+        }
 </style>
 
 <div id="vmThemMoiKhuyenMai" class="modal fade">
@@ -62,7 +70,7 @@
                 </div>
 
                 <div class="col-lg-12" style="padding-top:16px;">
-                    <ul class="nav nav-tabs">
+                    <ul class="nav nav-tabs" role="tablist">
                         <li role="tab" class="nav-item active">
                             <a href="#hinhthucKhuyenMai" data-toggle="tab">Hình thức khuyến mại</a>
                         </li>
@@ -118,13 +126,17 @@
                                              v-for="(ctkm, index) in chitietKM">
                                             <div class="col-lg-4 flex flex-row nopadding-left">
                                                 <label>Từ</label>
-                                                <input class="form-control" style="margin-left:16px" title="Tồng tiền hàng từ" />
+                                                <input class="form-control" style="margin-left:16px" title="Tồng tiền hàng từ"
+                                                       v-model="ctkm.TongTienHang"
+                                                       v-on:keyup="EditTongTienHang(ctkm,index)" />
                                             </div>
                                             <div class="col-lg-3 flex">
-                                                <input class="form-control" title="Giá trị giảm giá" />
+                                                <input class="form-control" title="Giá trị giảm giá"
+                                                       v-model="ctkm.GiamGia"
+                                                       v-on:keyup="EditGiamGia(ctkm,index)" />
                                             </div>
                                             <div class="col-lg-2 flex">
-                                                <div class="toggle" v-on:click="ChangePtramVND(ctkm,index)" 
+                                                <div class="toggle" v-on:click="ChangePtramVND(ctkm,index)"
                                                      v-bind:class="[ctkm.GiamGiaTheoPhanTram ? 'active-re' : '']">
                                                     <div class="toggle-line"></div>
                                                     <span class="toggle-element">VNĐ</span>
@@ -147,7 +159,7 @@
                                             <label class="col-lg-6">Tặng hàng/ Nhóm hàng</label>
                                         </div>
 
-                                        <div class="col-lg-12 flex flex-row nopadding-right nopadding-left" style="margin-top: 16px; align-items:center"
+                                        <div class="col-lg-12 flex flex-row nopadding-right nopadding-left" style="margin-top: 16px;"
                                              v-for="(ctkm, index) in chitietKM">
                                             <div class="col-lg-3 flex flex-row nopadding-left">
                                                 <label>Từ</label>
@@ -156,11 +168,28 @@
                                             <div class="col-lg-2 flex">
                                                 <input class="form-control" title="Số lượng tặng" />
                                             </div>
-                                            <div class="col-lg-6 flex">
+                                            <div class="col-lg-6 flex flex-column"
+                                                 v-on:click="SetIndexChosing(index)">
                                                 <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                           :role-add="true"
-                                                          v-on:chose-product="ChoseProduct">
+                                                          v-on:chose-product="ChoseHangTang"
+                                                          v-on:show-modal="showModalNhomHang(index,false)">
                                                 </products>
+                                                <div v-if="ctkm.ID_DonViQuiDoi!=null"
+                                                     v-bind:class="[ctkm.ID_DonViQuiDoi!=null?'lbl-product':'']">
+                                                    <span>Sản phẩm:</span>
+                                                    <span class="fontweight600"> {{ctkm.TenHangHoaTang}}</span>
+
+                                                </div>
+                                                <div v-if="ctkm.ID_NhomHangHoa!=null"
+                                                     v-bind:class="[ctkm.ID_NhomHangHoa!=null?'lbl-product':'']">
+                                                    <span>
+                                                        Nhóm hàng:
+                                                    </span>
+                                                    <span class="fontweight600">
+                                                        {{ctkm.TenNhomHangHoaTang}}
+                                                    </span>
+                                                </div>
                                             </div>
                                             <div class="col-lg-1 flex flex-end nopading-right">
                                                 <a href="javascript:void(0)" class="btn-gray" title="Xóa" v-on:click="RemoveChiTietKM (ctkm,index)">
@@ -168,6 +197,7 @@
                                                 </a>
                                             </div>
                                         </div>
+
 
                                     </div>
 
@@ -179,7 +209,7 @@
                                             <label class="col-lg-7">Hàng/ Nhóm hàng được giảm giá</label>
                                         </div>
 
-                                        <div class="col-lg-12 flex flex-row nopadding-right nopadding-left" style="margin-top: 16px; align-items:center"
+                                        <div class="col-lg-12 flex flex-row nopadding-right nopadding-left" style="margin-top: 16px;"
                                              v-for="(ctkm, index) in chitietKM">
                                             <div class="col-lg-3 flex flex-row nopadding-left">
                                                 <label>Từ</label>
@@ -198,11 +228,27 @@
                                                 <div class="col-lg-3">
                                                     <input class="form-control" title="Số lượng được giảm" placeholder="SL" />
                                                 </div>
-                                                <div class="col-lg-8 nopadding">
+                                                <div class="col-lg-8 nopadding" v-on:click="SetIndexChosing(index)">
                                                     <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                               :role-add="true"
-                                                              v-on:chose-product="ChoseProduct">
+                                                              v-on:chose-product="ChoseHangTang"
+                                                              v-on:show-modal="showModalNhomHang(index,false)">
                                                     </products>
+                                                    <div v-if="ctkm.ID_DonViQuiDoi!=null"
+                                                         v-bind:class="[ctkm.ID_DonViQuiDoi!=null?'lbl-product':'']">
+                                                        <span>Sản phẩm:</span>
+                                                        <span class="fontweight600"> {{ctkm.TenHangHoaTang}}</span>
+
+                                                    </div>
+                                                    <div v-if="ctkm.ID_NhomHangHoa!=null"
+                                                         v-bind:class="[ctkm.ID_NhomHangHoa!=null?'lbl-product':'']">
+                                                        <span>
+                                                            Nhóm hàng:
+                                                        </span>
+                                                        <span class="fontweight600">
+                                                            {{ctkm.TenNhomHangHoaTang}}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <div class="col-lg-1 flex flex-end nopading-right">
                                                     <a href="javascript:void(0)" class="btn-gray" title="Xóa" v-on:click="RemoveChiTietKM (ctkm,index)">
@@ -253,17 +299,33 @@
                                             <label class="col-lg-5">Hàng/ Nhóm hàng được giảm giá</label>
                                         </div>
 
-                                        <div class="col-lg-12 flex flex-row nopadding-right no-padding-left" style="margin-top: 16px; align-items:center"
+                                        <div class="col-lg-12 flex flex-row nopadding-right no-padding-left" style="margin-top: 16px;"
                                              v-for="(ctkm, index) in chitietKM">
                                             <div class="col-lg-5 flex flex-row nopadding-left">
                                                 <div class="col-lg-3 nopadding-left">
                                                     <input class="form-control" title="Số lượng hàng mua" placeholder="SL" />
                                                 </div>
-                                                <div class="col-lg-9 nopadding">
+                                                <div class="col-lg-9 nopadding" v-on:click="SetIndexChosing(index)">
                                                     <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                               :role-add="true"
-                                                              v-on:chose-product="ChoseProduct">
+                                                              v-on:chose-product="ChoseHangMua"
+                                                              v-on:show-modal="showModalNhomHang(index,true)">
                                                     </products>
+                                                    <div v-if="ctkm.ID_DonViQuiDoiMua!=null"
+                                                         v-bind:class="[ctkm.ID_DonViQuiDoiMua!=null?'lbl-product':'']">
+                                                        <span>Sản phẩm:</span>
+                                                        <span class="fontweight600"> {{ctkm.TenHangHoaMua}}</span>
+
+                                                    </div>
+                                                    <div v-if="ctkm.ID_NhomHangHoaMua!=null"
+                                                         v-bind:class="[ctkm.ID_NhomHangHoaMua!=null?'lbl-product':'']">
+                                                        <span>
+                                                            Nhóm hàng:
+                                                        </span>
+                                                        <span class="fontweight600">
+                                                            {{ctkm.TenNhomHangHoaMua}}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-lg-2 flex flex-row nopadding">
@@ -279,11 +341,27 @@
                                                 <div class="col-lg-3">
                                                     <input class="form-control" title="Số lượng hàng được giảm giá" placeholder="SL" />
                                                 </div>
-                                                <div class="col-lg-8 nopadding">
+                                                <div class="col-lg-8 nopadding" v-on:click="SetIndexChosing(index)">
                                                     <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                               :role-add="true"
-                                                              v-on:chose-product="ChoseProduct">
+                                                              v-on:chose-product="ChoseHangTang"
+                                                              v-on:show-modal="showModalNhomHang(index,false)">
                                                     </products>
+                                                    <div v-if="ctkm.ID_DonViQuiDoi!=null"
+                                                         v-bind:class="[ctkm.ID_DonViQuiDoi!=null?'lbl-product':'']">
+                                                        <span>Sản phẩm:</span>
+                                                        <span class="fontweight600"> {{ctkm.TenHangHoaTang}}</span>
+
+                                                    </div>
+                                                    <div v-if="ctkm.ID_NhomHangHoa!=null"
+                                                         v-bind:class="[ctkm.ID_NhomHangHoa!=null?'lbl-product':'']">
+                                                        <span>
+                                                            Nhóm hàng:
+                                                        </span>
+                                                        <span class="fontweight600">
+                                                            {{ctkm.TenNhomHangHoaTang}}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <div class="col-lg-1 flex flex-end nopading-right">
                                                     <a href="javascript:void(0)" class="btn-gray" title="Xóa" v-on:click="RemoveChiTietKM (ctkm,index)">
@@ -301,29 +379,61 @@
                                             <label class="col-lg-6">Hàng/ Nhóm hàng được tặng</label>
                                         </div>
 
-                                        <div class="col-lg-12 flex flex-row nopadding-right no-padding-left" style="margin-top: 16px; align-items:center"
+                                        <div class="col-lg-12 flex flex-row nopadding-right no-padding-left" style="margin-top: 16px"
                                              v-for="(ctkm, index) in chitietKM">
 
                                             <div class="col-lg-6 flex flex-row nopadding-left">
                                                 <div class="col-lg-3 nopadding-left">
                                                     <input class="form-control" title="Số lượng hàng mua" placeholder="SL mua" />
                                                 </div>
-                                                <div class="col-lg-9 nopadding">
+                                                <div class="col-lg-9 nopadding" v-on:click="SetIndexChosing(index)">
                                                     <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                               :role-add="true"
-                                                              v-on:chose-product="ChoseProduct">
+                                                              v-on:chose-product="ChoseHangMua"
+                                                              v-on:show-modal="showModalNhomHang(index,true)">
                                                     </products>
+                                                    <div v-if="ctkm.ID_DonViQuiDoiMua!=null"
+                                                         v-bind:class="[ctkm.ID_DonViQuiDoiMua!=null?'lbl-product':'']">
+                                                        <span>Sản phẩm:</span>
+                                                        <span class="fontweight600"> {{ctkm.TenHangHoaMua}}</span>
+
+                                                    </div>
+                                                    <div v-if="ctkm.ID_NhomHangHoaMua!=null"
+                                                         v-bind:class="[ctkm.ID_NhomHangHoaMua!=null?'lbl-product':'']">
+                                                        <span>
+                                                            Nhóm hàng:
+                                                        </span>
+                                                        <span class="fontweight600">
+                                                            {{ctkm.TenNhomHangHoaMua}}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 flex flex-row nopadding">
                                                 <div class="col-lg-3">
                                                     <input class="form-control" title="Số lượng hàng tặng" placeholder="SL tặng" />
                                                 </div>
-                                                <div class="col-lg-8 nopadding">
+                                                <div class="col-lg-8 nopadding" v-on:click="SetIndexChosing(index)">
                                                     <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                               :role-add="true"
-                                                              v-on:chose-product="ChoseProduct">
+                                                              v-on:chose-product="ChoseHangTang"
+                                                              v-on:show-modal="showModalNhomHang(index,false)">
                                                     </products>
+                                                    <div v-if="ctkm.ID_DonViQuiDoi!=null"
+                                                         v-bind:class="[ctkm.ID_DonViQuiDoi!=null?'lbl-product':'']">
+                                                        <span>Sản phẩm:</span>
+                                                        <span class="fontweight600"> {{ctkm.TenHangHoaTang}}</span>
+
+                                                    </div>
+                                                    <div v-if="ctkm.ID_NhomHangHoa!=null"
+                                                         v-bind:class="[ctkm.ID_NhomHangHoa!=null?'lbl-product':'']">
+                                                        <span>
+                                                            Nhóm hàng:
+                                                        </span>
+                                                        <span class="fontweight600">
+                                                            {{ctkm.TenNhomHangHoaTang}}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <div class="col-lg-1 flex flex-end nopading-right">
                                                     <a href="javascript:void(0)" class="btn-gray" title="Xóa" v-on:click="RemoveChiTietKM (ctkm,index)">
@@ -347,11 +457,27 @@
                                                 <div class="col-lg-3 nopadding-left">
                                                     <input class="form-control" title="Số lượng hàng mua" placeholder="SL mua" />
                                                 </div>
-                                                <div class="col-lg-9 nopadding">
+                                                <div class="col-lg-9 nopadding" v-on:click="SetIndexChosing(index)">
                                                     <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                               :role-add="true"
-                                                              v-on:chose-product="ChoseProduct">
+                                                              v-on:chose-product="ChoseHangMua"
+                                                              v-on:show-modal="showModalNhomHang(index,true)">
                                                     </products>
+                                                    <div v-if="ctkm.ID_DonViQuiDoiMua!=null"
+                                                         v-bind:class="[ctkm.ID_DonViQuiDoiMua!=null?'lbl-product':'']">
+                                                        <span>Sản phẩm:</span>
+                                                        <span class="fontweight600"> {{ctkm.TenHangHoaMua}}</span>
+
+                                                    </div>
+                                                    <div v-if="ctkm.ID_NhomHangHoaMua!=null"
+                                                         v-bind:class="[ctkm.ID_NhomHangHoaMua!=null?'lbl-product':'']">
+                                                        <span>
+                                                            Nhóm hàng:
+                                                        </span>
+                                                        <span class="fontweight600">
+                                                            {{ctkm.TenNhomHangHoaMua}}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-lg-5 flex flex-row nopadding">
@@ -388,10 +514,10 @@
                                             </div>
                                             <div class="col-lg-10">
                                                 <div class="col-lg-12 nopadding">
-                                                    <div class="col-lg-8 nopadding">
+                                                    <div class="col-lg-8 nopadding" v-on:click="SetIndexChosing(index)">
                                                         <products :id-chi-nhanh="inforLogin.ID_DonVi"
                                                                   :role-add="true"
-                                                                  v-on:chose-product="ChoseProduct">
+                                                                  v-on:chose-product="ChoseHangMua">
                                                         </products>
                                                     </div>
                                                     <div class="col-lg-2">
@@ -438,14 +564,11 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-lg-12" style="margin-top:12px">
-                                                    <span style="text-decoration:underline">
-                                                        <a href="javascript:void(0)" class="btn-gray flex flex-row" title="Thêm dòng">
-                                                            <i class="material-icons" style="color:blue;">add</i>
-                                                            <label>Thêm dòng</label>
-                                                        </a>
-                                                    </span>
-
+                                                <div class="col-lg-12" style="margin-top:16px">
+                                                    <a href="javascript:void(0)" class="btn-gray flex flex-row" title="Thêm dòng">
+                                                        <i class="material-icons" style="color:blue;">add</i>
+                                                        <label>Thêm dòng</label>
+                                                    </a>
                                                 </div>
                                             </div>
 
@@ -634,6 +757,8 @@
         </div>
     </div>
 </div>
+@Html.Partial("~/Views/HangHoa/_vmChuyenNhomHang.cshtml")
+
 <script>
     var vmThemMoiKhuyenMai = new Vue({
         el: '#vmThemMoiKhuyenMai',
@@ -679,6 +804,8 @@
             typeUpdate: 1,
             saveOK: false,
             isSaving: false,
+            indexChosing: -1,
+            isHangMua: true,
             listData: {
                 AllChiNhanhs: [],
                 AllNhomHangHoas: [],
@@ -812,6 +939,7 @@
                         Text2: x.TenNhanVien
                     }
                 });
+                self.listData.AllNhomHangHoas = allNhomHang;
             },
             newCTKM: function () {
                 return {
@@ -819,13 +947,18 @@
                     TongTienHang: '',
                     GiamGia: '', // diemcong, giamgia
                     GiamGiaTheoPhanTram: true,
-                    ID_DonViQuiDoiMua: '',
-                    ID_NhomHangHoaMua: '',
+                    ID_DonViQuiDoiMua: null,
+                    ID_NhomHangHoaMua: null,
                     SoLuongMua: '',
-                    ID_DonViQuiDoi: '',
-                    ID_NhomHangHoa: '',
+                    ID_DonViQuiDoi: null,
+                    ID_NhomHangHoa: null,
                     SoLuong: '',
-                    GiaKhuyenMai: ''
+                    GiaKhuyenMai: '',
+
+                    TenHangHoaMua: '',
+                    TenHangHoaTang: '',
+                    TenNhomHangHoaMua: '',
+                    TenNhomHangHoaTang: '',
                 }
             },
 
@@ -937,7 +1070,97 @@
                 let self = this;
                 for (let i = 0; i < self.chitietKM.length; i++) {
                     if (i === index) {
-                         self.chitietKM[i].GiamGiaTheoPhanTram = !self.chitietKM[i].GiamGiaTheoPhanTram
+                        self.chitietKM[i].GiamGiaTheoPhanTram = !self.chitietKM[i].GiamGiaTheoPhanTram
+                        break;
+                    }
+                }
+            },
+            EditTongTienHang: function (ctkm, index) {
+                let self = this;
+                let elm = $(event.currentTarget);
+                let val = $(elm).val();
+                formatNumberObj(elm);
+
+                for (let i = 0; i < self.chitietKM.length; i++) {
+                    if (i === index) {
+                        self.chitietKM[i].TongTienHang = val;
+                        break;
+                    }
+                }
+            },
+            EditGiamGia: function (ctkm, index) {
+                let self = this;
+                let elm = $(event.currentTarget);
+                let val = elm.val();
+                formatNumberObj(elm);
+
+                for (let i = 0; i < self.chitietKM.length; i++) {
+                    if (i === index) {
+                        if (self.chitietKM[i].GiamGiaTheoPhanTram) {
+                            if (val > 100) {
+                                val = 100;
+                            }
+                            self.chitietKM[i].GiamGia = val;
+                        }
+                        break;
+                    }
+                }
+            },
+            EditSoLuongTang: function (ctkm, index) {
+                let self = this;
+                let elm = $(event.currentTarget);
+                let val = $(elm).val();
+
+                for (let i = 0; i < self.chitietKM.length; i++) {
+                    if (i === index) {
+                        self.chitietKM[i].SoLuong = val;
+                        break;
+                    }
+                }
+            },
+            SetIndexChosing: function (index) {
+                let self = this;
+                self.indexChosing = index;
+            },
+            ChoseHangMua: function (proudctItem) {
+                let self = this;
+                for (let i = 0; i < self.chitietKM.length; i++) {
+                    if (i === self.indexChosing) {
+                        self.chitietKM[i].ID_DonViQuiDoiMua = proudctItem.ID_DonViQuiDoi;
+                        self.chitietKM[i].TenHangHoaMua = proudctItem.TenHangHoa;
+                        self.chitietKM[i].ID_NhomHangHoaMua = null;
+                        self.chitietKM[i].TenNhomHangHoaMua = '';
+                        break;
+                    }
+                }
+            },
+            ChoseHangTang: function (proudctItem) {
+                let self = this;
+                for (let i = 0; i < self.chitietKM.length; i++) {
+                    if (i === self.indexChosing) {
+                        self.chitietKM[i].ID_DonViQuiDoi = proudctItem.ID_DonViQuiDoi;
+                        self.chitietKM[i].TenHangHoaTang = proudctItem.TenHangHoa;
+                        self.chitietKM[i].ID_NhomHangHoa = null;
+                        self.chitietKM[i].TenNhomHangHoaTang = '';
+                        break;
+                    }
+                }
+            },
+
+            showModalNhomHang: function (index, isHangMua = false) {
+                let self = this;
+                self.indexChosing = index;
+                self.isHangMua = isHangMua;
+                vmChuyenNhomHang.showModal(0, self.listData.AllNhomHangHoas, 'Chọn nhóm hàng');
+            },
+            AgreeNhomHangTang: function (nhomChosed = { ID: null, TenNhomHang: '' }) {
+                let self = this;
+                for (let i = 0; i < self.chitietKM.length; i++) {
+                    if (i === self.indexChosing) {
+                        self.chitietKM[i].ID_NhomHangHoa = nhomChosed.ID;
+                        self.chitietKM[i].TenNhomHangHoaTang = nhomChosed.TenNhomHang;
+                        self.chitietKM[i].ID_DonViQuiDoi = null;
+                        self.chitietKM[i].TenHangHoaTang = '';
                         break;
                     }
                 }
@@ -946,6 +1169,16 @@
                 let self = this;
                 $('#vmThemMoiKhuyenMai').modal('hide');
             }
+        }
+    })
+
+    $('#vmChuyenNhomHang').on('hidden.bs.modal', function () {
+        if (vmChuyenNhomHang.saveOK) {
+            let nhomChosed = {
+                ID: vmChuyenNhomHang.arrIDChosed[0],
+                TenNhomHang: vmChuyenNhomHang.TenNhomChoseds
+            };
+            vmThemMoiKhuyenMai.AgreeNhomHangTang(nhomChosed);
         }
     })
 </script>

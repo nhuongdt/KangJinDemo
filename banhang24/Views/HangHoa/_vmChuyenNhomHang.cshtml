@@ -20,6 +20,7 @@
         padding-left: 0px !important;
         border: none !important;
     }
+
     #vmChuyenNhomHang .group-p1 .form-check, .group-p2 .form-check {
         padding: 5px;
     }
@@ -29,14 +30,14 @@
         <div class="modal-content  draggable">
             <div class="modal-header">
                 <button class="close close-modal" type="button" data-dismiss="modal">×</button>
-                <h4 class="modal-title">Chuyển nhóm hỗ trợ</h4>
+                <h4 class="modal-title">{{modalTitle??'Chuyển nhóm'}}</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-12" style="overflow:auto;max-height:500px">
                         <treeview-nhomhang :list-all="listNhomHang"
                                            :list-search="listNhomHang"
-                                           :form-type="1"
+                                           :form-type="formType"
                                            :is-rdo="true"
                                            v-on:chose-item="ChoseItem">
                         </treeview-nhomhang>
@@ -71,16 +72,18 @@
         data: {
             saveOK: false,
             formType: 0,
+            modalTitle:'',
             arrIDChosed: [],
             TenNhomChoseds: '',
-
             listNhomHang: [],
         },
         methods: {
-            showModal: function (formType = 0, arr = []) {
+            showModal: function (formType = 0, arr = [], title ='Chuyển nhóm') {
                 let self = this;
+                self.saveOK = false;
                 self.formType = formType;
                 self.listNhomHang = arr;
+                self.modalTitle = title;
                 $('#vmChuyenNhomHang').modal('show');
             },
             ChoseItem: function (item) {
@@ -96,6 +99,11 @@
             },
             Agree: function () {
                 let self = this;
+                console.log(' self.arrIDChosed ', self.arrIDChosed, self.TenNhomChoseds)
+                if(self.arrIDChosed.length ==0 ){
+                    ShowMessage_Danger('Vui lòng chọn ít nhất 1 nhóm hàng');
+                    return;
+                }
                 self.saveOK = true;
                 $('#vmChuyenNhomHang').modal('hide');
             },

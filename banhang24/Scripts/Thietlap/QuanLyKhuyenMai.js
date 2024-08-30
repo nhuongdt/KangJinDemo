@@ -161,7 +161,7 @@ var ViewModel = function () {
     var mangGio = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
     self.GioKM = ko.observableArray(mangGio);
     self.selectThangKM = ko.observable(null);
-    self.pageSizes = [10,20,30, 40, 50];
+    self.pageSizes = [10, 20, 30, 40, 50];
     self.pageSize = ko.observable(self.pageSizes[0]);
     self.SelectHT = ko.observable(self.HinhthucKM()[0]);
     self.KhuyenMai_CapNhat = ko.observable();
@@ -172,16 +172,6 @@ var ViewModel = function () {
     self.Filter_Expired = ko.observable(2);
     self.Filter_TypePromotion = ko.observable(0);
     self.StatusActive = ko.observable(1);
-
-    function Page_Load() {
-        getQuyen_NguoiDung();
-        getDonVi();
-        getnameuse();
-        GetAllNhomHH();
-        getNhomDoiTuong();
-    }
-
-    Page_Load();
 
     function getQuyen_NguoiDung() {
         ajaxHelper(ReportUri + "getQuyen_NguoiDung?ID_NguoiDung=" + _IDDoiTuong + "&ID_DonVi=" + _id_DonVi + "&MaQuyen=" + "KhuyenMai_CapNhat", "GET").done(function (data) {
@@ -310,7 +300,7 @@ var ViewModel = function () {
     //});
 
     self.EventPageSize = function () {
-        
+
         _numberRowns = $('#txtRownSelect').val();
         _numberPage = 1;
         GetListPromotion();
@@ -997,7 +987,7 @@ var ViewModel = function () {
         console.log(obj)
         ajaxHelper(BH_KhuyenMaiUri + 'GetListPromotion', 'POST', obj).done(function (x) {
             if (x.res === true) {
-             
+
                 if (x.data.length > 0) {
                     AllPage = x.ToTalPage;
                     self.filteredDM_KhuyenMai(x.data);
@@ -1855,16 +1845,9 @@ var ViewModel = function () {
         });
         getAllNSNhanVien();
     }
-    
 
-    //lấy về tên người dùng
-    function getnameuse() {
-        ajaxHelper(BH_KhuyenMaiUri + "getNameNguoiDung?ID_NguoiDung=" + _IDNguoiDung, "GET").done(function (data) {
-            _nguoisua = data;
-        })
-    }
 
-   
+
     var _tennhanvien_seach = null;
     function getAllNSNhanVien() {
         ajaxHelper(NhanVienUri + "getListNhanVien_DonVi?ID_ChiNhanh=" + _nameChiNhanhKM + "&nameNV=" + _tennhanvien_seach, 'GET').done(function (data) {
@@ -1896,7 +1879,7 @@ var ViewModel = function () {
                 self.HD_TangHang.replace(SaveItem, {
                     ID: SaveItem.ID,
                     TongTienHang:
-                    SaveItem.TongTienHang,
+                        SaveItem.TongTienHang,
                     SoLuong: SaveItem.SoLuong,
                     ID_DonViQuiDoi: _note_ID_DonViQuiDoi_TangHang,
                     TenHangHoa: null,
@@ -2066,76 +2049,54 @@ var ViewModel = function () {
     //    })
     //}
     //getNhomHangHoa();
+    self.Quyen_NguoiDung = ko.observableArray();
 
-    function GetAllNhomHH() {
-        self.NhomHangHoas([]);
-        ajaxHelper(ReportUri + "GetListID_NhomHangHoa?TenNhomHang=" + tk, 'GET').done(function (data) {
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].ID_Parent == null) {
-                    var objParent = {
-                        ID: data[i].ID,
-                        TenNhomHangHoa: data[i].TenNhomHang,
-                        Childs: [],
-                    }
-                    for (var j = 0; j < data.length; j++) {
-                        if (data[j].ID !== data[i].ID && data[j].ID_Parent === data[i].ID) {
-                            var objChild =
-                                {
-                                    ID: data[j].ID,
-                                    TenNhomHangHoa: data[j].TenNhomHang,
-                                    ID_Parent: data[i].ID,
-                                    Child2s: []
-                                };
-                            for (var k = 0; k < data.length; k++) {
-                                if (data[k].ID_Parent !== null && data[k].ID_Parent === data[j].ID) {
-                                    var objChild2 =
-                                        {
-                                            ID: data[k].ID,
-                                            TenNhomHangHoa: data[k].TenNhomHang,
-                                            ID_Parent: data[j].ID,
-                                        };
-                                    objChild.Child2s.push(objChild2);
-                                }
-                            }
-                            objParent.Childs.push(objChild);
-                        }
-                    }
-                    self.NhomHangHoas.push(objParent);
+    function CheckQuyenExist(maquyen) {
+        var role = $.grep(self.Quyen_NguoiDung(), function (x) {
+            return x.MaQuyen === maquyen;
+        });
+        return role.length > 0;
+    }
+    function GetTree_NhomHangHoa() {
+        ajaxHelper('/api/DanhMuc/DM_NhomHangHoaAPI/' + "GetTree_NhomHangHoa", 'GET').done(function (xx) {
+            vmThemMoiKhuyenMai.listData.AllNhomHangHoas = xx.data.map(function (x) {
+                return {
+                    ID: x.ID,
+                    Text1: x.TenNhomHangHoa
                 }
-            }
-            if (self.NhomHangHoas().length > 10) {
-                $('.close-goods').css('display', 'block');
-            }
+            });
+        });
+    };
+    function GetQuyenNguoiDung() {
+        ajaxHelper('/api/DanhMuc/HT_NguoiDungAPI/' + "GetListQuyen_OfNguoiDung", 'GET').done(function (data) {
+            self.Quyen_NguoiDung(data);
+        });
+    };
+    function GetAllNhanVien() {
+        ajaxHelper('/api/DanhMuc/NS_NhanVienAPI/' + "GetNS_NhanVien_InforBasic?idDonVi="+VHeader.IdDonVi, 'GET').done(function (data) {
+            vmThemMoiKhuyenMai.listData.AllNhanViens = data.map(function (x) {
+                return {
+                    ID: x.ID,
+                    Text1: x.MaNhanVien,
+                    Text2: x.TenNhanVien
+                }
+            });
+        });
+    };
+    function GetAllNhomKhach() {
+        ajaxHelper('/api/DanhMuc/DM_DoiTuongAPI/' + "GetNhomDoiTuong_DonVi?loaiDT=1", 'GET').done(function (xx) {
+            vmThemMoiKhuyenMai.listData.AllNhomKhachs = xx.data.map(function (x) {
+                return {
+                    ID: x.ID,
+                    Text1: x.TenNhomDoiTuong
+                }
+            });
         });
     };
 
     self.NoteNhomHang = function () {
         tk = $('#SeachNhomHang').val();
-        GetAllNhomHH();
     };
-
-    function getNhomDoiTuong() {
-        ajaxHelper("api/DanhMuc/DM_NhomDoiTuongAPI/" + "GetDM_NhomDoiTuong?loaiDoiTuong=" + 1, 'GET').done(function (data) {
-            if (data != null) {
-                self.NhomDoiTuongs(data);
-            }
-        })
-    }
-
-    //self.NoteNhomHang = function () {
-    //    var tk = $('#SeachNhomHang').val();
-    //    console.log(tk);
-    //    if (tk.trim() != '') {
-    //        ajaxHelper("/api/DanhMuc/DM_HangHoaAPI/" + "SeachDM_NhomHangHoa?TenNhom=" + tk, 'GET').done(function (data) {
-    //            self.NhomHangHoas(data);
-    //        })
-    //    }
-    //    else {
-    //        ajaxHelper("/api/DanhMuc/DM_HangHoaAPI/" + "GetDM_NhomHangHoa", 'GET').done(function (data) {
-    //            self.NhomHangHoas(data);
-    //        })
-    //    }
-    //}
 
     self.SaveKhuyenMai = function () {
         document.getElementById("save_KhuyenMai").disabled = true;
@@ -3265,6 +3226,10 @@ var ViewModel = function () {
         $(".checkdram ul li i").hide();
     };
     var _dieukienSave = 1;
+
+    self.showModalAddKhuyenMai = function () {
+        vmThemMoiKhuyenMai.showModal();
+    }
     self.TaoMoi = function () {
         self.TieuDe('Thêm mới chương trình khuyến mại');
         // console.log(self.KieuApDungSN());
@@ -4121,6 +4086,18 @@ var ViewModel = function () {
             }
         }
     }
+
+    function Page_Load() {
+        getQuyen_NguoiDung();
+        getDonVi();
+
+        //GetTree_NhomHangHoa();
+       // GetAllNhanVien();
+        //GetAllNhomKhach();
+    }
+
+    Page_Load();
+
 }
 //ko.applyBindings(new ViewModel());
 var vmKhuyenMai = new ViewModel();
